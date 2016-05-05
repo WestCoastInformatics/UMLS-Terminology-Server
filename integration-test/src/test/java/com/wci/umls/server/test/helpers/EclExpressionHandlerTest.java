@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 
@@ -20,10 +19,6 @@ import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 public class EclExpressionHandlerTest {
 
   private static EclExpressionHandler handler = null;
-
-  private static SearchResultList results = null;
-
-  private static String eclQuery = null;
 
   /**
    * @throws Exception
@@ -104,11 +99,8 @@ public class EclExpressionHandlerTest {
   @Test
   public void testResolveSelf() throws Exception {
 
-    //
-    // Self Retrieval
-
     // test self retrieval (with name)
-    results = testEclQuery("404684003  |clinical finding|", 1);
+    SearchResultList results = testEclQuery("404684003  |clinical finding|", 1);
     assertTrue(
         results.getObjects().get(0).getTerminologyId().equals("404684003"));
 
@@ -184,7 +176,8 @@ public class EclExpressionHandlerTest {
    */
   @Test
   public void testResolveFocusConceptAttribute() throws Exception {
-    // test attribute of 127294003 Traumatic AND/OR non-traumatic brain injury
+
+    // test concept range with single attribute
     testEclQuery(
         "127294003 |Traumatic AND/OR non-traumatic brain injury| : 363698007 |finding site| = 12738006 |brain structure|",
         1);
@@ -200,10 +193,14 @@ public class EclExpressionHandlerTest {
    */
   @Test
   public void testResolveFocusConceptRangeAttribute() throws Exception {
-   
+
+    // test focus concept range with single attribute (with names)
     testEclQuery(
         "< 404684003 |clinical finding|: 363698007 |finding site| =  39057004 |pulmonary valve structure|",
         5);
+
+    // test without names
+    testEclQuery("< 404684003 : 363698007 = 39057004", 5);
   }
 
   /**
@@ -211,14 +208,17 @@ public class EclExpressionHandlerTest {
    *
    * @throws Exception the exception
    */
-  // < 404684003 |clinical finding|: 363698007 |finding site| = << 39057004
-  // |pulmonary valve structure|
+
   @Test
   public void testResolveFocusConceptRangeAttributeRange() throws Exception {
-    // TODO This range only has one descendant or self of, returns same as non-range attribute. Find better example.
+    // TODO This range only has one descendant or self of, returns same as
+    // non-range attribute. Find better example.
     testEclQuery(
         "< 404684003 |clinical finding|: 363698007 |finding site| = << 39057004 |pulmonary valve structure|",
         5);
+
+    // test without names
+    testEclQuery("< 404684003: 363698007 = << 39057004", 5);
   }
 
   /**

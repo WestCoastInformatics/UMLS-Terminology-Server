@@ -1812,17 +1812,20 @@ public class ContentClientRest extends RootClientRest
   }
 
   @Override
-  public Integer getEclExpressionResultCount(String query, String terminology, String version, String authToken) throws Exception {
+  public Integer getEclExpressionResultCount(String query, String terminology,
+    String version, String authToken) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Client - check if ECL expression for " + terminology + ", " + version + ", for query: " + query);
+        .debug("Content Client - check if ECL expression for " + terminology
+            + ", " + version + ", for query: " + query);
 
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     validateNotEmpty(query, "query");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/ecl/isExpression/" + terminology + "/" + version + "/" + query);
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/ecl/isExpression/"
+            + terminology + "/" + version + "/" + query);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
@@ -1830,6 +1833,35 @@ public class ContentClientRest extends RootClientRest
     Integer result = response.readEntity(Integer.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       return result;
+    } else {
+      throw new Exception(response.toString());
+    }
+  }
+
+  @Override
+  public SearchResultList getEclExpressionResults(String terminology,
+    String version, String query, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Client - get ECL results for "
+        + terminology + ", " + version + ", for query: " + query);
+
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    validateNotEmpty(query, "query");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/expression/query/"
+            + terminology + "/" + version + "/" + query);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // converting to object
+      SearchResultListJpa list = ConfigUtility.getGraphForString(resultString,
+          SearchResultListJpa.class);
+      return list;
     } else {
       throw new Exception(response.toString());
     }

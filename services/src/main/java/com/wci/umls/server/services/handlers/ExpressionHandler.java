@@ -36,19 +36,5 @@ public interface ExpressionHandler extends Configurable {
    * @return the string
    */
   public String parse(String expr);
-  
-  /**
-   * Sets the max results.
-   *
-   * @param maxResults the new max results
-   */
-  public void setMaxResults(int maxResults);
-  
-  /**
-   * Gets the max results.
-   *
-   * @return the max results
-   */
-  public int getMaxResults();
 
 }

@@ -865,4 +865,17 @@ public interface ContentServiceRest {
   public Integer getEclExpressionResultCount(String terminology, String version,
     String query, String authToken) throws Exception;
 
+  /**
+   * Gets the ecl expression results.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param authToken the auth token
+   * @return the ecl expression result
+   * @throws Exception the exception
+   */
+  public SearchResultList getEclExpressionResults(String terminology, String version,
+    String query, String authToken) throws Exception;
+
 }

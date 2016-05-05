@@ -86,6 +86,7 @@ import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.AtomListJpa;
@@ -132,6 +133,7 @@ import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
+import com.wci.umls.server.services.handlers.ExpressionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
@@ -259,6 +261,31 @@ public class ContentServiceJpa extends MetadataServiceJpa
     } catch (Exception e) {
       e.printStackTrace();
       searchHandlerNames = null;
+    }
+  }
+  
+  /** The expression handlers. */
+  private static Set<String> expressionHandlerNames = null;
+
+  static {
+    expressionHandlerNames = new HashSet<>();
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      String key = "expr.handler";
+      for (String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        expressionHandlerNames.add(handlerName);
+
+      }
+      if (!expressionHandlerNames.contains(ConfigUtility.DEFAULT)) {
+        throw new Exception("expr.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      expressionHandlerNames = null;
     }
   }
 
@@ -2452,17 +2479,26 @@ public class ContentServiceJpa extends MetadataServiceJpa
       throws Exception {
     // Prepare results
     SearchResultList results = new SearchResultListJpa();
-    List<T> classes = null;
     int totalCt[] = new int[1];
+    
+    // construct utility arrays
+    List<T> luceneResults = null;
+    SearchResultList exprResults = null;
+
+    // construct local pfs
+    PfscParameter localPfsc = new PfscParameterJpa(pfsc);
 
     // declare search handler
     SearchHandler searchHandler = null;
 
-    // Perform Lucene search (if there is anything to search for)
-    List<T> queryClasses = new ArrayList<>();
-    boolean queryFlag = false;
-    if (isLuceneQueryInfo(query, pfsc)) {
-      queryFlag = true;
+    // detect whether to execute lucene query
+    if (isLuceneQueryInfo(query, localPfsc)) {
+
+      // if expression supplied, perform lucene search with no paging
+      if (pfsc.getExpression() != null && !pfsc.getExpression().isEmpty()) {
+        localPfsc.setStartIndex(-1);
+        localPfsc.setMaxResults(-1);
+      }
 
       // if an atom class, use atom class
       if (AbstractAtomClass.class.isAssignableFrom(clazz)) {
@@ -2473,110 +2509,102 @@ public class ContentServiceJpa extends MetadataServiceJpa
       else {
         searchHandler = getSearchHandler(terminology);
       }
-      queryClasses =
+      luceneResults =
           searchHandler.getQueryResults(terminology, version, branch, query,
-              "atoms.nameSort", fieldNamesKey, clazz, pfsc, totalCt, manager);
+              "atoms.nameSort", fieldNamesKey, clazz, localPfsc, totalCt, manager);
       Logger.getLogger(getClass())
-          .debug("    lucene result count = " + queryClasses.size());
+          .debug("    lucene result count = " + luceneResults.size());
     }
 
-    boolean criteriaFlag = false;
-    List<T> criteriaClasses = new ArrayList<>();
-    if (pfsc != null) {
-      boolean init = false;
-      for (SearchCriteria criteria : pfsc.getSearchCriteria()) {
-        criteriaFlag = true;
-        if (!init) {
-          criteriaClasses =
-              getSearchCriteriaResults(terminology, version, criteria, clazz);
-          init = true;
-        } else {
-          // Perform intersection operation (presume "AND" semantic between
-          // multiple search criteria)
-          criteriaClasses.retainAll(
-              getSearchCriteriaResults(terminology, version, criteria, clazz));
-        }
-        Logger.getLogger(getClass())
-            .debug("    criteria result count = " + queryClasses.size());
-      }
+    // if expression supplied, retrieve results
+    if (pfsc.getExpression() != null && !pfsc.getExpression().isEmpty()) {
+      ExpressionHandler exprHandler = getExpressionHandler(terminology);
     }
+    
 
-    // Determine whether both query and criteria were used, or just one or the
-    // other
-
-    // Start with query results if they exist
-    if (queryFlag) {
-      classes = queryClasses;
-      Logger.getLogger(getClass())
-          .debug("    combined count = " + queryClasses.size());
-    }
-
-    if (criteriaFlag) {
-
-      if (queryFlag) {
-        // Intersect the lucene and HQL results
-        classes.retainAll(criteriaClasses);
-      } else {
-        // Otherwise, just use criteria classes
-        classes = criteriaClasses;
-      }
-      Logger.getLogger(getClass())
-          .debug("    combined count = " + queryClasses.size());
-
-      // Here we know the total size
-      totalCt[0] = classes.size();
-
-      // Apply PFS sorting manually
-      if (pfsc != null && pfsc.getSortField() != null) {
-        Logger.getLogger(getClass())
-            .debug("    sort results - " + pfsc.getSortField());
-        ConfigUtility.reflectionSort(classes, clazz, pfsc.getSortField());
-      }
-
-      // Apply PFS paging manually
-      if (pfsc != null && pfsc.getStartIndex() != -1) {
-        int startIndex = pfsc.getStartIndex();
-        int toIndex = classes.size();
-        Logger.getLogger(getClass())
-            .debug("    page results - " + startIndex + ", " + toIndex);
-        toIndex = Math.min(toIndex, startIndex + pfsc.getMaxResults());
-        classes = classes.subList(startIndex, toIndex);
-      }
-
-    } else {
-      // If criteria flag wasn't triggered, then PFS was already handled
-      // by the query mechanism - which only applies PFS if criteria isn't
-      // also used. Therefore, we are ready to go.
-
-      // Manual PFS handling is in the section above.
-    }
-
-    // Some result has been found, even if empty
-    if (classes == null) {
-      results.setTotalCount(0);
-      return results;
-    }
-
-    Map<Long, Float> scoreMap = new HashMap<>();
-    if (searchHandler != null) {
-      scoreMap = searchHandler.getScoreMap();
-    }
-
-    // construct the search results
-    for (AtomClass atomClass : classes) {
-      SearchResult sr = new SearchResultJpa();
-      sr.setId(atomClass.getId());
-      sr.setTerminologyId(atomClass.getTerminologyId());
-      sr.setTerminology(atomClass.getTerminology());
-      sr.setVersion(atomClass.getVersion());
-      sr.setValue(atomClass.getName());
-      sr.setObsolete(atomClass.isObsolete());
-      sr.setScore(scoreMap.get(sr.getId()));
-      results.addObject(sr);
-    }
-
-    results.setTotalCount(totalCt[0]);
     return results;
+
+    /**
+     * 
+     * // declare search handler SearchHandler searchHandler = null;
+     * 
+     * // Perform Lucene search (if there is anything to search for) List
+     * <T> queryClasses = new ArrayList<>(); boolean queryFlag = false; if
+     * (isLuceneQueryInfo(query, pfsc)) { queryFlag = true;
+     * 
+     * // if an atom class, use atom class if
+     * (AbstractAtomClass.class.isAssignableFrom(clazz)) { searchHandler =
+     * getSearchHandler(ConfigUtility.ATOMCLASS); }
+     * 
+     * // otherwise look for terminology specific handlers else { searchHandler
+     * = getSearchHandler(terminology); } queryClasses =
+     * searchHandler.getQueryResults(terminology, version, branch, query,
+     * "atoms.nameSort", fieldNamesKey, clazz, pfsc, totalCt, manager);
+     * Logger.getLogger(getClass()) .debug("    lucene result count = " +
+     * queryClasses.size()); }
+     * 
+     * boolean criteriaFlag = false; List<T> criteriaClasses = new
+     * ArrayList<>(); if (pfsc != null) { boolean init = false; for
+     * (SearchCriteria criteria : pfsc.getSearchCriteria()) { criteriaFlag =
+     * true; if (!init) { criteriaClasses =
+     * getSearchCriteriaResults(terminology, version, criteria, clazz); init =
+     * true; } else { // Perform intersection operation (presume "AND" semantic
+     * between // multiple search criteria) criteriaClasses.retainAll(
+     * getSearchCriteriaResults(terminology, version, criteria, clazz)); }
+     * Logger.getLogger(getClass()) .debug("    criteria result count = " +
+     * queryClasses.size()); } }
+     * 
+     * // Determine whether both query and criteria were used, or just one or
+     * the // other
+     * 
+     * // Start with query results if they exist if (queryFlag) { classes =
+     * queryClasses; Logger.getLogger(getClass()) .debug("    combined count = "
+     * + queryClasses.size()); }
+     * 
+     * if (criteriaFlag) {
+     * 
+     * if (queryFlag) { // Intersect the lucene and HQL results
+     * classes.retainAll(criteriaClasses); } else { // Otherwise, just use
+     * criteria classes classes = criteriaClasses; }
+     * Logger.getLogger(getClass()) .debug("    combined count = " +
+     * queryClasses.size());
+     * 
+     * // Here we know the total size totalCt[0] = classes.size();
+     * 
+     * // Apply PFS sorting manually if (pfsc != null && pfsc.getSortField() !=
+     * null) { Logger.getLogger(getClass()) .debug("    sort results - " +
+     * pfsc.getSortField()); ConfigUtility.reflectionSort(classes, clazz,
+     * pfsc.getSortField()); }
+     * 
+     * // Apply PFS paging manually if (pfsc != null && pfsc.getStartIndex() !=
+     * -1) { int startIndex = pfsc.getStartIndex(); int toIndex =
+     * classes.size(); Logger.getLogger(getClass()) .debug("    page results - "
+     * + startIndex + ", " + toIndex); toIndex = Math.min(toIndex, startIndex +
+     * pfsc.getMaxResults()); classes = classes.subList(startIndex, toIndex); }
+     * 
+     * } else { // If criteria flag wasn't triggered, then PFS was already
+     * handled // by the query mechanism - which only applies PFS if criteria
+     * isn't // also used. Therefore, we are ready to go.
+     * 
+     * // Manual PFS handling is in the section above. }
+     * 
+     * // Some result has been found, even if empty if (classes == null) {
+     * results.setTotalCount(0); return results; }
+     * 
+     * Map<Long, Float> scoreMap = new HashMap<>(); if (searchHandler != null) {
+     * scoreMap = searchHandler.getScoreMap(); }
+     * 
+     * // construct the search results for (AtomClass atomClass : classes) {
+     * SearchResult sr = new SearchResultJpa(); sr.setId(atomClass.getId());
+     * sr.setTerminologyId(atomClass.getTerminologyId());
+     * sr.setTerminology(atomClass.getTerminology());
+     * sr.setVersion(atomClass.getVersion()); sr.setValue(atomClass.getName());
+     * sr.setObsolete(atomClass.isObsolete());
+     * sr.setScore(scoreMap.get(sr.getId())); results.addObject(sr); }
+     * 
+     * results.setTotalCount(totalCt[0]); return results;
+     * 
+     */
 
   }
 
@@ -4275,17 +4303,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
    */
   @SuppressWarnings("static-method")
   private boolean isLuceneQueryInfo(String query, PfscParameter pfsc) {
-    if (pfsc != null && !pfsc.getSearchCriteria().isEmpty()) {
+    if (pfsc != null && !pfsc.getExpression().isEmpty()) {
       return pfsc.getQueryRestriction() != null || pfsc.getActiveOnly()
           || pfsc.getInactiveOnly() || (query != null && !query.isEmpty());
     } else {
-      // Done to permit blank queries as long as no search criterias are defined
+      // Done to permit blank queries as long as no expression is defined
       return true;
     }
-  }
-  
-  private boolean isEclQuery(String query, PfsParameter pfs) {
-    return (pfs != null && !pfs.getExpression().isEmpty());
   }
 
   /**
@@ -4313,6 +4337,26 @@ public class ContentServiceJpa extends MetadataServiceJpa
             "search.handler", ConfigUtility.DEFAULT, SearchHandler.class);
     searchHandlers.put(key, searchHandler);
     return searchHandler;
+  }
+  
+  @Override
+  public ExpressionHandler getExpressionHandler(STring key) throws Exception {
+    if (expressionHandlers.containsKey(key)) {
+      return expressionHandlers.get(key);
+    }
+    if (expressionHandlerNames.contains(key)) {
+      // Add handlers to map
+      expressionHandler expressionHandler =
+          ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+              "search.handler", key, ExpressionHandler.class);
+      expressionHandlers.put(key, expressionHandler);
+      return expressionHandler;
+    }
+    expressionHandler expressionHandler =
+        ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+            "search.handler", ConfigUtility.DEFAULT, ExpressionHandler.class);
+    expressionHandlers.put(key, expressionHandler);
+    return expressionHandler;
   }
 
   /* see superclass */

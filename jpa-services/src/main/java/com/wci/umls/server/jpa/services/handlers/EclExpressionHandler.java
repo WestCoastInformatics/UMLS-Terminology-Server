@@ -42,9 +42,6 @@ import com.wci.umls.server.services.handlers.ExpressionHandler;
  */
 public class EclExpressionHandler implements ExpressionHandler {
 
-  /** The properties. */
-  private Properties properties = null;
-
   /** The terminology. */
   private String terminology = null;
 
@@ -100,11 +97,7 @@ public class EclExpressionHandler implements ExpressionHandler {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.Configurable#getName()
-   */
+
   @Override
   public String getName() {
     return "Expression Constraint Language Lucene Query Handler";
@@ -112,29 +105,15 @@ public class EclExpressionHandler implements ExpressionHandler {
 
   @Override
   public void setProperties(Properties p) throws Exception {
-    this.properties = p;
+    // Properties (from Configurable) not used
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.ExpressionHandler#parse(java.lang.
-   * String)
-   */
   @Override
   public String parse(String expr) {
     return converter.parse(expr);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.ExpressionHandler#getCount(java.lang.
-   * String)
-   */
   @Override
   public Integer getCount(String expr) throws Exception {
     if (terminology == null || version == null) {
@@ -261,9 +240,7 @@ public class EclExpressionHandler implements ExpressionHandler {
     String newLuceneQuery =
         luceneQuery.replace(matcher.group(1), buildOptionsList(conceptRelatives,
             !internalFunction.isAttributeType()));
-    // logger.info("Processed statement of internal query. Before:'{}',
-    // After:'{}'", limitStringLength(luceneQuery, 100),
-    // limitStringLength(newLuceneQuery, 100));
+   
     return newLuceneQuery;
   }
 
@@ -324,17 +301,6 @@ public class EclExpressionHandler implements ExpressionHandler {
    */
   private Document getDocument(ScoreDoc scoreDoc) throws IOException {
     return indexSearcher.doc(scoreDoc.doc);
-  }
-
-  @Override
-  public void setMaxResults(int maxResults) {
-    this.maxResults = maxResults;
-    
-  }
-
-  @Override
-  public int getMaxResults() {
-    return this.maxResults;
   }
 
 }

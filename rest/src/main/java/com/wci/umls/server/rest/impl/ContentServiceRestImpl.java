@@ -157,7 +157,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-
+  
   @Override
   @GET
   @Path("/expression/count/{terminology}/{version}/{query}")
@@ -175,11 +175,38 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "create ECL indexes",
           UserRole.ADMINISTRATOR);
       EclExpressionHandler handler = new EclExpressionHandler(terminology, version);
-      return handler.resolve(query).getTotalCount();
+      return handler.getCount(query);
 
     } catch (Exception e) {
       handleException(e, "checking query for expression syntax");
       return -1;
+    } finally {
+      securityService.close();
+    }
+  }
+
+  @Override
+  @GET
+  @Path("/expression/query/{terminology}/{version}/{query}")
+  @ApiOperation(value = "Returns results for EC query", notes = "Returns list of result terminology and hibernate ids as search results for an expression constraint query.")
+  public SearchResultList getEclExpressionResults(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "The expression to be checked", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Content): /expression/count/" + terminology + "/version/" + query);
+
+    try {
+      authorizeApp(securityService, authToken, "create ECL indexes",
+          UserRole.ADMINISTRATOR);
+      EclExpressionHandler handler = new EclExpressionHandler(terminology, version);
+      return handler.resolve(query);
+
+    } catch (Exception e) {
+      handleException(e, "checking query for expression syntax");
+      return null;
     } finally {
       securityService.close();
     }
