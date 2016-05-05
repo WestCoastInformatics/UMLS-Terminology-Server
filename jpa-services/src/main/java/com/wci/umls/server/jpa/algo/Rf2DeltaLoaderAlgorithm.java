@@ -1505,15 +1505,18 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // Set fields
+        // id, effectiveTime, active, moduleId, refsetId, referencedComponentId
+        // mapGroup, mapPriority, mapRule, mapAdvice, mapTarget, correlationId,
+        // mapCategoryId
         final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
         mapping2.setTerminologyId(fields[0]);
         mapping2.setTimestamp(date);
-        mapping2.setObsolete(fields[2].equals("0")); // active
+        mapping2.setLastModified(date);
+        mapping2.setObsolete(fields[2].equals("0"));
         mapping2.setSuppressible(mapping2.isObsolete());
-        mapping2.setGroup(fields[6].intern()); // relationshipGroup
-        mapping2.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
-            : "other"); // typeId
-        mapping2.setAdditionalRelationshipType(fields[7]); // typeId
+        mapping2.setGroup(fields[6].intern());
+        mapping2.setRelationshipType("RO");
+        mapping2.setAdditionalRelationshipType(fields[11]);
         generalEntryValues.add(mapping2.getAdditionalRelationshipType());
         additionalRelTypes.add(mapping2.getAdditionalRelationshipType());
         mapping2.setTerminology(getTerminology());
