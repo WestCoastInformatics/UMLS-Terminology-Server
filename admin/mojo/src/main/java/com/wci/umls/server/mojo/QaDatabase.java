@@ -63,6 +63,11 @@ public class QaDatabase extends AbstractMojo {
 
       Map<String, List<String>> errors = new HashMap<>();
 
+      // Bail if no queries
+      if (queries == null) {
+        return;
+      }
+      
       // Iterate through queries, execute and report
       for (Object property : queries.keySet()) {
         String queryStr =

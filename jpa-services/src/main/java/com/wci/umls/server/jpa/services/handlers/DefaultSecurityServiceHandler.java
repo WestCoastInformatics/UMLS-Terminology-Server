@@ -146,7 +146,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       userSet.add(user);
     return userSet;
   }
-  
+
   /* see superclass */
   @Override
   public String getName() {

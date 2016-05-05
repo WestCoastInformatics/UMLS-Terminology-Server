@@ -72,8 +72,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("  version = " + getVersion());
     logInfo("  inputPath = " + getInputPath());
 
-    long startTimeOrig = System.nanoTime();
-
     // check preconditions
     if (getTerminology() == null) {
       throw new Exception("Terminology name must be specified");
@@ -93,7 +91,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     //
     // Look through files to obtain ALL release versions
-    // TODO: could move this functionality to the file sorter
     //
     Logger.getLogger(getClass()).info("  Get release getVersion()s");
     Rf2FileSorter sorter = new Rf2FileSorter();
@@ -159,13 +156,17 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
 
+    // Remove any old sorting dir
+    ConfigUtility
+        .deleteDirectory(new File(getInputPath(), "/RF2-sorted-temp/"));
+
     // Sort files
     Logger.getLogger(getClass()).info("  Sort RF2 Files");
     sorter = new Rf2FileSorter();
     sorter.setSortByEffectiveTime(true);
     sorter.setRequireAllFiles(true);
     sorter.setInputDir(getInputPath());
-    sorter.setOutputDir("/RF2-sorted-temp/");
+    sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
     sorter.compute();
 
     // Readers will be opened here
@@ -204,6 +205,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       algorithm2.setReleaseVersion(release);
       algorithm2.setReaders(readers);
       algorithm2.setSortFiles(false);
+      algorithm2.setInputPath(getInputPath());
       algorithm2.compute();
       algorithm2.close();
       algorithm2.closeFactory();
@@ -211,9 +213,14 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     }
 
+    // Remove sort directory if sorting was done locally
+    ConfigUtility
+        .deleteDirectory(new File(getInputPath(), "/RF2-sorted-temp/"));
+
     // Refresh caches for metadata handlers
     new MetadataServiceJpa().refreshCaches();
-    logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+    // session no longer active, probably because of "closeFactory" call
+    // logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
 
   }
 

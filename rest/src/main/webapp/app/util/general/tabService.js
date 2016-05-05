@@ -1,10 +1,10 @@
 // Tab service
 tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'securityService',
-  'metadataService', function($location, utilService, gpService, securityService, metadataService) {
+  function($location, utilService, gpService, securityService) {
     console.debug('configure tabService');
-    
+
     this.showTabs = false;
-    
+
     // Available tabs
     this.tabs = [ {
       link : 'source',
@@ -24,17 +24,18 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'security
       label : 'Admin',
       role : 'USER'
     } ];
-    
+
     this.setShowing = function(showTabs) {
       this.showTabs = showTabs;
     };
-    
+
     this.isShowing = function() {
       return this.showTabs;
-    }
+    };
 
     // the selected tab
-    // Have the tab default to /content to support the varying routeParams stuff.
+    // Have the tab default to /content to support the varying routeParams
+    // stuff.
     this.selectedTab = this.tabs[1];
 
     // Sets the selected tab

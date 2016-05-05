@@ -92,8 +92,7 @@ public interface Mapping extends ComponentHasAttributes {
    *
    * @param addRelType the new additional relationship type
    */
-  public void setAdditionalRelationshipType(
-    String addRelType);
+  public void setAdditionalRelationshipType(String addRelType);
 
   /**
    * Returns the rank.

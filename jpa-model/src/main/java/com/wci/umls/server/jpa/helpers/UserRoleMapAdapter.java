@@ -15,8 +15,8 @@ import com.wci.umls.server.jpa.UserJpa;
 /**
  * A map adapter for Map<User,UserRole>.
  */
-public class UserRoleMapAdapter
-    extends XmlAdapter<HashMap<String, String>, Map<User, UserRole>> {
+public class UserRoleMapAdapter extends
+    XmlAdapter<HashMap<String, String>, Map<User, UserRole>> {
 
   /* see superclass */
   @Override

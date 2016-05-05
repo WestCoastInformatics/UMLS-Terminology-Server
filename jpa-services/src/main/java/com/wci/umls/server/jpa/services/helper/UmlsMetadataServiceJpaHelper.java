@@ -35,8 +35,8 @@ import com.wci.umls.server.services.MetadataService;
 /**
  * Implementation of {@link MetadataService} for metathesaurus sub-sources.
  */
-public class UmlsMetadataServiceJpaHelper
-    extends StandardMetadataServiceJpaHelper {
+public class UmlsMetadataServiceJpaHelper extends
+    StandardMetadataServiceJpaHelper {
 
   /** The UMLS terminology. */
   public String umlsTerminology;
@@ -75,20 +75,20 @@ public class UmlsMetadataServiceJpaHelper
 
   /* see superclass */
   @SuppressWarnings({
-      "unchecked"
+    "unchecked"
   })
   @Override
   public RelationshipTypeList getRelationshipTypes(String terminology,
     String version) throws Exception {
-    Logger.getLogger(getClass())
-        .info("get relationship types - " + terminology + ", " + version);
+    Logger.getLogger(getClass()).info(
+        "get relationship types - " + terminology + ", " + version);
     // Cache relationship types map
     cacheRelationshipTypes();
 
     javax.persistence.Query query =
         manager.createQuery("SELECT t from RelationshipTypeJpa t "
-            + " where terminology = :terminology " + "   and version = :version"
-            + "   and abbreviation in (:list)");
+            + " where terminology = :terminology "
+            + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
     query.setParameter("list", relationshipTypesMap.get(terminology + version));
@@ -102,17 +102,18 @@ public class UmlsMetadataServiceJpaHelper
 
   /* see superclass */
   @SuppressWarnings({
-      "unchecked"
+    "unchecked"
   })
   @Override
   public LanguageList getLanguages(String terminology, String version)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("get languages - " + terminology + ", " + version);
+    Logger.getLogger(getClass()).info(
+        "get languages - " + terminology + ", " + version);
     // Cache languages map
     cacheAtoms();
-    javax.persistence.Query query = manager.createQuery(
-        "SELECT t from LanguageJpa t " + " where terminology = :terminology "
+    javax.persistence.Query query =
+        manager.createQuery("SELECT t from LanguageJpa t "
+            + " where terminology = :terminology "
             + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
@@ -134,8 +135,8 @@ public class UmlsMetadataServiceJpaHelper
     cacheRelationshipTypes();
     javax.persistence.Query query =
         manager.createQuery("SELECT t from AdditionalRelationshipTypeJpa t "
-            + " where terminology = :terminology " + "   and version = :version"
-            + "   and abbreviation in (:list)");
+            + " where terminology = :terminology "
+            + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
     query.setParameter("list",
@@ -156,8 +157,8 @@ public class UmlsMetadataServiceJpaHelper
     cacheAttributeNames();
     javax.persistence.Query query =
         manager.createQuery("SELECT t from AttributeNameJpa t "
-            + " where terminology = :terminology " + "   and version = :version"
-            + "   and abbreviation in (:list)");
+            + " where terminology = :terminology "
+            + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
     query.setParameter("list", attributeNamesMap.get(terminology + version));
@@ -175,8 +176,9 @@ public class UmlsMetadataServiceJpaHelper
     // Cache term types map
     cacheAtoms();
 
-    javax.persistence.Query query = manager.createQuery(
-        "SELECT t from TermTypeJpa t " + " where terminology = :terminology "
+    javax.persistence.Query query =
+        manager.createQuery("SELECT t from TermTypeJpa t "
+            + " where terminology = :terminology "
             + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
@@ -292,61 +294,62 @@ public class UmlsMetadataServiceJpaHelper
   void cacheRelationshipTypes() {
     if (relationshipTypesMap.isEmpty()) {
       EntityManager manager = factory.createEntityManager();
-      javax.persistence.Query query = manager.createQuery(
-          "select distinct a.terminology, " + "a.version, a.relationshipType, "
+      javax.persistence.Query query =
+          manager.createQuery("select distinct a.terminology, "
+              + "a.version, a.relationshipType, "
               + "a.additionalRelationshipType "
               + "from ConceptRelationshipJpa a");
       List<Object[]> results = query.getResultList();
       for (Object[] result : results) {
-        if (!relationshipTypesMap
-            .containsKey(result[0].toString() + result[1])) {
+        if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
           relationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
-        relationshipTypesMap.get(result[0].toString() + result[1])
-            .add(result[2].toString());
-        if (!additionalRelationshipTypesMap
-            .containsKey(result[0].toString() + result[1])) {
+        relationshipTypesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
+        if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
+            + result[1])) {
           additionalRelationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
         additionalRelationshipTypesMap.get(result[0].toString() + result[1])
             .add(result[3].toString());
       }
-      query = manager.createQuery("select distinct a.terminology, "
-          + "a.version, a.relationshipType, " + "a.additionalRelationshipType "
-          + "from DescriptorRelationshipJpa a");
+      query =
+          manager.createQuery("select distinct a.terminology, "
+              + "a.version, a.relationshipType, "
+              + "a.additionalRelationshipType "
+              + "from DescriptorRelationshipJpa a");
       results = query.getResultList();
       for (Object[] result : results) {
-        if (!relationshipTypesMap
-            .containsKey(result[0].toString() + result[1])) {
+        if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
           relationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
-        relationshipTypesMap.get(result[0].toString() + result[1])
-            .add(result[2].toString());
-        if (!additionalRelationshipTypesMap
-            .containsKey(result[0].toString() + result[1])) {
+        relationshipTypesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
+        if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
+            + result[1])) {
           additionalRelationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
         additionalRelationshipTypesMap.get(result[0].toString() + result[1])
             .add(result[3].toString());
       }
-      query = manager.createQuery(
-          "select distinct a.terminology, " + "a.version, a.relationshipType, "
+      query =
+          manager.createQuery("select distinct a.terminology, "
+              + "a.version, a.relationshipType, "
               + "a.additionalRelationshipType from CodeRelationshipJpa a");
       results = query.getResultList();
       for (Object[] result : results) {
-        if (!relationshipTypesMap
-            .containsKey(result[0].toString() + result[1])) {
+        if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
           relationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
-        relationshipTypesMap.get(result[0].toString() + result[1])
-            .add(result[2].toString());
-        if (!additionalRelationshipTypesMap
-            .containsKey(result[0].toString() + result[1])) {
+        relationshipTypesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
+        if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
+            + result[1])) {
           additionalRelationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
@@ -376,8 +379,8 @@ public class UmlsMetadataServiceJpaHelper
           attributeNamesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
-        attributeNamesMap.get(result[0].toString() + result[1])
-            .add(result[2].toString());
+        attributeNamesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
       }
       manager.close();
     }
@@ -388,8 +391,8 @@ public class UmlsMetadataServiceJpaHelper
    */
   @SuppressWarnings("unchecked")
   void cacheAtoms() {
-    Logger.getLogger(getClass())
-        .info("  cacheing source-level data - one time only");
+    Logger.getLogger(getClass()).info(
+        "  cacheing source-level data - one time only");
     if (termTypesMap.isEmpty()) {
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =
@@ -401,17 +404,14 @@ public class UmlsMetadataServiceJpaHelper
           termTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
-        termTypesMap.get(result[0].toString() + result[1])
-            .add(result[2].toString());
+        termTypesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
         if (!languagesMap.containsKey(result[0].toString() + result[1])) {
           languagesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
-//        System.out.println("YYYY=" + new HashMap<>(languagesMap));
-//        System.out
-//            .println("XXX=" + result[0] + ", " + result[1] + ", " + result[3]);
-        languagesMap.get(result[0].toString() + result[1])
-            .add(result[3].toString());
+        languagesMap.get(result[0].toString() + result[1]).add(
+            result[3].toString());
       }
       manager.close();
     }

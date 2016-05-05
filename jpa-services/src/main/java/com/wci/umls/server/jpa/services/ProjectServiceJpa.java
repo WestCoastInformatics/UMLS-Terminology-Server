@@ -44,7 +44,6 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     Logger.getLogger(getClass()).info(
         "Project Service - get project scope - " + project);
 
-
     return null;
   }
 
@@ -90,41 +89,46 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     }
 
     // check admin
-    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
-      if (username.equals(entry.getKey().getName()) && 
-          entry.getValue().equals(UserRole.ADMINISTRATOR)) {
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap()
+        .entrySet()) {
+      if (username.equals(entry.getKey().getName())
+          && entry.getValue().equals(UserRole.ADMINISTRATOR)) {
         return UserRole.ADMINISTRATOR;
       }
     }
 
     // check viewer
-    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
-      if (username.equals(entry.getKey().getName()) && 
-          entry.getValue().equals(UserRole.VIEWER)) {
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap()
+        .entrySet()) {
+      if (username.equals(entry.getKey().getName())
+          && entry.getValue().equals(UserRole.VIEWER)) {
         return UserRole.VIEWER;
       }
     }
-    
+
     // check reviewer
-    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
-      if (username.equals(entry.getKey().getName()) && 
-          entry.getValue().equals(UserRole.REVIEWER)) {
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap()
+        .entrySet()) {
+      if (username.equals(entry.getKey().getName())
+          && entry.getValue().equals(UserRole.REVIEWER)) {
         return UserRole.REVIEWER;
       }
     }
 
     // check user
-    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
-      if (username.equals(entry.getKey().getName()) && 
-          entry.getValue().equals(UserRole.USER)) {
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap()
+        .entrySet()) {
+      if (username.equals(entry.getKey().getName())
+          && entry.getValue().equals(UserRole.USER)) {
         return UserRole.USER;
       }
     }
-    
+
     // check author
-    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
-      if (username.equals(entry.getKey().getName()) && 
-          entry.getValue().equals(UserRole.AUTHOR)) {
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap()
+        .entrySet()) {
+      if (username.equals(entry.getKey().getName())
+          && entry.getValue().equals(UserRole.AUTHOR)) {
         return UserRole.AUTHOR;
       }
     }

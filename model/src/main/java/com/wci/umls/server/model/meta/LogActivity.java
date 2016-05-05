@@ -8,7 +8,6 @@ package com.wci.umls.server.model.meta;
  */
 public enum LogActivity {
 
-
   /** The loader. */
   LOADER("Loader"),
 
@@ -19,10 +18,7 @@ public enum LogActivity {
   EDITING("Editing"),
 
   /** The release. */
-  RELEASE("Release"),
-  
-  /** The project. */
-  PROJECT("Project");
+  RELEASE("Release");
 
   /** The activity. */
   private String activity;

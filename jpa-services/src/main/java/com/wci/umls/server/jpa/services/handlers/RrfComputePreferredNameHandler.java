@@ -22,8 +22,8 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  * Implementation {@link ComputePreferredNameHandler} for data with term-type
  * ordering.
  */
-public class RrfComputePreferredNameHandler
-    implements ComputePreferredNameHandler {
+public class RrfComputePreferredNameHandler implements
+    ComputePreferredNameHandler {
 
   /** The tty rank map. */
   private Map<Long, Map<String, String>> ttyRankMap = new HashMap<>();
@@ -37,8 +37,8 @@ public class RrfComputePreferredNameHandler
 
   /* see superclass */
   @Override
-  public String computePreferredName(Collection<Atom> atoms,
-    PrecedenceList list) throws Exception {
+  public String computePreferredName(Collection<Atom> atoms, PrecedenceList list)
+    throws Exception {
 
     cacheList(list);
     // Use ranking algorithm from MetamorphoSys
@@ -65,8 +65,8 @@ public class RrfComputePreferredNameHandler
 
   /* see superclass */
   @Override
-  public List<Atom> sortByPreference(Collection<Atom> atoms,
-    PrecedenceList list) throws Exception {
+  public List<Atom> sortByPreference(Collection<Atom> atoms, PrecedenceList list)
+    throws Exception {
 
     cacheList(list);
 
@@ -105,8 +105,8 @@ public class RrfComputePreferredNameHandler
 
     // Fail if list hasn't been cached
     if (!ttyRankMap.containsKey(list.getId())) {
-      throw new Exception(
-          "Unexpected condition, list is not cached - " + list.getId());
+      throw new Exception("Unexpected condition, list is not cached - "
+          + list.getId());
     }
 
     final Map<String, String> ttyRanks = ttyRankMap.get(list.getId());
@@ -115,15 +115,17 @@ public class RrfComputePreferredNameHandler
     // Higher values are better.
     String rank = null;
     if (atom.getStringClassId() != null && !atom.getStringClassId().isEmpty()) {
-      rank = (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
-          + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
-          + (10000000000L
-              - Long.parseLong(atom.getStringClassId().substring(1)))
-          + (100000000000L - atom.getId());
+      rank =
+          (atom.isObsolete() ? 0 : 1)
+              + (atom.isSuppressible() ? 0 : 1)
+              + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
+              + (10000000000L - Long.parseLong(atom.getStringClassId()
+                  .substring(1))) + (100000000000L - atom.getId());
     } else {
-      rank = (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
-          + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
-          + (100000000000L - atom.getId());
+      rank =
+          (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
+              + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
+              + (100000000000L - atom.getId());
     }
     return rank;
   }

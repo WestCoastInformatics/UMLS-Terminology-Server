@@ -165,14 +165,14 @@ public class RrfFileSorter {
         }
         fileVersion = p.getProperty("umls.release.name");
         if (fileVersion == null) {
-          throw new Exception(
-              "Unable to determine file version from " + file.getName());
+          throw new Exception("Unable to determine file version from "
+              + file.getName());
         }
       }
 
       // Determine fields to sort by
       fields = new int[] {
-          sortByMap.get(key)
+        sortByMap.get(key)
       };
 
       // Sort the file
@@ -243,8 +243,9 @@ public class RrfFileSorter {
       }
       columns.append(sortColumn);
     }
-    Logger.getLogger(getClass()).info("    Sorting " + fileIn.getName()
-        + "  into " + fileOut.toString() + " by columns " + columns);
+    Logger.getLogger(getClass()).info(
+        "    Sorting " + fileIn.getName() + "  into " + fileOut.toString()
+            + " by columns " + columns);
     FileSorter.sortFile(fileIn.toString(), fileOut.toString(), comp);
 
   }

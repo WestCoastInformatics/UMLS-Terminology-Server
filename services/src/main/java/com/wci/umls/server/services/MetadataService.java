@@ -126,6 +126,16 @@ public interface MetadataService extends RootService, Configurable {
   public TerminologyList getTerminologyLatestVersions() throws Exception;
 
   /**
+   * Returns the terminology latest version.
+   *
+   * @param terminology the terminology
+   * @return the terminology latest version
+   * @throws Exception the exception
+   */
+  public Terminology getTerminologyLatestVersion(String terminology)
+    throws Exception;
+
+  /**
    * Returns the terminologies.
    *
    * @return the terminologies
@@ -283,7 +293,6 @@ public interface MetadataService extends RootService, Configurable {
    */
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) throws Exception;
-
 
   /**
    * Indicates whether or not to assign last modified when changing terminology
@@ -507,8 +516,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the general metadata entry
    * @throws Exception the exception
    */
-  public GeneralMetadataEntry addGeneralMetadataEntry(
-    GeneralMetadataEntry entry) throws Exception;
+  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
+    throws Exception;
 
   /**
    * Update general metadata entry.

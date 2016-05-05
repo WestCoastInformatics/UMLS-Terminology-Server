@@ -17,8 +17,8 @@ import com.wci.umls.server.jpa.SourceDataJpa;
  * JAXB-enabled implementation of {@link SourceDataList}.
  */
 @XmlRootElement(name = "sourceDataList")
-public class SourceDataListJpa extends AbstractResultList<SourceData>
-    implements SourceDataList {
+public class SourceDataListJpa extends AbstractResultList<SourceData> implements
+    SourceDataList {
 
   /* see superclass */
   @Override

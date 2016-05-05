@@ -24,7 +24,7 @@ public interface SourceData extends HasTerminology, HasLastModified, HasName {
 
     /** The new. */
     NEW,
-    
+
     /** The cancelled. */
     CANCELLED,
 

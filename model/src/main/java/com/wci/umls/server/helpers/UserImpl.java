@@ -38,8 +38,8 @@ public class UserImpl implements User {
   private String authToken;
 
   /** The projects. */
-  private Map<Project,UserRole> projectRoleMap;
-  
+  private Map<Project, UserRole> projectRoleMap;
+
   /**
    * Instantiates an empty {@link UserImpl}.
    */

@@ -138,7 +138,6 @@ public class RrfSourceDataLoaderMojo extends SourceDataMojo {
       service.addSourceData(sourceData);
       getLog().info("    source data = " + sourceData);
 
-     
       service.updateSourceDataFile(sdFile);
       getLog().info("    file (with reference) = " + sdFile);
 

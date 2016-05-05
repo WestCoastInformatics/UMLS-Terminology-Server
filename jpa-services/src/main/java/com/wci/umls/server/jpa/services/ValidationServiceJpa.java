@@ -125,7 +125,6 @@ public class ValidationServiceJpa extends RootServiceJpa implements
     return result;
   }
 
-
   /* see superclass */
   @Override
   public KeyValuePairList getValidationCheckNames() {

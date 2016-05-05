@@ -79,7 +79,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         }
         resolve(atom);
       }
-      
+
       // Subsets
       for (ConceptSubsetMember subset : concept.getMembers()) {
         if (nullId) {
@@ -143,7 +143,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       for (Definition def : atom.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
-      
+
       for (AtomSubsetMember member : atom.getMembers()) {
         resolve(member);
       }
@@ -166,7 +166,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolve(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-      throws Exception {
+    throws Exception {
     if (relationship != null) {
       if (relationship.getFrom() != null) {
         relationship.getFrom().getTerminology();
@@ -224,7 +224,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         }
         resolve(atom);
       }
-     
+
       // Relationships
       // default behavior -- require paging of relationships
       descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
@@ -328,7 +328,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       throw new Exception("Cannot resolve a null subset.");
     }
   }
-  
+
   /* see superclass */
   @Override
   public void resolve(MapSet mapSet) throws Exception {
@@ -345,7 +345,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       throw new Exception("Cannot resolve a null mapSet.");
     }
   }
-  
+
   /* see superclass */
   @Override
   public void resolve(Mapping mapping) throws Exception {
@@ -363,7 +363,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolve(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
-      throws Exception {
+    throws Exception {
     if (member != null) {
       boolean nullId = member.getId() == null;
       member.getTerminology();

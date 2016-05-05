@@ -191,8 +191,25 @@ public class ValidationClientRest implements ValidationServiceRest {
   @Override
   public KeyValuePairList getValidationChecks(String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/checks");
+
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    KeyValuePairList result =
+        ConfigUtility.getGraphForString(resultString, KeyValuePairList.class);
+    return result;
   }
 
 }

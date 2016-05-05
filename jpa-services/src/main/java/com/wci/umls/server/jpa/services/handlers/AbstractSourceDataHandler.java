@@ -73,8 +73,8 @@ public abstract class AbstractSourceDataHandler implements SourceDataHandler {
           sourceDataService.getRunningProcessForId(sourceData.getId());
       algo.cancel();
     } catch (Exception e) {
-      Logger.getLogger(getClass())
-          .info("Error attempting to cancel process for source data "
+      Logger.getLogger(getClass()).info(
+          "Error attempting to cancel process for source data "
               + sourceData.getName());
       throw new Exception(e);
     } finally {
@@ -143,8 +143,8 @@ public abstract class AbstractSourceDataHandler implements SourceDataHandler {
 
   @Override
   public abstract String getName();
-  
+
   @Override
-  public abstract boolean isLoadable() throws Exception;
+  public abstract boolean checkPreconditions() throws Exception;
 
 }

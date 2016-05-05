@@ -18,21 +18,20 @@ public interface SourceDataHandler extends Algorithm, Configurable {
    * @param sourceData the source data
    */
   public void setSourceData(SourceData sourceData);
-  
+
   /**
    * Removes the loaded data
-   * @throws Exception 
+   * @throws Exception
    */
   public void remove() throws Exception;
 
   /**
-   * Checks if is loadable.
+   * Hook for checking pre-conditions before starting a load. For example,
+   * verifying that the data to be loaded is not already loaded.
    *
    * @return true, if is loadable
-   * @throws Exception 
+   * @throws Exception
    */
-  public  boolean isLoadable() throws Exception;
+  public boolean checkPreconditions() throws Exception;
 
-  
-  
 }

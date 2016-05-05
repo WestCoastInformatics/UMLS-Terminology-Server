@@ -107,18 +107,18 @@ public interface User {
    * @param authToken the auth token
    */
   public void setAuthToken(String authToken);
-  
+
   /**
    * Returns the project role map.
    *
    * @return the project role map
    */
-  public Map<Project,UserRole> getProjectRoleMap();
-  
+  public Map<Project, UserRole> getProjectRoleMap();
+
   /**
    * Sets the project role map.
    *
    * @param projectRoleMap the project role map
    */
-  public void setProjectRoleMap(Map<Project,UserRole>projectRoleMap);
+  public void setProjectRoleMap(Map<Project, UserRole> projectRoleMap);
 }

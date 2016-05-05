@@ -173,12 +173,12 @@ public interface SourceDataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeFromSourceData(Boolean background, SourceDataJpa sourceData,
-    String authToken) throws Exception;
+  public void removeFromSourceData(Boolean background,
+    SourceDataJpa sourceData, String authToken) throws Exception;
 
   /**
    * Cancel running process from source data id.
-   *        
+   * 
    * @param sourceData the source data
    * @param authToken the auth token
    * @throws Exception the exception

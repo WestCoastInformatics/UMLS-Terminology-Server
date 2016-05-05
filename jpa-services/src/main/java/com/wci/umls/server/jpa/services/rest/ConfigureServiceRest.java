@@ -12,10 +12,10 @@ public interface ConfigureServiceRest {
    * Checks if is configured.
    *
    * @return true, if is configured
-   * @throws Exception 
+   * @throws Exception
    */
   public boolean isConfigured() throws Exception;
-  
+
   /**
    * Configure.
    *
@@ -23,15 +23,15 @@ public interface ConfigureServiceRest {
    * @throws Exception the exception
    */
 
-
   public void configure(HashMap<String, String> parameters) throws Exception;
 
   /**
-   * Destroy and rebuild the database. Can only be invoked after a failed process.
+   * Destroy and rebuild the database. Can only be invoked after a failed
+   * process.
    *
    * @param authToken the auth token
-   * @throws Exception 
+   * @throws Exception
    */
   public void destroy(String authToken) throws Exception;
-  
+
 }

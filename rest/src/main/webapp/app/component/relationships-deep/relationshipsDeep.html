@@ -1,6 +1,7 @@
 
 <!-- Relationships -->
-<div ng-show="metadata.terminology.metathesaurus && && component.object.terminology === metadata.terminology.terminology && pagedData.totalCount > 0">
+<div
+  ng-show="metadata.terminology.metathesaurus && component.object.terminology === metadata.terminology.terminology && pagedData.totalCount > 0">
   <h4>Deep {{metadata.relationshipsLabel}}
     ({{pagedData.totalCount}})&nbsp;&nbsp;</h4>
   <div pager paging="paging" count="pagedData.totalCount"

@@ -422,15 +422,19 @@ public abstract class RootServiceJpa implements RootService {
                       if (l1 == null && s2 != null) {
                         return -1;
                       }
-                      if (l1.compareTo(l2) != 0) {
+                      if (l1 != null && l1.compareTo(l2) != 0) {
                         return l1.compareTo(l2);
+                      } else {
+                        return 0;
                       }
                     } else {
                       if (l2 == null && l1 != null) {
                         return -1;
                       }
-                      if (l2.compareTo(l2) != 0) {
+                      if (l2 != null && l2.compareTo(l1) != 0) {
                         return l2.compareTo(l1);
+                      } else {
+                        return 0;
                       }
                     }
                   }
@@ -440,15 +444,20 @@ public abstract class RootServiceJpa implements RootService {
                     if (s1 == null && s2 != null) {
                       return -1;
                     }
-                    if (s1.toString().compareTo(s2.toString()) != 0) {
+                    if (s1 != null
+                        && s1.toString().compareTo(s2.toString()) != 0) {
                       return s1.toString().compareTo(s2.toString());
+                    } else {
+                      return 0;
                     }
                   } else {
                     if (s2 == null && s1 != null) {
                       return -1;
                     }
-                    if (((String) s2).compareTo((String) s1) != 0) {
+                    if (s2 != null && ((String) s2).compareTo((String) s1) != 0) {
                       return ((String) s2).compareTo((String) s1);
+                    } else {
+                      return 0;
                     }
                   }
                 }
@@ -941,9 +950,9 @@ public abstract class RootServiceJpa implements RootService {
     entry.setProjectId(projectId);
     entry.setTimestamp(new Date());
     entry.setMessage(message);
-    
-    // TODO Confirm this with Brian/Deborah
-    entry.setActivity(LogActivity.PROJECT);
+
+    // Leave activity null
+    entry.setActivity(null);
 
     // Add component
     LogEntry newLogEntry = addLogEntry(entry);
@@ -972,5 +981,5 @@ public abstract class RootServiceJpa implements RootService {
     return newLogEntry;
 
   }
-  
+
 }

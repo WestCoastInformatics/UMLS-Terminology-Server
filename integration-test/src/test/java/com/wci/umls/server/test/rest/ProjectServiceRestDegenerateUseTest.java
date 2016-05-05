@@ -173,7 +173,6 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
     user =
         securityService.getUser(properties.getProperty("bad.user"),
             adminAuthToken);
-    // TODO add back project.addAuthor(user);
 
     // add the project
     project = (ProjectJpa) projectService.addProject(project, adminAuthToken);

@@ -145,21 +145,21 @@ public class DefaultIdentifierAssignmentHandler implements
   public boolean allowConceptIdChangeOnUpdate() {
     return false;
   }
-  
+
   /* see superclass */
   @Override
   public String getName() {
     return "Default Id Assignment Algorithm";
   }
 
-@Override
-public String getTerminologyId(Mapping mapping) throws Exception {
-	return mapping.getTerminologyId();
-}
+  @Override
+  public String getTerminologyId(Mapping mapping) throws Exception {
+    return mapping.getTerminologyId();
+  }
 
-@Override
-public String getTerminologyId(MapSet mapSet) throws Exception {
-	return mapSet.getTerminologyId();
-}
+  @Override
+  public String getTerminologyId(MapSet mapSet) throws Exception {
+    return mapSet.getTerminologyId();
+  }
 
 }

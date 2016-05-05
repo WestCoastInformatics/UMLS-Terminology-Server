@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
-
 /**
  * legacy class for backwards compatibility.
  */

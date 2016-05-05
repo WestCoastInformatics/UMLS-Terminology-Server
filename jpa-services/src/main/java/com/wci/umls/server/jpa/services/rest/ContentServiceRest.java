@@ -58,7 +58,7 @@ public interface ContentServiceRest {
    */
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfscParameterJpa pfsc, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find concepts for query.
@@ -237,7 +237,7 @@ public interface ContentServiceRest {
    */
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfscParameterJpa pfsc, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find descriptors for query.
@@ -681,7 +681,7 @@ public interface ContentServiceRest {
    */
   public TreeList findConceptTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find descriptor tree children.
@@ -694,9 +694,9 @@ public interface ContentServiceRest {
    * @return the tree list
    * @throws Exception the exception
    */
-  public TreeList findDescriptorTreeChildren(String terminology, String version,
-    String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+  public TreeList findDescriptorTreeChildren(String terminology,
+    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Find code tree children.
@@ -711,7 +711,7 @@ public interface ContentServiceRest {
    */
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find concept-based terminology tree roots.

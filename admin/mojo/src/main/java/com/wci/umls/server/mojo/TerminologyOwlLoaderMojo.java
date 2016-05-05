@@ -33,7 +33,7 @@ public class TerminologyOwlLoaderMojo extends AbstractMojo {
    * @parameter
    * @required
    */
-  String inputFile;
+  String inputFile = null;
 
   /**
    * Name of terminology to be loaded.

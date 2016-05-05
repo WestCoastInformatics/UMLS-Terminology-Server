@@ -65,7 +65,7 @@
             <a ng-class="{'nolink' : !callbacks.getComponentFromType}"
               ng-show="key != component.object.terminology || value != component.object.terminologyId"
               uib-tooltip="{{key}} concept"
-              ng-click="callbacks.getComponentFromType(value, key, callbacks.getTerminologyVersion(key),'CONCEPT')">{{value}}</a>
+              ng-click="callbacks.getComponentFromType(value, key, callbacks.getVersion(key),'CONCEPT')">{{value}}</a>
           </span>
           <div style="margin-left: 20px;" ng-show="item.expanded">
             <!-- Atom Definitions -->

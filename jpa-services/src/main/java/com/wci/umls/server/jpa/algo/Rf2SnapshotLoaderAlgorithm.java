@@ -1697,12 +1697,13 @@ public class Rf2SnapshotLoaderAlgorithm extends
                 + fields[4]);
       }
       subset.setName(concept.getName());
+      subset.setObsolete(concept.isObsolete());
       subset.setDescription(subset.getName());
 
       final Attribute attribute2 = new AttributeJpa();
       setCommonFields(attribute2, date);
       attribute2.setName("moduleId");
-      attribute2.setValue(fields[3].intern());
+      attribute2.setValue(concept.getAttributeByName("moduleId").getValue());
       subset.addAttribute(attribute2);
       addAttribute(attribute2, member);
       addSubset(subset);
@@ -1724,13 +1725,14 @@ public class Rf2SnapshotLoaderAlgorithm extends
                 + fields[4]);
       }
       subset.setName(concept.getName());
+      subset.setObsolete(concept.isObsolete());
       subset.setDescription(subset.getName());
       subset.setDisjointSubset(false);
 
       final Attribute attribute2 = new AttributeJpa();
       setCommonFields(attribute2, date);
       attribute2.setName("moduleId");
-      attribute2.setValue(fields[3].intern());
+      attribute2.setValue(concept.getAttributeByName("moduleId").getValue());
       subset.addAttribute(attribute2);
       addAttribute(attribute2, member);
       addSubset(subset);
@@ -1795,7 +1797,9 @@ public class Rf2SnapshotLoaderAlgorithm extends
       final MapSet mapSet = new MapSetJpa();
       setCommonFields(mapSet, date);
       mapSet.setTerminologyId(fields[4].intern());
-      mapSet.setName(getConcept(conceptIdMap.get(fields[4])).getName());
+      final Concept concept = getConcept(conceptIdMap.get(fields[4]));
+      mapSet.setName(concept.getName());
+      mapSet.setObsolete(concept.isObsolete());
       mapSet.setFromTerminology(getTerminology());
       mapSet.setToTerminology(null); // no way to get this
       mapSet.setFromVersion(getVersion());
@@ -1805,7 +1809,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       final Attribute attribute2 = new AttributeJpa();
       setCommonFields(attribute2, date);
       attribute2.setName("moduleId");
-      attribute2.setValue(fields[3].intern());
+      attribute2.setValue(concept.getAttributeByName("moduleId").getValue());
       mapSet.addAttribute(attribute2);
       addAttribute(attribute2, mapSet);
       addMapSet(mapSet);

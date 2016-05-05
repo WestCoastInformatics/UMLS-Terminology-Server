@@ -33,12 +33,6 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
   /** The source data. */
   private SourceData sourceData;
 
-  /** The terminology. */
-  private String terminology = null;
-
-  /** The version. */
-  private String version = null;
-
   /** The input dir. */
   private String inputDir = null;
 
@@ -115,8 +109,8 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
 
     // instantiate and set parameters for loader algorithm
     final RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
-    algorithm.setTerminology(terminology);
-    algorithm.setVersion(version);
+    algorithm.setTerminology(sourceData.getTerminology());
+    algorithm.setVersion(sourceData.getVersion());
     if (codeFlag == null || codeFlag) {
       algorithm.setCodesFlag(true);
     } else {
@@ -319,11 +313,11 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   @Override
-  public boolean isLoadable() throws Exception {
+  public boolean checkPreconditions() throws Exception {
     ContentService contentService = null;
     try {
       contentService = new ContentServiceJpa();
-      
+
       // concepts must not exist with this terminology/version
       if (contentService.findConceptsForQuery(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfscParameterJpa())

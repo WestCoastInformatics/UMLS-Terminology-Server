@@ -55,12 +55,11 @@ public class LuceneNormalizedStringHandler implements NormalizedStringHandler {
     return normalizedString.toString();
 
   }
-  
+
   /* see superclass */
   @Override
   public String getName() {
     return "Lucene Normalized String Handler";
   }
-
 
 }

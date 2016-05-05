@@ -112,7 +112,7 @@ public interface AttributeName extends Abbreviation {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public boolean isAnnotation();
-  
+
   /**
    * Sets the annotation flag.
    *

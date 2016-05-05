@@ -30,7 +30,7 @@ public class LuceneReindexMojo extends AbstractMojo {
    *
    * @parameter
    */
-  private String indexedObjects;
+  private String indexedObjects = null;
 
   /**
    * Whether to run this mojo against an active server.

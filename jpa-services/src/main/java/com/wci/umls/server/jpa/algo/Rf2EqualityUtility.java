@@ -65,7 +65,7 @@ public class Rf2EqualityUtility {
     }
     return false;
   }
-  
+
   /**
    * Equals.
    *
@@ -76,12 +76,12 @@ public class Rf2EqualityUtility {
   public static boolean equals(Mapping m1, Mapping m2) {
     if (m1.equals(m2)) {
       return compareAttributes(m1, m2, new String[] {
-          "moduleId"
+        "moduleId"
       });
     }
     return false;
   }
-  
+
   /**
    * Compare attributes.
    *
@@ -111,7 +111,7 @@ public class Rf2EqualityUtility {
         flag = false;
         break;
       }
-      if (a1 != null && !a1.getValue().equals(a2. getValue())) {
+      if (a1 != null && !a1.getValue().equals(a2.getValue())) {
         flag = false;
         break;
       }
