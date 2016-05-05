@@ -427,6 +427,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.setVersion(version);
       algo.setInputPath(inputDir);
       algo.compute();
+      // Re-open algorithm because entity manager is closed at this point
+      algo = new Rf2FullLoaderAlgorithm();
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.setInputPath(inputDir);
       algo.computeTransitiveClosures();
       algo.computeTreePositions();
 
