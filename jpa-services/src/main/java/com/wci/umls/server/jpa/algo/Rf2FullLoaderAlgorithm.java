@@ -72,8 +72,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("  version = " + getVersion());
     logInfo("  inputPath = " + getInputPath());
 
-    long startTimeOrig = System.nanoTime();
-
     // check preconditions
     if (getTerminology() == null) {
       throw new Exception("Terminology name must be specified");
@@ -221,7 +219,8 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Refresh caches for metadata handlers
     new MetadataServiceJpa().refreshCaches();
-    logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+    // session no longer active, probably because of "closeFactory" call
+    // logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
 
   }
 
