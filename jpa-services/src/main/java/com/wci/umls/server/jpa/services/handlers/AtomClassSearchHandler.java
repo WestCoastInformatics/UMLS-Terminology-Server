@@ -23,6 +23,7 @@ import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.spell.LuceneLevenshteinDistance;
 import org.apache.lucene.search.spell.PlainTextDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
@@ -413,6 +414,7 @@ public class AtomClassSearchHandler implements SearchHandler {
     fullTextQuery.setProjection(ProjectionConstants.SCORE,
         ProjectionConstants.THIS);
     final List<T> classes = new ArrayList<>();
+    
     @SuppressWarnings("unchecked")
     final List<Object[]> results = fullTextQuery.getResultList();
     for (final Object[] result : results) {

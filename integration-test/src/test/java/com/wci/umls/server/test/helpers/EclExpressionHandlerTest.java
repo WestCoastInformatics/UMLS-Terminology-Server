@@ -10,8 +10,13 @@ import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
+import com.wci.umls.server.services.ContentService;
 
 /**
  * Helper testing class for PfsParameter concept tests.
@@ -23,6 +28,7 @@ public class EclExpressionHandlerTest {
   /**
    * @throws Exception
    */
+  // TODO Remove this after development work and create formal integration testing
   @BeforeClass
   public static void setup() throws Exception {
     System.setProperty("run.config.umls",
@@ -219,6 +225,23 @@ public class EclExpressionHandlerTest {
 
     // test without names
     testEclQuery("< 404684003: 363698007 = << 39057004", 5);
+  }
+  
+  /**
+   * Test search with ecl.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testSearchWithEcl() throws Exception {
+    ContentService contentService = new ContentServiceJpa();
+    PfscParameter pfsc = new PfscParameterJpa();
+    pfsc.setExpression("< 91723000");
+    SearchResultList results = contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT, null, pfsc);
+    assertTrue(results.getTotalCount() == 1512);
+    results = contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT, "joint", pfsc);
+    assertTrue(results.getTotalCount() == 56);
+    
   }
 
   /**

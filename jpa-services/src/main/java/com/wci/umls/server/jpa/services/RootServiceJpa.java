@@ -23,6 +23,7 @@ import javax.persistence.Persistence;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
+import org.apache.lucene.search.BooleanQuery;
 import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.User;
@@ -95,6 +96,9 @@ public abstract class RootServiceJpa implements RootService {
     
     // TODO Put the ecl file check here
     // Add a static flag (set once, then checked)
+    
+    // set the max clause count from config
+    BooleanQuery.setMaxClauseCount(ConfigUtility.getLuceneMaxClauseCount());
   }
 
   /* see superclass */

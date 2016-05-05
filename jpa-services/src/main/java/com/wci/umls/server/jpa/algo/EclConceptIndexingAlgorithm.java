@@ -309,6 +309,8 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
         Field.Store.YES));
     conceptDoc.add(new StringField(EclConceptFieldNames.ID,
         concept.getTerminologyId().toString(), Field.Store.YES));
+    conceptDoc.add(new StringField(EclConceptFieldNames.NAME,
+        concept.getName(), Field.Store.YES));
 
     // write the relationships
     for (ConceptRelationship relationship : concept.getRelationships()) {
@@ -318,7 +320,7 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
         relationshipCt++;
         String type = relationship.getAdditionalRelationshipType();
         String value = relationship.getTo().getTerminologyId();
-        conceptDoc.add(new StringField(type, value, Field.Store.YES));
+        conceptDoc.add(new StringField(type, value, Field.Store.NO));
       }
     }
 
@@ -327,7 +329,7 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
       for (String ancestor : ancestorMap.get(concept.getTerminologyId())) {
         ancestorCt++;
         conceptDoc.add(new StringField(EclConceptFieldNames.ANCESTOR, ancestor,
-            Field.Store.YES));
+            Field.Store.NO));
       }
     }
 
@@ -336,7 +338,7 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
       for (String subset : subsetMemberMap.get(concept.getTerminologyId())) {
         subsetCt++;
         conceptDoc.add(new StringField(EclConceptFieldNames.MEMBER_OF, subset,
-            Field.Store.YES));
+            Field.Store.NO));
       }
     }
 
@@ -345,30 +347,32 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
 
   @Override
   public void addProgressListener(ProgressListener l) {
-    // TODO Auto-generated method stub
+    // N/A
 
   }
 
   @Override
   public void removeProgressListener(ProgressListener l) {
-    // TODO Auto-generated method stub
+    // N/A
 
   }
 
   @Override
   public void reset() throws Exception {
-    // TODO Auto-generated method stub
+    // N/A
 
   }
 
   @Override
   public void cancel() throws Exception {
-
+    // N/A
   }
 
   @Override
   public void close() throws Exception {
-    // do nothing
+    if (iwriter != null) {
+      iwriter.close();
+    }
   }
 
   /**

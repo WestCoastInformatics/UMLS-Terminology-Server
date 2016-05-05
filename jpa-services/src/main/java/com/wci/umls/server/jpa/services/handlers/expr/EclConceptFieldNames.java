@@ -11,6 +11,9 @@ public interface EclConceptFieldNames {
   /** The internal id. */
   String INTERNAL_ID = "id";
   
+  /** THe name. */
+  String NAME = "name";
+  
   /** The ancestor. */
   String ANCESTOR = "ancestor";
   

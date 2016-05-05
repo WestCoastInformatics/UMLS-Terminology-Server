@@ -936,4 +936,14 @@ public class ConfigUtility {
     }
   }
 
+  /**
+   * Get the lucene max boolean clause count
+   * @return the max clause count
+   * @throws Exception 
+   * @throws NumberFormatException 
+   */
+  public static int getLuceneMaxClauseCount() throws NumberFormatException, Exception {
+    return Integer.valueOf(getConfigProperties().getProperty("hibernate.search.max.clause.count"));
+  }
+
 }

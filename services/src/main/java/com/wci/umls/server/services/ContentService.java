@@ -52,6 +52,7 @@ import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
+import com.wci.umls.server.services.handlers.ExpressionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -1760,5 +1761,16 @@ public interface ContentService extends MetadataService {
    */
   public Map<Long, String> getTerminologyIdMap(String terminology, String version,
     String branch) throws Exception;
+
+  /**
+   * Gets the expression handler.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the expression handler
+   * @throws Exception the exception
+   */
+ public ExpressionHandler getExpressionHandler(String terminology, String version)
+    throws Exception;
 
 }
