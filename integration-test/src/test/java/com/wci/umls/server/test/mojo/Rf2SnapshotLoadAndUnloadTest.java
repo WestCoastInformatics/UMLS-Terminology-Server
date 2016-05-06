@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -74,6 +75,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
   public void test() throws Exception {
 
     // Createdb
+    Logger.getLogger(getClass()).info("Create database");
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));
@@ -89,6 +91,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     }
 
     // Reindex
+    Logger.getLogger(getClass()).info("Clear indexes");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/lucene/pom.xml"));
     request.setProfiles(Arrays.asList("Reindex"));
@@ -104,6 +107,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     }
 
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, service
         .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
@@ -111,6 +115,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     service.closeFactory();
 
     // Load RF2 snapshot
+    Logger.getLogger(getClass()).info("Load SNOMED from RF2 snapshot");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("RF2-snapshot"));
@@ -130,6 +135,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     }
 
     // Verify expected contents
+    Logger.getLogger(getClass()).info("Verify contents");
     service = new ContentServiceJpa();
     // Test a non-UMLS terminology too
     Assert.assertEquals(10293,
@@ -138,12 +144,14 @@ public class Rf2SnapshotLoadAndUnloadTest {
     service.closeFactory();
 
     // Verify release info
+    Logger.getLogger(getClass()).info("Verify release info");
     HistoryService historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20140731"));
     historyService.close();
     historyService.closeFactory();
 
     // Add a SNOMEDCT project
+    Logger.getLogger(getClass()).info("Add SNOMED project");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("Project"));
@@ -166,6 +174,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     }
 
     // Verify project exists
+    Logger.getLogger(getClass()).info("Verify SNOMED project");
     ProjectService projectService = new ProjectServiceJpa();
     boolean found = false;
     for (Project project : projectService.getProjects().getObjects()) {
@@ -188,8 +197,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     securityService.closeFactory();
 
     // Start SNOMEDCT editing cycle
-
-    // Add a SNOMEDCT project
+    Logger.getLogger(getClass()).info("Start SNOMED release cycle");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/release/pom.xml"));
     request.setProfiles(Arrays.asList("StartEditingCycle"));
@@ -208,7 +216,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     }
 
     // Verify release info for 20160131 as "planned"
-    // Verify release info
+    Logger.getLogger(getClass()).info("Verify release info");
     historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20150131"));
     Assert.assertFalse(historyService.getReleaseInfo("SNOMEDCT", "20150131")
@@ -219,6 +227,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     historyService.closeFactory();
 
     // QA Terminology
+    Logger.getLogger(getClass()).info("QA database");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/qa/pom.xml"));
     request.setProfiles(Arrays.asList("Database"));
@@ -233,6 +242,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     }
 
     // Remove terminology
+    Logger.getLogger(getClass()).info("Remove SNOMED");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
@@ -250,6 +260,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     }
 
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
         service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
@@ -257,6 +268,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     service.closeFactory();
 
     // Finish by clearing the DB again
+    Logger.getLogger(getClass()).info("Clear database");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));

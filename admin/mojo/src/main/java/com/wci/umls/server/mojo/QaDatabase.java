@@ -141,13 +141,13 @@ public class QaDatabase extends AbstractMojo {
       getLog().info("Done ...");
 
     } catch (Exception e) {
-      // Send email if something went wrong
-      try {
-        ExceptionHandler.handleException(e, "Error running QA Checks");
-      } catch (Exception e1) {
-        e1.printStackTrace();
-        throw new MojoFailureException(e.getMessage());
-      }
+      // // Send email if something went wrong
+      // try {
+      // ExceptionHandler.handleException(e, "Error running QA Checks");
+      // } catch (Exception e1) {
+      // e1.printStackTrace();
+      // throw new MojoFailureException(e.getMessage());
+      // }
 
     }
 

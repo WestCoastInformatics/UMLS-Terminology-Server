@@ -37,7 +37,7 @@
               <input autofocus style="margin-bottom: 5px; width: 100%;"
                 type="text" ng-model="searchParams.query"
                 placeholder="Enter search terms"
-                typeahead="suggestion for suggestion in autocomplete($viewValue)"
+                uib-typeahead="suggestion for suggestion in autocomplete($viewValue)"
                 typeahead-loading="loadingSuggestions"
                 typeahead-focus-first="false"
                 typeahead-on-select="searchParams.page = 1 && findComponents(true)"

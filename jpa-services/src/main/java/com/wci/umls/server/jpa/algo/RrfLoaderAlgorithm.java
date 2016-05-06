@@ -1505,8 +1505,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line, "|", 26, fields);
 
       // Skip non-matching in single mode
-      if (singleMode && !fields[1].equals(terminology)
-          && !fields[1].equals("SAB")) {
+      if (singleMode && !fields[1].equals(terminology)) {
         continue;
       }
 

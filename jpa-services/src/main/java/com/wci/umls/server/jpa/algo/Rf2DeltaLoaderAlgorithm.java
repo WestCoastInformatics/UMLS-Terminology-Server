@@ -97,8 +97,14 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   /** The concept subset map. */
   private Map<String, ConceptSubset> conceptSubsetMap = new HashMap<>();
 
-  /** The concept mapset map. */
-  private Map<String, MapSet> conceptMapSetMap = new HashMap<>();
+  /** The subsets updated. */
+  private Set<String> subsetsUpdated = new HashSet<>();
+
+  /** The map set map. */
+  private Map<String, MapSet> mapSetMap = new HashMap<>();
+
+  /** The map sets updated. */
+  private Set<String> mapSetsUpdated = new HashSet<>();
 
   /** The term types. */
   private Set<String> termTypes = new HashSet<>();
@@ -320,14 +326,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     //
     // Load complex map refset members
     //
-    logInfo("    Loading Complex Map Ref Sets...");
-    loadComplexMapRefSetMembers();
-
-    //
-    // Load extended map refset members
-    //
-    logInfo("    Loading Extended Map Ref Sets...");
-    loadExtendedMapRefSetMembers();
+    logInfo("    Loading Complex and Extended Map Ref Sets...");
+    loadAllMapRefSetMembers();
 
     //
     // Load atom type refset members
@@ -1431,11 +1431,11 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   }
 
   /**
-   * Load complex map ref set members.
+   * Load complex/extended map refset entries.
    *
    * @throws Exception the exception
    */
-  private void loadComplexMapRefSetMembers() throws Exception {
+  private void loadAllMapRefSetMembers() throws Exception {
 
     // Cache mapping ids
     Query query =
@@ -1458,204 +1458,25 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     @SuppressWarnings("unchecked")
     List<MapSet> mapSetResults = query.getResultList();
     for (MapSet result : mapSetResults) {
-      conceptMapSetMap.put(result.getTerminologyId(), result);
-    }
-    Set<MapSet> modifiedMapSets = new HashSet<>();
-
-    // Setup variables
-    String line = "";
-    objectCt = 0;
-    int objectsAdded = 0;
-    int objectsUpdated = 0;
-
-    // Iterate through relationships reader
-    PushBackReader reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
-    while ((line = reader.readLine()) != null) {
-
-      // Split line
-      String fields[] = FieldedStringTokenizer.split(line, "\t");
-
-      // If not header
-      if (!fields[0].equals("id")) {
-
-        // Skip if the effective time is before the release version
-        if (fields[1].compareTo(getReleaseVersion()) < 0) {
-          continue;
-        }
-
-        // Stop if the effective time is past the release version
-        if (fields[1].compareTo(getReleaseVersion()) > 0) {
-          reader.push(line);
-          break;
-        }
-
-        // Retrieve mapping if it exists
-        Mapping mapping = null;
-        if (idMap.containsKey(fields[0])) {
-          mapping = getMapping(idMap.get(fields[0]));
-        }
-
-        // Setup delta mapping (either new or based on existing one)
-        Mapping mapping2 = null;
-        if (mapping == null) {
-          mapping2 = new MappingJpa();
-        } else {
-          mapping.getAttributes().size();
-          mapping2 = new MappingJpa(mapping, true);
-        }
-
-        // Set fields
-        // id, effectiveTime, active, moduleId, refsetId, referencedComponentId
-        // mapGroup, mapPriority, mapRule, mapAdvice, mapTarget, correlationId,
-        // mapCategoryId
-        final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
-        mapping2.setTerminologyId(fields[0]);
-        mapping2.setTimestamp(date);
-        mapping2.setLastModified(date);
-        mapping2.setObsolete(fields[2].equals("0"));
-        mapping2.setSuppressible(mapping2.isObsolete());
-        mapping2.setGroup(fields[6].intern());
-        mapping2.setRelationshipType("RO");
-        mapping2.setAdditionalRelationshipType(fields[11]);
-        generalEntryValues.add(mapping2.getAdditionalRelationshipType());
-        additionalRelTypes.add(mapping2.getAdditionalRelationshipType());
-        mapping2.setTerminology(getTerminology());
-        mapping2.setVersion(getVersion());
-        mapping2.setLastModified(releaseVersionDate);
-        mapping2.setLastModifiedBy(loader);
-        mapping2.setPublished(true);
-        mapping2.setPublishable(true);
-        mapping2.setGroup(fields[6]);
-        mapping2.setRank(fields[7]);
-        mapping2.setRule(fields[8]);
-        mapping2.setAdvice(fields[9]);
-        /* mapping2.setCorrelationId(fields[11]); */
-
-        // Retrieve mapset
-        MapSet mapSet = null;
-        if (idMap.containsKey(fields[4])) {
-          mapSet = getMapSet(idMap.get(fields[4]));
-          mapping2.setMapSet(mapSet);
-        }
-        if (mapSet == null) {
-          // makes mapSet if it isn't in cache
-          manageMapSet(mapping2, fields, date);
-          mapSet = mapping2.getMapSet();
-        }
-
-        // get concept from cache, they just need to have ids
-        final Concept fromConcept = getConcept(idMap.get(fields[5]));
-        if (fromConcept != null) {
-          mapping2.setFromTerminologyId(fromConcept.getTerminologyId());
-          mapping2.setFromIdType(IdType.CONCEPT);
-          mapping2.setToTerminologyId(fields[10]);
-          mapping2.setToIdType(IdType.OTHER);
-
-        } else {
-          if (fromConcept == null) {
-            throw new Exception("Mapping " + mapping2.getTerminologyId()
-                + " -existent mapset " + fields[4]);
-          }
-
-        }
-        // Attributes
-        Attribute attribute = null;
-        if (mapping != null) {
-          attribute = mapping.getAttributeByName("moduleId");
-        } else {
-          attribute = new AttributeJpa();
-          mapping2.addAttribute(attribute);
-        }
-        setCommonFields(attribute, date);
-        attribute.setName("moduleId");
-        attribute.setValue(fields[3].intern());
-        cacheAttributeMetadata(attribute);
-
-        // If mapping is new, add it
-        if (mapping == null) {
-          addAttribute(attribute, mapping2);
-          Logger.getLogger(getClass()).debug("      add mapping - " + mapping2);
-          mapping2 = addMapping(mapping2);
-          idMap.put(mapping2.getTerminologyId(), mapping2.getId());
-          mapSet.addMapping(mapping2);
-          modifiedMapSets.add(mapSet);
-          objectsAdded++;
-        }
-
-        // If mapping has changed, update it
-        else if (!Rf2EqualityUtility.equals(mapping2, mapping)) {
-          if (!mapping.equals(mapping2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update mapping - " + mapping2);
-            updateMapping(mapping2);
-            mapSet.removeMapping(mapping);
-            mapSet.addMapping(mapping);
-            modifiedMapSets.add(mapSet);
-          }
-          updateAttributes(mapping2, mapping);
-          objectsUpdated++;
-        }
-
-        if ((objectsAdded + objectsUpdated) % logCt == 0) {
-          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
-              RootService.commitCt);
-          for (MapSet modifiedMapSet : modifiedMapSets) {
-            Logger.getLogger(getClass()).debug(
-                "      update mapset - " + modifiedMapSet);
-            updateMapSet(modifiedMapSet);
-          }
-          modifiedMapSets.clear();
-        }
-
-      }
+      mapSetMap.put(result.getTerminologyId(), result);
     }
 
-    logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
-        RootService.commitCt);
-    for (MapSet modifiedMapSet : modifiedMapSets) {
-      Logger.getLogger(getClass()).debug(
-          "      update mapset - " + modifiedMapSet);
-      updateMapSet(modifiedMapSet);
-    }
-    modifiedMapSets.clear();
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
+    loadMapSetMembers(reader);
+    reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
+    loadMapSetMembers(reader);
 
-    logInfo("      new = " + objectsAdded);
-    logInfo("      updated = " + objectsUpdated);
+    // TODO: could consider some logic for mapCateogryId on extended map
 
   }
 
   /**
-   * Load extended map ref set members.
+   * Load map set members.
    *
+   * @param reader the reader
    * @throws Exception the exception
    */
-  private void loadExtendedMapRefSetMembers() throws Exception {
-
-    // Cache mapping ids
-    Query query =
-        manager.createQuery("select a.terminologyId, a.id from MappingJpa a "
-            + "where version = :version " + "and terminology = :terminology ");
-    query.setParameter("terminology", getTerminology());
-    query.setParameter("version", getVersion());
-    @SuppressWarnings("unchecked")
-    List<Object[]> results = query.getResultList();
-    for (Object[] result : results) {
-      idMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
-    }
-
-    // Cache mapsets
-    query =
-        manager.createQuery("select a from MapSetJpa a "
-            + "where version = :version " + "and terminology = :terminology ");
-    query.setParameter("terminology", getTerminology());
-    query.setParameter("version", getVersion());
-    @SuppressWarnings("unchecked")
-    List<MapSet> mapSetResults = query.getResultList();
-    for (MapSet result : mapSetResults) {
-      conceptMapSetMap.put(result.getTerminologyId(), result);
-    }
-    Set<MapSet> modifiedMapSets = new HashSet<>();
-
+  private void loadMapSetMembers(PushBackReader reader) throws Exception {
     // Setup variables
     String line = "";
     objectCt = 0;
@@ -1663,7 +1484,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     int objectsUpdated = 0;
 
     // Iterate through relationships reader
-    PushBackReader reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
     while ((line = reader.readLine()) != null) {
 
       // Split line
@@ -1698,83 +1518,18 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           mapping2 = new MappingJpa(mapping, true);
         }
 
-        // Set fields
-        final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
-        mapping2.setTerminologyId(fields[0]);
-        mapping2.setTimestamp(date);
-        mapping2.setObsolete(fields[2].equals("0")); // active
-        mapping2.setSuppressible(mapping2.isObsolete());
-        mapping2.setGroup(fields[6].intern()); // relationshipGroup
-        mapping2.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
-            : "other"); // typeId
-        mapping2.setAdditionalRelationshipType(fields[7]); // typeId
-        generalEntryValues.add(mapping2.getAdditionalRelationshipType());
-        additionalRelTypes.add(mapping2.getAdditionalRelationshipType());
-        mapping2.setTerminology(getTerminology());
-        mapping2.setVersion(getVersion());
-        mapping2.setLastModified(releaseVersionDate);
-        mapping2.setLastModifiedBy(loader);
-        mapping2.setPublished(true);
-        mapping2.setPublishable(true);
-        mapping2.setGroup(fields[6]);
-        mapping2.setRank(fields[7]);
-        mapping2.setRule(fields[8]);
-        mapping2.setAdvice(fields[9]);
-        /*
-         * mapping2.setCorrelationId(fields[11]);
-         * mapping2.setMapCategoryId(fields[12]);
-         */
-
-        // Retrieve mapset
-        MapSet mapSet = null;
-        if (idMap.containsKey(fields[4])) {
-          mapSet = getMapSet(idMap.get(fields[4]));
-          mapping2.setMapSet(mapSet);
-        }
-        if (mapSet == null) {
-          // makes mapSet if it isn't in cache
-          manageMapSet(mapping2, fields, date);
-          mapSet = mapping2.getMapSet();
-
-        }
-
-        // get concept from cache, they just need to have ids
-        final Concept fromConcept = getConcept(idMap.get(fields[5]));
-        if (fromConcept != null) {
-          mapping2.setFromTerminologyId(fromConcept.getTerminologyId());
-          mapping2.setFromIdType(IdType.CONCEPT);
-          mapping2.setToTerminologyId(fields[10]);
-          mapping2.setToIdType(IdType.OTHER);
-
-        } else {
-          if (fromConcept == null) {
-            throw new Exception("Mapping " + mapping2.getTerminologyId()
-                + " -existent mapset " + fields[4]);
-          }
-
-        }
-        // Attributes
-        Attribute attribute = null;
-        if (mapping != null) {
-          attribute = mapping.getAttributeByName("moduleId");
-        } else {
-          attribute = new AttributeJpa();
-          mapping2.addAttribute(attribute);
-
-        }
-        setCommonFields(attribute, date);
-        attribute.setName("moduleId");
-        attribute.setValue(fields[3].intern());
-        cacheAttributeMetadata(attribute);
+        // Handle mapping and map set so that mapping2 reflects current state
+        mappingHelper(mapping2, fields);
 
         // If mapping is new, add it
         if (mapping == null) {
-          addAttribute(attribute, mapping2);
-          Logger.getLogger(getClass()).debug("      add mapping - " + mapping2);
+          for (Attribute att : mapping2.getAttributes()) {
+            Logger.getLogger(getClass()).debug("      add attribute = " + att);
+            addAttribute(att, mapping2);
+          }
+          Logger.getLogger(getClass()).debug("      add mapping = " + mapping2);
           mapping2 = addMapping(mapping2);
           idMap.put(mapping2.getTerminologyId(), mapping2.getId());
-          mapSet.addMapping(mapping2);
-          modifiedMapSets.add(mapSet);
           objectsAdded++;
         }
 
@@ -1784,36 +1539,19 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             Logger.getLogger(getClass()).debug(
                 "      update mapping - " + mapping2);
             updateMapping(mapping2);
-            mapSet.removeMapping(mapping);
-            mapSet.addMapping(mapping);
-            modifiedMapSets.add(mapSet);
           }
           updateAttributes(mapping2, mapping);
           objectsUpdated++;
         }
 
-        if ((objectsAdded + objectsUpdated) % logCt == 0) {
-          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
-              RootService.commitCt);
-          for (MapSet modifiedMapSet : modifiedMapSets) {
-            Logger.getLogger(getClass()).debug(
-                "      update mapset - " + modifiedMapSet);
-            updateMapSet(modifiedMapSet);
-          }
-          modifiedMapSets.clear();
-        }
+        logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+            RootService.commitCt);
 
       }
     }
 
     logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
         RootService.commitCt);
-    for (MapSet modifiedMapSet : modifiedMapSets) {
-      Logger.getLogger(getClass()).debug(
-          "      update mapset - " + modifiedMapSet);
-      updateMapSet(modifiedMapSet);
-    }
-    modifiedMapSets.clear();
 
     logInfo("      new = " + objectsAdded);
     logInfo("      updated = " + objectsUpdated);
@@ -3050,14 +2788,82 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   @SuppressWarnings("rawtypes")
   public void manageSubset(SubsetMember member, String[] fields, Date date)
     throws Exception {
+
+    // if concept refset already exists, update it if needed
     if (conceptSubsetMap.containsKey(fields[4])) {
       final ConceptSubset subset = conceptSubsetMap.get(fields[4]);
       ((ConceptSubsetMember) member).setSubset(subset);
-    } else if (atomSubsetMap.containsKey(fields[4])) {
+
+      // If we have not yet updated this, try now
+      if (!subsetsUpdated.contains(fields[4])) {
+        subset.getAttributes().size();
+        final ConceptSubset subset2 = new ConceptSubsetJpa(subset, true);
+
+        // Getlatest attribute
+        Attribute attribute = null;
+        if (subset2.getAttributeByName("moduleId") != null) {
+          attribute = subset2.getAttributeByName("moduleId");
+        } else {
+          attribute = new AttributeJpa();
+          subset2.addAttribute(attribute);
+        }
+        setCommonFields(attribute, date);
+        attribute.setName("moduleId");
+        attribute.setValue(fields[3].intern());
+        cacheAttributeMetadata(attribute);
+
+        // Update object and attributes as needed
+        if (!Rf2EqualityUtility.equals(subset2, subset)) {
+          if (!subset.equals(subset2)) {
+            Logger.getLogger(getClass()).debug(
+                "      update map set - " + subset2);
+            updateSubset(subset2);
+          }
+          updateAttributes(subset2, subset);
+        }
+        mapSetsUpdated.add(fields[4]);
+      }
+
+    }
+
+    // if atom refset already exists, update it if needed
+    else if (atomSubsetMap.containsKey(fields[4])) {
       final AtomSubset subset = atomSubsetMap.get(fields[4]);
       ((AtomSubsetMember) member).setSubset(subset);
 
-    } else if (member instanceof AtomSubsetMember
+      // If we have not yet updated this, try now
+      if (!subsetsUpdated.contains(fields[4])) {
+        subset.getAttributes().size();
+        final AtomSubset subset2 = new AtomSubsetJpa(subset, true);
+
+        // get latest attribute
+        Attribute attribute = null;
+        if (subset2.getAttributeByName("moduleId") != null) {
+          attribute = subset2.getAttributeByName("moduleId");
+        } else {
+          attribute = new AttributeJpa();
+          subset2.addAttribute(attribute);
+        }
+        setCommonFields(attribute, date);
+        attribute.setName("moduleId");
+        attribute.setValue(fields[3].intern());
+        cacheAttributeMetadata(attribute);
+
+        // Update object and attributes as needed
+        if (!Rf2EqualityUtility.equals(subset2, subset)) {
+          if (!subset.equals(subset2)) {
+            Logger.getLogger(getClass()).debug(
+                "      update map set - " + subset2);
+            updateSubset(subset2);
+          }
+          updateAttributes(subset2, subset);
+        }
+        mapSetsUpdated.add(fields[4]);
+      }
+    }
+
+    // If atom refset does not exists, create it
+    else if (member instanceof AtomSubsetMember
         && !atomSubsetMap.containsKey(fields[4])) {
 
       final AtomSubset subset = new AtomSubsetJpa();
@@ -3082,7 +2888,10 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       ((AtomSubsetMember) member).setSubset(subset);
 
-    } else if (member instanceof ConceptSubsetMember
+    }
+
+    // If concept refset does not exists, create it
+    else if (member instanceof ConceptSubsetMember
         && !conceptSubsetMap.containsKey(fields[4])) {
 
       final ConceptSubset subset = new ConceptSubsetJpa();
@@ -3114,6 +2923,79 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   }
 
   /**
+   * Map set helper.
+   *
+   * @param mapping the mapping
+   * @param fields the fields
+   * @throws Exception the exception
+   */
+  public void mappingHelper(Mapping mapping, String[] fields) throws Exception {
+
+    // Verify that referencedComponentId exists
+    if (idMap.get(fields[5]) != null) {
+      // do nothing
+    } else if (fields[5].equals("367491007")) {
+      // Continue - this is a known issue in SNOMED
+      return;
+    } else {
+      throw new Exception("Mapping member connected to nonexistent object - "
+          + fields[5]);
+    }
+
+    // Universal mapping attributes
+    final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
+    mapping.setTerminology(getTerminology());
+    mapping.setVersion(getVersion());
+    mapping.setTerminologyId(fields[0]);
+    mapping.setTimestamp(date);
+    mapping.setLastModified(date);
+    mapping.setLastModifiedBy(loader);
+    mapping.setObsolete(fields[2].equals("0"));
+    mapping.setSuppressible(mapping.isObsolete());
+    mapping.setPublished(true);
+    mapping.setPublishable(true);
+    mapping.setGroup(fields[6].intern());
+    mapping.setRelationshipType("RO");
+    mapping.setAdditionalRelationshipType(fields[11]);
+    generalEntryValues.add(mapping.getAdditionalRelationshipType());
+    additionalRelTypes.add(mapping.getAdditionalRelationshipType());
+    mapping.setGroup(fields[6]);
+    mapping.setRank(fields[7]);
+    mapping.setRule(fields[8]);
+    mapping.setAdvice(fields[9]);
+
+    // get concepts from cache, they just need to have ids
+    final Concept fromConcept = getConcept(idMap.get(fields[5]));
+    if (fromConcept != null) {
+      mapping.setFromTerminologyId(fromConcept.getTerminologyId());
+      mapping.setFromIdType(IdType.CONCEPT);
+
+    } else {
+      throw new Exception("mapping " + mapping.getTerminologyId()
+          + " -existent source concept " + fields[5]);
+    }
+    // Handle "to" terminology id
+    mapping.setToTerminologyId(fields[10]);
+    mapping.setToIdType(IdType.OTHER);
+
+    // Handle map set maintenance
+    manageMapSet(mapping, fields, date);
+
+    Attribute attribute = null;
+    if (mapping.getAttributeByName("moduleId") != null) {
+      attribute = mapping.getAttributeByName("moduleId");
+    } else {
+      attribute = new AttributeJpa();
+      mapping.addAttribute(attribute);
+    }
+    setCommonFields(attribute, date);
+    attribute.setName("moduleId");
+    attribute.setValue(fields[3].intern());
+    cacheAttributeMetadata(attribute);
+
+  }
+
+  /**
    * Manage map set.
    *
    * @param mapping the mapping
@@ -3123,11 +3005,44 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
    */
   public void manageMapSet(Mapping mapping, String[] fields, Date date)
     throws Exception {
-    if (conceptMapSetMap.containsKey(fields[4])) {
-      final MapSet mapSet = conceptMapSetMap.get(fields[4]);
+
+    // If map set already exists, update it if needed
+    if (mapSetMap.containsKey(fields[4])) {
+      final MapSet mapSet = mapSetMap.get(fields[4]);
       mapping.setMapSet(mapSet);
 
-    } else if (!conceptMapSetMap.containsKey(fields[4])) {
+      // If we have not yet updated this, try now
+      if (!mapSetsUpdated.contains(fields[4])) {
+        mapSet.getAttributes().size();
+        final MapSet mapSet2 = new MapSetJpa(mapSet, true);
+
+        Attribute attribute = null;
+        if (mapSet2.getAttributeByName("moduleId") != null) {
+          attribute = mapSet2.getAttributeByName("moduleId");
+        } else {
+          attribute = new AttributeJpa();
+          mapSet2.addAttribute(attribute);
+        }
+        setCommonFields(attribute, date);
+        attribute.setName("moduleId");
+        attribute.setValue(fields[3].intern());
+        cacheAttributeMetadata(attribute);
+
+        // Update object and attributes as needed
+        if (!Rf2EqualityUtility.equals(mapSet2, mapSet)) {
+          if (!mapSet.equals(mapSet2)) {
+            Logger.getLogger(getClass()).debug(
+                "      update map set - " + mapSet2);
+            updateMapSet(mapSet2);
+          }
+          updateAttributes(mapSet2, mapSet);
+        }
+        mapSetsUpdated.add(fields[4]);
+      }
+    }
+
+    // Otherwise, add a new one
+    else if (!mapSetMap.containsKey(fields[4])) {
 
       final MapSet mapSet = new MapSetJpa();
       setCommonFields(mapSet, date);
@@ -3151,7 +3066,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       cacheAttributeMetadata(attribute);
 
       addMapSet(mapSet);
-      conceptMapSetMap.put(fields[4], mapSet);
+      mapSetMap.put(fields[4], mapSet);
       commitClearBegin();
 
       mapping.setMapSet(mapSet);
@@ -3159,6 +3074,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     } else {
       throw new Exception("Unable to determine mapset type.");
     }
+
   }
 
   /**
