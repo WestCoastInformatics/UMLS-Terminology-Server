@@ -107,25 +107,6 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
 
   /* see superclass */
   @Override
-  public void addLabel(String label) {
-    if (labels == null) {
-      labels = new ArrayList<String>();
-    }
-    labels.add(label);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeLabel(String label) {
-    if (labels == null) {
-      labels = new ArrayList<String>();
-    }
-    labels.remove(label);
-
-  }
-
-  /* see superclass */
-  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();

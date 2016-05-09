@@ -406,8 +406,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Attributes
     loadMrsat();
 
-    // Mappings
-    loadMrmap();
+    // Mappings - only for non-single mode
+    if (!singleMode) {
+      loadMrmap();
+    }
 
     // Need to reset MRSAT reader
     readers.closeReaders();
@@ -1336,7 +1338,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           addAttribute(att, descriptor);
         }
       }
-      if (isMapSetAttribute(fields[8])) {
+
+      // Avoid if in single mode
+      if (!singleMode && isMapSetAttribute(fields[8])) {
         processMapSetAttribute(fields[0], fields[8], fields[10], fields[7]);
       }
 

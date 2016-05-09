@@ -195,23 +195,6 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
 
   }
 
-  /* see superclass */
-  @Override
-  public void addLabel(String label) {
-    if (labels == null) {
-      labels = new ArrayList<String>();
-    }
-    labels.add(label);
-  }
 
-  /* see superclass */
-  @Override
-  public void removeLabel(String label) {
-    if (labels == null) {
-      labels = new ArrayList<String>();
-    }
-    labels.remove(label);
-
-  }
 
 }
