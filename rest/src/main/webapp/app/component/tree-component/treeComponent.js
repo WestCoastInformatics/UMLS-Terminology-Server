@@ -14,6 +14,10 @@ tsApp.directive('treeComponent', [
       },
       templateUrl : 'app/component/tree-component/treeComponent.html',
       link : function(scope, element, attrs) {
+        
+        scope.$watch('component', function () {
+          console.log('tree component changed', scope.component.object);
+        })
 
         // total trees for this component
         scope.treeCount = null;
@@ -56,6 +60,7 @@ tsApp.directive('treeComponent', [
         // scope-indifferent)
         // displayed
         scope.getTree = function(startIndex) {
+          console.debug('getting tree', startIndex);
           // Call content service to retrieve the tree
           contentService.getTree(scope.component.object.terminologyId,
             scope.component.object.terminology, scope.component.object.version, startIndex).then(

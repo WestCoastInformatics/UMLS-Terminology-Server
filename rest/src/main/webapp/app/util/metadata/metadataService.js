@@ -228,16 +228,16 @@ tsApp.service('metadataService', [
           }
         }
       } else {
-        console.debug('-1', metadata.terminology);
+        //console.debug('-1', metadata.terminology);
         return metadata.terminology;
       }
 
-      console.debug('no return');
+     // console.debug('no return');
     };
 
     // initialize all terminologies
     this.initTerminologies = function() {
-      console.debug("initTerminologies");
+  //    console.debug("initTerminologies");
       var deferred = $q.defer();
 
       // Get terminologies

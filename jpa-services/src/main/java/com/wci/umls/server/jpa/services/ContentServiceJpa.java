@@ -265,7 +265,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-
   /**
    * Instantiates an empty {@link ContentServiceJpa}.
    *
@@ -2458,7 +2457,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     SearchResultList results = new SearchResultListJpa();
     int totalCt[] = new int[1];
 
-    // construct results containers
+    // construct return lists for lucene and expression results
     List<T> luceneResults = null;
     SearchResultList exprResults = null;
 
@@ -2471,7 +2470,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (pfsc.getExpression() != null && !pfsc.getExpression().isEmpty()) {
 
       // get the results
-      ExpressionHandler exprHandler = getExpressionHandler(terminology, version);
+      ExpressionHandler exprHandler =
+          getExpressionHandler(terminology, version);
       exprResults = exprHandler.resolve(pfsc.getExpression());
 
       // if results found, constuct a query restriction
@@ -2482,11 +2482,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
         for (SearchResult exprResult : exprResults.getObjects()) {
           exprQueryRestr += exprResult.getTerminologyId() + " ";
         }
-        // trim last comma and add closing parenthesis
+        // trim last space and add closing parenthesis
+        // TODO Add boosting based on length (test)
         exprQueryRestr =
             exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")";
-        localPfsc.setQueryRestriction(
-            (pfsc.getQueryRestriction() != null ? pfsc.getQueryRestriction() : "") + exprQueryRestr);
+        localPfsc.setQueryRestriction((pfsc.getQueryRestriction() != null
+            ? pfsc.getQueryRestriction() : "") + exprQueryRestr);
       }
     }
 
@@ -2499,24 +2500,30 @@ public class ContentServiceJpa extends MetadataServiceJpa
     else {
       searchHandler = getSearchHandler(terminology);
     }
-    luceneResults = searchHandler.getQueryResults(terminology, version, branch,
-        query, "atoms.nameSort", fieldNamesKey, clazz, localPfsc, totalCt,
-        manager);
-    Logger.getLogger(getClass())
-        .debug("    lucene result count = " + luceneResults.size());
-    
-    // set the total count
-    results.setTotalCount(totalCt[0]);
 
-    // construct the search reuslts
-    for (T r : luceneResults) {
-      SearchResult sr = new SearchResultJpa();
-      sr.setId(r.getId());
-      sr.setTerminology(r.getTerminology());
-      sr.setVersion(r.getVersion());
-      sr.setTerminologyId(r.getTerminologyId());
-      sr.setValue(r.getName());
-      results.addObject(sr);
+    // if no expression, or expression with results, perform lucene query
+    if (exprResults == null || exprResults.getCount() > 0) {
+      luceneResults = searchHandler.getQueryResults(terminology, version,
+          branch, query, "atoms.nameSort", fieldNamesKey, clazz, localPfsc,
+          totalCt, manager);
+      Logger.getLogger(getClass())
+          .debug("    lucene result count = " + luceneResults.size());
+
+      // set the total count
+      results.setTotalCount(totalCt[0]);
+    }
+
+    // construct the search results (if any found)
+    if (luceneResults != null) {
+      for (T r : luceneResults) {
+        SearchResult sr = new SearchResultJpa();
+        sr.setId(r.getId());
+        sr.setTerminology(r.getTerminology());
+        sr.setVersion(r.getVersion());
+        sr.setTerminologyId(r.getTerminologyId());
+        sr.setValue(r.getName());
+        results.addObject(sr);
+      }
     }
 
     return results;
@@ -4255,8 +4262,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   @Override
-  // TODO Decide how we want to handle terminology specific handlers with static map
-  public ExpressionHandler getExpressionHandler(String terminology, String version) throws Exception {
+  // TODO Decide how we want to handle terminology specific handlers with static
+  // map
+  public ExpressionHandler getExpressionHandler(String terminology,
+    String version) throws Exception {
     return new EclExpressionHandler(terminology, version);
   }
 

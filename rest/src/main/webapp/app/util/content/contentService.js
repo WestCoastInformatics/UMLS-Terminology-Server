@@ -18,17 +18,16 @@ tsApp
         // Initialize
         var metadata = metadataService.getModel();
 
-        // The component and the history list
-        var component = {
-          object : null,
-          type : null,
-          prefix : null,
-          error : null,
-          history : [],
-          historyIndex : -1
+        // global history, used for main content view
+        var history = {
+          // the components stored
+          components : [],
+
+          // the currently viewed component
+          index : -1,
         };
 
-        // Page size
+        // Default page sizes object
         var pageSizes = {
           general : 10,
           rels : 10,
@@ -38,7 +37,7 @@ tsApp
           sibling : 10
         };
 
-        // Search results
+        // Default search results object
         var searchParams = {
           page : 1,
           query : null,
@@ -48,43 +47,17 @@ tsApp
           termType : null,
           matchTerminology : null,
           language : null,
-          showExtension : false,
-          
-          // TODO Simple ECL Parameters (currently unused)
-          simpleEclComponents : {
-            descendantOf: null,
-            ancestorOf: null,
-            memberOf: null,
-            attributeType : null,
-            attributeTarget : null,
-            selfOf: null
-          }
+          showExtension : false
         };
 
-        // Search results
-        var searchResults = {
-          list : null,
-          tree : null
-        };
-
-        // Accessor function for component
-        this.getModel = function() {
-          return component;
-        };
-
-        // Accessor for the page sizes object
+        // Get new copy of default page sizes
         this.getPageSizes = function() {
-          return pageSizes;
+          return angular.copy(pageSizes);
         };
 
-        // Accessor for search params
+        // Get new copy of default search parameters
         this.getSearchParams = function() {
-          return searchParams;
-        };
-
-        // Accessor for search results
-        this.getSearchResults = function() {
-          return searchResults;
+          return angular.copy(searchParams);
         };
 
         // Autocomplete function
@@ -151,6 +124,7 @@ tsApp
 
         // Get the component by type
         this.getComponentFromType = function(terminologyId, terminology, version, type) {
+          console.debug('getComponentFromType', terminologyId, terminology, version, type);
           switch (type) {
           case 'CONCEPT':
             return this.getConcept(terminologyId, terminology, version);
@@ -159,6 +133,7 @@ tsApp
           case 'CODE':
             return this.getCode(terminologyId, terminology, version);
           default:
+            console.error('Error retrieving component from type');
             this.componentError = "Could not retrieve " + type + " for " + terminologyId + "/"
               + terminology + "/" + version;
           }
@@ -195,17 +170,18 @@ tsApp
         this.getComponentHelper = function(terminologyId, terminology, version, prefix) {
           var deferred = $q.defer();
 
+          // the component object to be returned
+          var component = {};
+
           // Here the prefix is passed in because of terminologies
           // like MSH
           // that may have legitimate types that are not the
           // organizing class
           // type
 
-          // Set component type and prefix
+          // set component top-level fields
           component.prefix = prefix;
           component.type = this.getTypeForPrefix(prefix);
-
-          // clear existing component and paging
           component.object = null;
           component.error = null;
 
@@ -256,12 +232,8 @@ tsApp
                 }
                 component.object = data;
 
-                // Add component to history
-                addComponentToHistory(data.terminologyId, data.terminology, data.version,
-                  component.type, data.name);
-
                 gpService.decrement();
-                deferred.resolve(data);
+                deferred.resolve(component);
               }, function(response) {
                 utilService.handleError(response);
                 gpService.decrement();
@@ -270,55 +242,75 @@ tsApp
           return deferred.promise;
         };
 
+      
         // add a component history entry
-        function addComponentToHistory(terminologyId, terminology, version, type, name) {
+        this.addComponentToHistory = function(terminologyId, terminology, version, type, name) {
 
           // if history exists
-          if (component.historyIndex != -1) {
+          if (history && history.index != -1) {
+
+            var curObj = history.components[history.index];
+
+            if (!curObj) {
+              console.error('Error accessing history at index: ' + history.index);
+            }
 
             // if this component currently viewed, do not add
-            if (component.history[component.historyIndex].terminology === terminology
-              && component.history[component.historyIndex].version === version
-              && component.history[component.historyIndex].terminologyId === terminologyId)
+            if (curObj.terminology === terminology && curObj.version === version
+              && curObj.terminologyId === terminologyId)
               return;
           }
 
           // add item and set index to last
-          component.history.push({
+          history.components.push({
             'version' : version,
             'terminology' : terminology,
             'terminologyId' : terminologyId,
             'type' : type,
             'name' : name,
-            'index' : component.history.length
+            'index' : history.length
           });
-          component.historyIndex = component.history.length - 1;
+          history.index = history.components.length - 1;
+        }
+
+        // Accessor for the history object
+        this.getHistory = function() {
+          return history;
         }
 
         // Clears history
         this.clearHistory = function() {
 
-          component.history = [];
-          component.historyIndex = -1;
-
-          // set currently viewed item as first history item
-          addComponentToHistory(component.terminologyId, component.terminology, component.version,
-            component.type, component.name);
+          history = {
+            components : [],
+            index : -1
+          };
         };
 
         // Retrieve a component from history based on the index
         this.getComponentFromHistory = function(index) {
           var deferred = $q.defer();
 
-          // set the index and get the component from history
-          // information
-          component.historyIndex = index;
-          this.getComponentFromType(component.history[component.historyIndex].terminologyId,
-            component.history[component.historyIndex].terminology,
-            component.history[component.historyIndex].version,
-            component.history[component.historyIndex].type).then(function(data) {
-            deferred.resolve(data);
-          });
+          if (index < 0 || index > history.components.length) {
+            deferred.reject('Invalid history index: ' + index);
+          } else {
+
+            // extract current quintuplet object for convenience
+            var obj = history.components[index];
+            
+            var type = this.getTypeForPrefix(obj.type);
+
+            // set the index and get the component from history
+            // information
+            this.getComponentFromType(obj.terminologyId, obj.terminology, obj.version, type)
+              .then(function(data) {
+
+                // set the index and count variables
+                history.index = index;
+
+                deferred.resolve(data);
+              });
+          }
           return deferred.promise;
         };
 
@@ -530,10 +522,9 @@ tsApp
             if (semanticType) {
               pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
             }/*
-               * if (searchParams.semanticType) { pfs.queryRestriction += " AND
-               * semanticTypes.semanticType:\"" + searchParams.semanticType +
-               * "\""; }
-               */
+                           * if (searchParams.semanticType) { pfs.queryRestriction += " AND
+                           * semanticTypes.semanticType:\"" + searchParams.semanticType + "\""; }
+                           */
 
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
@@ -684,8 +675,7 @@ tsApp
           }
           gpService.increment();
           $http.post(
-            contentUrl + prefix + "/" + component.object.terminology + "/"
-              + component.object.version + "/" + component.object.terminologyId
+            contentUrl + prefix + "/" + terminology + "/" + version + "/" + terminologyId
               + "/relationships?query=" + encodeURIComponent(utilService.cleanQuery(query)), pfs)
             .then(function(response) {
               gpService.decrement();
@@ -734,15 +724,13 @@ tsApp
           // For description logic sources, simply read all rels.
           // That way we ensure all "groups" are represented.
           /*
-           * if (metadata.terminology.descriptionLogicTerminology) {
-           * pfs.startIndex = -1; pfs.maxResults = 1000000; } else {
-           * pfs.maxResults = pageSizes.general; }
-           */
+                     * if (metadata.terminology.descriptionLogicTerminology) { pfs.startIndex = -1;
+                     * pfs.maxResults = 1000000; } else { pfs.maxResults = pageSizes.general; }
+                     */
 
           // gpService.increment();
           $http.post(
-            contentUrl + prefix + "/" + component.object.terminology + "/"
-              + component.object.version + "/" + component.object.terminologyId
+            contentUrl + prefix + "/" + terminology + "/" + version + "/" + terminologyId
               + "/relationships/deep?query=" + encodeURIComponent(utilService.cleanQuery(query)),
             pfs).then(function(response) {
             // gpService.decrement();
@@ -798,9 +786,9 @@ tsApp
           var query = parameters.text;
           gpService.increment();
           $http.post(
-            contentUrl + prefix + "/" + component.object.terminologyId + "/"
-              + component.object.terminology + "/" + component.object.version + "/mappings?query="
-              + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
+            contentUrl + prefix + "/" + terminologyId + "/" + component.object.terminology + "/"
+              + version + "/mappings?query=" + encodeURIComponent(utilService.cleanQuery(query)),
+            pfs).then(function(response) {
             gpService.decrement();
             deferred.resolve(response.data);
           }, function(response) {
@@ -811,7 +799,7 @@ tsApp
 
           return deferred.promise;
         };
-        
+
         this.isExpressionConstraintLanguage = function(terminology, version, query) {
           var deferred = $q.defer();
           if (!query || query.length == 0) {
@@ -819,8 +807,7 @@ tsApp
             deferred.reject('Cannot check empty query for expressions');
           }
           gpService.increment();
-          $http.get(
-            contentUrl + '/ecl/isExpression/' + URIEncode(query)).then(function(response) {
+          $http.get(contentUrl + '/ecl/isExpression/' + URIEncode(query)).then(function(response) {
             gpService.decrement();
             deferred.resolve(response.data);
           }, function(response) {
@@ -829,8 +816,7 @@ tsApp
             deferred.reject(response.data);
           });
         }
-        
-        
+
         // end
 
       } ]);

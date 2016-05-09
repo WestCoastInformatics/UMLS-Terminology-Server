@@ -1,8 +1,5 @@
 // Content controller
-tsApp.directive('report', [
-  '$window',
-  '$routeParams',
-  'metadataService',
+tsApp.directive('report', [ '$window', '$routeParams', 'metadataService',
   function($window, $routeParams, metadataService) {
     console.debug('configure report directive');
     return {
@@ -24,8 +21,9 @@ tsApp.directive('report', [
         // declare the show hidden variable (suppressible/obsolete)
         scope.showHidden = false;
         
-        
-        
+        scope.$watch('component', function() {
+          console.log('component changed');
+        })
 
       }
     };

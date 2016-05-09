@@ -29,6 +29,7 @@ import org.apache.lucene.store.NIOFSDirectory;
 
 import com.google.common.collect.Lists;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
@@ -138,6 +139,8 @@ public class EclExpressionHandler implements ExpressionHandler {
 
       } catch (RecognitionException e) {
         throw new Exception(ecQuery, e);
+      } catch (UnsupportedOperationException e) {
+        throw new LocalException(e.getMessage(), e);
       }
       try {
         for (ExpressionConstraintToLuceneConverter.InternalFunction internalFunction : internalFunctionPatternMap
