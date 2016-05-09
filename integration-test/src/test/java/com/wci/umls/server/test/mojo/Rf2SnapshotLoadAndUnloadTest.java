@@ -70,7 +70,6 @@ public class Rf2SnapshotLoadAndUnloadTest {
    * </pre>
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void test() throws Exception {
 

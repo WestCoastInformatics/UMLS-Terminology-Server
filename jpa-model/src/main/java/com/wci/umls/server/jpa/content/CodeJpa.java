@@ -135,23 +135,5 @@ public class CodeJpa extends AbstractAtomClass implements Code {
 
   }
 
-  /* see superclass */
-  @Override
-  public void addLabel(String label) {
-    if (labels == null) {
-      labels = new ArrayList<String>();
-    }
-    labels.add(label);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeLabel(String label) {
-    if (labels == null) {
-      labels = new ArrayList<String>();
-    }
-    labels.remove(label);
-
-  }
 
 }

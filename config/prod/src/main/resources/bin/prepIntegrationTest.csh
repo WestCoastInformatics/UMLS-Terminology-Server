@@ -34,7 +34,7 @@ if ($status != 0) then
 endif
 
 echo "    Clear indexes ...`/bin/date`"
-/bin/rm -rf /var/lib/tomcat8/indexes/umls/*
+/bin/rm -rf /var/lib/tomcat8/testindexes/*
 
 # NO sample data to load, the mojo tests load their own data
 

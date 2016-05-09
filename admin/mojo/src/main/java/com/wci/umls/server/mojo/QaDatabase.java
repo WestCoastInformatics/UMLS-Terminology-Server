@@ -19,7 +19,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.handlers.ExceptionHandler;
 
 /**
  * QA Check for Properly Numbered Map Groups

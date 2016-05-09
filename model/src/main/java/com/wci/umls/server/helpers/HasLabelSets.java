@@ -23,17 +23,4 @@ public interface HasLabelSets {
    */
   public void setLabels(List<String> labelSets);
 
-  /**
-   * Add label set.
-   *
-   * @param labelSet the label set
-   */
-  public void addLabel(String labelSet);
-
-  /**
-   * Removes the label set.
-   *
-   * @param labelSet the label set
-   */
-  public void removeLabel(String labelSet);
 }

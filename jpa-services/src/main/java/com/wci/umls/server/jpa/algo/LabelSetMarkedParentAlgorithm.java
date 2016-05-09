@@ -151,7 +151,11 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
     int objectCt = 0;
     for (Long id : ancestorConceptIds) {
       final Concept concept = getConcept(id);
-      concept.addLabel(ancestorLabelSet.getAbbreviation());
+      // Add unless it already exists
+      System.out.println("Add label " + concept.getTerminologyId() + " = " + ancestorLabelSet.getAbbreviation() + ", " + concept.getLabels());
+      if (!concept.getLabels().contains(ancestorLabelSet.getAbbreviation())) {
+        concept.getLabels().add(ancestorLabelSet.getAbbreviation());
+      }
       updateConcept(concept);
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
@@ -163,7 +167,10 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
     objectCt = 0;
     for (Long id : conceptIds) {
       final Concept concept = getConcept(id);
-      concept.addLabel(labelSet.getAbbreviation());
+      // Add unless it already exists
+      if (!concept.getLabels().contains(labelSet.getAbbreviation())) {
+        concept.getLabels().add(labelSet.getAbbreviation());
+      }
       updateConcept(concept);
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
