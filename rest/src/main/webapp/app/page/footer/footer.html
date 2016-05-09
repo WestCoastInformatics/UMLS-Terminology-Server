@@ -5,7 +5,7 @@
     <div id="mobileFooter" class="visible-xs hidden-md col-xs-12">
       <button class="btn btn-sm btn-primary btn-structure"
         style="margin-top: 10px" ng-click="logout()"
-        ng-show="user.authToken != null">Logout</button>
+        ng-show="user.authToken != null && appConfig.loginEnabled === 'true'">Logout</button>
       &nbsp; &nbsp;
       <a ng-href="mailto:{{appConfig.deployFeedbackEmail}}">
         <button class="btn btn-sm btn-primary btn-structure "
@@ -23,10 +23,10 @@
               <a class="navbar-link" href="{{appConfig.deployLink}}">{{appConfig.deployCopyright}}</a>
             </p></li>
           <li><p class="navbar-text">{{user.name}}</p></li>
-          <li>
+          <li
+            ng-show="user.authToken != null && appConfig.loginEnabled === 'true'">
             <button class="btn btn-sm btn-primary btn-structure"
-              style="margin-top: 10px" ng-click="logout()"
-              ng-show="user.authToken != null">Logout</button>
+              style="margin-top: 10px" ng-click="logout()">Logout</button>
           </li>
           <li>&nbsp;
             <p class="navbar-text">{{appConfig.projectVersion}}</p>

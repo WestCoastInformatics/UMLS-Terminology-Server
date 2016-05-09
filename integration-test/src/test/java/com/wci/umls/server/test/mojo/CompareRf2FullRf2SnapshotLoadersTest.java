@@ -66,6 +66,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
   public void test() throws Exception {
 
     // Createdb
+    Logger.getLogger(getClass()).info("Create database");
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));
@@ -81,6 +82,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     }
 
     // Reindex
+    Logger.getLogger(getClass()).info("Clear indexes");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/lucene/pom.xml"));
     request.setProfiles(Arrays.asList("Reindex"));
@@ -96,6 +98,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     }
 
     // Load RF2 full
+    Logger.getLogger(getClass()).info("Load SNOMED from RF2 full");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("RF2-full"));
@@ -115,6 +118,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     }
 
     // count data
+    Logger.getLogger(getClass()).info("Count SNOMED full data");
     ContentService service = new ContentServiceJpa();
     Map<String, Integer> fullStats =
         service.getComponentStats("SNOMEDCT", "latest", Branch.ROOT);
@@ -123,6 +127,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     Logger.getLogger(getClass()).info("Full Stats = " + fullStats);
 
     // Createdb
+    Logger.getLogger(getClass()).info("Recreate DB");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));
@@ -138,6 +143,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     }
 
     // Reindex
+    Logger.getLogger(getClass()).info("Clear indexes");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/lucene/pom.xml"));
     request.setProfiles(Arrays.asList("Reindex"));
@@ -153,6 +159,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     }
 
     // Load RF2 snapshot
+    Logger.getLogger(getClass()).info("Load SNOMED from RF2 snapshot");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("RF2-snapshot"));
@@ -172,6 +179,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     }
 
     // count data
+    Logger.getLogger(getClass()).info("Count SNOMED from snapshot");
     service = new ContentServiceJpa();
     Map<String, Integer> snapStats =
         service.getComponentStats("SNOMEDCT", "latest", Branch.ROOT);
@@ -180,6 +188,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     Logger.getLogger(getClass()).info("Snap Stats = " + fullStats);
 
     // Assert equivalence of counts
+    Logger.getLogger(getClass()).info("Verify counts match");
     for (String prop : fullStats.keySet()) {
       Logger.getLogger(getClass()).info(
           "  STAT " + prop + " = " + fullStats.get(prop) + ", "
@@ -191,6 +200,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     Assert.assertEquals(fullStats, snapStats);
 
     // Finish by clearing the DB again
+    Logger.getLogger(getClass()).info("Clear database");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));

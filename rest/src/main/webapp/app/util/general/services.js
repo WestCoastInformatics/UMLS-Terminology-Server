@@ -108,6 +108,10 @@ tsApp
           }
           // handle no message
           if (!this.error.message) {
+            // Print the stack trace so we know where the error came from
+            e = new Error();
+            console.log("ERROR", e.stack);
+
             this.error.message = "Unexpected server side error.";
           }
           // If authtoken expired, relogin
@@ -489,7 +493,7 @@ tsApp.service('securityService', [
         expires : expireDate
       });
       var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
-      //console.debug('Set cookie:', cookie);
+      // console.debug('Set cookie:', cookie);
       deferred.resolve();
       return deferred.promise;
     }
@@ -503,7 +507,7 @@ tsApp.service('securityService', [
       } else {
 
         var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
-        //console.debug('License cookie', cookie);
+        // console.debug('License cookie', cookie);
         if (!cookie) {
           deferred.reject();
         } else {

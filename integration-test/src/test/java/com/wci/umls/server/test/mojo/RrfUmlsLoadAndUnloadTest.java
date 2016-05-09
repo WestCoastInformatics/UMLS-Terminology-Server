@@ -83,6 +83,7 @@ public class RrfUmlsLoadAndUnloadTest {
   public void test() throws Exception {
 
     // Createdb
+    Logger.getLogger(getClass()).info("Create database");
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));
@@ -98,6 +99,7 @@ public class RrfUmlsLoadAndUnloadTest {
     }
 
     // Reindex
+    Logger.getLogger(getClass()).info("Clear indexes");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/lucene/pom.xml"));
     request.setProfiles(Arrays.asList("Reindex"));
@@ -113,6 +115,7 @@ public class RrfUmlsLoadAndUnloadTest {
     }
 
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, service
         .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
@@ -125,6 +128,7 @@ public class RrfUmlsLoadAndUnloadTest {
     service.closeFactory();
 
     // Load RRF umls
+    Logger.getLogger(getClass()).info("Load UMLS from RRF");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("RRF-umls"));
@@ -144,6 +148,7 @@ public class RrfUmlsLoadAndUnloadTest {
     }
 
     // Verify expected contents
+    Logger.getLogger(getClass()).info("Verify contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(2014,
         service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
@@ -166,6 +171,7 @@ public class RrfUmlsLoadAndUnloadTest {
     service.closeFactory();
 
     // Verify release info
+    Logger.getLogger(getClass()).info("Verify release info");
     HistoryService historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("UMLS", "latest"));
     // also, release infos should exist for other SABs.
@@ -175,6 +181,7 @@ public class RrfUmlsLoadAndUnloadTest {
     historyService.closeFactory();
 
     // Add a SNOMEDCT project
+    Logger.getLogger(getClass()).info("Add SNOMEDCT_US project");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("Project"));
@@ -197,6 +204,7 @@ public class RrfUmlsLoadAndUnloadTest {
     }
 
     // Verify project exists
+    Logger.getLogger(getClass()).info("Verify project");
     ProjectService projectService = new ProjectServiceJpa();
     boolean found = false;
     for (Project project : projectService.getProjects().getObjects()) {
@@ -219,8 +227,7 @@ public class RrfUmlsLoadAndUnloadTest {
     securityService.closeFactory();
 
     // Start SNOMEDCT editing cycle
-
-    // Add a SNOMEDCT project
+    Logger.getLogger(getClass()).info("Start SNOMEDCT_US editing cycle");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/release/pom.xml"));
     request.setProfiles(Arrays.asList("StartEditingCycle"));
@@ -239,7 +246,7 @@ public class RrfUmlsLoadAndUnloadTest {
     }
 
     // Verify release info for 2015AA as "planned"
-    // Verify release info
+    Logger.getLogger(getClass()).info("Verify release info");
     historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("UMLS", "2015AA"));
     Assert.assertFalse(historyService.getReleaseInfo("UMLS", "2015AA")
@@ -250,6 +257,7 @@ public class RrfUmlsLoadAndUnloadTest {
     historyService.closeFactory();
 
     // Remove terminology
+    Logger.getLogger(getClass()).info("Remove SNOMEDCT_US");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
@@ -267,6 +275,7 @@ public class RrfUmlsLoadAndUnloadTest {
     }
 
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no SNOMEDCT_US contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
         service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
@@ -281,6 +290,7 @@ public class RrfUmlsLoadAndUnloadTest {
     service.closeFactory();
 
     // Remove MSH terminology
+    Logger.getLogger(getClass()).info("Remove MSH");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
@@ -296,7 +306,9 @@ public class RrfUmlsLoadAndUnloadTest {
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
+
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no MSH contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
         service.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT)
@@ -314,6 +326,7 @@ public class RrfUmlsLoadAndUnloadTest {
     service.closeFactory();
 
     // Remove SRC terminology
+    Logger.getLogger(getClass()).info("Remove SRC terminology");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
@@ -356,7 +369,9 @@ public class RrfUmlsLoadAndUnloadTest {
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
+
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0, service.getAllConcepts("MTH", "latest", Branch.ROOT)
         .getCount());
@@ -368,6 +383,7 @@ public class RrfUmlsLoadAndUnloadTest {
     service.closeFactory();
 
     // QA Terminology
+    Logger.getLogger(getClass()).info("QA database");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/qa/pom.xml"));
     request.setProfiles(Arrays.asList("Database"));
@@ -382,6 +398,7 @@ public class RrfUmlsLoadAndUnloadTest {
     }
 
     // Remove UMLS terminology
+    Logger.getLogger(getClass()).info("Remove UMLS");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
@@ -397,7 +414,9 @@ public class RrfUmlsLoadAndUnloadTest {
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
+
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no UMLS contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0, service
         .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
@@ -409,6 +428,7 @@ public class RrfUmlsLoadAndUnloadTest {
     service.closeFactory();
 
     // Finish by clearing the DB again
+    Logger.getLogger(getClass()).info("Clear database");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));

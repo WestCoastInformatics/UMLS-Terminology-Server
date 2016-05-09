@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -70,11 +71,11 @@ public class OwlLoadAndUnloadTest {
    * </pre>
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void test() throws Exception {
 
     // Createdb
+    Logger.getLogger(getClass()).info("Create database");
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));
@@ -90,6 +91,7 @@ public class OwlLoadAndUnloadTest {
     }
 
     // Reindex
+    Logger.getLogger(getClass()).info("Clear indexes");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/lucene/pom.xml"));
     request.setProfiles(Arrays.asList("Reindex"));
@@ -105,13 +107,15 @@ public class OwlLoadAndUnloadTest {
     }
 
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0,
         service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 
-    // Load RF2 snapshot
+    // Load snomed.owl
+    Logger.getLogger(getClass()).info("Load SNOMEDCT from OWL");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("Owl"));
@@ -131,6 +135,7 @@ public class OwlLoadAndUnloadTest {
     }
 
     // Verify expected contents
+    Logger.getLogger(getClass()).info("Verify SNOMEDCT contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(11715,
         service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
@@ -139,12 +144,14 @@ public class OwlLoadAndUnloadTest {
     service.closeFactory();
 
     // Verify release info
+    Logger.getLogger(getClass()).info("Verify SNOMEDCT release info");
     HistoryService historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20150131"));
     historyService.close();
     historyService.closeFactory();
 
     // Add a SNOMEDCT project
+    Logger.getLogger(getClass()).info("Add SNOMEDCT project");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("Project"));
@@ -167,6 +174,7 @@ public class OwlLoadAndUnloadTest {
     }
 
     // Verify project exists
+    Logger.getLogger(getClass()).info("Verify SNOMEDCT project");
     ProjectService projectService = new ProjectServiceJpa();
     boolean found = false;
     for (Project project : projectService.getProjects().getObjects()) {
@@ -189,8 +197,7 @@ public class OwlLoadAndUnloadTest {
     securityService.closeFactory();
 
     // Start SNOMEDCT editing cycle
-
-    // Add a SNOMEDCT project
+    Logger.getLogger(getClass()).info("Start SNOMEDCT editing cycle");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/release/pom.xml"));
     request.setProfiles(Arrays.asList("StartEditingCycle"));
@@ -209,7 +216,7 @@ public class OwlLoadAndUnloadTest {
     }
 
     // Verify release info for 20160131 as "planned"
-    // Verify release info
+    Logger.getLogger(getClass()).info("Verify SNOMEDCT release info");
     historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20160131"));
     Assert.assertFalse(historyService.getReleaseInfo("SNOMEDCT", "20160131")
@@ -220,6 +227,7 @@ public class OwlLoadAndUnloadTest {
     historyService.closeFactory();
 
     // QA Terminology
+    Logger.getLogger(getClass()).info("QA database");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/qa/pom.xml"));
     request.setProfiles(Arrays.asList("Database"));
@@ -232,7 +240,9 @@ public class OwlLoadAndUnloadTest {
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
+
     // Remove terminology
+    Logger.getLogger(getClass()).info("Remove SNOMEDCT");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
@@ -250,6 +260,7 @@ public class OwlLoadAndUnloadTest {
     }
 
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify SNOMEDCT removed");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
         service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
@@ -257,6 +268,7 @@ public class OwlLoadAndUnloadTest {
     service.closeFactory();
 
     // Finish by clearing the DB again
+    Logger.getLogger(getClass()).info("Recreate database");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));

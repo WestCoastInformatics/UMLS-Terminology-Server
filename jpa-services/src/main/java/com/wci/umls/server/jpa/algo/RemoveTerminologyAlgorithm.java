@@ -248,7 +248,6 @@ public class RemoveTerminologyAlgorithm extends
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     for (SemanticType sty : (List<SemanticType>) query.getResultList()) {
-      logInfo("  remove semantic types = " + sty);
       removeSemanticType(sty.getId());
     }
     commitClearBegin();

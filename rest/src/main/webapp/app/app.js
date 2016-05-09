@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 var tsApp = angular
   .module(
@@ -42,7 +42,10 @@ tsApp
       }
     }
     if (errMsg.length > 0) {
-      utilService.handleError('Configuration Error:\n' + errMsg);
+      // Send an embedded "data" object
+      utilService.handleError({
+        data : 'Configuration Error:\n' + errMsg
+      });
     }
 
     // check and set whether application is configured
@@ -51,7 +54,7 @@ tsApp
     }, function() {
       console.error('Could not determine configuration status');
       $rootScope.isConfigured = false;
-    })
+    });
   });
 
 // Simple glass pane controller

@@ -75,6 +75,7 @@ public class RrfSingleLoadAndUnloadTest {
     // Use the run.config.claml configuration for this build
 
     // Createdb
+    Logger.getLogger(getClass()).info("Create database");
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));
@@ -90,6 +91,7 @@ public class RrfSingleLoadAndUnloadTest {
     }
 
     // Reindex
+    Logger.getLogger(getClass()).info("Clear indexes");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/lucene/pom.xml"));
     request.setProfiles(Arrays.asList("Reindex"));
@@ -105,6 +107,7 @@ public class RrfSingleLoadAndUnloadTest {
     }
 
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert
         .assertEquals(0,
@@ -114,6 +117,7 @@ public class RrfSingleLoadAndUnloadTest {
     service.closeFactory();
 
     // Load RRF single
+    Logger.getLogger(getClass()).info("Load SNOMEDCT_US from RRF single");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("RRF-single"));
@@ -133,6 +137,7 @@ public class RrfSingleLoadAndUnloadTest {
     }
 
     // Verify expected contents
+    Logger.getLogger(getClass()).info("Verify contents");
     service = new ContentServiceJpa();
     Assert
         .assertEquals(3903,
@@ -148,6 +153,7 @@ public class RrfSingleLoadAndUnloadTest {
     service.closeFactory();
 
     // Verify release info
+    Logger.getLogger(getClass()).info("Verify release info");
     HistoryService historyService = new HistoryServiceJpa();
     Assert
         .assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US", "latest"));
@@ -155,6 +161,7 @@ public class RrfSingleLoadAndUnloadTest {
     historyService.closeFactory();
 
     // Add a SNOMEDCT_US project
+    Logger.getLogger(getClass()).info("Add SNOMEDCT_US project");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("Project"));
@@ -177,6 +184,7 @@ public class RrfSingleLoadAndUnloadTest {
     }
 
     // Verify project exists
+    Logger.getLogger(getClass()).info("Verify project");
     ProjectService projectService = new ProjectServiceJpa();
     boolean found = false;
     for (Project project : projectService.getProjects().getObjects()) {
@@ -193,6 +201,7 @@ public class RrfSingleLoadAndUnloadTest {
     projectService.closeFactory();
 
     // Start SNOMEDCT editing cycle
+    Logger.getLogger(getClass()).info("Start SNOMEDCT_US editing cycle");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/release/pom.xml"));
     request.setProfiles(Arrays.asList("StartEditingCycle"));
@@ -211,7 +220,7 @@ public class RrfSingleLoadAndUnloadTest {
     }
 
     // Verify release info for 2015AA as "planned"
-    // Verify release info
+    Logger.getLogger(getClass()).info("Verify release info");
     historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US",
         "20150131"));
@@ -223,6 +232,7 @@ public class RrfSingleLoadAndUnloadTest {
     historyService.closeFactory();
 
     // QA Terminology
+    Logger.getLogger(getClass()).info("QA database");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/qa/pom.xml"));
     request.setProfiles(Arrays.asList("Database"));
@@ -235,7 +245,9 @@ public class RrfSingleLoadAndUnloadTest {
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
+
     // Remove terminology
+    Logger.getLogger(getClass()).info("Remove SNOMEDCT_US");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
@@ -253,6 +265,7 @@ public class RrfSingleLoadAndUnloadTest {
     }
 
     // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no SNOMEDCT_US contents");
     service = new ContentServiceJpa();
     Assert
         .assertEquals(0,
@@ -266,6 +279,7 @@ public class RrfSingleLoadAndUnloadTest {
     service.closeFactory();
 
     // Finish by clearing the DB again
+    Logger.getLogger(getClass()).info("Clear database");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
     request.setProfiles(Arrays.asList("Createdb"));
