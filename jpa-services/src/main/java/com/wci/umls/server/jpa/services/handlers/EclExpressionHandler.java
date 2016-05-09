@@ -138,7 +138,7 @@ public class EclExpressionHandler implements ExpressionHandler {
             .info("EC Query: " + ecQuery + " -> parsed: " + luceneQuery);
 
       } catch (RecognitionException e) {
-        throw new Exception(ecQuery, e);
+        throw new LocalException("Expression cannot be parsed, must reference an id", e);
       } catch (UnsupportedOperationException e) {
         throw new LocalException(e.getMessage(), e);
       }

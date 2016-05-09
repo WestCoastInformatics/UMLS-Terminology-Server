@@ -22,8 +22,7 @@
       <div class="row m10">
         <div class="col-lg-1 col-md-2 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Query  <a class="noul" ng-click="selectComponent(k)"> <i class="glyphicon glyphicon-search"></i></a>
-            
+          Query 
           <span class="pull-right">
             <i class="glyphicon glyphicon-cog noul"
               ng-click="searchParams.advancedMode = !searchParams.advancedMode"
@@ -135,15 +134,15 @@
           <div class="col-lg-3 col-md-6 col-xs-3"
             style="margin-right: 0px; padding-right: 0px;">
             Expression <i class="glyphicon glyphicon-remove pull-right"
-              ng-show="selectedExpr" ng-click="selectedExpr = null;"></i>
+              ng-show="searchParams.expression" ng-click="clearExpression()"></i>
           </div>
           <div class="col-lg-3 col-md-3 col-xs-3">
-            <select ng-options="expr as expr.name disable when expr.disabled for expr in expressions"
-              ng-model="selectedExpr"></select>
+            <select ng-options="expr as expr.name disable when expr.isDisabled for expr in expressions"
+              ng-model="searchParams.expression"></select>
           </div>
           <div class="col-lg-6 col-md-6 col-xs-6">
-            <div ng-repeat="(k,v) in selectedExpr.fields">
-               <input style="" placeholder="{{k}}" ng-change="setExpression(selectedExpr)" ng-model="selectedExpr.fields[k]"></input>
+            <div ng-repeat="(k,v) in searchParams.expression.fields">
+               <input style="" placeholder="{{k}}" ng-change="setExpression()" ng-model="searchParams.expression.fields[k]"></input>
                <a class="noul" ng-click="selectComponent(k)"> <i class="glyphicon glyphicon-search"></i></a>
             </div>
           </div>
@@ -151,13 +150,12 @@
         <div class="row m10">
           <div class="col-lg-3 col-md-6 col-xs-3"
             style="margin-right: 0px; padding-right: 0px;">
-           </i>
           </div>
           <div class="col-lg-9 col-md-6 col-xs-9">
             <textarea placeholder="Enter raw expression"
               style="margin-bottom: 5px; width: 100%;"
-              ng-show="selectedExpr.rawInput"
-              ng-model="searchParams.expression"></textarea>
+              ng-show="searchParams.expression.isRawInput"
+              ng-model="searchParams.expression.value"></textarea>
           </div>
         </div>
       </div>
@@ -255,7 +253,7 @@
         ng-click="getComponentFromHistory(history.index - 2)"
         uib-tooltip="{{getComponentHistoryStr(history.index - 2)}}">Back</button>
     </div>
-    History Page: {{historyPage.components}}
+    
     <!-- Title bar & Navigation history -->
     <div class="row">
       <div class="col-md-12 nobreak alert alert-info"

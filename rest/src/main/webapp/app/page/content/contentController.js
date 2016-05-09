@@ -106,6 +106,12 @@ tsApp.controller('ContentCtrl', [
         + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
         + "/autocomplete/";
     });
+    
+    // on route changes, save search params and last viewed component
+    $scope.$on('$routeChangeStart', function() {
+      contentService.setLastSearchParams($scope.searchParams);
+      contentService.setLastComponent($scope.component);
+    });
 
     //
     // General
@@ -478,14 +484,14 @@ tsApp.controller('ContentCtrl', [
     // Expression handling
     //
 
-    $scope.setExpression = function(expression) {
-      console.debug('Setting expression from ', expression)
+    $scope.setExpression = function() {
+      console.debug('Setting expression from ', $scope.searchParams.expression)
 
       // ensure all fields set to wildcard if not set
-      for ( var key in expression.fields) {
-        if (expression.fields.hasOwnProperty(key)) {
-          if (!expression.fields[key]) {
-            expression.fields[key] = '*';
+      for ( var key in $scope.searchParams.expression.fields) {
+        if ($scope.searchParams.expression.fields.hasOwnProperty(key)) {
+          if (!$scope.searchParams.expression.fields[key]) {
+            $scope.searchParams.expression.fields[key] = '*';
           }
         }
       }
@@ -495,7 +501,6 @@ tsApp.controller('ContentCtrl', [
 
       // replace wildcards with blank values again
       // TODO Very clunky, obviously
-
       for ( var key in expression.fields) {
         if (expression.fields.hasOwnProperty(key)) {
           if (expression.fields[key] === '*') {
@@ -503,51 +508,19 @@ tsApp.controller('ContentCtrl', [
           }
         }
       }
-
     };
+    
+    // clears the fields, computed value and resets selected expression
+    $scope.clearExpression = function() {
+      for (var key in $scope.searchParams.expression.fields) {
+        $scope.searchParams.expression.fields[key] = null;
+      }
+      $scope.searchParams.expression.value = null;
+      $scope.searchParams.expression = null;
+    }
 
     $scope.configureExpressions = function() {
-      $scope.expressions = [
-        {
-          name : 'Raw Expression',
-          rawInput : true
-        },
-        {
-          name : '------',
-          disabled : true
-        },
-        {
-          name : 'Descendant of',
-          fields : {
-            'Concept' : ''
-          },
-          compute : function() {
-            return '< ' + this.fields['Concept'];
-          }
-        },
-        {
-          name : 'Member of',
-          fields : {
-            'Concept' : ''
-          },
-          compute : function() {
-            return '^ ' + this.fields['Concept'];
-          }
-        },
-        {
-          name : 'Has Attribute',
-          fields : {
-            'Focus Concept' : '',
-            'Attribute' : '',
-            'Target' : '',
-          },
-          compute : function() {
-            return this.fields['Focus Concept'] + ': ' + this.fields['Attribute'] + "= "
-              + this.fields['Target'];
-          }
-        }
-
-      ]
+      $scope.expressions = contentService.getExpressions();
     };
 
     $scope.selectComponent = function(key) {
@@ -569,9 +542,9 @@ tsApp.controller('ContentCtrl', [
 
       modalInstance.result.then(function(component) {
         console.debug('returned with component', component);
-        $scope.selectedExpr.fields[key] = component.object.terminologyId + '| '
+        $scope.searchParams.expression.fields[key] = component.object.terminologyId + '| '
           + component.object.name + '|';
-        $scope.setExpression($scope.selectedExpr);
+        $scope.setExpression();
       }, function() {
         // do nothing
       });
@@ -585,6 +558,17 @@ tsApp.controller('ContentCtrl', [
 
       $scope.configureTab();
       $scope.configureExpressions();
+      
+      
+      //
+      // Check for values preserved in content service (after route changes)
+      //
+      if (contentService.getLastSearchParams()) {
+        $scope.searchParams = contentService.getLastSearchParams();
+      }
+      if (contentService.getLastComponent()) {
+        $scope.component = contentService.getLastComponent();
+      }
 
       //
       // Component Report Callbacks

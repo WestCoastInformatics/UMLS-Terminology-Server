@@ -23,8 +23,8 @@ tsApp
           // the components stored
           components : [],
 
-          // the currently viewed component
-          index : -1,
+          // the index of the currently viewed component
+          index : -1
         };
 
         // Default page sizes object
@@ -47,8 +47,22 @@ tsApp
           termType : null,
           matchTerminology : null,
           language : null,
-          showExtension : false
+          showExtension : false,
+          expression : {
+            name : null,
+            value : null,
+            fields : [],
+            isDisabled : false,
+            isRawInput : false
+
+          }
         };
+
+        // the last search params saved by a controller or service
+        var lastSearchParams = null;
+
+        // the last component saved by a controller or service
+        var lastComponent = null;
 
         // Get new copy of default page sizes
         this.getPageSizes = function() {
@@ -59,6 +73,63 @@ tsApp
         this.getSearchParams = function() {
           return angular.copy(searchParams);
         };
+
+        // get the expressions
+        var expressions = [
+          {
+            name : 'Raw Expression',
+            isRawInput : true,
+            value : null
+          },
+          {
+            name : '------',
+            isDisabled : true
+          },
+          {
+            name : 'Ancestor of',
+            fields : {
+              'Concept' : ''
+            },
+            compute : function() {
+              this.value = '> ' + this.fields['Concept'];
+            }
+          },
+          {
+            name : 'Descendant of',
+            fields : {
+              'Concept' : ''
+            },
+            compute : function() {
+              this.value = '< ' + this.fields['Concept'];
+            }
+          },
+          {
+            name : 'Member of',
+            fields : {
+              'Concept' : ''
+            },
+            compute : function() {
+              this.value = '^ ' + this.fields['Concept'];
+            }
+          },
+          {
+            name : 'Has Attribute',
+            fields : {
+              'Focus Concept' : '',
+              'Attribute' : '',
+              'Target' : '',
+            },
+            compute : function() {
+              this.value = this.fields['Focus Concept'] + ': ' + this.fields['Attribute'] + "= "
+                + this.fields['Target'];
+            }
+          }
+
+        ];
+        
+        this.getExpressions = function() {
+          return expressions;
+        }
 
         // Autocomplete function
         this.autocomplete = function(searchTerms, autocompleteUrl) {
@@ -242,7 +313,27 @@ tsApp
           return deferred.promise;
         };
 
-      
+        //
+        // Search history for preservation across route navigation
+        // NOTE: Currently only set in contentController.js
+        //
+
+        this.setLastSearchParams = function(searchParams) {
+          this.searchParams = searchParams;
+        }
+
+        this.getLastSearchParams = function() {
+          return this.searchParams;
+        }
+
+        this.setLastComponent = function(component) {
+          this.lastComponent = component;
+        }
+
+        this.getLastComponent = function() {
+          return this.lastComponent;
+        }
+
         // add a component history entry
         this.addComponentToHistory = function(terminologyId, terminology, version, type, name) {
 
@@ -297,13 +388,13 @@ tsApp
 
             // extract current quintuplet object for convenience
             var obj = history.components[index];
-            
+
             var type = this.getTypeForPrefix(obj.type);
 
             // set the index and get the component from history
             // information
-            this.getComponentFromType(obj.terminologyId, obj.terminology, obj.version, type)
-              .then(function(data) {
+            this.getComponentFromType(obj.terminologyId, obj.terminology, obj.version, type).then(
+              function(data) {
 
                 // set the index and count variables
                 history.index = index;
@@ -450,7 +541,7 @@ tsApp
             startIndex : (page - 1) * pageSizes.general,
             maxResults : pageSizes.general,
             sortField : null,
-            expression : searchParams.expression,
+            expression : searchParams.expression.value,
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           };
 

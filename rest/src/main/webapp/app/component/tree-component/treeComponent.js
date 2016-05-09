@@ -15,8 +15,11 @@ tsApp.directive('treeComponent', [
       templateUrl : 'app/component/tree-component/treeComponent.html',
       link : function(scope, element, attrs) {
         
+        // watch for component change
         scope.$watch('component', function () {
-          console.log('tree component changed', scope.component.object);
+          if (scope.component) {
+          scope.getTree(0);
+          }
         })
 
         // total trees for this component
@@ -104,8 +107,6 @@ tsApp.directive('treeComponent', [
 
         };
 
-        // on load, get the first tree
-        scope.getTree(0);
 
         scope.isDerivedLabelSetFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;

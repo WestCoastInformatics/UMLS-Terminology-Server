@@ -23,9 +23,8 @@
   <button ng-click="showHidden = !showHidden" class="btn btn-xs btn-primary">
     <span ng-show="showHidden">Hide</span>
     <span ng-show="!showHidden">Show </span>
-    <span ng-show="!metadata.terminology.descriptionLogicTerminology">Obsolete
-      and Suppressible</span>
-    <span ng-show="metadata.terminology.descriptionLogicTerminology">Inactive</span>
+    <span ng-show="metadata.obsoleteLabel">{{metadata.obsoleteLabel}}</span>
+    <span ng-show="!metadata.obsoleteLabel">Suppressible & Obsolete</span>
   </button>
   <!-- Hierarchical tree -->
   <div tree-component component="component" metadata="metadata"

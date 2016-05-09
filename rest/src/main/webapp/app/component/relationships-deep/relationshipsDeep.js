@@ -78,16 +78,23 @@ tsApp.directive('relationshipsDeep', [
           });
         }
 
-        // watch show hidden flag
-        scope.$watch('showHidden', function() {
-          if (scope.showHidden != undefined && scope.showHidden != null) {
-            scope.paging.showHidden = scope.showHidden;
-          } else {
-            scope.paging.showHidden = false;
+        // watch the component
+        scope.$watch('component', function() {
+          if (scope.component) {
+            getPagedList();
           }
-          getPagedList();
-        });
+        }, true);
 
+
+        // watch show hidden flag
+        scope.$watch('showHidden', function(newValue, oldValue) {
+          scope.paging.showHidden = scope.showHidden;
+          
+          // if value changed, get paged list
+          if (newValue != oldValue) {
+            getPagedList();
+          }
+        });
       }
     };
   } ]);

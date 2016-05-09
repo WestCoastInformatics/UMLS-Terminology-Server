@@ -1,7 +1,10 @@
 // Landingcontroller
 tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securityService',
-  'appConfig', function($scope, $location, utilService, securityService, appConfig) {
+  'appConfig', 'tabService', function($scope, $location, utilService, securityService, appConfig, tabService) {
     console.debug('configure LandingCtrl');
+    
+    // disable tabs in landing view
+    tabService.setShowing(false);
 
     // function to launch application
     $scope.launchApp = function() {

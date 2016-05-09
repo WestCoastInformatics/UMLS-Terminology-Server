@@ -22,21 +22,23 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
       scope.pageCallback = {
         getPagedList : getPagedList
       };
+      
+      // watch the component
+      scope.$watch('component', function() {
+        if (scope.component) {
+          getPagedList();
+        }
+      }, true);
 
-      scope.test = function() {
-        scope.callbacks.getComponentFromType(1, 2, 3, 4);
-
-      };
-      console.debug('atom callbacks', scope.callbacks);
 
       // watch show hidden flag
-      scope.$watch('showHidden', function() {
-        if (scope.showHidden != undefined && scope.showHidden != null) {
-          scope.paging.showHidden = scope.showHidden;
-        } else {
-          scope.paging.showHidden = false;
+      scope.$watch('showHidden', function(newValue, oldValue) {
+        scope.paging.showHidden = scope.showHidden;
+        
+        // if value changed, get paged list
+        if (newValue != oldValue) {
+          getPagedList();
         }
-        getPagedList();
       });
 
       // toggle an items collapsed state

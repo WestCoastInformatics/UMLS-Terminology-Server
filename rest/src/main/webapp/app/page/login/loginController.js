@@ -9,10 +9,14 @@ tsApp.controller('LoginCtrl', [
   'utilService',
   'projectService',
   'configureService',
+  'tabService',
   'appConfig',
   function($rootScope, $scope, $http, $location, securityService, gpService, utilService,
-    projectService, configureService, appConfig) {
+    projectService, configureService, tabService, appConfig) {
     console.debug('configure LoginCtrl');
+    
+    // disable tabs in login view
+    tabService.setShowing(false);
 
     // pass config to scope
     $scope.appConfig = appConfig;

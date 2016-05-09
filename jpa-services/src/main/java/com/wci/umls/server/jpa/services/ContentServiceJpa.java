@@ -2482,10 +2482,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
         for (SearchResult exprResult : exprResults.getObjects()) {
           exprQueryRestr += exprResult.getTerminologyId() + " ";
         }
-        // trim last space and add closing parenthesis
-        // TODO Add boosting based on length (test)
+        // trim last space, close parenthesis and add boost based on count
         exprQueryRestr =
-            exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")";
+            exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")^" + exprResults.getCount();
         localPfsc.setQueryRestriction((pfsc.getQueryRestriction() != null
             ? pfsc.getQueryRestriction() : "") + exprQueryRestr);
       }
@@ -2515,6 +2514,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // construct the search results (if any found)
     if (luceneResults != null) {
+      Map<Long, Float> scoreMap = searchHandler.getScoreMap();
       for (T r : luceneResults) {
         SearchResult sr = new SearchResultJpa();
         sr.setId(r.getId());
@@ -2522,6 +2522,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         sr.setVersion(r.getVersion());
         sr.setTerminologyId(r.getTerminologyId());
         sr.setValue(r.getName());
+        sr.setScore(scoreMap.get(r.getId()));
         results.addObject(sr);
       }
     }

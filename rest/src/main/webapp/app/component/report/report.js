@@ -20,11 +20,6 @@ tsApp.directive('report', [ '$window', '$routeParams', 'metadataService',
 
         // declare the show hidden variable (suppressible/obsolete)
         scope.showHidden = false;
-        
-        scope.$watch('component', function() {
-          console.log('component changed');
-        })
-
       }
     };
   } ]);

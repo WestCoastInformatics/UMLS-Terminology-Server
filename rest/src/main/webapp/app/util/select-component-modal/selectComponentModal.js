@@ -19,8 +19,7 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $uibModalInstance,
 
   // default search params and paging
   $scope.searchParams = angular.copy(contentService.getSearchParams());
-  $scope.searchResults = angular.copy(contentService.getSearchResults());
-  console.debug('searchResults', $scope.searchResults);
+  $scope.searchResults = null;
 
   // the currently selected component
   $scope.component = null;
@@ -60,11 +59,12 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $uibModalInstance,
       $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
       $scope.searchParams.page, $scope.searchParams).then(
       function(data) {
-        $scope.searchResults.list = data.results;
-        $scope.searchResults.totalCount = data.totalCount;
 
-        if (loadFirst && $scope.searchResults.list.length > 0) {
-          $scope.getComponent($scope.searchResults.list[0].terminologyId,
+        $scope.searchResults = data;
+        console.debug('search results', data, $scope.searchResults);
+        
+        if (loadFirst && $scope.searchResults.results.length > 0) {
+          $scope.getComponent($scope.searchResults.results[0].terminologyId,
             $scope.metadata.terminology.terminology, $scope.metadata.terminology.version);
         }
       });
@@ -89,6 +89,20 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $uibModalInstance,
       } else {
         $scope.searchResults.list[i].active = false;
       }
+    }
+  };
+  
+  // component scoring
+  $scope.scoreExcellent = 0.7;
+  $scope.scoreGood = 0.3;
+  
+  $scope.getColorForScore = function(score) {
+    if (score > $scope.scoreExcellent) {
+      return 'green';
+    } else if (score > $scope.scoreGood) {
+      return 'yellow';
+    } else {
+      return 'orange';
     }
   };
   
