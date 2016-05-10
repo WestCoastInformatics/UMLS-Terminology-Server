@@ -404,4 +404,12 @@ public class TransitiveClosureAlgorithm extends
 
   }
 
+  @Override
+  public void computeExpressionIndexes() throws Exception {
+    Logger
+    .getLogger(getClass())
+    .warn(
+        "Transitive closure algorithm does not support expression index computation ");
+  }
+
 }

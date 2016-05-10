@@ -77,7 +77,7 @@ public class EclExpressionHandler implements ExpressionHandler {
 
     // instantiate the index searcher
     String indexDir =
-        ConfigUtility.getEclIndexDirectoryName(terminology, version);
+        ConfigUtility.getExpressionIndexDirectoryName(terminology, version);
     Directory dirFile = new NIOFSDirectory(new File(indexDir));
     indexSearcher = new IndexSearcher(DirectoryReader.open(dirFile));
 

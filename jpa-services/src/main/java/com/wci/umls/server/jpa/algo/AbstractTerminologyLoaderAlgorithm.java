@@ -9,6 +9,7 @@ import com.wci.umls.server.algo.TerminologyLoaderAlgorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.meta.LogActivity;
+import com.wci.umls.server.services.handlers.ExpressionHandler;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
@@ -41,6 +42,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
 
   /** By default, sort and delete temporary files. */
   private boolean sortFiles = true;
+  
 
   /**
    * Instantiates an empty {@link AbstractTerminologyLoaderAlgorithm}.
@@ -124,6 +126,9 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
   /* see superclass */
   @Override
   public abstract void computeTreePositions() throws Exception;
+  
+  @Override
+  public abstract void computeExpressionIndexes() throws Exception;
 
   /* see superclass */
   @Override
@@ -264,10 +269,11 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     listeners.add(l);
   }
 
-  /* see superclass */
+
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
+  
 
 }

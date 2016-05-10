@@ -1,6 +1,7 @@
 package com.wci.umls.server.algo;
 
 import com.wci.umls.server.helpers.HasTerminology;
+import com.wci.umls.server.services.handlers.ExpressionHandler;
 
 /**
  * The Interface LoaderAlgorithm.
@@ -24,7 +25,14 @@ public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology {
    * @throws Exception
    */
   public void computeTreePositions() throws Exception;
-
+  
+  /**
+   * Create expression indexes.
+   *
+   * @throws Exception the exception
+   */
+  public void computeExpressionIndexes() throws Exception;
+ 
   /**
    * Gets the input path.
    *

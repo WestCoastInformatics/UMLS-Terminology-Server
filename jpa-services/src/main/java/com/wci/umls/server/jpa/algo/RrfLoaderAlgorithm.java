@@ -2985,5 +2985,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // invoke superclass cancel
     super.cancel();
   }
-
+  @Override
+  public void computeExpressionIndexes() throws Exception {
+   // do nothing
+  }
 }

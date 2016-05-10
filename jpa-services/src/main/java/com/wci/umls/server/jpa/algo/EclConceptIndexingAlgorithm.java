@@ -126,9 +126,9 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     }
 
     // remove (if exists) and create the directory
-    ConfigUtility.createEclIndexDirectory(terminology, version);
+    ConfigUtility.createExpressionIndexDirectory(terminology, version);
     directory = new NIOFSDirectory(
-        new File(ConfigUtility.getEclIndexDirectoryName(terminology, version)));
+        new File(ConfigUtility.getExpressionIndexDirectoryName(terminology, version)));
 
     // get entity manager for direct queries
     EntityManager manager = contentService.getEntityManager();

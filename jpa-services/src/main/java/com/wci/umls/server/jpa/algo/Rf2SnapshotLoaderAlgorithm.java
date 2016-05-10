@@ -2113,5 +2113,13 @@ public class Rf2SnapshotLoaderAlgorithm extends
     super.close();
     readers = null;
   }
+  
+  @Override
+  public void computeExpressionIndexes() throws Exception {
+    EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
+    algo.setTerminology(getTerminology());
+    algo.setVersion(getVersion());
+    algo.compute();
+  }
 
 }

@@ -2123,4 +2123,9 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     return version;
   }
 
+  @Override
+  public void computeExpressionIndexes() throws Exception {
+   // do nothing
+  }
+
 }

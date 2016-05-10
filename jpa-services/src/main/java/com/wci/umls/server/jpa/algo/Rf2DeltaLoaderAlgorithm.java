@@ -40,6 +40,7 @@ import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.PropertyChainJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
+import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
@@ -3377,6 +3378,14 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     super.close();
     readers = null;
     idMap = null;
+  }
+
+  @Override
+  public void computeExpressionIndexes() throws Exception {
+    EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
+    algo.setTerminology(getTerminology());
+    algo.setVersion(getVersion());
+    algo.compute();
   }
 
 }

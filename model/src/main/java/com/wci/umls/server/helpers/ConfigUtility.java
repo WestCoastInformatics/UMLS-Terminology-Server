@@ -888,54 +888,54 @@ public class ConfigUtility {
   }
 
   /**
-   * Gets the ecl index directory for a terminology and version
+   * Gets the expression index directory name.
    *
    * @param terminology the terminology
    * @param version the version
-   * @return the ecl index directory
-   * @throws Exception
+   * @return the expression index directory name
+   * @throws Exception the exception
    */
-  public static String getEclIndexDirectoryName(String terminology, String version)
+  public static String getExpressionIndexDirectoryName(String terminology, String version)
     throws Exception {
-    return getBaseIndexDirectory() + "/ecl/" + terminology + "/" + version + "/";
+    return getBaseIndexDirectory() + "/expr/" + terminology + "/" + version + "/";
   }
   
   
   /**
-   * Create ecl index directory.
+   * Create expression index directory.
    *
    * @param terminology the terminology
    * @param version the version
-   * @throws Exception
+   * @throws Exception the exception
    */
-  public static void createEclIndexDirectory(String terminology, String version)
+  public static void createExpressionIndexDirectory(String terminology, String version)
     throws Exception {
 
     // remove directory (if it exists)
-    removeEclIndexDirectory(terminology, version);
+    removeExpressionIndexDirectory(terminology, version);
     
     // create the directory structure
-    File eclDir = new File(getEclIndexDirectoryName(terminology, version));
+    File eclDir = new File(getExpressionIndexDirectoryName(terminology, version));
     eclDir.mkdirs();
   }
 
   /**
-   * Remove ecl index directory.
+   * Remove expression index directory.
    *
    * @param terminology the terminology
    * @param version the version
-   * @throws Exception
+   * @throws Exception the exception
    */
-  public static void removeEclIndexDirectory(String terminology, String version)
+  public static void removeExpressionIndexDirectory(String terminology, String version)
     throws Exception {
-    File eclDir = new File(getEclIndexDirectoryName(terminology, version));
-    if (eclDir.exists()) {
-      if (!eclDir.isDirectory()) {
+    File exprDir = new File(getExpressionIndexDirectoryName(terminology, version));
+    if (exprDir.exists()) {
+      if (!exprDir.isDirectory()) {
         throw new Exception(
-            "Cannot delete ECL indexes: path is not a directory: "
-                + eclDir.getAbsolutePath());
+            "Cannot delete expression indexes: path is not a directory: "
+                + exprDir.getAbsolutePath());
       }
-      deleteDirectory(eclDir);
+      deleteDirectory(exprDir);
     }
   }
 
