@@ -22,7 +22,7 @@
       <div class="row m10">
         <div class="col-lg-1 col-md-2 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Query 
+          Query
           <span class="pull-right">
             <i class="glyphicon glyphicon-cog noul"
               ng-click="searchParams.advancedMode = !searchParams.advancedMode"
@@ -57,10 +57,8 @@
 </div>
 <div class="row">
   <!-- Advanced Search Controls -->
- 
   <div class="col-md-4 col-xs-12">
     <div ng-show="searchParams.advancedMode">
-      
       <div ng-show="metadata.semanticTypes.length > 1" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
@@ -127,30 +125,37 @@
           </select>
         </div>
       </div>
-      
       <!-- Expressions -->
       <div ng-show="metadata.terminology.descriptionLogicTerminology">
         <div class="row m10">
-          <div class="col-lg-3 col-md-6 col-xs-3"
+          <div class="col-lg-3 col-md-3 col-xs-3"
             style="margin-right: 0px; padding-right: 0px;">
             Expression <i class="glyphicon glyphicon-remove pull-right"
-              ng-show="searchParams.expression" ng-click="clearExpression()"></i>
+              ng-show="searchParams.expression.value"
+              ng-click="clearExpression()"></i>
           </div>
           <div class="col-lg-3 col-md-3 col-xs-3">
-            <select ng-options="expr as expr.name disable when expr.isDisabled for expr in expressions"
-              ng-model="searchParams.expression"></select>
+            <select
+              ng-options="expr as expr.name disable when expr.isDisabled for expr in expressions"
+              ng-model="searchParams.expression">
+            </select>
           </div>
           <div class="col-lg-6 col-md-6 col-xs-6">
             <div ng-repeat="(k,v) in searchParams.expression.fields">
-               <input style="" placeholder="{{k}}" ng-change="setExpression()" ng-model="searchParams.expression.fields[k]"></input>
-               <a class="noul" ng-click="selectComponent(k)"> <i class="glyphicon glyphicon-search"></i></a>
+              <input style="margin-left: 10px; width: 80%" placeholder="{{k}}"
+              title = "{{searchParams.expression.fields[k]}}"
+                ng-change="setExpression()"
+                ng-model="searchParams.expression.fields[k]"></input>
+              <a class="noul pull-right" ng-click="selectComponent(k)"
+                ng-show="!searchParams.expression.isRawInput">
+                <i class="glyphicon glyphicon-search"></i>
+              </a>
             </div>
           </div>
         </div>
         <div class="row m10">
           <div class="col-lg-3 col-md-6 col-xs-3"
-            style="margin-right: 0px; padding-right: 0px;">
-          </div>
+            style="margin-right: 0px; padding-right: 0px;"></div>
           <div class="col-lg-9 col-md-6 col-xs-9">
             <textarea placeholder="Enter raw expression"
               style="margin-bottom: 5px; width: 100%;"
@@ -253,7 +258,6 @@
         ng-click="getComponentFromHistory(history.index - 2)"
         uib-tooltip="{{getComponentHistoryStr(history.index - 2)}}">Back</button>
     </div>
-    
     <!-- Title bar & Navigation history -->
     <div class="row">
       <div class="col-md-12 nobreak alert alert-info"
@@ -264,9 +268,10 @@
             class="glyphicon glyphicon-time dropdown-toggle noul"
             uib-dropdown-toggle id="history-dropdown"></i>
           <ul uib-dropdown-menu role="menu" aria-labelledby="history-dropdown">
-            <li ng-show="historyPage.toIndex < history.components.length">... {{history.components.length - historyPage.toIndex}}
-              more recent</li>
-            <li ng-repeat="component in historyPage.components | orderBy:'index':true"
+            <li ng-show="historyPage.toIndex < history.components.length">...
+              {{history.components.length - historyPage.toIndex}} more recent</li>
+            <li
+              ng-repeat="component in historyPage.components | orderBy:'index':true"
               ng-click="getComponentFromHistory(component.index)"><a>
                 <i style="margin-right: 1em" class="glyphicon glyphicon-ok"
                   ng-show="component.index === history.index"></i>

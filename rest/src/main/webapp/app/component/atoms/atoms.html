@@ -90,17 +90,18 @@
               </ul>
             </div>
             <!-- end Atom Attributes -->
+          
             <!-- Atom Subsets -->
-            <div ng-show="item.member.length > 0">
+            <div ng-show="item.members.length > 0">
               <strong>{{metadata.subsetsLabel}}</strong>
               <ul>
                 <li
-                  ng-repeat="member in item.member | orderBy: ['name', 'value']">
+                  ng-repeat="member in item.members | orderBy: ['subsetName']">
                   {{member.subsetName}}
                   <div ng-show="item.attributes.length > 0">
                     <ul>
                       <li
-                        ng-repeat="attribute in member.attributes | orderBy: ['name', 'value']">
+                        ng-repeat="attribute in member.attributes | orderBy: ['name']">
                         <span class="label label-info"
                           uib-tooltip="{{callbacks.getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                         = {{attribute.value}}

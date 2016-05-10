@@ -106,7 +106,7 @@ tsApp.controller('ContentCtrl', [
         + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
         + "/autocomplete/";
     });
-    
+
     // on route changes, save search params and last viewed component
     $scope.$on('$routeChangeStart', function() {
       contentService.setLastSearchParams($scope.searchParams);
@@ -236,12 +236,16 @@ tsApp.controller('ContentCtrl', [
       var hasQuery = $scope.searchParams && $scope.searchParams.query
         && $scope.searchParams.query.length > 0;
       var hasExpr = $scope.searchParams && $scope.searchParams.advancedMode
-        && $scope.searchParams.expression && $scope.searchParams.expression.length > 0;
+        && $scope.searchParams.expression && $scope.searchParams.expression.value
+        && $scope.searchParams.expression.value.length > 0;
 
       // ensure query/expression string has appropriate length
       if (!hasQuery && !hasExpr) {
         alert("You must use at least one character to search"
           + ($scope.searchParams.advancedMode ? " or supply an expression" : ""));
+        
+        // added to prevent weird bug causing page to scroll down a few lines
+        $location.hash('top');
         return;
       }
       contentService.findComponentsAsList($scope.searchParams.query,
@@ -400,7 +404,7 @@ tsApp.controller('ContentCtrl', [
     $scope.historyPage = {};
 
     function setHistoryPage() {
-      
+
       console.debug('setHistoryPage: ', $scope.history);
 
       // convenience variables
@@ -438,7 +442,7 @@ tsApp.controller('ContentCtrl', [
         console.debug('getComponentFromHistory: currently viewed, do nothing')
         return;
       }
-      
+
       console.debug('getComponentFromHistory: ' + index);
       contentService.getComponentFromHistory(index).then(function(data) {
         console.debug('  -> history comp retrieved: ', data);
@@ -497,30 +501,33 @@ tsApp.controller('ContentCtrl', [
       }
 
       // call the expression's pattern generator
-      $scope.searchParams.expression = expression.compute();
+      $scope.searchParams.expression.compute();
 
       // replace wildcards with blank values again
       // TODO Very clunky, obviously
-      for ( var key in expression.fields) {
-        if (expression.fields.hasOwnProperty(key)) {
-          if (expression.fields[key] === '*') {
-            expression.fields[key] = '';
+      for ( var key in $scope.searchParams.expression.fields) {
+        if ($scope.searchParams.expression.fields.hasOwnProperty(key)) {
+          if ($scope.searchParams.expression.fields[key] === '*') {
+            $scope.searchParams.expression.fields[key] = '';
           }
         }
       }
+
     };
-    
+
     // clears the fields, computed value and resets selected expression
     $scope.clearExpression = function() {
-      for (var key in $scope.searchParams.expression.fields) {
+      for ( var key in $scope.searchParams.expression.fields) {
         $scope.searchParams.expression.fields[key] = null;
       }
       $scope.searchParams.expression.value = null;
-      $scope.searchParams.expression = null;
+      $scope.searchParams.expression = $scope.expressions[0];
     }
 
+    // get the defined expressions and set to the first option
     $scope.configureExpressions = function() {
       $scope.expressions = contentService.getExpressions();
+      $scope.searchParams.expression = $scope.expressions[0];
     };
 
     $scope.selectComponent = function(key) {
@@ -542,8 +549,8 @@ tsApp.controller('ContentCtrl', [
 
       modalInstance.result.then(function(component) {
         console.debug('returned with component', component);
-        $scope.searchParams.expression.fields[key] = component.object.terminologyId + '| '
-          + component.object.name + '|';
+        $scope.searchParams.expression.fields[key] = component.object.terminologyId + ' | '
+          + component.object.name + ' |';
         $scope.setExpression();
       }, function() {
         // do nothing
@@ -558,13 +565,13 @@ tsApp.controller('ContentCtrl', [
 
       $scope.configureTab();
       $scope.configureExpressions();
-      
-      
+
       //
       // Check for values preserved in content service (after route changes)
       //
       if (contentService.getLastSearchParams()) {
         $scope.searchParams = contentService.getLastSearchParams();
+        $scope.findComponents(false);
       }
       if (contentService.getLastComponent()) {
         $scope.component = contentService.getLastComponent();
