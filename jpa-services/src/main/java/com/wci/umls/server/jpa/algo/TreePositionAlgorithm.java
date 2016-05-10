@@ -493,11 +493,18 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   @Override
   public void computeTreePositions() throws Exception {
+    compute();
 
-      Logger.getLogger(getClass()).warn(
-          "Tree position algorithm does not use expression indexing");
-
-    }
   }
+  
+
+  @Override
+  public void computeExpressionIndexes() throws Exception {
+    Logger
+    .getLogger(getClass())
+    .warn(
+        "Tree position algorithm does not support expression index computation ");
+  }
+
 
 }

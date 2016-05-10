@@ -407,5 +407,4 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       return false;
     return true;
   }
-
 }

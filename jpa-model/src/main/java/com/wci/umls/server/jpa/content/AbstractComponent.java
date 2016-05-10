@@ -84,6 +84,8 @@ public abstract class AbstractComponent implements Component {
   /** The branch set to include empty branch. */
   @Column(nullable = true)
   private String branch = Branch.ROOT;
+  
+
 
   /**
    * Instantiates an empty {@link AbstractComponent}.
@@ -306,7 +308,7 @@ public abstract class AbstractComponent implements Component {
   public void setTerminologyId(String terminologyId) {
     this.terminologyId = terminologyId;
   }
-
+  
   /**
    * CUSTOM equals: uses .toString() on the concept terminology ids map.
    *

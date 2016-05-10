@@ -23,7 +23,6 @@ import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.spell.LuceneLevenshteinDistance;
 import org.apache.lucene.search.spell.PlainTextDictionary;
 import org.apache.lucene.search.spell.SpellChecker;

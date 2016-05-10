@@ -9,6 +9,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
@@ -35,6 +36,8 @@ import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.UserAnnotation;
+import com.wci.umls.server.jpa.helpers.UserAnnotationJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 
@@ -42,13 +45,12 @@ import com.wci.umls.server.model.content.AtomClass;
  * Abstract JPA-enabled implementation of {@link AtomClass}.
  */
 @AnalyzerDefs({
-    @AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
+    @AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class) , filters = {
         @TokenFilterDef(factory = StandardFilterFactory.class),
         @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-    }),
-    @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
+    }), @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
     // Split input into tokens according to tokenizer
-    tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class), filters = {
+    tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class) , filters = {
         // Normalize token text to lowercase, as the user is unlikely to
         // care about casing when searching for matches
         @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
@@ -63,10 +65,9 @@ import com.wci.umls.server.model.content.AtomClass;
             @Parameter(name = "minGramSize", value = "3"),
             @Parameter(name = "maxGramSize", value = "50")
         })
-    }),
-    @AnalyzerDef(name = "autocompleteNGramAnalyzer",
+    }), @AnalyzerDef(name = "autocompleteNGramAnalyzer",
     // Split input into tokens according to tokenizer
-    tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
+    tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class) , filters = {
         // Normalize token text to lowercase, as the user is unlikely to
         // care about casing when searching for matches
         @TokenFilterDef(factory = WordDelimiterFilterFactory.class),
@@ -104,6 +105,10 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   @Column(nullable = true)
   private String workflowStatus;
 
+  @IndexedEmbedded(targetElement = UserAnnotationJpa.class)
+  @OneToMany(targetEntity = UserAnnotationJpa.class)
+  private List<UserAnnotation> userAnnotations = null;
+
   /**
    * Instantiates an empty {@link AbstractAtomClass}.
    */
@@ -121,6 +126,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     super(atomClass, deepCopy);
     name = atomClass.getName();
     workflowStatus = atomClass.getWorkflowStatus();
+    userAnnotations = atomClass.getUserAnnotations();
     if (deepCopy) {
       for (Atom atom : atomClass.getAtoms()) {
         addAtom(new AtomJpa(atom, deepCopy));
@@ -252,10 +258,37 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     }
     final int index = branchedTo.indexOf(closedBranch);
     if (index != -1) {
-      branchedTo =
-          branchedTo.substring(0, index - 1)
-              + branchedTo.substring(index + closedBranch.length() + 1);
+      branchedTo = branchedTo.substring(0, index - 1)
+          + branchedTo.substring(index + closedBranch.length() + 1);
     }
+
+  }
+
+  @Override
+  public List<UserAnnotation> getUserAnnotations() {
+    return this.userAnnotations;
+  }
+
+  @Override
+  public void setUserAnnotations(List<UserAnnotation> userAnnotations) {
+    this.userAnnotations = userAnnotations;
+
+  }
+
+  @Override
+  public void addUserAnnotation(UserAnnotation userAnnotation) {
+    if (this.userAnnotations == null) {
+      userAnnotations = new ArrayList<>();
+    }
+    userAnnotations.add(userAnnotation);
+  }
+
+  @Override
+  public void removeUserAnnotation(UserAnnotation userAnnotation) {
+    if (this.userAnnotations == null) {
+      userAnnotations = new ArrayList<>();
+    }
+    userAnnotations.remove(userAnnotation);
 
   }
 

@@ -40,7 +40,6 @@ import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.PropertyChainJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
-import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;

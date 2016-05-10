@@ -595,7 +595,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Source Data): /data/load " + sourceData.toString());
+        "RESTful call (Source Data): /data/load " + (sourceData == null ? "No source data" : sourceData.getName()));
 
     try {
       authorizeApp(securityService, authToken, "load from source data",
@@ -607,7 +607,9 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
         @Override
         public void run() {
           try {
-            // TODO Throw LocalException if handler not correctly set
+            if (sourceData == null) {
+              throw new LocalException("Source dat handler is not set");
+            }
             // instantiate the handler
             Class<?> sourceDataHandlerClass =
                 Class.forName(sourceData.getHandler());

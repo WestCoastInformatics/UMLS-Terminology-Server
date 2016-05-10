@@ -9,7 +9,6 @@ import com.wci.umls.server.algo.TerminologyLoaderAlgorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.meta.LogActivity;
-import com.wci.umls.server.services.handlers.ExpressionHandler;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 

@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.UserAnnotation;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -92,6 +93,9 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       // default behavior -- require paging of relationships
       concept.setRelationships(new ArrayList<ConceptRelationship>());
 
+      // user annotations -- lazy initialize
+      concept.getUserAnnotations().size();
+
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
     }
@@ -106,6 +110,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     concept.setAttributes(new ArrayList<Attribute>());
     concept.setRelationships(new ArrayList<ConceptRelationship>());
     concept.setMembers(new ArrayList<ConceptSubsetMember>());
+    concept.setUserAnnotations(new ArrayList<UserAnnotation>());
   }
 
   /* see superclass */
@@ -115,6 +120,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     descriptor.setDefinitions(new ArrayList<Definition>());
     descriptor.setAttributes(new ArrayList<Attribute>());
     descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
+    descriptor.setUserAnnotations(new ArrayList<UserAnnotation>());
   }
 
   /* see superclass */
@@ -123,6 +129,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     code.setAtoms(new ArrayList<Atom>());
     code.setAttributes(new ArrayList<Attribute>());
     code.setRelationships(new ArrayList<CodeRelationship>());
+    code.setUserAnnotations(new ArrayList<UserAnnotation>());
   }
 
   /* see superclass */
@@ -166,7 +173,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolve(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-    throws Exception {
+      throws Exception {
     if (relationship != null) {
       if (relationship.getFrom() != null) {
         relationship.getFrom().getTerminology();
@@ -229,6 +236,9 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       // default behavior -- require paging of relationships
       descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
 
+      // user annotations -- lazy initialize
+      descriptor.getUserAnnotations().size();
+
     } else if (descriptor == null) {
       throw new Exception("Cannot resolve a null descriptor.");
     }
@@ -256,6 +266,9 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       // default behavior -- require paging of relationships
       code.setRelationships(new ArrayList<CodeRelationship>());
 
+      // user annotations -- lazy initialize
+      code.getUserAnnotations().size();
+
     } else if (code == null) {
       throw new Exception("Cannot resolve a null code.");
     }
@@ -280,6 +293,9 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         atom.setDefinitions(new ArrayList<Definition>());
         atom.setRelationships(new ArrayList<AtomRelationship>());
       }
+
+      // user annotations -- lazy initialize
+      lexicalClass.getUserAnnotations().size();
 
     } else if (lexicalClass == null) {
       throw new Exception("Cannot resolve a null lexical class.");
@@ -306,6 +322,9 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         atom.setDefinitions(new ArrayList<Definition>());
         atom.setRelationships(new ArrayList<AtomRelationship>());
       }
+
+      // user annotations -- lazy initialize
+      stringClass.getUserAnnotations().size();
 
     } else if (stringClass == null) {
       throw new Exception("Cannot resolve a null string class.");
@@ -363,7 +382,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolve(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
-    throws Exception {
+      throws Exception {
     if (member != null) {
       boolean nullId = member.getId() == null;
       member.getTerminology();

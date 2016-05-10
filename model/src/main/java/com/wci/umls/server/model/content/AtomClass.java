@@ -5,6 +5,7 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
+import com.wci.umls.server.helpers.HasUserAnnotations;
 import com.wci.umls.server.helpers.HasLabelSets;
 
 /**
@@ -12,7 +13,7 @@ import com.wci.umls.server.helpers.HasLabelSets;
  * coding scheme. For example Metathesaurus CUIs, SNOMED CT source concepts, or
  * RXCUIs within RXNORM.
  */
-public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets {
+public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets, HasUserAnnotations {
 
   /**
    * Returns the atoms.
