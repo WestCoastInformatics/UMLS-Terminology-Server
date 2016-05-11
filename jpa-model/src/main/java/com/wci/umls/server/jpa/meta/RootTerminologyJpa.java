@@ -14,7 +14,6 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -24,7 +23,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.model.meta.ContactInfo;
-import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RootTerminology;
 
 /**
@@ -64,8 +62,8 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   private String hierarchicalName;
 
   /** The language. */
-  @ManyToOne(targetEntity = LanguageJpa.class, fetch = FetchType.EAGER, optional = true)
-  private Language language;
+  @Column(nullable = true)
+  private String language;
 
   /** The license contact. */
   @OneToOne(targetEntity = ContactInfoJpa.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
@@ -185,14 +183,13 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = LanguageJpa.class)
-  public Language getLanguage() {
+  public String getLanguage() {
     return language;
   }
 
   /* see superclass */
   @Override
-  public void setLanguage(Language language) {
+  public void setLanguage(String language) {
     this.language = language;
   }
 

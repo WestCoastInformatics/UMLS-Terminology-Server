@@ -30,6 +30,7 @@ import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.RootService;
 
 /**
  * Implementation of an algorithm to compute transitive closure using the
@@ -46,9 +47,6 @@ public class TransitiveClosureAlgorithm extends
 
   /** The cycle tolerant. */
   private boolean cycleTolerant;
-
-  /** The Constant commitCt. */
-  private final static int commitCt = 2000;
 
   /**
    * Instantiates an empty {@link TransitiveClosureAlgorithm}.
@@ -102,7 +100,7 @@ public class TransitiveClosureAlgorithm extends
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    computeTransitiveClosure(getTerminology(), getVersion(), idType);
+    computeTransitiveClosure();
   }
 
   /* see superclass */
@@ -114,27 +112,22 @@ public class TransitiveClosureAlgorithm extends
   /**
    * Compute transitive closure.
    *
-   * @param terminology the terminology
-   * @param version the version
-   * @param idType the id type
    * @throws Exception the exception
    */
-  private void computeTransitiveClosure(String terminology, String version,
-    IdType idType) throws Exception {
-    final Date startDate = new Date();
-    // Check assumptions/prerequisites
-    Logger.getLogger(getClass()).info(
-        "Start computing transitive closure - " + terminology);
-    logInfo("Start computing transitive closure for " + terminology);
+  private void computeTransitiveClosure() throws Exception {
+    logInfo("Compute transitive closure");
+    logInfo("  terminology = " + getTerminology());
+    logInfo("  version = " + getVersion());
+    logInfo("  idType = " + idType);
+    fireProgressEvent(0, "Starting...");
 
-    // Disable transaction per operation
+    final Date startDate = new Date();
+    // Disable transaction per operation and start transaction
     setTransactionPerOperation(false);
+    beginTransaction();
 
     // Initialize rels
-    Logger.getLogger(getClass()).info(
-        "  Initialize relationships ... " + new Date());
-
-    fireProgressEvent(1, "Initialize relationships");
+    fireProgressEvent(1, "Initialize hierarchical relationships");
     String tableName = "ConceptRelationshipJpa";
     if (idType == IdType.DESCRIPTOR) {
       tableName = "DescriptorRelationshipJpa";
@@ -142,22 +135,23 @@ public class TransitiveClosureAlgorithm extends
     if (idType == IdType.CODE) {
       tableName = "CodeRelationshipJpa";
     }
-    javax.persistence.Query query =
+    final javax.persistence.Query query =
         manager
             .createQuery(
                 "select r.from.id, r.to.id from " + tableName
                     + " r where obsolete = 0 and inferred = 1 "
                     + "and terminology = :terminology "
                     + "and version = :version " + "and hierarchical = 1")
-            .setParameter("terminology", terminology)
-            .setParameter("version", version);
+            .setParameter("terminology", getTerminology())
+            .setParameter("version", getVersion());
 
     @SuppressWarnings("unchecked")
-    List<Object[]> rels = query.getResultList();
-    Map<Long, Set<Long>> parChd = new HashMap<>();
-    Set<Long> allNodes = new HashSet<>();
+    final List<Object[]> rels = query.getResultList();
+    final Map<Long, Set<Long>> parChd = new HashMap<>();
+    final Set<Long> allNodes = new HashSet<>();
     int ct = 0;
     for (final Object[] rel : rels) {
+      ct++;
       final Long chd = Long.parseLong(rel[0].toString());
       final Long par = Long.parseLong(rel[1].toString());
       allNodes.add(par);
@@ -167,28 +161,37 @@ public class TransitiveClosureAlgorithm extends
       }
       final Set<Long> children = parChd.get(par);
       children.add(chd);
-      ct++;
-      if (isCancelled()) {
+      // Check cancel flag
+      if (ct % RootService.logCt == 0 && isCancelled()) {
         rollback();
         throw new CancelException("Transitive closure computation cancelled.");
       }
     }
-    fireProgressEvent(8, "Start creating transitive closure relationships");
+    if (ct == 0) {
+      fireProgressEvent(100, "Finished.");
+      logInfo("    NO HIERARCHICAL RELATIONSHIPS");
+      return;
+    }
+
+    else {
+      logInfo("  concepts with descendants = " + parChd.size());
+    }
 
     //
     // Create transitive closure rels
     //
+    fireProgressEvent(8, "Create transitive closure relationships");
 
     // Create "self" entries
     ct = 0;
-    for (Long code : allNodes) {
+    for (final Long code : allNodes) {
 
       // Create a "self" transitive relationship
       TransitiveRelationship<? extends ComponentHasAttributes> tr = null;
       if (idType == IdType.CONCEPT) {
         final ConceptTransitiveRelationship ctr =
             new ConceptTransitiveRelationshipJpa();
-        Concept superType = new ConceptJpa();
+        final Concept superType = new ConceptJpa();
         superType.setId(code);
         ctr.setSuperType(superType);
         ctr.setSubType(ctr.getSuperType());
@@ -196,7 +199,7 @@ public class TransitiveClosureAlgorithm extends
       } else if (idType == IdType.DESCRIPTOR) {
         final DescriptorTransitiveRelationship dtr =
             new DescriptorTransitiveRelationshipJpa();
-        Descriptor superType = new DescriptorJpa();
+        final Descriptor superType = new DescriptorJpa();
         superType.setId(code);
         dtr.setSuperType(superType);
         dtr.setSubType(dtr.getSuperType());
@@ -204,7 +207,7 @@ public class TransitiveClosureAlgorithm extends
       } else if (idType == IdType.CODE) {
         final CodeTransitiveRelationship ctr =
             new CodeTransitiveRelationshipJpa();
-        Code superType = new CodeJpa();
+        final Code superType = new CodeJpa();
         superType.setId(code);
         ctr.setSuperType(superType);
         ctr.setSubType(ctr.getSuperType());
@@ -220,27 +223,27 @@ public class TransitiveClosureAlgorithm extends
       tr.setPublishable(true);
       tr.setPublished(false);
       tr.setTerminologyId("");
-      tr.setTerminology(terminology);
-      tr.setVersion(version);
+      tr.setTerminology(getTerminology());
+      tr.setVersion(getVersion());
       tr.setDepth(0);
       addTransitiveRelationship(tr);
+
     }
     // to free up memory
-    allNodes = null;
+    allNodes.clear();
 
     // initialize descendant map
     descendantsMap = new HashMap<>();
-    beginTransaction();
     int progressMax = parChd.keySet().size();
     int progress = 0;
-    for (Long code : parChd.keySet()) {
+    for (final Long code : parChd.keySet()) {
+      // Check cancel flag
       if (isCancelled()) {
         rollback();
         throw new CancelException("Transitive closure computation cancelled.");
       }
 
       // Scale the progress monitor from 8%-100%
-      ct++;
       int ctProgress = (int) ((((ct * 100) / progressMax) * .92) + 8);
       if (ctProgress > progress) {
         progress = ctProgress;
@@ -248,7 +251,7 @@ public class TransitiveClosureAlgorithm extends
             "creating transitive closure relationships");
       }
 
-      List<Long> ancPath = new ArrayList<>();
+      final List<Long> ancPath = new ArrayList<>();
       ancPath.add(code);
       final Set<Long> descs = getDescendants(code, parChd, ancPath);
       final Set<Long> children = parChd.get(code);
@@ -257,9 +260,9 @@ public class TransitiveClosureAlgorithm extends
         if (idType == IdType.CONCEPT) {
           final ConceptTransitiveRelationship ctr =
               new ConceptTransitiveRelationshipJpa();
-          Concept superType = new ConceptJpa();
+          final Concept superType = new ConceptJpa();
           superType.setId(code);
-          Concept subType = new ConceptJpa();
+          final Concept subType = new ConceptJpa();
           subType.setId(desc);
           ctr.setSuperType(superType);
           ctr.setSubType(subType);
@@ -267,9 +270,9 @@ public class TransitiveClosureAlgorithm extends
         } else if (idType == IdType.DESCRIPTOR) {
           final DescriptorTransitiveRelationship dtr =
               new DescriptorTransitiveRelationshipJpa();
-          Descriptor superType = new DescriptorJpa();
+          final Descriptor superType = new DescriptorJpa();
           superType.setId(code);
-          Descriptor subType = new DescriptorJpa();
+          final Descriptor subType = new DescriptorJpa();
           subType.setId(desc);
           dtr.setSuperType(superType);
           dtr.setSubType(subType);
@@ -277,9 +280,9 @@ public class TransitiveClosureAlgorithm extends
         } else if (idType == IdType.CODE) {
           final CodeTransitiveRelationship ctr =
               new CodeTransitiveRelationshipJpa();
-          Code superType = new CodeJpa();
+          final Code superType = new CodeJpa();
           superType.setId(code);
-          Code subType = new CodeJpa();
+          final Code subType = new CodeJpa();
           subType.setId(desc);
           ctr.setSuperType(superType);
           ctr.setSubType(subType);
@@ -300,24 +303,21 @@ public class TransitiveClosureAlgorithm extends
         tr.setPublishable(true);
         tr.setPublished(false);
         tr.setTerminologyId("");
-        tr.setTerminology(terminology);
-        tr.setVersion(version);
+        tr.setTerminology(getTerminology());
+        tr.setVersion(getVersion());
         addTransitiveRelationship(tr);
       }
-      if (ct % commitCt == 0) {
-        /*
-         * Logger.getLogger(getClass()).debug( "      " + ct +
-         * " codes processed ..." + new Date());
-         */
-        commit();
-        clear();
-        beginTransaction();
+
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+      // Check cancel flag
+      if (ct % RootService.logCt == 0 && isCancelled()) {
+        rollback();
+        throw new CancelException("Transitive closure computation cancelled.");
       }
+
     }
 
-    // set the transaction strategy based on status starting this routine
-    // setTransactionPerOperation(currentTransactionStrategy);
-    fireProgressEvent(100, "Finished computing transitive closures.");
+    fireProgressEvent(100, "Finished...");
 
     // release memory
     descendantsMap = new HashMap<>();
@@ -384,24 +384,20 @@ public class TransitiveClosureAlgorithm extends
 
   @Override
   public String getFileVersion() throws Exception {
-    Logger.getLogger(getClass()).warn(
-        "Transitive closure algorithm does not use file version");
-    return null;
+    // this method just exists to allow the class to borrow from superclass
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void computeTransitiveClosures() throws Exception {
-    compute();
-
+    // this method just exists to allow the class to borrow from superclass
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void computeTreePositions() throws Exception {
-    Logger
-        .getLogger(getClass())
-        .warn(
-            "Transitive closure algorithm does not support tree position computation ");
-
+    // this method just exists to allow the class to borrow from superclass
+    throw new UnsupportedOperationException();
   }
 
 }

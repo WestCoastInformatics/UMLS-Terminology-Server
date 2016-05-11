@@ -2798,8 +2798,14 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       if (!subsetsUpdated.contains(fields[4])) {
         subset.getAttributes().size();
         final ConceptSubset subset2 = new ConceptSubsetJpa(subset, true);
+        setCommonFields(subset2, date);
+        subset2.setTerminologyId(fields[4].intern());
+        final Concept concept = getConcept(idMap.get(fields[4]));
+        subset2.setName(concept.getName());
+        subset2.setObsolete(concept.isObsolete());
+        subset2.setDescription(subset.getName());
 
-        // Getlatest attribute
+        // Get latest attribute
         Attribute attribute = null;
         if (subset2.getAttributeByName("moduleId") != null) {
           attribute = subset2.getAttributeByName("moduleId");
@@ -2821,7 +2827,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           }
           updateAttributes(subset2, subset);
         }
-        mapSetsUpdated.add(fields[4]);
+        subsetsUpdated.add(fields[4]);
       }
 
     }
@@ -2835,6 +2841,12 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       if (!subsetsUpdated.contains(fields[4])) {
         subset.getAttributes().size();
         final AtomSubset subset2 = new AtomSubsetJpa(subset, true);
+        setCommonFields(subset2, date);
+        subset2.setTerminologyId(fields[4].intern());
+        final Concept concept = getConcept(idMap.get(fields[4]));
+        subset2.setName(concept.getName());
+        subset2.setObsolete(concept.isObsolete());
+        subset2.setDescription(subset.getName());
 
         // get latest attribute
         Attribute attribute = null;
@@ -2858,7 +2870,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           }
           updateAttributes(subset2, subset);
         }
-        mapSetsUpdated.add(fields[4]);
+        subsetsUpdated.add(fields[4]);
       }
     }
 
@@ -3015,6 +3027,17 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       if (!mapSetsUpdated.contains(fields[4])) {
         mapSet.getAttributes().size();
         final MapSet mapSet2 = new MapSetJpa(mapSet, true);
+        setCommonFields(mapSet2, date);
+        mapSet.setTerminologyId(fields[4].intern());
+        final Concept concept = getConcept(idMap.get(fields[4]));
+        mapSet2.setName(concept.getName());
+        mapSet2.setObsolete(concept.isObsolete());
+        mapSet2.setFromTerminology(getTerminology());
+        mapSet2.setFromVersion(getVersion());
+        mapSet2.setToTerminology(null);
+        mapSet2.setToVersion(null);
+
+        mapSet2.setMapVersion(getVersion());
 
         Attribute attribute = null;
         if (mapSet2.getAttributeByName("moduleId") != null) {

@@ -12,12 +12,12 @@ var tsApp = angular
   });
 
 // Declare top level URL vars
-var securityUrl = "security/";
-var metadataUrl = "metadata/";
-var contentUrl = "content/";
-var adminUrl = "admin/";
-var projectUrl = "project/";
-var validationUrl = "validation/";
+var securityUrl = 'security/';
+var metadataUrl = 'metadata/';
+var contentUrl = 'content/';
+var adminUrl = 'admin/';
+var projectUrl = 'project/';
+var validationUrl = 'validation/';
 var sourceDataUrl = 'file/';
 var configureUrl = 'configure/';
 
@@ -42,7 +42,7 @@ tsApp
       }
     }
     if (errMsg.length > 0) {
-      // Send an embedded "data" object
+      // Send an embedded 'data' object
       utilService.handleError({
         data : 'Configuration Error:\n' + errMsg
       });

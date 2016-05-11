@@ -32,7 +32,6 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -292,19 +291,19 @@ public class RemoveTerminologyAlgorithm extends
     }
     commitClearBegin();
 
-    // remove languages
-    logInfo("  Remove languages");
-    query =
-        manager
-            .createQuery("SELECT a FROM LanguageJpa a WHERE terminology = :terminology "
-                + " AND version = :version");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
-    for (Language lat : (List<Language>) query.getResultList()) {
-      logInfo("  remove languages = " + lat);
-      removeLanguage(lat.getId());
-    }
-    commitClearBegin();
+    // // remove languages
+    // logInfo("  Remove languages");
+    // query =
+    // manager
+    // .createQuery("SELECT a FROM LanguageJpa a WHERE terminology = :terminology "
+    // + " AND version = :version");
+    // query.setParameter("terminology", terminology);
+    // query.setParameter("version", version);
+    // for (Language lat : (List<Language>) query.getResultList()) {
+    // logInfo("  remove languages = " + lat);
+    // removeLanguage(lat.getId());
+    // }
+    // commitClearBegin();
 
     // remove concept subset members
     logInfo("  Remove concept subset members");
@@ -689,7 +688,7 @@ public class RemoveTerminologyAlgorithm extends
     }
     commitClearBegin();
 
-    // remove the mappings
+    // remove the map Sets
     logInfo("  Remove mapsets ");
     query =
         manager

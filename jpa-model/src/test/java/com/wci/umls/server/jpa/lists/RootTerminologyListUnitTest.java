@@ -13,10 +13,8 @@ import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
 import com.wci.umls.server.jpa.helpers.meta.RootTerminologyListJpa;
 import com.wci.umls.server.jpa.meta.ContactInfoJpa;
-import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.model.meta.ContactInfo;
-import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RootTerminology;
 
 /**
@@ -71,12 +69,8 @@ public class RootTerminologyListUnitTest extends
     o2.setContentContact(info2);
     o2.setLicenseContact(info2);
 
-    ProxyTester tester3 = new ProxyTester(new LanguageJpa());
-    Language lat = (Language) tester3.createObject(1);
-    Language lat2 = (Language) tester3.createObject(2);
-
-    o1.setLanguage(lat);
-    o2.setLanguage(lat2);
+    o1.setLanguage("1");
+    o2.setLanguage("2");
 
   }
 

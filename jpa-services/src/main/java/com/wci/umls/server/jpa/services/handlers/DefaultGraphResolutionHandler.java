@@ -426,7 +426,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolve(RootTerminology rootTerminology) {
     rootTerminology.getSynonymousNames().size();
-    rootTerminology.getLanguage().getAbbreviation();
   }
 
   /* see superclass */

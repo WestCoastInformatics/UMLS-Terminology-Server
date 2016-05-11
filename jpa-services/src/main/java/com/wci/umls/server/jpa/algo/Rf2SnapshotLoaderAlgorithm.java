@@ -453,7 +453,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
         if (conceptSubset.isLabelSubset()) {
           Logger.getLogger(getClass()).info(
               "  Create label set for subset = " + subset);
-
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
         }
@@ -1699,9 +1698,11 @@ public class Rf2SnapshotLoaderAlgorithm extends
       mapSet.setName(concept.getName());
       mapSet.setObsolete(concept.isObsolete());
       mapSet.setFromTerminology(getTerminology());
-      mapSet.setToTerminology(null); // no way to get this
       mapSet.setFromVersion(getVersion());
+      // no way to get this
+      mapSet.setToTerminology(null);
       mapSet.setToVersion(null);
+
       mapSet.setMapVersion(getVersion());
 
       final Attribute attribute2 = new AttributeJpa();
@@ -1928,7 +1929,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     root.setFamily(getTerminology());
     root.setHierarchicalName(getConcept(conceptIdMap.get(rootConceptId))
         .getName());
-    root.setLanguage(rootLanguage);
+    root.setLanguage(rootLanguage.getAbbreviation());
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);

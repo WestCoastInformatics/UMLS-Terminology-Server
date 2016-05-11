@@ -3,41 +3,31 @@
  */
 package com.wci.umls.server.jpa.algo;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
-import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.meta.LabelSetList;
 import com.wci.umls.server.jpa.meta.LabelSetJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.LabelSet;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.RootService;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
- * Implementation of an algorithm to compute transitive closure using the
- * {@link ContentService}.
+ * Implementation of an algorithm to compute label set marked parents using the
+ * {@link ContentService}. Currently only concept label sets are supported.
  */
-public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
-    Algorithm {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The request cancel flag. */
-  boolean requestCancel = false;
+public class LabelSetMarkedParentAlgorithm extends
+    AbstractTerminologyLoaderAlgorithm {
 
   /** The concept to generate label set data from. */
   private ConceptSubset subset;
@@ -57,26 +47,27 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
    */
   @Override
   public void compute() throws Exception {
-    Logger.getLogger(getClass())
-        .info("Start computing marked parent label set");
-    Logger.getLogger(getClass()).info("  subset = " + subset);
+    logInfo("Compute labels and marked parent labels");
+    logInfo("  subset = " + subset);
+    fireProgressEvent(0, "Starting...");
+
     setTransactionPerOperation(false);
     beginTransaction();
 
     if (subset == null) {
+      fireProgressEvent(100, "Finished...");
       throw new Exception("Subset must not be null.");
     }
 
     // Create the label set and add it (unless it exists already)
+    fireProgressEvent(1, "Find ancestor label");
     LabelSet ancestorLabelSet = null;
     LabelSet labelSet = null;
-
-    LabelSetList list =
+    final LabelSetList list =
         getLabelSets(subset.getTerminology(), subset.getVersion());
-    for (LabelSet set : list.getObjects()) {
+    for (final LabelSet set : list.getObjects()) {
       if (set.getAbbreviation().equals(subset.getTerminologyId())) {
-        Logger.getLogger(getClass()).info(
-            "  Use existing label set =" + ancestorLabelSet);
+        logInfo("  existing label set =" + ancestorLabelSet);
         ancestorLabelSet = set;
         break;
       }
@@ -84,8 +75,9 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
 
     // Add the label set if null
     // Also add a label set for the content itself
+    fireProgressEvent(2, "Add label sets");
     if (ancestorLabelSet == null) {
-      Date startDate = new Date();
+      final Date startDate = new Date();
       ancestorLabelSet = new LabelSetJpa();
       ancestorLabelSet.setAbbreviation("LABELFOR:" + subset.getTerminologyId());
       ancestorLabelSet.setDescription("label parent for " + subset.getName());
@@ -99,8 +91,7 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
       ancestorLabelSet.setVersion(subset.getVersion());
       ancestorLabelSet.setDerived(true);
       addLabelSet(ancestorLabelSet);
-      Logger.getLogger(getClass()).info(
-          "  Create new label set = " + ancestorLabelSet);
+      logInfo("  new label set = " + ancestorLabelSet);
       labelSet = new LabelSetJpa();
       labelSet.setAbbreviation(subset.getTerminologyId());
       labelSet.setDescription("Concept in " + subset.getName());
@@ -114,70 +105,128 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
       labelSet.setVersion(subset.getVersion());
       labelSet.setDerived(false);
       addLabelSet(labelSet);
-      Logger.getLogger(getClass()).info("  Create new label set = " + labelSet);
+      logInfo("  new label set = " + labelSet);
     }
 
-    SubsetMemberList members =
+    // Check cancel flag
+    if (isCancelled()) {
+      rollback();
+      throw new CancelException("Label set marked parent computation cancelled");
+    }
+
+    // Get subset members
+    fireProgressEvent(3, "Get subset members");
+    final SubsetMemberList members =
         findConceptSubsetMembers(subset.getTerminologyId(),
             subset.getTerminology(), subset.getVersion(), Branch.ROOT, "", null);
+    logInfo("  subset members = " + members.getCount());
 
-    // Go through each concept in the subset
-    // Look up and save all of the ancestors
+    // Look up ancestors
+    fireProgressEvent(5, "Look up ancestors");
+    final String tableName = "ConceptRelationshipJpa";
+    final String tableName2 = "ConceptJpa";
+    @SuppressWarnings("unchecked")
+    final List<Object[]> relationships =
+        manager
+            .createQuery(
+                "select r.from.id, r.to.id from " + tableName + " r where "
+                    + "version = :version and terminology = :terminology "
+                    + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
+                    + "and r.from in (select o from " + tableName2
+                    + " o where obsolete = 0)")
+            .setParameter("terminology", getTerminology())
+            .setParameter("version", getVersion()).getResultList();
 
-    Logger.getLogger(getClass()).info("  Lookup all ancestors");
-    Set<Long> ancestorConceptIds = new HashSet<>();
-    Set<Long> conceptIds = new HashSet<>();
+    int ct = 0;
+    final Map<Long, Set<Long>> chdPar = new HashMap<>();
+    for (final Object[] r : relationships) {
+      ct++;
+      long fromId = Long.parseLong(r[0].toString());
+      long toId = Long.parseLong(r[1].toString());
+
+      if (!chdPar.containsKey(fromId)) {
+        chdPar.put(fromId, new HashSet<Long>());
+      }
+      final Set<Long> parents = chdPar.get(fromId);
+      parents.add(toId);
+      // Check cancel flag
+      if (ct % RootService.logCt == 0 && isCancelled()) {
+        rollback();
+        throw new CancelException(
+            "Label set marked parent computation cancelled");
+      }
+    }
+
+    if (ct == 0) {
+      fireProgressEvent(100, "Finished.");
+      logInfo("    NO HIERARCHICAL RELATIONSHIPS");
+      return;
+    }
+
+    else {
+      logInfo("  concepts with ancestors = " + chdPar.size());
+    }
+
+    // Collect member ids and marked parent ids
+    fireProgressEvent(15, "Collect member ids and marked parent ids");
+    final Set<Long> ancestorConceptIds = new HashSet<>();
+    final Set<Long> conceptIds = new HashSet<>();
     for (@SuppressWarnings("rawtypes")
     final SubsetMember member : members.getObjects()) {
       final Concept concept = (Concept) member.getMember();
-      // Save this to mark it later
+      // Add the member
       conceptIds.add(concept.getId());
-      // If the concept is already label as an ancestor, its ancestors
-      // have been computed and we can move on
-      if (ancestorConceptIds.contains(concept.getId())) {
-        continue;
-      }
-      // Get all ancestor concepts
-      for (Concept ancConcept : findAncestorConcepts(
-          concept.getTerminologyId(), concept.getTerminology(),
-          concept.getVersion(), false, Branch.ROOT, null).getObjects()) {
-        ancestorConceptIds.add(ancConcept.getId());
-      }
-    }
-    Logger.getLogger(getClass()).info(
-        "    count = " + ancestorConceptIds.size());
 
-    Logger.getLogger(getClass()).info("  Tag ancestor concepts with label set");
+      // Add the ancestors
+      ancestorConceptIds.addAll(chdPar.get(concept.getId()));
+
+    }
+    logInfo("    concept count = " + ancestorConceptIds.size());
+    logInfo("    ancestor count = " + conceptIds.size());
+
+    // Check cancel flag
+    if (isCancelled()) {
+      rollback();
+      throw new CancelException("Label set marked parent computation cancelled");
+    }
+
+    fireProgressEvent(25, "Tag concepts with label set");
     int objectCt = 0;
-    for (Long id : ancestorConceptIds) {
+    for (final Long id : ancestorConceptIds) {
       final Concept concept = getConcept(id);
-      // Add unless it already exists
-      System.out.println("Add label " + concept.getTerminologyId() + " = " + ancestorLabelSet.getAbbreviation() + ", " + concept.getLabels());
-      if (!concept.getLabels().contains(ancestorLabelSet.getAbbreviation())) {
-        concept.getLabels().add(ancestorLabelSet.getAbbreviation());
-      }
+      concept.getLabels().add(ancestorLabelSet.getAbbreviation());
       updateConcept(concept);
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+      // Check cancel flag
+      if (ct % RootService.logCt == 0 && isCancelled()) {
+        rollback();
+        throw new CancelException(
+            "Label set marked parent computation cancelled");
+      }
     }
-
     commitClearBegin();
+    logInfo("    count = " + objectCt);
 
     // concepts that are both in the set and ancestor of the set get both tags.
-    Logger.getLogger(getClass()).info("  Tag concepts with label set");
+    fireProgressEvent(50, "Tag ancestor concepts with marked parent label set");
     objectCt = 0;
-    for (Long id : conceptIds) {
+    for (final Long id : conceptIds) {
       final Concept concept = getConcept(id);
-      // Add unless it already exists
-      if (!concept.getLabels().contains(labelSet.getAbbreviation())) {
-        concept.getLabels().add(labelSet.getAbbreviation());
-      }
+      concept.getLabels().add(labelSet.getAbbreviation());
       updateConcept(concept);
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+      // Check cancel flag
+      if (ct % RootService.logCt == 0 && isCancelled()) {
+        rollback();
+        throw new CancelException(
+            "Label set marked parent computation cancelled");
+      }
     }
 
-    commitClearBegin();
-
-    Logger.getLogger(getClass()).info("    count = " + objectCt);
+    logInfo("    count = " + objectCt);
+    fireProgressEvent(100, "Finished...");
+    commit();
+    clear();
   }
 
   /**
@@ -188,47 +237,6 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
   @Override
   public void reset() throws Exception {
     // n/a
-  }
-
-  /**
-   * Fires a {@link ProgressEvent}.
-   * @param pct percent done
-   * @param note progress note
-   */
-  public void fireProgressEvent(int pct, String note) {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
-  }
-
-  /**
-   * Adds the progress listener.
-   *
-   * @param l the l
-   */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /**
-   * Removes the progress listener.
-   *
-   * @param l the l
-   */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /**
-   * Cancel.
-   */
-  @Override
-  public void cancel() {
-    requestCancel = true;
   }
 
   /**
@@ -247,6 +255,27 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
    */
   public void setSubset(ConceptSubset subset) {
     this.subset = subset;
+  }
+
+  /* see superclass */
+  @Override
+  public String getFileVersion() throws Exception {
+    // this method just exists to allow the class to borrow from superclass
+    throw new UnsupportedOperationException();
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    // this method just exists to allow the class to borrow from superclass
+    throw new UnsupportedOperationException();
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTreePositions() throws Exception {
+    // this method just exists to allow the class to borrow from superclass
+    throw new UnsupportedOperationException();
   }
 
 }

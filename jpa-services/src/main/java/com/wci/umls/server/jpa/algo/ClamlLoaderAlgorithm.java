@@ -2061,7 +2061,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     RootTerminology root = new RootTerminologyJpa();
     root.setFamily(terminology);
     root.setHierarchicalName(terminology);
-    root.setLanguage(language);
+    root.setLanguage(language.getAbbreviation());
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
