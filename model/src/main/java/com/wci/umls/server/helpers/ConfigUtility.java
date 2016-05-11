@@ -715,7 +715,7 @@ public class ConfigUtility {
     }
 
     /*
-     * (non-Javadoc)
+     * (TODO : Remove this)
      * 
      * @see javax.mail.Authenticator#getPasswordAuthentication()
      */

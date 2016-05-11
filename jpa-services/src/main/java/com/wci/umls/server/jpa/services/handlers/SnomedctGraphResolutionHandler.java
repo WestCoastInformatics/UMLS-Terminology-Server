@@ -100,6 +100,9 @@ public class SnomedctGraphResolutionHandler extends
       // Relationships
       // Default behavior -- do not return relationships, require paging calls
       concept.setRelationships(new ArrayList<ConceptRelationship>());
+      
+      // lazy initialization of user annotations
+      concept.getUserAnnotations().size();
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");

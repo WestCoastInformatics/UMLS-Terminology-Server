@@ -6,10 +6,12 @@ package com.wci.umls.server.jpa.helpers;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
- * JPA enabled implementation of a {@link SearchResult}.
+ * The Class SearchResultJpa.
  */
 @XmlRootElement(name = "searchResult")
 public class SearchResultJpa implements SearchResult {
@@ -19,12 +21,19 @@ public class SearchResultJpa implements SearchResult {
 
   /** The terminology id. */
   private String terminologyId;
+  
 
   /** The terminology. */
   private String terminology;
 
   /** The version. */
   private String version;
+  
+  /** The type. */
+  private IdType type;
+  
+  /** The property. */
+  private KeyValuePair property;
 
   /** The value. */
   private String value;
@@ -36,14 +45,14 @@ public class SearchResultJpa implements SearchResult {
   private Float score = null;
 
   /**
-   * Default constructor.
+   * Instantiates a new search result jpa.
    */
   public SearchResultJpa() {
     // left empty
   }
 
   /**
-   * Constructor.
+   * Instantiates a new search result jpa.
    *
    * @param result the result
    */
@@ -57,10 +66,8 @@ public class SearchResultJpa implements SearchResult {
     score = result.getScore();
   }
 
-  /**
-   * Returns the id.
-   *
-   * @return the id
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#getId()
    */
   @Override
   @XmlElement
@@ -68,10 +75,8 @@ public class SearchResultJpa implements SearchResult {
     return this.id;
   }
 
-  /**
-   * Sets the id.
-   *
-   * @param id the id
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#setId(java.lang.Long)
    */
   @Override
   public void setId(Long id) {
@@ -79,10 +84,8 @@ public class SearchResultJpa implements SearchResult {
 
   }
 
-  /**
-   * Returns the id.
-   *
-   * @return the id
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#getTerminologyId()
    */
   @Override
   @XmlElement
@@ -90,10 +93,8 @@ public class SearchResultJpa implements SearchResult {
     return this.terminologyId;
   }
 
-  /**
-   * Sets the id.
-   *
-   * @param terminologyId the id
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#setTerminologyId(java.lang.String)
    */
   @Override
   public void setTerminologyId(String terminologyId) {
@@ -101,30 +102,45 @@ public class SearchResultJpa implements SearchResult {
 
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#getTerminology()
+   */
   /* see superclass */
   @Override
   public String getTerminology() {
     return this.terminology;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#setTerminology(java.lang.String)
+   */
   /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#getVersion()
+   */
   /* see superclass */
   @Override
   public String getVersion() {
     return this.version;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#setVersion(java.lang.String)
+   */
   /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#getValue()
+   */
   /* see superclass */
   @Override
   @XmlElement
@@ -132,36 +148,54 @@ public class SearchResultJpa implements SearchResult {
     return this.value;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#setValue(java.lang.String)
+   */
   /* see superclass */
   @Override
   public void setValue(String value) {
     this.value = value;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#isObsolete()
+   */
   /* see superclass */
   @Override
   public boolean isObsolete() {
     return obsolete;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#setObsolete(boolean)
+   */
   /* see superclass */
   @Override
   public void setObsolete(boolean obsolete) {
     this.obsolete = obsolete;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#getScore()
+   */
   /* see superclass */
   @Override
   public Float getScore() {
     return score;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.SearchResult#setScore(java.lang.Float)
+   */
   /* see superclass */
   @Override
   public void setScore(Float score) {
     this.score = score;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
   /* see superclass */
   @Override
   public int hashCode() {
@@ -179,6 +213,9 @@ public class SearchResultJpa implements SearchResult {
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   /* see superclass */
   @Override
   public boolean equals(Object obj) {
@@ -216,6 +253,9 @@ public class SearchResultJpa implements SearchResult {
     return true;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
   /* see superclass */
   @Override
   public String toString() {

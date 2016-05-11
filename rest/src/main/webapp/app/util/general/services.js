@@ -816,6 +816,65 @@ tsApp.service('securityService', [
       return deferred.promise;
     };
 
+    // update user preferences
+    this.addUserFavorite = function(terminologyId, terminology, version, name) {
+
+      var deferred = $q.defer();
+
+      // skip if parameters not set
+      if (!terminologyId && !terminology && !version && !name) {
+        console.error('Cannot add user favorite, not all parameters specified');
+        deferred.reject();
+      }
+
+      gpService.increment();
+      $http.post(
+        securityUrl + '/user/favorites/add/' + terminology + '/' + version + '/' + terminologyId
+          + '/' + UriEconde(name)).then(
+      // success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // update user preferences
+    this.removeUserFavorite = function(terminologyId, terminology, version) {
+
+      var deferred = $q.defer();
+
+      // skip if parameters not set
+      if (!terminologyId && !terminology && !version) {
+        console.error('Cannot remove user favorite, not all parameters specified');
+        deferred.reject();
+      }
+
+      gpService.increment();
+      $http
+        .post(
+          securityUrl + '/user/favorites/remove/' + terminology + '/' + version + '/'
+            + terminologyId).then(
+        // success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      return deferred.promise;
+    };
+
   } ]);
 
 // Websocket service

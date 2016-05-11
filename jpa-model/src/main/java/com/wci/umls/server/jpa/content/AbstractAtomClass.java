@@ -36,8 +36,8 @@ import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.UserAnnotation;
-import com.wci.umls.server.jpa.helpers.UserAnnotationJpa;
+import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.jpa.helpers.NoteJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 
@@ -105,9 +105,9 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   @Column(nullable = true)
   private String workflowStatus;
 
-  @IndexedEmbedded(targetElement = UserAnnotationJpa.class)
-  @OneToMany(targetEntity = UserAnnotationJpa.class)
-  private List<UserAnnotation> userAnnotations = null;
+  @IndexedEmbedded(targetElement = NoteJpa.class)
+  @OneToMany(targetEntity = NoteJpa.class)
+  private List<Note> userAnnotations = null;
 
   /**
    * Instantiates an empty {@link AbstractAtomClass}.
@@ -265,18 +265,18 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   }
 
   @Override
-  public List<UserAnnotation> getUserAnnotations() {
+  public List<Note> getUserAnnotations() {
     return this.userAnnotations;
   }
 
   @Override
-  public void setUserAnnotations(List<UserAnnotation> userAnnotations) {
+  public void setUserAnnotations(List<Note> userAnnotations) {
     this.userAnnotations = userAnnotations;
 
   }
 
   @Override
-  public void addUserAnnotation(UserAnnotation userAnnotation) {
+  public void addUserAnnotation(Note userAnnotation) {
     if (this.userAnnotations == null) {
       userAnnotations = new ArrayList<>();
     }
@@ -284,7 +284,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   }
 
   @Override
-  public void removeUserAnnotation(UserAnnotation userAnnotation) {
+  public void removeUserAnnotation(Note userAnnotation) {
     if (this.userAnnotations == null) {
       userAnnotations = new ArrayList<>();
     }

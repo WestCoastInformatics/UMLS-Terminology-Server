@@ -61,7 +61,7 @@ public class CodeTransitiveRelationshipJpa extends
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see
    * com.wci.umls.server.model.content.TransitiveRelationship#getSuperType()
@@ -74,7 +74,7 @@ public class CodeTransitiveRelationshipJpa extends
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see
    * com.wci.umls.server.model.content.TransitiveRelationship#setSuperType(com
@@ -192,7 +192,7 @@ public class CodeTransitiveRelationshipJpa extends
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see com.wci.umls.server.model.content.TransitiveRelationship#getSubType()
    */
@@ -204,7 +204,7 @@ public class CodeTransitiveRelationshipJpa extends
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see
    * com.wci.umls.server.model.content.TransitiveRelationship#setSubType(com
@@ -322,7 +322,7 @@ public class CodeTransitiveRelationshipJpa extends
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
    */
@@ -337,7 +337,7 @@ public class CodeTransitiveRelationshipJpa extends
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see
    * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)

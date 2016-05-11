@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response.Status.Family;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -1866,5 +1867,15 @@ public class ContentClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
   }
+
+  @Override
+  public ConceptList getConceptFavoritesForUser(PfsParameter pfs, String query,
+    String terminology, String version, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+
 
 }

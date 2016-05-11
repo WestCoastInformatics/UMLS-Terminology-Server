@@ -3,11 +3,15 @@
  */
 package com.wci.umls.server.jpa;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -20,6 +24,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 
 /**
@@ -60,6 +65,9 @@ public class UserPreferencesJpa implements UserPreferences {
   /** The prec list */
   @OneToOne(targetEntity = PrecedenceListJpa.class, optional = true)
   private PrecedenceList precedenceList = null;
+  
+  @OneToMany(targetEntity=ComponentInfoJpa.class)
+  private List<ComponentInfo> favorites = null;
 
   /**
    * The default constructor.
@@ -285,6 +293,28 @@ public class UserPreferencesJpa implements UserPreferences {
       }
       precedenceList.setId(id);
     }
+  }
+  @Override
+  public void setFavorites(List<ComponentInfo> favorites) {
+    this.favorites = favorites;
+  }
+  @Override
+  public List<ComponentInfo> getFavorites() {
+    return this.favorites;
+  }
+  @Override
+  public void addFavorite(ComponentInfo favorite) {
+    if (this.favorites == null) {
+      this.favorites = new ArrayList<>();
+    }
+    favorites.add(favorite);
+  }
+  @Override
+  public void removeFavorite(ComponentInfo favorite) {
+    if (favorites == null) {
+      this.favorites = new ArrayList<>();
+    }
+    favorites.remove(favorite);
   }
 
   /* see superclass */

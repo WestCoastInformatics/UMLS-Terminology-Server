@@ -12,9 +12,6 @@ tsApp
       function($http, $q, gpService, utilService, tabService, metadataService) {
         console.debug("configure contentService");
 
-        // Show tabs
-        tabService.setShowing(true);
-
         // Initialize
         var metadata = metadataService.getModel();
 
@@ -126,7 +123,7 @@ tsApp
           }
 
         ];
-        
+
         this.getExpressions = function() {
           return expressions;
         }
@@ -541,7 +538,8 @@ tsApp
             startIndex : (page - 1) * pageSizes.general,
             maxResults : pageSizes.general,
             sortField : null,
-            expression : searchParams && searchParams.expression ? searchParams.expression.value : null,
+            expression : searchParams && searchParams.expression ? searchParams.expression.value
+              : null,
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           };
 
@@ -906,6 +904,124 @@ tsApp
             gpService.decrement();
             deferred.reject(response.data);
           });
+        }
+
+        this.addComponentAnnotation = function(component, annotationText) {
+          var deferred = $q.defer();
+          if (!component || !annotationText) {
+            deferred.reject('Concept id and annotation text must be specified');
+          } else {
+
+            var prefix = this.getPrefixForTerminologyAndVersion(component.object.terminology,
+              component.object.version);
+            gpService.increment();
+            $http.post(contentUrl + prefix + '/annotate/' + component.object.id + '/add',
+              annotationText).then(function(response) {
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              // return the original concept without additional annotation
+              deferred.reject();
+            });
+
+            return deferred.promise;
+          }
+        }
+
+        this.updateComponentAnnotation = function(component, annotationId, annotationText) {
+          var deferred = $q.defer();
+          if (!component || !annotationId || !annotationText) {
+            deferred.reject('Component, annotation id, and annotation text must be specified');
+          } else {
+
+            var prefix = this.getPrefixForTerminologyAndVersion(component.object.terminology,
+              component.object.version);
+            gpService.increment();
+            $http.post(
+              contentUrl + prefix + '/annotate/' + component.object.id + '/update/' + annotationId,
+              annotationText).then(function(response) {
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              // return the original concept without additional annotation
+              deferred.reject();
+            });
+
+            return deferred.promise;
+          }
+        }
+
+        this.removeComponentAnnotation = function(component, annotationId, annotationText) {
+          var deferred = $q.defer();
+          if (!component || !annotationId || !annotationText) {
+            deferred.reject('Component, annotationId, and annotation text must be specified');
+          } else {
+
+            var prefix = this.getPrefixForTerminologyAndVersion(component.object.terminology,
+              component.object.version);
+            gpService.increment();
+            $http.post(
+              contentUrl + prefix + '/annotate/' + component.object.id + '/remove' + annotationId)
+              .then(function(response) {
+                deferred.resolve(response.data);
+              }, function(response) {
+                utilService.handleError(response);
+                gpService.decrement();
+                // return the original concept without additional annotation
+                deferred.reject();
+              });
+
+            return deferred.promise;
+          }
+        }
+
+        this.getUserConceptFavorites = function(terminology, version, parameters) {
+          var deferred = $q.defer();
+          if (!terminology || !version || !parameters) {
+            deferred.reject('Parameters must be specified');
+          } else {
+            
+            var prefix = this.getPrefixForTerminologyAndVersion(component.object.terminology,
+              component.object.version);
+
+            var pfs = {
+              startIndex : (parameters.page - 1) * parameters.pageSize,
+              maxResults : parameters.pageSize,
+              sortField : parameters.sortField ? parameters.sortField : 'lastModified',
+              queryRestriction : null
+            };
+
+            gpService.increment();
+            $http.post(
+              contentUrl + '/' + prefix + '/favorites/' + terminology + '/' + version + '?query='
+                + UriEncode(parameters.query)).then(function(response) {
+                  
+                  // TODO Remove once the list objects are normalized
+                  if (response.data.hasOwnProperty('concepts')) {
+                    response.data.objects = response.data.concepts;
+                    delete response.data.concepts;
+                  }
+                  if (response.data.hasOwnProperty('descriptors')) {
+                    response.data.objects = response.data.descriptors;
+                    delete response.data.descriptors;
+                  }
+                  if (response.data.hasOwnProperty('codes')) {
+                    response.data.objects = response.data.codes;
+                    delete response.data.codes;
+                  }
+                  
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              // return the original concept without additional annotation
+              deferred.reject();
+            });
+
+            return deferred.promise;
+          }
         }
 
         // end

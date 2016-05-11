@@ -22,7 +22,8 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.helpers.UserAnnotation;
+import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.model.content.AtomClass;
 
 
 /**
@@ -32,7 +33,7 @@ import com.wci.umls.server.helpers.UserAnnotation;
 @Audited
 @Table(name = "user_annotations")
 @XmlRootElement(name = "userAnnotation")
-public class UserAnnotationJpa implements UserAnnotation {
+public class NoteJpa implements Note {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
@@ -104,17 +105,6 @@ public class UserAnnotationJpa implements UserAnnotation {
   }
 
   @Override
-  public void setAnnotation(String annotation) {
-   this.annotation = annotation;
-  }
-
-  @Override
-  @Field(name = "annotation", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-  public String getAnnotation() {
-    return this.getAnnotation();
-  }
-
-  @Override
   public String toString() {
     return "UserAnnotationJpa [id=" + id + ", timestamp=" + timestamp
         + ", lastModified=" + lastModified + ", lastModifiedBy="
@@ -143,7 +133,7 @@ public class UserAnnotationJpa implements UserAnnotation {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    UserAnnotationJpa other = (UserAnnotationJpa) obj;
+    NoteJpa other = (NoteJpa) obj;
     if (annotation == null) {
       if (other.annotation != null)
         return false;
@@ -165,6 +155,30 @@ public class UserAnnotationJpa implements UserAnnotation {
     } else if (!timestamp.equals(other.timestamp))
       return false;
     return true;
+  }
+
+  @Override
+  public void setNote(String note) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public String getNote() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void setNode(AtomClass node) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public AtomClass getNode() {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   

@@ -143,7 +143,7 @@
           <div class="col-lg-6 col-md-6 col-xs-6">
             <div ng-repeat="(k,v) in searchParams.expression.fields">
               <input style="margin-left: 10px; width: 80%" placeholder="{{k}}"
-              title = "{{searchParams.expression.fields[k]}}"
+                title="{{searchParams.expression.fields[k]}}"
                 ng-change="setExpression()"
                 ng-model="searchParams.expression.fields[k]"></input>
               <a class="noul pull-right" ng-click="selectComponent(k)"
@@ -213,6 +213,46 @@
         </tbody>
       </table>
       <p style="display: block;">&nbsp;</p>
+      <div ng-show="favorites.totalCount > 0">
+        <div class="alert alert-success">
+          <span
+            ng-show="favoritesSearchParams.query && favorites && favorites.totalCount == 0">No</span>
+          <span ng-show="favorites.totalCount > 0">{{favorites.totalCount}}</span>
+          Results <i ng-show="!metadata.terminology.metathesaurus"
+            class="pull-right glyphicon glyphicon-tree-conifer"
+            ng-click="setTreeView()" uib-tooltip="Switch to tree view"
+            tooltip-placement="right"></i>
+        </div>
+        <!--  Margin added to prevent crowding -->
+        <uib-pagination items-per-page="pageSizes.general" max-size="5"
+          boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
+          next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+          ng-show="favorites.totalCount > pageSizes.general"
+          total-items="favorites.totalCount"
+          ng-model="favoritesSearchParams.page"
+          ng-change="findComponents(false)"></uib-pagination>
+        <table class="table table-hover" style="margin-top: 10px;"
+          ng-show="favorites.objects.length > 0">
+          <tbody>
+            <!-- table-hover makes use of the active class -->
+            <tr ng-class="{active: favorite.active}"
+              ng-repeat="favorite in favorites.objects"
+              ng-click="getComponent(favorite.terminologyId, favorite.terminology, favorite.version)">
+              <td>
+                <span class="nobreak">
+                 
+                  <span
+                    ng-show="favorite.terminology != metadata.terminology.terminology">{{favorite.terminology}}/</span>
+                  <span class="breakword">{{favorite.terminologyId}}</span>
+                </span>
+              </td>
+              <td>
+                <span class="breakword"> {{favorite.name}}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <!-- Tree view -->
     <div ng-show="queryForTree && searchResults.tree">
@@ -294,7 +334,17 @@
           uib-tooltip="{{getComponentStr(history[history.index + 1])}}"></i>
         &nbsp;&nbsp; <i ng-click="popout()"
           uib-tooltip="Open {{component.type}} in new window"
-          class="glyphicon glyphicon-share noul"></i>
+          class="glyphicon glyphicon-share noul"></i> &nbsp;&nbsp; <i
+          ng-click="viewNotes()" uib-tooltip="Add/remove notes"
+          class="glyphicon glyphicon-book noul"></i>
+          &nbsp;&nbsp; <i
+          ng-show="!isComponentFavorite()"
+          ng-click="toggleFavorite()" uib-tooltip="Add to favorites"
+          class="glyphicon glyphicon-star-empty noul"></i>
+          <i
+          ng-show="isComponentFavorite()"
+          ng-click="toggleFavorite()" uib-tooltip="Remove favorites"
+          class="glyphicon glyphicon-star noul"></i>
       </div>
     </div>
     <!-- Component display -->

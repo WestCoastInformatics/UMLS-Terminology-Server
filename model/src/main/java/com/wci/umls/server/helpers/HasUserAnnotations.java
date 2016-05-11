@@ -15,27 +15,27 @@ public interface HasUserAnnotations {
    *
    * @return the userAnnotations
    */
-  public List<UserAnnotation> getUserAnnotations();
+  public List<Note> getUserAnnotations();
 
   /**
    * Sets the userAnnotations.
    *
    * @param userAnnotations the userAnnotations
    */
-  public void setUserAnnotations(List<UserAnnotation> userAnnotations);
+  public void setUserAnnotations(List<Note> userAnnotations);
 
   /**
    * Adds the userAnnotation.
    *
    * @param userAnnotation the userAnnotation
    */
-  public void addUserAnnotation(UserAnnotation userAnnotation);
+  public void addUserAnnotation(Note userAnnotation);
 
   /**
    * Removes the userAnnotation.
    *
    * @param userAnnotation the userAnnotation
    */
-  public void removeUserAnnotation(UserAnnotation userAnnotation);
+  public void removeUserAnnotation(Note userAnnotation);
 
 }

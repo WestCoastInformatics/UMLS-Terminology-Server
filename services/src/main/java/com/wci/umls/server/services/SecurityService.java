@@ -7,23 +7,21 @@ import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.UserList;
 
 /**
- * We want the web application to avoid needing to know anything about the
- * details of the security implementation (e.g. service URL, technology, etc).
- * The solution is to build a layer around security WITHIN our own service layer
- * where we can inject any security solution we want into the background.
- * 
+ * The Interface SecurityService.
  */
 public interface SecurityService extends RootService {
 
   /**
-   * Authenticate the user.
-   * 
+   * Authenticate.
+   *
    * @param username the username
    * @param password the password
-   * @return the token
+   * @return the user
    * @throws Exception the exception
    */
   public User authenticate(String username, String password) throws Exception;
@@ -37,8 +35,8 @@ public interface SecurityService extends RootService {
   public void logout(String authToken) throws Exception;
 
   /**
-   * Returns the username for token.
-   * 
+   * Gets the username for token.
+   *
    * @param authToken the auth token
    * @return the username for token
    * @throws Exception the exception
@@ -46,36 +44,36 @@ public interface SecurityService extends RootService {
   public String getUsernameForToken(String authToken) throws Exception;
 
   /**
-   * Returns the application role for token.
-   * 
+   * Gets the application role for token.
+   *
    * @param authToken the auth token
-   * @return the application role
+   * @return the application role for token
    * @throws Exception the exception
    */
   public UserRole getApplicationRoleForToken(String authToken) throws Exception;
 
   /**
-   * Returns the application role for token.
+   * Gets the project role for token.
    *
    * @param authToken the auth token
    * @param projectId the project id
-   * @return the application role
+   * @return the project role for token
    * @throws Exception the exception
    */
   public UserRole getProjectRoleForToken(String authToken, Long projectId)
     throws Exception;
 
   /**
-   * Get user by id.
-   * @param id the id
+   * Gets the user.
    *
+   * @param id the id
    * @return the user
    * @throws Exception the exception
    */
   public User getUser(Long id) throws Exception;
 
   /**
-   * Get user by user.
+   * Gets the user.
    *
    * @param username the username
    * @return the user
@@ -84,14 +82,14 @@ public interface SecurityService extends RootService {
   public User getUser(String username) throws Exception;
 
   /**
-   * Returns the users.
+   * Gets the users.
    *
    * @return the users
    */
   public UserList getUsers();
 
   /**
-   * Adds the user.
+   * Add user.
    *
    * @param user the user
    * @return the user
@@ -99,7 +97,7 @@ public interface SecurityService extends RootService {
   public User addUser(User user);
 
   /**
-   * Removes the user.
+   * Remove user.
    *
    * @param id the id
    */
@@ -127,14 +125,14 @@ public interface SecurityService extends RootService {
   public void updateUserPreferences(UserPreferences userPreferences);
 
   /**
-   * Removes the user preferences.
+   * Remove user preferences.
    *
    * @param id the id
    */
   public void removeUserPreferences(Long id);
 
   /**
-   * Adds the user preferences.
+   * Add user preferences.
    *
    * @param userPreferences the user preferences
    * @return the user preferences
@@ -150,5 +148,45 @@ public interface SecurityService extends RootService {
    * @throws Exception the exception
    */
   public UserList findUsersForQuery(String query, PfsParameter pfs) throws Exception;
+
+  /**
+   * Add user favorite.
+   *
+   * @param userFavorite the user favorite
+   * @return the user favorite
+   * @throws Exception the exception
+   */
+  public ComponentInfo addUserFavorite(ComponentInfo userFavorite) throws Exception;
+
+  /**
+   * Update user favorite.
+   *
+   * @param userFavorite the user favorite
+   * @throws Exception the exception
+   */
+  public void updateUserFavorite(ComponentInfo userFavorite) throws Exception;
+
+  /**
+   * Remove user favorite.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeUserFavorite(Long id) throws Exception;
+
+  /**
+   * Find user favorites for query.
+   *
+   * @param userName the user name
+   * @param terminology the terminology
+   * @param version the version
+   * @param queryStr the query str
+   * @param pfs the pfs
+   * @return the user favorite list
+   * @throws Exception the exception
+   */
+  public ComponentInfoList findUserFavoritesForQuery(String userName,
+    String terminology, String version, String queryStr, PfsParameter pfs)
+      throws Exception;
 
 }

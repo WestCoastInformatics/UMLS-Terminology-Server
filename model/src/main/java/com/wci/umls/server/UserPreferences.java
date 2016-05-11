@@ -3,15 +3,18 @@
  */
 package com.wci.umls.server;
 
+import java.util.List;
+
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.ComponentInfo;
 
 /**
- * Represents a user.
+ * The Interface UserPreferences.
  */
 public interface UserPreferences {
 
   /**
-   * Returns the id.
+   * Gets the id.
    *
    * @return the id
    */
@@ -20,12 +23,12 @@ public interface UserPreferences {
   /**
    * Sets the id.
    *
-   * @param id the id
+   * @param id the new id
    */
   public void setId(Long id);
 
   /**
-   * Returns the user.
+   * Gets the user.
    *
    * @return the user
    */
@@ -34,7 +37,7 @@ public interface UserPreferences {
   /**
    * Sets the user.
    *
-   * @param user the user
+   * @param user the new user
    */
   public void setUser(User user);
 
@@ -81,7 +84,7 @@ public interface UserPreferences {
   public void setLastProjectId(Long lastProjectId);
 
   /**
-   * Returns the feedback email.
+   * Gets the feedback email.
    *
    * @return the feedback email
    */
@@ -90,12 +93,12 @@ public interface UserPreferences {
   /**
    * Sets the feedback email.
    *
-   * @param feedbackEmail the feedback email
+   * @param feedbackEmail the new feedback email
    */
   public void setFeedbackEmail(String feedbackEmail);
 
   /**
-   * Returns the precedence list.
+   * Gets the precedence list.
    *
    * @return the precedence list
    */
@@ -104,8 +107,36 @@ public interface UserPreferences {
   /**
    * Sets the precedence list.
    *
-   * @param precedenceList the precedence list
+   * @param precedenceList the new precedence list
    */
   public void setPrecedenceList(PrecedenceList precedenceList);
+
+  /**
+   * Sets the favorites.
+   *
+   * @param favorites the new favorites
+   */
+  public void setFavorites(List<ComponentInfo> favorites);
+
+  /**
+   * Gets the favorites.
+   *
+   * @return the favorites
+   */
+  public List<ComponentInfo> getFavorites();
+
+  /**
+   * Add favorite.
+   *
+   * @param favorite the favorite
+   */
+  public void addFavorite(ComponentInfo favorite);
+
+  /**
+   * Remove favorite.
+   *
+   * @param favorite the favorite
+   */
+  public void removeFavorite(ComponentInfo favorite);
 
 }

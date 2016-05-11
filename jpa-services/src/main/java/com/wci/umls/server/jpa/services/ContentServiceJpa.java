@@ -32,8 +32,10 @@ import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -41,6 +43,8 @@ import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.content.AtomList;
 import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -57,6 +61,7 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.content.AbstractAtomClass;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -89,6 +94,7 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
+import com.wci.umls.server.jpa.helpers.ComponentInfoListJpa;
 import com.wci.umls.server.jpa.helpers.content.AtomListJpa;
 import com.wci.umls.server.jpa.helpers.content.AttributeListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
@@ -1441,7 +1447,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
   private List findAncestorsHelper(String terminologyId, String terminology,
     String version, boolean parentsOnly, String branch, PfsParameter pfs,
     Class<?> clazz, long[] totalCt) throws Exception {
-// TODO: make this lucene based - much faster!, though treepos may have to exist already?
+    // TODO: make this lucene based - much faster!, though treepos may have to
+    // exist already?
     if (pfs != null && pfs.getQueryRestriction() != null) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
@@ -2484,7 +2491,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         }
         // trim last space, close parenthesis and add boost based on count
         exprQueryRestr =
-            exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")^" + exprResults.getCount();
+            exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")^"
+                + exprResults.getCount();
         localPfsc.setQueryRestriction((pfsc.getQueryRestriction() != null
             ? pfsc.getQueryRestriction() : "") + exprQueryRestr);
       }
@@ -4601,5 +4609,29 @@ public class ContentServiceJpa extends MetadataServiceJpa
       return null;
     }
   }
+
+  @Override
+  public Note addUserNote(Note userNote) throws Exception {
+    // Add component
+    Note newNote = addHasLastModified(userNote);
+
+    // do not inform listeners
+    return newNote;
+  }
+
+  /* see superclass */
+  @Override
+  public void removeUserNote(Long id, Class<? extends Note> type)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Refset Service - remove userNote " + id);
+    // Remove the note
+    removeHasLastModified(id, type);
+
+  }
+
+  
+
+ 
 
 }

@@ -136,7 +136,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see
    * com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#reset()
@@ -162,7 +162,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
    * addProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
@@ -174,7 +174,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
    * removeProgressListener
@@ -187,7 +187,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see
    * com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#cancel
@@ -200,7 +200,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
    * setProperties(java.util.Properties)
@@ -216,7 +216,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
    * setSourceData(com.wci.umls.server.SourceData)
@@ -228,7 +228,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   /*
-   * (non-Javadoc)
+   * (TODO : Remove this)
    * 
    * @see
    * com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#close()

@@ -18,11 +18,15 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
@@ -34,6 +38,7 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.EclConceptIndexingAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
@@ -157,7 +162,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-  
+
   @Override
   @GET
   @Path("/expression/count/{terminology}/{version}/{query}")
@@ -168,13 +173,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The expression to be checked", required = true) @PathParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful POST call (Content): /expression/count/" + terminology + "/version/" + query);
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Content): /expression/count/" + terminology
+            + "/version/" + query);
 
     try {
       authorizeApp(securityService, authToken, "create ECL indexes",
           UserRole.ADMINISTRATOR);
-      EclExpressionHandler handler = new EclExpressionHandler(terminology, version);
+      EclExpressionHandler handler =
+          new EclExpressionHandler(terminology, version);
       return handler.getCount(query);
 
     } catch (Exception e) {
@@ -195,13 +202,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The expression to be checked", required = true) @PathParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful POST call (Content): /expression/count/" + terminology + "/version/" + query);
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Content): /expression/count/" + terminology
+            + "/version/" + query);
 
     try {
       authorizeApp(securityService, authToken, "create ECL indexes",
           UserRole.ADMINISTRATOR);
-      EclExpressionHandler handler = new EclExpressionHandler(terminology, version);
+      EclExpressionHandler handler =
+          new EclExpressionHandler(terminology, version);
       return handler.resolve(query);
 
     } catch (Exception e) {
@@ -2730,10 +2739,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /* see superclass */
-  @Produces({
-      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
-  })
   @Override
   @POST
   @Path("/mapset/{mapSetId}/{terminology}/{version}/mappings")
@@ -2775,10 +2780,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /* see superclass */
-  @Produces({
-      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
-  })
   @Override
   @POST
   @Path("/cui/{terminologyId}/{terminology}/{version}/mappings")
@@ -2818,10 +2819,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /* see superclass */
-  @Produces({
-      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
-  })
   @Override
   @POST
   @Path("/code/{terminologyId}/{terminology}/{version}/mappings")
@@ -2861,10 +2858,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /* see superclass */
-  @Produces({
-      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
-  })
   @Override
   @POST
   @Path("/dui/{terminologyId}/{terminology}/{version}/mappings")
@@ -2904,6 +2897,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+
   /**
    * Returns the precedence list.
    *
@@ -2925,4 +2919,53 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       return metadataService.getDefaultPrecedenceList(obj.getTerminology(),
           obj.getVersion());
   }
+
+  /* see superclass */
+  @POST
+  @Path("/cui/favorites/{terminology}/{version}")
+  @Produces("text/plain")
+  @ApiOperation(value = "Get user favorites", notes = "Gets user favorites for a terminology and version", response = String.class)
+  @Override
+  public ConceptList getConceptFavoritesForUser(
+    @ApiParam(value = "Paging/filtering/sorting object", required = false) PfsParameter pfs,
+    @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Project): /user/favorites/" + terminology
+            + ", " + version + " for authToken " + authToken);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get user favorites",
+          UserRole.VIEWER);
+
+      ComponentInfoList userFavorites = securityService.findUserFavoritesForQuery(
+          authToken, terminology, version, query, pfs);
+      
+      ConceptList conceptList = new ConceptListJpa();
+      conceptList.setTotalCount(userFavorites.getTotalCount());
+      
+      for (ComponentInfo userFavorite : userFavorites.getObjects()) {
+        try {
+        Concept c = contentService.getConcept(userFavorite.getTerminologyId(), terminology, version, Branch.ROOT);
+        conceptList.addObject(c);
+        } catch (Exception e) {
+          throw new Exception("Could not retrieve concept " + userFavorite.getTerminologyId());
+        }
+      }
+      return conceptList;
+        
+    } catch (Exception e) {
+      handleException(e, "trying to get user favorites");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  
 }

@@ -1,21 +1,7 @@
 <div class="modal-header">
-  <h4>{{type}} Notes</h4>
+  <h4>{{type}} Notes: {{component.object.terminologyId}} {{component.object.name}}</h4>
 </div>
 <div class="modal-body">
-  <table class="table">
-    <tr>
-      <td>
-        <b>Name</b>
-      </td>
-      <td>{{object.name}}}</td>
-    </tr>
-    <tr>
-      <td>
-        <b>{{type}} Id</b>
-      </td>
-      <td>{{object.terminologyId}}</td>
-    </tr>
-  </table>
   <div class="row">
     <!--  Left hand side -->
     <div class="col-md-12 col-xs-12">
@@ -49,10 +35,8 @@
               <td>{{toDate(note.lastModified)}}</td>
               <td>{{note.lastModifiedBy}}</td>
               <td>
-                <a class="toolicon" title="Remove"
-                  ng-click="removeNote(object, note); $event.stopPropagation()">
-                  <i title="Remove note" class="noul material-icons md-18">delete</i>
-                </a>
+                <i title="Remove note" class="noul glyphicon glyphicon-trash"
+                  ng-click="removeNote(note); $event.stopPropagation()"></i>
               </td>
             </tr>
           </tbody>
@@ -85,6 +69,6 @@
 </div>
 <div class="modal-footer">
   <button class="btn btn-primary" ng-disabled="!newNote"
-    ng-click="submitNote(object, newNote);" title=" Add new note to {{type}}">Add</button>
+    ng-click="addNote(newNote);" title=" Add new note to {{type}}">Add</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>

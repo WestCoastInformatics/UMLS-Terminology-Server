@@ -7,6 +7,8 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
 
   // metadata (passed in)
   $scope.metadata = metadata;
+  
+  // determine class type for display
   $scope.classType = null;
   if ($scope.metadata && $scope.metadata.terminology) {
     $scope.classType = $scope.metadata.terminology.organizingClassType;

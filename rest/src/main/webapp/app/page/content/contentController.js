@@ -23,6 +23,13 @@ tsApp.controller('ContentCtrl', [
     contentService, configureService, appConfig) {
     console.debug('configure ContentCtrl');
 
+    // tabs are showing
+    tabService.setShowing(true);
+
+
+    // retrieve the user
+    $scope.user = securityService.getUser();
+    console.debug($scope.user);
     // Clear error
     utilService.clearError();
 
@@ -50,6 +57,9 @@ tsApp.controller('ContentCtrl', [
     $scope.searchParams = contentService.getSearchParams();
     $scope.searchResults = null;
     $scope.searchOrBrowse = null;
+    
+    // favorites
+    $scope.favoritesSearchParams = contentService.getSearchParams();
 
     // the expression constructor array
     $scope.expressions = [];
@@ -188,11 +198,12 @@ tsApp.controller('ContentCtrl', [
     // e.g. this is called when a user clicks on a search result
     $scope.getComponent = function(terminologyId, terminology, version) {
       contentService.getComponent(terminologyId, terminology, version).then(function(response) {
-        $scope.component = null;
+
         $scope.component = response;
         // console.debug($scope.component.object);
         $scope.setActiveRow($scope.component.object.terminologyId);
         $scope.addComponentHistory();
+
       });
     };
 
@@ -201,8 +212,9 @@ tsApp.controller('ContentCtrl', [
     $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
       contentService.getComponentFromType(terminologyId, terminology, version, type).then(
         function() {
+          $scope.component = response;
           $scope.setActiveRow($scope.component.object.terminologyId);
-          $scope.addComponentHistoryHistory($scope.component.historyIndex);
+          $scope.addComponentHistory($scope.component.historyIndex);
         });
     };
 
@@ -215,13 +227,13 @@ tsApp.controller('ContentCtrl', [
 
     // Find concepts based on current search
     // - loadFirst indicates whether to auto-load result[0]
-    $scope.findComponents = function(loadFirst) {
+    $scope.findComponents = function(loadFirst, suppressWarnings) {
       $scope.searchOrBrowse = "SEARCH";
       if ($scope.queryForList) {
-        $scope.findComponentsAsList(loadFirst);
+        $scope.findComponentsAsList(loadFirst, suppressWarnings);
       }
       if ($scope.queryForTree) {
-        $scope.findComponentsAsTree(loadFirst);
+        $scope.findComponentsAsTree(loadFirst, suppressWarnings);
       }
       $location.hash('top');
       $anchorScroll();
@@ -229,7 +241,7 @@ tsApp.controller('ContentCtrl', [
     };
 
     // Perform search and populate list view
-    $scope.findComponentsAsList = function(loadFirst) {
+    $scope.findComponentsAsList = function(loadFirst, suppressWarnings) {
       $scope.queryForTree = false;
       $scope.queryForList = true;
 
@@ -241,11 +253,13 @@ tsApp.controller('ContentCtrl', [
 
       // ensure query/expression string has appropriate length
       if (!hasQuery && !hasExpr) {
-        alert("You must use at least one character to search"
-          + ($scope.searchParams.advancedMode ? " or supply an expression" : ""));
-        
-        // added to prevent weird bug causing page to scroll down a few lines
-        $location.hash('top');
+        if (!suppressWarnings) {
+          alert("You must use at least one character to search"
+            + ($scope.searchParams.advancedMode ? " or supply an expression" : ""));
+
+          // added to prevent weird bug causing page to scroll down a few lines
+          $location.hash('top');
+        }
         return;
       }
       contentService.findComponentsAsList($scope.searchParams.query,
@@ -557,6 +571,55 @@ tsApp.controller('ContentCtrl', [
       });
     };
 
+    $scope.viewNotes = function(key) {
+
+      var modalScope = $rootScope.$new();
+
+      var modalInstance = $uibModal.open({
+        animation : $scope.animationsEnabled,
+        templateUrl : 'app/util/annotation-modal/annotationModal.html',
+        controller : 'annotationModalCtrl',
+        scope : $rootScope,
+        size : 'lg',
+        resolve : {
+          component : function() {
+            return $scope.component;
+          }
+        }
+      });
+
+      modalInstance.result.then(function(component) {
+        console.debug('returned with component', component);
+        $scope.searchParams.expression.fields[key] = component.object.terminologyId + ' | '
+          + component.object.name + ' |';
+        $scope.setExpression();
+      }, function() {
+        // do nothing
+      });
+    };
+
+    $scope.getUserFavorites = function(page) {
+      contentService.getUserFavorites(term.terminology, term.version, $scope.favoritesSearchParams).then(
+        function(response) {
+          $scope.favorites = response;
+        })
+    }
+
+    // TODO Move this into more formal setComponent function later
+    $scope.$watch('component', function() {
+      if ($scope.user) {
+        $scope.isFavorite = $scope.user.userPreferences.favorites.filter(function(item) {
+          return item.terminology === $scope.component.object.terminology
+            && item.terminologyId === $scope.component.object.terminologyId
+            && item.version === $scope.component.object.version;
+        }).length > 0;
+      }
+    }, true);
+    
+    $scope.toggleFavorite = function() {
+      
+    }
+
     //
     // Initialize
     //
@@ -566,12 +629,15 @@ tsApp.controller('ContentCtrl', [
       $scope.configureTab();
       $scope.configureExpressions();
 
+      // get the first page of unfilitered user favorites
+      $scope.getUserFavorites(1, null);
+
       //
       // Check for values preserved in content service (after route changes)
       //
       if (contentService.getLastSearchParams()) {
         $scope.searchParams = contentService.getLastSearchParams();
-        $scope.findComponents(false);
+        $scope.findComponents(false, true);
       }
       if (contentService.getLastComponent()) {
         $scope.component = contentService.getLastComponent();

@@ -410,4 +410,18 @@ public class SecurityClientRest extends RootClientRest implements
 
   }
 
+  @Override
+  public void addFavoriteForUser(String terminology, String version,
+    String terminologyId, String name, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void removeFavoriteForUser(String terminology, String version,
+    String terminologyId, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
 }

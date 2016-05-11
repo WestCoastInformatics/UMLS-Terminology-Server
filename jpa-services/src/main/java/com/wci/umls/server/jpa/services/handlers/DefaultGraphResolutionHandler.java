@@ -6,7 +6,7 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import com.wci.umls.server.helpers.UserAnnotation;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -110,7 +110,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     concept.setAttributes(new ArrayList<Attribute>());
     concept.setRelationships(new ArrayList<ConceptRelationship>());
     concept.setMembers(new ArrayList<ConceptSubsetMember>());
-    concept.setUserAnnotations(new ArrayList<UserAnnotation>());
+    concept.setUserAnnotations(new ArrayList<Note>());
   }
 
   /* see superclass */
@@ -120,7 +120,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     descriptor.setDefinitions(new ArrayList<Definition>());
     descriptor.setAttributes(new ArrayList<Attribute>());
     descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
-    descriptor.setUserAnnotations(new ArrayList<UserAnnotation>());
+    descriptor.setUserAnnotations(new ArrayList<Note>());
   }
 
   /* see superclass */
@@ -129,7 +129,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     code.setAtoms(new ArrayList<Atom>());
     code.setAttributes(new ArrayList<Attribute>());
     code.setRelationships(new ArrayList<CodeRelationship>());
-    code.setUserAnnotations(new ArrayList<UserAnnotation>());
+    code.setUserAnnotations(new ArrayList<Note>());
   }
 
   /* see superclass */

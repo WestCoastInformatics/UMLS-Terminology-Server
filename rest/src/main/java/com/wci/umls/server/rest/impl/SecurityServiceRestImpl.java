@@ -20,15 +20,21 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.UserList;
+import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.UserPreferencesJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -45,26 +51,25 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class SecurityServiceRestImpl extends RootServiceRestImpl implements
-    SecurityServiceRest {
+public class SecurityServiceRestImpl extends RootServiceRestImpl
+    implements SecurityServiceRest {
 
   /* see superclass */
   @Override
   @POST
   @Path("/authenticate/{username}")
   @Consumes({
-    MediaType.TEXT_PLAIN
+      MediaType.TEXT_PLAIN
   })
   @ApiOperation(value = "Authenticate a user", notes = "Performs authentication on specified username and password and returns a token upon successful authentication. Throws 401 error if not.", response = UserJpa.class)
   public User authenticate(
     @ApiParam(value = "Username, e.g. 'guest'", required = true) @PathParam("username") String username,
     @ApiParam(value = "Password, as string post data, e.g. 'guest'", required = true) String password)
-    throws Exception {
+      throws Exception {
 
     Logger.getLogger(getClass())
-        .info(
-            "RESTful call (Authentication): /authentication for user = "
-                + username);
+        .info("RESTful call (Authentication): /authentication for user = "
+            + username);
     SecurityService securityService = new SecurityServiceJpa();
     try {
       User user = securityService.authenticate(username, password);
@@ -89,7 +94,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Log out an auth token", notes = "Performs logout on specified auth token", response = String.class)
   public String logout(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @PathParam("authToken") String authToken)
-    throws Exception {
+      throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Authentication): /logout for authToken = " + authToken);
@@ -115,7 +120,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   public User getUser(
     @ApiParam(value = "User internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
+      throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Security): /user/" + id);
     SecurityService securityService = new SecurityServiceJpa();
     try {
@@ -139,9 +144,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   public User getUser(
     @ApiParam(value = "Username, e.g. \"guest\"", required = true) @PathParam("username") String username,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Security): /user/name/" + username);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Security): /user/name/" + username);
     SecurityService securityService = new SecurityServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve the user by username",
@@ -163,7 +168,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Get all users", notes = "Gets all users", response = UserListJpa.class)
   public UserList getUsers(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
+      throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Security): /user/users");
     SecurityService securityService = new SecurityServiceJpa();
     try {
@@ -187,9 +192,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   public User addUser(
     @ApiParam(value = "User, e.g. newUser", required = true) UserJpa user,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Security): /user/add " + user);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (Security): /user/add " + user);
 
     SecurityService securityService = new SecurityServiceJpa();
     try {
@@ -216,9 +221,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   public void removeUser(
     @ApiParam(value = "User internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call DELETE (Security): /user/remove/" + id);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call DELETE (Security): /user/remove/" + id);
 
     SecurityService securityService = new SecurityServiceJpa();
     try {
@@ -242,9 +247,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   public void updateUser(
     @ApiParam(value = "User, e.g. update", required = true) UserJpa user,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call POST (Security): /user/update " + user);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call POST (Security): /user/update " + user);
     SecurityService securityService = new SecurityServiceJpa();
     try {
       authorizeApp(securityService, authToken, "update concept",
@@ -256,7 +261,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
+
   /* see superclass */
   @Override
   @PUT
@@ -265,11 +270,10 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   public UserPreferences addUserPreferences(
     @ApiParam(value = "UserPreferencesJpa, e.g. update", required = true) UserPreferencesJpa userPreferences,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
+      throws Exception {
     Logger.getLogger(getClass())
-        .info(
-            "RESTful call PUT (Security): /user/preferences/add "
-                + userPreferences);
+        .info("RESTful call PUT (Security): /user/preferences/add "
+            + userPreferences);
 
     SecurityService securityService = new SecurityServiceJpa();
     try {
@@ -297,9 +301,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   public void removeUserPreferences(
     @ApiParam(value = "User id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call DELETE (Security): /user/preferences/remove/" + id);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call DELETE (Security): /user/preferences/remove/" + id);
 
     SecurityService securityService = new SecurityServiceJpa();
     try {
@@ -322,21 +326,20 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   public UserPreferences updateUserPreferences(
     @ApiParam(value = "UserPreferencesJpa, e.g. update", required = true) UserPreferencesJpa userPreferences,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call POST (Security): /user/preferences/update "
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call POST (Security): /user/preferences/update "
             + userPreferences);
     SecurityService securityService = new SecurityServiceJpa();
     try {
-      final String userName =
-          authorizeApp(securityService, authToken, "update user preferences",
-              UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "update user preferences", UserRole.VIEWER);
 
       if (!userPreferences.getUser().getUserName().equals(userName)) {
         throw new Exception(
             "User preferences can only be updated for this user");
       }
-      // TODO:
+      // TODO: ???
       userPreferences.setPrecedenceList(null);
       securityService.updateUserPreferences(userPreferences);
       final User user = securityService.getUser(userName);
@@ -352,14 +355,14 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
     return null;
   }
-  
+
   @Override
   @GET
   @Path("/roles")
   @ApiOperation(value = "Get application roles", notes = "Gets list of valid application roles", response = StringList.class)
   public StringList getApplicationRoles(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
+      throws Exception {
     Logger.getLogger(getClass()).info("RESTful POST call (Security): /roles");
 
     final SecurityService securityService = new SecurityServiceJpa();
@@ -388,9 +391,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "The query", required = false) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful POST call (Security): /user/find "
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Security): /user/find "
             + (query == null ? "" : "query=" + query));
 
     // Track system level information
@@ -410,23 +413,22 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
     return null;
   }
-  
+
   /* see superclass */
   @Override
   @GET
   @Path("/user")
-  
+
   @ApiOperation(value = "Get user by auth token", notes = "Gets the user for the specified auth token", response = UserJpa.class)
   public User getUserForAuthToken(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Security): /user/name" + authToken);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Security): /user/name" + authToken);
     final SecurityService securityService = new SecurityServiceJpa();
     try {
-      final String userName =
-          authorizeApp(securityService, authToken,
-              "retrieve the user by auth token", UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "retrieve the user by auth token", UserRole.VIEWER);
       final User user = securityService.getUser(userName);
       securityService.handleLazyInit(user);
       return user;
@@ -436,5 +438,93 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       securityService.close();
     }
+  }
+
+  /* see superclass */
+  @POST
+  @Path("/user/favorites/add/{terminology}/{version}/{terminologyId}/{name}")
+  @Produces("text/plain")
+  @ApiOperation(value = "Adds a user favorite", notes = "Adds a user favorite", response = String.class)
+  @Override
+  public void addFavoriteForUser(
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @QueryParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Name of favorite, e.g. 'component name'", required = true) @QueryParam("name") String name,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Project): /user/favorites/" + terminology
+            + ", " + version + " for authToken " + authToken);
+
+    final SecurityService securityService = new SecurityServiceJpa();
+
+    try {
+      authorizeApp(securityService, authToken, "get user favorites",
+          UserRole.VIEWER);
+
+      UserPreferences preferences =
+          securityService.getUser(authToken).getUserPreferences();
+
+      ComponentInfo userFavorite = new ComponentInfoJpa();
+      userFavorite.setTerminology(terminology);
+      userFavorite.setVersion(version);
+      userFavorite.setTerminologyId(terminologyId);
+      userFavorite.setName(name);
+      securityService.addUserFavorite(userFavorite);
+
+      preferences.addFavorite(userFavorite);
+      securityService.updateUserPreferences(preferences);
+    } catch (Exception e) {
+      handleException(e, "trying to add user favorite");
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @POST
+  @Path("/user/favorites/remove/{terminology}/{version}/{terminologyId}")
+  @Produces("text/plain")
+  @ApiOperation(value = "Adds a user favorite", notes = "Adds a user favorite", response = String.class)
+  @Override
+  public void removeFavoriteForUser(
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @QueryParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Project): /user/favorites/" + terminology
+            + ", " + version + " for authToken " + authToken);
+
+    final SecurityService securityService = new SecurityServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get user favorites",
+          UserRole.VIEWER);
+      
+      UserPreferences preferences = securityService.getUser(authToken).getUserPreferences();
+      
+      ComponentInfo userFavorite = null;
+      for (ComponentInfo favorite : preferences.getFavorites()) {
+        if (favorite.getTerminology().equals(terminology) && favorite.getVersion().equals(version) && favorite.getTerminologyId().equals(terminologyId)) {
+          userFavorite = favorite;
+        }
+      }
+      
+      if (userFavorite == null) {
+        throw new Exception("Could not retrieve user favorite from preferences");
+      }
+      preferences.removeFavorite(userFavorite);
+      securityService.updateUserPreferences(preferences);
+     
+      securityService.removeUserFavorite(userFavorite.getId());
+    } catch (Exception e) {
+      handleException(e, "trying to get user favorites");
+    } finally {
+      securityService.close();
+    }
+    
   }
 }
