@@ -85,7 +85,7 @@ public abstract class RootServiceJpa implements RootService {
     if (!factory.isOpen()) {
       Logger.getLogger(getClass()).info(
           "Setting root service entity manager factory.");
-      Properties config = ConfigUtility.getConfigProperties();
+      final Properties config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     }
 
@@ -105,7 +105,7 @@ public abstract class RootServiceJpa implements RootService {
     if (!factory.isOpen()) {
       Logger.getLogger(getClass()).info(
           "Setting root service entity manager factory.");
-      Properties config = ConfigUtility.getConfigProperties();
+      final Properties config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     }
   }
@@ -219,9 +219,9 @@ public abstract class RootServiceJpa implements RootService {
    * @return the javax.persistence. query
    * @throws Exception the exception
    */
-  public javax.persistence.Query applyPfsToJqlQuery(String queryStr,
-    PfsParameter pfs) throws Exception {
-    StringBuilder localQueryStr = new StringBuilder();
+  public javax.persistence.Query applyPfsToJqlQuery(final String queryStr,
+    final PfsParameter pfs) throws Exception {
+    final StringBuilder localQueryStr = new StringBuilder();
     localQueryStr.append(queryStr);
 
     // Query restriction assumes a driving table called "a"
@@ -245,7 +245,7 @@ public abstract class RootServiceJpa implements RootService {
       }
     }
 
-    javax.persistence.Query query =
+    final javax.persistence.Query query =
         manager.createQuery(localQueryStr.toString());
     if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
       query.setFirstResult(pfs.getStartIndex());
@@ -263,10 +263,11 @@ public abstract class RootServiceJpa implements RootService {
    * @throws Exception
    */
   @SuppressWarnings("static-method")
-  Object getSortFieldValue(Object o, String sortField) throws Exception {
+  Object getSortFieldValue(final Object o, final String sortField)
+    throws Exception {
     // split the fields for method retrieval, e.g. a.b.c. =
     // o.getA().getB().getC()
-    String[] splitFields = sortField.split("\\.");
+    final String[] splitFields = sortField.split("\\.");
 
     int i = 0;
     Method finalMethod = null;
@@ -303,10 +304,11 @@ public abstract class RootServiceJpa implements RootService {
    */
   // package visibility
   @SuppressWarnings("static-method")
-  Class<?> getSortFieldType(Object o, String sortField) throws Exception {
+  Class<?> getSortFieldType(final Object o, final String sortField)
+    throws Exception {
     // split the fields for method retrieval, e.g. a.b.c. =
     // o.getA().getB().getC()
-    String[] splitFields = sortField.split("\\.");
+    final String[] splitFields = sortField.split("\\.");
 
     int i = 0;
     Method finalMethod = null;
@@ -345,8 +347,8 @@ public abstract class RootServiceJpa implements RootService {
    * @throws Exception the exception
    */
   @Override
-  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
-    int[] totalCt, PfsParameter pfs) throws Exception {
+  public <T> List<T> applyPfsToList(final List<T> list, final Class<T> clazz,
+    final int[] totalCt, final PfsParameter pfs) throws Exception {
 
     // Skip empty pfs
     if (pfs == null) {
@@ -409,8 +411,8 @@ public abstract class RootServiceJpa implements RootService {
 
                   // handle date comparison by long value
                   if (isDate) {
-                    Long l1 = s1 == null ? null : ((Date) s1).getTime();
-                    Long l2 = s2 == null ? null : ((Date) s2).getTime();
+                    final Long l1 = s1 == null ? null : ((Date) s1).getTime();
+                    final Long l2 = s2 == null ? null : ((Date) s2).getTime();
                     if (ascending) {
                       if (l1 == null && s2 != null) {
                         return -1;
@@ -498,8 +500,8 @@ public abstract class RootServiceJpa implements RootService {
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  protected <T> Comparator<T> getPfsComparator(Class<T> clazz, PfsParameter pfs)
-    throws Exception {
+  protected <T> Comparator<T> getPfsComparator(final Class<T> clazz,
+    final PfsParameter pfs) throws Exception {
     if (pfs != null
         && (pfs.getSortField() != null && !pfs.getSortField().isEmpty())) {
       // check that specified sort field exists on Concept and is
@@ -567,16 +569,16 @@ public abstract class RootServiceJpa implements RootService {
    * @return the user
    * @throws Exception the exception
    */
-  public User getUser(String userName) throws Exception {
+  public User getUser(final String userName) throws Exception {
     if (userMap.containsKey(userName)) {
       return userMap.get(userName);
     }
-    javax.persistence.Query query =
+    final javax.persistence.Query query =
         manager
             .createQuery("select u from UserJpa u where userName = :userName");
     query.setParameter("userName", userName);
     try {
-      User user = (User) query.getSingleResult();
+      final User user = (User) query.getSingleResult();
       userMap.put(userName, user);
       return user;
     } catch (NoResultException e) {
@@ -586,7 +588,7 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public void setLastModifiedFlag(boolean lastModifiedFlag) {
+  public void setLastModifiedFlag(final boolean lastModifiedFlag) {
     this.lastModifiedFlag = lastModifiedFlag;
   }
 
@@ -600,8 +602,8 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public void logAndCommit(int objectCt, int logCt, int commitCt)
-    throws Exception {
+  public void logAndCommit(final int objectCt, final int logCt,
+    final int commitCt) throws Exception {
     // log at regular intervals
     if (objectCt % logCt == 0) {
       Logger.getLogger(getClass()).info("    count = " + objectCt);
@@ -623,8 +625,9 @@ public abstract class RootServiceJpa implements RootService {
    * @return the query results
    * @throws Exception the exception
    */
-  public <T> List<?> getQueryResults(String query, Class<?> fieldNamesKey,
-    Class<T> clazz, PfsParameter pfs, int[] totalCt) throws Exception {
+  public <T> List<?> getQueryResults(final String query,
+    final Class<?> fieldNamesKey, final Class<T> clazz, final PfsParameter pfs,
+    int[] totalCt) throws Exception {
 
     if (query == null || query.isEmpty()) {
       throw new Exception("Unexpected empty query.");
@@ -637,7 +640,7 @@ public abstract class RootServiceJpa implements RootService {
               manager);
     } catch (ParseException e) {
       // If parse exception, try a literal query
-      StringBuilder escapedQuery = new StringBuilder();
+      final StringBuilder escapedQuery = new StringBuilder();
       if (query != null && !query.isEmpty()) {
         escapedQuery.append(QueryParserBase.escape(query));
       }
@@ -659,8 +662,8 @@ public abstract class RootServiceJpa implements RootService {
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends HasLastModified> T addHasLastModified(T hasLastModified)
-    throws Exception {
+  protected <T extends HasLastModified> T addHasLastModified(
+    final T hasLastModified) throws Exception {
     // Set last modified date
     if (lastModifiedFlag) {
       hasLastModified.setLastModified(new Date());
@@ -677,7 +680,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends Object> T addObject(T object) throws Exception {
+  protected <T extends Object> T addObject(final T object) throws Exception {
     try {
       // add
       if (getTransactionPerOperation()) {
@@ -705,7 +708,7 @@ public abstract class RootServiceJpa implements RootService {
    * @throws Exception the exception
    */
   protected <T extends HasLastModified> void updateHasLastModified(
-    T hasLastModified) throws Exception {
+    final T hasLastModified) throws Exception {
     // Set modification date
     if (lastModifiedFlag) {
       hasLastModified.setLastModified(new Date());
@@ -721,7 +724,8 @@ public abstract class RootServiceJpa implements RootService {
    * @param object the object
    * @throws Exception the exception
    */
-  protected <T extends Object> void updateObject(T object) throws Exception {
+  protected <T extends Object> void updateObject(final T object)
+    throws Exception {
     try {
       // update
       if (getTransactionPerOperation()) {
@@ -750,8 +754,8 @@ public abstract class RootServiceJpa implements RootService {
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends HasLastModified> T removeHasLastModified(Long id,
-    Class<T> clazz) throws Exception {
+  protected <T extends HasLastModified> T removeHasLastModified(final Long id,
+    final Class<T> clazz) throws Exception {
     try {
       // Get transaction and object
       tx = manager.getTransaction();
@@ -797,8 +801,8 @@ public abstract class RootServiceJpa implements RootService {
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends Object> T removeObject(T object, Class<T> clazz)
-    throws Exception {
+  protected <T extends Object> T removeObject(final T object,
+    final Class<T> clazz) throws Exception {
     try {
       // Get transaction and object
       tx = manager.getTransaction();
@@ -837,11 +841,11 @@ public abstract class RootServiceJpa implements RootService {
    * @return the checks for object
    * @throws Exception the exception
    */
-  protected <T extends Object> T getObject(Long id, Class<T> clazz)
+  protected <T extends Object> T getObject(final Long id, final Class<T> clazz)
     throws Exception {
     // Get transaction and object
     tx = manager.getTransaction();
-    T component = manager.find(clazz, id);
+    final T component = manager.find(clazz, id);
     return component;
   }
 
@@ -854,11 +858,11 @@ public abstract class RootServiceJpa implements RootService {
    * @return the checks for last modified
    * @throws Exception the exception
    */
-  protected <T extends HasLastModified> T getHasLastModified(Long id,
-    Class<T> clazz) throws Exception {
+  protected <T extends HasLastModified> T getHasLastModified(final Long id,
+    final Class<T> clazz) throws Exception {
     // Get transaction and object
     tx = manager.getTransaction();
-    T component = manager.find(clazz, id);
+    final T component = manager.find(clazz, id);
     return component;
   }
 
@@ -874,9 +878,10 @@ public abstract class RootServiceJpa implements RootService {
    */
   @SuppressWarnings("unchecked")
   protected <T extends HasLastModified> T getHasLastModified(
-    String terminologyId, String terminology, String version, Class<T> clazz) {
+    final String terminologyId, final String terminology, final String version,
+    final Class<T> clazz) {
     try {
-      javax.persistence.Query query =
+      final javax.persistence.Query query =
           manager
               .createQuery("select a from "
                   + clazz.getName()
@@ -893,15 +898,15 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public List<LogEntry> findLogEntriesForQuery(String query, PfsParameter pfs)
-    throws Exception {
+  public List<LogEntry> findLogEntriesForQuery(final String query,
+    final PfsParameter pfs) throws Exception {
 
     final StringBuilder sb = new StringBuilder();
     if (query != null && !query.equals("")) {
       sb.append(query);
     }
 
-    int[] totalCt = new int[1];
+    final int[] totalCt = new int[1];
     final List<LogEntry> list =
         (List<LogEntry>) getQueryResults(sb.toString(), LogEntryJpa.class,
             LogEntryJpa.class, pfs, totalCt);
@@ -911,33 +916,33 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public LogEntry addLogEntry(LogEntry logEntry) throws Exception {
+  public LogEntry addLogEntry(final LogEntry logEntry) throws Exception {
     return addHasLastModified(logEntry);
   }
 
   /* see superclass */
   @Override
-  public void updateLogEntry(LogEntry logEntry) throws Exception {
+  public void updateLogEntry(final LogEntry logEntry) throws Exception {
     updateHasLastModified(logEntry);
   }
 
   /* see superclass */
   @Override
-  public void removeLogEntry(Long id) throws Exception {
+  public void removeLogEntry(final Long id) throws Exception {
     removeHasLastModified(id, LogEntry.class);
   }
 
   /* see superclass */
   @Override
-  public LogEntry getLogEntry(Long id) throws Exception {
+  public LogEntry getLogEntry(final Long id) throws Exception {
     return getHasLastModified(id, LogEntry.class);
   }
 
   /* see superclass */
   @Override
-  public LogEntry addLogEntry(String userName, Long projectId, Long objectId,
-    String message) throws Exception {
-    LogEntry entry = new LogEntryJpa();
+  public LogEntry addLogEntry(final String userName, final Long projectId,
+    final Long objectId, final String message) throws Exception {
+    final LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setObjectId(objectId);
     entry.setProjectId(projectId);
@@ -948,17 +953,15 @@ public abstract class RootServiceJpa implements RootService {
     entry.setActivity(null);
 
     // Add component
-    LogEntry newLogEntry = addLogEntry(entry);
-
-    // do not inform listeners
-    return newLogEntry;
+    return addLogEntry(entry);
 
   }
 
   /* see superclass */
   @Override
-  public LogEntry addLogEntry(String userName, String terminology,
-    String version, LogActivity activity, String message) throws Exception {
+  public LogEntry addLogEntry(final String userName, final String terminology,
+    final String version, final LogActivity activity, final String message)
+    throws Exception {
     LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setTerminology(terminology);
@@ -968,10 +971,7 @@ public abstract class RootServiceJpa implements RootService {
     entry.setActivity(activity);
 
     // Add component
-    LogEntry newLogEntry = addLogEntry(entry);
-
-    // do not inform listeners
-    return newLogEntry;
+    return addLogEntry(entry);
 
   }
 

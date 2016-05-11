@@ -1462,6 +1462,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     List<MapSet> mapSetResults = query.getResultList();
     for (MapSet result : mapSetResults) {
       mapSetMap.put(result.getTerminologyId(), result);
+      // lazy initialize
+      result.getAttributes().size();
     }
 
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
@@ -2681,6 +2683,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     List<AtomSubset> results = query.getResultList();
     for (AtomSubset result : results) {
       atomSubsetMap.put(result.getTerminologyId(), result);
+      // lazy initialize
+      result.getAttributes().size();
     }
 
     query =
@@ -2693,6 +2697,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     List<ConceptSubset> results2 = query.getResultList();
     for (ConceptSubset result : results2) {
       conceptSubsetMap.put(result.getTerminologyId(), result);
+      // lazy initialize
+      result.getAttributes().size();
     }
 
     // Cache subset members
@@ -2799,7 +2805,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       // If we have not yet updated this, try now
       if (!subsetsUpdated.contains(fields[4])) {
-        subset.getAttributes().size();
         final ConceptSubset subset2 = new ConceptSubsetJpa(subset, true);
         setCommonFields(subset2, date);
         subset2.setTerminologyId(fields[4].intern());
@@ -2899,6 +2904,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       addSubset(subset);
       atomSubsetMap.put(fields[4], subset);
+      // lazy initialize
+      subset.getAttributes().size();
       commitClearBegin();
 
       ((AtomSubsetMember) member).setSubset(subset);
@@ -2928,6 +2935,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       addSubset(subset);
       conceptSubsetMap.put(fields[4], subset);
+      // lazy initialize
+      subset.getAttributes().size();
       commitClearBegin();
 
       ((ConceptSubsetMember) member).setSubset(subset);
@@ -3093,6 +3102,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       addMapSet(mapSet);
       mapSetMap.put(fields[4], mapSet);
+      // lazy initialize
+      mapSet.getAttributes().size();
       commitClearBegin();
 
       mapping.setMapSet(mapSet);

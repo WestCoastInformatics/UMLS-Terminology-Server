@@ -50,9 +50,6 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The compute semantic types. */
   private boolean computeSemanticTypes;
 
-  /** The Constant commitCt. */
-  private final static int commitCt = 2000;
-
   /** The object ct. */
   private static int objectCt = 0;
 
@@ -146,7 +143,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     int ct = 0;
     final Map<Long, Set<Long>> parChd = new HashMap<>();
-    final Map<Long, Set<Long>> chdPar = new HashMap<>();
+    Map<Long, Set<Long>> chdPar = new HashMap<>();
     for (final Object[] r : relationships) {
       ct++;
       long fromId = Long.parseLong(r[0].toString());
@@ -192,7 +189,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
     logInfo("  count = " + rootIds.size());
-    chdPar.clear();
+    chdPar = null;
 
     setTransactionPerOperation(false);
     beginTransaction();
@@ -257,7 +254,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             concept.addSemanticType(sty);
           }
           updateConcept(concept);
-          logAndCommit(++objectCt, commitCt, commitCt);
+          logAndCommit(++objectCt, logCt, commitCt);
           // Check cancel flag
           if (objectCt % RootService.logCt == 0 && isCancelled()) {
             rollback();
