@@ -122,27 +122,29 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   private Set<String> generalEntryValues = new HashSet<>();
 
   /** The loader. */
-  final String loader = "loader";
+  private final String loader = "loader";
 
   /** The init pref name. */
-  final String initPrefName = "Default prefered name could not be determined";
+  private final String initPrefName =
+      "Default prefered name could not be determined";
 
   /** The published. */
-  final String published = "PUBLISHED";
+  private final String published = "PUBLISHED";
 
   /** The tree pos algorithm. */
-  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+  private final TreePositionAlgorithm treePosAlgorithm =
+      new TreePositionAlgorithm();
 
   /** The trans closure algorithm. */
-  final TransitiveClosureAlgorithm transClosureAlgorithm =
+  private final TransitiveClosureAlgorithm transClosureAlgorithm =
       new TransitiveClosureAlgorithm();
 
   /** The label set algorithm. */
-  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
+  private final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
       new LabelSetMarkedParentAlgorithm();
 
   /** The RF2 File sorting algorithm. */
-  final Rf2FileSorter sorter = new Rf2FileSorter();
+  private final Rf2FileSorter sorter = new Rf2FileSorter();
 
   /**
    * Instantiates an empty {@link Rf2DeltaLoaderAlgorithm}.
@@ -471,7 +473,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         if (conceptSubset.isLabelSubset()) {
           Logger.getLogger(getClass()).info(
               "  Create label set for subset = " + subset);
-
+          labelSetAlgorithm.setTerminology(getTerminology());
+          labelSetAlgorithm.setVersion(getVersion());
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
           labelSetAlgorithm.close();

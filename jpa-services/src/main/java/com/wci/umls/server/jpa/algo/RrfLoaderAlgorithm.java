@@ -227,15 +227,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /** The tree pos algorithm. */
-  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+  private TreePositionAlgorithm treePosAlgorithm = null;
 
   /** The trans closure algorithm. */
-  final TransitiveClosureAlgorithm transClosureAlgorithm =
-      new TransitiveClosureAlgorithm();
+  private TransitiveClosureAlgorithm transClosureAlgorithm = null;
 
   /** The label set algorithm. */
-  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
-      new LabelSetMarkedParentAlgorithm();
+  private LabelSetMarkedParentAlgorithm labelSetAlgorithm = null;
 
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
@@ -1105,6 +1103,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Skip non-matching in single mode
       if (singleMode && !fields[9].equals(getTerminology())
           && !fields[9].equals("SAB")) {
+        continue;
+      }
+
+      // Skip LT attributes entirely
+      // There are issues with the SAB of the atom and the SAB of the LT
+      // attribute that need resolving
+      if (fields[8].equals("LT")) {
         continue;
       }
 
@@ -2864,18 +2869,18 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     for (final Terminology t : getTerminologyLatestVersions().getObjects()) {
       // Only compute for organizing class types
       if (t.getOrganizingClassType() != null) {
-        TreePositionAlgorithm algo = new TreePositionAlgorithm();
-        algo.setTerminology(t.getTerminology());
-        algo.setVersion(t.getVersion());
-        algo.setIdType(t.getOrganizingClassType());
+        treePosAlgorithm = new TreePositionAlgorithm();
+        treePosAlgorithm.setTerminology(t.getTerminology());
+        treePosAlgorithm.setVersion(t.getVersion());
+        treePosAlgorithm.setIdType(t.getOrganizingClassType());
         // some terminologies may have cycles, allow these for now.
-        algo.setCycleTolerant(true);
+        treePosAlgorithm.setCycleTolerant(true);
         // compute "semantic types" for concept hierarchies
         if (t.getOrganizingClassType() == IdType.CONCEPT) {
-          algo.setComputeSemanticType(true);
+          treePosAlgorithm.setComputeSemanticType(true);
         }
-        algo.compute();
-        algo.close();
+        treePosAlgorithm.compute();
+        treePosAlgorithm.close();
       }
     }
 
@@ -2888,11 +2893,12 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (conceptSubset.isLabelSubset()) {
           Logger.getLogger(getClass()).info(
               "  Create label set for subset = " + subset);
-          LabelSetMarkedParentAlgorithm algo3 =
-              new LabelSetMarkedParentAlgorithm();
-          algo3.setSubset(conceptSubset);
-          algo3.compute();
-          algo3.close();
+          labelSetAlgorithm = new LabelSetMarkedParentAlgorithm();
+          labelSetAlgorithm.setTerminology(t.getTerminology());
+          labelSetAlgorithm.setVersion(t.getVersion());
+          labelSetAlgorithm.setSubset(conceptSubset);
+          labelSetAlgorithm.compute();
+          labelSetAlgorithm.close();
         }
       }
     }
@@ -2914,14 +2920,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     for (final Terminology t : getTerminologyLatestVersions().getObjects()) {
       // Only compute for organizing class types
       if (t.getOrganizingClassType() != null) {
-        TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-        algo.setTerminology(t.getTerminology());
-        algo.setVersion(t.getVersion());
-        algo.setIdType(t.getOrganizingClassType());
+        transClosureAlgorithm = new TransitiveClosureAlgorithm();
+        transClosureAlgorithm.setTerminology(t.getTerminology());
+        transClosureAlgorithm.setVersion(t.getVersion());
+        transClosureAlgorithm.setIdType(t.getOrganizingClassType());
         // some terminologies may have cycles, allow these for now.
-        algo.setCycleTolerant(true);
-        algo.compute();
-        algo.close();
+        transClosureAlgorithm.setCycleTolerant(true);
+        transClosureAlgorithm.compute();
+        transClosureAlgorithm.close();
       }
     }
   }

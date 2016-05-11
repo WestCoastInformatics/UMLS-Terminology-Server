@@ -29,22 +29,17 @@ import com.wci.umls.server.model.meta.IdType;
  */
 public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
-  /** The loader. */
-  final String loader = "loader";
-
   /** The tree pos algorithm. */
-  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+  private final TreePositionAlgorithm treePosAlgorithm =
+      new TreePositionAlgorithm();
 
   /** The trans closure algorithm. */
-  final TransitiveClosureAlgorithm transClosureAlgorithm =
+  private final TransitiveClosureAlgorithm transClosureAlgorithm =
       new TransitiveClosureAlgorithm();
 
   /** The label set algorithm. */
-  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
+  private final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
       new LabelSetMarkedParentAlgorithm();
-
-  /** The RF2 File sorting algorithm. */
-  final Rf2FileSorter sorter = new Rf2FileSorter();
 
   /**
    * Instantiates an empty {@link Rf2FullLoaderAlgorithm}.
@@ -271,6 +266,8 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           Logger.getLogger(getClass()).info(
               "  Create label set for subset = " + subset);
 
+          labelSetAlgorithm.setTerminology(getTerminology());
+          labelSetAlgorithm.setVersion(getVersion());
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
           labelSetAlgorithm.close();

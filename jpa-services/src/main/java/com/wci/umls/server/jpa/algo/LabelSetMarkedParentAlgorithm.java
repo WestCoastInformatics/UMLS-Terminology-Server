@@ -178,7 +178,9 @@ public class LabelSetMarkedParentAlgorithm extends
       conceptIds.add(concept.getId());
 
       // Add the ancestors
-      ancestorConceptIds.addAll(chdPar.get(concept.getId()));
+      if (chdPar.containsKey(concept.getId())) {
+        ancestorConceptIds.addAll(chdPar.get(concept.getId()));
+      }
 
     }
     logInfo("    concept count = " + ancestorConceptIds.size());

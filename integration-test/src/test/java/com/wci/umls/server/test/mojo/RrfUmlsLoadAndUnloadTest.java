@@ -331,6 +331,42 @@ public class RrfUmlsLoadAndUnloadTest {
       throw result.getExecutionException();
     }
 
+    // Remove MSH terminology
+    Logger.getLogger(getClass()).info("Remove MSH");
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "MSH");
+    p.setProperty("version", "2015_2014_09_08");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify no contents
+    Logger.getLogger(getClass()).info("Verify no MSH contents");
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0,
+        service.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT)
+            .getCount());
+    Assert.assertEquals(0,
+        service.getAllDescriptors("MSH", "2015_2014_09_08", Branch.ROOT)
+            .getCount());
+    Assert.assertEquals(0,
+        service.getAllCodes("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("MSH", "2015_2014_09_08", Branch.ROOT));
+    service.close();
+    service.closeFactory();
+
     // Verify no contents
     Logger.getLogger(getClass()).info("Verify no contents");
     service = new ContentServiceJpa();
@@ -388,42 +424,6 @@ public class RrfUmlsLoadAndUnloadTest {
         "  component stats = "
             + service.getComponentStats("SNOMEDCT_US", "2014_09_01",
                 Branch.ROOT));
-    service.close();
-    service.closeFactory();
-
-    // Remove MSH terminology
-    Logger.getLogger(getClass()).info("Remove MSH");
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/remover/pom.xml"));
-    request.setProfiles(Arrays.asList("Terminology"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
-    p.setProperty("server", server);
-    p.setProperty("terminology", "MSH");
-    p.setProperty("version", "2015_2014_09_08");
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-
-    // Verify no contents
-    Logger.getLogger(getClass()).info("Verify no MSH contents");
-    service = new ContentServiceJpa();
-    Assert.assertEquals(0,
-        service.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT)
-            .getCount());
-    Assert.assertEquals(0,
-        service.getAllDescriptors("MSH", "2015_2014_09_08", Branch.ROOT)
-            .getCount());
-    Assert.assertEquals(0,
-        service.getAllCodes("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
-    // Print component Stats
-    Logger.getLogger(getClass()).info(
-        "  component stats = "
-            + service.getComponentStats("MSH", "2015_2014_09_08", Branch.ROOT));
     service.close();
     service.closeFactory();
 

@@ -156,29 +156,30 @@ public class Rf2SnapshotLoaderAlgorithm extends
   private Set<String> generalEntryValues = new HashSet<>();
 
   /** counter for objects created, reset in each load section. */
-  int objectCt; //
+  private int objectCt; //
 
   /** The init pref name. */
-  final String initPrefName = "No default preferred name found";
+  private final String initPrefName = "No default preferred name found";
 
   /** The loader. */
-  final String loader = "loader";
+  private final String loader = "loader";
 
   /** The id. */
-  final String id = "id";
+  private final String id = "id";
 
   /** The published. */
-  final String published = "PUBLISHED";
+  private final String published = "PUBLISHED";
 
   /** The tree pos algorithm. */
-  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+  private final TreePositionAlgorithm treePosAlgorithm =
+      new TreePositionAlgorithm();
 
   /** The trans closure algorithm. */
-  final TransitiveClosureAlgorithm transClosureAlgorithm =
+  private final TransitiveClosureAlgorithm transClosureAlgorithm =
       new TransitiveClosureAlgorithm();
 
   /** The label set algorithm. */
-  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
+  private final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
       new LabelSetMarkedParentAlgorithm();
 
   /**
@@ -453,6 +454,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
         if (conceptSubset.isLabelSubset()) {
           Logger.getLogger(getClass()).info(
               "  Create label set for subset = " + subset);
+          labelSetAlgorithm.setTerminology(getTerminology());
+          labelSetAlgorithm.setVersion(getVersion());
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
         }

@@ -235,7 +235,6 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Handle "semantic types"
       if (computeSemanticTypes) {
         objectCt = 0;
-        logInfo("Compute semantic types based on tree");
         for (final Long conceptId : semanticTypeMap.keySet()) {
           final Concept concept = getConcept(conceptId);
           for (Long styId : semanticTypeMap.get(conceptId)) {
