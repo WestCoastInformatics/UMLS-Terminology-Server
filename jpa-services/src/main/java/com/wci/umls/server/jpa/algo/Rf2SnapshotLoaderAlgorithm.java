@@ -138,7 +138,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
   private Map<String, ConceptSubset> conceptSubsetMap = new HashMap<>();
 
   /** The concept mapset map. */
-  private Map<String, MapSet> conceptMapSetMap = new HashMap<>();
+  private Map<String, MapSet> mapSetMap = new HashMap<>();
 
   /** The term types. */
   private Set<String> termTypes = new HashSet<>();
@@ -1688,11 +1688,11 @@ public class Rf2SnapshotLoaderAlgorithm extends
     mapping.setRule(fields[8]);
     mapping.setAdvice(fields[9]);
 
-    if (conceptMapSetMap.containsKey(fields[4])) {
-      final MapSet subset = conceptMapSetMap.get(fields[4]);
+    if (mapSetMap.containsKey(fields[4])) {
+      final MapSet subset = mapSetMap.get(fields[4]);
       mapping.setMapSet(subset);
 
-    } else if (!conceptMapSetMap.containsKey(fields[4])) {
+    } else if (!mapSetMap.containsKey(fields[4])) {
 
       final MapSet mapSet = new MapSetJpa();
       setCommonFields(mapSet, date);
@@ -1715,7 +1715,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       mapSet.addAttribute(attribute2);
       addAttribute(attribute2, mapSet);
       addMapSet(mapSet);
-      conceptMapSetMap.put(fields[4], mapSet);
+      mapSetMap.put(fields[4], mapSet);
       commitClearBegin();
 
       mapping.setMapSet(mapSet);

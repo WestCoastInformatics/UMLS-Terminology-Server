@@ -2805,7 +2805,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       // If we have not yet updated this, try now
       if (!subsetsUpdated.contains(fields[4])) {
-        final ConceptSubset subset2 = new ConceptSubsetJpa(subset, true);
+        final ConceptSubset subset2 =
+            (ConceptSubset) getSubset(subset.getId(), ConceptSubsetJpa.class);
         setCommonFields(subset2, date);
         subset2.setTerminologyId(fields[4].intern());
         final Concept concept = getConcept(idMap.get(fields[4]));
@@ -2847,8 +2848,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       // If we have not yet updated this, try now
       if (!subsetsUpdated.contains(fields[4])) {
-        subset.getAttributes().size();
-        final AtomSubset subset2 = new AtomSubsetJpa(subset, true);
+        final AtomSubset subset2 =
+            (AtomSubset) getSubset(subset.getId(), AtomSubsetJpa.class);
         setCommonFields(subset2, date);
         subset2.setTerminologyId(fields[4].intern());
         final Concept concept = getConcept(idMap.get(fields[4]));
@@ -2904,8 +2905,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       addSubset(subset);
       atomSubsetMap.put(fields[4], subset);
-      // lazy initialize
-      subset.getAttributes().size();
       commitClearBegin();
 
       ((AtomSubsetMember) member).setSubset(subset);
@@ -2935,8 +2934,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       addSubset(subset);
       conceptSubsetMap.put(fields[4], subset);
-      // lazy initialize
-      subset.getAttributes().size();
       commitClearBegin();
 
       ((ConceptSubsetMember) member).setSubset(subset);
@@ -3037,10 +3034,9 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       // If we have not yet updated this, try now
       if (!mapSetsUpdated.contains(fields[4])) {
-        mapSet.getAttributes().size();
-        final MapSet mapSet2 = new MapSetJpa(mapSet, true);
+        final MapSet mapSet2 = getMapSet(mapSet.getId());
         setCommonFields(mapSet2, date);
-        mapSet.setTerminologyId(fields[4].intern());
+        mapSet2.setTerminologyId(fields[4].intern());
         final Concept concept = getConcept(idMap.get(fields[4]));
         mapSet2.setName(concept.getName());
         mapSet2.setObsolete(concept.isObsolete());
@@ -3102,8 +3098,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       addMapSet(mapSet);
       mapSetMap.put(fields[4], mapSet);
-      // lazy initialize
-      mapSet.getAttributes().size();
       commitClearBegin();
 
       mapping.setMapSet(mapSet);

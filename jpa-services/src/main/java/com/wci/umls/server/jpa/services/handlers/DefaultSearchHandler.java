@@ -154,7 +154,6 @@ public class DefaultSearchHandler implements SearchHandler {
       // store the score
       scoreMap.put(t.getId(), normScore.floatValue());
     }
-    Logger.getLogger(getClass()).debug("  scoreMap = " + scoreMap);
 
     return classes;
 
