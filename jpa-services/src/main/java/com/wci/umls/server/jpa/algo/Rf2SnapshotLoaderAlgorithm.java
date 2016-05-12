@@ -346,9 +346,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
       //
       // load AtomType RefSets (Content)
       //
-      logInfo("  Loading Atom Type Ref Sets...");
-
-      loadAtomTypeRefSets();
+      logInfo("  Loading Description Type Ref Sets...");
+      loadDescriptionTypeRefSets();
 
       // Load metadata
       loadMetadata();
@@ -1481,7 +1480,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
    *
    * @throws Exception the exception
    */
-  private void loadAtomTypeRefSets() throws Exception {
+  private void loadDescriptionTypeRefSets() throws Exception {
 
     String line = "";
     objectCt = 0;

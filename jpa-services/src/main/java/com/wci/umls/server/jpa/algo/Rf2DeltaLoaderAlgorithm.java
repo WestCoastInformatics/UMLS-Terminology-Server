@@ -334,8 +334,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     //
     // Load atom type refset members
     //
-    logInfo("    Loading Atom Type Ref Sets...");
-    loadAtomTypeRefSetMembers();
+    logInfo("    Loading Description Type Ref Sets...");
+    loadDescriptionTypeRefSetMembers();
 
     //
     // Load refset descriptor refset members
@@ -1568,7 +1568,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
    *
    * @throws Exception the exception
    */
-  private void loadAtomTypeRefSetMembers() throws Exception {
+  private void loadDescriptionTypeRefSetMembers() throws Exception {
     Set<Concept> modifiedConcepts = new HashSet<>();
 
     // Setup variables
