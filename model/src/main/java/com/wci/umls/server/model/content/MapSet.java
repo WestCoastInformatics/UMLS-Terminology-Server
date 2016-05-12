@@ -198,20 +198,6 @@ public interface MapSet extends ComponentHasAttributes {
   public void setToVersion(String toVersion);
 
   /**
-   * Gets the map version.
-   *
-   * @return the map version
-   */
-  public String getMapVersion();
-
-  /**
-   * Sets the map version.
-   *
-   * @param mapVersion the new map version
-   */
-  public void setMapVersion(String mapVersion);
-
-  /**
    * Clear mappings.
    */
   public void clearMappings();

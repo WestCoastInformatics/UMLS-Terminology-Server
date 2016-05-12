@@ -237,7 +237,6 @@ public class ProjectJpa implements Project {
   }
 
   /* see superclass */
-  @XmlElement
   @XmlJavaTypeAdapter(UserRoleMapAdapter.class)
   @Fields({
       @Field(bridge = @FieldBridge(impl = UserRoleBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO),

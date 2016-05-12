@@ -1341,10 +1341,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (mapSet.getTerminology() == null) {
         throw new LocalException("Mapsets has no terminology set.");
       }
-      if (mapSet.getMapVersion() == null) {
-        logWarn("Mapset has no version set: " + mapSet.toString());
-        throw new LocalException("Mapsets must have a map version set.");
-      }
 
       mapSet.setTimestamp(releaseVersionDate);
 
@@ -1609,7 +1605,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (atn.equals("MAPSETNAME")) {
       mapSet.setName(atv);
     } else if (atn.equals("MAPSETVERSION")) {
-      mapSet.setMapVersion(atv);
+      // n/a - version is picked up from the SAB
+      // mapSet.setMapVersion(atv);
     } else if (atn.equals("TOVSAB")) {
       if (mapSet.getToTerminology() != null) {
         String version = atv.substring(mapSet.getToTerminology().length());
@@ -2613,14 +2610,19 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
           continue;
         }
-        // skip where code == concept - problem because rels connect to the code
-        // if (atom.getCodeId().equals(atom.getConceptId())) {
-        // continue;
-        // }
-        // skip where code == descriptor
-        // if (atom.getCodeId().equals(atom.getDescriptorId())) {
-        // continue;
-        // }
+
+        // TODO: there is a LNC exception here -for now
+        if (!atom.getTerminology().equals("LNC")) {
+          // skip where code == concept
+          if (atom.getCodeId().equals(atom.getConceptId())) {
+            continue;
+          }
+          // skip where code == descriptor
+          if (atom.getCodeId().equals(atom.getDescriptorId())) {
+            continue;
+          }
+        }
+
         if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
           if (code != null) {
             // compute preferred name

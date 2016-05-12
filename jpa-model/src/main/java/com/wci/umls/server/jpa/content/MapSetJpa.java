@@ -85,10 +85,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
   @Column(nullable = true)
   private String toVersion;
 
-  /** The map version. */
-  @Column(nullable = false)
-  private String mapVersion;
-
   /**
    * Instantiates an empty {@link MapSetJpa}.
    */
@@ -115,7 +111,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
     toTerminology = mapSet.getToTerminology();
     fromVersion = mapSet.getFromVersion();
     toVersion = mapSet.getToVersion();
-    mapVersion = mapSet.getMapVersion();
     if (deepCopy) {
       for (Mapping mapping : mapSet.getMappings()) {
         addMapping(new MappingJpa(mapping, deepCopy));
@@ -402,26 +397,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
     this.complexity = complexity;
   }
 
-  /**
-   * Gets the map version.
-   *
-   * @return the map version
-   */
-  @Override
-  public String getMapVersion() {
-    return mapVersion;
-  }
-
-  /**
-   * Sets the map version.
-   *
-   * @param mapVersion the new map version
-   */
-  @Override
-  public void setMapVersion(String mapVersion) {
-    this.mapVersion = mapVersion;
-  }
-
   /* see superclass */
   @Override
   public void clearMappings() {
@@ -446,8 +421,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
             + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
     result =
         prime * result + ((fromVersion == null) ? 0 : fromVersion.hashCode());
-    result =
-        prime * result + ((mapVersion == null) ? 0 : mapVersion.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((toComplexity == null) ? 0 : toComplexity.hashCode());
@@ -496,11 +469,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
         return false;
     } else if (!fromVersion.equals(other.fromVersion))
       return false;
-    if (mapVersion == null) {
-      if (other.mapVersion != null)
-        return false;
-    } else if (!mapVersion.equals(other.mapVersion))
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
@@ -543,8 +511,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
         + ", toExhaustive=" + toExhaustive + ", type=" + type
         + ", fromTerminology=" + fromTerminology + ", toTerminology="
         + toTerminology + ", fromVersion=" + fromVersion + ", toVersion="
-        + toVersion + ", complexity=" + complexity + ", mapVersion="
-        + mapVersion + "]";
+        + toVersion + ", complexity=" + complexity + "]";
   }
 
 }

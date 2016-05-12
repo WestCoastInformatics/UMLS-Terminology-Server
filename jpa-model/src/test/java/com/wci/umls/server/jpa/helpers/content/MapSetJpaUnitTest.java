@@ -100,7 +100,6 @@ public class MapSetJpaUnitTest {
     tester.include("version");
 
     tester.include("name");
-    tester.include("mapVersion");
     tester.include("complexity");
     tester.include("fromComplexity");
     tester.include("toComplexity");
@@ -174,7 +173,6 @@ public class MapSetJpaUnitTest {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("name");
-    tester.include("mapVersion");
     // tester.include("fromComplexity");
     // tester.include("complexity");
     // tester.include("toComplexity");

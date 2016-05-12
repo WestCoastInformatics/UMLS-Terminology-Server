@@ -1471,8 +1471,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
     loadMapSetMembers(reader);
 
-    // TODO: could consider some logic for mapCateogryId on extended map
-
   }
 
   /**
@@ -3045,8 +3043,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         mapSet2.setToTerminology(null);
         mapSet2.setToVersion(null);
 
-        mapSet2.setMapVersion(getVersion());
-
         Attribute attribute = null;
         if (mapSet2.getAttributeByName("moduleId") != null) {
           attribute = mapSet2.getAttributeByName("moduleId");
@@ -3085,8 +3081,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       mapSet.setFromVersion(getVersion());
       mapSet.setToTerminology(null);
       mapSet.setToVersion(null);
-
-      mapSet.setMapVersion(getVersion());
 
       final Attribute attribute = new AttributeJpa();
       setCommonFields(attribute, date);

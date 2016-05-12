@@ -601,8 +601,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             logInfo("  Class and subclasses of " + code + " exclude modifier "
                 + excludeModifierCode);
           } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // n/a
           }
           List<String> currentModifiers = new ArrayList<>();
           if (classToExcludedModifierMap.containsKey(code)) {
@@ -630,8 +629,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                   logInfo("  Class and subclasses of " + code
                       + " exclude modifier " + excludeModifierCode);
                 } catch (Exception e) {
-                  // TODO Auto-generated catch block
-                  e.printStackTrace();
+                  // n/a
                 }
                 currentModifiers = new ArrayList<>();
                 if (classToExcludedModifierMap.containsKey(code)) {
@@ -653,8 +651,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             logInfo("  Class " + code + " has rubric " + rubricKind + ", "
                 + rubricId);
           } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // n/a
           }
         }
 

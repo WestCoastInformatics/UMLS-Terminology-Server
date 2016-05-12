@@ -1347,8 +1347,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
         // configure mapping and create map set if needed
         mapSetHelper(mapping, fields);
 
-        // TODO: consider adding mapCategoryId as an attribute
-
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
@@ -1705,8 +1703,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
       // no way to get this
       mapSet.setToTerminology(null);
       mapSet.setToVersion(null);
-
-      mapSet.setMapVersion(getVersion());
 
       final Attribute attribute2 = new AttributeJpa();
       setCommonFields(attribute2, date);
