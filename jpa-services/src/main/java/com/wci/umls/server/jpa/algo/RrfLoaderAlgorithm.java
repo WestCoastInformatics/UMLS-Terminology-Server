@@ -1623,19 +1623,30 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             : version);
       }
     } else if (atn.equals("FROMRSAB")) {
-      mapSet.setFromTerminology(atv);
-      if (mapSet.getFromVersion() != null) {
-        String version = mapSet.getFromVersion().substring(atv.length());
-        mapSet.setFromVersion(version.startsWith("_") ? version.substring(1)
-            : version);
-      }
-    } else if (atn.equals("FROMVSAB")) {
-      if (mapSet.getFromTerminology() != null) {
-        String version = atv.substring(mapSet.getFromTerminology().length());
-        mapSet.setFromVersion(version.startsWith("_") ? version.substring(1)
-            : version);
+      if (atv.equals(proxySab)) {
+        mapSet.setFromTerminology(getTerminology());
+        mapSet.setFromVersion(getVersion());
       } else {
-        mapSet.setFromVersion(atv);
+        mapSet.setFromTerminology(atv);
+        if (mapSet.getFromVersion() != null) {
+          String version = mapSet.getFromVersion().substring(atv.length());
+          mapSet.setFromVersion(version.startsWith("_") ? version.substring(1)
+              : version);
+        }
+      }
+
+    } else if (atn.equals("FROMVSAB")) {
+      if (atv.equals(proxySab)) {
+        mapSet.setFromTerminology(getTerminology());
+        mapSet.setFromVersion(getVersion());
+      } else {
+        if (mapSet.getFromTerminology() != null) {
+          String version = atv.substring(mapSet.getFromTerminology().length());
+          mapSet.setFromVersion(version.startsWith("_") ? version.substring(1)
+              : version);
+        } else {
+          mapSet.setFromVersion(atv);
+        }
       }
     } else if (atn.equals("MAPSETGRAMMAR")) {
       Attribute att = new AttributeJpa();

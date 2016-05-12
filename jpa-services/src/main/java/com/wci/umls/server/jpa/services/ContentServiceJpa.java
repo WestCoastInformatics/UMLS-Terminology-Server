@@ -2664,7 +2664,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     boolean luceneQueryFlag = false;
     if (luceneQuery != null && !luceneQuery.equals("")) {
       SearchHandler searchHandler = getSearchHandler("");
-      luceneQueryClasses.addAll(searchHandler.getQueryResults("", "", branch,
+      luceneQueryClasses.addAll(searchHandler.getQueryResults(null, null, branch,
           luceneQuery, "atomsName.sort", fieldNamesKey, clazz, pfs, totalCt,
           manager));
       luceneQueryFlag = true;
