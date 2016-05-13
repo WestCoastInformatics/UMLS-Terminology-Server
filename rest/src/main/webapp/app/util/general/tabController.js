@@ -43,11 +43,12 @@ tsApp.controller('TabCtrl', [
         return '';
       }
     };
-    
+
+    // Indicate whether any tabs should be showing
     $scope.isShowing = function() {
       return tabService.isShowing();
-    }
-    
+    };
+
     // for ng-show on an individual tab
     $scope.isTabShowing = function(tab) {
 
