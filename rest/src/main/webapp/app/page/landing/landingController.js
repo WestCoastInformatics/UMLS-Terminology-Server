@@ -1,6 +1,6 @@
 // Landingcontroller
-tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securityService',
-  'appConfig', function($scope, $location, utilService, securityService, appConfig) {
+tsApp.controller('LandingCtrl', [ '$scope', '$location', '$http', 'utilService', 'securityService',
+  'appConfig', function($scope, $location, $http, utilService, securityService, appConfig) {
     console.debug('configure LandingCtrl');
 
     // function to launch application
@@ -25,7 +25,7 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
 
       // Set guest user, in case there is no login
       securityService.setGuestUser();
-      $http.defaults.headers.common.Authorization = response.data.authToken;
+      $http.defaults.headers.common.Authorization = 'guest';
 
       // Declare the user
       $scope.user = securityService.getUser();
