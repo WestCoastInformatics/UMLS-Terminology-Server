@@ -169,5 +169,5 @@ tsApp.directive('confirm', function($confirm) {
         reBind(bindConfirm);
       }
     }
-  }
+  };
 });

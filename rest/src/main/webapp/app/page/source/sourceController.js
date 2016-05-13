@@ -118,10 +118,10 @@ tsApp
             angular.forEach(sourceDatas, function(sourceData) {
               if (sourceData.id === $scope.currentSourceData.id) {
                 $scope.currentSourceData = sourceData;
-                $scope.isSourceDataModified = false
+                $scope.isSourceDataModified = false;
               }
-              ;
-            })
+
+            });
           });
 
         }
@@ -173,8 +173,8 @@ tsApp
               if (sourceData.id === $scope.currentSourceData.id) {
                 $scope.currentSourceData = sourceData;
               }
-            })
-          })
+            });
+          });
         });
       };
 
@@ -240,7 +240,7 @@ tsApp
           $scope.previousSourceData = false;
           $scope.currentSourceData = false;
         });
-      }
+      };
 
       // currently active polls, array of objects {id, {poll: ..., log: ...}}
       $scope.polls = {};
@@ -321,6 +321,7 @@ tsApp
         // find the source data in the table and replace it
         angular.forEach(sourceDatas, function(sourceData) {
           if (sourceData.id === polledSourceData.id) {
+            // TODO: I don't think this actually does anything
             sourceData = polledSourceData;
             refreshTables();
           }
@@ -457,7 +458,7 @@ tsApp
           return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         });
 
-      }
+      };
 
       //
       // Initialize if USER
@@ -467,7 +468,7 @@ tsApp
           getSourceDatas();
           getSourceDataHandlers();
         }
-      }
+      };
       //
       // Initialization: Check that application is configured
       //

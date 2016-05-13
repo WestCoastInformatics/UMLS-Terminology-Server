@@ -12,8 +12,9 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
       } else {
         $location.path('/content');
       }
-    }
+    };
 
+    // Initialize
     $scope.initialize = function() {
 
       // on return to landing page, clear any errors
@@ -22,11 +23,14 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
       // Clear user info
       securityService.clearUser();
 
+      // Set guest user, in case there is no login
+      securityService.setGuestUser();
+
       // Declare the user
       $scope.user = securityService.getUser();
 
     };
-    
+
     $scope.initialize();
 
   } ]);

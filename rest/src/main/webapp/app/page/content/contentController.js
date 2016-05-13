@@ -555,7 +555,7 @@ tsApp.controller('ContentCtrl', [
             }
           });
       }
-    }
+    };
 
     //
     // Initialization: Check
@@ -573,7 +573,7 @@ tsApp.controller('ContentCtrl', [
           console.debug('Invalid license');
           utilService.setError('You must accept the license before viewing that content');
           $location.path('/license');
-        })
+        });
       }
     });
 

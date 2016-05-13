@@ -81,7 +81,7 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
     if (appConfig && appConfig.landingEnabled !== 'true') {
       $routeProvider.when('/', loginRoute);
     }
-  }
+  } 
 
   // if license enabled
   if (appConfig && appConfig.licenseEnabled === 'true') {

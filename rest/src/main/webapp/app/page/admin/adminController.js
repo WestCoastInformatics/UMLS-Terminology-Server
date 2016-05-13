@@ -796,7 +796,7 @@ tsApp
           if ($scope.user.userPreferences) {
             $scope.configureTab();
           }
-        }
+        };
 
         //
         // Initialization: Check that application is configured
