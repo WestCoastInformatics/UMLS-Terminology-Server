@@ -193,6 +193,12 @@ tsApp.controller('ContentCtrl', [
       $scope.findComponents(true);
     };
 
+    // Reset paging and search again (e.g. when search button is clicked)
+    $scope.resetAndFindComponents = function(loadFirst) {
+      $scope.searchParams.page = 1;
+      $scope.findComponents(loadFirst);
+    };
+
     // Find concepts based on current search
     // - loadFirst indicates whether to auto-load result[0]
     $scope.findComponents = function(loadFirst) {
