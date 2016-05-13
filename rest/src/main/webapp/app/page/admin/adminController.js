@@ -32,7 +32,7 @@ tsApp
         //
         $scope.user = securityService.getUser();
         // If logged in as guest, redirect
-        if ($http.defaults.headers.common.Authorization == 'guest') {
+        if (securityService.isGuestUser()) {
           $location.path('/');
           return;
         }
@@ -771,10 +771,6 @@ tsApp
 
         // Configure the tab
         $scope.configureTab = function() {
-          // skip guest user
-          if ($http.defaults.headers.common.Authorization == 'guest') {
-            return;
-          }
           $scope.user.userPreferences.lastTab = '/admin';
           securityService.updateUserPreferences($scope.user.userPreferences);
         };

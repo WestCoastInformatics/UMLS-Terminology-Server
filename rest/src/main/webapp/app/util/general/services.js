@@ -555,6 +555,7 @@ tsApp.service('securityService', [
       $cookies.put('user', JSON.stringify(user));
     };
 
+    // Set user to the guest user
     this.setGuestUser = function() {
       user.userName = 'guest';
       user.name = 'Guest';
@@ -568,6 +569,12 @@ tsApp.service('securityService', [
 
     };
 
+    // Determine if guest user
+    this.isGuestUser = function() {
+      return $http.defaults.headers.common.Authorization == 'guest';
+    };
+
+    // Set admin user
     this.setAdminUser = function() {
       user.userName = 'admin';
       user.name = 'Administrator';
@@ -792,6 +799,11 @@ tsApp.service('securityService', [
     this.updateUserPreferences = function(userPreferences) {
       // skip if user preferences is not set
       if (!userPreferences) {
+        return;
+      }
+
+      // Skip for guest user
+      if (this.isGuestUser()) {
         return;
       }
 
