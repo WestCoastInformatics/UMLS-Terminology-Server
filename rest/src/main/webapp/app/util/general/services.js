@@ -118,7 +118,7 @@ tsApp
           if (this.error.message && this.error.message.indexOf('AuthToken') != -1) {
             // Reroute back to login page with 'auth token has
             // expired' message
-            $location.path('/login');
+            $location.path('/landing');
           } else {
             // scroll to top of page
             $location.hash('top');
@@ -143,7 +143,7 @@ tsApp
           if (error && error.indexOf('AuthToken') != -1) {
             // Reroute back to login page with 'auth token has
             // expired' message
-            $location.path('/login');
+            $location.path('/landing');
           }
           // otherwise clear the top-level error
           else {
@@ -496,7 +496,7 @@ tsApp.service('securityService', [
       // console.debug('Set cookie:', cookie);
       deferred.resolve();
       return deferred.promise;
-    }
+    };
 
     // checks the license
     this.checkLicense = function() {
@@ -517,7 +517,7 @@ tsApp.service('securityService', [
         }
       }
       return deferred.promise;
-    }
+    };
 
     // Gets the user
     this.getUser = function() {
