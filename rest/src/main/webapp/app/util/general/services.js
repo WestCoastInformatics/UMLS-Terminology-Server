@@ -118,7 +118,7 @@ tsApp
           if (this.error.message && this.error.message.indexOf('AuthToken') != -1) {
             // Reroute back to login page with 'auth token has
             // expired' message
-            $location.path('/landing');
+            $location.path('/');
           } else {
             // scroll to top of page
             $location.hash('top');
@@ -143,7 +143,7 @@ tsApp
           if (error && error.indexOf('AuthToken') != -1) {
             // Reroute back to login page with 'auth token has
             // expired' message
-            $location.path('/landing');
+            $location.path('/');
           }
           // otherwise clear the top-level error
           else {

@@ -5,9 +5,9 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
 
     // function to launch application
     $scope.launchApp = function() {
-      if (appConfig.loginEnabled) {
+      if (appConfig.loginEnabled === 'true') {
         $location.path('/login');
-      } else if (appConfig.licenseEnabled) {
+      } else if (appConfig.licenseEnabled === 'true') {
         $location.path('/license');
       } else {
         $location.path('/content');
@@ -25,6 +25,7 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
 
       // Set guest user, in case there is no login
       securityService.setGuestUser();
+      $http.defaults.headers.common.Authorization = response.data.authToken;
 
       // Declare the user
       $scope.user = securityService.getUser();
