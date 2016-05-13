@@ -20,16 +20,16 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', '$http', 'utilService',
       // on return to landing page, clear any errors
       utilService.clearError();
 
-      // Clear user info
-      securityService.clearUser();
+      // Clear user info if we are using login
+      if (appConfig.loginEnabled === 'true') {
+        // Clear user info
+        securityService.clearUser();
+      }
 
-      // Set guest user, in case there is no login
-      securityService.setGuestUser();
-      $http.defaults.headers.common.Authorization = 'guest';
-
-      // Declare the user
-      $scope.user = securityService.getUser();
-
+      // Otherwise, Set guest user, in case there is no login
+      else {
+        securityService.setGuestUser();
+      }
     };
 
     $scope.initialize();

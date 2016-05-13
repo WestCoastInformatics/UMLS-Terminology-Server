@@ -522,9 +522,9 @@ tsApp.service('securityService', [
     // Gets the user
     this.getUser = function() {
 
-      // if login is not enabled, set and return the admin user
+      // if login is not enabled, set and return the Guest user
       if (appConfig.loginEnabled !== 'true') {
-        this.setAdminUser();
+        this.setGuestUser();
       }
       // otherwise, determine if user is already logged in
       else if (!$http.defaults.headers.common.Authorization) {
@@ -566,6 +566,7 @@ tsApp.service('securityService', [
 
       // Whenever set user is called, we should save a cookie
       $cookies.put('user', JSON.stringify(user));
+      $http.defaults.headers.common.Authorization = 'guest';
 
     };
 

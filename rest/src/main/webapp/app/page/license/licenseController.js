@@ -47,7 +47,15 @@ tsApp
             $scope.disableAcceptButton = false;
           }
         }
+
+        // Initialize
+
         // check scroll height initially to catch short fragments
         checkScrollHeight();
+
+        // If no login page, set guest user
+        if (appConfig.loginEnabled !== 'true') {
+          securityService.setGuestUser();
+        }
 
       } ]);
