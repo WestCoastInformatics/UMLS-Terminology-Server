@@ -13,7 +13,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.jpa.UserJpa;
 
 /**
- * A map adapter for Map<User,UserRole>.
+ * A map adapter for User, UserRole maps.
  */
 public class UserRoleMapAdapter extends
     XmlAdapter<HashMap<String, String>, Map<User, UserRole>> {

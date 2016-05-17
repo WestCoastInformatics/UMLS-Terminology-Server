@@ -63,8 +63,7 @@ import org.apache.log4j.Logger;
  * them available to others. For updates, please check <a
  * href="http://www.plaintivemewling.com/?p=34">here</a>.
  * 
- * @author Steven Grimm <a
- *         href="mailto:koreth@midwinter.com">koreth@midwinter.com</a>
+ * @author Steven Grimm, koreth@midwinter.com
  * @version 1.0 (2005/11/08).
  */
 public class GetterSetterTester extends ProxyTester {
