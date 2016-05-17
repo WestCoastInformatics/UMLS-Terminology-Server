@@ -6,7 +6,7 @@ package com.wci.umls.server.helpers;
 /**
  * The Interface Note.
  */
-public interface Note extends HasId, HasLastModified {
+public interface Note extends HasLastModified {
 
   /**
    * Sets the note.
@@ -14,13 +14,12 @@ public interface Note extends HasId, HasLastModified {
    * @param note the new note
    */
   public void setNote(String note);
-  
+
   /**
    * Gets the note.
    *
    * @return the note
    */
   public String getNote();
- 
-  
+
 }

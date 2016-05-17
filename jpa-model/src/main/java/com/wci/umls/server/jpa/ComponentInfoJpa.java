@@ -121,6 +121,7 @@ public class ComponentInfoJpa implements ComponentInfo {
     return id;
   }
 
+  @Override
   public void setId(Long id) {
     this.id = id;
   }

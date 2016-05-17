@@ -5,6 +5,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -14,7 +15,6 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
-import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Descriptor;
 
 /**
@@ -24,20 +24,19 @@ import com.wci.umls.server.model.content.Descriptor;
 @Table(name = "descriptor_notes")
 @Audited
 @XmlRootElement(name = "notes")
-public class DescriptorNoteJpa extends AbstractNote implements Note {
+public class DescriptorNoteJpa extends AbstractNote {
 
-  
   /** The descriptor. */
   @ManyToOne(targetEntity = DescriptorJpa.class, optional = false)
   private Descriptor descriptor = null;
-  
+
   /**
    * Instantiates a new descriptor note jpa.
    */
   public DescriptorNoteJpa() {
-    
+
   }
-  
+
   /**
    * Instantiates a new descriptor note jpa.
    *
@@ -47,16 +46,17 @@ public class DescriptorNoteJpa extends AbstractNote implements Note {
     super(note);
     this.descriptor = note.getDescriptor();
   }
-  
+
   /**
    * Gets the descriptor.
    *
    * @return the descriptor
    */
+  @XmlTransient
   public Descriptor getDescriptor() {
     return this.descriptor;
   }
-  
+
   /**
    * Sets the descriptor.
    *
@@ -65,7 +65,7 @@ public class DescriptorNoteJpa extends AbstractNote implements Note {
   public void setDescriptor(Descriptor descriptor) {
     this.descriptor = descriptor;
   }
-  
+
   /**
    * Returns the descriptor id.
    *

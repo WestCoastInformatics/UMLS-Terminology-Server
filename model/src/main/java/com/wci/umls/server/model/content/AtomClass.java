@@ -6,12 +6,11 @@ package com.wci.umls.server.model.content;
 import java.util.List;
 
 import com.wci.umls.server.helpers.HasLabelSets;
-import com.wci.umls.server.helpers.HasNotes;
 
 /**
  * The Interface AtomClass.
  */
-public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets, HasNotes {
+public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets {
 
   /**
    * Gets the atoms.

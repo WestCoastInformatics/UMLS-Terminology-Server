@@ -38,17 +38,17 @@ import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
- * The Expression Constraint Language Index Writer
+ * The Expression Constraint Language Index Writer.
  */
 public class EclConceptIndexingAlgorithm implements Algorithm {
 
-  /** The terminology */
+  /** The terminology. */
   private String terminology = null;
 
-  /** The version */
+  /** The version. */
   private String version = null;
 
-  /** The organizing class type */
+  /** The organizing class type. */
   private IdType idType = null;
 
   /** The content service. */
@@ -60,26 +60,28 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
   /** The index output directory. */
   private Directory directory = null;
 
-  /** The number of concepts to process at each step */
+  /** The number of concepts to process at each step. */
   private int batchSize = 2000;
 
-  /** The id map, hibernate ids to terminology ids */
+  /** The id map, hibernate ids to terminology ids. */
   private Map<Long, String> idMap = new HashMap<>();
 
-  /** The ancestor map, terminologyId -> ancestor terminology ids */
+  /** The ancestor map, terminologyId -> ancestor terminology ids. */
   private Map<String, Set<String>> ancestorMap = new HashMap<>();
 
   /** The subset map, terminologyId -> subset terminology id. */
   private Map<String, Set<String>> subsetMemberMap = new HashMap<>();
 
-  /** The subsets map, id -> terminologyId */
+  /** The subsets map, id -> terminologyId. */
   private Map<Long, String> subsetMap = new HashMap<>();
 
-  /** Tracking variables */
+  /** Tracking variables. */
   private int ancestorCt = 0;
 
+  /** The relationship ct. */
   private int relationshipCt = 0;
 
+  /** The subset ct. */
   private int subsetCt = 0;
 
   /**
@@ -92,17 +94,17 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
   }
 
   /**
-   * @param terminology
-   * @param version
-   * @param contentService
-   * @throws Exception
+   * Compute.
+   *
+   * @throws Exception the exception
    */
+  @Override
   @SuppressWarnings("unchecked")
   public void compute() throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("Computing expression constraint language indexes for "
-            + terminology + ", " + version);
+    Logger.getLogger(getClass()).info(
+        "Computing expression constraint language indexes for " + terminology
+            + ", " + version);
 
     if (terminology == null) {
       throw new Exception("Must specify terminology");
@@ -127,8 +129,10 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
 
     // remove (if exists) and create the directory
     ConfigUtility.createExpressionIndexDirectory(terminology, version);
-    directory = new NIOFSDirectory(
-        new File(ConfigUtility.getExpressionIndexDirectoryName(terminology, version)));
+    directory =
+        new NIOFSDirectory(
+            new File(ConfigUtility.getExpressionIndexDirectoryName(terminology,
+                version)));
 
     // get entity manager for direct queries
     EntityManager manager = contentService.getEntityManager();
@@ -138,13 +142,14 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     //
     // Cache concept hibernate id -> terminologyId
     //
-    Logger.getLogger(getClass())
-        .info("Constructing id to terminology id map...");
+    Logger.getLogger(getClass()).info(
+        "Constructing id to terminology id map...");
 
     // construct and execute query
-    query = manager
-        .createQuery("select c.id, c.terminologyId from ConceptJpa c where "
-            + "version = :version and terminology = :terminology");
+    query =
+        manager
+            .createQuery("select c.id, c.terminologyId from ConceptJpa c where "
+                + "version = :version and terminology = :terminology");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     results = query.getResultList();
@@ -167,22 +172,23 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     Logger.getLogger(getClass()).info("Caching ancestor information...");
 
     // construct and execute query
-    query = manager.createQuery(
-        "select r.subType.id, r.superType.id from ConceptTransitiveRelationshipJpa r where "
-            + "version = :version and terminology = :terminology and depth != 0");
+    query =
+        manager
+            .createQuery("select r.subType.id, r.superType.id from ConceptTransitiveRelationshipJpa r where "
+                + "version = :version and terminology = :terminology and depth != 0");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     results = query.getResultList();
 
-    Logger.getLogger(getClass())
-        .info("  " + results.size() + " transitive relationships retrieved");
+    Logger.getLogger(getClass()).info(
+        "  " + results.size() + " transitive relationships retrieved");
 
     // cycle over results
     for (Object[] o : results) {
 
       // get the terminology ids
-      String conceptId = idMap.get((Long) o[0]);
-      String ancestorId = idMap.get((Long) o[1]);
+      String conceptId = idMap.get(o[0]);
+      String ancestorId = idMap.get(o[1]);
 
       // get/create the existing ancestors for this concept
       Set<String> ancestors = ancestorMap.get(conceptId);
@@ -197,8 +203,8 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
 
     // clear the results and log
     results.clear();
-    Logger.getLogger(getClass())
-        .info("  Finished caching ancestor information for "
+    Logger.getLogger(getClass()).info(
+        "  Finished caching ancestor information for "
             + ancestorMap.keySet().size() + " concepts");
 
     //
@@ -207,9 +213,10 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     Logger.getLogger(getClass()).info("Caching subset member information...");
 
     // construct and execute query
-    query = manager.createQuery(
-        "select s.id, s.terminologyId from ConceptSubsetJpa s where "
-            + "version = :version and terminology = :terminology");
+    query =
+        manager
+            .createQuery("select s.id, s.terminologyId from ConceptSubsetJpa s where "
+                + "version = :version and terminology = :terminology");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     results = query.getResultList();
@@ -220,22 +227,23 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     results.clear();
 
     // construct and execute query
-    query = manager.createQuery(
-        "select s.member.id, s.subset.id from ConceptSubsetMemberJpa s where "
-            + "version = :version and terminology = :terminology");
+    query =
+        manager
+            .createQuery("select s.member.id, s.subset.id from ConceptSubsetMemberJpa s where "
+                + "version = :version and terminology = :terminology");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     results = query.getResultList();
 
-    Logger.getLogger(getClass())
-        .info("  " + results.size() + " subset members retrieved");
+    Logger.getLogger(getClass()).info(
+        "  " + results.size() + " subset members retrieved");
 
     // cycle over results
     for (Object[] o : results) {
 
       // get the cached terminology ids
-      String conceptId = idMap.get((Long) o[0]);
-      String subsetId = subsetMap.get((Long) o[1]);
+      String conceptId = idMap.get(o[0]);
+      String subsetId = subsetMap.get(o[1]);
 
       // get/create the existing subset list for this concept
       Set<String> subsets = subsetMemberMap.get(conceptId);
@@ -246,8 +254,8 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
       subsetMemberMap.put(conceptId, subsets);
     }
     results.clear();
-    Logger.getLogger(getClass())
-        .info("  Finished caching subset information for "
+    Logger.getLogger(getClass()).info(
+        "  Finished caching subset information for "
             + subsetMap.keySet().size() + " subsets and "
             + subsetMemberMap.keySet().size() + " concepts");
 
@@ -269,13 +277,14 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     // cycle over concepts
     do {
       pfsc.setStartIndex(pos);
-      concepts = contentService.findConceptsForQuery(terminology, version,
-          Branch.ROOT, null, pfsc);
+      concepts =
+          contentService.findConceptsForQuery(terminology, version,
+              Branch.ROOT, null, pfsc);
 
       // logging content on first retrieval
       if (pos == 0) {
-        Logger.getLogger(getClass())
-            .info("    " + concepts.getTotalCount() + " total concepts");
+        Logger.getLogger(getClass()).info(
+            "    " + concepts.getTotalCount() + " total concepts");
       }
 
       for (SearchResult sr : concepts.getObjects()) {
@@ -283,9 +292,8 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
         iwriter.addDocument(getConceptDocument(c));
       }
       pos += concepts.getCount();
-      Logger.getLogger(getClass())
-          .info("  " + pos + "/" + relationshipCt + "/" + ancestorCt + "/"
-              + subsetCt
+      Logger.getLogger(getClass()).info(
+          "  " + pos + "/" + relationshipCt + "/" + ancestorCt + "/" + subsetCt
               + " concepts/relationships/ancestors/members processed");
 
     } while (pos < concepts.getTotalCount());
@@ -293,10 +301,17 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     Logger.getLogger(getClass()).info("Closing index writer...");
     iwriter.close();
 
-    Logger.getLogger(getClass())
-        .info("ECL Index writing finished successfully.");
+    Logger.getLogger(getClass()).info(
+        "ECL Index writing finished successfully.");
   }
 
+  /**
+   * Returns the concept document.
+   *
+   * @param concept the concept
+   * @return the concept document
+   * @throws Exception the exception
+   */
   private Document getConceptDocument(Concept concept) throws Exception {
 
     Document conceptDoc = new Document();
@@ -305,10 +320,10 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
 
     // write the basic fields
     conceptDoc.add(new StringField("type", idType.toString(), Field.Store.YES));
-    conceptDoc.add(new LongField(EclConceptFieldNames.INTERNAL_ID, concept.getId(),
-        Field.Store.YES));
-    conceptDoc.add(new StringField(EclConceptFieldNames.ID,
-        concept.getTerminologyId().toString(), Field.Store.YES));
+    conceptDoc.add(new LongField(EclConceptFieldNames.INTERNAL_ID, concept
+        .getId(), Field.Store.YES));
+    conceptDoc.add(new StringField(EclConceptFieldNames.ID, concept
+        .getTerminologyId().toString(), Field.Store.YES));
     conceptDoc.add(new StringField(EclConceptFieldNames.NAME,
         concept.getName(), Field.Store.YES));
 
@@ -345,29 +360,34 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     return conceptDoc;
   }
 
+  /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void cancel() throws Exception {
     // N/A
   }
 
+  /* see superclass */
   @Override
   public void close() throws Exception {
     if (iwriter != null) {

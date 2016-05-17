@@ -50,7 +50,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   // consider this: @Fetch(FetchMode.JOIN)
   @Column(nullable = true)
   List<String> labels;
-  
+
   /** The notes. */
   @OneToMany(mappedBy = "descriptor", targetEntity = DescriptorNoteJpa.class)
   @IndexedEmbedded(targetElement = DescriptorNoteJpa.class)
@@ -178,6 +178,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   }
 
   /* see superclass */
+  @XmlElement(type = DescriptorNoteJpa.class)
   @Override
   public List<Note> getNotes() {
     return this.notes;
@@ -202,6 +203,5 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     notes.remove(note);
 
   }
-
 
 }

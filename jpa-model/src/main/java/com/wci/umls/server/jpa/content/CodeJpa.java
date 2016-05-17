@@ -134,6 +134,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   }
 
   /* see superclass */
+  @XmlElement(type = CodeNoteJpa.class)
   @Override
   public List<Note> getNotes() {
     return this.notes;

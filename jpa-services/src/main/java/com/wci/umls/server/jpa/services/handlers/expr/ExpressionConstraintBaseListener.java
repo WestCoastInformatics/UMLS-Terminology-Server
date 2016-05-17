@@ -14,8 +14,9 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  *
  * @see ExpressionConstraintEvent
  */
-public class ExpressionConstraintBaseListener
-    implements ExpressionConstraintListener {
+@SuppressWarnings("all")
+public class ExpressionConstraintBaseListener implements
+    ExpressionConstraintListener {
 
   /**
    * Enter expressionconstraint.
@@ -355,8 +356,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void enterAncestorof(
-    ExpressionConstraintParser.AncestorofContext ctx) {
+  public void enterAncestorof(ExpressionConstraintParser.AncestorofContext ctx) {
   }
 
   /**
@@ -394,8 +394,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void enterConjunction(
-    ExpressionConstraintParser.ConjunctionContext ctx) {
+  public void enterConjunction(ExpressionConstraintParser.ConjunctionContext ctx) {
   }
 
   /**
@@ -404,8 +403,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void exitConjunction(
-    ExpressionConstraintParser.ConjunctionContext ctx) {
+  public void exitConjunction(ExpressionConstraintParser.ConjunctionContext ctx) {
   }
 
   /**
@@ -414,8 +412,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void enterDisjunction(
-    ExpressionConstraintParser.DisjunctionContext ctx) {
+  public void enterDisjunction(ExpressionConstraintParser.DisjunctionContext ctx) {
   }
 
   /**
@@ -424,8 +421,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void exitDisjunction(
-    ExpressionConstraintParser.DisjunctionContext ctx) {
+  public void exitDisjunction(ExpressionConstraintParser.DisjunctionContext ctx) {
   }
 
   /**
@@ -452,8 +448,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void enterRefinement(
-    ExpressionConstraintParser.RefinementContext ctx) {
+  public void enterRefinement(ExpressionConstraintParser.RefinementContext ctx) {
   }
 
   /**
@@ -649,8 +644,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void enterCardinality(
-    ExpressionConstraintParser.CardinalityContext ctx) {
+  public void enterCardinality(ExpressionConstraintParser.CardinalityContext ctx) {
   }
 
   /**
@@ -659,8 +653,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void exitCardinality(
-    ExpressionConstraintParser.CardinalityContext ctx) {
+  public void exitCardinality(ExpressionConstraintParser.CardinalityContext ctx) {
   }
 
   /**
@@ -705,8 +698,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void enterReverseflag(
-    ExpressionConstraintParser.ReverseflagContext ctx) {
+  public void enterReverseflag(ExpressionConstraintParser.ReverseflagContext ctx) {
   }
 
   /**
@@ -715,8 +707,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void exitReverseflag(
-    ExpressionConstraintParser.ReverseflagContext ctx) {
+  public void exitReverseflag(ExpressionConstraintParser.ReverseflagContext ctx) {
   }
 
   /**
@@ -865,8 +856,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void enterStringvalue(
-    ExpressionConstraintParser.StringvalueContext ctx) {
+  public void enterStringvalue(ExpressionConstraintParser.StringvalueContext ctx) {
   }
 
   /**
@@ -875,8 +865,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void exitStringvalue(
-    ExpressionConstraintParser.StringvalueContext ctx) {
+  public void exitStringvalue(ExpressionConstraintParser.StringvalueContext ctx) {
   }
 
   /**
@@ -1203,8 +1192,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void enterEscapedchar(
-    ExpressionConstraintParser.EscapedcharContext ctx) {
+  public void enterEscapedchar(ExpressionConstraintParser.EscapedcharContext ctx) {
   }
 
   /**
@@ -1213,8 +1201,7 @@ public class ExpressionConstraintBaseListener
    * @param ctx the ctx
    */
   @Override
-  public void exitEscapedchar(
-    ExpressionConstraintParser.EscapedcharContext ctx) {
+  public void exitEscapedchar(ExpressionConstraintParser.EscapedcharContext ctx) {
   }
 
   /**

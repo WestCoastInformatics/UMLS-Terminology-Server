@@ -39,7 +39,7 @@ import com.wci.umls.server.services.RootService;
  * positions, so the algorithm for computing semantic types is also included
  * here.
  */
-public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
+public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
 
   /** The id type. */
   private IdType idType;
@@ -493,36 +493,5 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   public void setComputeSemanticType(boolean flag) {
     this.computeSemanticTypes = flag;
   }
-
-  /* see superclass */
-  @Override
-  public String getFileVersion() throws Exception {
-    // this method just exists to allow the class to borrow from superclass
-    throw new UnsupportedOperationException();
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTransitiveClosures() throws Exception {
-    // this method just exists to allow the class to borrow from superclass
-    throw new UnsupportedOperationException();
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTreePositions() throws Exception {
-    // this method just exists to allow the class to borrow from superclass
-    throw new UnsupportedOperationException();
-  }
-  
-
-  @Override
-  public void computeExpressionIndexes() throws Exception {
-    Logger
-    .getLogger(getClass())
-    .warn(
-        "Tree position algorithm does not support expression index computation ");
-  }
-
 
 }

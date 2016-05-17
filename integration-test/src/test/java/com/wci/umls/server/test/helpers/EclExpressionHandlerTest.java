@@ -23,12 +23,16 @@ import com.wci.umls.server.services.ContentService;
  */
 public class EclExpressionHandlerTest {
 
+  /** The handler. */
   private static EclExpressionHandler handler = null;
 
   /**
-   * @throws Exception
+   * Setup.
+   *
+   * @throws Exception the exception
    */
-  // TODO Remove this after development work and create formal integration testing
+  // TODO Remove this after development work and create formal integration
+  // testing
   @BeforeClass
   public static void setup() throws Exception {
     System.setProperty("run.config.umls",
@@ -45,22 +49,22 @@ public class EclExpressionHandlerTest {
   public void testParsing() throws Exception {
     // Self 404684003 |clinical finding| Yes
     try {
-      Logger.getLogger(getClass())
-          .info(handler.parse("404684003 |clinical finding|"));
+      Logger.getLogger(getClass()).info(
+          handler.parse("404684003 |clinical finding|"));
     } catch (Exception e) {
       Logger.getLogger(getClass()).info(e.getMessage());
     }
     // Descendant Of < 404684003 |clinical finding| Yes
     try {
-      Logger.getLogger(getClass())
-          .info(handler.parse("< 404684003 |clinical finding|"));
+      Logger.getLogger(getClass()).info(
+          handler.parse("< 404684003 |clinical finding|"));
     } catch (Exception e) {
       Logger.getLogger(getClass()).info(e.getMessage());
     }
     // Descendant Or Self Of << 73211009 |diabetes mellitus| Yes
     try {
-      Logger.getLogger(getClass())
-          .info(handler.parse("<< 73211009 |diabetes mellitus|"));
+      Logger.getLogger(getClass()).info(
+          handler.parse("<< 73211009 |diabetes mellitus|"));
     } catch (Exception e) {
       Logger.getLogger(getClass()).info(e.getMessage());
     }
@@ -69,8 +73,11 @@ public class EclExpressionHandlerTest {
     // with| = (< 404684003 |clinical finding|: 116676008 |associated
     // morphology| = << 55641003 |infarct|) No
     try {
-      Logger.getLogger(getClass()).info(handler.parse(
-          "< 19829001 |disorder of lung|: 116676008 |associated morphology| = 79654002 |edema|"));
+      Logger
+          .getLogger(getClass())
+          .info(
+              handler
+                  .parse("< 19829001 |disorder of lung|: 116676008 |associated morphology| = 79654002 |edema|"));
     } catch (Exception e) {
       Logger.getLogger(getClass()).info(e.getMessage());
     }
@@ -83,7 +90,7 @@ public class EclExpressionHandlerTest {
    */
   @Test
   public void testCount() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -107,19 +114,20 @@ public class EclExpressionHandlerTest {
 
     // test self retrieval (with name)
     SearchResultList results = testEclQuery("404684003  |clinical finding|", 1);
-    assertTrue(
-        results.getObjects().get(0).getTerminologyId().equals("404684003"));
+    assertTrue(results.getObjects().get(0).getTerminologyId()
+        .equals("404684003"));
 
     // test self retrieval (without name)
     results = testEclQuery("404684003", 1);
-    assertTrue(
-        results.getObjects().get(0).getTerminologyId().equals("404684003"));
+    assertTrue(results.getObjects().get(0).getTerminologyId()
+        .equals("404684003"));
 
   }
 
   /**
    * Test resolve descendant.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   @Test
   public void testResolveDescendant() throws Exception {
@@ -226,26 +234,31 @@ public class EclExpressionHandlerTest {
     // test without names
     testEclQuery("< 404684003: 363698007 = << 39057004", 5);
   }
-  
+
   /**
    * Test search with ecl.
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   @Test
   public void testSearchWithEcl() throws Exception {
     ContentService contentService = new ContentServiceJpa();
     PfscParameter pfsc = new PfscParameterJpa();
     pfsc.setExpression("< 91723000");
-    SearchResultList results = contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT, null, pfsc);
+    SearchResultList results =
+        contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT,
+            null, pfsc);
     assertTrue(results.getTotalCount() == 1512);
-    results = contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT, "joint", pfsc);
+    results =
+        contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT,
+            "joint", pfsc);
     assertTrue(results.getTotalCount() == 56);
-    
+
   }
 
   /**
-   * Helper function to execute query and compare to expected count
+   * Helper function to execute query and compare to expected count.
    *
    * @param eclQuery the ecl query
    * @param expectedCount the expected count
@@ -255,8 +268,8 @@ public class EclExpressionHandlerTest {
   private SearchResultList testEclQuery(String eclQuery, int expectedCount)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("Expecting " + expectedCount + " results:" + eclQuery);
+    Logger.getLogger(getClass()).info(
+        "Expecting " + expectedCount + " results:" + eclQuery);
     try {
       SearchResultList results = handler.resolve(eclQuery);
       if (expectedCount != results.getCount()) {

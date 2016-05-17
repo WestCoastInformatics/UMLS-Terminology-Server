@@ -5,6 +5,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -14,7 +15,6 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
-import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Code;
 
 /**
@@ -24,20 +24,19 @@ import com.wci.umls.server.model.content.Code;
 @Table(name = "code_notes")
 @Audited
 @XmlRootElement(name = "notes")
-public class CodeNoteJpa extends AbstractNote implements Note {
+public class CodeNoteJpa extends AbstractNote {
 
-  
   /** The code. */
   @ManyToOne(targetEntity = CodeJpa.class, optional = false)
   private Code code = null;
-  
+
   /**
    * Instantiates a new code note jpa.
    */
   public CodeNoteJpa() {
-    
+
   }
-  
+
   /**
    * Instantiates a new code note jpa.
    *
@@ -47,16 +46,17 @@ public class CodeNoteJpa extends AbstractNote implements Note {
     super(note);
     this.code = note.getCode();
   }
-  
+
   /**
    * Gets the code.
    *
    * @return the code
    */
+  @XmlTransient
   public Code getCode() {
     return this.code;
   }
-  
+
   /**
    * Sets the code.
    *
@@ -65,7 +65,7 @@ public class CodeNoteJpa extends AbstractNote implements Note {
   public void setCode(Code code) {
     this.code = code;
   }
-  
+
   /**
    * Returns the code id.
    *

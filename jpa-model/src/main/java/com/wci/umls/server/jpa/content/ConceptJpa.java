@@ -39,7 +39,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 @Entity
 @Table(name = "concepts", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}) )
+}))
 @Audited
 @XmlRootElement(name = "concept")
 @Indexed
@@ -421,6 +421,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   }
 
   @Override
+  @XmlElement(type = ConceptNoteJpa.class)
   public List<Note> getNotes() {
     return this.notes;
   }

@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.helpers.HasNotes;
+
 /**
  * Represents a fuzzy conceptual meaning that may be a {@link Concept} or may be
  * a {@link Descriptor} but the exact nature of the classification is not
@@ -13,7 +15,7 @@ package com.wci.umls.server.model.content;
  * it has not clearly been defined which is which.
  */
 public interface Code extends AtomClass,
-    ComponentHasRelationships<CodeRelationship> {
+    ComponentHasRelationships<CodeRelationship>, HasNotes {
 
   // n/a
 

@@ -5,6 +5,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -14,7 +15,6 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
-import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Concept;
 
 /**
@@ -24,20 +24,19 @@ import com.wci.umls.server.model.content.Concept;
 @Table(name = "concept_notes")
 @Audited
 @XmlRootElement(name = "notes")
-public class ConceptNoteJpa extends AbstractNote implements Note {
+public class ConceptNoteJpa extends AbstractNote {
 
-  
   /** The concept. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
   private Concept concept = null;
-  
+
   /**
    * Instantiates a new concept note jpa.
    */
   public ConceptNoteJpa() {
-    
+
   }
-  
+
   /**
    * Instantiates a new concept note jpa.
    *
@@ -47,16 +46,17 @@ public class ConceptNoteJpa extends AbstractNote implements Note {
     super(note);
     this.concept = note.getConcept();
   }
-  
+
   /**
    * Gets the concept.
    *
    * @return the concept
    */
+  @XmlTransient
   public Concept getConcept() {
     return this.concept;
   }
-  
+
   /**
    * Sets the concept.
    *
@@ -65,7 +65,7 @@ public class ConceptNoteJpa extends AbstractNote implements Note {
   public void setConcept(Concept concept) {
     this.concept = concept;
   }
-  
+
   /**
    * Returns the concept id.
    *

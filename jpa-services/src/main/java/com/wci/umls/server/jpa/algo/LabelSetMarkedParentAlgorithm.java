@@ -26,8 +26,7 @@ import com.wci.umls.server.services.RootService;
  * Implementation of an algorithm to compute label set marked parents using the
  * {@link ContentService}. Currently only concept label sets are supported.
  */
-public class LabelSetMarkedParentAlgorithm extends
-    AbstractTerminologyLoaderAlgorithm {
+public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm {
 
   /** The concept to generate label set data from. */
   private ConceptSubset subset;
@@ -257,27 +256,6 @@ public class LabelSetMarkedParentAlgorithm extends
    */
   public void setSubset(ConceptSubset subset) {
     this.subset = subset;
-  }
-
-  /* see superclass */
-  @Override
-  public String getFileVersion() throws Exception {
-    // this method just exists to allow the class to borrow from superclass
-    throw new UnsupportedOperationException();
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTransitiveClosures() throws Exception {
-    // this method just exists to allow the class to borrow from superclass
-    throw new UnsupportedOperationException();
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTreePositions() throws Exception {
-    // this method just exists to allow the class to borrow from superclass
-    throw new UnsupportedOperationException();
   }
 
 }

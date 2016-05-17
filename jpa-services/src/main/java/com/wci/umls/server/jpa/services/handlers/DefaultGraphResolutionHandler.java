@@ -173,7 +173,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolve(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-      throws Exception {
+    throws Exception {
     if (relationship != null) {
       if (relationship.getFrom() != null) {
         relationship.getFrom().getTerminology();
@@ -294,9 +294,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         atom.setRelationships(new ArrayList<AtomRelationship>());
       }
 
-      // user annotations -- lazy initialize
-      lexicalClass.getNotes().size();
-
     } else if (lexicalClass == null) {
       throw new Exception("Cannot resolve a null lexical class.");
 
@@ -322,9 +319,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         atom.setDefinitions(new ArrayList<Definition>());
         atom.setRelationships(new ArrayList<AtomRelationship>());
       }
-
-      // user annotations -- lazy initialize
-      stringClass.getNotes().size();
 
     } else if (stringClass == null) {
       throw new Exception("Cannot resolve a null string class.");
@@ -382,7 +376,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolve(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
-      throws Exception {
+    throws Exception {
     if (member != null) {
       boolean nullId = member.getId() == null;
       member.getTerminology();

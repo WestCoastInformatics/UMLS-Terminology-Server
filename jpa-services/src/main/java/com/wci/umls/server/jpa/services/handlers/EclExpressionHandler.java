@@ -48,7 +48,7 @@ public class EclExpressionHandler implements ExpressionHandler {
 
   /** The version. */
   private String version = null;
-  
+
   /** The maximum number of results returned */
   private Integer maxResults = Integer.MAX_VALUE;
 
@@ -98,7 +98,6 @@ public class EclExpressionHandler implements ExpressionHandler {
     }
   }
 
-
   @Override
   public String getName() {
     return "Expression Constraint Language Lucene Query Handler";
@@ -134,11 +133,12 @@ public class EclExpressionHandler implements ExpressionHandler {
       String luceneQuery;
       try {
         luceneQuery = parse(ecQuery);
-        Logger.getLogger(getClass())
-            .info("EC Query: " + ecQuery + " -> parsed: " + luceneQuery);
+        Logger.getLogger(getClass()).info(
+            "EC Query: " + ecQuery + " -> parsed: " + luceneQuery);
 
       } catch (RecognitionException e) {
-        throw new LocalException("Expression cannot be parsed, must reference an id", e);
+        throw new LocalException(
+            "Expression cannot be parsed, must reference an id", e);
       } catch (UnsupportedOperationException e) {
         throw new LocalException(e.getMessage(), e);
       }
@@ -154,7 +154,7 @@ public class EclExpressionHandler implements ExpressionHandler {
         throw new InternalError("Error preparing internal search query.", e);
       }
       try {
-        
+
         // parse the revised query after internal function expansion
         final Query query = queryParser.parse(luceneQuery);
 
@@ -162,7 +162,7 @@ public class EclExpressionHandler implements ExpressionHandler {
         final TopDocs topDocs =
             indexSearcher.search(query, maxResults, Sort.INDEXORDER);
         final ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-        
+
         // construct the search results
         results.setTotalCount(topDocs.totalHits);
 
@@ -170,7 +170,8 @@ public class EclExpressionHandler implements ExpressionHandler {
           ScoreDoc scoreDoc = scoreDocs[a];
           Document conceptDoc = getDocument(scoreDoc);
           SearchResult result = new SearchResultJpa();
-          result.setId(Long.parseLong(conceptDoc.get(EclConceptFieldNames.INTERNAL_ID)));
+          result.setId(Long.parseLong(conceptDoc
+              .get(EclConceptFieldNames.INTERNAL_ID)));
           result.setTerminology(terminology);
           result.setVersion(version);
           result.setTerminologyId(conceptDoc.get(EclConceptFieldNames.ID));
@@ -196,7 +197,7 @@ public class EclExpressionHandler implements ExpressionHandler {
    */
   private String processInternalFunction(String luceneQuery,
     ExpressionConstraintToLuceneConverter.InternalFunction internalFunction)
-      throws Exception {
+    throws Exception {
 
     // apply the pattern matcher
     final Matcher matcher =
@@ -204,8 +205,9 @@ public class EclExpressionHandler implements ExpressionHandler {
 
     // if no match, log and throw error
     if (!matcher.matches() || matcher.groupCount() != 2) {
-      final String message = "Failed to extract the id from the function "
-          + internalFunction + " in internal query '" + luceneQuery + "'";
+      final String message =
+          "Failed to extract the id from the function " + internalFunction
+              + " in internal query '" + luceneQuery + "'";
       Logger.getLogger(getClass()).error(message);
       throw new IllegalStateException(message);
     }
@@ -218,17 +220,18 @@ public class EclExpressionHandler implements ExpressionHandler {
     if (internalFunction.isAncestorType()) {
 
       // get the list of ancestors for this concept
-      conceptRelatives = Lists.newArrayList(getConceptDocument(terminologyId)
-          .getValues(EclConceptFieldNames.ANCESTOR));
+      conceptRelatives =
+          Lists.newArrayList(getConceptDocument(terminologyId).getValues(
+              EclConceptFieldNames.ANCESTOR));
     }
 
     // if not ancestor function
     else {
 
       // get the concepts for which this concept is an ancestor
-      final TopDocs topDocs = indexSearcher.search(
-          new TermQuery(new Term(EclConceptFieldNames.ANCESTOR, terminologyId)),
-          maxResults);
+      final TopDocs topDocs =
+          indexSearcher.search(new TermQuery(new Term(
+              EclConceptFieldNames.ANCESTOR, terminologyId)), maxResults);
 
       conceptRelatives = new ArrayList<>();
       for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
@@ -241,9 +244,11 @@ public class EclExpressionHandler implements ExpressionHandler {
     }
 
     String newLuceneQuery =
-        luceneQuery.replace(matcher.group(1), buildOptionsList(conceptRelatives,
-            !internalFunction.isAttributeType()));
-   
+        luceneQuery.replace(
+            matcher.group(1),
+            buildOptionsList(conceptRelatives,
+                !internalFunction.isAttributeType()));
+
     return newLuceneQuery;
   }
 
@@ -254,6 +259,7 @@ public class EclExpressionHandler implements ExpressionHandler {
    * @param includeIdFieldName the include id field name
    * @return the string
    */
+  @SuppressWarnings("static-method")
   private String buildOptionsList(List<String> conceptRelatives,
     boolean includeIdFieldName) {
     StringBuilder relativesIdBuilder = new StringBuilder();
@@ -284,11 +290,11 @@ public class EclExpressionHandler implements ExpressionHandler {
    * @throws Exception the exception
    */
   private Document getConceptDocument(String conceptId) throws Exception {
-    
+
     // get the top document (i.e. restrict to 1 result)
-    final TopDocs docs = indexSearcher.search(
-        new TermQuery(new Term(EclConceptFieldNames.ID, conceptId)),
-        1);
+    final TopDocs docs =
+        indexSearcher.search(new TermQuery(new Term(EclConceptFieldNames.ID,
+            conceptId)), 1);
     if (docs.totalHits < 1) {
       throw new Exception(conceptId + " has no index document");
     }

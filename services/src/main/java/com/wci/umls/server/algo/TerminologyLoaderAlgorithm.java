@@ -24,44 +24,20 @@ public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology {
    * @throws Exception
    */
   public void computeTreePositions() throws Exception;
-  
+
   /**
    * Create expression indexes.
    *
    * @throws Exception the exception
    */
   public void computeExpressionIndexes() throws Exception;
- 
+
   /**
    * Gets the input path.
    *
    * @return the input path
    */
   public String getInputPath();
-
-  /**
-   * Log info.
-   *
-   * @param message the message
-   * @throws Exception the exception
-   */
-  public void logInfo(String message) throws Exception;
-
-  /**
-   * Log error.
-   *
-   * @param message the message
-   * @throws Exception the exception
-   */
-  public void logError(String message) throws Exception;
-
-  /**
-   * Log warn.
-   *
-   * @param message the message
-   * @throws Exception the exception
-   */
-  public void logWarn(String message) throws Exception;
 
   /**
    * Indicates whether file sorting should take place, in case this is done

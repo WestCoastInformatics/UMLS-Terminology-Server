@@ -36,8 +36,7 @@ import com.wci.umls.server.services.RootService;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class TransitiveClosureAlgorithm extends
-    AbstractTerminologyLoaderAlgorithm {
+public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
 
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
@@ -380,32 +379,6 @@ public class TransitiveClosureAlgorithm extends
     }
 
     return descendants;
-  }
-
-  @Override
-  public String getFileVersion() throws Exception {
-    // this method just exists to allow the class to borrow from superclass
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void computeTransitiveClosures() throws Exception {
-    // this method just exists to allow the class to borrow from superclass
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void computeTreePositions() throws Exception {
-    // this method just exists to allow the class to borrow from superclass
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void computeExpressionIndexes() throws Exception {
-    Logger
-    .getLogger(getClass())
-    .warn(
-        "Transitive closure algorithm does not support expression index computation ");
   }
 
 }

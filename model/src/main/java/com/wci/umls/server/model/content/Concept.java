@@ -6,6 +6,7 @@ package com.wci.umls.server.model.content;
 import java.util.List;
 
 import com.wci.umls.server.helpers.HasMembers;
+import com.wci.umls.server.helpers.HasNotes;
 
 /**
  * Represents a conceptual meaning. This can be a concept in a terminology (like
@@ -14,7 +15,7 @@ import com.wci.umls.server.helpers.HasMembers;
  */
 public interface Concept extends AtomClass, ComponentHasDefinitions,
     ComponentHasRelationships<ConceptRelationship>,
-    HasMembers<ConceptSubsetMember> {
+    HasMembers<ConceptSubsetMember>, HasNotes {
 
   /**
    * Indicates whether or not the concept is fully defined. This is always false
