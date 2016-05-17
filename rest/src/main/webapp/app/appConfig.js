@@ -21,6 +21,6 @@ tsApp.constant('appConfig', {
   loginEnabled : '${deploy.login.enabled}',
 
   // other
-  siteTrackingCode : '${site.tracking.code}'
+  siteTrackingCode : "${site.tracking.code}"
 
 });

@@ -707,7 +707,7 @@ tsApp
           });
 
           return deferred.promise;
-        }
+        };
 
         // Handle paging of relationships (requires content service
         // call).

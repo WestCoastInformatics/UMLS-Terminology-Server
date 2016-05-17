@@ -27,10 +27,6 @@ tsApp.controller('MetadataCtrl', [
 
     // Configure tab and accordion
     $scope.configureTab = function() {
-      // skip guest user
-      if ($http.defaults.headers.common.Authorization == 'guest') {
-        return;
-      }
       $scope.user.userPreferences.lastTab = '/metadata';
       securityService.updateUserPreferences($scope.user.userPreferences);
     };
@@ -50,7 +46,7 @@ tsApp.controller('MetadataCtrl', [
       else if ($scope.user.userPreferences) {
         $scope.configureTab();
       }
-    }
+    };
 
     //
     // Initialization: Check that application is configured

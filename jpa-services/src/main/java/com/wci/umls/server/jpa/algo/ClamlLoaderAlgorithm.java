@@ -113,10 +113,11 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   final String loader = "loader";
 
   /** The tree pos algorithm. */
-  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+  private final TreePositionAlgorithm treePosAlgorithm =
+      new TreePositionAlgorithm();
 
   /** The trans closure algorithm. */
-  final TransitiveClosureAlgorithm transClosureAlgorithm =
+  private final TransitiveClosureAlgorithm transClosureAlgorithm =
       new TransitiveClosureAlgorithm();
 
   /**
@@ -600,8 +601,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             logInfo("  Class and subclasses of " + code + " exclude modifier "
                 + excludeModifierCode);
           } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // n/a
           }
           List<String> currentModifiers = new ArrayList<>();
           if (classToExcludedModifierMap.containsKey(code)) {
@@ -629,8 +629,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                   logInfo("  Class and subclasses of " + code
                       + " exclude modifier " + excludeModifierCode);
                 } catch (Exception e) {
-                  // TODO Auto-generated catch block
-                  e.printStackTrace();
+                  // n/a
                 }
                 currentModifiers = new ArrayList<>();
                 if (classToExcludedModifierMap.containsKey(code)) {
@@ -652,8 +651,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             logInfo("  Class " + code + " has rubric " + rubricKind + ", "
                 + rubricId);
           } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // n/a
           }
         }
 
@@ -2061,7 +2059,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     RootTerminology root = new RootTerminologyJpa();
     root.setFamily(terminology);
     root.setHierarchicalName(terminology);
-    root.setLanguage(language);
+    root.setLanguage(language.getAbbreviation());
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);

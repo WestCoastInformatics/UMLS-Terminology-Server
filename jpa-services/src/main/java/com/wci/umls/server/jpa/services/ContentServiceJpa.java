@@ -179,12 +179,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       if (config == null)
         config = ConfigUtility.getConfigProperties();
-      String key = "identifier.assignment.handler";
-      for (String handlerName : config.getProperty(key).split(",")) {
+      final String key = "identifier.assignment.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
         if (handlerName.isEmpty())
           continue;
         // Add handlers to map
-        IdentifierAssignmentHandler handlerService =
+        final IdentifierAssignmentHandler handlerService =
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
                 handlerName, IdentifierAssignmentHandler.class);
         idHandlerMap.put(handlerName, handlerService);
@@ -207,11 +207,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     try {
       config = ConfigUtility.getConfigProperties();
-      String key = "compute.preferred.name.handler";
-      for (String handlerName : config.getProperty(key).split(",")) {
+      final String key = "compute.preferred.name.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
 
         // Add handlers to map
-        ComputePreferredNameHandler handlerService =
+        final ComputePreferredNameHandler handlerService =
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
                 handlerName, ComputePreferredNameHandler.class);
         pnHandlerMap.put(handlerName, handlerService);
@@ -232,10 +232,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   static {
     try {
       config = ConfigUtility.getConfigProperties();
-      String key = "normalized.string.handler";
-      String handlerName = config.getProperty(key);
+      final String key = "normalized.string.handler";
+      final String handlerName = config.getProperty(key);
 
-      NormalizedStringHandler handlerService =
+      final NormalizedStringHandler handlerService =
           ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
               handlerName, NormalizedStringHandler.class);
       normalizedStringHandler = handlerService;
@@ -253,8 +253,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     try {
       if (config == null)
         config = ConfigUtility.getConfigProperties();
-      String key = "search.handler";
-      for (String handlerName : config.getProperty(key).split(",")) {
+      final String key = "search.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
         if (handlerName.isEmpty())
           continue;
         searchHandlerNames.add(handlerName);
@@ -322,12 +322,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String version) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get concepts "
         + terminologyId + "/" + terminology + "/" + version);
-    List<Concept> concepts =
+    final List<Concept> concepts =
         getComponents(terminologyId, terminology, version, ConceptJpa.class);
     if (concepts == null) {
       return null;
     }
-    ConceptList list = new ConceptListJpa();
+    final ConceptList list = new ConceptListJpa();
     list.setTotalCount(concepts.size());
     list.setObjects(concepts);
     return list;
@@ -361,11 +361,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    Concept newConcept = addComponent(concept);
+    final Concept newConcept = addComponent(concept);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.conceptChanged(newConcept, WorkflowListener.Action.ADD);
       }
     }
@@ -383,7 +383,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         getIdentifierAssignmentHandler(concept.getTerminology());
     if (assignIdentifiersFlag) {
       if (!idHandler.allowConceptIdChangeOnUpdate()) {
-        Concept concept2 = getConcept(concept.getId());
+        final Concept concept2 = getConcept(concept.getId());
         if (!idHandler.getTerminologyId(concept)
             .equals(idHandler.getTerminologyId(concept2))) {
           throw new Exception(
@@ -399,7 +399,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.conceptChanged(concept, WorkflowListener.Action.UPDATE);
       }
     }
@@ -411,10 +411,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove concept " + id);
     // Remove the component
-    Concept concept = removeComponent(id, ConceptJpa.class);
+    final Concept concept = removeComponent(id, ConceptJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.conceptChanged(concept, WorkflowListener.Action.REMOVE);
       }
     }
@@ -464,7 +464,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String branch) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get atom subsets " + terminology + "/" + version);
-    javax.persistence.Query query =
+    final javax.persistence.Query query =
         manager.createQuery("select a from AtomSubsetJpa a where "
             + "version = :version and terminology = :terminology");
     // Try to retrieve the single expected result If zero or more than one
@@ -473,8 +473,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       @SuppressWarnings("unchecked")
-      List<Subset> m = query.getResultList();
-      SubsetListJpa subsetList = new SubsetListJpa();
+      final List<Subset> m = query.getResultList();
+      final SubsetListJpa subsetList = new SubsetListJpa();
       subsetList.setObjects(m);
       subsetList.setTotalCount(m.size());
 
@@ -491,7 +491,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String branch) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get concept subsets " + terminology + "/" + version);
-    javax.persistence.Query query =
+    final javax.persistence.Query query =
         manager.createQuery("select a from ConceptSubsetJpa a where "
             + "version = :version and terminology = :terminology");
 
@@ -501,8 +501,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       @SuppressWarnings("unchecked")
-      List<Subset> m = query.getResultList();
-      SubsetListJpa subsetList = new SubsetListJpa();
+      final List<Subset> m = query.getResultList();
+      final SubsetListJpa subsetList = new SubsetListJpa();
       subsetList.setObjects(m);
       subsetList.setTotalCount(m.size());
       return subsetList;
@@ -525,7 +525,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + terminology + "/" + version + ", query=" + query);
     // Prepare the query string
 
-    StringBuilder finalQuery = new StringBuilder();
+    final StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
     if (subsetId != null && !subsetId.isEmpty()) {
       if (finalQuery.length() > 0) {
@@ -533,9 +533,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       }
       finalQuery.append("subsetTerminologyId:" + subsetId);
     }
-    SearchHandler searchHandler = getSearchHandler(terminology);
-    int[] totalCt = new int[1];
-    SubsetMemberList list = new SubsetMemberListJpa();
+    final SearchHandler searchHandler = getSearchHandler(terminology);
+    final int[] totalCt = new int[1];
+    final SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
         branch, finalQuery.toString(), "memberNameSort",
         ConceptSubsetMemberJpa.class, AtomSubsetMemberJpa.class, pfs, totalCt,
@@ -557,7 +557,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + terminology + "/" + version + ", query=" + query);
     // Prepare the query string
 
-    StringBuilder finalQuery = new StringBuilder();
+    final StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
     if (subsetId != null && !subsetId.isEmpty()) {
       if (finalQuery.length() > 0) {
@@ -566,9 +566,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       finalQuery.append("subsetTerminologyId:" + subsetId);
     }
 
-    SearchHandler searchHandler = getSearchHandler(terminology);
-    int[] totalCt = new int[1];
-    SubsetMemberList list = new SubsetMemberListJpa();
+    final SearchHandler searchHandler = getSearchHandler(terminology);
+    final int[] totalCt = new int[1];
+    final SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
         branch, finalQuery.toString(), "memberNameSort",
         ConceptSubsetMemberJpa.class, ConceptSubsetMemberJpa.class, pfs,
@@ -586,14 +586,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - get subset members for atom " + atomId + "/"
             + terminology + "/" + version);
-    javax.persistence.Query query =
+    final javax.persistence.Query query =
         manager.createQuery("select a from AtomSubsetMemberJpa a, "
             + " AtomJpa b where b.terminologyId = :atomId "
             + "and b.version = :version "
             + "and b.terminology = :terminology and a.member = b");
 
     try {
-      SubsetMemberList list = new SubsetMemberListJpa();
+      final SubsetMemberList list = new SubsetMemberListJpa();
 
       query.setParameter("atomId", atomId);
       query.setParameter("terminology", terminology);
@@ -603,8 +603,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       // account for lazy initialization
       /*
-       * for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
-       * .getObjects()) { if (s.getAttributes() != null)
+       * for (final SubsetMember<? extends ComponentHasAttributesAndName> s :
+       * list .getObjects()) { if (s.getAttributes() != null)
        * s.getAttributes().size(); }
        */
 
@@ -622,14 +622,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - get subset members for concept " + conceptId
             + "/" + terminology + "/" + version);
-    javax.persistence.Query query =
+    final javax.persistence.Query query =
         manager.createQuery("select a from ConceptSubsetMemberJpa a, "
             + " ConceptJpa b where b.terminologyId = :conceptId "
             + "and b.version = :version "
             + "and b.terminology = :terminology and a.member = b");
 
     try {
-      SubsetMemberList list = new SubsetMemberListJpa();
+      final SubsetMemberList list = new SubsetMemberListJpa();
 
       query.setParameter("conceptId", conceptId);
       query.setParameter("terminology", terminology);
@@ -639,8 +639,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       // account for lazy initialization
       /*
-       * for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
-       * .getObjects()) { if (s.getAttributes() != null)
+       * for (final SubsetMember<? extends ComponentHasAttributesAndName> s :
+       * list .getObjects()) { if (s.getAttributes() != null)
        * s.getAttributes().size(); }
        */
       return list;
@@ -658,7 +658,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     assert branch != null;
 
     try {
-      SubsetList list = getAtomSubsets(terminology, version, branch);
+      final SubsetList list = getAtomSubsets(terminology, version, branch);
       if (list == null) {
         return getConceptSubsets(terminology, version, branch);
       } else {
@@ -687,12 +687,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String version) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get definitions "
         + terminologyId + "/" + terminology + "/" + version);
-    List<Definition> definitions =
+    final List<Definition> definitions =
         getComponents(terminologyId, terminology, version, DefinitionJpa.class);
     if (definitions == null) {
       return null;
     }
-    DefinitionList list = new DefinitionListJpa();
+    final DefinitionList list = new DefinitionListJpa();
     list.setTotalCount(definitions.size());
     list.setObjects(definitions);
     return list;
@@ -727,11 +727,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    Definition newDefinition = addComponent(definition);
+    final Definition newDefinition = addComponent(definition);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.definitionChanged(newDefinition, WorkflowListener.Action.ADD);
       }
     }
@@ -768,7 +768,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.definitionChanged(definition, WorkflowListener.Action.UPDATE);
       }
     }
@@ -780,10 +780,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove definition " + id);
     // Remove the component
-    Definition definition = removeComponent(id, DefinitionJpa.class);
+    final Definition definition = removeComponent(id, DefinitionJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.definitionChanged(definition, WorkflowListener.Action.REMOVE);
       }
     }
@@ -810,12 +810,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    SemanticTypeComponent newSemanticTypeComponent =
+    final SemanticTypeComponent newSemanticTypeComponent =
         addComponent(semanticTypeComponent);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.semanticTypeChanged(newSemanticTypeComponent,
             WorkflowListener.Action.ADD);
       }
@@ -855,7 +855,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.semanticTypeChanged(semanticTypeComponent,
             WorkflowListener.Action.UPDATE);
       }
@@ -868,11 +868,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove semanticTypeComponent " + id);
     // Remove the component
-    SemanticTypeComponent semanticTypeComponent =
+    final SemanticTypeComponent semanticTypeComponent =
         removeComponent(id, SemanticTypeComponentJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.semanticTypeChanged(semanticTypeComponent,
             WorkflowListener.Action.REMOVE);
       }
@@ -894,7 +894,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String version) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get descriptors "
         + terminologyId + "/" + terminology + "/" + version);
-    List<Descriptor> descriptors =
+    final List<Descriptor> descriptors =
         getComponents(terminologyId, terminology, version, DescriptorJpa.class);
     if (descriptors == null) {
       return null;
@@ -937,7 +937,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.descriptorChanged(newDescriptor, WorkflowListener.Action.ADD);
       }
     }
@@ -971,7 +971,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.descriptorChanged(descriptor, WorkflowListener.Action.UPDATE);
       }
     }
@@ -983,10 +983,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove descriptor " + id);
     // Remove the component
-    Descriptor descriptor = removeComponent(id, DescriptorJpa.class);
+    final Descriptor descriptor = removeComponent(id, DescriptorJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.descriptorChanged(descriptor, WorkflowListener.Action.REMOVE);
       }
     }
@@ -996,7 +996,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public Code getCode(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get code " + id);
-    Code c = manager.find(CodeJpa.class, id);
+    final Code c = manager.find(CodeJpa.class, id);
     return c;
   }
 
@@ -1007,12 +1007,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String version) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get codes "
         + terminologyId + "/" + terminology + "/" + version);
-    List<Code> codes =
+    final List<Code> codes =
         getComponents(terminologyId, terminology, version, CodeJpa.class);
     if (codes == null) {
       return null;
     }
-    CodeList list = new CodeListJpa();
+    final CodeList list = new CodeListJpa();
     list.setTotalCount(codes.size());
     list.setObjects(codes);
     return list;
@@ -1045,11 +1045,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    Code newCode = addComponent(code);
+    final Code newCode = addComponent(code);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.codeChanged(newCode, WorkflowListener.Action.ADD);
       }
     }
@@ -1082,7 +1082,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.codeChanged(code, WorkflowListener.Action.UPDATE);
       }
     }
@@ -1093,10 +1093,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public void removeCode(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove code " + id);
     // Remove the component
-    Code code = removeComponent(id, CodeJpa.class);
+    final Code code = removeComponent(id, CodeJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.codeChanged(code, WorkflowListener.Action.REMOVE);
       }
     }
@@ -1115,14 +1115,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public LexicalClassList getLexicalClasses(String terminologyId,
     String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get lexical classes "
-        + terminologyId + "/" + terminology + "/" + version);
-    List<LexicalClass> luis = getComponents(terminologyId, terminology, version,
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get lexical classes " + terminologyId + "/"
+            + terminology + "/" + version);
+    final List<LexicalClass> luis =
+        getComponents(terminologyId, terminology, version,
         LexicalClassJpa.class);
     if (luis == null) {
       return null;
     }
-    LexicalClassList list = new LexicalClassListJpa();
+    final LexicalClassList list = new LexicalClassListJpa();
     list.setTotalCount(luis.size());
     list.setObjects(luis);
     return list;
@@ -1158,11 +1160,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    LexicalClass newLexicalClass = addComponent(lexicalClass);
+    final LexicalClass newLexicalClass = addComponent(lexicalClass);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.lexicalClassChanged(newLexicalClass,
             WorkflowListener.Action.ADD);
       }
@@ -1197,7 +1199,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.lexicalClassChanged(lexicalClass,
             WorkflowListener.Action.UPDATE);
       }
@@ -1210,10 +1212,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove lexical class " + id);
     // Remove the component
-    LexicalClass lexicalClass = removeComponent(id, LexicalClassJpa.class);
+    final LexicalClass lexicalClass =
+        removeComponent(id, LexicalClassJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.lexicalClassChanged(lexicalClass,
             WorkflowListener.Action.REMOVE);
       }
@@ -1233,14 +1236,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public StringClassList getStringClasses(String terminologyId,
     String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get string classes "
-        + terminologyId + "/" + terminology + "/" + version);
-    List<StringClass> suis = getComponents(terminologyId, terminology, version,
-        StringClassJpa.class);
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get string classes " + terminologyId + "/"
+            + terminology + "/" + version);
+    final List<StringClass> suis =
+        getComponents(terminologyId, terminology, version, StringClassJpa.class);
     if (suis == null) {
       return null;
     }
-    StringClassList list = new StringClassListJpa();
+    final StringClassList list = new StringClassListJpa();
     list.setTotalCount(suis.size());
     list.setObjects(suis);
     return list;
@@ -1274,11 +1278,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    StringClass newStringClass = addComponent(stringClass);
+    final StringClass newStringClass = addComponent(stringClass);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.stringClassChanged(newStringClass,
             WorkflowListener.Action.ADD);
       }
@@ -1313,7 +1317,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.stringClassChanged(stringClass,
             WorkflowListener.Action.UPDATE);
       }
@@ -1326,10 +1330,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove string class " + id);
     // Remove the component
-    StringClass stringClass = removeComponent(id, StringClassJpa.class);
+    final StringClass stringClass = removeComponent(id, StringClassJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.stringClassChanged(stringClass,
             WorkflowListener.Action.REMOVE);
       }
@@ -1344,12 +1348,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - find descendant concepts " + terminologyId
             + ", " + terminology);
-    long[] totalCt = new long[1];
+    final long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Concept> descendants =
+    final List<Concept> descendants =
         this.findDescendantsHelper(terminologyId, terminology, version,
             childrenOnly, branch, pfs, ConceptJpa.class, totalCt);
-    ConceptList list = new ConceptListJpa();
+    final ConceptList list = new ConceptListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
     return list;
@@ -1363,12 +1367,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - find ancestor concepts " + terminologyId
             + ", " + terminology);
-    long[] totalCt = new long[1];
+    final long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Concept> ancestors =
+    final List<Concept> ancestors =
         this.findAncestorsHelper(terminologyId, terminology, version,
             parentsOnly, branch, pfs, ConceptJpa.class, totalCt);
-    ConceptList list = new ConceptListJpa();
+    final ConceptList list = new ConceptListJpa();
     list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
     return list;
@@ -1398,18 +1402,19 @@ public class ContentServiceJpa extends MetadataServiceJpa
           "Query restriction is not implemented for this call: "
               + pfs.getQueryRestriction());
     }
-    String queryStr = "select a from "
-        + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, "
-        + clazz.getName() + " super, " + clazz.getName() + " a "
+    final String queryStr =
+        "select a from "
+            + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+            + " tr, " + clazz.getName() + " super, " + clazz.getName() + " a "
         + " where super.version = :version "
         + " and super.terminology = :terminology "
         + " and super.terminologyId = :terminologyId"
         + " and tr.superType = super" + " and tr.subType = a "
         + " and tr.superType != tr.subType"
         + (childrenOnly ? " and depth = 1" : "");
-    javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
+    final javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
 
-    javax.persistence.Query ctQuery =
+    final javax.persistence.Query ctQuery =
         manager.createQuery("select count(*) from "
             + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
             + " tr, " + clazz.getName() + " super, " + clazz.getName() + " a "
@@ -1457,17 +1462,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
           "Query restriction is not implemented for this call: "
               + pfs.getQueryRestriction());
     }
-    String queryStr = "select a from "
-        + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, "
-        + clazz.getName() + " sub, " + clazz.getName() + " a "
+    final String queryStr =
+        "select a from "
+            + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+            + " tr, " + clazz.getName() + " sub, " + clazz.getName() + " a "
         + " where sub.version = :version "
         + " and sub.terminology = :terminology "
         + " and sub.terminologyId = :terminologyId" + " and tr.subType = sub"
         + " and tr.superType = a " + " and tr.subType != tr.superType"
         + (parentsOnly ? " and depth = 1" : "");
-    javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
+    final javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
 
-    javax.persistence.Query ctQuery =
+    final javax.persistence.Query ctQuery =
         manager.createQuery("select count(*) from "
             + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
             + " tr, " + clazz.getName() + " sub, " + clazz.getName() + " a "
@@ -1500,10 +1506,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + ", " + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Descriptor> descendants =
+    final List<Descriptor> descendants =
         this.findDescendantsHelper(terminologyId, terminology, version,
             childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
-    DescriptorList list = new DescriptorListJpa();
+    final DescriptorList list = new DescriptorListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
     return list;
@@ -1519,10 +1525,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + ", " + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Descriptor> ancestors =
+    final List<Descriptor> ancestors =
         this.findAncestorsHelper(terminologyId, terminology, version,
             childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
-    DescriptorList list = new DescriptorListJpa();
+    final DescriptorList list = new DescriptorListJpa();
     list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
     return list;
@@ -1538,10 +1544,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Code> descendants =
+    final List<Code> descendants =
         this.findDescendantsHelper(terminologyId, terminology, version,
             childrenOnly, branch, pfs, CodeJpa.class, totalCt);
-    CodeList list = new CodeListJpa();
+    final CodeList list = new CodeListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
     return list;
@@ -1556,9 +1562,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
         + terminologyId + ", " + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Code> descendants = this.findAncestorsHelper(terminologyId,
-        terminology, version, parentsOnly, branch, pfs, CodeJpa.class, totalCt);
-    CodeList list = new CodeListJpa();
+    final List<Code> descendants =
+        this.findAncestorsHelper(terminologyId, terminology, version,
+            parentsOnly, branch, pfs, CodeJpa.class, totalCt);
+    final CodeList list = new CodeListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
     return list;
@@ -1578,12 +1585,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String version) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get atoms "
         + terminologyId + "/" + terminology + "/" + version);
-    List<Atom> atoms =
+    final List<Atom> atoms =
         getComponents(terminologyId, terminology, version, AtomJpa.class);
     if (atoms == null) {
       return null;
     }
-    AtomList list = new AtomListJpa();
+    final AtomList list = new AtomListJpa();
     list.setTotalCount(atoms.size());
     list.setObjects(atoms);
     return list;
@@ -1619,11 +1626,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    Atom newAtom = addComponent(atom);
+    final Atom newAtom = addComponent(atom);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.atomChanged(newAtom, WorkflowListener.Action.ADD);
       }
     }
@@ -1638,7 +1645,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(atom.getTerminology());
     if (!idHandler.allowIdChangeOnUpdate() && assignIdentifiersFlag) {
-      Atom atom2 = getAtom(atom.getId());
+      final Atom atom2 = getAtom(atom.getId());
       if (!idHandler.getTerminologyId(atom)
           .equals(idHandler.getTerminologyId(atom2))) {
         throw new Exception("Update cannot be used to change object identity.");
@@ -1650,7 +1657,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.atomChanged(atom, WorkflowListener.Action.UPDATE);
       }
     }
@@ -1661,10 +1668,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public void removeAtom(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove atom " + id);
     // Remove the component
-    Atom atom = removeComponent(id, AtomJpa.class);
+    final Atom atom = removeComponent(id, AtomJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.atomChanged(atom, WorkflowListener.Action.REMOVE);
       }
     }
@@ -1730,7 +1737,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (relationships == null) {
       return null;
     }
-    RelationshipList list = new RelationshipListJpa();
+    final RelationshipList list = new RelationshipListJpa();
     list.setTotalCount(relationships.size());
     list.setObjects(relationships);
     return list;
@@ -1748,7 +1755,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       return getComponent(terminologyId, terminology, version, branch,
           relationshipClass);
     }
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel =
+    final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel =
         getComponent(terminologyId, terminology, version, branch,
             ConceptRelationshipJpa.class);
     if (rel == null) {
@@ -1786,12 +1793,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> newRel =
+    final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> newRel =
         addComponent(rel);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.relationshipChanged(newRel, WorkflowListener.Action.ADD);
       }
     }
@@ -1829,7 +1836,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.relationshipChanged(rel, WorkflowListener.Action.UPDATE);
       }
     }
@@ -1853,7 +1860,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       rel = removeComponent(id, rel.getClass());
     }
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.relationshipChanged(rel, WorkflowListener.Action.REMOVE);
       }
     }
@@ -1902,7 +1909,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    TransitiveRelationship<? extends ComponentHasAttributes> newRel =
+    final TransitiveRelationship<? extends ComponentHasAttributes> newRel =
         addComponent(rel);
 
     return newRel;
@@ -1922,7 +1929,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
         @SuppressWarnings("unchecked")
-        TransitiveRelationship<? extends ComponentHasAttributes> rel2 =
+        final TransitiveRelationship<? extends ComponentHasAttributes> rel2 =
             getComponent(rel.getId(), rel.getClass());
         if (!idHandler.getTerminologyId(rel)
             .equals(idHandler.getTerminologyId(rel2))) {
@@ -1947,8 +1954,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove transitive relationship " + id);
 
-    TransitiveRelationship<? extends ComponentHasAttributes> rel = null;
-    rel = getComponent(id, relationshipClass);
+    final TransitiveRelationship<? extends ComponentHasAttributes> rel =
+        getComponent(id, relationshipClass);
     removeComponent(id, rel.getClass());
   }
 
@@ -1994,7 +2001,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    TreePosition<? extends ComponentHasAttributesAndName> newTreepos =
+    final TreePosition<? extends ComponentHasAttributesAndName> newTreepos =
         addComponent(treepos);
 
     return newTreepos;
@@ -2038,7 +2045,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - remove tree position " + id);
-    TreePosition<? extends ComponentHasAttributesAndName> treepos =
+    final TreePosition<? extends ComponentHasAttributesAndName> treepos =
         getComponent(id, treeposClass);
     removeComponent(id, treepos.getClass());
   }
@@ -2064,11 +2071,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    Subset newSubset = addComponent(subset);
+    final Subset newSubset = addComponent(subset);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.subsetChanged(newSubset, WorkflowListener.Action.ADD);
       }
     }
@@ -2084,7 +2091,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(subset.getTerminology());
     if (!idHandler.allowIdChangeOnUpdate() && assignIdentifiersFlag) {
-      Subset subset2 = getSubset(subset.getId(), subset.getClass());
+      final Subset subset2 = getSubset(subset.getId(), subset.getClass());
       if (!idHandler.getTerminologyId(subset)
           .equals(idHandler.getTerminologyId(subset2))) {
         throw new Exception("Update cannot be used to change object identity.");
@@ -2096,7 +2103,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.subsetChanged(subset, WorkflowListener.Action.UPDATE);
       }
     }
@@ -2117,7 +2124,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.subsetChanged(subset, WorkflowListener.Action.REMOVE);
       }
     }
@@ -2171,7 +2178,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (members == null) {
       return null;
     }
-    SubsetMemberList list = new SubsetMemberListJpa();
+    final SubsetMemberList list = new SubsetMemberListJpa();
     list.setTotalCount(members.size());
     list.setObjects(members);
     return list;
@@ -2223,12 +2230,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> newSubsetMember =
+    final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> newSubsetMember =
         addComponent(subsetMember);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.subsetMemberChanged(newSubsetMember,
             WorkflowListener.Action.ADD);
       }
@@ -2261,7 +2268,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.subsetMemberChanged(subsetMember,
             WorkflowListener.Action.UPDATE);
       }
@@ -2276,12 +2283,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove subsetMember " + id);
     // find and remove the component
-    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+    final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
         getComponent(id, memberClass);
     removeComponent(id, member.getClass());
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.subsetMemberChanged(member, WorkflowListener.Action.REMOVE);
       }
     }
@@ -2301,12 +2308,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String version) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get attributes "
         + terminologyId + "/" + terminology + "/" + version);
-    List<Attribute> attributes =
+    final List<Attribute> attributes =
         getComponents(terminologyId, terminology, version, AttributeJpa.class);
     if (attributes == null) {
       return null;
     }
-    AttributeList list = new AttributeListJpa();
+    final AttributeList list = new AttributeListJpa();
     list.setTotalCount(attributes.size());
     list.setObjects(attributes);
     return list;
@@ -2341,11 +2348,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    Attribute newAttribute = addComponent(attribute);
+    final Attribute newAttribute = addComponent(attribute);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.attributeChanged(newAttribute, WorkflowListener.Action.ADD);
       }
     }
@@ -2381,7 +2388,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.attributeChanged(attribute, WorkflowListener.Action.UPDATE);
       }
     }
@@ -2393,10 +2400,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove attribute " + id);
     // Remove the component
-    Attribute attribute = removeComponent(id, AttributeJpa.class);
+    final Attribute attribute = removeComponent(id, AttributeJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.attributeChanged(attribute, WorkflowListener.Action.REMOVE);
       }
     }
@@ -2464,7 +2471,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     PfscParameter pfsc, Class<?> fieldNamesKey, Class<T> clazz)
       throws Exception {
     // Prepare results
-    SearchResultList results = new SearchResultListJpa();
+    final SearchResultList results = new SearchResultListJpa();
     int totalCt[] = new int[1];
 
     // construct return lists for lucene and expression results
@@ -2506,7 +2513,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       searchHandler = getSearchHandler(ConfigUtility.ATOMCLASS);
     }
 
-    // otherwise look for terminology specific handlers
+      // otherwise look for terminology specific handlers (this condition may be
+      // impossible)
     else {
       searchHandler = getSearchHandler(terminology);
     }
@@ -2560,23 +2568,23 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String luceneQuery, String jqlQuery, String branch, PfsParameter pfs,
     Class<?> fieldNamesKey, Class<T> clazz) throws Exception {
     // Prepare results
-    SearchResultList results = new SearchResultListJpa();
+    final SearchResultList results = new SearchResultListJpa();
     List<T> classes = null;
-    int totalCt[] = new int[1];
+    final int totalCt[] = new int[1];
 
     // Perform Lucene search
-    List<T> luceneQueryClasses = new ArrayList<>();
+    final List<T> luceneQueryClasses = new ArrayList<>();
     boolean luceneQueryFlag = false;
     if (luceneQuery != null && !luceneQuery.equals("")) {
       SearchHandler searchHandler = getSearchHandler("");
-      luceneQueryClasses =
-          searchHandler.getQueryResults("", "", branch, luceneQuery,
-              "atomsName.sort", fieldNamesKey, clazz, pfs, totalCt, manager);
+      luceneQueryClasses.addAll(searchHandler.getQueryResults(null, null, branch,
+          luceneQuery, "atomsName.sort", fieldNamesKey, clazz, pfs, totalCt,
+          manager));
       luceneQueryFlag = true;
     }
 
     boolean jqlQueryFlag = false;
-    List<T> jqlQueryClasses = new ArrayList<>();
+    final List<T> jqlQueryClasses = new ArrayList<>();
     if (jqlQuery != null && !jqlQuery.equals("")) {
       if (!jqlQuery.toLowerCase().startsWith("select"))
         throw new Exception(
@@ -2592,8 +2600,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       // It doesn't work with Mysql 5.6, seems to simply be ignored
       hQuery.setHint("javax.persistence.query.timeout", queryTimeout);
       try {
-        List<T> jqlResults = hQuery.getResultList();
-        for (T r : jqlResults) {
+        final List<T> jqlResults = hQuery.getResultList();
+        for (final T r : jqlResults) {
           jqlQueryClasses.add(r);
         }
       } catch (ClassCastException e) {
@@ -2638,9 +2646,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
           @Override
           public int compare(AtomClass o1, AtomClass o2) {
             try {
-              Comparable f1 =
+              final Comparable f1 =
                   (Comparable) getMethod.invoke(o1, new Object[] {});
-              Comparable f2 =
+              final Comparable f2 =
                   (Comparable) getMethod.invoke(o2, new Object[] {});
               return f1.compareTo(f2);
             } catch (Exception e) {
@@ -2672,8 +2680,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       return results;
 
     // construct the search results
-    for (AtomClass atomClass : classes) {
-      SearchResult sr = new SearchResultJpa();
+    for (final AtomClass atomClass : classes) {
+      final SearchResult sr = new SearchResultJpa();
       sr.setId(atomClass.getId());
       sr.setTerminologyId(atomClass.getTerminologyId());
       sr.setTerminology(atomClass.getTerminology());
@@ -2709,21 +2717,24 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final String TITLE_EDGE_NGRAM_INDEX = "atoms.edgeNGramName";
     final String TITLE_NGRAM_INDEX = "atoms.nGramName";
 
-    FullTextEntityManager fullTextEntityManager =
+    final FullTextEntityManager fullTextEntityManager =
         Search.getFullTextEntityManager(manager);
-    QueryBuilder titleQB = fullTextEntityManager.getSearchFactory()
-        .buildQueryBuilder().forEntity(clazz).get();
+    final QueryBuilder titleQB =
+        fullTextEntityManager.getSearchFactory().buildQueryBuilder()
+            .forEntity(clazz).get();
 
-    Query query = titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
-        .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5).andField("atoms.name")
-        .boostedTo(5).sentence(searchTerm.toLowerCase()).createQuery();
+    final Query query =
+        titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
+            .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5)
+            .andField("atoms.name").boostedTo(5)
+            .sentence(searchTerm.toLowerCase()).createQuery();
 
-    Query term1 = new TermQuery(new Term("terminology", terminology));
-    Query term2 = new TermQuery(new Term("version", version));
-    Query term3 = new TermQuery(new Term("atoms.suppressible", "false"));
-    Query term4 = new TermQuery(new Term("suppressible", "false"));
-    Query term5 = new TermQuery(new Term("anonymous", "false"));
-    BooleanQuery booleanQuery = new BooleanQuery();
+    final Query term1 = new TermQuery(new Term("terminology", terminology));
+    final Query term2 = new TermQuery(new Term("version", version));
+    final Query term3 = new TermQuery(new Term("atoms.suppressible", "false"));
+    final Query term4 = new TermQuery(new Term("suppressible", "false"));
+    final Query term5 = new TermQuery(new Term("anonymous", "false"));
+    final BooleanQuery booleanQuery = new BooleanQuery();
     booleanQuery.add(term1, BooleanClause.Occur.MUST);
     booleanQuery.add(term2, BooleanClause.Occur.MUST);
     booleanQuery.add(term3, BooleanClause.Occur.MUST);
@@ -2731,16 +2742,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
     booleanQuery.add(term5, BooleanClause.Occur.MUST);
     booleanQuery.add(query, BooleanClause.Occur.MUST);
 
-    FullTextQuery fullTextQuery =
+    final FullTextQuery fullTextQuery =
         fullTextEntityManager.createFullTextQuery(booleanQuery, clazz);
 
     fullTextQuery.setMaxResults(20);
 
     @SuppressWarnings("unchecked")
-    List<AtomClass> results = fullTextQuery.getResultList();
-    StringList list = new StringList();
+    final List<AtomClass> results = fullTextQuery.getResultList();
+    final StringList list = new StringList();
     list.setTotalCount(fullTextQuery.getResultSize());
-    for (AtomClass result : results) {
+    for (final AtomClass result : results) {
       // exclude duplicates
       if (!list.contains(result.getName()))
         list.addObject(result.getName());
@@ -2776,7 +2787,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     assert branch != null;
 
     try {
-      javax.persistence.Query query =
+      final javax.persistence.Query query =
           manager.createQuery("select a from ConceptJpa a "
               + "where version = :version " + "and terminology = :terminology "
               + "and (branch = :branch or branchedTo not like :branchMatch)");
@@ -2785,8 +2796,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("branch", branch);
       query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
       @SuppressWarnings("unchecked")
-      List<Concept> concepts = query.getResultList();
-      ConceptList conceptList = new ConceptListJpa();
+      final List<Concept> concepts = query.getResultList();
+      final ConceptList conceptList = new ConceptListJpa();
       conceptList.setObjects(concepts);
       conceptList.setTotalCount(concepts.size());
       return conceptList;
@@ -2804,7 +2815,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     assert branch != null;
 
     try {
-      javax.persistence.Query query =
+      final javax.persistence.Query query =
           manager.createQuery("select a from DescriptorJpa a "
               + "where version = :version " + "and terminology = :terminology "
               + "and (branch = :branch or branchedTo not like :branchMatch)");
@@ -2814,8 +2825,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
 
       @SuppressWarnings("unchecked")
-      List<Descriptor> descriptors = query.getResultList();
-      DescriptorList descriptorList = new DescriptorListJpa();
+      final List<Descriptor> descriptors = query.getResultList();
+      final DescriptorList descriptorList = new DescriptorListJpa();
       descriptorList.setObjects(descriptors);
       descriptorList.setTotalCount(descriptors.size());
       return descriptorList;
@@ -2833,7 +2844,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     assert branch != null;
 
     try {
-      javax.persistence.Query query =
+      final javax.persistence.Query query =
           manager.createQuery("select a from CodeJpa a "
               + "where version = :version " + "and terminology = :terminology "
               + "and (branch = :branch or branchedTo not like :branchMatch)");
@@ -2842,8 +2853,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("branch", branch);
       query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
       @SuppressWarnings("unchecked")
-      List<Code> codes = query.getResultList();
-      CodeList codeList = new CodeListJpa();
+      final List<Code> codes = query.getResultList();
+      final CodeList codeList = new CodeListJpa();
       codeList.setObjects(codes);
       codeList.setTotalCount(codes.size());
       return codeList;
@@ -3048,9 +3059,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String version, String branch) throws Exception {
     Logger.getLogger(getClass()).info("Content Service - getComponentStats");
     assert branch != null;
-    Map<String, Integer> stats = new TreeMap<>();
-    for (EntityType<?> type : manager.getMetamodel().getEntities()) {
-      String jpaTable = type.getName();
+    final Map<String, Integer> stats = new TreeMap<>();
+    for (final EntityType<?> type : manager.getMetamodel().getEntities()) {
+      final String jpaTable = type.getName();
       // Logger.getLogger(getClass()).debug(" jpaTable = " + jpaTable);
       // Skip audit trail tables
       if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
@@ -3110,7 +3121,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
   private <T extends Component> List getComponents(String terminologyId,
     String terminology, String version, Class<T> clazz) {
     try {
-      javax.persistence.Query query = manager.createQuery("select a from "
+      final javax.persistence.Query query =
+          manager
+              .createQuery("select a from "
           + clazz.getName()
           + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
       query.setParameter("terminologyId", terminologyId);
@@ -3220,13 +3233,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
   private <T extends Component> T getComponent(String terminologyId,
     String terminology, String version, String branch, Class<T> clazz) {
 
-    List<T> results = getComponents(terminologyId, terminology, version, clazz);
+    final List<T> results =
+        getComponents(terminologyId, terminology, version, clazz);
     if (results.isEmpty()) {
       Logger.getLogger(getClass()).debug("  no " + clazz.getName());
       return null;
     }
     T defaultBranch = null;
-    for (T obj : results) {
+    for (final T obj : results) {
       // handle default case
       if (obj.getBranch().equals(Branch.ROOT)) {
         defaultBranch = obj;
@@ -3324,8 +3338,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     try {
 
-      Concept concept = getConcept(conceptId, terminology, version, branch);
-      List<Object[]> results = new ArrayList<>();
+      final Concept concept =
+          getConcept(conceptId, terminology, version, branch);
+      final List<Object[]> results = new ArrayList<>();
       String queryStr =
           "select a.id, a.terminologyId, a.terminology, a.version, "
               + "a.relationshipType, a.additionalRelationshipType, "
@@ -3410,7 +3425,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.addAll(query.getResultList());
 
       // Use a set to "uniq" them
-      Set<ConceptRelationship> conceptRels = new HashSet<>();
+      final Set<ConceptRelationship> conceptRels = new HashSet<>();
       for (final Object[] result : results) {
         final ConceptRelationship relationship = new ConceptRelationshipJpa();
         final Concept toConcept = new ConceptJpa();
@@ -3437,16 +3452,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
       List<ConceptRelationship> conceptRelList = new ArrayList<>(conceptRels);
 
       // set filter as query restriction for use in applyPfsToList
-      PfsParameter pfsLocal = new PfsParameterJpa(pfs);
+      final PfsParameter pfsLocal = new PfsParameterJpa(pfs);
       pfsLocal.setQueryRestriction(filter);
 
-      int[] totalCt = new int[1];
+      final int[] totalCt = new int[1];
       conceptRelList = this.applyPfsToList(conceptRelList,
           ConceptRelationship.class, totalCt, pfsLocal);
 
       RelationshipList list = new RelationshipListJpa();
       list.setTotalCount(totalCt[0]);
-      for (ConceptRelationship cr : conceptRelList) {
+      for (final ConceptRelationship cr : conceptRelList) {
         list.addObject(cr);
       }
 
@@ -3513,10 +3528,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
       throw new Exception("Terminology id is required");
     }
 
-    RelationshipList results = new RelationshipListJpa();
+    final RelationshipList results = new RelationshipListJpa();
 
     // Prepare the query string
-    StringBuilder finalQuery = new StringBuilder();
+    final StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
     if (!finalQuery.toString().isEmpty()) {
       finalQuery.append(" AND ");
@@ -3532,15 +3547,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
               + terminology + " AND fromVersion:" + version);
     }
 
-    SearchHandler searchHandler = getSearchHandler(terminology);
-    int[] totalCt = new int[1];
+    final SearchHandler searchHandler = getSearchHandler(terminology);
+    final int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
     results.setObjects((List) searchHandler.getQueryResults("", "", branch,
         finalQuery.toString(), "toNameSort", ConceptRelationshipJpa.class,
         clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
-    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : results
+    for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : results
         .getObjects()) {
       getGraphResolutionHandler(terminology).resolve(rel);
     }
@@ -3571,10 +3586,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
       throw new Exception("Terminology id is required");
     }
 
-    MappingList results = new MappingListJpa();
+    final MappingList results = new MappingListJpa();
 
     // Prepare the query string
-    StringBuilder finalQuery = new StringBuilder();
+    final StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
     if (!finalQuery.toString().isEmpty()) {
       finalQuery.append(" AND ");
@@ -3584,15 +3599,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .append("fromTerminologyId:" + terminologyId + " AND fromTerminology:"
             + terminology + " AND fromVersion:" + version);
 
-    SearchHandler searchHandler = getSearchHandler(terminology);
-    int[] totalCt = new int[1];
+    final SearchHandler searchHandler = getSearchHandler(terminology);
+    final int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
     results.setObjects((List) searchHandler.getQueryResults("", "", branch,
         finalQuery.toString(), "fromNameSort", MappingJpa.class,
         MappingJpa.class, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
-    for (Mapping mapping : results.getObjects()) {
+    for (final Mapping mapping : results.getObjects()) {
       getGraphResolutionHandler(terminology).resolve(mapping);
     }
     return results;
@@ -3657,7 +3672,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     PfsParameter pfs, Class<? extends TreePosition> clazz) throws Exception {
 
     // Prepare the query string
-    StringBuilder finalQuery = new StringBuilder();
+    final StringBuilder finalQuery = new StringBuilder();
 
     // add the query, if not null and not empty
     finalQuery.append(query == null || query.isEmpty() ? "" : query);
@@ -3668,9 +3683,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       finalQuery.append("nodeTerminologyId:" + terminologyId);
     }
 
-    SearchHandler searchHandler = getSearchHandler(terminology);
-    int[] totalCt = new int[1];
-    TreePositionList list = new TreePositionListJpa();
+    final SearchHandler searchHandler = getSearchHandler(terminology);
+    final int[] totalCt = new int[1];
+    final TreePositionList list = new TreePositionListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
         branch, finalQuery.toString(), "nodeNameSort",
         ConceptTreePositionJpa.class, clazz, pfs, totalCt, manager));
@@ -3682,7 +3697,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (list.getCount() < 30 && pfs != null && pfs.getSortField() != null
         && pfs.getSortField().equals("nodeTerminologyId")) {
       boolean nonRomanFound = false;
-      for (TreePosition treepos : list.getObjects()) {
+      for (final TreePosition treepos : list.getObjects()) {
         if (!ConfigUtility
             .isRomanNumeral(treepos.getNode().getTerminologyId())) {
           nonRomanFound = true;
@@ -3771,21 +3786,23 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Tree parentTree = tree; // initially the empty tree
 
     // Prepare lucene
-    FullTextEntityManager fullTextEntityManager =
+    final FullTextEntityManager fullTextEntityManager =
         Search.getFullTextEntityManager(manager);
-    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
-    QueryParser queryParser = new MultiFieldQueryParser(
-        IndexUtility.getIndexedFieldNames(ConceptTreePositionJpa.class, true)
-            .toArray(new String[] {}),
+    final SearchFactory searchFactory =
+        fullTextEntityManager.getSearchFactory();
+    final QueryParser queryParser =
+        new MultiFieldQueryParser(IndexUtility.getIndexedFieldNames(
+            ConceptTreePositionJpa.class, true).toArray(new String[] {}),
         searchFactory.getAnalyzer(clazz));
-    String fullAncPath = treePosition.getAncestorPath()
+    final String fullAncPath =
+        treePosition.getAncestorPath()
         + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
 
     // Iterate over ancestor path
-    for (String pathPart : fullAncPath.split("~")) {
-      Long partId = Long.parseLong(pathPart);
+    for (final String pathPart : fullAncPath.split("~")) {
+      final Long partId = Long.parseLong(pathPart);
 
-      StringBuilder finalQuery = new StringBuilder();
+      final StringBuilder finalQuery = new StringBuilder();
       finalQuery.append("nodeId:" + partId + " AND ");
       if (partAncPath.isEmpty()) {
         // query for empty value
@@ -3794,8 +3811,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         finalQuery.append("ancestorPath:\"" + partAncPath + "\"");
       }
       // Prepare the manager and lucene query
-      Query luceneQuery = queryParser.parse(finalQuery.toString());
-      FullTextQuery fullTextQuery =
+      final Query luceneQuery = queryParser.parse(finalQuery.toString());
+      final FullTextQuery fullTextQuery =
           fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
 
       // // projection approach -- don't want to have to instantiate node Jpa
@@ -3826,11 +3843,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
             "Unexpected number of results: " + fullTextQuery.getResultSize());
       }
 
-      TreePosition<? extends AtomClass> treepos =
+      final TreePosition<? extends AtomClass> treepos =
           (TreePosition<? extends AtomClass>) fullTextQuery.getResultList()
               .get(0);
 
-      Tree partTree = new TreeJpa(treepos);
+      final Tree partTree = new TreeJpa(treepos);
 
       if (tree == null) {
         tree = partTree;
@@ -3945,7 +3962,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String terminology, String version, String branch, PfsParameter pfs,
     Class<? extends TreePosition> clazz) throws Exception {
 
-    PfsParameter childPfs = new PfsParameterJpa();
+    final PfsParameter childPfs = new PfsParameterJpa();
     childPfs.setStartIndex(0);
     childPfs.setMaxResults(1);
     // get a tree position for each child, for child ct
@@ -3955,27 +3972,31 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (tpList.getCount() == 0) {
       return new TreePositionListJpa();
     }
-    TreePosition<? extends AtomClass> treePosition = tpList.getObjects().get(0);
+    final TreePosition<? extends AtomClass> treePosition =
+        tpList.getObjects().get(0);
 
-    Long tpId = treePosition.getNode().getId();
-    String fullAncPath = treePosition.getAncestorPath()
+    final Long tpId = treePosition.getNode().getId();
+    final String fullAncPath =
+        treePosition.getAncestorPath()
         + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
 
-    String query = "ancestorPath:\"" + fullAncPath + "\"";
+    final String query = "ancestorPath:\"" + fullAncPath + "\"";
 
-    FullTextQuery fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
-        ConceptTreePositionJpa.class, query, pfs, manager);
+    final SearchHandler searchHandler = getSearchHandler(terminology);
+    final int[] totalCt = new int[1];
 
-    TreePositionList list = new TreePositionListJpa();
-    list.setTotalCount(fullTextQuery.getResultSize());
-    list.setObjects(fullTextQuery.getResultList());
+    final TreePositionList list = new TreePositionListJpa();
+    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
+        branch, query, null, ConceptTreePositionJpa.class,
+        ConceptTreePositionJpa.class, pfs, totalCt, manager));
+    list.setTotalCount(totalCt[0]);
 
     // If the list has <30 entries and all are roman numerals
     // and the sortField is "nodeTerminologyId" then use a roman numeral sort
     if (list.getCount() < 30 && pfs != null && pfs.getSortField() != null
         && pfs.getSortField().equals("nodeTerminologyId")) {
       boolean nonRomanFound = false;
-      for (TreePosition treepos : list.getObjects()) {
+      for (final TreePosition treepos : list.getObjects()) {
         if (!ConfigUtility
             .isRomanNumeral(treepos.getNode().getTerminologyId())) {
           nonRomanFound = true;
@@ -4010,11 +4031,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).debug("Content Service - add axiom " + axiom);
     // No need to worry about assigning ids.
 
-    GeneralConceptAxiom newAxiom = addComponent(axiom);
+    final GeneralConceptAxiom newAxiom = addComponent(axiom);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.conceptChanged(newAxiom.getLeftHandSide(),
             WorkflowListener.Action.ADD);
         listener.conceptChanged(newAxiom.getRightHandSide(),
@@ -4035,7 +4056,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.conceptChanged(axiom.getLeftHandSide(),
             WorkflowListener.Action.ADD);
         listener.conceptChanged(axiom.getRightHandSide(),
@@ -4061,7 +4082,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - get general concept axioms " + terminology
             + "/" + version);
-    javax.persistence.Query query =
+    final javax.persistence.Query query =
         manager.createQuery("select a from GeneralConceptAxiomJpa a where "
             + "version = :version and terminology = :terminology");
     // Try to retrieve the single expected result If zero or more than one
@@ -4070,8 +4091,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       @SuppressWarnings("unchecked")
-      List<GeneralConceptAxiom> m = query.getResultList();
-      GeneralConceptAxiomListJpa generalConceptAxiomList =
+      final List<GeneralConceptAxiom> m = query.getResultList();
+      final GeneralConceptAxiomListJpa generalConceptAxiomList =
           new GeneralConceptAxiomListJpa();
       generalConceptAxiomList.setObjects(m);
       generalConceptAxiomList.setTotalCount(m.size());
@@ -4266,7 +4287,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       searchHandlers.put(key, searchHandler);
       return searchHandler;
     }
-    SearchHandler searchHandler =
+    final SearchHandler searchHandler =
         ConfigUtility.newStandardHandlerInstanceWithConfiguration(
             "search.handler", ConfigUtility.DEFAULT, SearchHandler.class);
     searchHandlers.put(key, searchHandler);
@@ -4299,11 +4320,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    Mapping newMapping = addComponent(mapping);
+    final Mapping newMapping = addComponent(mapping);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.mappingChanged(newMapping, WorkflowListener.Action.ADD);
       }
     }
@@ -4337,7 +4358,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.mappingChanged(mapping, WorkflowListener.Action.UPDATE);
       }
     }
@@ -4349,10 +4370,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - remove mapping " + id);
     // Remove the component
-    Mapping mapping = removeComponent(id, MappingJpa.class);
+    final Mapping mapping = removeComponent(id, MappingJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.mappingChanged(mapping, WorkflowListener.Action.REMOVE);
       }
     }
@@ -4381,7 +4402,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String branch) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - get mapsets " + terminology + "/" + version);
-    javax.persistence.Query query =
+    final javax.persistence.Query query =
         manager.createQuery("select a from MapSetJpa a where "
             + "version = :version and terminology = :terminology");
     // Try to retrieve the single expected result If zero or more than one
@@ -4390,8 +4411,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       @SuppressWarnings("unchecked")
-      List<MapSet> m = query.getResultList();
-      MapSetListJpa mapSetList = new MapSetListJpa();
+      final List<MapSet> m = query.getResultList();
+      final MapSetListJpa mapSetList = new MapSetListJpa();
       mapSetList.setObjects(m);
       mapSetList.setTotalCount(m.size());
 
@@ -4505,11 +4526,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    MapSet newMapSet = addComponent(mapSet);
+    final MapSet newMapSet = addComponent(mapSet);
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.mapSetChanged(newMapSet, WorkflowListener.Action.ADD);
       }
     }
@@ -4543,7 +4564,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.mapSetChanged(mapSet, WorkflowListener.Action.UPDATE);
       }
     }
@@ -4554,10 +4575,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public void removeMapSet(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove mapSet " + id);
     // Remove the component
-    MapSet mapSet = removeComponent(id, MapSetJpa.class);
+    final MapSet mapSet = removeComponent(id, MapSetJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.mapSetChanged(mapSet, WorkflowListener.Action.REMOVE);
       }
     }

@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 
-import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -273,7 +272,6 @@ public class AtomClassSearchHandler implements SearchHandler {
     // if fielded, try literal query first
     try {
       if (fieldedQuery != null) {
-        Logger.getLogger(getClass()).debug("fielded query = " + fieldedQuery);
         fullTextQuery =
             IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
                 fieldedQuery.toString(), pfs, manager);
@@ -288,7 +286,6 @@ public class AtomClassSearchHandler implements SearchHandler {
 
       // try the parsed query
       try {
-        Logger.getLogger(getClass()).debug("query = " + finalQuery);
         fullTextQuery =
             IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
                 finalQuery.toString(), pfs, manager);
@@ -297,8 +294,6 @@ public class AtomClassSearchHandler implements SearchHandler {
       // If there's a parse exception, try the literal query
       catch (ParseException | IllegalArgumentException e) {
         e.printStackTrace();
-
-        Logger.getLogger(getClass()).debug("query = " + finalQuery);
         fullTextQuery =
             IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
                 escapedQuery + terminologyClause, pfs, manager);
@@ -446,7 +441,6 @@ public class AtomClassSearchHandler implements SearchHandler {
       // store the score for later retrieval
       scoreMap.put(t.getId(), normScore.floatValue());
     }
-    Logger.getLogger(getClass()).debug("  scoreMap = " + scoreMap);
 
     return classes;
 

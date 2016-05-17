@@ -128,10 +128,6 @@ tsApp.controller('ContentCtrl', [
 
     // Configure tab and accordion
     $scope.configureTab = function() {
-      // skip guest user
-      if ($http.defaults.headers.common.Authorization == 'guest') {
-        return;
-      }
       $scope.user.userPreferences.lastTab = '/content';
       securityService.updateUserPreferences($scope.user.userPreferences);
     };
@@ -794,7 +790,7 @@ tsApp.controller('ContentCtrl', [
             }
           });
       }
-    }
+    };
 
     //
     // Initialization: Check 
@@ -812,7 +808,7 @@ tsApp.controller('ContentCtrl', [
           console.debug('Invalid license');
           utilService.setError('You must accept the license before viewing that content');
           $location.path('/license');
-        })
+        });
       }
     });
 

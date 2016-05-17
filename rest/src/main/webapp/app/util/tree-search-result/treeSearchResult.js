@@ -43,11 +43,11 @@ tsApp.directive('treeSearchResult', [
           newSiblings.sort(function(a, b) {
 
             if (a.nodeName < b.nodeName) {
-              return -1
+              return -1;
             } else {
-              return 1
+              return 1;
             }
-            ;
+            
           });
 
           return newSiblings;

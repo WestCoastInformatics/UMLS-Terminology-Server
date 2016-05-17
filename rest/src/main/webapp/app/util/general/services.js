@@ -118,7 +118,7 @@ tsApp
           if (this.error.message && this.error.message.indexOf('AuthToken') != -1) {
             // Reroute back to login page with 'auth token has
             // expired' message
-            $location.path('/login');
+            $location.path('/');
           } else {
             // scroll to top of page
             $location.hash('top');
@@ -143,7 +143,7 @@ tsApp
           if (error && error.indexOf('AuthToken') != -1) {
             // Reroute back to login page with 'auth token has
             // expired' message
-            $location.path('/login');
+            $location.path('/');
           }
           // otherwise clear the top-level error
           else {
@@ -496,7 +496,7 @@ tsApp.service('securityService', [
       // console.debug('Set cookie:', cookie);
       deferred.resolve();
       return deferred.promise;
-    }
+    };
 
     // checks the license
     this.checkLicense = function() {
@@ -517,14 +517,14 @@ tsApp.service('securityService', [
         }
       }
       return deferred.promise;
-    }
+    };
 
     // Gets the user
     this.getUser = function() {
 
-      // if login is not enabled, set and return the admin user
+      // if login is not enabled, set and return the Guest user
       if (appConfig.loginEnabled !== 'true') {
-        this.setAdminUser();
+        this.setGuestUser();
       }
       // otherwise, determine if user is already logged in
       else if (!$http.defaults.headers.common.Authorization) {
@@ -555,6 +555,7 @@ tsApp.service('securityService', [
       $cookies.put('user', JSON.stringify(user));
     };
 
+    // Set user to the guest user
     this.setGuestUser = function() {
       user.userName = 'guest';
       user.name = 'Guest';
@@ -565,9 +566,16 @@ tsApp.service('securityService', [
 
       // Whenever set user is called, we should save a cookie
       $cookies.put('user', JSON.stringify(user));
+      $http.defaults.headers.common.Authorization = 'guest';
 
     };
 
+    // Determine if guest user
+    this.isGuestUser = function() {
+      return $http.defaults.headers.common.Authorization == 'guest';
+    };
+
+    // Set admin user
     this.setAdminUser = function() {
       user.userName = 'admin';
       user.name = 'Administrator';
@@ -890,6 +898,11 @@ tsApp.service('securityService', [
     this.updateUserPreferences = function(userPreferences) {
       // skip if user preferences is not set
       if (!userPreferences) {
+        return;
+      }
+
+      // Skip for guest user
+      if (this.isGuestUser()) {
         return;
       }
 

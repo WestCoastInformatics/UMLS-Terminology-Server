@@ -68,33 +68,34 @@ public class PfsParameterForComponentTest {
 
     for (Object result : results.getObjects()) {
       Object obj = null;
+      SearchResult sr = (SearchResult) result;
       if (LexicalClassJpa.class.isAssignableFrom(sortClass)) {
-        SearchResult sr = (SearchResult) result;
         obj =
             contentService.getLexicalClass(sr.getTerminologyId(),
                 sr.getTerminology(), sr.getVersion(), Branch.ROOT);
       } else if (StringClassJpa.class.isAssignableFrom(sortClass)) {
-        SearchResult sr = (SearchResult) result;
         obj =
             contentService.getStringClass(sr.getTerminologyId(),
                 sr.getTerminology(), sr.getVersion(), Branch.ROOT);
       } else if (ConceptJpa.class.isAssignableFrom(sortClass)) {
-        SearchResult sr = (SearchResult) result;
         obj =
             contentService.getConcept(sr.getTerminologyId(),
                 sr.getTerminology(), sr.getVersion(), Branch.ROOT);
       } else if (DescriptorJpa.class.isAssignableFrom(sortClass)) {
-        SearchResult sr = (SearchResult) result;
         obj =
-            contentService.getCode(sr.getTerminologyId(), sr.getTerminology(),
-                sr.getVersion(), Branch.ROOT);
+            contentService.getDescriptor(sr.getTerminologyId(),
+                sr.getTerminology(), sr.getVersion(), Branch.ROOT);
       } else if (CodeJpa.class.isAssignableFrom(sortClass)) {
-        SearchResult sr = (SearchResult) result;
         obj =
             contentService.getCode(sr.getTerminologyId(), sr.getTerminology(),
                 sr.getVersion(), Branch.ROOT);
       } else {
         obj = result;
+      }
+      if (obj == null) {
+        throw new Exception("Unexpected null object for " + sortClass + ", "
+            + sr.getTerminologyId() + ", " + sr.getTerminology() + ", "
+            + sr.getVersion());
       }
       components.add(obj);
     }

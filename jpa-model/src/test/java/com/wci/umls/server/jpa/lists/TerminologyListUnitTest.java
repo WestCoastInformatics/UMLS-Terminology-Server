@@ -14,12 +14,10 @@ import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
 import com.wci.umls.server.jpa.meta.CitationJpa;
 import com.wci.umls.server.jpa.meta.ContactInfoJpa;
-import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.model.meta.Citation;
 import com.wci.umls.server.model.meta.ContactInfo;
-import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 
@@ -84,11 +82,8 @@ public class TerminologyListUnitTest extends AbstractListUnit<Terminology> {
     rsab2.setContentContact(info2);
     rsab2.setLicenseContact(info2);
 
-    ProxyTester tester5 = new ProxyTester(new LanguageJpa());
-    Language lat = (Language) tester5.createObject(1);
-    Language lat2 = (Language) tester5.createObject(2);
-    rsab.setLanguage(lat);
-    rsab2.setLanguage(lat2);
+    rsab.setLanguage("1");
+    rsab2.setLanguage("2");
 
   }
 

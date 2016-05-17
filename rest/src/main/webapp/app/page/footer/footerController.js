@@ -1,6 +1,6 @@
 // Content controller
-tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', 'gpService', 'securityService',
-  'appConfig', function($rootScope, $routeParams, gpService, securityService, appConfig) {
+tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', '$sce', 'gpService', 'securityService',
+  'appConfig', function($rootScope, $routeParams, $sce, gpService, securityService, appConfig) {
     console.debug('configure footer directive');
     return {
       restrict : 'A',
@@ -19,6 +19,9 @@ tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', 'gpService', 'securi
 
         // pass values to scope
         scope.appConfig = appConfig;
+
+        // Convert to trusted HTML
+        scope.deployPresentedBy = $sce.trustAsHtml(scope.appConfig.deployPresentedBy);
 
         // Declare user
         scope.user = securityService.getUser();

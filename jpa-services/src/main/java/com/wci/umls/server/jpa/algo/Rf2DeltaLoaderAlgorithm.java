@@ -122,27 +122,29 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   private Set<String> generalEntryValues = new HashSet<>();
 
   /** The loader. */
-  final String loader = "loader";
+  private final String loader = "loader";
 
   /** The init pref name. */
-  final String initPrefName = "Default prefered name could not be determined";
+  private final String initPrefName =
+      "Default prefered name could not be determined";
 
   /** The published. */
-  final String published = "PUBLISHED";
+  private final String published = "PUBLISHED";
 
   /** The tree pos algorithm. */
-  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+  private final TreePositionAlgorithm treePosAlgorithm =
+      new TreePositionAlgorithm();
 
   /** The trans closure algorithm. */
-  final TransitiveClosureAlgorithm transClosureAlgorithm =
+  private final TransitiveClosureAlgorithm transClosureAlgorithm =
       new TransitiveClosureAlgorithm();
 
   /** The label set algorithm. */
-  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
+  private final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
       new LabelSetMarkedParentAlgorithm();
 
   /** The RF2 File sorting algorithm. */
-  final Rf2FileSorter sorter = new Rf2FileSorter();
+  private final Rf2FileSorter sorter = new Rf2FileSorter();
 
   /**
    * Instantiates an empty {@link Rf2DeltaLoaderAlgorithm}.
@@ -332,8 +334,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     //
     // Load atom type refset members
     //
-    logInfo("    Loading Atom Type Ref Sets...");
-    loadAtomTypeRefSetMembers();
+    logInfo("    Loading Description Type Ref Sets...");
+    loadDescriptionTypeRefSetMembers();
 
     //
     // Load refset descriptor refset members
@@ -471,7 +473,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         if (conceptSubset.isLabelSubset()) {
           Logger.getLogger(getClass()).info(
               "  Create label set for subset = " + subset);
-
+          labelSetAlgorithm.setTerminology(getTerminology());
+          labelSetAlgorithm.setVersion(getVersion());
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
           labelSetAlgorithm.close();
@@ -1459,14 +1462,14 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     List<MapSet> mapSetResults = query.getResultList();
     for (MapSet result : mapSetResults) {
       mapSetMap.put(result.getTerminologyId(), result);
+      // lazy initialize
+      result.getAttributes().size();
     }
 
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
     loadMapSetMembers(reader);
     reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
     loadMapSetMembers(reader);
-
-    // TODO: could consider some logic for mapCateogryId on extended map
 
   }
 
@@ -1563,7 +1566,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
    *
    * @throws Exception the exception
    */
-  private void loadAtomTypeRefSetMembers() throws Exception {
+  private void loadDescriptionTypeRefSetMembers() throws Exception {
     Set<Concept> modifiedConcepts = new HashSet<>();
 
     // Setup variables
@@ -2317,7 +2320,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         rel2.setLastModified(releaseVersionDate);
         rel2.setObsolete(fields[2].equals("0")); // active
         rel2.setSuppressible(rel2.isObsolete());
-        rel2.setRelationshipType("RO"); // typeId
+        rel2.setRelationshipType("other"); // typeId
         rel2.setHierarchical(false);
         rel2.setAdditionalRelationshipType(fields[4]); // typeId
         rel2.setStated(false);
@@ -2678,6 +2681,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     List<AtomSubset> results = query.getResultList();
     for (AtomSubset result : results) {
       atomSubsetMap.put(result.getTerminologyId(), result);
+      // lazy initialize
+      result.getAttributes().size();
     }
 
     query =
@@ -2690,6 +2695,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     List<ConceptSubset> results2 = query.getResultList();
     for (ConceptSubset result : results2) {
       conceptSubsetMap.put(result.getTerminologyId(), result);
+      // lazy initialize
+      result.getAttributes().size();
     }
 
     // Cache subset members
@@ -2796,10 +2803,16 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       // If we have not yet updated this, try now
       if (!subsetsUpdated.contains(fields[4])) {
-        subset.getAttributes().size();
-        final ConceptSubset subset2 = new ConceptSubsetJpa(subset, true);
+        final ConceptSubset subset2 =
+            (ConceptSubset) getSubset(subset.getId(), ConceptSubsetJpa.class);
+        setCommonFields(subset2, date);
+        subset2.setTerminologyId(fields[4].intern());
+        final Concept concept = getConcept(idMap.get(fields[4]));
+        subset2.setName(concept.getName());
+        subset2.setObsolete(concept.isObsolete());
+        subset2.setDescription(subset.getName());
 
-        // Getlatest attribute
+        // Get latest attribute
         Attribute attribute = null;
         if (subset2.getAttributeByName("moduleId") != null) {
           attribute = subset2.getAttributeByName("moduleId");
@@ -2821,7 +2834,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           }
           updateAttributes(subset2, subset);
         }
-        mapSetsUpdated.add(fields[4]);
+        subsetsUpdated.add(fields[4]);
       }
 
     }
@@ -2833,8 +2846,14 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       // If we have not yet updated this, try now
       if (!subsetsUpdated.contains(fields[4])) {
-        subset.getAttributes().size();
-        final AtomSubset subset2 = new AtomSubsetJpa(subset, true);
+        final AtomSubset subset2 =
+            (AtomSubset) getSubset(subset.getId(), AtomSubsetJpa.class);
+        setCommonFields(subset2, date);
+        subset2.setTerminologyId(fields[4].intern());
+        final Concept concept = getConcept(idMap.get(fields[4]));
+        subset2.setName(concept.getName());
+        subset2.setObsolete(concept.isObsolete());
+        subset2.setDescription(subset.getName());
 
         // get latest attribute
         Attribute attribute = null;
@@ -2858,7 +2877,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           }
           updateAttributes(subset2, subset);
         }
-        mapSetsUpdated.add(fields[4]);
+        subsetsUpdated.add(fields[4]);
       }
     }
 
@@ -2955,7 +2974,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     mapping.setPublished(true);
     mapping.setPublishable(true);
     mapping.setGroup(fields[6].intern());
-    mapping.setRelationshipType("RO");
+    mapping.setRelationshipType("other");
     mapping.setAdditionalRelationshipType(fields[11]);
     generalEntryValues.add(mapping.getAdditionalRelationshipType());
     additionalRelTypes.add(mapping.getAdditionalRelationshipType());
@@ -3013,8 +3032,16 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
       // If we have not yet updated this, try now
       if (!mapSetsUpdated.contains(fields[4])) {
-        mapSet.getAttributes().size();
-        final MapSet mapSet2 = new MapSetJpa(mapSet, true);
+        final MapSet mapSet2 = getMapSet(mapSet.getId());
+        setCommonFields(mapSet2, date);
+        mapSet2.setTerminologyId(fields[4].intern());
+        final Concept concept = getConcept(idMap.get(fields[4]));
+        mapSet2.setName(concept.getName());
+        mapSet2.setObsolete(concept.isObsolete());
+        mapSet2.setFromTerminology(getTerminology());
+        mapSet2.setFromVersion(getVersion());
+        mapSet2.setToTerminology(null);
+        mapSet2.setToVersion(null);
 
         Attribute attribute = null;
         if (mapSet2.getAttributeByName("moduleId") != null) {
@@ -3054,8 +3081,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       mapSet.setFromVersion(getVersion());
       mapSet.setToTerminology(null);
       mapSet.setToVersion(null);
-
-      mapSet.setMapVersion(getVersion());
 
       final Attribute attribute = new AttributeJpa();
       setCommonFields(attribute, date);

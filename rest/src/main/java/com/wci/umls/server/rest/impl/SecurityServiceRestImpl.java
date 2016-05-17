@@ -334,7 +334,6 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
         throw new Exception(
             "User preferences can only be updated for this user");
       }
-      // TODO: ???
       userPreferences.setPrecedenceList(null);
       securityService.updateUserPreferences(userPreferences);
       final User user = securityService.getUser(userName);

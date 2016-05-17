@@ -256,8 +256,8 @@ public class RrfUmlsLoadAndUnloadTest {
     historyService.close();
     historyService.closeFactory();
 
-    // Remove terminology
-    Logger.getLogger(getClass()).info("Remove SNOMEDCT_US");
+    // Remove UMLS terminology
+    Logger.getLogger(getClass()).info("Remove UMLS");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
@@ -265,8 +265,8 @@ public class RrfUmlsLoadAndUnloadTest {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
-    p.setProperty("terminology", "SNOMEDCT_US");
-    p.setProperty("version", "2014_09_01");
+    p.setProperty("terminology", "UMLS");
+    p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -275,19 +275,61 @@ public class RrfUmlsLoadAndUnloadTest {
     }
 
     // Verify no contents
-    Logger.getLogger(getClass()).info("Verify no SNOMEDCT_US contents");
+    Logger.getLogger(getClass()).info("Verify no UMLS contents");
     service = new ContentServiceJpa();
-    Assert.assertEquals(0,
-        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
-            .getCount());
-
+    Assert.assertEquals(0, service
+        .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("SNOMEDCT_US", "2014_09_01",
-                Branch.ROOT));
+            + service.getComponentStats("UMLS", "latest", Branch.ROOT));
     service.close();
     service.closeFactory();
+
+    // Remove SRC terminology
+    Logger.getLogger(getClass()).info("Remove SRC terminology");
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "SRC");
+    p.setProperty("version", "latest");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+    // Verify no contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0, service.getAllConcepts("SRC", "latest", Branch.ROOT)
+        .getCount());
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("SRC", "latest", Branch.ROOT));
+    service.close();
+    service.closeFactory();
+
+    // Remove MTH terminology
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "MTH");
+    p.setProperty("version", "latest");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
 
     // Remove MSH terminology
     Logger.getLogger(getClass()).info("Remove MSH");
@@ -325,51 +367,6 @@ public class RrfUmlsLoadAndUnloadTest {
     service.close();
     service.closeFactory();
 
-    // Remove SRC terminology
-    Logger.getLogger(getClass()).info("Remove SRC terminology");
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/remover/pom.xml"));
-    request.setProfiles(Arrays.asList("Terminology"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
-    p.setProperty("server", server);
-    p.setProperty("terminology", "SRC");
-    p.setProperty("version", "latest");
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-    // Verify no contents
-    service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("SRC", "latest", Branch.ROOT)
-        .getCount());
-    // Print component Stats
-    Logger.getLogger(getClass()).info(
-        "  component stats = "
-            + service.getComponentStats("SRC", "latest", Branch.ROOT));
-    service.close();
-    service.closeFactory();
-
-    // Remove SRC terminology
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/remover/pom.xml"));
-    request.setProfiles(Arrays.asList("Terminology"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
-    p.setProperty("server", server);
-    p.setProperty("terminology", "MTH");
-    p.setProperty("version", "latest");
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-
     // Verify no contents
     Logger.getLogger(getClass()).info("Verify no contents");
     service = new ContentServiceJpa();
@@ -397,8 +394,8 @@ public class RrfUmlsLoadAndUnloadTest {
       throw result.getExecutionException();
     }
 
-    // Remove UMLS terminology
-    Logger.getLogger(getClass()).info("Remove UMLS");
+    // Remove terminology
+    Logger.getLogger(getClass()).info("Remove SNOMEDCT_US");
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
@@ -406,8 +403,8 @@ public class RrfUmlsLoadAndUnloadTest {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
-    p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "latest");
+    p.setProperty("terminology", "SNOMEDCT_US");
+    p.setProperty("version", "2014_09_01");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -416,14 +413,17 @@ public class RrfUmlsLoadAndUnloadTest {
     }
 
     // Verify no contents
-    Logger.getLogger(getClass()).info("Verify no UMLS contents");
+    Logger.getLogger(getClass()).info("Verify no SNOMEDCT_US contents");
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service
-        .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
+    Assert.assertEquals(0,
+        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
+            .getCount());
+
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("UMLS", "latest", Branch.ROOT));
+            + service.getComponentStats("SNOMEDCT_US", "2014_09_01",
+                Branch.ROOT));
     service.close();
     service.closeFactory();
 

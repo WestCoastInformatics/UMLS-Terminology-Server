@@ -116,30 +116,18 @@
                       </value>
                     </property>
 
+                    <!-- Applies to UMLS, but not necessarily other loads:: <property> 
+                      <name>Referential integrity RootTerminology - preferredName</name> <value> SELECT 
+                      preferredName, terminology FROM root_terminologies a WHERE NOT EXISTS (SELECT * FROM 
+                      atoms b WHERE a.terminology = b.terminology AND a.preferredName = b.name); </value> 
+                      </property> -->
 
-                    <property>
-                      <name>Referential integrity RootTerminology -
-                        preferredName</name>
-                      <value> SELECT
-                        preferredName, terminology FROM
-                        root_terminologies a WHERE NOT EXISTS (SELECT *
-                        FROM
-                        atoms b WHERE a.terminology = b.terminology AND
-                        a.preferredName =
-                        b.name);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Referential integrity RootTerminology -
-                        hierarchicalName</name>
-                      <value> SELECT hierarchicalName, terminology FROM
-                        root_terminologies a WHERE NOT
-                        EXISTS (SELECT * FROM
-                        atoms b WHERE a.terminology = b.terminology AND
-                        a.hierarchicalName
-                        = b.name);
-                      </value>
-                    </property>
+                    <!-- Applies to UMLS, but not necessarily other loads:: <property> 
+                      <name>Referential integrity RootTerminology - hierarchicalName</name> <value> SELECT 
+                      hierarchicalName, terminology FROM root_terminologies a WHERE NOT EXISTS (SELECT 
+                      * FROM atoms b WHERE a.terminology = b.terminology AND a.hierarchicalName = b.name); 
+                      </value> </property> -->
+
                     <property>
                       <name>Referential integrity RootTerminology
                         -
@@ -157,21 +145,11 @@
                       </value>
                     </property>
 
-
-                    <property>
-                      <name>Referential integrity Terminology - preferredName</name>
-                      <value>
-                        SELECT preferredName, terminology, version
-                        FROM
-                        terminologies a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM atoms b
-                        WHERE a.terminology = b.terminology
-                        AND a.version =
-                        b.version
-                        AND a.preferredName = b.name);
-                      </value>
-                    </property>
+                    <!-- Applies to UMLS, but not necessarily other loads:: <property> 
+                      <name>Referential integrity Terminology - preferredName</name> <value> SELECT preferredName, 
+                      terminology, version FROM terminologies a WHERE NOT EXISTS (SELECT * FROM atoms b 
+                      WHERE a.terminology = b.terminology AND a.version = b.version AND a.preferredName 
+                      = b.name); </value> </property> -->
 
                     <property>
                       <name>Referential integrity Terminology - synonymousNames</name>
@@ -330,23 +308,11 @@
 
                     <!-- Content Queries -->
 
-                    <property>
-                      <name>Referential integrity Atom - codeId</name>
-                      <value>
-                        SELECT codeId, terminology, version
-                        FROM atoms a
-                        WHERE codeId != ''
-                        AND NOT EXISTS
-                        (SELECT * FROM codes b
-                        WHERE
-                        a.terminology = b.terminology
-                        AND a.version =
-                        b.version
-                        AND a.codeId =
-                        b.terminologyId);
-                      </value>
-                    </property>
-
+                    <!-- CODES are managed differently now:: <property> <name>Referential 
+                      integrity Atom - codeId</name> <value> SELECT codeId, terminology, version FROM atoms 
+                      a WHERE codeId != '' AND NOT EXISTS (SELECT * FROM codes b WHERE a.terminology = 
+                      b.terminology AND a.version = b.version AND a.codeId = b.terminologyId); </value> 
+                      </property> -->
                     <property>
                       <name>Referential integrity Atom - conceptId</name>
                       <value>
@@ -387,50 +353,17 @@
                       </value>
                     </property>
 
-                    <property>
-                      <name>Referential integrity Atom - lexicalClassId</name>
-                      <value>
-                        SELECT lexicalClassId, terminology, version
-                        FROM
-                        atoms a
-                        WHERE lexicalClassId IS NOT NULL
-                        AND
-                        lexicalClassId != ''
-                        AND NOT EXISTS
-                        (SELECT * FROM
-                        lexical_classes b
-                        WHERE a.terminology =
-                        b.terminology
-                        AND
-                        a.version =
-                        b.version
-                        AND
-                        a.lexicalClassId =
-                        b.terminologyId);
-                      </value>
-                    </property>
+                    <!-- UMLS load stringClassId but not string_class entries:: <property> 
+                      <name>Referential integrity Atom - lexicalClassId</name> <value> SELECT lexicalClassId, 
+                      terminology, version FROM atoms a WHERE lexicalClassId IS NOT NULL AND lexicalClassId 
+                      != '' AND NOT EXISTS (SELECT * FROM lexical_classes b WHERE a.terminology = b.terminology 
+                      AND a.version = b.version AND a.lexicalClassId = b.terminologyId); </value> </property> -->
 
-                    <property>
-                      <name>Referential integrity Atom - stringClassId</name>
-                      <value>
-                        SELECT stringClassId, terminology, version
-                        FROM
-                        atoms a
-                        WHERE stringClassId IS NOT NULL
-                        AND stringClassId
-                        != ''
-                        AND NOT EXISTS
-                        (SELECT * FROM string_classes b
-                        WHERE
-                        a.terminology =
-                        b.terminology
-                        AND a.version =
-                        b.version
-                        AND
-                        a.stringClassId
-                        = b.terminologyId);
-                      </value>
-                    </property>
+                    <!-- UMLS load stringClassId but not string_class entries:: <property> 
+                      <name>Referential integrity Atom - stringClassId</name> <value> SELECT stringClassId, 
+                      terminology, version FROM atoms a WHERE stringClassId IS NOT NULL AND stringClassId 
+                      != '' AND NOT EXISTS (SELECT * FROM string_classes b WHERE a.terminology = b.terminology 
+                      AND a.version = b.version AND a.stringClassId = b.terminologyId); </value> </property> -->
 
                     <property>
                       <name>Referential integrity Atom - language</name>
@@ -1117,15 +1050,18 @@
                       <name>Referential integrity ConceptRelationship -
                         relationshipType</name>
                       <value>
-                        SELECT relationshipType, terminology, version
+                        SELECT DISTINCT relationshipType, terminology,
+                        version
                         FROM
                         concept_relationships a
                         WHERE NOT EXISTS
                         (SELECT * FROM
                         relationship_types b
-                        WHERE a.terminology = b.terminology
+                        WHERE a.terminology =
+                        b.terminology
                         AND a.version = b.version
-                        AND a.relationshipType =
+                        AND
+                        a.relationshipType =
                         b.abbreviation);
                       </value>
                     </property>
@@ -1246,7 +1182,9 @@
                         additionalRelationshipType, to_id, relGroup
                         FROM
                         atom_relationships a
-                        GROUP BY from_id, relationshipType,
+                        WHERE obsolete = 0
+                        GROUP BY from_id,
+                        relationshipType,
                         additionalRelationshipType, to_id,
                         relGroup
                         HAVING
@@ -1261,7 +1199,9 @@
                         additionalRelationshipType, to_id, relGroup
                         FROM
                         code_relationships a
-                        GROUP BY from_id, relationshipType,
+                        WHERE obsolete = 0
+                        GROUP BY from_id,
+                        relationshipType,
                         additionalRelationshipType, to_id,
                         relGroup
                         HAVING
@@ -1269,6 +1209,8 @@
                       </value>
                     </property>
 
+                    <!-- For UMLS Load, we don't distinguish SNOMED inferred/stated 
+                      relationships, put in special exception -->
                     <property>
                       <name>Duplicate ConceptRelationship</name>
                       <value>
@@ -1277,10 +1219,13 @@
                         inferred
                         FROM
                         concept_relationships
+                        WHERE obsolete = 0
+                        AND terminology != 'SNOMEDCT_US'
                         GROUP BY from_id,
                         relationshipType,
                         additionalRelationshipType, to_id,
-                        relGroup, stated,inferred
+                        relGroup,
+                        stated,inferred
                         HAVING
                         count(*)>1;
                       </value>
@@ -1293,8 +1238,11 @@
                         additionalRelationshipType, to_id, relGroup
                         FROM
                         descriptor_relationships
-                        GROUP BY from_id,
-                        relationshipType, additionalRelationshipType, to_id,
+                        WHERE obsolete = 0
+                        GROUP BY
+                        from_id,
+                        relationshipType, additionalRelationshipType,
+                        to_id,
                         relGroup
                         HAVING count(*)>1;
                       </value>

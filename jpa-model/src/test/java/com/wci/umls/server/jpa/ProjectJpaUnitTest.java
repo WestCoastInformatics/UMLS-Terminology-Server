@@ -72,10 +72,10 @@ public class ProjectJpaUnitTest {
     s2 = new HashSet<>();
 
     m1 = new HashMap<>();
-    User u1 = new UserJpa();
+    UserJpa u1 = new UserJpa();
     u1.setUserName("1");
     m1.put(u1, UserRole.AUTHOR);
-    User u2 = new UserJpa();
+    UserJpa u2 = new UserJpa();
     u2.setUserName("2");
     m2 = new HashMap<>();
     m2.put(u2, UserRole.REVIEWER);
@@ -157,7 +157,8 @@ public class ProjectJpaUnitTest {
     // Set up objects
     tester.proxy(Set.class, 1, s1);
 
-    // TODO: for some reason the xml map adapter isn't writing to XML
+    // The map adapter can't unmarshall from JSON, but we never send this info
+    // back to server anyway
     // tester.proxy(Map.class, 1, m1);
     assertTrue(tester.testXmlSerialization());
   }

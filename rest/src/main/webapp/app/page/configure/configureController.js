@@ -19,11 +19,11 @@ function($scope, $http, $location, configureService) {
     configureService.configure($scope.dbName, $scope.dbUser, $scope.dbPassword, $scope.appDir).then(function() {
       $scope.requiresConfiguration = false;
     });
-  }
+  };
   
   $scope.enterApp = function() {
     $location.path('/');
-  }
+  };
 
   //
   // Initialization: Check that application is configured

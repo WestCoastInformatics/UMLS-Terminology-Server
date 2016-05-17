@@ -66,7 +66,7 @@ public class QaDatabase extends AbstractMojo {
       if (queries == null) {
         return;
       }
-      
+
       // Iterate through queries, execute and report
       for (Object property : queries.keySet()) {
         String queryStr =
@@ -140,14 +140,7 @@ public class QaDatabase extends AbstractMojo {
       getLog().info("Done ...");
 
     } catch (Exception e) {
-      // // Send email if something went wrong
-      // try {
-      // ExceptionHandler.handleException(e, "Error running QA Checks");
-      // } catch (Exception e1) {
-      // e1.printStackTrace();
-      // throw new MojoFailureException(e.getMessage());
-      // }
-
+      throw new MojoFailureException("QA Error", e);
     }
 
   }

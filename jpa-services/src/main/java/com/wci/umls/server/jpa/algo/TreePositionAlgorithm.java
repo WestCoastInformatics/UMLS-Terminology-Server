@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -33,10 +31,13 @@ import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.RootService;
 
 /**
- * Implementation of an algorithm to compute transitive closure using the
- * {@link ContentService}.
+ * Implementation of an algorithm to compute tree positions using the
+ * {@link ContentService}. Semantic type computation is based on top-level tree
+ * positions, so the algorithm for computing semantic types is also included
+ * here.
  */
 public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
@@ -48,9 +49,6 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** The compute semantic types. */
   private boolean computeSemanticTypes;
-
-  /** The Constant commitCt. */
-  private final static int commitCt = 2000;
 
   /** The object ct. */
   private static int objectCt = 0;
@@ -113,8 +111,10 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   public void compute() throws Exception {
 
     // Get hierarchcial rels
-    Logger.getLogger(getClass()).info(
-        "  Get hierarchical rel for " + getTerminology() + ", " + getVersion());
+    logInfo("Compute tree positions");
+    logInfo("  terminology = " + getTerminology());
+    logInfo("  version = " + getVersion());
+    logInfo("  idType = " + idType);
     fireProgressEvent(0, "Starting...");
 
     // Get all relationships
@@ -130,7 +130,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       tableName2 = "CodeJpa";
     }
     @SuppressWarnings("unchecked")
-    List<Object[]> relationships =
+    final List<Object[]> relationships =
         manager
             .createQuery(
                 "select r.from.id, r.to.id from " + tableName + " r where "
@@ -142,9 +142,9 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             .setParameter("version", getVersion()).getResultList();
 
     int ct = 0;
-    Map<Long, Set<Long>> parChd = new HashMap<>();
+    final Map<Long, Set<Long>> parChd = new HashMap<>();
     Map<Long, Set<Long>> chdPar = new HashMap<>();
-    for (Object[] r : relationships) {
+    for (final Object[] r : relationships) {
       ct++;
       long fromId = Long.parseLong(r[0].toString());
       long toId = Long.parseLong(r[1].toString());
@@ -152,31 +152,43 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (!parChd.containsKey(toId)) {
         parChd.put(toId, new HashSet<Long>());
       }
-      Set<Long> children = parChd.get(toId);
+      final Set<Long> children = parChd.get(toId);
       children.add(fromId);
 
       if (!chdPar.containsKey(fromId)) {
         chdPar.put(fromId, new HashSet<Long>());
       }
-      Set<Long> parents = chdPar.get(fromId);
+      final Set<Long> parents = chdPar.get(fromId);
       parents.add(toId);
+
+      // Check cancel flag
+      if (ct % RootService.logCt == 0 && isCancelled()) {
+        rollback();
+        throw new CancelException(
+            "Label set marked parent computation cancelled");
+      }
     }
-    // Logger.getLogger(this.getClass()).info("    count = " + ct);
 
     if (ct == 0) {
-      Logger.getLogger(this.getClass()).info("    NO TREE POSITIONS");
       fireProgressEvent(100, "Finished.");
+      logInfo("    NO HIERARCHICAL RELATIONSHIPS");
       return;
     }
+
+    else {
+      logInfo("  concepts with descendants = " + parChd.size());
+    }
+
     // Find roots
     fireProgressEvent(5, "Find roots");
-    Set<Long> rootIds = new HashSet<>();
-    for (Long par : parChd.keySet()) {
+    final Set<Long> rootIds = new HashSet<>();
+    for (final Long par : parChd.keySet()) {
       // things with no children
       if (!chdPar.containsKey(par)) {
         rootIds.add(par);
       }
     }
+    logInfo("  count = " + rootIds.size());
     chdPar = null;
 
     setTransactionPerOperation(false);
@@ -186,38 +198,45 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     fireProgressEvent(10, "Compute tree positions for roots");
     int i = 0;
     final Map<Long, String> idValueMap = new HashMap<>();
-    Date startDate = new Date();
-    for (Long rootId : rootIds) {
+    final Date startDate = new Date();
+    for (final Long rootId : rootIds) {
       i++;
-      Logger.getLogger(getClass()).debug(
-          "  Compute tree positions for root " + rootId);
-      fireProgressEvent((int) (10 + (i * 90.0 / rootIds.size())),
-          "Compute tree positions for root " + rootId);
-      ValidationResult result = new ValidationResultJpa();
-      Map<Long, Set<Long>> semanticTypeMap = null;
-      if (computeSemanticTypes) {
-        semanticTypeMap = new HashMap<>();
+
+      // Check cancel flag
+      if (isCancelled()) {
+        rollback();
+        throw new CancelException("Tree position computation cancelled.");
       }
+
+      fireProgressEvent((int) (10 + (i * 85.0 / rootIds.size())),
+          "Compute tree positions and semantic types for root " + rootId);
+
+      final ValidationResult result = new ValidationResultJpa();
+      final Map<Long, Set<Long>> semanticTypeMap =
+          computeSemanticTypes ? new HashMap<>() : null;
       computeTreePositions(rootId, "", parChd, result, startDate,
           semanticTypeMap, rootIds.size() > 1);
       if (!result.isValid()) {
-        Logger.getLogger(getClass()).error("  validation result = " + result);
+        logError("  validation result = " + result);
         throw new Exception("Validation failed");
       }
       // Commit
-      commit();
-      clear();
-      beginTransaction();
+      commitClearBegin();
+
+      // Check cancel flag
+      if (isCancelled()) {
+        rollback();
+        throw new CancelException("Tree position computation cancelled.");
+      }
 
       // Handle "semantic types"
       if (computeSemanticTypes) {
         objectCt = 0;
-        logInfo("Compute semantic types based on tree");
-        for (Long conceptId : semanticTypeMap.keySet()) {
-          Concept concept = getConcept(conceptId);
+        for (final Long conceptId : semanticTypeMap.keySet()) {
+          final Concept concept = getConcept(conceptId);
           for (Long styId : semanticTypeMap.get(conceptId)) {
             if (!idValueMap.containsKey(styId)) {
-              Concept styConcept = getConcept(styId);
+              final Concept styConcept = getConcept(styId);
               idValueMap.put(styConcept.getId(), styConcept.getName());
             }
             final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
@@ -235,7 +254,12 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             concept.addSemanticType(sty);
           }
           updateConcept(concept);
-          logAndCommit(++objectCt, commitCt, commitCt);
+          logAndCommit(++objectCt, logCt, commitCt);
+          // Check cancel flag
+          if (objectCt % RootService.logCt == 0 && isCancelled()) {
+            rollback();
+            throw new CancelException("Tree position computation cancelled.");
+          }
         }
 
       }
@@ -243,9 +267,10 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     commitClearBegin();
 
+    fireProgressEvent(95, "Insert semantic type metadata");
     // Get all semantic type values from idValueMap
     // Add metadata and general metadata entries
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     // For single root, add the extra layer
     String root = "";
     if (rootIds.size() == 1) {
@@ -254,13 +279,13 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // needed for dev UMLS because SNOMED has "multiple roots" that contain dup
     // strings
 
-    Set<String> seen = new HashSet<>();
+    final Set<String> seen = new HashSet<>();
     // Add STYs already existing
     for (final SemanticType sty : getSemanticTypes(getTerminology(),
         getVersion()).getObjects()) {
       seen.add(sty.getValue());
     }
-    for (Map.Entry<Long, String> entry : idValueMap.entrySet()) {
+    for (final Map.Entry<Long, String> entry : idValueMap.entrySet()) {
       final String semanticType = entry.getValue();
       sb.append((sb.length() == 0 ? "" : ",")).append(semanticType);
       if (seen.contains(semanticType)) {
@@ -284,12 +309,13 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       sty.setLastModifiedBy("admin");
       sty.setPublished(false);
       sty.setPublishable(false);
-      Logger.getLogger(getClass()).info("    add semantic type - " + sty);
+      logInfo("    add semantic type - " + sty);
       addSemanticType(sty);
     }
 
-    commitClearBegin();
     fireProgressEvent(100, "Finished.");
+    commit();
+    clear();
   }
 
   /**
@@ -310,12 +336,10 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     Date startDate, Map<Long, Set<Long>> semanticTypeMap, boolean multipleRoots)
     throws Exception {
 
-    Logger.getLogger(getClass()).debug(
-        "    compute for " + id + ", " + ancestorPath);
     final Set<Long> descConceptIds = new HashSet<>();
 
     // Check for cycles
-    Set<String> ancestors = new HashSet<>();
+    final Set<String> ancestors = new HashSet<>();
     for (String ancestor : ancestorPath.split("~")) {
       ancestors.add(ancestor);
     }
@@ -336,18 +360,18 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Instantiate the tree position
     TreePosition<? extends ComponentHasAttributesAndName> tp = null;
     if (idType == IdType.CONCEPT) {
-      ConceptTreePosition ctp = new ConceptTreePositionJpa();
-      Concept concept = getConcept(id);
+      final ConceptTreePosition ctp = new ConceptTreePositionJpa();
+      final Concept concept = getConcept(id);
       ctp.setNode(concept);
       tp = ctp;
     } else if (idType == IdType.DESCRIPTOR) {
-      DescriptorTreePosition dtp = new DescriptorTreePositionJpa();
-      Descriptor descriptor = getDescriptor(id);
+      final DescriptorTreePosition dtp = new DescriptorTreePositionJpa();
+      final Descriptor descriptor = getDescriptor(id);
       dtp.setNode(descriptor);
       tp = dtp;
     } else if (idType == IdType.CODE) {
-      CodeTreePosition ctp = new CodeTreePositionJpa();
-      Code code = getCode(id);
+      final CodeTreePosition ctp = new CodeTreePositionJpa();
+      final Code code = getCode(id);
       ctp.setNode(code);
       tp = ctp;
     } else {
@@ -373,13 +397,13 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // id, only do this for CONCEPT
     if (computeSemanticTypes && idType == IdType.CONCEPT
         && !ancestorPath.isEmpty()) {
-      String[] tokens = FieldedStringTokenizer.split(ancestorPath, "~");
+      final String[] tokens = FieldedStringTokenizer.split(ancestorPath, "~");
       // if single root, only process where ancestorPath has a ~
       if (multipleRoots || tokens.length > 1) {
         if (!semanticTypeMap.containsKey(tp.getNode().getId())) {
           semanticTypeMap.put(tp.getNode().getId(), new HashSet<Long>());
         }
-        Set<Long> types = semanticTypeMap.get(tp.getNode().getId());
+        final Set<Long> types = semanticTypeMap.get(tp.getNode().getId());
         types.add(Long.valueOf(tokens[(multipleRoots ? 0 : 1)]));
       }
     }
@@ -422,15 +446,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       throw new CancelException("Tree Position computation cancelled");
     }
 
-    // routinely commit and force clear the manager
-    // any existing recursive threads are entirely dependent on local
-    // variables
-    if (++objectCt % commitCt == 0) {
-      Logger.getLogger(getClass()).debug("    count = " + objectCt);
-      commit();
-      clear();
-      beginTransaction();
-    }
+    // Log and commit
+    logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
     // Check that this concept does not reference itself as a child
     if (descConceptIds.contains(id)) {
@@ -471,30 +488,31 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /**
    * Sets the semantic type flag.
    *
-   * @param computeSemanticTypes the compute semantic type
+   * @param flag the compute semantic type
    */
-  public void setComputeSemanticType(boolean computeSemanticTypes) {
-    this.computeSemanticTypes = computeSemanticTypes;
+  public void setComputeSemanticType(boolean flag) {
+    this.computeSemanticTypes = flag;
   }
 
+  /* see superclass */
   @Override
   public String getFileVersion() throws Exception {
-    Logger.getLogger(getClass()).warn(
-        "Tree position algorithm does not use file version");
-    return null;
+    // this method just exists to allow the class to borrow from superclass
+    throw new UnsupportedOperationException();
   }
 
+  /* see superclass */
   @Override
   public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).warn(
-        "Tree position algorithm does not use transitive closures");
-
+    // this method just exists to allow the class to borrow from superclass
+    throw new UnsupportedOperationException();
   }
 
+  /* see superclass */
   @Override
   public void computeTreePositions() throws Exception {
-    compute();
-
+    // this method just exists to allow the class to borrow from superclass
+    throw new UnsupportedOperationException();
   }
   
 

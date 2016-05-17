@@ -873,8 +873,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
           UserRole.VIEWER);
-      final SearchResultList sr = contentService.findConceptsForQuery(
-          terminology, version, Branch.ROOT, queryStr, pfsc);
+
+      // Empty queries return all results
+      final SearchResultList sr =
+          contentService.findConceptsForQuery(terminology, version,
+              Branch.ROOT, queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -1060,8 +1063,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find descriptors by query",
           UserRole.VIEWER);
 
-      final SearchResultList sr = contentService.findDescriptorsForQuery(
-          terminology, version, Branch.ROOT, queryStr, pfsc);
+      // Empty queries return all results
+      final SearchResultList sr =
+          contentService.findDescriptorsForQuery(terminology, version,
+              Branch.ROOT, queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -1210,8 +1215,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find codes by query",
           UserRole.VIEWER);
 
-      final SearchResultList sr = contentService.findCodesForQuery(terminology,
-          version, Branch.ROOT, queryStr, pfsc);
+      // Empty queries returns all results
+      final SearchResultList sr =
+          contentService.findCodesForQuery(terminology, version, Branch.ROOT,
+              queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -2189,7 +2196,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // initialize the return tree with dummy root and set total count
       Tree returnTree = new TreeJpa(dummyTree);
-
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
 

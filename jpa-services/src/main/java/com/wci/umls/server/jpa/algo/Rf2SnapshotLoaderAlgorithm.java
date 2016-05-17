@@ -138,7 +138,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
   private Map<String, ConceptSubset> conceptSubsetMap = new HashMap<>();
 
   /** The concept mapset map. */
-  private Map<String, MapSet> conceptMapSetMap = new HashMap<>();
+  private Map<String, MapSet> mapSetMap = new HashMap<>();
 
   /** The term types. */
   private Set<String> termTypes = new HashSet<>();
@@ -156,29 +156,30 @@ public class Rf2SnapshotLoaderAlgorithm extends
   private Set<String> generalEntryValues = new HashSet<>();
 
   /** counter for objects created, reset in each load section. */
-  int objectCt; //
+  private int objectCt; //
 
   /** The init pref name. */
-  final String initPrefName = "No default preferred name found";
+  private final String initPrefName = "No default preferred name found";
 
   /** The loader. */
-  final String loader = "loader";
+  private final String loader = "loader";
 
   /** The id. */
-  final String id = "id";
+  private final String id = "id";
 
   /** The published. */
-  final String published = "PUBLISHED";
+  private final String published = "PUBLISHED";
 
   /** The tree pos algorithm. */
-  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+  private final TreePositionAlgorithm treePosAlgorithm =
+      new TreePositionAlgorithm();
 
   /** The trans closure algorithm. */
-  final TransitiveClosureAlgorithm transClosureAlgorithm =
+  private final TransitiveClosureAlgorithm transClosureAlgorithm =
       new TransitiveClosureAlgorithm();
 
   /** The label set algorithm. */
-  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
+  private final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
       new LabelSetMarkedParentAlgorithm();
 
   /**
@@ -345,9 +346,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
       //
       // load AtomType RefSets (Content)
       //
-      logInfo("  Loading Atom Type Ref Sets...");
-
-      loadAtomTypeRefSets();
+      logInfo("  Loading Description Type Ref Sets...");
+      loadDescriptionTypeRefSets();
 
       // Load metadata
       loadMetadata();
@@ -453,7 +453,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
         if (conceptSubset.isLabelSubset()) {
           Logger.getLogger(getClass()).info(
               "  Create label set for subset = " + subset);
-
+          labelSetAlgorithm.setTerminology(getTerminology());
+          labelSetAlgorithm.setVersion(getVersion());
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
         }
@@ -1139,7 +1140,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         relationship.setLastModified(date);
         relationship.setObsolete(fields[2].equals("0")); // active
         relationship.setSuppressible(relationship.isObsolete());
-        relationship.setRelationshipType("RO");
+        relationship.setRelationshipType("other");
         relationship.setHierarchical(false);
         relationship.setAdditionalRelationshipType(fields[4]);
         relationship.setStated(false);
@@ -1345,8 +1346,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
         // configure mapping and create map set if needed
         mapSetHelper(mapping, fields);
 
-        // TODO: consider adding mapCategoryId as an attribute
-
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
@@ -1479,7 +1478,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
    *
    * @throws Exception the exception
    */
-  private void loadAtomTypeRefSets() throws Exception {
+  private void loadDescriptionTypeRefSets() throws Exception {
 
     String line = "";
     objectCt = 0;
@@ -1677,7 +1676,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     mapping.setPublished(true);
     mapping.setPublishable(true);
     mapping.setGroup(fields[6].intern());
-    mapping.setRelationshipType("RO");
+    mapping.setRelationshipType("other");
     mapping.setAdditionalRelationshipType(fields[11]);
     generalEntryValues.add(mapping.getAdditionalRelationshipType());
     additionalRelTypes.add(mapping.getAdditionalRelationshipType());
@@ -1686,11 +1685,11 @@ public class Rf2SnapshotLoaderAlgorithm extends
     mapping.setRule(fields[8]);
     mapping.setAdvice(fields[9]);
 
-    if (conceptMapSetMap.containsKey(fields[4])) {
-      final MapSet subset = conceptMapSetMap.get(fields[4]);
+    if (mapSetMap.containsKey(fields[4])) {
+      final MapSet subset = mapSetMap.get(fields[4]);
       mapping.setMapSet(subset);
 
-    } else if (!conceptMapSetMap.containsKey(fields[4])) {
+    } else if (!mapSetMap.containsKey(fields[4])) {
 
       final MapSet mapSet = new MapSetJpa();
       setCommonFields(mapSet, date);
@@ -1699,10 +1698,10 @@ public class Rf2SnapshotLoaderAlgorithm extends
       mapSet.setName(concept.getName());
       mapSet.setObsolete(concept.isObsolete());
       mapSet.setFromTerminology(getTerminology());
-      mapSet.setToTerminology(null); // no way to get this
       mapSet.setFromVersion(getVersion());
+      // no way to get this
+      mapSet.setToTerminology(null);
       mapSet.setToVersion(null);
-      mapSet.setMapVersion(getVersion());
 
       final Attribute attribute2 = new AttributeJpa();
       setCommonFields(attribute2, date);
@@ -1711,7 +1710,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       mapSet.addAttribute(attribute2);
       addAttribute(attribute2, mapSet);
       addMapSet(mapSet);
-      conceptMapSetMap.put(fields[4], mapSet);
+      mapSetMap.put(fields[4], mapSet);
       commitClearBegin();
 
       mapping.setMapSet(mapSet);
@@ -1928,7 +1927,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     root.setFamily(getTerminology());
     root.setHierarchicalName(getConcept(conceptIdMap.get(rootConceptId))
         .getName());
-    root.setLanguage(rootLanguage);
+    root.setLanguage(rootLanguage.getAbbreviation());
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);

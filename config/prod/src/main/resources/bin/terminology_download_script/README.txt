@@ -53,14 +53,14 @@ For Mac/Linux/Solaris users:
 URLs for frequently downloaded files:
 
 UMLS (Run curl-uts-download.sh for each file) -
-http://download.nlm.nih.gov/umls/kss/2013AA/full/2013AA.CHK
-http://download.nlm.nih.gov/umls/kss/2013AA/full/2013AA.MD5
-http://download.nlm.nih.gov/umls/kss/2013AA/full/2013aa-1-meta.nlm
-http://download.nlm.nih.gov/umls/kss/2013AA/full/2013aa-2-meta.nlm
-http://download.nlm.nih.gov/umls/kss/2013AA/full/2013aa-otherks.nlm
-http://download.nlm.nih.gov/umls/kss/2013AA/full/mmsys.zip
-http://download.nlm.nih.gov/umls/kss/2013AA/full/Copyright_Notice.txt
-http://download.nlm.nih.gov/umls/kss/2013AA/full/README.txt
+./curl-uts-download.sh http://download.nlm.nih.gov/umls/kss/2016AA/full/2016AA.CHK &
+./curl-uts-download.sh http://download.nlm.nih.gov/umls/kss/2016AA/full/2016AA.MD5 &
+./curl-uts-download.sh http://download.nlm.nih.gov/umls/kss/2016AA/full/2016aa-1-meta.nlm &
+./curl-uts-download.sh http://download.nlm.nih.gov/umls/kss/2016AA/full/2016aa-2-meta.nlm &
+./curl-uts-download.sh http://download.nlm.nih.gov/umls/kss/2016AA/full/2016aa-otherks.nlm &
+./curl-uts-download.sh http://download.nlm.nih.gov/umls/kss/2016AA/full/mmsys.zip &
+./curl-uts-download.sh http://download.nlm.nih.gov/umls/kss/2016AA/full/Copyright_Notice.txt &
+./curl-uts-download.sh http://download.nlm.nih.gov/umls/kss/2016AA/full/README.txt &
 
 U.S. Edition of SNOMED CT -
 http://download.nlm.nih.gov/mlb/utsauth/USExt/SnomedCT_Release_US1000124_yyyymmdd.zip

@@ -22,7 +22,7 @@
           <li><p class="navbar-text">
               <a class="navbar-link" href="{{appConfig.deployLink}}">{{appConfig.deployCopyright}}</a>
             </p></li>
-          <li><p class="navbar-text">{{user.name}}</p></li>
+          <li ng-show="user.name != 'Guest'"><p class="navbar-text">{{user.name}}</p></li>
           <li
             ng-show="user.authToken != null && appConfig.loginEnabled === 'true'">
             <button class="btn btn-sm btn-primary btn-structure"
@@ -44,7 +44,7 @@
       <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
           <li>
-            <p class="navbar-text">{{appConfig.deployPresentedBy}}</p>
+            <p class="navbar-text" ng-bind-html="deployPresentedBy"></p>
           </li>
           <li style="margin-right: 15px;"><a
               ng-href="mailto:{{appConfig.deployFeedbackEmail}}">

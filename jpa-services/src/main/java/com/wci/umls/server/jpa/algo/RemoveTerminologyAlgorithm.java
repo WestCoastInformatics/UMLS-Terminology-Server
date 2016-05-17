@@ -33,7 +33,6 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -659,7 +658,7 @@ public class RemoveTerminologyAlgorithm
     }
     commitClearBegin();
 
-    // remove the mappings
+    // remove the map Sets
     logInfo("  Remove mapsets ");
     query = manager.createQuery(
         "SELECT a.id FROM MapSetJpa a WHERE terminology = :terminology "

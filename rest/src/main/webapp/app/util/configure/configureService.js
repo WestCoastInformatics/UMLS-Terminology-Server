@@ -5,8 +5,10 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
   function($rootScope, $http, $q, $location, gpService, utilService) {
     console.debug("configure configureService");
 
+    // Configured status flag
     var configured = null;
 
+    // Check whether system is configured
     this.isConfigured = function() {
       var deferred = $q.defer();
 
@@ -24,8 +26,9 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
         });
       }
       return deferred.promise;
-    }
+    };
 
+    // Configure system
     this.configure = function(dbName, userName, userPassword, appDir) {
       var deferred = $q.defer();
 
@@ -50,6 +53,7 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
       return deferred.promise;
     };
 
+    // Destroy configuration
     this.destroy = function() {
       var deferred = $q.defer();
       gpService.increment();

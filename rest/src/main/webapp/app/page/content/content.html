@@ -8,8 +8,8 @@
     ng-show="getViewableTerminologies().length > 0">
     <form style="margin-bottom: 0px;">
       <div class="row m10">
-        <div class="col-lg-1 col-md-2 col-xs-3">Terminology</div>
-        <div class="col-lg-11 col-md-10 col-xs-9">
+        <div class="col-md-2 col-xs-3">Terminology</div>
+        <div class="col-md-10 col-xs-9">
           <select ng-model="metadata.terminology"
             ng-change="setTerminology(metadata.terminology)"
             ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'">
@@ -20,7 +20,7 @@
         </div>
       </div>
       <div class="row m10">
-        <div class="col-lg-1 col-md-2 col-xs-3"
+        <div class="col-md-2 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Query
           <span class="pull-right">
@@ -30,9 +30,9 @@
               tooltip-placement="bottom-right"></i>
           </span>
         </div>
-        <div class="col-lg-6 col-md-7 col-xs-9">
+        <div class="col-md-7 col-xs-9">
           <div class="row">
-            <div class="col-lg-8 col-md-8 col-xs-12">
+            <div class="col-md-8 col-xs-12">
               <input autofocus style="margin-bottom: 5px; width: 100%;"
                 type="text" ng-model="searchParams.query"
                 placeholder="Enter search terms"
@@ -42,7 +42,7 @@
                 typeahead-on-select="searchParams.page = 1 && findComponents(true)"
                 typeahead-editable="true" typeahead-min-length="3">
             </div>
-            <div class="col-lg-4 col-md-4 col-xs-12">
+            <div class="col-md-4 col-xs-12">
               <button class="btn btn-sm btn-primary" type="submit"
                 ng-click="performNewSearch()">Search</button>
               <button class="btn btn-sm btn-warning" type="button"
@@ -60,13 +60,13 @@
   <div class="col-md-4 col-xs-12">
     <div ng-show="searchParams.advancedMode">
       <div ng-show="metadata.semanticTypes.length > 1" class="row m10">
-        <div class="col-lg-3 col-md-6 col-xs-3"
+        <div class="col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Semantic Type <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.semanticType"
             ng-click="searchParams.semanticType = null;"></i>
         </div>
-        <div class="col-lg-9 col-md-6 col-xs-9">
+        <div class="col-md-6 col-xs-9">
           <select style="margin-bottom: 5px; width: 100%;"
             ng-show="metadata.semanticTypes"
             ng-model="searchParams.semanticType"
@@ -79,13 +79,13 @@
       <div
         ng-show="metadata.terminology.metathesaurus && metadata.termTypes.length > 1"
         class="row m10">
-        <div class="col-lg-3 col-md-6 col-xs-3"
+        <div class="col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Term Type <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.termType"
             ng-click="searchParams.termType = null;"></i>
         </div>
-        <div class="col-lg-9 col-md-6 col-xs-9">
+        <div class="col-md-6 col-xs-9">
           <select style="margin-bottom: 5px; width: 100%" type="text"
             ng-options="termType.key as termType.key + ' / ' + termType.value for termType in metadata.termTypes"
             ng-model="searchParams.termType">
@@ -95,13 +95,13 @@
       </div>
       <!-- Only show match terminology for metathesaurus -->
       <div ng-show="metadata.terminology.metathesaurus" class="row m10">
-        <div class="col-lg-3 col-md-6 col-xs-3"
+        <div class="col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Match Terminology <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.matchTerminology"
             ng-click="searchParams.matchTerminology = null;"></i>
         </div>
-        <div class="col-lg-9 col-md-6 col-xs-9">
+        <div class="col-md-6 col-xs-9">
           <select style="margin-bottom: 5px; width: 100%" type="text"
             ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"
             ng-model="searchParams.matchTerminology">
@@ -111,13 +111,13 @@
       </div>
       <!--  Show only if more than one language -->
       <div ng-show="metadata.languages.length > 1" class="row m10">
-        <div class="col-lg-3 col-md-6 col-xs-3"
+        <div class="col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Language <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.language"
             ng-click="searchParams.language = null;"></i>
         </div>
-        <div class=" col-lg-9 col-md-6 col-xs-9">
+        <div class="col-md-6 col-xs-9">
           <select style="margin-bottom: 5px; width: 100%" type="text"
             ng-options="language.key as language.key + ' / ' + language.value for language in metadata.languages"
             ng-model="searchParams.language">

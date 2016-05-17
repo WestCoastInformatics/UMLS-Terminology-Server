@@ -128,10 +128,10 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
-                <include>**/com/wci/umls/server/test/mojo/RrfSingle*Test.java</include>
+                <include>**/com/wci/umls/server/test/mojo/RrfU*Test.java</include>
               </includes>
               <excludes>
-                <exclude>**/com/wci/umls/server/test/mojo/ResetDevDatabase.java
+                <exclude>**/com/wci/umls/server/test/mojo/Reset*Test.java
                 </exclude>
               </excludes>
               <additionalClasspathElements>

@@ -80,7 +80,6 @@ public class SourceDataRemoverMojo extends SourceDataMojo {
       if (!serverRunning) {
         getLog().info("Running directly");
 
-        // TODO Get this working again
 
         /*
          * final RemoveSourceDataAlgorithm algo = new

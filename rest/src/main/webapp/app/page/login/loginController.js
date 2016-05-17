@@ -60,7 +60,8 @@ tsApp.controller('LoginCtrl', [
           $location.path(response.data.userPreferences.lastTab);
         }
 
-        // if no previous preferences (first visit), go to source for initial file upload or content based on role
+        // if no previous preferences (first visit), go to source for initial
+        // file upload or content based on role
         else {
 
           if (response.data.applicationRole == 'VIEWER') {
@@ -96,7 +97,9 @@ tsApp.controller('LoginCtrl', [
       // Declare the user
       $scope.user = securityService.getUser();
 
-    }
+    };
+
+    // Check if configured, send to configure, or initialize
     configureService.isConfigured().then(function(isConfigured) {
       if (!isConfigured) {
         $location.path('/configure');

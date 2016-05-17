@@ -19,13 +19,13 @@ public interface HasLanguage {
    * 
    * @return the language
    */
-  public Language getLanguage();
+  public String getLanguage();
 
   /**
    * Sets the language
    * 
    * @param language the language
    */
-  public void setLanguage(Language language);
+  public void setLanguage(String language);
 
 }

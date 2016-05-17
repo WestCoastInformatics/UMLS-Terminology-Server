@@ -49,11 +49,11 @@ tsApp.directive('treeComponent', [
               return -1;
             }
             if (a.nodeName < b.nodeName) {
-              return -1
+              return -1;
             } else {
-              return 1
+              return 1;
             }
-            ;
+
           });
 
           return newSiblings;
@@ -132,7 +132,7 @@ tsApp.directive('treeComponent', [
         scope.getTreeChildrenFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
           scope.getTreeChildren(tree).then(function(children) {
-             tree.children = concatSiblings(tree.children, children);
+            tree.children = concatSiblings(tree.children, children);
           });
         };
 
@@ -150,7 +150,7 @@ tsApp.directive('treeComponent', [
           // children length
           // NOTE: Offset by 1 to incorporate the (possibly) already loaded item
           contentService.getChildTrees(tree, tree.children.length - 1).then(function(data) {
-             deferred.resolve(data.trees);
+            deferred.resolve(data.trees);
           }, function(error) {
             console.error('Unexpected error retrieving children');
             deferred.resolve([]);
@@ -163,7 +163,6 @@ tsApp.directive('treeComponent', [
         scope.toggleTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
 
-     
           // if not expanded, simply expand
           if (nodeScope.collapsed) {
             nodeScope.toggle();
@@ -173,14 +172,14 @@ tsApp.directive('treeComponent', [
           // page
           else if (tree.children.length != tree.childCt
             && tree.children.length < scope.pageSizeSibling) {
-             scope.getTreeChildren(tree).then(function(children) {
-                tree.children = concatSiblings(tree.children, children);
+            scope.getTreeChildren(tree).then(function(children) {
+              tree.children = concatSiblings(tree.children, children);
             });
           }
 
           // otherwise, collapse
           else {
-             nodeScope.toggle();
+            nodeScope.toggle();
           }
         };
 
