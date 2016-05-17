@@ -116,30 +116,18 @@
                       </value>
                     </property>
 
+                    <!-- Applies to UMLS, but not necessarily other loads:: <property> 
+                      <name>Referential integrity RootTerminology - preferredName</name> <value> SELECT 
+                      preferredName, terminology FROM root_terminologies a WHERE NOT EXISTS (SELECT * FROM 
+                      atoms b WHERE a.terminology = b.terminology AND a.preferredName = b.name); </value> 
+                      </property> -->
+                      
+                    <!-- Applies to UMLS, but not necessarily other loads:: <property> 
+                      <name>Referential integrity RootTerminology - hierarchicalName</name> <value> SELECT 
+                      hierarchicalName, terminology FROM root_terminologies a WHERE NOT EXISTS (SELECT 
+                      * FROM atoms b WHERE a.terminology = b.terminology AND a.hierarchicalName = b.name); 
+                      </value> </property> -->
 
-                    <property>
-                      <name>Referential integrity RootTerminology -
-                        preferredName</name>
-                      <value> SELECT
-                        preferredName, terminology FROM
-                        root_terminologies a WHERE NOT EXISTS (SELECT *
-                        FROM
-                        atoms b WHERE a.terminology = b.terminology AND
-                        a.preferredName =
-                        b.name);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Referential integrity RootTerminology -
-                        hierarchicalName</name>
-                      <value> SELECT hierarchicalName, terminology FROM
-                        root_terminologies a WHERE NOT
-                        EXISTS (SELECT * FROM
-                        atoms b WHERE a.terminology = b.terminology AND
-                        a.hierarchicalName
-                        = b.name);
-                      </value>
-                    </property>
                     <property>
                       <name>Referential integrity RootTerminology
                         -
@@ -157,21 +145,11 @@
                       </value>
                     </property>
 
-
-                    <property>
-                      <name>Referential integrity Terminology - preferredName</name>
-                      <value>
-                        SELECT preferredName, terminology, version
-                        FROM
-                        terminologies a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM atoms b
-                        WHERE a.terminology = b.terminology
-                        AND a.version =
-                        b.version
-                        AND a.preferredName = b.name);
-                      </value>
-                    </property>
+                    <!-- Applies to UMLS, but not necessarily other loads:: <property> 
+                      <name>Referential integrity Terminology - preferredName</name> <value> SELECT preferredName, 
+                      terminology, version FROM terminologies a WHERE NOT EXISTS (SELECT * FROM atoms b 
+                      WHERE a.terminology = b.terminology AND a.version = b.version AND a.preferredName 
+                      = b.name); </value> </property> -->
 
                     <property>
                       <name>Referential integrity Terminology - synonymousNames</name>
@@ -330,23 +308,11 @@
 
                     <!-- Content Queries -->
 
-                    <property>
-                      <name>Referential integrity Atom - codeId</name>
-                      <value>
-                        SELECT codeId, terminology, version
-                        FROM atoms a
-                        WHERE codeId != ''
-                        AND NOT EXISTS
-                        (SELECT * FROM codes b
-                        WHERE
-                        a.terminology = b.terminology
-                        AND a.version =
-                        b.version
-                        AND a.codeId =
-                        b.terminologyId);
-                      </value>
-                    </property>
-
+                    <!-- CODES are managed differently now:: <property> <name>Referential 
+                      integrity Atom - codeId</name> <value> SELECT codeId, terminology, version FROM atoms 
+                      a WHERE codeId != '' AND NOT EXISTS (SELECT * FROM codes b WHERE a.terminology = 
+                      b.terminology AND a.version = b.version AND a.codeId = b.terminologyId); </value> 
+                      </property> -->
                     <property>
                       <name>Referential integrity Atom - conceptId</name>
                       <value>

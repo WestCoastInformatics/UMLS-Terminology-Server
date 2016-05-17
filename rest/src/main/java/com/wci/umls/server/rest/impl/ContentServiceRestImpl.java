@@ -2138,7 +2138,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // initialize the return tree with dummy root and set total count
       Tree returnTree = new TreeJpa(dummyTree);
-
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
 

@@ -136,7 +136,6 @@ public class DefaultSearchHandler implements SearchHandler {
     final List<T> classes = new ArrayList<>();
     @SuppressWarnings("unchecked")
     final List<Object[]> results = fullTextQuery.getResultList();
-    System.out.println("XXX="+results.size());
     for (final Object[] result : results) {
       Object score = result[0];
       @SuppressWarnings("unchecked")
@@ -154,7 +153,6 @@ public class DefaultSearchHandler implements SearchHandler {
       // store the score
       scoreMap.put(t.getId(), normScore.floatValue());
     }
-    System.out.println("YYY="+classes.size());
 
     return classes;
 

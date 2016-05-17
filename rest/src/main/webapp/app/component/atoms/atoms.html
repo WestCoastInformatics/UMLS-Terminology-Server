@@ -1,14 +1,15 @@
 <!-- Atoms -->
- <div ng-show="pagedData.totalCount > 0">
-        
+<div ng-show="pagedData.totalCount > 0 || paging.filter">
+
   <h4>{{metadata.atomsLabel}} ({{pagedData.totalCount}})</h4>
   <span class="alert alert-warning" style="margin-left: 15px"
-    ng-show="!showHidden && pagedData.totalCount == 0">
+    ng-show="!showHidden && pagedData.totalCount == 0 && !paging.filter">
     Click button above to show Obsolete
     <span ng-show="metadata.terminology.metadatathesaurus">/Suppressible</span>
     content.
   </span>
-  <div pager paging="paging" count="pagedData.totalCount" callback="pageCallback"></div>
+  <div pager paging="paging" count="pagedData.totalCount"
+    callback="pageCallback"></div>
   <ul class="icon-list">
     <li ng-class="cr-list" ng-repeat="item in pagedData.data">
       <div>
@@ -34,8 +35,7 @@
           <span ng-show="item.terminology != component.object.terminology">
             {{item.terminology}} /</span>
           <span uib-tooltip="{{callbacks.getTermTypeName(item.termType)}}">{{item.termType}}</span>
-          , {{item.language}} ]
-          TEST: {{callbacks.getComponentFromType}}
+          , {{item.language}} ] TEST: {{callbacks.getComponentFromType}}
           <!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
           <span
             ng-show="item.codeId != component.object.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
@@ -52,7 +52,7 @@
             <a ng-class="{'nolink' : !callbacks.getComponentFromType}"
               ng-click="callbacks.getComponentFromType(item.conceptId, item.terminology, item.version,'CONCEPT')">{{item.conceptId}}</a>
           </span>
-       
+
           <!-- For descriptor id, do not show if identical to component id -->
           <span
             ng-show="item.terminology != component.object.terminology || item.descriptorId != component.object.terminologyId"

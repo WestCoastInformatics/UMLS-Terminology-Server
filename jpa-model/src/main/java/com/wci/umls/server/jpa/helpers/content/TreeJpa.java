@@ -375,9 +375,10 @@ public class TreeJpa implements Tree {
     if (tree.getChildren().size() == 0) {
       leafNodes.add(tree);
     } else {
-      for (Tree chd : getChildren()) {
+      for (Tree chd : tree.getChildren()) {
         getLeafNodesHelper(chd, leafNodes);
       }
     }
   }
+
 }
