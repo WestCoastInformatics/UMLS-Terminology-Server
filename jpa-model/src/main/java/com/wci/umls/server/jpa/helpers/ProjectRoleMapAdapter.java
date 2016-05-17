@@ -13,7 +13,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.jpa.ProjectJpa;
 
 /**
- * A map adapber for Map<Project,UserRole>.
+ * A map adapter for Project, UserRole maps.
  */
 public class ProjectRoleMapAdapter extends
     XmlAdapter<HashMap<Long, String>, Map<Project, UserRole>> {

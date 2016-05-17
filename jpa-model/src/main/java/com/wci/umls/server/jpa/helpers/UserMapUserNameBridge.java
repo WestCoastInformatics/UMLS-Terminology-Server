@@ -10,7 +10,7 @@ import org.hibernate.search.bridge.StringBridge;
 import com.wci.umls.server.User;
 
 /**
- * Hibernate search field bridge for a map of {@link User} -> anything.
+ * Hibernate search field bridge for a map of {@link User} -&gt; anything.
  */
 public class UserMapUserNameBridge implements StringBridge {
 

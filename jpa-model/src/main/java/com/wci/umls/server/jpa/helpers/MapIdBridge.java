@@ -10,7 +10,7 @@ import org.hibernate.search.bridge.StringBridge;
 import com.wci.umls.server.helpers.HasId;
 
 /**
- * Hibernate search field bridge for a map of {@link HasId} -> anything.
+ * Hibernate search field bridge for a map of {@link HasId} -&gt; anything.
  */
 public class MapIdBridge implements StringBridge {
 
