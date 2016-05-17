@@ -9,9 +9,9 @@ import java.util.Map;
 import org.hibernate.search.bridge.StringBridge;
 
 /**
- * Hibernate search field bridge for the keys of a map.
+ * Hibernate search field bridge for the key/values of a map.
  */
-public class MapKeyToCsvBridge implements StringBridge {
+public class MapKeyValueToCsvBridge implements StringBridge {
 
   /* see superclass */
   @Override
@@ -20,14 +20,17 @@ public class MapKeyToCsvBridge implements StringBridge {
       StringBuffer buf = new StringBuffer();
 
       Map<?, ?> map = (Map<?, ?>) value;
-      Iterator<?> it = map.values().iterator();
+      Iterator<? extends Map.Entry<?, ?>> it = map.entrySet().iterator();
       while (it.hasNext()) {
-        String next = it.next().toString();
-        buf.append(next);
+        String key = it.next().getKey().toString();
+        String v = it.next().getValue().toString();
+        buf.append(key).append("=").append(v);
         if (it.hasNext())
           buf.append(", ");
       }
       return buf.toString();
+      
+      
     }
     return null;
   }

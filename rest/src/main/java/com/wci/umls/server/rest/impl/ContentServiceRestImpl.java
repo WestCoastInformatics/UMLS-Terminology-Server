@@ -775,9 +775,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
           UserRole.VIEWER);
-      if (queryStr.equals("")) {
-        return new SearchResultListJpa();
-      }
+
+      // Empty queries return all results
       final SearchResultList sr =
           contentService.findConceptsForQuery(terminology, version,
               Branch.ROOT, queryStr, pfsc);
@@ -973,9 +972,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "find descriptors by query",
           UserRole.VIEWER);
 
-      if (queryStr.equals("")) {
-        return new SearchResultListJpa();
-      }
+      // Empty queries return all results
       final SearchResultList sr =
           contentService.findDescriptorsForQuery(terminology, version,
               Branch.ROOT, queryStr, pfsc);
@@ -1131,9 +1128,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "find codes by query",
           UserRole.VIEWER);
 
-      if (queryStr.equals("")) {
-        return new SearchResultListJpa();
-      }
+      // Empty queries returns all results
       final SearchResultList sr =
           contentService.findCodesForQuery(terminology, version, Branch.ROOT,
               queryStr, pfsc);

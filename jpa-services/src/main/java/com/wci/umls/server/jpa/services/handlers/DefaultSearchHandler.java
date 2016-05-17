@@ -103,14 +103,13 @@ public class DefaultSearchHandler implements SearchHandler {
     }
     FullTextQuery fullTextQuery = null;
     try {
-      Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
               finalQuery.toString(), pfs, manager);
     } catch (ParseException | IllegalArgumentException e) {
       e.printStackTrace();
       // If there's a parse exception, try the literal query
-      Logger.getLogger(getClass()).debug("query = " + finalQuery);
+      Logger.getLogger(getClass()).debug("PE query = " + finalQuery);
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, escapedQuery
               + terminologyClause, pfs, manager);
@@ -137,6 +136,7 @@ public class DefaultSearchHandler implements SearchHandler {
     final List<T> classes = new ArrayList<>();
     @SuppressWarnings("unchecked")
     final List<Object[]> results = fullTextQuery.getResultList();
+    System.out.println("XXX="+results.size());
     for (final Object[] result : results) {
       Object score = result[0];
       @SuppressWarnings("unchecked")
@@ -154,6 +154,7 @@ public class DefaultSearchHandler implements SearchHandler {
       // store the score
       scoreMap.put(t.getId(), normScore.floatValue());
     }
+    System.out.println("YYY="+classes.size());
 
     return classes;
 
