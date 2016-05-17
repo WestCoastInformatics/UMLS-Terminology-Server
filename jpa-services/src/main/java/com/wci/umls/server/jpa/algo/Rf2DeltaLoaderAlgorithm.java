@@ -2320,7 +2320,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         rel2.setLastModified(releaseVersionDate);
         rel2.setObsolete(fields[2].equals("0")); // active
         rel2.setSuppressible(rel2.isObsolete());
-        rel2.setRelationshipType("RO"); // typeId
+        rel2.setRelationshipType("other"); // typeId
         rel2.setHierarchical(false);
         rel2.setAdditionalRelationshipType(fields[4]); // typeId
         rel2.setStated(false);
@@ -2974,7 +2974,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     mapping.setPublished(true);
     mapping.setPublishable(true);
     mapping.setGroup(fields[6].intern());
-    mapping.setRelationshipType("RO");
+    mapping.setRelationshipType("other");
     mapping.setAdditionalRelationshipType(fields[11]);
     generalEntryValues.add(mapping.getAdditionalRelationshipType());
     additionalRelTypes.add(mapping.getAdditionalRelationshipType());

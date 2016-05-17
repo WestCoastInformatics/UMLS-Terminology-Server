@@ -1140,7 +1140,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         relationship.setLastModified(date);
         relationship.setObsolete(fields[2].equals("0")); // active
         relationship.setSuppressible(relationship.isObsolete());
-        relationship.setRelationshipType("RO");
+        relationship.setRelationshipType("other");
         relationship.setHierarchical(false);
         relationship.setAdditionalRelationshipType(fields[4]);
         relationship.setStated(false);
@@ -1676,7 +1676,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     mapping.setPublished(true);
     mapping.setPublishable(true);
     mapping.setGroup(fields[6].intern());
-    mapping.setRelationshipType("RO");
+    mapping.setRelationshipType("other");
     mapping.setAdditionalRelationshipType(fields[11]);
     generalEntryValues.add(mapping.getAdditionalRelationshipType());
     additionalRelTypes.add(mapping.getAdditionalRelationshipType());
