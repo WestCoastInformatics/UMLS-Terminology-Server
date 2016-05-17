@@ -319,7 +319,7 @@ tsApp
 
           if (!terminology && !version && !activity) {
             console
-              .error('Must specify all of terminology, version, and activity (LOADING/REMOVING) to retrieve log entries')
+              .error('Must specify all of terminology, version, and activity (LOADING/REMOVING) to retrieve log entries');
             deferred.reject(null);
           }
 

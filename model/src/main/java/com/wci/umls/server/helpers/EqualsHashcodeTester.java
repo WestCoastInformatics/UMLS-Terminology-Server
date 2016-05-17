@@ -213,7 +213,7 @@ public class EqualsHashcodeTester extends ProxyTester {
         // if equals, fail here
         Logger.getLogger(getClass()).debug("  o1 = " + o1);
         Logger.getLogger(getClass()).debug("  o2 = " + o2);
-        throw new Exception("Equality did not change when field " + fieldName
+        throw new Exception("Hashcode did not change when field " + fieldName
             + " was changed");
       }
 

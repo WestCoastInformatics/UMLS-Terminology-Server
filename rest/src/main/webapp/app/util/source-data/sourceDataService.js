@@ -225,7 +225,7 @@ tsApp.service('sourceDataService', [
         });
       }
       return deferred.promise;
-    }
+    };
 
     this.loadFromSourceData = function(sourceData) {
 
@@ -287,7 +287,7 @@ tsApp.service('sourceDataService', [
         deferred.reject('Error cancelling source data process');
       });
       return deferred.promise;
-    }
+    };
 
     this.getSourceDataLog = function(terminology, version, activity, lines) {
       console.debug('getSourceDataLog', terminology, version, activity, lines);
@@ -324,7 +324,7 @@ tsApp.service('sourceDataService', [
         deferred.reject('Error retrieving source datas');
       });
       return deferred.promise;
-    }
+    };
     
     
     // end.

@@ -1,6 +1,6 @@
 
 <!--  Semantic types -->
-<div ng-show="pagedData.totalCount > 0">
+<div ng-show="pagedData.totalCount > 0 || paging.filter">
   <h4>{{metadata.semanticTypesLabel}} ({{pagedData.totalCount}})</h4>
   <div pager paging="paging" data="data" callbacks="callbacks"></div>
   <ul class="icon-list">
