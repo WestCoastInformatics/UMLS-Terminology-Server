@@ -8,14 +8,14 @@ package com.wci.umls.server.services;
 
 import java.util.Map;
 
+import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.ComponentInfoList;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
-import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.ComponentInfoList;
-import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.content.AtomList;
 import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -40,7 +40,6 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.ComponentHasDefinitions;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.GeneralConceptAxiom;
@@ -1753,7 +1752,7 @@ public interface ContentService extends MetadataService {
    * @return the note
    * @throws Exception the exception
    */
-  public Note addUserNote(Note userNote) throws Exception;
+  public Note addNote(Note userNote) throws Exception;
 
   /**
    * Remove user note.
@@ -1762,7 +1761,58 @@ public interface ContentService extends MetadataService {
    * @param type the type
    * @throws Exception the exception
    */
-  public void removeUserNote(Long id, Class<? extends Note> type)
+  public void removeNote(Long id, Class<? extends Note> type)
     throws Exception;
+  
+
+  /**
+   * Add the component info.
+   *
+   * @param componentInfo the the component info
+   * @return the the component info
+   * @throws Exception the exception
+   */
+  public ComponentInfo addComponentInfo(ComponentInfo componentInfo) throws Exception;
+
+  /**
+   * Update the component info.
+   *
+   * @param componentInfo the the component info
+   * @throws Exception the exception
+   */
+  public void updateComponentInfo(ComponentInfo componentInfo) throws Exception;
+
+  /**
+   * Remove the component info.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeComponentInfo(Long id) throws Exception;
+
+  /**
+   * Find the component infos for query.
+   *
+   * @param userName the user name
+   * @param terminology the terminology
+   * @param version the version
+   * @param queryStr the query str
+   * @param pfs the pfs
+   * @return the the component info list
+   * @throws Exception the exception
+   */
+  public ComponentInfoList findComponentInfosForQuery(String userName,
+    String terminology, String version, String queryStr, PfsParameter pfs)
+      throws Exception;
+
+  /**
+   * Gets the note.
+   *
+   * @param id the id
+   * @param noteClass the note class
+   * @return the note
+   * @throws Exception the exception
+   */
+  public Note getNote(Long id, Class<? extends Note> noteClass) throws Exception;
 
 }

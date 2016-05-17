@@ -6,7 +6,6 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -875,20 +874,41 @@ public interface ContentServiceRest {
   public SearchResultList getEclExpressionResults(String terminology, String version,
     String query, String authToken) throws Exception;
 
- 
+
   /**
-   * Gets the concept favorites for user.
+   * Remove concept note.
+   *
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeConceptNote(Long noteId, String authToken) throws Exception;
+
+  /**
+   * Add concept note.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param noteText the note text
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void addConceptNote(String terminology, String version, String terminologyId,
+    String noteText, String authToken) throws Exception;
+
+  /**
+   * Gets the favorites for user.
    *
    * @param pfs the pfs
-   * @param query the query
    * @param terminology the terminology
    * @param version the version
    * @param authToken the auth token
-   * @return the concept favorites for user
+   * @return the favorites for user
    * @throws Exception the exception
    */
-  public ConceptList getConceptFavoritesForUser(PfsParameter pfs, String query,
-    String terminology, String version, String authToken) throws Exception;
+ public SearchResultList getFavoritesForUser(String terminology,
+    String version, PfsParameterJpa pfs, String authToken) throws Exception;
 
 
 }

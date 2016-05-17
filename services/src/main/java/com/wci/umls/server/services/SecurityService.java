@@ -7,8 +7,6 @@ import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.UserList;
 
 /**
@@ -149,44 +147,5 @@ public interface SecurityService extends RootService {
    */
   public UserList findUsersForQuery(String query, PfsParameter pfs) throws Exception;
 
-  /**
-   * Add user favorite.
-   *
-   * @param userFavorite the user favorite
-   * @return the user favorite
-   * @throws Exception the exception
-   */
-  public ComponentInfo addUserFavorite(ComponentInfo userFavorite) throws Exception;
-
-  /**
-   * Update user favorite.
-   *
-   * @param userFavorite the user favorite
-   * @throws Exception the exception
-   */
-  public void updateUserFavorite(ComponentInfo userFavorite) throws Exception;
-
-  /**
-   * Remove user favorite.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
-  public void removeUserFavorite(Long id) throws Exception;
-
-  /**
-   * Find user favorites for query.
-   *
-   * @param userName the user name
-   * @param terminology the terminology
-   * @param version the version
-   * @param queryStr the query str
-   * @param pfs the pfs
-   * @return the user favorite list
-   * @throws Exception the exception
-   */
-  public ComponentInfoList findUserFavoritesForQuery(String userName,
-    String terminology, String version, String queryStr, PfsParameter pfs)
-      throws Exception;
 
 }

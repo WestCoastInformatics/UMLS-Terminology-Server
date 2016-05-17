@@ -6,25 +6,26 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlID;
 
+import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Note;
-import com.wci.umls.server.model.content.AtomClass;
 
 /**
- * The Abstract Component Note
- * @param <T>
- *
+ * The Class AbstractNote.
  */
-public abstract class AbstractNote<T extends AtomClass> implements Note<T> {
+@Audited
+@MappedSuperclass
+public abstract class AbstractNote implements Note {
   
   /** The id. */
   @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
@@ -32,7 +33,7 @@ public abstract class AbstractNote<T extends AtomClass> implements Note<T> {
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
 
-  /** the timestamp. */
+  /** The timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
@@ -42,10 +43,11 @@ public abstract class AbstractNote<T extends AtomClass> implements Note<T> {
   @Temporal(TemporalType.TIMESTAMP)
   private Date lastModified = null;
 
-  /** The last modified. */
+  /** The last modified by. */
   @Column(nullable = false)
   private String lastModifiedBy;
   
+  /** The note. */
   @Column(nullable = false, length = 4000)
   private String note;
   
@@ -61,9 +63,8 @@ public abstract class AbstractNote<T extends AtomClass> implements Note<T> {
    * Instantiates a new abstract note.
    *
    * @param note the note
-   * @param deepCopy the deep copy
    */
-  public AbstractNote(Note note, boolean deepCopy) {
+  public AbstractNote(Note note) {
     this.id = note.getId();
     this.lastModified = note.getLastModified();
     this.lastModifiedBy = note.getLastModifiedBy();
@@ -84,7 +85,7 @@ public abstract class AbstractNote<T extends AtomClass> implements Note<T> {
   }
 
   /**
-   * Returns the object id. Needed for JAXB id
+   * Gets the object id.
    *
    * @return the object id
    */
@@ -96,7 +97,7 @@ public abstract class AbstractNote<T extends AtomClass> implements Note<T> {
   /**
    * Sets the object id.
    *
-   * @param id the object id
+   * @param id the new object id
    */
   public void setObjectId(String id) {
     if (id != null) {
@@ -143,11 +144,13 @@ public abstract class AbstractNote<T extends AtomClass> implements Note<T> {
     this.lastModifiedBy = lastModifiedBy;
   }
 
+  /* see superclass */
   @Override
   public void setNote(String note) {
     this.note = note;    
   }
 
+  /* see superclass */
   @Override
   public String getNote() {
     return this.note;

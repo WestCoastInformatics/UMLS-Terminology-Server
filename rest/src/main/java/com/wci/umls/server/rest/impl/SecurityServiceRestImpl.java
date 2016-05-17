@@ -20,21 +20,15 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.StringList;
-import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.UserList;
-import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.UserPreferencesJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -127,6 +121,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "retrieve the user",
           UserRole.VIEWER);
       User user = securityService.getUser(id);
+      
       return user;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a user");
@@ -438,93 +433,5 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
     } finally {
       securityService.close();
     }
-  }
-
-  /* see superclass */
-  @POST
-  @Path("/user/favorites/add/{terminology}/{version}/{terminologyId}/{name}")
-  @Produces("text/plain")
-  @ApiOperation(value = "Adds a user favorite", notes = "Adds a user favorite", response = String.class)
-  @Override
-  public void addFavoriteForUser(
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
-    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @QueryParam("terminologyId") String terminologyId,
-    @ApiParam(value = "Name of favorite, e.g. 'component name'", required = true) @QueryParam("name") String name,
-    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /user/favorites/" + terminology
-            + ", " + version + " for authToken " + authToken);
-
-    final SecurityService securityService = new SecurityServiceJpa();
-
-    try {
-      authorizeApp(securityService, authToken, "get user favorites",
-          UserRole.VIEWER);
-
-      UserPreferences preferences =
-          securityService.getUser(authToken).getUserPreferences();
-
-      ComponentInfo userFavorite = new ComponentInfoJpa();
-      userFavorite.setTerminology(terminology);
-      userFavorite.setVersion(version);
-      userFavorite.setTerminologyId(terminologyId);
-      userFavorite.setName(name);
-      securityService.addUserFavorite(userFavorite);
-
-      preferences.addFavorite(userFavorite);
-      securityService.updateUserPreferences(preferences);
-    } catch (Exception e) {
-      handleException(e, "trying to add user favorite");
-    } finally {
-      securityService.close();
-    }
-
-  }
-
-  /* see superclass */
-  @POST
-  @Path("/user/favorites/remove/{terminology}/{version}/{terminologyId}")
-  @Produces("text/plain")
-  @ApiOperation(value = "Adds a user favorite", notes = "Adds a user favorite", response = String.class)
-  @Override
-  public void removeFavoriteForUser(
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
-    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @QueryParam("terminologyId") String terminologyId,
-    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /user/favorites/" + terminology
-            + ", " + version + " for authToken " + authToken);
-
-    final SecurityService securityService = new SecurityServiceJpa();
-    try {
-      authorizeApp(securityService, authToken, "get user favorites",
-          UserRole.VIEWER);
-      
-      UserPreferences preferences = securityService.getUser(authToken).getUserPreferences();
-      
-      ComponentInfo userFavorite = null;
-      for (ComponentInfo favorite : preferences.getFavorites()) {
-        if (favorite.getTerminology().equals(terminology) && favorite.getVersion().equals(version) && favorite.getTerminologyId().equals(terminologyId)) {
-          userFavorite = favorite;
-        }
-      }
-      
-      if (userFavorite == null) {
-        throw new Exception("Could not retrieve user favorite from preferences");
-      }
-      preferences.removeFavorite(userFavorite);
-      securityService.updateUserPreferences(preferences);
-     
-      securityService.removeUserFavorite(userFavorite.getId());
-    } catch (Exception e) {
-      handleException(e, "trying to get user favorites");
-    } finally {
-      securityService.close();
-    }
-    
   }
 }

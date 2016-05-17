@@ -3,6 +3,10 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -21,12 +25,13 @@ import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
-import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
@@ -52,6 +57,7 @@ import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
@@ -59,6 +65,7 @@ import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
@@ -2897,7 +2904,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-
   /**
    * Returns the precedence list.
    *
@@ -2922,15 +2928,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/cui/favorites/{terminology}/{version}")
-  @Produces("text/plain")
+  @Path("/favorites/{terminology}/{version}")
   @ApiOperation(value = "Get user favorites", notes = "Gets user favorites for a terminology and version", response = String.class)
   @Override
-  public ConceptList getConceptFavoritesForUser(
-    @ApiParam(value = "Paging/filtering/sorting object", required = false) PfsParameter pfs,
-    @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
+  public SearchResultList getFavoritesForUser(
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Paging/filtering/sorting object", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
     Logger.getLogger(getClass())
@@ -2942,22 +2946,62 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "get user favorites",
           UserRole.VIEWER);
 
-      ComponentInfoList userFavorites = securityService.findUserFavoritesForQuery(
-          authToken, terminology, version, query, pfs);
-      
-      ConceptList conceptList = new ConceptListJpa();
-      conceptList.setTotalCount(userFavorites.getTotalCount());
-      
-      for (ComponentInfo userFavorite : userFavorites.getObjects()) {
-        try {
-        Concept c = contentService.getConcept(userFavorite.getTerminologyId(), terminology, version, Branch.ROOT);
-        conceptList.addObject(c);
-        } catch (Exception e) {
-          throw new Exception("Could not retrieve concept " + userFavorite.getTerminologyId());
-        }
+      UserPreferences preferences =
+          securityService.getUser(authToken).getUserPreferences();
+
+      List<ComponentInfo> favorites = new ArrayList<>();
+      for (String str : preferences.getFavorites()) {
+        ComponentInfo favorite = new ComponentInfoJpa(str);
+        favorites.add(favorite);
       }
-      return conceptList;
-        
+
+      // apply pfs to list
+      int[] totalCt = new int[1];
+      favorites = contentService.applyPfsToList(favorites, ComponentInfo.class,
+          totalCt, pfs);
+
+      // declare results list and set total count
+      SearchResultList results = new SearchResultListJpa();
+      results.setTotalCount(totalCt[0]);
+
+      for (ComponentInfo info : favorites) {
+        AtomClass atomClass = null;
+
+        switch (info.getType()) {
+          case CODE:
+            atomClass = contentService.getCode(info.getTerminologyId(),
+                info.getTerminology(), info.getVersion(), Branch.ROOT);
+
+            break;
+          case CONCEPT:
+            atomClass = contentService.getConcept(info.getTerminologyId(),
+                info.getTerminology(), info.getVersion(), Branch.ROOT);
+
+            break;
+          case DESCRIPTOR:
+            atomClass = contentService.getDescriptor(info.getTerminologyId(),
+                info.getTerminology(), info.getVersion(), Branch.ROOT);
+
+            break;
+          default:
+            throw new Exception(
+                "Non atom-class object on favorites list: " + info.toString());
+        }
+
+        SearchResult searchResult = new SearchResultJpa();
+        searchResult.setId(atomClass.getId());
+        searchResult.setType(info.getType());
+        searchResult.setTerminology(atomClass.getTerminology());
+        searchResult.setVersion(atomClass.getVersion());
+        searchResult.setTerminologyId(atomClass.getTerminologyId());
+        searchResult.setValue(atomClass.getName());
+        searchResult.setProperty(new KeyValuePair("hasNotes",
+            atomClass.getNotes().size() > 0 ? "true" : "false"));
+
+        results.addObject(searchResult);
+      }
+      return results;
+
     } catch (Exception e) {
       handleException(e, "trying to get user favorites");
     } finally {
@@ -2967,5 +3011,77 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     return null;
   }
 
-  
+  /* see superclass */
+  @POST
+  @Path("/cui/note/{terminology}/{version}/{terminologyId}/add")
+  @Produces("text/plain")
+  @ApiOperation(value = "Adds a user note to a concept", notes = "Adds a user note to a concept", response = String.class)
+  @Override
+  public void addConceptNote(
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Note to add", required = true) String noteText,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Project): /cui/" + terminology + "/"
+            + terminologyId + "/" + version + " for authToken " + authToken);
+
+    final SecurityService securityService = new SecurityServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authorizeApp(securityService, authToken, "add concept note",
+          UserRole.VIEWER);
+
+      Concept concept = contentService.getConcept(terminologyId, terminologyId,
+          version, Branch.ROOT);
+      Note note = new ConceptNoteJpa();
+      note.setNote(noteText);
+      note.setLastModifiedBy(authToken);
+      note.setTimestamp(new Date());
+      ((ConceptNoteJpa) note).setConcept(concept);
+
+      // add the note, add it to the concept, and update the concept
+      Note newNote = contentService.addNote(note);
+      concept.addNote(newNote);
+      contentService.updateConcept(concept);
+
+    } catch (Exception e) {
+      handleException(e, "trying to add user favorite");
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @POST
+  @Path("/cui/note/{id}/remove")
+  @Produces("text/plain")
+  @ApiOperation(value = "Remove a note from a concept", notes = "Remove a note from a concept", response = String.class)
+  @Override
+  public void removeConceptNote(
+    @ApiParam(value = "Id of note to remove", required = true) Long noteId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass()).info("RESTful POST call (Project): /cui/note"
+        + noteId + "/remove for authToken " + authToken);
+
+    final SecurityService securityService = new SecurityServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authorizeApp(securityService, authToken, "remove concept note",
+          UserRole.VIEWER);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove notee");
+    } finally {
+      securityService.close();
+    }
+
+  }
+
 }

@@ -1,9 +1,10 @@
-tsApp.controller('annotationModalCtrl', function($scope, $q, $uibModalInstance, contentService,
-  utilService, component) {
+tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstance, utilService, callbacks, component) {
 
-  console.debug('annotation modal opened', component);
+  console.debug('component notes modal opened', component, callbacks);
 
+  // NOTE: Component must contain minimum of type, terminology, version, and terminologyId
   $scope.component = component;
+  $scope.callbacks = callbacks;
 
   function getPagedList() {
     $scope.pagedData = utilService.getPagedArray($scope.component.object.userAnnotations,
@@ -29,32 +30,32 @@ tsApp.controller('annotationModalCtrl', function($scope, $q, $uibModalInstance, 
     value : 'lastModified'
   } ];
 
-  // determine class type for display
-  if ($scope.component.object.type) {
-    $scope.type = $scope.component.object.type.substring(0, 1).toUpperCase()
-      + $scope.component.object.type.substring(1).toLowerCase();
-  } else {
-    $scope.type = 'Component';
-  }
-
   //
   // Note controls
   //
   $scope.addNote = function(note) {
     console.debug('Adding note: ', note);
-    contentService.addComponentAnnotation($scope.component, note).then(function(response) {
+    callbacks.addComponentNote($scope.component.type, $scope.component.terminology, $scope.component.version, $scope.component.terminologyId, note).then(function(response) {
       console.debug('Note added, new object = ', response);
-      $scope.component.object = response;
-    })
+      
+    });
   }
 
   $scope.removeNote = function(note) {
 
   }
-
-  $scope.updateNote = function(note) {
-
+  
+  //
+  // Initialization
+  // 
+  $scope.initialize = function() {
+    callbacks.getComponentFromType($scope.component.terminology, $scope.component.version, $scope.component.terminologyId, $scope.component.type).then(function(response) {
+      $scope.component.name = response.name;
+      $scope.component.notes = response.notes;
+    });
   }
+  
+  $scope.initialize();
 
   //
   // Modal Control functions

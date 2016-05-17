@@ -10,17 +10,20 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.StringClass;
 
 /**
- * JPA-enabled implementation of {@link StringClass}.
+ * The Class StringClassJpa.
  */
 @Entity
 @Table(name = "string_classes", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -35,16 +38,21 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(nullable = true)
   List<String> labels;
+  
+  /** The notes. */
+  @OneToMany(mappedBy = "stringClass", targetEntity = StringClassNoteJpa.class)
+  @IndexedEmbedded(targetElement = StringClassNoteJpa.class)
+  private List<Note> notes = new ArrayList<>();
 
   /**
-   * Instantiates an empty {@link StringClassJpa}.
+   * Instantiates a new string class jpa.
    */
   public StringClassJpa() {
     // do nothing
   }
 
   /**
-   * Instantiates a {@link StringClassJpa} from the specified parameters.
+   * Instantiates a new string class jpa.
    *
    * @param stringClass the string class
    * @param deepCopy the deep copy
@@ -66,6 +74,39 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
   @Override
   public void setLabels(List<String> labels) {
     this.labels = labels;
+
+  }
+  
+  /* see superclass */
+  @Override
+  public void setNotes(List<Note> notes) {
+    this.notes = notes;
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<Note> getNotes() {
+    return this.notes;
+  }
+
+  /* see superclass */
+  @Override
+  public void addNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.add(note);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void removeNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.remove(note);
 
   }
 

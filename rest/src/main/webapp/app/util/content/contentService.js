@@ -896,7 +896,7 @@ tsApp
             deferred.reject('Cannot check empty query for expressions');
           }
           gpService.increment();
-          $http.get(contentUrl + '/ecl/isExpression/' + URIEncode(query)).then(function(response) {
+          $http.get(contentUrl + '/ecl/isExpression/' + encodeURIComponent(utilService.cleanQuery(query))).then(function(response) {
             gpService.decrement();
             deferred.resolve(response.data);
           }, function(response) {
@@ -906,16 +906,15 @@ tsApp
           });
         }
 
-        this.addComponentAnnotation = function(component, annotationText) {
+        this.addComponentNote = function(type, terminology, version, terminologyId, annotationText) {
           var deferred = $q.defer();
           if (!component || !annotationText) {
             deferred.reject('Concept id and annotation text must be specified');
           } else {
 
-            var prefix = this.getPrefixForTerminologyAndVersion(component.object.terminology,
-              component.object.version);
+            var prefix = this.getPrefixForType(terminology, version);
             gpService.increment();
-            $http.post(contentUrl + prefix + '/annotate/' + component.object.id + '/add',
+            $http.post(contentUrl + prefix + '/note/' + terminology + '/' + version + '/' + terminologyId + '/add',
               annotationText).then(function(response) {
               deferred.resolve(response.data);
             }, function(response) {
@@ -929,31 +928,9 @@ tsApp
           }
         }
 
-        this.updateComponentAnnotation = function(component, annotationId, annotationText) {
-          var deferred = $q.defer();
-          if (!component || !annotationId || !annotationText) {
-            deferred.reject('Component, annotation id, and annotation text must be specified');
-          } else {
+        
 
-            var prefix = this.getPrefixForTerminologyAndVersion(component.object.terminology,
-              component.object.version);
-            gpService.increment();
-            $http.post(
-              contentUrl + prefix + '/annotate/' + component.object.id + '/update/' + annotationId,
-              annotationText).then(function(response) {
-              deferred.resolve(response.data);
-            }, function(response) {
-              utilService.handleError(response);
-              gpService.decrement();
-              // return the original concept without additional annotation
-              deferred.reject();
-            });
-
-            return deferred.promise;
-          }
-        }
-
-        this.removeComponentAnnotation = function(component, annotationId, annotationText) {
+        this.removeComponentNote = function(component, annotationId, annotationText) {
           var deferred = $q.defer();
           if (!component || !annotationId || !annotationText) {
             deferred.reject('Component, annotationId, and annotation text must be specified');
@@ -977,41 +954,29 @@ tsApp
           }
         }
 
-        this.getUserConceptFavorites = function(terminology, version, parameters) {
+        // Get the user favorites
+        // NOTE: This uses the paging structure in utilService.getPaging
+        // parallel to uses in component report elements (atoms, relationships...)
+        // instead of the getSearchParams structure for standard queries
+        this.getUserFavorites = function(terminology, version, parameters) {
+          console.debug('get user favorites', terminology, version, parameters);
           var deferred = $q.defer();
           if (!terminology || !version || !parameters) {
             deferred.reject('Parameters must be specified');
           } else {
-            
-            var prefix = this.getPrefixForTerminologyAndVersion(component.object.terminology,
-              component.object.version);
 
             var pfs = {
-              startIndex : (parameters.page - 1) * parameters.pageSize,
-              maxResults : parameters.pageSize,
+              startIndex : (parameters.page - 1) * pageSizes.general,
+              maxResults : pageSizes.general,
               sortField : parameters.sortField ? parameters.sortField : 'lastModified',
-              queryRestriction : null
+              queryRestriction : parameters.filter,
+              ascending : parameters.sortAscending
             };
 
             gpService.increment();
             $http.post(
-              contentUrl + '/' + prefix + '/favorites/' + terminology + '/' + version + '?query='
-                + UriEncode(parameters.query)).then(function(response) {
-                  
-                  // TODO Remove once the list objects are normalized
-                  if (response.data.hasOwnProperty('concepts')) {
-                    response.data.objects = response.data.concepts;
-                    delete response.data.concepts;
-                  }
-                  if (response.data.hasOwnProperty('descriptors')) {
-                    response.data.objects = response.data.descriptors;
-                    delete response.data.descriptors;
-                  }
-                  if (response.data.hasOwnProperty('codes')) {
-                    response.data.objects = response.data.codes;
-                    delete response.data.codes;
-                  }
-                  
+              contentUrl + '/favorites/' + terminology + '/' + version, pfs).then(function(response) {
+              gpService.decrement();
               deferred.resolve(response.data);
             }, function(response) {
               utilService.handleError(response);
@@ -1021,6 +986,22 @@ tsApp
             });
 
             return deferred.promise;
+          }
+        }
+        
+        this.getCallbacks = function() {
+          return {
+            getComponentFromType : this.getComponentFromType,
+            getComponent : this.getComponent,
+            getComponentHelper : this.getComponentHelper,
+            getComponentFromHistory : this.getComponentFromHistory,
+            findComponentsAsList : this.findComponentsAsList,
+            findComponentsAsTree : this.findComponentsAsTree,
+            findRelationships : this.findRelationships,
+            findDeepRelationships : this.findDeepRelationships,
+            addComponentNote : this.addComponentNote,
+            removeComponentNote : this.removeComponentNote
+            
           }
         }
 

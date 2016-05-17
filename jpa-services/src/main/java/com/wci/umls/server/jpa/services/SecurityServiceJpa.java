@@ -20,13 +20,9 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.UserList;
-import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.UserPreferencesJpa;
-import com.wci.umls.server.jpa.helpers.ComponentInfoListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
@@ -489,69 +485,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     }
   }
   
-  /**
-   * Add user favorite.
-   *
-   * @param userFavorite the user favorite
-   * @return the user favorite
-   * @throws Exception the exception
-   */
-  /* see superclass */
-  @Override
-  public ComponentInfo addUserFavorite(ComponentInfo userFavorite)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - add userFavorite " + userFavorite);
 
-    // Add component
-    ComponentInfo newUserFavorite = addHasLastModified(userFavorite);
-
-    return newUserFavorite;
-  }
-
-  /* see superclass */
-  @Override
-  public void updateUserFavorite(ComponentInfo userFavorite) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - update userFavorite " + userFavorite);
-
-    // update component
-    updateHasLastModified(userFavorite);
-
-  }
-
-  /* see superclass */
-  @Override
-  public void removeUserFavorite(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove userFavorite " + id);
-    // Remove the component
-    removeHasLastModified(id, ComponentInfoJpa.class);
-  }
   
-  @Override
-  public ComponentInfoList findUserFavoritesForQuery(String userName,
-    String terminology, String version, String queryStr, PfsParameter pfs)
-      throws Exception {
-    ComponentInfoList favorites = new ComponentInfoListJpa();
-
-    try {
-      UserPreferences preferences = this.getUser(userName).getUserPreferences();
-
-      javax.persistence.Query query = manager.createQuery(
-          " select u from UserFavoriteJpa u where terminology=:terminology and version=:version and userName=:userName and preferences_id = :preferencesId");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      query.setParameter("userName", userName);
-      query.setParameter("preferencesId", preferences.getId());
-      @SuppressWarnings("unchecked")
-      List<ComponentInfo> userFavorites = query.getResultList();
-      favorites.setObjects(userFavorites);
-      favorites.setTotalCount(userFavorites.size());
-
-    } catch (NoResultException e) {
-
-    }
-    return favorites;
-  }
+ 
 }

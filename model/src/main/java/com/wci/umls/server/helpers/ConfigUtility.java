@@ -714,11 +714,7 @@ public class ConfigUtility {
       // do nothing
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see javax.mail.Authenticator#getPasswordAuthentication()
-     */
+    
     /* see superclass */
     @Override
     public PasswordAuthentication getPasswordAuthentication() {

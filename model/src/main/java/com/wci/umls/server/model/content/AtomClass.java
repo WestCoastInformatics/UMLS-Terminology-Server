@@ -5,46 +5,44 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasUserAnnotations;
 import com.wci.umls.server.helpers.HasLabelSets;
+import com.wci.umls.server.helpers.HasNotes;
 
 /**
- * Represents a classification of atoms within a terminology, ontology, or
- * coding scheme. For example Metathesaurus CUIs, SNOMED CT source concepts, or
- * RXCUIs within RXNORM.
+ * The Interface AtomClass.
  */
-public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets, HasUserAnnotations {
+public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets, HasNotes {
 
   /**
-   * Returns the atoms.
-   * 
+   * Gets the atoms.
+   *
    * @return the atoms
    */
   public List<Atom> getAtoms();
 
   /**
    * Sets the atoms.
-   * 
-   * @param atoms the atoms
+   *
+   * @param atoms the new atoms
    */
   public void setAtoms(List<Atom> atoms);
 
   /**
-   * Adds the atom.
-   * 
+   * Add atom.
+   *
    * @param atom the atom
    */
   public void addAtom(Atom atom);
 
   /**
-   * Removes the atom.
-   * 
+   * Remove atom.
+   *
    * @param atom the atom
    */
   public void removeAtom(Atom atom);
 
   /**
-   * Returns the workflow status.
+   * Gets the workflow status.
    *
    * @return the workflow status
    */
@@ -53,12 +51,12 @@ public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets, 
   /**
    * Sets the workflow status.
    *
-   * @param workflowStatus the workflow status
+   * @param workflowStatus the new workflow status
    */
   public void setWorkflowStatus(String workflowStatus);
 
   /**
-   * Returns the branched to.
+   * Gets the branched to.
    *
    * @return the branched to
    */
@@ -67,21 +65,23 @@ public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets, 
   /**
    * Sets the branched to.
    *
-   * @param branchedTo the branched to
+   * @param branchedTo the new branched to
    */
   public void setBranchedTo(String branchedTo);
 
   /**
-   * Adds the branched to.
+   * Add branched to.
    *
    * @param newBranch the new branch
    */
   public void addBranchedTo(String newBranch);
 
   /**
-   * Removes the branched to.
+   * Remove branched to.
    *
    * @param closedBranch the closed branch
    */
   public void removeBranchedTo(String closedBranch);
+
+  
 }

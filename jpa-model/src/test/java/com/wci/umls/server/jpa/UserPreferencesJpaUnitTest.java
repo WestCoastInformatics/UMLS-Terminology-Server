@@ -142,6 +142,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
     u.setUserName("1");
     tester.proxy(User.class, 1, u);
 
+
     assertTrue(tester.testXmlSerialization());
   }
 

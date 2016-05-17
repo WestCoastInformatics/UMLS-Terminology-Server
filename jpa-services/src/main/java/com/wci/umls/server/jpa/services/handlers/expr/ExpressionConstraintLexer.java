@@ -204,24 +204,14 @@ public class ExpressionConstraintLexer extends Lexer {
     }
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see org.antlr.v4.runtime.Lexer#getTokenNames()
-   */
+  
   @Override
   @Deprecated
   public String[] getTokenNames() {
     return tokenNames;
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see org.antlr.v4.runtime.Recognizer#getVocabulary()
-   */
   @Override
-
   public Vocabulary getVocabulary() {
     return VOCABULARY;
   }
@@ -237,51 +227,28 @@ public class ExpressionConstraintLexer extends Lexer {
         new LexerATNSimulator(this, _ATN, _decisionToDFA, _sharedContextCache);
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see org.antlr.v4.runtime.Recognizer#getGrammarFileName()
-   */
+ 
   @Override
   public String getGrammarFileName() {
     return "ExpressionConstraint.g4";
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see org.antlr.v4.runtime.Recognizer#getRuleNames()
-   */
   @Override
   public String[] getRuleNames() {
     return ruleNames;
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see org.antlr.v4.runtime.Recognizer#getSerializedATN()
-   */
   @Override
   public String getSerializedATN() {
     return _serializedATN;
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see org.antlr.v4.runtime.Lexer#getModeNames()
-   */
   @Override
   public String[] getModeNames() {
     return modeNames;
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see org.antlr.v4.runtime.Recognizer#getATN()
-   */
+  
   @Override
   public ATN getATN() {
     return _ATN;

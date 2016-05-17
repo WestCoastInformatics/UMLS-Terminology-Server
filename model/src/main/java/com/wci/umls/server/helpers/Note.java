@@ -3,14 +3,10 @@
  */
 package com.wci.umls.server.helpers;
 
-import com.wci.umls.server.model.content.AtomClass;
-
 /**
  * The Interface Note.
- *
- * @param <T> the atomclass type
  */
-public interface Note<T extends AtomClass> extends HasLastModified {
+public interface Note extends HasId, HasLastModified {
 
   /**
    * Sets the note.
@@ -25,19 +21,6 @@ public interface Note<T extends AtomClass> extends HasLastModified {
    * @return the note
    */
   public String getNote();
-  
-  /**
-   * Sets the node.
-   *
-   * @param note the new node
-   */
-  public void setNode(T note);
-  
-  /**
-   * Gets the node.
-   *
-   * @return the node
-   */
-  public T getNode();
+ 
   
 }

@@ -380,6 +380,26 @@ tsApp.service('metadataService', [
       }
       return retval;
     };
+    
+    this.getCallbacks = function() {
+      return {
+        getModel : this.getModel,
+        initTerminologies : this.initTerminologies,
+        setTerminology : this.setTerminology,
+        getTerminologyVersion : this.getTerminologyVersion,
+        getTerminology : this.getTerminology,
+        getRelationshipTypeName : this.getRelationshipTypeName,
+        getAttributeNameName : this.getAttributeNameName,
+        getTermTypeName : this.getTermTypeName,
+        getGeneralEntryValue : this.getGeneralEntryValue,
+        getLabelSetName : this.getLabelSetName,
+        isDerivedLabelSet : this.isDerivedLabelSet,
+        isLabelSet : this.isLabelSet,
+        getDerivedLabelSetsValue : this.getDerivedLabelSetsValue,
+        getLabelSetsValue : this.getLabelSetsValue,
+        countLabels : this.countLabels
+      }
+    }
 
   }
 

@@ -25,6 +25,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -38,7 +39,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 @Entity
 @Table(name = "concepts", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}))
+}) )
 @Audited
 @XmlRootElement(name = "concept")
 @Indexed
@@ -60,6 +61,11 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /** The members. */
   @OneToMany(mappedBy = "member", targetEntity = ConceptSubsetMemberJpa.class)
   private List<ConceptSubsetMember> members = null;
+
+  /** The notes. */
+  @OneToMany(mappedBy = "concept", targetEntity = ConceptNoteJpa.class)
+  @IndexedEmbedded(targetElement = ConceptNoteJpa.class)
+  private List<Note> notes = new ArrayList<>();
 
   /** The concept terminology id map. */
   @ElementCollection(fetch = FetchType.EAGER)
@@ -407,4 +413,34 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       return false;
     return true;
   }
+
+  @Override
+  public void setNotes(List<Note> notes) {
+    this.notes = notes;
+
+  }
+
+  @Override
+  public List<Note> getNotes() {
+    return this.notes;
+  }
+
+  @Override
+  public void addNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.add(note);
+
+  }
+
+  @Override
+  public void removeNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.remove(note);
+
+  }
+
 }

@@ -6,7 +6,6 @@ package com.wci.umls.server;
 import java.util.List;
 
 import com.wci.umls.server.helpers.PrecedenceList;
-import com.wci.umls.server.helpers.ComponentInfo;
 
 /**
  * The Interface UserPreferences.
@@ -116,27 +115,27 @@ public interface UserPreferences {
    *
    * @param favorites the new favorites
    */
-  public void setFavorites(List<ComponentInfo> favorites);
+  public void setFavorites(List<String> favorites);
 
   /**
    * Gets the favorites.
    *
    * @return the favorites
    */
-  public List<ComponentInfo> getFavorites();
+  public List<String> getFavorites();
 
   /**
    * Add favorite.
    *
    * @param favorite the favorite
    */
-  public void addFavorite(ComponentInfo favorite);
+  public void addFavorite(String favorite);
 
   /**
    * Remove favorite.
    *
    * @param favorite the favorite
    */
-  public void removeFavorite(ComponentInfo favorite);
+  public void removeFavorite(String favorite);
 
 }

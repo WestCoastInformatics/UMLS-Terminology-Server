@@ -788,6 +788,104 @@ tsApp.service('securityService', [
       return deferred.promise;
     };
 
+    //
+    // User Favorites
+    //
+    
+    // TODO Add null checks on user, user preferences to all functions
+    
+    // Create the base user favorite string, without timestamp
+    function getUserFavoriteStr(type, terminology, version, terminologyId, name) {
+      return type + '~~' + terminology + '~~' + version + '~~' + terminologyId + '~~' + name;
+    }
+    
+    // Gets the user favorite string object without reference to name or timestamp
+    function getUserFavorite(type, terminology, version, terminologyId) {
+      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
+
+      var matchFound = false;
+      for (var i = 0; i < user.userPreferences.favorites.length; i++) {
+        if (user.userPreferences.favorites[i].indexOf(delimitedStr) != -1) {
+          return user.userPreferences.favorites[i];
+        }
+      }
+      return null;
+    }
+    
+    // Determines whether object is in favorites (without reference to name or timestamp)
+    this.isUserFavorite = function(type, terminology, version, terminologyId) {
+      var favorite = getUserFavorite(type, terminology, version, terminologyId);
+      if (favorite) {
+        return true;
+      } else {
+        return false;
+      }
+      
+    }
+
+    this.addUserFavorite = function(type, terminology, version, terminologyId,
+      name) {
+      var deferred = $q.defer();
+      if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
+        deferred.reject('Insufficient arguments');
+      }
+      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name)
+      if (!user.userPreferences.favorites) {
+        user.userPreferences.favorites = [];
+      }
+      
+      if (!this.isUserFavorite(type, terminology, version, terminologyId)) {
+        
+        // add the timestamp after verifying this component info is not matched
+        user.userPreferences.favorites.push(delimitedStr + '~~' + new Date().getTime());
+
+        this.updateUserPreferences(user.userPreferences).then(function(response) {
+          deferred.resolve(response);
+        }, function(response) {
+          deferred.reject(response);
+        });
+      } else {
+        deferred.reject('Favorite already exists');
+      }
+
+      return deferred.promise;
+
+    }
+
+    this.removeUserFavorite = function(type, terminology, version, terminologyId,
+      name) {
+      
+      console.debug('remove user favorite', type, terminology, version, terminologyId, name);
+      
+      var deferred = $q.defer();
+      if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
+        deferred.reject('Insufficient arguments');
+      }
+      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
+
+      var matchFound = false;
+      for (var i = 0; i < user.userPreferences.favorites.length; i++) {
+        if (user.userPreferences.favorites[i].indexOf(delimitedStr) != -1) {
+          console.debug('match found: ', user.userPreferences.favorites[i])
+          matchFound = true;
+          user.userPreferences.favorites.splice(i, 1);
+          break;
+        }
+      }
+      if (matchFound) {
+        this.updateUserPreferences(user.userPreferences).then(function(response) {
+          deferred.resolve(response);
+        }, function(response) {
+          deferred.reject(response);
+        });
+      } else {
+        deferred.reject('Favorite not in list');
+      }
+
+      return deferred.promise;
+
+    }
+
     // update user preferences
     this.updateUserPreferences = function(userPreferences) {
       // skip if user preferences is not set
@@ -815,65 +913,17 @@ tsApp.service('securityService', [
       });
       return deferred.promise;
     };
+    
+    this.getFavorite = function(type, terminology, version, terminologyId) {
+      return this.getUser().userPreferences.favorites.filter(function(item) {
+        return item.terminology === terminology
+          && item.terminologyId === terminologyId
+          && item.version === version
+          && item.type === type;
+      }).length > 0;
+    }
 
-    // update user preferences
-    this.addUserFavorite = function(terminologyId, terminology, version, name) {
-
-      var deferred = $q.defer();
-
-      // skip if parameters not set
-      if (!terminologyId && !terminology && !version && !name) {
-        console.error('Cannot add user favorite, not all parameters specified');
-        deferred.reject();
-      }
-
-      gpService.increment();
-      $http.post(
-        securityUrl + '/user/favorites/add/' + terminology + '/' + version + '/' + terminologyId
-          + '/' + UriEconde(name)).then(
-      // success
-      function(response) {
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
-      return deferred.promise;
-    };
-
-    // update user preferences
-    this.removeUserFavorite = function(terminologyId, terminology, version) {
-
-      var deferred = $q.defer();
-
-      // skip if parameters not set
-      if (!terminologyId && !terminology && !version) {
-        console.error('Cannot remove user favorite, not all parameters specified');
-        deferred.reject();
-      }
-
-      gpService.increment();
-      $http
-        .post(
-          securityUrl + '/user/favorites/remove/' + terminology + '/' + version + '/'
-            + terminologyId).then(
-        // success
-        function(response) {
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
-      return deferred.promise;
-    };
+    
 
   } ]);
 

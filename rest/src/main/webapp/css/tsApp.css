@@ -87,6 +87,10 @@ body {
 	background: yellow
 }
 
+.hidden {
+	opacity : 0;
+}
+
 /* Angular UI Tree overrides */
 .angular-ui-tree-handle {
 	font-weight: normal; /* originally 700 */

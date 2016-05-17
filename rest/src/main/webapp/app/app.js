@@ -93,6 +93,7 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 
 // Confirm dialog conroller and directive
 tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
+  
   // Local data for scope
   $scope.data = angular.copy(data);
 
@@ -143,7 +144,13 @@ tsApp.directive('confirm', function($confirm) {
       confirm : '@'
     },
     link : function(scope, element, attrs) {
+      
+    
+      
       function reBind(func) {
+      
+        
+        
         element.unbind('click').bind('click', function() {
           func();
         });
@@ -156,6 +163,8 @@ tsApp.directive('confirm', function($confirm) {
       }
 
       if ('confirmIf' in attrs) {
+
+      
         scope.$watch('confirmIf', function(newVal) {
           if (newVal) {
             reBind(bindConfirm);

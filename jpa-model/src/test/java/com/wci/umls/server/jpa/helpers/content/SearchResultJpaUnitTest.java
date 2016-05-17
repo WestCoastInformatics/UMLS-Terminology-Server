@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
+import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
@@ -70,6 +71,13 @@ public class SearchResultJpaUnitTest {
     tester.include("value");
     tester.include("obsolete");
     tester.include("score");
+    tester.include("type");
+    tester.include("property");
+    
+    KeyValuePair kvp = new KeyValuePair();
+    kvp.setKey("1");
+    kvp.setValue("1");
+    tester.proxy(KeyValuePair.class, 1, kvp);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -88,6 +96,11 @@ public class SearchResultJpaUnitTest {
   public void testModelCopy023() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelCopy023");
     CopyConstructorTester tester = new CopyConstructorTester(object);
+    
+    KeyValuePair kvp = new KeyValuePair();
+    kvp.setKey("1");
+    kvp.setValue("1");
+    tester.proxy(KeyValuePair.class, 1, kvp);
     assertTrue(tester.testCopyConstructor(SearchResult.class));
   }
 
@@ -100,6 +113,13 @@ public class SearchResultJpaUnitTest {
   public void testModelXmlSerialization023() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient023");
     XmlSerializationTester tester = new XmlSerializationTester(object);
+    
+    KeyValuePair kvp = new KeyValuePair();
+
+    kvp.setKey("1");
+    kvp.setValue("1");
+    tester.proxy(KeyValuePair.class, 1, kvp);
+    
     assertTrue(tester.testXmlSerialization());
   }
 

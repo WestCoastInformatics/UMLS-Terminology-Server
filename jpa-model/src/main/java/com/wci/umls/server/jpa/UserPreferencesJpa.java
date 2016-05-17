@@ -7,11 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -24,7 +25,6 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.helpers.PrecedenceList;
-import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 
 /**
@@ -66,8 +66,9 @@ public class UserPreferencesJpa implements UserPreferences {
   @OneToOne(targetEntity = PrecedenceListJpa.class, optional = true)
   private PrecedenceList precedenceList = null;
   
-  @OneToMany(targetEntity=ComponentInfoJpa.class)
-  private List<ComponentInfo> favorites = null;
+  /** The favorites */
+  @ElementCollection(fetch = FetchType.EAGER)
+  private List<String> favorites = null;
 
   /**
    * The default constructor.
@@ -295,22 +296,22 @@ public class UserPreferencesJpa implements UserPreferences {
     }
   }
   @Override
-  public void setFavorites(List<ComponentInfo> favorites) {
+  public void setFavorites(List<String> favorites) {
     this.favorites = favorites;
   }
   @Override
-  public List<ComponentInfo> getFavorites() {
+  public List<String> getFavorites() {
     return this.favorites;
   }
   @Override
-  public void addFavorite(ComponentInfo favorite) {
+  public void addFavorite(String favorite) {
     if (this.favorites == null) {
       this.favorites = new ArrayList<>();
     }
     favorites.add(favorite);
   }
   @Override
-  public void removeFavorite(ComponentInfo favorite) {
+  public void removeFavorite(String favorite) {
     if (favorites == null) {
       this.favorites = new ArrayList<>();
     }

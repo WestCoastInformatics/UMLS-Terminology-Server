@@ -94,7 +94,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       concept.setRelationships(new ArrayList<ConceptRelationship>());
 
       // user annotations -- lazy initialize
-      concept.getUserAnnotations().size();
+      concept.getNotes().size();
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
@@ -110,7 +110,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     concept.setAttributes(new ArrayList<Attribute>());
     concept.setRelationships(new ArrayList<ConceptRelationship>());
     concept.setMembers(new ArrayList<ConceptSubsetMember>());
-    concept.setUserAnnotations(new ArrayList<Note>());
+    concept.setNotes(new ArrayList<Note>());
   }
 
   /* see superclass */
@@ -120,7 +120,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     descriptor.setDefinitions(new ArrayList<Definition>());
     descriptor.setAttributes(new ArrayList<Attribute>());
     descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
-    descriptor.setUserAnnotations(new ArrayList<Note>());
+    descriptor.setNotes(new ArrayList<Note>());
   }
 
   /* see superclass */
@@ -129,7 +129,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     code.setAtoms(new ArrayList<Atom>());
     code.setAttributes(new ArrayList<Attribute>());
     code.setRelationships(new ArrayList<CodeRelationship>());
-    code.setUserAnnotations(new ArrayList<Note>());
+    code.setNotes(new ArrayList<Note>());
   }
 
   /* see superclass */
@@ -237,7 +237,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
 
       // user annotations -- lazy initialize
-      descriptor.getUserAnnotations().size();
+      descriptor.getNotes().size();
 
     } else if (descriptor == null) {
       throw new Exception("Cannot resolve a null descriptor.");
@@ -267,7 +267,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       code.setRelationships(new ArrayList<CodeRelationship>());
 
       // user annotations -- lazy initialize
-      code.getUserAnnotations().size();
+      // code.getNotes().size();
 
     } else if (code == null) {
       throw new Exception("Cannot resolve a null code.");
@@ -295,7 +295,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // user annotations -- lazy initialize
-      lexicalClass.getUserAnnotations().size();
+      lexicalClass.getNotes().size();
 
     } else if (lexicalClass == null) {
       throw new Exception("Cannot resolve a null lexical class.");
@@ -324,7 +324,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // user annotations -- lazy initialize
-      stringClass.getUserAnnotations().size();
+      stringClass.getNotes().size();
 
     } else if (stringClass == null) {
       throw new Exception("Cannot resolve a null string class.");

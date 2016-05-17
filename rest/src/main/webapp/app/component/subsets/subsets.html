@@ -1,5 +1,5 @@
 <!-- Subsets -->
-<div ng-show="pagedData.totalCount > 0">
+<div ng-show="pagedData.totalCount > 0 || paging.filter">
 
   <h4>{{metadata.subsetsLabel}} ({{pagedData.totalCount}})</h4>
   <div pager paging="paging" count="pagedData.totalCount"

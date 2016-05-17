@@ -7,7 +7,6 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;

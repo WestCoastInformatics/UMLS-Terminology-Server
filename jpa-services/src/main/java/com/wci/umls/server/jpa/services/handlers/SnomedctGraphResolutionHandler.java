@@ -102,7 +102,7 @@ public class SnomedctGraphResolutionHandler extends
       concept.setRelationships(new ArrayList<ConceptRelationship>());
       
       // lazy initialization of user annotations
-      concept.getUserAnnotations().size();
+      concept.getNotes().size();
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");

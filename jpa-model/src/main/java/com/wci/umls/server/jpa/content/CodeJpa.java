@@ -18,12 +18,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 
 /**
- * JPA-enabled implementation of {@link Code}.
+ * The Class CodeJpa.
  */
 @Entity
 @Table(name = "codes", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -37,22 +39,27 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   /** The relationships. */
   @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
   private List<CodeRelationship> relationships = new ArrayList<>(1);
+  
+  /** The notes. */
+  @OneToMany(mappedBy = "code", targetEntity = CodeNoteJpa.class)
+  @IndexedEmbedded(targetElement = CodeNoteJpa.class)
+  private List<Note> notes = new ArrayList<>();
 
-  /** The concept terminology id map. */
+  /** The labels. */
   @ElementCollection(fetch = FetchType.EAGER)
   // consider this: @Fetch(sFetchMode.JOIN)
   @Column(nullable = true)
   List<String> labels;
 
   /**
-   * Instantiates an empty {@link CodeJpa}.
+   * Instantiates a new code jpa.
    */
   public CodeJpa() {
     // do nothing
   }
 
   /**
-   * Instantiates a {@link CodeJpa} from the specified parameters.
+   * Instantiates a new code jpa.
    *
    * @param code the code
    * @param deepCopy the deep copy
@@ -71,11 +78,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     }
   }
 
-  /**
-   * Returns the relationships.
-   *
-   * @return the relationships
-   */
+  /* see superclass */
   @XmlElement(type = CodeRelationshipJpa.class)
   @Override
   public List<CodeRelationship> getRelationships() {
@@ -85,22 +88,14 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     return relationships;
   }
 
-  /**
-   * Sets the relationships.
-   *
-   * @param relationships the relationships
-   */
+  /* see superclass */
   @Override
   public void setRelationships(List<CodeRelationship> relationships) {
     this.relationships = relationships;
 
   }
 
-  /**
-   * Adds the relationship.
-   *
-   * @param relationship the relationship
-   */
+  /* see superclass */
   @Override
   public void addRelationship(CodeRelationship relationship) {
     if (relationships == null) {
@@ -109,11 +104,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     relationships.add(relationship);
   }
 
-  /**
-   * Removes the relationship.
-   *
-   * @param relationship the relationship
-   */
+  /* see superclass */
   @Override
   public void removeRelationship(CodeRelationship relationship) {
     if (relationships == null) {
@@ -135,5 +126,37 @@ public class CodeJpa extends AbstractAtomClass implements Code {
 
   }
 
+  /* see superclass */
+  @Override
+  public void setNotes(List<Note> notes) {
+    this.notes = notes;
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<Note> getNotes() {
+    return this.notes;
+  }
+
+  /* see superclass */
+  @Override
+  public void addNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.add(note);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void removeNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.remove(note);
+
+  }
 
 }

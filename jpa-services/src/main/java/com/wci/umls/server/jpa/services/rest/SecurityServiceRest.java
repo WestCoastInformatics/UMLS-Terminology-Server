@@ -5,11 +5,11 @@ package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.UserPreferencesJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.helpers.StringList;
 
 /**
  * Represents a security available via a REST service.
@@ -153,28 +153,4 @@ public interface SecurityServiceRest {
   public UserList findUsersForQuery(String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
-  /**
-   * Add favorite for user.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
-   * @param name the name
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
-  public void addFavoriteForUser(String terminology, String version,
-    String terminologyId, String name, String authToken) throws Exception;
-
-  /**
-   * Remove favorite for user.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
-  public void removeFavoriteForUser(String terminology, String version,
-    String terminologyId, String authToken) throws Exception;
 }

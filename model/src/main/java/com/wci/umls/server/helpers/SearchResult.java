@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.helpers;
 
+import com.wci.umls.server.model.meta.IdType;
+
 /**
  * Generic object to contain search results.
  */
@@ -105,4 +107,33 @@ public interface SearchResult {
    * @param score the score
    */
   public void setScore(Float score);
+
+  /**
+   * Gets the type.
+   *
+   * @return the type
+   */
+  public IdType getType();
+
+  /**
+   * Sets the type.
+   *
+   * @param type the new type
+   */
+  public void setType(IdType type);
+
+  /**
+   * Gets the property.
+   *
+   * @return the property
+   */
+  public KeyValuePair getProperty();
+
+  /**
+   * Sets the property.
+   *
+   * @param property the new property
+   */
+  public void setProperty(KeyValuePair property);
+
 }

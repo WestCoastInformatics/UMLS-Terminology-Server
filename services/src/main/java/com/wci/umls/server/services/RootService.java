@@ -5,7 +5,6 @@ package com.wci.umls.server.services;
 
 import java.util.List;
 
-import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.model.meta.LogActivity;

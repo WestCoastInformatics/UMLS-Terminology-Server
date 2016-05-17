@@ -9,7 +9,6 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
@@ -36,8 +35,6 @@ import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.Note;
-import com.wci.umls.server.jpa.helpers.NoteJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 
@@ -105,9 +102,6 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   @Column(nullable = true)
   private String workflowStatus;
 
-  @IndexedEmbedded(targetElement = NoteJpa.class)
-  @OneToMany(targetEntity = NoteJpa.class)
-  private List<Note> userAnnotations = null;
 
   /**
    * Instantiates an empty {@link AbstractAtomClass}.
@@ -126,7 +120,6 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     super(atomClass, deepCopy);
     name = atomClass.getName();
     workflowStatus = atomClass.getWorkflowStatus();
-    userAnnotations = atomClass.getUserAnnotations();
     if (deepCopy) {
       for (Atom atom : atomClass.getAtoms()) {
         addAtom(new AtomJpa(atom, deepCopy));
@@ -264,33 +257,6 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
 
   }
 
-  @Override
-  public List<Note> getUserAnnotations() {
-    return this.userAnnotations;
-  }
-
-  @Override
-  public void setUserAnnotations(List<Note> userAnnotations) {
-    this.userAnnotations = userAnnotations;
-
-  }
-
-  @Override
-  public void addUserAnnotation(Note userAnnotation) {
-    if (this.userAnnotations == null) {
-      userAnnotations = new ArrayList<>();
-    }
-    userAnnotations.add(userAnnotation);
-  }
-
-  @Override
-  public void removeUserAnnotation(Note userAnnotation) {
-    if (this.userAnnotations == null) {
-      userAnnotations = new ArrayList<>();
-    }
-    userAnnotations.remove(userAnnotation);
-
-  }
 
   /* see superclass */
   @Override

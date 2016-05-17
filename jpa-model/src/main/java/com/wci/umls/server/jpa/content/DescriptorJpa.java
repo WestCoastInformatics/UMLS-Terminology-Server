@@ -18,13 +18,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 
 /**
- * JPA-enabled implementation of {@link Descriptor}.
+ * The Class DescriptorJpa.
  */
 @Entity
 @Table(name = "descriptors", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -48,18 +50,23 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   // consider this: @Fetch(FetchMode.JOIN)
   @Column(nullable = true)
   List<String> labels;
+  
+  /** The notes. */
+  @OneToMany(mappedBy = "descriptor", targetEntity = DescriptorNoteJpa.class)
+  @IndexedEmbedded(targetElement = DescriptorNoteJpa.class)
+  private List<Note> notes = new ArrayList<>();
 
   /**
-   * Instantiates an empty {@link DescriptorJpa}.
+   * Instantiates a new descriptor jpa.
    */
   public DescriptorJpa() {
     // do nothing
   }
 
   /**
-   * Instantiates a {@link DescriptorJpa} from the specified parameters.
+   * Instantiates a new descriptor jpa.
    *
-   * @param descriptor the Descriptor
+   * @param descriptor the descriptor
    * @param deepCopy the deep copy
    */
   public DescriptorJpa(Descriptor descriptor, boolean deepCopy) {
@@ -79,11 +86,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     }
   }
 
-  /**
-   * Returns the definitions.
-   *
-   * @return the definitions
-   */
+  /* see superclass */
   @XmlElement(type = DefinitionJpa.class)
   @Override
   public List<Definition> getDefinitions() {
@@ -93,21 +96,13 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     return definitions;
   }
 
-  /**
-   * Sets the definitions.
-   *
-   * @param definitions the definitions
-   */
+  /* see superclass */
   @Override
   public void setDefinitions(List<Definition> definitions) {
     this.definitions = definitions;
   }
 
-  /**
-   * Adds the definition.
-   *
-   * @param definition the definition
-   */
+  /* see superclass */
   @Override
   public void addDefinition(Definition definition) {
     if (definitions == null) {
@@ -117,11 +112,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
 
   }
 
-  /**
-   * Removes the definition.
-   *
-   * @param definition the definition
-   */
+  /* see superclass */
   @Override
   public void removeDefinition(Definition definition) {
     if (definitions == null) {
@@ -131,11 +122,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
 
   }
 
-  /**
-   * Returns the relationships.
-   *
-   * @return the relationships
-   */
+  /* see superclass */
   @XmlElement(type = DescriptorRelationshipJpa.class)
   @Override
   public List<DescriptorRelationship> getRelationships() {
@@ -145,22 +132,14 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     return relationships;
   }
 
-  /**
-   * Sets the relationships.
-   *
-   * @param relationships the relationships
-   */
+  /* see superclass */
   @Override
   public void setRelationships(List<DescriptorRelationship> relationships) {
     this.relationships = relationships;
 
   }
 
-  /**
-   * Adds the relationship.
-   *
-   * @param relationship the relationship
-   */
+  /* see superclass */
   @Override
   public void addRelationship(DescriptorRelationship relationship) {
     if (relationships == null) {
@@ -169,11 +148,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     relationships.add(relationship);
   }
 
-  /**
-   * Removes the relationship.
-   *
-   * @param relationship the relationship
-   */
+  /* see superclass */
   @Override
   public void removeRelationship(DescriptorRelationship relationship) {
     if (relationships == null) {
@@ -195,6 +170,38 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
 
   }
 
+  /* see superclass */
+  @Override
+  public void setNotes(List<Note> notes) {
+    this.notes = notes;
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<Note> getNotes() {
+    return this.notes;
+  }
+
+  /* see superclass */
+  @Override
+  public void addNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.add(note);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void removeNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.remove(note);
+
+  }
 
 
 }

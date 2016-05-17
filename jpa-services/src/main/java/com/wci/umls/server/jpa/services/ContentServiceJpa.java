@@ -34,6 +34,8 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -43,8 +45,6 @@ import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
-import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.content.AtomList;
 import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -70,10 +70,12 @@ import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeNoteJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
@@ -81,6 +83,7 @@ import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorNoteJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
@@ -90,11 +93,11 @@ import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
+import com.wci.umls.server.jpa.helpers.ComponentInfoListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
-import com.wci.umls.server.jpa.helpers.ComponentInfoListJpa;
 import com.wci.umls.server.jpa.helpers.content.AtomListJpa;
 import com.wci.umls.server.jpa.helpers.content.AttributeListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
@@ -4609,11 +4612,36 @@ public class ContentServiceJpa extends MetadataServiceJpa
       return null;
     }
   }
+  
+  @Override
+  public Note getNote(Long id, Class<? extends Note> noteClass) throws Exception {
+    Logger.getLogger(getClass())
+    .debug("Content Service - get tree position " + id);
+    tx = manager.getTransaction();
+    Note note = null;
+    if (noteClass != null) {
+       note = manager.find(noteClass, id);
+   
+    } else {
+      note =  manager.find(ConceptNoteJpa.class, id);
+      if (note == null) {
+        note = manager.find(CodeNoteJpa.class, id);
+      }
+      if (note == null) {
+        note = manager.find(DescriptorNoteJpa.class, id);
+      }
+    }
+    return note;
+  }
 
   @Override
-  public Note addUserNote(Note userNote) throws Exception {
+  public Note addNote(Note note) throws Exception {
+    
+    Logger.getLogger(getClass())
+    .debug("Content Service - add userNote " + note.toString());
+    
     // Add component
-    Note newNote = addHasLastModified(userNote);
+    Note newNote = addHasLastModified(note);
 
     // do not inform listeners
     return newNote;
@@ -4621,13 +4649,73 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void removeUserNote(Long id, Class<? extends Note> type)
+  public void removeNote(Long id, Class<? extends Note> type)
     throws Exception {
     Logger.getLogger(getClass())
-        .debug("Refset Service - remove userNote " + id);
+        .debug("Content Service - remove userNote " + id);
     // Remove the note
     removeHasLastModified(id, type);
 
+  }
+  
+  @Override
+  public ComponentInfoList findComponentInfosForQuery(String userName,
+    String terminology, String version, String queryStr, PfsParameter pfs)
+      throws Exception {
+    ComponentInfoList favorites = new ComponentInfoListJpa();
+
+    try {
+      UserPreferences preferences = this.getUser(userName).getUserPreferences();
+
+      javax.persistence.Query query = manager.createQuery(
+          " select u from ComponentInfoJpa u where terminology=:terminology and version=:version and userName=:userName and preferences_id = :preferencesId");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      query.setParameter("userName", userName);
+      query.setParameter("preferencesId", preferences.getId());
+      @SuppressWarnings("unchecked")
+      List<ComponentInfo> userFavorites = query.getResultList();
+      favorites.setObjects(userFavorites);
+      favorites.setTotalCount(userFavorites.size());
+
+    } catch (NoResultException e) {
+
+    }
+    return favorites;
+  }
+  
+
+  /* see superclass */
+  @Override
+  public ComponentInfo addComponentInfo(ComponentInfo userFavorite)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - add userFavorite " + userFavorite);
+
+    // Add component
+    ComponentInfo newComponentInfo = addHasLastModified(userFavorite);
+
+    return newComponentInfo;
+  }
+
+  /* see superclass */
+  @Override
+  public void updateComponentInfo(ComponentInfo userFavorite) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - update userFavorite " + userFavorite);
+
+    // update component
+    updateHasLastModified(userFavorite);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void removeComponentInfo(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - remove userFavorite " + id);
+    // Remove the component
+    removeHasLastModified(id, ComponentInfoJpa.class);
   }
 
   

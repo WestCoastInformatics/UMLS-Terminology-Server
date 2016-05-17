@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -21,8 +22,10 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.LexicalClass;
 
 /**
@@ -45,6 +48,12 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(nullable = true)
   List<String> labels;
+  
+  /** The notes. */
+  @OneToMany(mappedBy = "lexicalClass", targetEntity = LexicalClassNoteJpa.class)
+  @IndexedEmbedded(targetElement = LexicalClassNoteJpa.class)
+  private List<Note> notes = new ArrayList<>();
+
 
   /**
    * Instantiates an empty {@link LexicalClassJpa}.
@@ -132,6 +141,34 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     } else if (!normalizedName.equals(other.normalizedName))
       return false;
     return true;
+  }
+  @Override
+  public void setNotes(List<Note> notes) {
+    this.notes = notes;
+
+  }
+
+  @Override
+  public List<Note> getNotes() {
+    return this.notes;
+  }
+
+  @Override
+  public void addNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.add(note);
+
+  }
+
+  @Override
+  public void removeNote(Note note) {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>();
+    }
+    notes.remove(note);
+
   }
 
 }
