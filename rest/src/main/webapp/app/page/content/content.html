@@ -62,7 +62,8 @@
       <div ng-show="metadata.semanticTypes.length > 1" class="row m10">
         <div class="col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Semantic Type <i class="glyphicon glyphicon-remove pull-right"
+          Semantic Type
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.semanticType"
             ng-click="searchParams.semanticType = null;"></i>
         </div>
@@ -81,7 +82,8 @@
         class="row m10">
         <div class="col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Term Type <i class="glyphicon glyphicon-remove pull-right"
+          Term Type
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.termType"
             ng-click="searchParams.termType = null;"></i>
         </div>
@@ -97,7 +99,8 @@
       <div ng-show="metadata.terminology.metathesaurus" class="row m10">
         <div class="col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Match Terminology <i class="glyphicon glyphicon-remove pull-right"
+          Match Terminology
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.matchTerminology"
             ng-click="searchParams.matchTerminology = null;"></i>
         </div>
@@ -113,7 +116,8 @@
       <div ng-show="metadata.languages.length > 1" class="row m10">
         <div class="col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Language <i class="glyphicon glyphicon-remove pull-right"
+          Language
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.language"
             ng-click="searchParams.language = null;"></i>
         </div>
@@ -128,19 +132,20 @@
       <!-- Expressions -->
       <div ng-show="metadata.terminology.descriptionLogicTerminology">
         <div class="row m10">
-          <div class="col-lg-3 col-md-3 col-xs-3"
+          <div class="col-md-3 col-xs-3"
             style="margin-right: 0px; padding-right: 0px;">
-            Expression <i class="glyphicon glyphicon-remove pull-right"
+            Expression
+            <i class="glyphicon glyphicon-remove pull-right"
               ng-show="searchParams.expression.value"
               ng-click="clearExpression()"></i>
           </div>
-          <div class="col-lg-3 col-md-3 col-xs-3">
+          <div class="col-md-3 col-xs-3">
             <select
               ng-options="expr as expr.name disable when expr.isDisabled for expr in expressions"
               ng-model="searchParams.expression">
             </select>
           </div>
-          <div class="col-lg-6 col-md-6 col-xs-6">
+          <div class="col-md-6 col-xs-6">
             <div ng-repeat="(k,v) in searchParams.expression.fields">
               <input style="margin-left: 10px; width: 80%" placeholder="{{k}}"
                 title="{{searchParams.expression.fields[k]}}"
@@ -154,9 +159,9 @@
           </div>
         </div>
         <div class="row m10">
-          <div class="col-lg-3 col-md-6 col-xs-3"
+          <div class="col-md-6 col-xs-3"
             style="margin-right: 0px; padding-right: 0px;"></div>
-          <div class="col-lg-9 col-md-6 col-xs-9">
+          <div class="col-md-6 col-xs-9">
             <textarea placeholder="Enter raw expression"
               style="margin-bottom: 5px; width: 100%;"
               ng-show="searchParams.expression.isRawInput"
@@ -166,16 +171,16 @@
       </div>
       <!--  Feedback -->
       <div class="row m10">
-        <div class="col-lg-3 col-md-6 col-xs-3"
-          style="margin-right: 0px; padding-right: 0px;"></div>
+        <small>Want more search features? <a
+            href="mailto:{{appConfig.deployFeedbackEmail}}">Let us know!</a></small>
       </div>
     </div>
     <!-- End search controls-->
     <!-- Search Results -->
     <div ng-show="queryForList && searchResults.results">
       <div class="alert alert-success">
-       Results ({{searchResults.totalCount}})
-       <i ng-show="!metadata.terminology.metathesaurus"
+        Results ({{searchResults.totalCount}})
+        <i ng-show="!metadata.terminology.metathesaurus"
           class="pull-right glyphicon glyphicon-tree-conifer"
           ng-click="setTreeView()" uib-tooltip="Switch to tree view"
           tooltip-placement="right"></i>
@@ -226,12 +231,13 @@
           <i class="glyphicon glyphicon-star"
             ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
             ng-click="toggleExtension()"
-            uib-tooltip="Click to hide extension highlights in tree"> </i> <i
-            class="glyphicon glyphicon-star-empty"
+            uib-tooltip="Click to hide extension highlights in tree"> </i>
+          <i class="glyphicon glyphicon-star-empty"
             ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
             ng-click="toggleExtension()"
             uib-tooltip="Click to show extension highlights in tree"> </i>
-          &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
+          &nbsp;
+          <i class="pull-right glyphicon glyphicon-th-list"
             ng-click="setListView()" uib-tooltip="Switch to list view"
             tooltip-placement="bottom"></i>
         </span>
@@ -248,8 +254,9 @@
       <p style="display: block;">&nbsp;</p>
     </div>
     <!--  Favorites -->
-    
-    <div favorites="user.userPreferences.favorites" metadata="metadata" callbacks="favoritesCallbacks"></div>
+
+    <div favorites="user.userPreferences.favorites" metadata="metadata"
+      callbacks="favoritesCallbacks"></div>
   </div>
   <div class="col-md-8 col-xs-12">
     <!-- error bar for reports section -->
@@ -288,21 +295,24 @@
           uib-tooltip="{{getComponentStr(history[history.index - 1])}}"></i>
         <span
           ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
-        {{component.type}} Report <i
-          class="glyphicon glyphicon-step-forward noul"
+        {{component.type}} Report
+        <i class="glyphicon glyphicon-step-forward noul"
           ng-click="getComponentFromHistory(history.index + 1)"
           ng-show="history.components.length > history.index + 1 && history.length > 0"
           uib-tooltip="{{getComponentStr(history[history.index + 1])}}"></i>
-        &nbsp;&nbsp; <i ng-click="popout()"
+        &nbsp;&nbsp;
+        <i ng-click="popout()"
           uib-tooltip="Open {{component.type}} in new window"
-          class="glyphicon glyphicon-share noul"></i> &nbsp;&nbsp; <i
-          ng-click="viewNotes()" uib-tooltip="Add/remove notes"
-          class="glyphicon glyphicon-book noul"></i> &nbsp;&nbsp; <i
-          ng-show="!isFavorite"
+          class="glyphicon glyphicon-share noul"></i>
+        &nbsp;&nbsp;
+        <i ng-click="viewNotes()" uib-tooltip="Add/remove notes"
+          class="glyphicon glyphicon-book noul"></i>
+        &nbsp;&nbsp;
+        <i ng-show="!isFavorite"
           ng-click="toggleFavorite(component.type, component.object.terminology, component.object.version, component.object.terminologyId, component.object.name)"
           uib-tooltip="Add to favorites"
-          class="glyphicon glyphicon-heart-empty noul"></i> <i
-          ng-show="isFavorite"
+          class="glyphicon glyphicon-heart-empty noul"></i>
+        <i ng-show="isFavorite"
           ng-click="toggleFavorite(component.type, component.object.terminology, component.object.version, component.object.terminologyId, component.object.name)"
           uib-tooltip="Remove favorites" class="glyphicon glyphicon-heart noul"></i>
       </div>

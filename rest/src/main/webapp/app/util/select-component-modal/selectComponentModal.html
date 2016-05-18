@@ -5,9 +5,9 @@
 <div class="modal-body">
   <div class="row m10">
     <form>
-      <div class="col-lg-1 col-md-2 col-xs-3"
+      <div class="col-md-2 col-xs-3"
         style="margin-right: 0px; padding-right: 0px;">Query</div>
-      <div class="col-lg-8 col-md-7 col-xs-9">
+      <div class="col-md-7 col-xs-9">
         <input autofocus style="margin-bottom: 5px; width: 100%;" type="text"
           ng-model="searchParams.query" placeholder="Enter search terms"
           typeahead="suggestion for suggestion in autocomplete($viewValue)"
@@ -15,7 +15,7 @@
           typeahead-on-select="searchParams.page = 1 && findComponents(true)"
           typeahead-editable="true" typeahead-min-length="3">
       </div>
-      <div class="col-lg-3 col-md-3 col-xs-12">
+      <div class="col-md-3 col-xs-12">
         <button class="btn btn-sm btn-primary" type="submit"
           ng-click="searchParams.page = 1 && findComponentsAsList(true)">Search</button>
         <button class="btn btn-sm btn-warning" type="button"

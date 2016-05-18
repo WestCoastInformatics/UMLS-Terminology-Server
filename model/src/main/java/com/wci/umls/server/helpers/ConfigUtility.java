@@ -714,7 +714,6 @@ public class ConfigUtility {
       // do nothing
     }
 
-    
     /* see superclass */
     @Override
     public PasswordAuthentication getPasswordAuthentication() {
@@ -879,8 +878,8 @@ public class ConfigUtility {
    * @throws Exception
    */
   public static String getBaseIndexDirectory() throws Exception {
-    return getConfigProperties()
-        .getProperty("hibernate.search.default.indexBase");
+    return getConfigProperties().getProperty(
+        "hibernate.search.default.indexBase");
   }
 
   /**
@@ -891,12 +890,12 @@ public class ConfigUtility {
    * @return the expression index directory name
    * @throws Exception the exception
    */
-  public static String getExpressionIndexDirectoryName(String terminology, String version)
-    throws Exception {
-    return getBaseIndexDirectory() + "/expr/" + terminology + "/" + version + "/";
+  public static String getExpressionIndexDirectoryName(String terminology,
+    String version) throws Exception {
+    return getBaseIndexDirectory() + "/expr/" + terminology + "/" + version
+        + "/";
   }
-  
-  
+
   /**
    * Create expression index directory.
    *
@@ -904,14 +903,15 @@ public class ConfigUtility {
    * @param version the version
    * @throws Exception the exception
    */
-  public static void createExpressionIndexDirectory(String terminology, String version)
-    throws Exception {
+  public static void createExpressionIndexDirectory(String terminology,
+    String version) throws Exception {
 
     // remove directory (if it exists)
     removeExpressionIndexDirectory(terminology, version);
-    
+
     // create the directory structure
-    File eclDir = new File(getExpressionIndexDirectoryName(terminology, version));
+    File eclDir =
+        new File(getExpressionIndexDirectoryName(terminology, version));
     eclDir.mkdirs();
   }
 
@@ -922,9 +922,10 @@ public class ConfigUtility {
    * @param version the version
    * @throws Exception the exception
    */
-  public static void removeExpressionIndexDirectory(String terminology, String version)
-    throws Exception {
-    File exprDir = new File(getExpressionIndexDirectoryName(terminology, version));
+  public static void removeExpressionIndexDirectory(String terminology,
+    String version) throws Exception {
+    File exprDir =
+        new File(getExpressionIndexDirectoryName(terminology, version));
     if (exprDir.exists()) {
       if (!exprDir.isDirectory()) {
         throw new Exception(
@@ -938,11 +939,16 @@ public class ConfigUtility {
   /**
    * Get the lucene max boolean clause count
    * @return the max clause count
-   * @throws Exception 
-   * @throws NumberFormatException 
+   * @throws Exception
+   * @throws NumberFormatException
    */
-  public static int getLuceneMaxClauseCount() throws NumberFormatException, Exception {
-    return Integer.valueOf(getConfigProperties().getProperty("hibernate.search.max.clause.count"));
+  public static int getLuceneMaxClauseCount() throws NumberFormatException,
+    Exception {
+    if (!getConfigProperties().containsKey("hibernate.search.max.clause.count")) {
+      return 100000;
+    }
+    return Integer.valueOf(getConfigProperties().getProperty(
+        "hibernate.search.max.clause.count"));
   }
 
 }

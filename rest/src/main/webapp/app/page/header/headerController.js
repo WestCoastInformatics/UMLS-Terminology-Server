@@ -20,14 +20,6 @@ tsApp.directive('tsHeader', [ '$rootScope', '$routeParams', 'securityService', '
           }
         };
 
-        scope.gotoTool = function() {
-          if (securityService.isLoggedIn()) {
-            $location.url('/content');
-          } else {
-            $location.url('/login');
-          }
-        };
-
         // Declare user
         scope.user = securityService.getUser();
 
