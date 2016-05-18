@@ -78,11 +78,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       securityService.getUsernameForToken(authToken);
 
       // authorize call
-      UserRole role = securityService.getApplicationRoleForToken(authToken);
-      if (!role.hasPrivilegesOf(UserRole.VIEWER))
-        throw new WebApplicationException(Response.status(401)
-            .entity("User does not have permissions to retrieve the metadata")
-            .build());
+      authorizeApp(securityService, authToken, "get terminology",
+          UserRole.VIEWER);
 
       Terminology termInfo =
           metadataService.getTerminology(terminology, version);
@@ -120,14 +117,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
     MetadataService metadataService = new MetadataServiceJpa();
     try {
-      securityService.getUsernameForToken(authToken);
-
       // authorize call
-      UserRole role = securityService.getApplicationRoleForToken(authToken);
-      if (!role.hasPrivilegesOf(UserRole.VIEWER))
-        throw new WebApplicationException(Response.status(401)
-            .entity("User does not have permissions to retrieve the metadata")
-            .build());
+      authorizeApp(securityService, authToken, "retrieve metadata",
+          UserRole.VIEWER);
 
       KeyValuePairLists keyValuePairList =
           getMetadataHelper(terminology, version);
@@ -232,15 +224,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
     try {
       // authorize call
-      securityService.getUsernameForToken(authToken);
-      UserRole role = securityService.getApplicationRoleForToken(authToken);
-      if (!role.hasPrivilegesOf(UserRole.VIEWER))
-        throw new WebApplicationException(
-            Response
-                .status(401)
-                .entity(
-                    "User does not have permissions to retrieve the latest versions of all terminologies")
-                .build());
+      authorizeApp(securityService, authToken, "get latest versions of all terminologies",
+          UserRole.VIEWER);
 
       TerminologyList results = metadataService.getTerminologies();
       for (Terminology terminology : results.getObjects()) {
@@ -274,16 +259,10 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     MetadataService metadataService = new MetadataServiceJpa();
 
     try {
+     
       // authorize call
-      securityService.getUsernameForToken(authToken);
-      UserRole role = securityService.getApplicationRoleForToken(authToken);
-      if (!role.hasPrivilegesOf(UserRole.VIEWER))
-        throw new WebApplicationException(
-            Response
-                .status(401)
-                .entity(
-                    "User does not have permissions to retrieve the versions of all terminologies")
-                .build());
+      authorizeApp(securityService, authToken, "get terminologies",
+          UserRole.VIEWER);
 
       TerminologyList results = metadataService.getTerminologies();
       for (Terminology terminology : results.getObjects()) {
@@ -293,7 +272,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       return results;
 
     } catch (Exception e) {
-      handleException(e, "trying to retrieve the versions of all terminologies");
+      handleException(e, "trying to retrieve all terminologies");
       return null;
     } finally {
       metadataService.close();
@@ -320,11 +299,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       securityService.getUsernameForToken(authToken);
 
       // authorize call
-      UserRole role = securityService.getApplicationRoleForToken(authToken);
-      if (!role.hasPrivilegesOf(UserRole.VIEWER))
-        throw new WebApplicationException(Response.status(401)
-            .entity("User does not have permissions to retrieve the metadata")
-            .build());
+      authorizeApp(securityService, authToken, "get precedence list",
+          UserRole.VIEWER);
 
       PrecedenceList precedenceList =
           metadataService.getDefaultPrecedenceList(terminology, version);

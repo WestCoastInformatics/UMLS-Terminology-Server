@@ -3151,9 +3151,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     try {
       authorizeApp(securityService, authToken, "remove concept note",
           UserRole.VIEWER);
+      
+      ConceptNoteJpa note = (ConceptNoteJpa) contentService.getNote(noteId, ConceptNoteJpa.class);
+      Concept concept = note.getConcept();
+      
+      concept.removeNote(note);
+      contentService.updateConcept(concept);
+      contentService.removeNote(noteId, ConceptNoteJpa.class);
+     
 
     } catch (Exception e) {
-      handleException(e, "trying to remove notee");
+      handleException(e, "trying to remove note from concept");
     } finally {
       securityService.close();
     }

@@ -1,70 +1,42 @@
 <div class="modal-header">
-  <h4>{{type}} Notes: {{component.terminologyId}} {{component.name}}</h4>
+  <h4>{{component.terminology}} {{component.type}} Notes:
+    {{component.terminologyId}} {{component.name}}</h4>
 </div>
 <div class="modal-body">
-  <div class="row">
-    <!--  Left hand side -->
-    <div class="col-md-12 col-xs-12">
-      <div>
-        <h4 ng-show="object.notes.length > 0">
-          <b>Notes<span ng-show="pagedNotes.length > 0">
-              ({{pagedNotes.totalCount}})</span></b>
-        </h4>
-        <div pager paging="paging" count="pagedData.totalCount"
-          callback="pageCallback"></div>
-        <span style="display: block"
-          ng-show="pagedNotes.length == 0 && paging['notes'].filter"
-          class="alert alert-warning"> No notes matching filter </span>
-        <span style="display: block"
-          ng-show="pagedNotes.length == 0 && !paging['notes'].filter"
-          class="alert alert-warning"> No notes </span>
-        <table ng-show="pagedNotes.length > 0" class="table">
-          <thead class="table-select-row">
-            <tr>
-              <th class="col-md-6 col-xs-6">{{type}} Notes</th>
-              <th class="col-md-2 col-xs-2">Date</th>
-              <th class="col-md-2 col-xs-2">Author</th>
-              <th class="col-md-2 col-xs-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="note in pagedNotes">
-              <td>
-                <div ng-bind-html="getNoteValue(note)"></div>
-              </td>
-              <td>{{toDate(note.lastModified)}}</td>
-              <td>{{note.lastModifiedBy}}</td>
-              <td>
-                <i title="Remove note" class="noul glyphicon glyphicon-trash"
-                  ng-click="removeNote(note); $event.stopPropagation()"></i>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <textarea rows="4" cols="40" ng-model="newNote"
-        ui-tinymce="tinymceOptions"></textarea>
-      <!-- Errors -->
-      <table class="table">
-        <tr ng-show="errors.length > 0">
-          <td>&nbsp;</td>
+  <div>
+    <h5 ng-show="object.notes.length > 0">
+      <b>Notes<span ng-show="pagedNotes.length > 0">
+          ({{pagedNotes.totalCount}})</span></b>
+    </h5>
+    <div pager paging="paging" count="pagedData.totalCount"
+      callback="pageCallback"></div>
+    <table ng-show="pagedData.length > 0" class="table">
+      <thead class="table-select-row">
+        <tr>
+          <th class="col-md-6 col-xs-6">Note</th>
+          <th class="col-md-2 col-xs-2">Date</th>
+          <th class="col-md-2 col-xs-2">Author</th>
+          <th class="col-md-2 col-xs-2"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="note in pagedNotes">
           <td>
-            <div class="alert alert-danger alert-error">
-              {{errors[0]}}
-              <div style="display: inline; float: right;">
-                <i ng-show="errors[1]"
-                  title="{{error.expand ? 'Show' : 'Hide'}} long eror"
-                  class="noul material-icons md-18"
-                  ng-click="error.expand = !error.expand;">attach_file</i>
-              </div>
-              <p ng-show="errors[1] && error.expand">
-                <br />{{errors[1]}}
-              </p>
-            </div>
+            <div ng-bind-html="getNoteValue(note)"></div>
+          </td>
+          <td>{{toDate(note.lastModified)}}</td>
+          <td>{{note.lastModifiedBy}}</td>
+          <td>
+            <a class="toolicon" title="Remove"
+              ng-click="removeNote(object, note); $event.stopPropagation()">
+              <i title="Remove note" class="noul material-icons md-18">delete</i>
+            </a>
           </td>
         </tr>
-      </table>
-    </div>
+      </tbody>
+    </table>
+    <textarea rows="4" cols="40" ng-model="newNote"
+        ui-tinymce="tinymceOptions"></textarea>
   </div>
 </div>
 <div class="modal-footer">

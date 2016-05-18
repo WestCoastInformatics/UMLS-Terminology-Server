@@ -992,6 +992,9 @@ tsApp
         this.getCallbacks = function() {
           return {
             getComponentFromType : this.getComponentFromType,
+            getConcept : this.getConcept,
+            getDescriptor : this.getDescriptor,
+            getCode : this.getCode,
             getComponent : this.getComponent,
             getComponentHelper : this.getComponentHelper,
             getComponentFromHistory : this.getComponentFromHistory,

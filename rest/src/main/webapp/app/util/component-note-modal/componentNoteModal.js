@@ -5,6 +5,8 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
   // NOTE: Component must contain minimum of type, terminology, version, and terminologyId
   $scope.component = component;
   $scope.callbacks = callbacks;
+  
+  console.debug('notes modal: ', component, callbacks);
 
   function getPagedList() {
     $scope.pagedData = utilService.getPagedArray($scope.component.object.userAnnotations,
