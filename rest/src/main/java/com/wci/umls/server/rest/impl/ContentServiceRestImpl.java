@@ -112,7 +112,7 @@ import com.wordnik.swagger.annotations.ApiParam;
  */
 @Path("/content")
 @Consumes({
-    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_HTML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
@@ -156,6 +156,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.setIndexedObjects(indexedObjects);
       algo.compute();
       algo.close();
+      
       // Final logging messages
       Logger.getLogger(getClass()).info(
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
