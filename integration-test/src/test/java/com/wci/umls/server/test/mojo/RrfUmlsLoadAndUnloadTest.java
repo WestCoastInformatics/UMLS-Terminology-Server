@@ -67,14 +67,6 @@ public class RrfUmlsLoadAndUnloadTest {
    *   TEST: verify there is a release info with the expected name and "planned" flag equal to true.
    * Remove SNOMEDCTUS, MSH, SRC, MTH, then UMLS
    *   TEST: verify there is a concepts table with no contents for the respective sources
-   * Run the RRF-single mojo against the sample config/src/resources/data/SCTMSH_2014AB" data.
-   *   TEST: verify each content table exists with the expected number of entries.
-   * Create a "SNOMEDCT_US" project (name="Sample Project" description="Sample project." terminology=SNOMEDCT_US version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
-   *   TEST: verify there is a project with the expected name
-   * Start an editing cycle for "SNOMEDCT_US"
-   *   TEST: verify there is a release info with the expected name and "planned" flag equal to true.
-   * Remove SNOMEDCTUS
-   *   TEST: verify there is a concepts table with no contents
    * Re-run "createdb" to restore database to initial state
    * </pre>
    * @throws Exception the exception
@@ -256,6 +248,22 @@ public class RrfUmlsLoadAndUnloadTest {
     historyService.close();
     historyService.closeFactory();
 
+    // QA Terminology
+    // TODO: need a different set of QA checks for a "Metathesaurus"
+    // Logger.getLogger(getClass()).info("QA database");
+    // request = new DefaultInvocationRequest();
+    // request.setPomFile(new File("../admin/qa/pom.xml"));
+    // request.setProfiles(Arrays.asList("Database"));
+    // request.setGoals(Arrays.asList("clean", "install"));
+    // p = new Properties();
+    // p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
+    // request.setProperties(p);
+    // invoker = new DefaultInvoker();
+    // result = invoker.execute(request);
+    // if (result.getExitCode() != 0) {
+    // throw result.getExecutionException();
+    // }
+
     // Remove UMLS terminology
     Logger.getLogger(getClass()).info("Remove UMLS");
     request = new DefaultInvocationRequest();
@@ -378,21 +386,6 @@ public class RrfUmlsLoadAndUnloadTest {
             + service.getComponentStats("MTH", "latest", Branch.ROOT));
     service.close();
     service.closeFactory();
-
-    // QA Terminology
-    Logger.getLogger(getClass()).info("QA database");
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/qa/pom.xml"));
-    request.setProfiles(Arrays.asList("Database"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
 
     // Remove terminology
     Logger.getLogger(getClass()).info("Remove SNOMEDCT_US");
