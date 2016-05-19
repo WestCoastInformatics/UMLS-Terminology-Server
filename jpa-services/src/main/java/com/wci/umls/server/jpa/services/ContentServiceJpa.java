@@ -139,6 +139,7 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
@@ -2462,8 +2463,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find concepts " + terminology + "/" + version + "/"
             + query);
-    return findForQueryHelper(terminology, version, branch, query, pfsc,
+    SearchResultList results = findForQueryHelper(terminology, version, branch, query, pfsc,
         ConceptJpa.class, ConceptJpa.class);
+    for (SearchResult result : results.getObjects()) {
+      result.setType(IdType.CONCEPT);
+    }
+    return results;
   }
 
   /* see superclass */
@@ -2485,8 +2490,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find descriptors " + terminology + "/" + version
             + "/" + query);
-    return findForQueryHelper(terminology, version, branch, query, pfsc,
+    SearchResultList results = findForQueryHelper(terminology, version, branch, query, pfsc,
         DescriptorJpa.class, DescriptorJpa.class);
+    for (SearchResult result : results.getObjects()) {
+      result.setType(IdType.DESCRIPTOR);
+    }
+    return results;
   }
 
   /* see superclass */
@@ -2817,8 +2826,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find codes " + terminology + "/" + version + "/"
             + query);
-    return findForQueryHelper(terminology, version, branch, query, pfsc,
+    SearchResultList results = findForQueryHelper(terminology, version, branch, query, pfsc,
         CodeJpa.class, CodeJpa.class);
+    for (SearchResult result : results.getObjects()) {
+      result.setType(IdType.CODE);
+    }
+    return results;
   }
 
   /* see superclass */

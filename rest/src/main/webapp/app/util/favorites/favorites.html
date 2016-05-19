@@ -2,19 +2,17 @@
   <div class="alert alert-success">Favorites ({{pagedData.totalCount}})</div>
   <div pager paging="paging" count="pagedData.totalCount"
     callback="pageCallback"></div>
-  <table class="table table-hover" style="margin-top: 10px;"
+  <table class="table table-hover"
     ng-show="pagedData.results.length > 0">
-    <thead>
-      <th>Id</th>
-      <th>Name</th>
-    </thead>
     <tbody>
       <!-- table-hover makes use of the active class -->
       <tr ng-class="{active: favorite.active}"
         ng-mouseenter="favorite.hover = true;"
         ng-mouseleave="favorite.hover = false;"
         ng-repeat="favorite in pagedData.results">
-        <td ng-click="openFavorite(favorite)">
+        
+        <!--  Only put ng-click callback on first two cells (i.e. not the controls cell) -->
+        <td ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, favorite.terminologyId, favorite.terminology, favorite.version)">
           <span class="nobreak">
             {{favorite.active}}
             <span
@@ -23,14 +21,14 @@
           </span>
         </td>
         <td
-          ng-click="callbacks.getComponent(favorite.terminologyId, favorite.terminology, favorite.version)">
+          ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, favorite.terminologyId, favorite.terminology, favorite.version)">
           <span class="breakword"> {{favorite.value}}</span>
         </td>
         <td style="width: 15%;">
           <!--  Only show the controls if the current row is hovered over -->
           <span ng-show="favorite.hover">
             <i class="glyphicon glyphicon-book" title="View Notes"></i> &nbsp; <i
-              confirm="Confirm me!" class="glyphicon glyphicon-trash"
+              confirm="Confirm me!" class="glyphicon glyphicon-remove"
               title="Remove Favorite" ng-click="removeFavorite(favorite)"></i>
           </span>
         </td>

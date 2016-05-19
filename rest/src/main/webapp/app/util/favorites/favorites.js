@@ -33,18 +33,19 @@ tsApp.directive('favorites', [
         scope.paging.sortOptions = [ {
           key : 'Name',
           value : 'name'
-        }, {
-          key : 'Id',
+        },
+
+        // TODO Make sure this actually works :)
+        {
+          key : 'Type Id',
           value : 'terminologyId'
         }, {
-          key : 'Date Added',
-          value : 'lastModified'
+          key : 'Timestamp',
+          value : 'timestamp'
         } ];
 
         function getPagedList() {
 
-          console.debug('Favorites: get paged list', scope.paging, scope.favorites);
-          
           // do not make call unless metadata exists
           if (!scope.metadata || !scope.metadata.terminology) {
             return;
@@ -58,22 +59,20 @@ tsApp.directive('favorites', [
           });
         }
         // watch the component
-        scope.$watch('metadata', function() {   
-            getPagedList();
+        scope.$watch('metadata', function() {
+          getPagedList();
         }, true);
-        
+
         // watch the favorites
         scope.$watch('favorites', function() {
           getPagedList();
         }, true)
 
         scope.openFavorite = function(favorite) {
-          scope.callbacks.getComponent(favorite.terminologyId, favorite.terminology,
-            favorite.version);
+          scope.callbacks.getComponent(favorite);
         }
 
         scope.removeFavorite = function(favorite) {
-          console.debug(scope.callbacks);
           securityService.removeUserFavorite(favorite.type, favorite.terminology, favorite.version,
             favorite.terminologyId, favorite.value).then(function(response) {
             getPagedList();
@@ -81,7 +80,6 @@ tsApp.directive('favorites', [
 
           });
         }
-
 
       }
     };

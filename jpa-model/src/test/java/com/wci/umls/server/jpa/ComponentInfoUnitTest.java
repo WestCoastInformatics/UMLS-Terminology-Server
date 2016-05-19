@@ -139,6 +139,8 @@ public class ComponentInfoUnitTest {
     // not indexed
 
   }
+  
+  // TODO Add test for delimited string constructor
 
   /**
    * Teardown.

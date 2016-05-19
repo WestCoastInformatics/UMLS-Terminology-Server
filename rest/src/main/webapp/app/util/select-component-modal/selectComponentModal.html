@@ -47,7 +47,7 @@
             <!-- table-hover makes use of the active class -->
             <tr ng-class="{active: searchResult.active}"
               ng-repeat="searchResult in searchResults.results"
-              ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
+              ng-click="getComponent(searchResult)">
               <td>
                 <span class="nobreak">
                   <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
@@ -74,7 +74,7 @@
         <p style="display: block;">&nbsp;</p>
       </div>
     </div>
-    <div class="col-md-7 col-xs-12 " ng-if="component.object != null">
+    <div class="col-md-7 col-xs-12 " ng-if="component != null">
       <div report component="component" metadata="metadata" modal="true"
         callbacks="componentReportCallbacks"></div>
     </div>

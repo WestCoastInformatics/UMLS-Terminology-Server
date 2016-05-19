@@ -2,7 +2,7 @@
 tsApp.directive('relationships', [
   'utilService',
   'contentService',
-  function(utilService, contentService) {
+  function(utilService) {
     console.debug('configure relationships directive');
     return {
       restrict : 'A',
@@ -14,7 +14,13 @@ tsApp.directive('relationships', [
       },
       templateUrl : 'app/component/relationships/relationships.html',
       link : function(scope, element, attrs) {
-
+        
+       
+        // check callbacks supplied
+        if (!scope.callbacks || !scope.callbacks.findRelationships) {
+          console.error('Relationships directive requires callbacks.findRelationships function');
+        }
+     
         // instantiate paging and paging callback function
         scope.pagedData = [];
         scope.paging = utilService.getPaging();
@@ -73,8 +79,7 @@ tsApp.directive('relationships', [
           };
 
           // Request from service
-          contentService.findRelationships(scope.component.object.terminologyId,
-            scope.component.object.terminology, scope.component.object.version, scope.paging.page,
+          scope.callbacks.findRelationships(scope.component, scope.paging.page,
             parameters).then(function(data) {
 
             scope.pagedData.data = data.relationships;

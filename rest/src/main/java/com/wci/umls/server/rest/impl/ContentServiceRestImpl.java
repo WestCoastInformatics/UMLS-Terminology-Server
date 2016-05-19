@@ -3037,6 +3037,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       for (ComponentInfo info : favorites) {
         boolean hasNotes = false;
         AtomClass atomClass = null;
+        IdType type = null;
         switch (info.getType()) {
           case CODE:
             final Code code =
@@ -3044,6 +3045,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                     info.getTerminology(), info.getVersion(), Branch.ROOT);
             hasNotes = code.getNotes().size() > 0;
             atomClass = code;
+            type = IdType.CODE;
             break;
           case CONCEPT:
             final Concept concept =
@@ -3051,6 +3053,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                     info.getTerminology(), info.getVersion(), Branch.ROOT);
             hasNotes = concept.getNotes().size() > 0;
             atomClass = concept;
+            type = IdType.CONCEPT;
             break;
           case DESCRIPTOR:
             final Descriptor descriptor =
@@ -3058,6 +3061,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                     info.getTerminology(), info.getVersion(), Branch.ROOT);
             hasNotes = descriptor.getNotes().size() > 0;
             atomClass = descriptor;
+            type = IdType.DESCRIPTOR;
             break;
           default:
             throw new Exception("Non atom-class object on favorites list: "
@@ -3066,7 +3070,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
         SearchResult searchResult = new SearchResultJpa();
         searchResult.setId(atomClass.getId());
-        searchResult.setType(info.getType());
+        searchResult.setType(type);
         searchResult.setTerminology(atomClass.getTerminology());
         searchResult.setVersion(atomClass.getVersion());
         searchResult.setTerminologyId(atomClass.getTerminologyId());

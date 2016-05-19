@@ -24,7 +24,7 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
   });
 
   // Content with mode set (e.g. 'simple' for component report)
-  $routeProvider.when('/content/:mode/:terminology/:version/:terminologyId', {
+  $routeProvider.when('/content/:mode/:type/:terminology/:version/:terminologyId', {
     templateUrl : function(urlAttr) {
       return 'app/page/content/' + urlAttr.mode + '.html';
     },
@@ -93,7 +93,7 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
 
   // otherwise, redirect to content
   $routeProvider.otherwise({
-    redirectTo : '/content'
+    redirectTo : '/'
   });
 
 });

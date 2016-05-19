@@ -30,16 +30,16 @@
         uib-tooltip="{{callbacks.getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
       {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
         class="hidden-xs">
-        <a ng-show="! !callbacks.getComponent"
-          ng-click="callbacks.getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
-          uib-tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
+        <a ng-show="callbacks.getComponent"
+          ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+          uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toTerminologyId}}</a>
         <span ng-show="!callbacks.getComponent"
-          uib-tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</span>
+          uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toTerminologyId}}</span>
         {{item.toName}}
       </span> <span class="visible-xs-inline">
         <a ng-class="{'nolink' : !callbacks.getComponent}"
-          ng-click="callbacks.getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
-          uib-tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
+          ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+          uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
       </span></li>
   </ul>
 </div>

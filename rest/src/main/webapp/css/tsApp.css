@@ -116,6 +116,7 @@ body {
 .grey {
 	color: grey;
 }
+	
 
 .noul {
 	color: #337ab7;
@@ -123,15 +124,17 @@ body {
 	text-decoration: none;
 }
 
+
+.nolink {
+	color: black;	
+	cursor: none;
+	text-decoration: none;
+}
+
+
 .nobreak {
 	display: inline-block;
 	white-space: nowrap;
-}
-
-.nolink {
-	color: black;
-	cursor: none;
-	text-decoration: none;
 }
 
 .breakword {

@@ -35,7 +35,7 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
   };
 
   $scope.selectSearchResult = function(searchResult) {
-    $scope.getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)
+    $scope.getComponent(searchResult)
       .then(function(response) {
 
         $uibModalInstance.close(response);
@@ -75,18 +75,17 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
         console.debug('search results', data, $scope.searchResults);
 
         if (loadFirst && $scope.searchResults.results.length > 0) {
-          $scope.getComponent($scope.searchResults.results[0].terminologyId,
-            $scope.metadata.terminology.terminology, $scope.metadata.terminology.version);
+          $scope.getComponent($scope.searchResults.results[0]);
         }
       });
   };
 
   //Get a component and set the local component data model
   // e.g. this is called when a user clicks on a search result
-  $scope.getComponent = function(terminologyId, terminology, version) {
+  $scope.getComponent = function(wrapper) {
     var deferred = $q.defer();
-    contentService.getComponent(terminologyId, terminology, version).then(function(response) {
-      $scope.setActiveRow(terminologyId);
+    contentService.getComponent(wrapper).then(function(response) {
+      $scope.setActiveRow(wrapper.terminologyId);
       $scope.component = response;
       deferred.resolve($scope.component);
     }, function() {
@@ -123,19 +122,10 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
   };
 
 
-  //Get a component and set the local component data model
-  // e.g. this is called when a user clicks on a link in a report
-  $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
-    contentService.getComponentFromType(terminologyId, terminology, version, type).then(function() {
-      $scope.setActiveRow($scope.component.object.terminologyId);
-      $scope.addComponentHistoryHistory($scope.component.historyIndex);
-    });
-  };
-  
   // set the top level component from a tree node
-  $scope.getComponentFromTree = function(nodeScope) {
+  $scope.getComponentFromTree = function(type, nodeScope) {
     var tree = nodeScope.$modelValue;
-    $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
+    $scope.getComponent(type, tree.nodeTerminologyId, tree.terminology, tree.version);
   };
   //
   // Initialization
@@ -144,7 +134,6 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
 
   $scope.componentReportCallbacks = {
     getComponent : $scope.getComponent,
-    getComponentFromType : $scope.getComponentFromType,
     getComponentFromTree : $scope.getComponentFromTree
   
   };

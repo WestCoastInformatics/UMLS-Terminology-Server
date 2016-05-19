@@ -131,147 +131,76 @@ tsApp
         // Autocomplete function
         this.autocomplete = function(searchTerms, autocompleteUrl) {
 
-          // if invalid search terms, return empty array
-          if (searchTerms == null || searchTerms == undefined || searchTerms.length < 3) {
-            return new Array();
-          }
-
           // Setup deferred
           var deferred = $q.defer();
 
-          // NO GLASS PANE
-          // Make GET call
-          $http.get(autocompleteUrl + encodeURIComponent(searchTerms)).then(
-          // success
-          function(response) {
-            deferred.resolve(response.data.strings);
-          },
-          // error
-          function(response) {
-            utilHandler.handleError(response);
-            deferred.resolve(response.data);
-          });
+          // if invalid search terms or no url, return empty array
+          if (searchTerms == null || searchTerms == undefined || searchTerms.length < 3
+            || !autocompleteUrl) {
+            deferred.resolve(new Array());
+          } else {
+
+            // NO GLASS PANE
+            // Make GET call
+            $http.get(autocompleteUrl + encodeURIComponent(searchTerms)).then(
+            // success
+            function(response) {
+              deferred.resolve(response.data.strings);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              deferred.resolve(response.data);
+            });
+          }
 
           return deferred.promise;
         };
 
-        // Helper function to get the proper html prefix based on class
-        // type
-        this.getPrefixForType = function(classType) {
-          switch (classType) {
-          case 'CONCEPT':
-            return 'cui';
-          case 'DESCRIPTOR':
-            return 'dui';
-          case 'CODE':
-            return 'code';
-          default:
-            return 'prefix error detected';
-          }
-        };
+        // Get the component from a component wrapper
+        // where wrapper is at minimum { type: ..., terminology: ..., version: ..., terminologyId: ...}
+        // Search results and components can be passed directly
+        this.getComponent = function(wrapper) {
 
-        // Helper function to get the component type from the url prefix
-        this.getTypeForPrefix = function(prefix) {
-          switch (prefix) {
-          case 'cui':
-            return 'CONCEPT';
-          case 'dui':
-            return 'DESCRIPTOR';
-          case 'code':
-            return 'CODE';
-          default:
-            return 'component type error detected';
-          }
-        };
+          console.debug('getComponent', wrapper);
 
-        // Helper function to get a type prefix for the terminology
-        this.getPrefixForTerminologyAndVersion = function(terminology, version) {
-          return this
-            .getPrefixForType(metadataService.getTerminology(terminology, version).organizingClassType);
-        };
-
-        // Get the component by type
-        this.getComponentFromType = function(terminologyId, terminology, version, type) {
-          console.debug('getComponentFromType', terminologyId, terminology, version, type);
-          switch (type) {
-          case 'CONCEPT':
-            return this.getConcept(terminologyId, terminology, version);
-          case 'DESCRIPTOR':
-            return this.getDescriptor(terminologyId, terminology, version);
-          case 'CODE':
-            return this.getCode(terminologyId, terminology, version);
-          default:
-            console.error('Error retrieving component from type');
-            this.componentError = "Could not retrieve " + type + " for " + terminologyId + "/"
-              + terminology + "/" + version;
-          }
-        };
-
-        // Get the component based on id/terminology/version
-        // uses the organizing class type for the type prefix
-        this.getComponent = function(terminologyId, terminology, version) {
-          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
-          return this.getComponentHelper(terminologyId, terminology, version, prefix);
-        };
-
-        // Get a concept component
-        this.getConcept = function(terminologyId, terminology, version) {
-          return this.getComponentHelper(terminologyId, terminology, version, this
-            .getPrefixForType('CONCEPT'));
-        };
-
-        // Get a descriptor component
-        this.getDescriptor = function(terminologyId, terminology, version) {
-          return this.getComponentHelper(terminologyId, terminology, version, this
-            .getPrefixForType('DESCRIPTOR'));
-        };
-
-        // Get a code component
-        this.getCode = function(terminologyId, terminology, version) {
-          return this.getComponentHelper(terminologyId, terminology, version, this
-            .getPrefixForType('CODE'));
-        };
-
-        // Helper function for loading a component and setting the
-        // component
-        // data fields
-        this.getComponentHelper = function(terminologyId, terminology, version, prefix) {
           var deferred = $q.defer();
 
-          // the component object to be returned
-          var component = {};
+          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
+          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
+          if (wrapper.type === 'CONCEPT')
+            wrapper.type = 'cui';
+          if (wrapper.type === 'DESCRIPTOR')
+            wrapper.type = 'dui';
+          if (wrapper.type === 'CODE')
+            wrapper.type = 'code';
 
-          // Here the prefix is passed in because of terminologies
-          // like MSH
-          // that may have legitimate types that are not the
-          // organizing class
-          // type
+          // check prereqs
+          if (!wrapper.type || !wrapper.terminologyId || !wrapper.terminology || !wrapper.version) {
+            deferred.reject('Component object not fully specified');
+            console.error('Component object not fully specified');
+          } else {
 
-          // set component top-level fields
-          component.prefix = prefix;
-          component.type = this.getTypeForPrefix(prefix);
-          component.object = null;
-          component.error = null;
+            // the component object to be returned
+            var component = {};
 
-          if (!terminologyId || !terminology || !version) {
-            component.error = "An unexpected display error occurred. Click a concept or perform a new search to continue";
-            return;
-          }
-
-          // Make GET call
-          gpService.increment();
-          $http
-            .get(
-              contentUrl + component.prefix + "/" + terminology + "/" + version + "/"
-                + terminologyId).then(
+            // Make GET call
+            gpService.increment();
+            $http.get(
+              contentUrl + wrapper.type + "/" + wrapper.terminology + "/" + wrapper.version + "/"
+                + wrapper.terminologyId).then(
               // success
               function(response) {
                 var data = response.data;
 
                 if (!data) {
-                  component.error = "Could not retrieve " + component.type + " data for "
-                    + terminologyId + "/" + terminology + "/" + version;
+                  deferred.reject('Could not retrieve ' + wrapper.type + ' data for '
+                    + wrapper.terminologyId + '/' + wrapper.terminology + '/' + wrapper.version);
                 } else {
+
+                  // TODO Consider returning this data as transient f
+                  // Set the type of the returned component
+                  data.type = wrapper.type;
 
                   // cycle over all atoms for pre-processing
                   for (var i = 0; i < data.atoms.length; i++) {
@@ -298,15 +227,16 @@ tsApp
                   }
 
                 }
-                component.object = data;
 
                 gpService.decrement();
-                deferred.resolve(component);
+                deferred.resolve(data);
               }, function(response) {
                 utilService.handleError(response);
                 gpService.decrement();
                 deferred.reject(response.data);
               });
+
+          }
           return deferred.promise;
         };
 
@@ -368,7 +298,6 @@ tsApp
 
         // Clears history
         this.clearHistory = function() {
-
           history = {
             components : [],
             index : -1
@@ -383,21 +312,16 @@ tsApp
             deferred.reject('Invalid history index: ' + index);
           } else {
 
-            // extract current quintuplet object for convenience
-            var obj = history.components[index];
-
-            var type = this.getTypeForPrefix(obj.type);
+            // extract wrapper object
+            var wrapper = history.components[index];
 
             // set the index and get the component from history
             // information
-            this.getComponentFromType(obj.terminologyId, obj.terminology, obj.version, type).then(
-              function(data) {
-
-                // set the index and count variables
-                history.index = index;
-
-                deferred.resolve(data);
-              });
+            this.getComponent(wrapper).then(function(data) {
+              // set the index and return
+              history.index = index;
+              deferred.resolve(data);
+            });
           }
           return deferred.promise;
         };
@@ -416,12 +340,24 @@ tsApp
         }
 
         // Gets the tree for the specified component
-        this.getTree = function(terminologyId, terminology, version, startIndex) {
+        this.getTree = function(wrapper, startIndex) {
+          
+          console.debug('getTree', wrapper, startIndex);
+          
           if (startIndex === undefined) {
             startIndex = 0;
           }
           // set up deferred
           var deferred = $q.defer();
+
+          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
+          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
+          if (wrapper.type === 'CONCEPT')
+            wrapper.type = 'cui';
+          if (wrapper.type === 'DESCRIPTOR')
+            wrapper.type = 'dui';
+          if (wrapper.type === 'CODE')
+            wrapper.type = 'code';
 
           // PFS
           var pfs = {
@@ -431,14 +367,11 @@ tsApp
             queryRestriction : null
           };
 
-          // Get prefix
-          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
-
           // Make post call
           gpService.increment();
           $http.post(
-            contentUrl + prefix + '/' + terminology + '/' + version + '/' + terminologyId
-              + '/trees', pfs).then(
+            contentUrl + wrapper.type + '/' + wrapper.terminology + '/' + wrapper.version + '/'
+              + wrapper.terminologyId + '/trees', pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -455,7 +388,9 @@ tsApp
         };
 
         // Get child trees for the tree (and start index)
-        this.getChildTrees = function(tree, startIndex) {
+        this.getChildTrees = function(tree, type, startIndex) {
+          
+          console.debug('getChildTrees', tree, type, startIndex);
           // Set up deferred
           var deferred = $q.defer();
 
@@ -467,14 +402,20 @@ tsApp
             queryRestriction : null
           };
 
-          // Get prefix
-          var prefix = this.getPrefixForTerminologyAndVersion(tree.terminology, tree.version);
+          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
+          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
+          if (type === 'CONCEPT')
+            type = 'cui';
+          if (type === 'DESCRIPTOR')
+            type = 'dui';
+          if (type === 'CODE')
+            type = 'code';
 
           // Make POST call
           // @Path("/cui/{terminology}/{version}/{terminologyId}/trees/children")
           gpService.increment();
           $http.post(
-            contentUrl + prefix + '/' + tree.terminology + '/' + tree.version + '/'
+            contentUrl + type + '/' + tree.terminology + '/' + tree.version + '/'
               + tree.nodeTerminologyId + '/trees/children', pfs).then(
           // success
           function(response) {
@@ -493,12 +434,18 @@ tsApp
         };
 
         // Gets the tree roots for the specified params
-        this.getTreeRoots = function(terminology, version, page) {
+        this.getTreeRoots = function(type, terminology, version, page) {
           // Setup deferred
           var deferred = $q.defer();
 
-          // Get prefix
-          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
+          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
+          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
+          if (type === 'CONCEPT')
+            type = 'cui';
+          if (type === 'DESCRIPTOR')
+            type = 'dui';
+          if (type === 'CODE')
+            type = 'code';
 
           // PFS
           // construct the pfs
@@ -511,7 +458,7 @@ tsApp
 
           // Make POST call
           gpService.increment();
-          $http.post(contentUrl + prefix + "/" + terminology + "/" + version + "/trees/roots", pfs)
+          $http.post(contentUrl + type + "/" + terminology + "/" + version + "/trees/roots", pfs)
             .then(
             // success
             function(response) {
@@ -529,7 +476,11 @@ tsApp
         };
 
         // Finds components as a list
-        this.findComponentsAsList = function(queryStr, terminology, version, page, searchParams) {
+        this.findComponentsAsList = function(queryStr, type, terminology, version, page,
+          searchParams) {
+
+          console.debug('findComponentsAsList', queryStr, type, terminology, version, page);
+
           // Setup deferred
           var deferred = $q.defer();
 
@@ -561,20 +512,24 @@ tsApp
               pfs.queryRestriction += " AND atoms.language:\"" + searchParams.language + "\"";
             }
           }
-
-          // Get prefix
-          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
+          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
+          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
+          if (type === 'CONCEPT')
+            type = 'cui';
+          if (type === 'DESCRIPTOR')
+            type = 'dui';
+          if (type === 'CODE')
+            type = 'code';
 
           // Add anonymous condition for concepts
-          if (prefix == "cui") {
+          if (type == "cui") {
             pfs.queryRestriction += " AND anonymous:false";
           }
 
           // Make POST call
           gpService.increment();
           $http.post(
-            contentUrl + this.getPrefixForType(metadata.terminology.organizingClassType) + "/"
-              + terminology + "/" + version + "?query="
+            contentUrl + type + "/" + terminology + "/" + version + "?query="
               + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
           // success
           function(response) {
@@ -592,7 +547,8 @@ tsApp
         };
 
         // Finds components as a tree
-        this.findComponentsAsTree = function(queryStr, terminology, version, page, semanticType) {
+        this.findComponentsAsTree = function(queryStr, type, terminology, version, page,
+          semanticType) {
 
           // Setup deferred
           var deferred = $q.defer();
@@ -627,72 +583,19 @@ tsApp
             }
           }
 
-          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
+          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
+          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
+          if (type === 'CONCEPT')
+            type = 'cui';
+          if (type === 'DESCRIPTOR')
+            type = 'dui';
+          if (wrapper.type === 'CODE')
+            type = 'code';
 
           // Make POST call
           gpService.increment();
           $http.post(
-            contentUrl + prefix + "/" + terminology + "/" + version + "/trees?query="
-              + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
-          // success
-          function(response) {
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
-
-          return deferred.promise;
-        };
-
-        // Explicitly find concepts (cui)
-        this.findConceptsAsList = function(queryStr, terminology, version, page, semanticType) {
-          // Setup deferred
-          var deferred = $q.defer();
-
-          // PFS
-          var pfs = {
-            startIndex : (page - 1) * pageSizes.general,
-            maxResults : pageSizes.general,
-            sortField : null,
-            queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
-          };
-
-          // check parameters for advanced mode
-          if (searchParams && searchParams.advancedMode) {
-            if (searchParams.semanticType) {
-              pfs.queryRestriction += " AND semanticTypes.semanticType:\""
-                + searchParams.semanticType + "\"";
-            }
-
-            if (searchParams.matchTerminology) {
-              pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
-                + "\"";
-            }
-            if (searchParams.termType) {
-              pfs.queryRestriction += " AND atoms.termType:\"" + searchParams.termType + "\"";
-            }
-            if (searchParams.language) {
-              pfs.queryRestriction += " AND atoms.language:\"" + searchParams.language + "\"";
-            }
-          }
-
-          // Get prefix
-          var prefix = 'cui';
-
-          // Add anonymous condition for concepts
-          if (prefix == "cui") {
-            pfs.queryRestriction += " AND anonymous:false";
-          }
-
-          // Make POST call
-          gpService.increment();
-          $http.post(
-            contentUrl + prefix + "/" + terminology + "/" + version + "?query="
+            contentUrl + type + "/" + terminology + "/" + version + "/trees?query="
               + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
           // success
           function(response) {
@@ -711,10 +614,19 @@ tsApp
 
         // Handle paging of relationships (requires content service
         // call).
-        this.findRelationships = function(terminologyId, terminology, version, page, parameters) {
+        this.findRelationships = function(wrapper, page, parameters) {
+          
+          console.debug('findRelationships', wrapper, page, parameters);
           var deferred = $q.defer();
 
-          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
+          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
+          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
+          if (wrapper.type === 'CONCEPT')
+            wrapper.type = 'cui';
+          if (wrapper.type === 'DESCRIPTOR')
+            wrapper.type = 'dui';
+          if (wrapper.type === 'CODE')
+            wrapper.type = 'code';
 
           if (parameters)
 
@@ -764,29 +676,36 @@ tsApp
           }
           gpService.increment();
           $http.post(
-            contentUrl + prefix + "/" + terminology + "/" + version + "/" + terminologyId
-              + "/relationships?query=" + encodeURIComponent(utilService.cleanQuery(query)), pfs)
-            .then(function(response) {
-              gpService.decrement();
-              deferred.resolve(response.data);
-            }, function(response) {
-              utilService.handleError(response);
-              gpService.decrement();
-              deferred.reject(response.data);
-            });
+            contentUrl + wrapper.type + "/" + wrapper.terminology + "/" + wrapper.version + "/"
+              + wrapper.terminologyId + "/relationships?query="
+              + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          }, function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
 
           return deferred.promise;
         };
 
         // Handle paging of relationships (requires content service
         // call).
-        this.findDeepRelationships = function(terminologyId, terminology, version, page, parameters) {
+        this.findDeepRelationships = function(wrapper, page, parameters) {
 
           var deferred = $q.defer();
 
-          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
+          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
+          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
+          if (wrapper.type === 'CONCEPT')
+            wrapper.type = 'cui';
+          if (wrapper.type === 'DESCRIPTOR')
+            wrapper.type = 'dui';
+          if (wrapper.type === 'CODE')
+            wrapper.type = 'code';
 
-          if (prefix !== 'cui') {
+          if (wrapper.type !== 'cui') {
             defer.reject('Deep relationships cannot be retrieved for type previs ' + prefix);
           }
 
@@ -810,79 +729,16 @@ tsApp
           // filtering
           var query = parameters.text;
 
-          // For description logic sources, simply read all rels.
-          // That way we ensure all "groups" are represented.
-          /*
-                     * if (metadata.terminology.descriptionLogicTerminology) { pfs.startIndex = -1;
-                     * pfs.maxResults = 1000000; } else { pfs.maxResults = pageSizes.general; }
-                     */
-
           // gpService.increment();
           $http.post(
-            contentUrl + prefix + "/" + terminology + "/" + version + "/" + terminologyId
-              + "/relationships/deep?query=" + encodeURIComponent(utilService.cleanQuery(query)),
-            pfs).then(function(response) {
+            contentUrl + wrapper.type + "/" + wrapper.terminology + "/" + wrapper.version + "/"
+              + wrapper.terminologyId + "/relationships/deep?query="
+              + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             // gpService.decrement();
             deferred.resolve(response.data);
           }, function(response) {
             utilService.handleError(response);
             // gpService.decrement();
-            deferred.reject(response.data);
-          });
-
-          return deferred.promise;
-        };
-
-        // Handle paging of mappings (requires content service
-        // call).
-        this.findMappings = function(terminologyId, terminology, version, page, parameters) {
-          var deferred = $q.defer();
-
-          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
-
-          if (parameters)
-
-            var pfs = {
-              startIndex : (page - 1) * pageSizes.general,
-              maxResults : pageSizes.general,
-              sortField : parameters.sortField ? parameters.sortField : 'fromTerminologyId',
-              ascending : parameters.sortAscending,
-              queryRestriction : null
-            // constructed from filters
-            };
-
-          // Show only inferred rels for now
-          // construct query restriction if needed
-          var qr = '';
-          if (!parameters.showSuppressible) {
-            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
-          }
-          if (!parameters.showObsolete) {
-            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
-          }
-
-          pfs.queryRestriction = qr;
-
-          // For description logic sources, simply read all rels.
-          // That way we ensure all "groups" are represented.
-          if (metadata.terminology.descriptionLogicTerminology) {
-            pfs.startIndex = -1;
-            pfs.maxResults = 1000000;
-          } else {
-            pfs.maxResults = pageSizes.general;
-          }
-
-          var query = parameters.text;
-          gpService.increment();
-          $http.post(
-            contentUrl + prefix + "/" + terminologyId + "/" + component.object.terminology + "/"
-              + version + "/mappings?query=" + encodeURIComponent(utilService.cleanQuery(query)),
-            pfs).then(function(response) {
-            gpService.decrement();
-            deferred.resolve(response.data);
-          }, function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
             deferred.reject(response.data);
           });
 
@@ -896,26 +752,28 @@ tsApp
             deferred.reject('Cannot check empty query for expressions');
           }
           gpService.increment();
-          $http.get(contentUrl + '/ecl/isExpression/' + encodeURIComponent(utilService.cleanQuery(query))).then(function(response) {
-            gpService.decrement();
-            deferred.resolve(response.data);
-          }, function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+          $http.get(
+            contentUrl + '/ecl/isExpression/' + encodeURIComponent(utilService.cleanQuery(query)))
+            .then(function(response) {
+              gpService.decrement();
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
         }
 
-        this.addComponentNote = function(type, terminology, version, terminologyId, annotationText) {
+        this.addComponentNote = function(wrapper, note) {
           var deferred = $q.defer();
-          if (!component || !annotationText) {
+          if (!wrapper || !annotationText) {
             deferred.reject('Concept id and annotation text must be specified');
           } else {
 
-            var prefix = this.getPrefixForType(terminology, version);
             gpService.increment();
-            $http.post(contentUrl + prefix + '/note/' + terminology + '/' + version + '/' + terminologyId + '/add',
-              annotationText).then(function(response) {
+            $http.post(
+              contentUrl + wrapper.type + '/note/' + wrapper.terminology + '/' + wrapper.version
+                + '/' + wrapper.terminologyId + '/add', note).then(function(response) {
               deferred.resolve(response.data);
             }, function(response) {
               utilService.handleError(response);
@@ -928,20 +786,15 @@ tsApp
           }
         }
 
-        
-
-        this.removeComponentNote = function(component, annotationId, annotationText) {
+        this.removeComponentNote = function(wrapper, noteId) {
           var deferred = $q.defer();
-          if (!component || !annotationId || !annotationText) {
-            deferred.reject('Component, annotationId, and annotation text must be specified');
+          if (!component || !annotationId) {
+            deferred.reject('Component wrapper and note id must be specified');
           } else {
 
-            var prefix = this.getPrefixForTerminologyAndVersion(component.object.terminology,
-              component.object.version);
             gpService.increment();
-            $http.post(
-              contentUrl + prefix + '/annotate/' + component.object.id + '/remove' + annotationId)
-              .then(function(response) {
+            $http.post(contentUrl + wrapper.type + '/note/' + noteId + '/remove').then(
+              function(response) {
                 deferred.resolve(response.data);
               }, function(response) {
                 utilService.handleError(response);
@@ -974,37 +827,31 @@ tsApp
             };
 
             gpService.increment();
-            $http.post(
-              contentUrl + '/favorites/' + terminology + '/' + version, pfs).then(function(response) {
-              gpService.decrement();
-              deferred.resolve(response.data);
-            }, function(response) {
-              utilService.handleError(response);
-              gpService.decrement();
-              // return the original concept without additional annotation
-              deferred.reject();
-            });
+            $http.post(contentUrl + '/favorites/' + terminology + '/' + version, pfs).then(
+              function(response) {
+                gpService.decrement();
+                deferred.resolve(response.data);
+              }, function(response) {
+                utilService.handleError(response);
+                gpService.decrement();
+                // return the original concept without additional annotation
+                deferred.reject();
+              });
 
             return deferred.promise;
           }
         }
-        
+
+        /**
+         * Callback functions needed by directives
+         * NOTE: getComponent and getComponentForTree deliberately excluded
+         * as each view should interact with the content service directly
+         * for history and other considerations
+         */
         this.getCallbacks = function() {
-          return {
-            getComponentFromType : this.getComponentFromType,
-            getConcept : this.getConcept,
-            getDescriptor : this.getDescriptor,
-            getCode : this.getCode,
-            getComponent : this.getComponent,
-            getComponentHelper : this.getComponentHelper,
-            getComponentFromHistory : this.getComponentFromHistory,
-            findComponentsAsList : this.findComponentsAsList,
-            findComponentsAsTree : this.findComponentsAsTree,
+          return {       
             findRelationships : this.findRelationships,
-            findDeepRelationships : this.findDeepRelationships,
-            addComponentNote : this.addComponentNote,
-            removeComponentNote : this.removeComponentNote
-            
+            findDeepRelationships : this.findDeepRelationships
           }
         }
 

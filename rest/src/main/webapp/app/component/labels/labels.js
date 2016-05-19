@@ -12,10 +12,10 @@ tsApp.directive('labels', [ 'utilService', function(utilService) {
     templateUrl : 'app/component/labels/labels.html',
     link : function(scope, element, attrs) {
 
-      console.debug('labels', scope.showHidden, scope.component.object.labels, scope.metadata);
+      console.debug('labels', scope.showHidden, scope.component.labels, scope.metadata);
 
       function getPagedList() {
-        scope.pagedData = utilService.getPagedArray(scope.component.object.labels, scope.paging);
+        scope.pagedData = utilService.getPagedArray(scope.component.labels, scope.paging);
       }
 
       // instantiate paging and paging callback function

@@ -34,8 +34,8 @@ tsApp.directive('mappings', [
           };
 
           // Request from service
-          contentService.findMappings(scope.component.object.terminologyId,
-            scope.component.object.terminology, scope.component.object.version, scope.paging.page,
+          contentService.findMappings(scope.component.terminologyId,
+            scope.component.terminology, scope.component.version, scope.paging.page,
             parameters).then(function(data) {
 
             scope.pagedMappings = data.mapping;

@@ -14,7 +14,7 @@ tsApp.directive('subsets', [ 'utilService', function(utilService) {
 
       function getPagedList() {
         
-        scope.pagedData = utilService.getPagedArray(scope.component.object.members, scope.paging);
+        scope.pagedData = utilService.getPagedArray(scope.component.members, scope.paging);
         console.debug('subsets', scope.pagedData);
       }
 

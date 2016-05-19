@@ -48,6 +48,7 @@ tsApp.controller('ContentCtrl', [
     // Scope variables initialized from services
     // TODO Add this to other controllers where preferences are modified
     $scope.user = securityService.getUser();
+    $scope.mode = $routeParams.mode === 'simple' ? 'simple' : 'full';
     $scope.metadata = metadataService.getModel();
     $scope.component = null;
     $scope.pageSizes = contentService.getPageSizes();
@@ -108,12 +109,28 @@ tsApp.controller('ContentCtrl', [
         return;
       }
 
+      // TODO Remove switch statement once organizing class type and component type are synced
+      // instead, just use lowercased metadata value
+      $scope.componentType = null;
+      switch ($scope.metadata.terminology.organizingClassType) {
+      case 'CONCEPT':
+        $scope.componentType = 'cui';
+        break;
+      case 'DESCRIPTOR':
+        $scope.componentType = 'dui';
+        break;
+      case 'CODE':
+        $scope.componentType = 'code';
+        break;
+      }
+
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
-      $scope.autocompleteUrl = contentUrl
-        + contentService.getPrefixForType($scope.metadata.terminology.organizingClassType) + '/'
-        + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
-        + "/autocomplete/";
+      if ($scope.componentType) {
+        $scope.autocompleteUrl = contentUrl + $scope.componentType + '/'
+          + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
+          + "/autocomplete/";
+      }
     });
 
     // on route changes, save search params and last viewed component
@@ -201,29 +218,41 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
+    // Gets display text for component type (used in report title bar)
+    $scope.getComponentTypeText = function() {
+      switch ($scope.component.type) {
+      case 'cui':
+        return 'Concept';
+      case 'dui':
+        return 'Descriptor';
+      case 'code':
+        return 'Code';
+      default:
+        return 'Component';
+      }
+    }
+
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a search result
-    $scope.getComponent = function(terminologyId, terminology, version) {
-      contentService.getComponent(terminologyId, terminology, version).then(function(response) {
+    $scope.getComponent = function(type, terminologyId, terminology, version) {
+      
+      console.debug('getComponent', type, terminologyId, terminology, version);
+
+      var wrapper = {
+        type : type,
+        terminologyId : terminologyId,
+        terminology : terminology,
+        version : version
+      }
+
+      contentService.getComponent(wrapper).then(function(response) {
 
         $scope.component = response;
         $scope.checkFavoriteStatus();
-        $scope.setActiveRow($scope.component.object.terminologyId);
+        $scope.setActiveRow(terminologyId);
         $scope.addComponentHistory();
 
       });
-    };
-
-    // Get a component and set the local component data model
-    // e.g. this is called when a user clicks on a link in a report
-    $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
-      contentService.getComponentFromType(terminologyId, terminology, version, type).then(
-        function() {
-          $scope.component = response;
-          $scope.checkFavoriteStatus();
-          $scope.setActiveRow($scope.component.object.terminologyId);
-          $scope.addComponentHistory($scope.component.historyIndex);
-        });
     };
 
     // Find components for a programmatic query
@@ -276,17 +305,16 @@ tsApp.controller('ContentCtrl', [
         return;
       }
       console.debug($scope.searchParams.page);
-      contentService.findComponentsAsList($scope.searchParams.query,
+      contentService.findComponentsAsList($scope.searchParams.query, $scope.componentType,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-        $scope.searchParams.page, $scope.searchParams).then(
-        function(data) {
-          $scope.searchResults = data;
+        $scope.searchParams.page, $scope.searchParams).then(function(data) {
+        $scope.searchResults = data;
 
-          if (loadFirst && $scope.searchResults.results.length > 0) {
-            $scope.getComponent($scope.searchResults.results[0].terminologyId,
-              $scope.metadata.terminology.terminology, $scope.metadata.terminology.version);
-          }
-        });
+        if (loadFirst && $scope.searchResults.results.length > 0) {
+          // pass the search result (as wrapper)
+          $scope.getComponentFromWrapper($scope.searchResults.results[0]);
+        }
+      });
     };
 
     // Perform search and populate tree view
@@ -320,10 +348,19 @@ tsApp.controller('ContentCtrl', [
     };
 
     // set the top level component from a tree node
-    $scope.getComponentFromTree = function(nodeScope) {
+    // TODO Consider changing nodeTerminologyId to terminologyId, adding type to allow wrapper universality
+    $scope.getComponentFromTree = function(type, nodeScope) {
+      console.debug('getComponentFromTree', type, nodeScope);
       var tree = nodeScope.$modelValue;
-      $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
+      $scope.getComponent(type, tree.nodeTerminologyId, tree.terminology, tree.version);
     };
+
+    // helper function to get component from wrapper
+    $scope.getComponentFromWrapper = function(wrapper) {
+      console.debug('getComponentFromWrapper',wrapper);
+      $scope
+        .getComponent(wrapper.type, wrapper.terminologyId, wrapper.terminology, wrapper.version);
+    }
 
     // Load hierarchy into tree view
     $scope.browseHierarchy = function() {
@@ -510,9 +547,9 @@ tsApp.controller('ContentCtrl', [
     // an index For cases where history > page size, returns array
     // [index - pageSize / 2 + 1 : index + pageSize]
     $scope.addComponentHistory = function(index) {
-      contentService.addComponentToHistory($scope.component.object.terminologyId,
-        $scope.component.object.terminology, $scope.component.object.version,
-        $scope.component.prefix, $scope.component.object.name);
+      contentService.addComponentToHistory($scope.component.terminologyId,
+        $scope.component.terminology, $scope.component.version, $scope.component.type,
+        $scope.component.name);
       setHistoryPage();
 
     };
@@ -522,11 +559,11 @@ tsApp.controller('ContentCtrl', [
       var currentUrl = window.location.href;
       var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
       // TODO; don't hardcode this - maybe "simple" should be a parameter
-      var newUrl = baseUrl + '/content/simple/' + $scope.component.object.terminology + '/'
-        + $scope.component.object.version + '/' + $scope.component.object.terminologyId;
-      var myWindow = window.open(newUrl, $scope.component.object.terminology + '/'
-        + $scope.component.object.version + ', ' + $scope.component.object.terminologyId + ', '
-        + $scope.component.object.name);
+      var newUrl = baseUrl + '/content/simple/' + $scope.component.type + '/' + $scope.component.terminology + '/'
+        + $scope.component.version + '/' + $scope.component.terminologyId;
+      var myWindow = window.open(newUrl, $scope.component.terminology + '/'
+        + $scope.component.version + ', ' + $scope.component.terminologyId + ', '
+        + $scope.component.name);
       myWindow.focus();
     };
 
@@ -595,15 +632,16 @@ tsApp.controller('ContentCtrl', [
 
       modalInstance.result.then(function(component) {
         console.debug('returned with component', component);
-        $scope.searchParams.expression.fields[key] = component.object.terminologyId + ' | '
-          + component.object.name + ' |';
+        $scope.searchParams.expression.fields[key] = component.terminologyId + ' | '
+          + component.name + ' |';
         $scope.setExpression();
       }, function() {
         // do nothing
       });
     };
 
-    $scope.viewNotes = function(key) {
+    // Open notes modal, from either wrapper or component
+    $scope.viewNotes = function(wrapper) {
 
       var modalScope = $rootScope.$new();
 
@@ -614,22 +652,15 @@ tsApp.controller('ContentCtrl', [
         scope : $rootScope,
         size : 'lg',
         resolve : {
-          callbacks : function() {
-            return $scope.contentCallbacks;
-          },
           component : function() {
-            return {
-              type : $scope.component.type,
-              terminology : $scope.component.object.terminology,
-              version : $scope.component.object.version,
-              terminologyId : $scope.component.object.terminologyId
-            }
+            return wrapper;
+
           }
         }
       });
 
       modalInstance.result.then(function() {
-        
+
       }, function() {
         // do nothing
       });
@@ -641,8 +672,8 @@ tsApp.controller('ContentCtrl', [
 
     $scope.checkFavoriteStatus = function() {
       $scope.isFavorite = $scope.component ? securityService.isUserFavorite($scope.component.type,
-        $scope.component.object.terminology, $scope.component.object.version,
-        $scope.component.object.terminologyId) : false;
+        $scope.component.terminology, $scope.component.version, $scope.component.terminologyId)
+        : false;
     };
 
     $scope.toggleFavorite = function(type, terminology, version, terminologyId, name) {
@@ -665,6 +696,60 @@ tsApp.controller('ContentCtrl', [
     }
 
     //
+    // Callback Function Objects
+    //
+    $scope.configureCallbacks = function() {
+
+      console.debug('Initializing content controller callback objects');
+
+      // declare the callbacks objects
+      $scope.componentRetrievalCallbacks = {};
+      $scope.componentReportCallbacks = {};
+      $scope.favoritesCallbacks = {};
+
+      //
+      // Local scope functions pertaining to component retrieval
+      //
+      $scope.componentRetrievalCallbacks = {
+        getComponent : $scope.getComponent,
+        getComponentFromTree : $scope.getComponentFromTree,
+        getComponentFromWrapper : $scope.getComponentFromWrapper
+      }
+      console.debug('  component retrieval callbacks', $scope.componentRetrievalCallbacks);
+
+      //
+      // Component report callbacks
+      //
+
+      // pass metadata callbacks for tooltip and general display
+      utilService.extendCallbacks($scope.componentReportCallbacks, metadataService.getCallbacks());
+
+      // add content callbacks for special content retrieval (relationships, mappings, etc.)
+      utilService.extendCallbacks($scope.componentReportCallbacks, contentService.getCallbacks());
+
+      // if in simple mode
+      if ($routeParams.mode === 'simple') {
+        // do nothing
+      } else {
+        // add content callbacks for top-level component retrieval
+        utilService.extendCallbacks($scope.componentReportCallbacks,
+          $scope.componentRetrievalCallbacks);
+      }
+      console.debug('  Component report callbacks', $scope.componentReportCallbacks);
+
+      //
+      // Favorites Callbacks
+      // 
+      $scope.favoritesCallbacks = {
+        checkFavoriteStatus : $scope.checkFavoriteStatus
+      };
+      // add content callbacks for top-level component retrieval
+      utilService.extendCallbacks($scope.favoritesCallbacks, $scope.componentRetrievalCallbacks);
+      console.debug('  Favorites callbacks', $scope.favoritesCallbacks);
+
+    }
+
+    //
     // Initialize
     //
 
@@ -672,6 +757,7 @@ tsApp.controller('ContentCtrl', [
 
       $scope.configureTab();
       $scope.configureExpressions();
+      $scope.configureCallbacks();
 
       //
       // Check for values preserved in content service (after route changes)
@@ -684,36 +770,6 @@ tsApp.controller('ContentCtrl', [
         $scope.component = contentService.getLastComponent();
         $scope.checkFavoriteStatus();
       }
-
-      //
-      // Component Report Callbacks
-      //
-      // if in simple mode, disable navigation functionality
-      if ($routeParams.mode === 'simple') {
-        $scope.componentReportCallbacks = metadataService.getCallbacks();
-      }
-
-      // otherwise, enable full functionality
-      else {
-        $scope.componentReportCallbacks = metadataService.getCallbacks();
-        console.debug('crCallbacks:', $scope.componentReportCallbacks);
-        $scope.componentReportCallbacks['getComponent'] = $scope.getComponent;
-        $scope.componentReportCallbacks['getComponentFromType'] = $scope.getComponentFromType;
-        $scope.componentReportCallbacks['getComponentFromTree'] = $scope.getComponentFromTree;
-      }
-
-      //
-      // Favorites Callbacks
-      // 
-      $scope.favoritesCallbacks = {
-        getComponent : $scope.getComponent,
-        getComponentFromType : $scope.getComponentFromType,
-        checkFavoriteStatus : $scope.checkFavoriteStatus
-      };
-      
-      //
-      // Content Service callbacks
-      $scope.contentCallbacks = contentService.getCallbacks();
 
       // Load all terminologies upon controller load (unless already
       // loaded)
@@ -746,7 +802,7 @@ tsApp.controller('ContentCtrl', [
                   function() {
 
                     // get the component
-                    $scope.getComponent($routeParams.terminologyId, $routeParams.terminology,
+                    $scope.getComponent($routeParams.type, $routeParams.terminologyId, $routeParams.terminology,
                       $routeParams.version);
                   });
               }

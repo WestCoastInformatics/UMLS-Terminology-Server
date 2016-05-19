@@ -1,15 +1,14 @@
-tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstance, utilService, callbacks, component) {
+tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstance, contentService, utilService, component) {
 
   console.debug('component notes modal opened', component, callbacks);
 
-  // NOTE: Component must contain minimum of type, terminology, version, and terminologyId
+  // Component wrapper or full component
   $scope.component = component;
-  $scope.callbacks = callbacks;
   
   console.debug('notes modal: ', component, callbacks);
 
   function getPagedList() {
-    $scope.pagedData = utilService.getPagedArray($scope.component.object.userAnnotations,
+    $scope.pagedData = utilService.getPagedArray($scope.component.userAnnotations,
       $scope.paging);
   }
 
@@ -37,7 +36,7 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
   //
   $scope.addNote = function(note) {
     console.debug('Adding note: ', note);
-    callbacks.addComponentNote($scope.component.type, $scope.component.terminology, $scope.component.version, $scope.component.terminologyId, note).then(function(response) {
+    contentService.addComponentNote($scope.component, note).then(function(response) {
       console.debug('Note added, new object = ', response);
       
     });
@@ -51,9 +50,10 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
   // Initialization
   // 
   $scope.initialize = function() {
-    callbacks.getComponentFromType($scope.component.terminology, $scope.component.version, $scope.component.terminologyId, $scope.component.type).then(function(response) {
-      $scope.component.name = response.name;
-      $scope.component.notes = response.notes;
+    
+    // re-retrieve the component (from either wrapper or full component)
+    contentService.getComponent($scope.component).then(function(response) {
+      $scope.component.name = response;
     });
   }
   

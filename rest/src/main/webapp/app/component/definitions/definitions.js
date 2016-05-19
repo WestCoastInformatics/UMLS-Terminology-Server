@@ -15,7 +15,7 @@ tsApp.directive('definitions', [
       link : function(scope, element, attrs) {
 
         function getPagedList() {
-          scope.pagedData = utilService.getPagedArray(scope.component.object.definitions,
+          scope.pagedData = utilService.getPagedArray(scope.component.definitions,
             scope.paging);
         }
 

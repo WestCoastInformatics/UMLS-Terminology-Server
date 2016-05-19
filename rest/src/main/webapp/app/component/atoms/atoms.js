@@ -13,7 +13,7 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
     link : function(scope, element, attrs) {
 
       function getPagedList() {
-        scope.pagedData = utilService.getPagedArray(scope.component.object.atoms, scope.paging);
+        scope.pagedData = utilService.getPagedArray(scope.component.atoms, scope.paging);
       }
 
       // instantiate paging and paging callback function
@@ -29,7 +29,6 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
           getPagedList();
         }
       }, true);
-
 
       // watch show hidden flag
       scope.$watch('showHidden', function(newValue, oldValue) {

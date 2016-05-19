@@ -1,20 +1,20 @@
 <div ng-if="component">
   <!-- Title -->
   <h3 style="font-size: 20px;">
-    {{component.object.terminologyId}} {{component.object.name}}
+    {{component.terminologyId}} {{component.name}}
     <span class="label label-warning"
-      ng-show="metadata.terminology.metathesaurus && component.object.suppressible"
+      ng-show="metadata.terminology.metathesaurus && component.suppressible"
       uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span>
-    <span class="label label-default" ng-show="component.object.obsolete"
+    <span class="label label-default" ng-show="component.obsolete"
       uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
     <span style="padding-bottom: 2px;"
-      ng-show="metadata.terminology.descriptionLogicTerminology && component.object.anonymous"
+      ng-show="metadata.terminology.descriptionLogicTerminology && component.anonymous"
       class="label label-info" uib-tooltip="Anonymous">A</span>
     <span style="padding-bottom: 2px;"
-      ng-show="metadata.terminology.descriptionLogicTerminology && !component.object.fullyDefined && !component.object.anonymous"
+      ng-show="metadata.terminology.descriptionLogicTerminology && !component.fullyDefined && !component.anonymous"
       class="label label-info" uib-tooltip="Primitive">P</span>
     <span style="padding-bottom: 2px;"
-      ng-show="metadata.terminology.descriptionLogicTerminology && component.object.fullyDefined"
+      ng-show="metadata.terminology.descriptionLogicTerminology && component.fullyDefined"
       class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
        </h3>
   <!-- Buttons for suppressible/obsolete -->

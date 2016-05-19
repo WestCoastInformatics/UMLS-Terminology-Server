@@ -96,7 +96,7 @@ public class ComponentInfoJpa implements ComponentInfo {
     
     Date date = new Date();
     date.setTime(Long.parseLong(fields[5]));
-    this.setLastModified(date);
+    this.setTimestamp(date);
   }
 
   /**

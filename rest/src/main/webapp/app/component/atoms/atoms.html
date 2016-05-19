@@ -32,40 +32,40 @@
           <span style="margin-left: 20px;" class="visible-xs-inline"> </span>
           <!-- Terminology and term type -->
           [
-          <span ng-show="item.terminology != component.object.terminology">
+          <span ng-show="item.terminology != component.terminology">
             {{item.terminology}} /</span>
           <span uib-tooltip="{{callbacks.getTermTypeName(item.termType)}}">{{item.termType}}</span>
-          , {{item.language}} ] TEST: {{callbacks.getComponentFromType}}
+          , {{item.language}} ]
           <!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
           <span
-            ng-show="item.codeId != component.object.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
+            ng-show="item.codeId != component.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
             uib-tooltip="{{item.terminology}} code">
             <a ng-show="item.codeId != 'NOCODE'"
-              ng-class="{'nolink' : !callbacks.getComponentFromType}"
-              ng-click="callbacks.getComponentFromType(item.codeId, item.terminology, item.version,'CODE')">{{item.codeId}}</a>
+              ng-class="{'nolink' : !callbacks.getComponent}"
+              ng-click="getComponent('CODE', item.codeId, item.terminology, item.version)">{{item.codeId}}</a>
             <span ng-show="item.codeId==='NOCODE'">NOCODE</span>
           </span>
           <!-- For concept id, do not show if identical to component id -->
           <span
-            ng-show="item.terminology != component.object.terminology || item.conceptId != component.object.terminologyId"
+            ng-show="item.terminology != component.terminology || item.conceptId != component.terminologyId"
             uib-tooltip="{{item.terminology}} concept">
             <a ng-class="{'nolink' : !callbacks.getComponentFromType}"
-              ng-click="callbacks.getComponentFromType(item.conceptId, item.terminology, item.version,'CONCEPT')">{{item.conceptId}}</a>
+              ng-click="callbacks.getComponentFromType('CONCEPT',item.conceptId, item.terminology, item.version)">{{item.conceptId}}</a>
           </span>
 
           <!-- For descriptor id, do not show if identical to component id -->
           <span
-            ng-show="item.terminology != component.object.terminology || item.descriptorId != component.object.terminologyId"
+            ng-show="item.terminology != component.terminology || item.descriptorId != component.terminologyId"
             uib-tooltip="{{item.terminology}} descriptor">
             <a ng-class="{'nolink' : !callbacks.getComponentFromType}"
-              ng-click="callbacks.getComponentFromType(item.descriptorId, item.terminology, item.version,'DESCRIPTOR')">{{item.descriptorId}}</a>
+              ng-click="callbacks.getComponentFromType('DESCRIPTOR',item.descriptorId, item.terminology, item.version)">{{item.descriptorId}}</a>
           </span>
           <!-- Show any referenced components in the concept terminology id list -->
           <span ng-repeat="(key, value) in item.conceptTerminologyIds">
             <a ng-class="{'nolink' : !callbacks.getComponentFromType}"
-              ng-show="key != component.object.terminology || value != component.object.terminologyId"
+              ng-show="key != component.terminology || value != component.terminologyId"
               uib-tooltip="{{key}} concept"
-              ng-click="callbacks.getComponentFromType(value, key, callbacks.getVersion(key),'CONCEPT')">{{value}}</a>
+              ng-click="callbacks.getComponentFromType('CONCEPT',value, key, callbacks.getVersion(key))">{{value}}</a>
           </span>
           <div style="margin-left: 20px;" ng-show="item.expanded">
             <!-- Atom Definitions -->

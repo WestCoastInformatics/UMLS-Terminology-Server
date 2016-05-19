@@ -9,11 +9,14 @@ tsApp.directive('treeComponent', [
       restrict : 'A',
       scope : {
         // set component if viewing trees for component
+        metadata : '=',
         component : '=',
         callbacks : '=?'
       },
       templateUrl : 'app/component/tree-component/treeComponent.html',
       link : function(scope, element, attrs) {
+        
+        console.debug('callbacks', scope.callbacks);
         
         // watch for component change
         scope.$watch('component', function () {
@@ -45,7 +48,7 @@ tsApp.directive('treeComponent', [
           }));
 
           newSiblings.sort(function(a, b) {
-            if (a.nodeTerminologyId === scope.component.object.terminologyId) {
+            if (a.nodeTerminologyId === scope.component.terminologyId) {
               return -1;
             }
             if (a.nodeName < b.nodeName) {
@@ -65,8 +68,7 @@ tsApp.directive('treeComponent', [
         scope.getTree = function(startIndex) {
           console.debug('getting tree', startIndex);
           // Call content service to retrieve the tree
-          contentService.getTree(scope.component.object.terminologyId,
-            scope.component.object.terminology, scope.component.object.version, startIndex).then(
+          contentService.getTree(scope.component, startIndex).then(
             function(data) {
 
               scope.componentTree = data.trees;
@@ -149,7 +151,7 @@ tsApp.directive('treeComponent', [
           // get the next page of children based on start index of current
           // children length
           // NOTE: Offset by 1 to incorporate the (possibly) already loaded item
-          contentService.getChildTrees(tree, tree.children.length - 1).then(function(data) {
+          contentService.getChildTrees(tree, scope.component.type, tree.children.length - 1).then(function(data) {
             deferred.resolve(data.trees);
           }, function(error) {
             console.error('Unexpected error retrieving children');

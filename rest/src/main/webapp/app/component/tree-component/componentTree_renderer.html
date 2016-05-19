@@ -7,13 +7,16 @@
   <!-- Unlinked leaf icon for leaf node -->
   <i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
   <!-- if not the component viewed, render with hyperlink -->
-  <span ng-show="tree.nodeTerminologyId != component.object.terminologyId">
-    <a ng-click="callbacks.getComponentFromTree(this)">
+  <span ng-show="tree.nodeTerminologyId != component.terminologyId">{{mode}}
+    <a ng-show="callbacks.getComponentFromTree"  ng-click="callbacks.getComponentFromTree(metadata.terminology.organizingClassType, this)">
       {{tree.nodeTerminologyId}}</a>
+    : {{tree.nodeName}}
+    <span ng-show="!callbacks.getComponentFromTree">
+      {{tree.nodeTerminologyId}}</span>
     : {{tree.nodeName}}
   </span>
   <!-- if the component displayed, render in bold without hyperlink -->
-  <span ng-show="tree.nodeTerminologyId === component.object.terminologyId">
+  <span ng-show="tree.nodeTerminologyId === component.terminologyId">
     <span class="highlighted">{{tree.nodeTerminologyId}}:
       {{tree.nodeName}}</span>
   </span>

@@ -15,7 +15,7 @@ tsApp.directive('semanticTypes', [
       link : function(scope, element, attrs) {
 
         function getPagedList() {
-          scope.pagedData = utilService.getPagedArray(scope.component.object.semanticTypes,
+          scope.pagedData = utilService.getPagedArray(scope.component.semanticTypes,
             scope.paging);
         }
 

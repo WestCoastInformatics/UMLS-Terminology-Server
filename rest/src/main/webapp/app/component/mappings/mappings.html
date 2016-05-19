@@ -21,12 +21,12 @@
       {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
         class="hidden-xs">
         <a
-          ng-click="getComponent(item.toTerminologyId, item.toTerminology, component.object.version)"
+          ng-click="getComponent({{componentType, item.toTerminologyId, item.toTerminology, component.version)"
           uib-tooltip="{{item.toTerminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
         {{item.toName}}
       </span> <span class="visible-xs-inline">
         <a
-          ng-click="getComponent(item.toTerminologyId, item.toTerminology, component.object.version)"
+          ng-click="getComponent(componentType, item.toTerminologyId, item.toTerminology, component.version)"
           uib-tooltip="{{item.toTerminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
       </span></li>
   </ul>

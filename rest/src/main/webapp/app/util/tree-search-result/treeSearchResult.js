@@ -10,6 +10,10 @@ tsApp.directive('treeSearchResult', [
     return {
       restrict : 'A',
       scope : {
+        
+        // metadata
+        meatdata : '=',
+        
         // set search results if viewing trees for search
         searchResults : '=',
 

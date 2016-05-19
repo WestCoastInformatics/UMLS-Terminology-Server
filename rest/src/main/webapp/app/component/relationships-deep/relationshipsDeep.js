@@ -68,8 +68,8 @@ tsApp.directive('relationshipsDeep', [
           };
 
           // Request from service
-          contentService.findDeepRelationships(scope.component.object.terminologyId,
-            scope.component.object.terminology, scope.component.object.version, scope.paging.page,
+          contentService.findDeepRelationships(scope.component.terminologyId,
+            scope.component.terminology, scope.component.version, scope.paging.page,
             parameters).then(function(data) {
 
             scope.pagedData.data = data.relationships;
