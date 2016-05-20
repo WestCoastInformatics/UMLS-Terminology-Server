@@ -191,6 +191,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("  count = " + rootIds.size());
     chdPar = null;
 
+    // Keep this after the read query above, in case there are no rels
     setTransactionPerOperation(false);
     beginTransaction();
 
