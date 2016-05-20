@@ -30,16 +30,16 @@ public class Rf2FileSorter implements Algorithm {
   /** The require all files. */
   private boolean requireAllFiles = false;
 
-  /** The input dir */
+  /**  The input dir. */
   private String inputDir = null;
 
-  /** The output dir */
+  /**  The output dir. */
   private String outputDir = null;
 
-  /** The cancel flag */
+  /**  The cancel flag. */
   private boolean requestCancel = false;
 
-  /** The directory map */
+  /**  The directory map. */
   Map<String, String> dirMap = new HashMap<>();
 
   /**
@@ -67,15 +67,20 @@ public class Rf2FileSorter implements Algorithm {
     dirMap.put("DescriptionType", "/Refset/Metadata");
   }
 
+
   /**
-   * @param inputDir
+   * Sets the input dir.
+   *
+   * @param inputDir the input dir
    */
   public void setInputDir(String inputDir) {
     this.inputDir = inputDir;
   }
 
   /**
-   * @param outputDir
+   * Sets the output dir.
+   *
+   * @param outputDir the output dir
    */
   public void setOutputDir(String outputDir) {
     this.outputDir = outputDir;
@@ -103,7 +108,7 @@ public class Rf2FileSorter implements Algorithm {
    * Returns the file version.
    *
    * @return the file version
-   * @throws Exception
+   * @throws Exception the exception
    */
   public String getFileVersion() throws Exception {
 
@@ -343,30 +348,35 @@ public class Rf2FileSorter implements Algorithm {
     };
   }
 
+  /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     // do nothing
 
   }
 
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     // do nothing
 
   }
 
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing
 
   }
 
+  /* see superclass */
   @Override
   public void cancel() throws Exception {
     requestCancel = true;
 
   }
 
+  /* see superclass */
   @Override
   public void close() throws Exception {
     // do nothing
