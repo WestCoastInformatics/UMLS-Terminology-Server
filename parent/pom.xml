@@ -6,7 +6,7 @@
   <!-- Module Metadata -->
   <groupId>com.wcinformatics.umls.server</groupId>
   <artifactId>term-server-parent</artifactId>
-  <version>1.3.0</version>
+  <version>1.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Terminology server parent.</name>
   <description>Parent project. Used to define versions of third party modules</description>
