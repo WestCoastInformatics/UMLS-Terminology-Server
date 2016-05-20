@@ -335,8 +335,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
 
     // Load semantic types
-    if (!singleMode)
+    if (!singleMode) {
       loadSrdef();
+    }
 
     // Load MRDOC data
     loadMrdoc();

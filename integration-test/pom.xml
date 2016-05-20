@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.wcinformatics.umls.server</groupId>
     <artifactId>term-server-parent</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
 
@@ -128,7 +128,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
-                <include>**/com/wci/umls/server/test/mojo/RrfSingl*Test.java</include>
+                <include>**/com/wci/umls/server/test/mojo/RrfU*Test.java</include>
               </includes>
               <excludes>
                 <exclude>**/com/wci/umls/server/test/mojo/Reset*Test.java

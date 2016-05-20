@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.UserImpl;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
@@ -92,6 +93,7 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     returnUser.setName(authGivenName + " " + authSurname);
     returnUser.setEmail(authEmail);
     returnUser.setUserName(authUserName);
+    returnUser.setApplicationRole(UserRole.VIEWER);
     return returnUser;
 
   }
