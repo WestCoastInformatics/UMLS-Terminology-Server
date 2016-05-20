@@ -409,7 +409,7 @@ public class ConfigUtility {
    * Returns the graph for json. sample usage:
    * 
    * <pre>
-   *   List<ConceptJpa> list = ConfigUtility.getGraphForJson(str, new TypeReference<List<ConceptJpa>>{});
+   *   List&lt;ConceptJpa&gt; list = ConfigUtility.getGraphForJson(str, new TypeReference&lt;List&lt;ConceptJpa&gt;&gt;{});
    * </pre>
    * @param <T> the
    * @param json the json
