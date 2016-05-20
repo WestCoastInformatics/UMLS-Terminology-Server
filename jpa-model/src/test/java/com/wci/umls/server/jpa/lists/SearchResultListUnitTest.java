@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -31,6 +32,12 @@ public class SearchResultListUnitTest extends AbstractListUnit<SearchResult> {
 
   /** The test fixture o2. */
   private SearchResult o2;
+  
+  /** The property key value pair kv1 */
+  private KeyValuePair kv1;
+  
+  /** The property key value pair kv2 */
+  private KeyValuePair kv2;
 
   /**
    * Setup class.
@@ -53,6 +60,10 @@ public class SearchResultListUnitTest extends AbstractListUnit<SearchResult> {
     ProxyTester tester = new ProxyTester(new SearchResultJpa());
     o1 = (SearchResult) tester.createObject(1);
     o2 = (SearchResult) tester.createObject(2);
+    kv1 = new KeyValuePair("1", "1");
+    kv2 = new KeyValuePair("2", "2");
+    o1.setProperty(kv1);
+    o2.setProperty(kv2);
 
   }
 
