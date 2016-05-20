@@ -59,6 +59,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -401,6 +402,30 @@ public class ConfigUtility {
         new JaxbAnnotationIntrospector(mapper.getTypeFactory());
     mapper.setAnnotationIntrospector(introspector);
     return mapper.readValue(in, graphClass);
+
+  }
+
+  /**
+   * Returns the graph for json. sample usage:
+   * 
+   * <pre>
+   *   List&lt;ConceptJpa&gt; list = ConfigUtility.getGraphForJson(str, new TypeReference&lt;List&lt;ConceptJpa&gt;&gt;{});
+   * </pre>
+   * @param <T> the
+   * @param json the json
+   * @param typeRef the type ref
+   * @return the graph for json
+   * @throws Exception the exception
+   */
+  public static <T> T getGraphForJson(String json, TypeReference<T> typeRef)
+    throws Exception {
+    InputStream in =
+        new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+    ObjectMapper mapper = new ObjectMapper();
+    AnnotationIntrospector introspector =
+        new JaxbAnnotationIntrospector(mapper.getTypeFactory());
+    mapper.setAnnotationIntrospector(introspector);
+    return mapper.readValue(in, typeRef);
 
   }
 

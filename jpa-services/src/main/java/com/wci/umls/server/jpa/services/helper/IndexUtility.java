@@ -406,7 +406,7 @@ public class IndexUtility {
     if (pfsQuery.toString().startsWith(" AND ")) {
       finalQuery = finalQuery.substring(5);
     }
-    Logger.getLogger(IndexUtility.class).debug("  query = " + finalQuery);
+    Logger.getLogger(IndexUtility.class).info("  query = " + finalQuery);
     luceneQuery = queryParser.parse(finalQuery);
 
     // Validate query terms

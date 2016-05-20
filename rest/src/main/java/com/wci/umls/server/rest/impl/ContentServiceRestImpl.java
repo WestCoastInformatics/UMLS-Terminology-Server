@@ -2986,7 +2986,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     MetadataService metadataService, String userName, AtomClass obj)
     throws Exception {
     final User user = service.getUser(userName);
-    if (user.getUserPreferences().getPrecedenceList() != null) {
+    if (user.getUserPreferences() != null
+        && user.getUserPreferences().getPrecedenceList() != null) {
       return user.getUserPreferences().getPrecedenceList();
     } else
       return metadataService.getDefaultPrecedenceList(obj.getTerminology(),
