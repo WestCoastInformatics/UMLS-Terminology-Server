@@ -235,7 +235,7 @@ tsApp.controller('ContentCtrl', [
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a search result
     $scope.getComponent = function(type, terminologyId, terminology, version) {
-      
+
       console.debug('getComponent', type, terminologyId, terminology, version);
 
       var wrapper = {
@@ -357,7 +357,7 @@ tsApp.controller('ContentCtrl', [
 
     // helper function to get component from wrapper
     $scope.getComponentFromWrapper = function(wrapper) {
-      console.debug('getComponentFromWrapper',wrapper);
+      console.debug('getComponentFromWrapper', wrapper);
       $scope
         .getComponent(wrapper.type, wrapper.terminologyId, wrapper.terminology, wrapper.version);
     }
@@ -559,8 +559,9 @@ tsApp.controller('ContentCtrl', [
       var currentUrl = window.location.href;
       var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
       // TODO; don't hardcode this - maybe "simple" should be a parameter
-      var newUrl = baseUrl + '/content/simple/' + $scope.component.type + '/' + $scope.component.terminology + '/'
-        + $scope.component.version + '/' + $scope.component.terminologyId;
+      var newUrl = baseUrl + '/content/simple/' + $scope.component.type + '/'
+        + $scope.component.terminology + '/' + $scope.component.version + '/'
+        + $scope.component.terminologyId;
       var myWindow = window.open(newUrl, $scope.component.terminology + '/'
         + $scope.component.version + ', ' + $scope.component.terminologyId + ', '
         + $scope.component.name);
@@ -643,8 +644,6 @@ tsApp.controller('ContentCtrl', [
     // Open notes modal, from either wrapper or component
     $scope.viewNotes = function(wrapper) {
 
-      var modalScope = $rootScope.$new();
-
       var modalInstance = $uibModal.open({
         animation : $scope.animationsEnabled,
         templateUrl : 'app/util/component-note-modal/componentNoteModal.html',
@@ -653,7 +652,7 @@ tsApp.controller('ContentCtrl', [
         size : 'lg',
         resolve : {
           component : function() {
-            return wrapper;
+            return $scope.component;
 
           }
         }
@@ -802,8 +801,8 @@ tsApp.controller('ContentCtrl', [
                   function() {
 
                     // get the component
-                    $scope.getComponent($routeParams.type, $routeParams.terminologyId, $routeParams.terminology,
-                      $routeParams.version);
+                    $scope.getComponent($routeParams.type, $routeParams.terminologyId,
+                      $routeParams.terminology, $routeParams.version);
                   });
               }
             }

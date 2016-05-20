@@ -31,7 +31,9 @@ tsApp
           roots : 125,
           trees : 5,
           search : 10,
-          sibling : 10
+          sibling : 10,
+          filter : 5,
+          sort : 1
         };
 
         // Default search results object
@@ -341,9 +343,9 @@ tsApp
 
         // Gets the tree for the specified component
         this.getTree = function(wrapper, startIndex) {
-          
+
           console.debug('getTree', wrapper, startIndex);
-          
+
           if (startIndex === undefined) {
             startIndex = 0;
           }
@@ -389,7 +391,7 @@ tsApp
 
         // Get child trees for the tree (and start index)
         this.getChildTrees = function(tree, type, startIndex) {
-          
+
           console.debug('getChildTrees', tree, type, startIndex);
           // Set up deferred
           var deferred = $q.defer();
@@ -615,7 +617,7 @@ tsApp
         // Handle paging of relationships (requires content service
         // call).
         this.findRelationships = function(wrapper, page, parameters) {
-          
+
           console.debug('findRelationships', wrapper, page, parameters);
           var deferred = $q.defer();
 
@@ -766,14 +768,15 @@ tsApp
 
         this.addComponentNote = function(wrapper, note) {
           var deferred = $q.defer();
-          if (!wrapper || !annotationText) {
-            deferred.reject('Concept id and annotation text must be specified');
+          if (!wrapper || !note) {
+            deferred.reject('Concept id and note must be specified');
           } else {
 
             gpService.increment();
             $http.post(
               contentUrl + wrapper.type + '/note/' + wrapper.terminology + '/' + wrapper.version
                 + '/' + wrapper.terminologyId + '/add', note).then(function(response) {
+              gpService.decrement();
               deferred.resolve(response.data);
             }, function(response) {
               utilService.handleError(response);
@@ -788,13 +791,14 @@ tsApp
 
         this.removeComponentNote = function(wrapper, noteId) {
           var deferred = $q.defer();
-          if (!component || !annotationId) {
-            deferred.reject('Component wrapper and note id must be specified');
+          if (!wrapper || !noteId) {
+            deferred.reject('Component wrapper (minimum type) and note id must be specified');
           } else {
 
             gpService.increment();
             $http.post(contentUrl + wrapper.type + '/note/' + noteId + '/remove').then(
               function(response) {
+                gpService.decrement();
                 deferred.resolve(response.data);
               }, function(response) {
                 utilService.handleError(response);
@@ -849,7 +853,7 @@ tsApp
          * for history and other considerations
          */
         this.getCallbacks = function() {
-          return {       
+          return {
             findRelationships : this.findRelationships,
             findDeepRelationships : this.findDeepRelationships
           }

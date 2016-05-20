@@ -6,6 +6,7 @@ tsApp
       '$location',
       '$anchorScroll',
       '$cookies',
+      'appConfig',
       function($location, $anchorScroll, $cookies, appConfig) {
         console.debug('configure utilService');
 
@@ -279,8 +280,9 @@ tsApp
 
           // apply sort if specified
           if (paging.sortField) {
+            console.debug('sorting', paging.sortField, paging.sortAscending)
             // if ascending specified, use that value, otherwise use false
-            newArray.sort(this.sortBy(paging.sortField, paging.ascending));
+            newArray.sort(this.sortBy(paging.sortField, paging.sortAscending));
           }
 
           // apply filter

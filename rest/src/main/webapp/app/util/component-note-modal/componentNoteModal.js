@@ -1,15 +1,31 @@
-tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstance, contentService, utilService, component) {
+tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstance, $sce,
+  contentService, utilService, component) {
 
-  console.debug('component notes modal opened', component, callbacks);
+  console.debug('component notes modal opened', component);
 
   // Component wrapper or full component
   $scope.component = component;
-  
-  console.debug('notes modal: ', component, callbacks);
+
+  // TODO Remove once concept/cui integration happens
+  $scope.componentType = null;
+  switch ($scope.component.type) {
+  case 'cui':
+    $scope.componentType = 'Concept';
+    break;
+  case 'dui':
+    $scope.componentType = 'Descriptor';
+    break;
+  case 'code':
+    $scope.componentType = 'Code';
+    break;
+  default:
+    $scope.componentType =  $scope.component.type;
+  }
 
   function getPagedList() {
-    $scope.pagedData = utilService.getPagedArray($scope.component.userAnnotations,
-      $scope.paging);
+    console.debug('notes: getpageddata')
+    $scope.pagedData = utilService.getPagedArray($scope.component.notes, $scope.paging);
+    console.debug($scope.pagedData);
   }
 
   // instantiate paging and paging callback function
@@ -19,17 +35,19 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
     getPagedList : getPagedList
   };
 
-  // default sort is by date descending
-  $scope.paging.sortField = 'lastModified';
+  // set defaults/overrides
+  $scope.paging.pageSize = 5;
+  $scope.paging.sortField = 'timestamp';
   $scope.paging.sortAscending = false;
 
   // Default is Group/Type, where in getpagedData
   // relationshipType is automatically appended as a multi-
   // sort search
-  $scope.paging.sortOptions = [ {
-    key : 'Date',
-    value : 'lastModified'
-  } ];
+  $scope.paging.sortOptions = [];
+
+  $scope.getNoteValue = function(note) {
+    return $sce.trustAsHtml(note.note);
+  };
 
   //
   // Note controls
@@ -37,26 +55,31 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
   $scope.addNote = function(note) {
     console.debug('Adding note: ', note);
     contentService.addComponentNote($scope.component, note).then(function(response) {
-      console.debug('Note added, new object = ', response);
-      
+      $scope.refreshConcept();
     });
   }
 
   $scope.removeNote = function(note) {
-
+    console.debug('Remove note: ', note.id);
+    contentService.removeComponentNote($scope.component, note.id).then(function(response) {
+      $scope.refreshConcept();
+    })
   }
   
+  $scope.refreshConcept = function() {
+    // re-retrieve the component (from either wrapper or full component)
+    contentService.getComponent($scope.component).then(function(response) {
+      $scope.component = response;
+      getPagedList();
+    });
+  }
+
   //
   // Initialization
   // 
   $scope.initialize = function() {
-    
-    // re-retrieve the component (from either wrapper or full component)
-    contentService.getComponent($scope.component).then(function(response) {
-      $scope.component.name = response;
-    });
+    $scope.refreshConcept();
   }
-  
   $scope.initialize();
 
   //

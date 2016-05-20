@@ -56,10 +56,12 @@ import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorNoteJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -3115,13 +3117,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       Concept concept =
-          contentService.getConcept(terminologyId, terminologyId, version,
+          contentService.getConcept(terminologyId, terminology, version,
               Branch.ROOT);
-      Note note = new ConceptNoteJpa();
+      
+      if (concept == null) {
+        throw new Exception("Could not retrieve concept for note addition");
+      }
+      ConceptNoteJpa note = new ConceptNoteJpa();
       note.setNote(noteText);
       note.setLastModifiedBy(authToken);
       note.setTimestamp(new Date());
-      ((ConceptNoteJpa) note).setConcept(concept);
+      note.setConcept(concept);
 
       // add the note, add it to the concept, and update the concept
       Note newNote = contentService.addNote(note);
@@ -3143,7 +3149,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Remove a note from a concept", notes = "Remove a note from a concept", response = String.class)
   @Override
   public void removeConceptNote(
-    @ApiParam(value = "Id of note to remove", required = true) Long noteId,
+    @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -3167,6 +3173,182 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     } catch (Exception e) {
       handleException(e, "trying to remove note from concept");
+    } finally {
+      securityService.close();
+    }
+
+  }
+  
+
+  /* see superclass */
+  @POST
+  @Path("/code/note/{terminology}/{version}/{terminologyId}/add")
+  @Produces("text/plain")
+  @ApiOperation(value = "Adds a user note to a code", notes = "Adds a user note to a code", response = String.class)
+  @Override
+  public void addCodeNote(
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Note to add", required = true) String noteText,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Project): /code/" + terminology + "/"
+            + terminologyId + "/" + version + " for authToken " + authToken);
+
+    final SecurityService securityService = new SecurityServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authorizeApp(securityService, authToken, "add code note",
+          UserRole.VIEWER);
+
+      Code code =
+          contentService.getCode(terminologyId, terminology, version,
+              Branch.ROOT);
+      
+      if (code == null) {
+        throw new Exception("Could not retrieve code for note addition");
+      }
+      CodeNoteJpa note = new CodeNoteJpa();
+      note.setNote(noteText);
+      note.setLastModifiedBy(authToken);
+      note.setTimestamp(new Date());
+      note.setCode(code);
+
+      // add the note, add it to the code, and update the code
+      Note newNote = contentService.addNote(note);
+      code.addNote(newNote);
+      contentService.updateCode(code);
+
+    } catch (Exception e) {
+      handleException(e, "trying to add user favorite");
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @POST
+  @Path("/code/note/{id}/remove")
+  @Produces("text/plain")
+  @ApiOperation(value = "Remove a note from a code", notes = "Remove a note from a code", response = String.class)
+  @Override
+  public void removeCodeNote(
+    @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Project): /code/note" + noteId
+            + "/remove for authToken " + authToken);
+
+    final SecurityService securityService = new SecurityServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authorizeApp(securityService, authToken, "remove code note",
+          UserRole.VIEWER);
+      
+      CodeNoteJpa note = (CodeNoteJpa) contentService.getNote(noteId, CodeNoteJpa.class);
+      Code code = note.getCode();
+      
+      code.removeNote(note);
+      contentService.updateCode(code);
+      contentService.removeNote(noteId, CodeNoteJpa.class);
+     
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove note from code");
+    } finally {
+      securityService.close();
+    }
+
+  }
+  
+
+  /* see superclass */
+  @POST
+  @Path("/dui/note/{terminology}/{version}/{terminologyId}/add")
+  @Produces("text/plain")
+  @ApiOperation(value = "Adds a user note to a descriptor", notes = "Adds a user note to a descriptor", response = String.class)
+  @Override
+  public void addDescriptorNote(
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Note to add", required = true) String noteText,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Project): /dui/" + terminology + "/"
+            + terminologyId + "/" + version + " for authToken " + authToken);
+
+    final SecurityService securityService = new SecurityServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authorizeApp(securityService, authToken, "add descriptor note",
+          UserRole.VIEWER);
+
+      Descriptor descriptor =
+          contentService.getDescriptor(terminologyId, terminology, version,
+              Branch.ROOT);
+      
+      if (descriptor == null) {
+        throw new Exception("Could not retrieve descriptor for note addition");
+      }
+      DescriptorNoteJpa note = new DescriptorNoteJpa();
+      note.setNote(noteText);
+      note.setLastModifiedBy(authToken);
+      note.setTimestamp(new Date());
+      note.setDescriptor(descriptor);
+
+      // add the note, add it to the descriptor, and update the descriptor
+      Note newNote = contentService.addNote(note);
+      descriptor.addNote(newNote);
+      contentService.updateDescriptor(descriptor);
+
+    } catch (Exception e) {
+      handleException(e, "trying to add user favorite");
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @POST
+  @Path("/dui/note/{id}/remove")
+  @Produces("text/plain")
+  @ApiOperation(value = "Remove a note from a descriptor", notes = "Remove a note from a descriptor", response = String.class)
+  @Override
+  public void removeDescriptorNote(
+    @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Project): /dui/note" + noteId
+            + "/remove for authToken " + authToken);
+
+    final SecurityService securityService = new SecurityServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authorizeApp(securityService, authToken, "remove descriptor note",
+          UserRole.VIEWER);
+      
+      DescriptorNoteJpa note = (DescriptorNoteJpa) contentService.getNote(noteId, DescriptorNoteJpa.class);
+      Descriptor descriptor = note.getDescriptor();
+      
+      descriptor.removeNote(note);
+      contentService.updateDescriptor(descriptor);
+      contentService.removeNote(noteId, DescriptorNoteJpa.class);
+     
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove note from descriptor");
     } finally {
       securityService.close();
     }

@@ -2,17 +2,16 @@
   <div class="alert alert-success">Favorites ({{pagedData.totalCount}})</div>
   <div pager paging="paging" count="pagedData.totalCount"
     callback="pageCallback"></div>
-  <table class="table table-hover"
-    ng-show="pagedData.results.length > 0">
+  <table class="table table-hover" ng-show="pagedData.results.length > 0">
     <tbody>
       <!-- table-hover makes use of the active class -->
       <tr ng-class="{active: favorite.active}"
         ng-mouseenter="favorite.hover = true;"
         ng-mouseleave="favorite.hover = false;"
         ng-repeat="favorite in pagedData.results">
-        
         <!--  Only put ng-click callback on first two cells (i.e. not the controls cell) -->
-        <td ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, favorite.terminologyId, favorite.terminology, favorite.version)">
+        <td
+          ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, favorite.terminologyId, favorite.terminology, favorite.version)">
           <span class="nobreak">
             {{favorite.active}}
             <span
@@ -27,9 +26,12 @@
         <td style="width: 15%;">
           <!--  Only show the controls if the current row is hovered over -->
           <span ng-show="favorite.hover">
-            <i class="glyphicon glyphicon-book" title="View Notes"></i> &nbsp; <i
-              confirm="Confirm me!" class="glyphicon glyphicon-remove"
-              title="Remove Favorite" ng-click="removeFavorite(favorite)"></i>
+            <i
+              ng-class="[{noul : favorite.property.key === 'hasNotes' && favorite.property.value === 'true'}, {grey : favorite.property.key === 'hasNotes' && favorite.property.value !== 'true'}]"
+              ng-click="viewNotes(favorite)" class="glyphicon glyphicon-book"
+              title="Add/View Notes"></i> &nbsp; <i confirm="Confirm me!"
+              class="glyphicon glyphicon-remove noul" title="Remove Favorite"
+              ng-click="removeFavorite(favorite)"></i>
           </span>
         </td>
       </tr>

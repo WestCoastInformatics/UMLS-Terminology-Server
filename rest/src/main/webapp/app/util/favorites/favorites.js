@@ -1,10 +1,11 @@
 // Content controller
 tsApp.directive('favorites', [
+  '$rootScope',
   'utilService',
   'contentService',
   'securityService',
   '$uibModal',
-  function(utilService, contentService, securityService, $uibModal) {
+  function($rootScope, utilService, contentService, securityService, $uibModal) {
     console.debug('configure favorites directive');
     return {
       restrict : 'A',
@@ -80,6 +81,30 @@ tsApp.directive('favorites', [
 
           });
         }
+
+        // Open notes modal, from either wrapper or component
+        scope.viewNotes = function(favorite) {
+
+          var modalInstance = $uibModal.open({
+            animation : scope.animationsEnabled,
+            templateUrl : 'app/util/component-note-modal/componentNoteModal.html',
+            controller : 'componentNoteModalCtrl',
+            scope : $rootScope,
+            size : 'lg',
+            resolve : {
+              component : function() {
+                return favorite;
+
+              }
+            }
+          });
+
+          modalInstance.result.then(function() {
+
+          }, function() {
+            // do nothing
+          });
+        };
 
       }
     };

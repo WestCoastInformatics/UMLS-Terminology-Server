@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.StringClass;
  * The Interface ContentServiceRest.
  */
 public interface ContentServiceRest {
-  
+
   /**
    * Gets the concept.
    *
@@ -58,7 +58,7 @@ public interface ContentServiceRest {
    */
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfscParameterJpa pfsc, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find concepts for general query.
@@ -234,7 +234,7 @@ public interface ContentServiceRest {
    */
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfscParameterJpa pfsc, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find descriptors for general query.
@@ -677,7 +677,7 @@ public interface ContentServiceRest {
    */
   public TreeList findConceptTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find descriptor tree children.
@@ -690,9 +690,9 @@ public interface ContentServiceRest {
    * @return the tree list
    * @throws Exception the exception
    */
-  public TreeList findDescriptorTreeChildren(String terminology,
-    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public TreeList findDescriptorTreeChildren(String terminology, String version,
+    String terminologyId, PfsParameterJpa pfs, String authToken)
+      throws Exception;
 
   /**
    * Find code tree children.
@@ -707,7 +707,7 @@ public interface ContentServiceRest {
    */
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find concept tree roots.
@@ -871,9 +871,21 @@ public interface ContentServiceRest {
    * @return the ecl expression results
    * @throws Exception the exception
    */
-  public SearchResultList getEclExpressionResults(String terminology, String version,
-    String query, String authToken) throws Exception;
+  public SearchResultList getEclExpressionResults(String terminology,
+    String version, String query, String authToken) throws Exception;
 
+  /**
+   * Gets the favorites for user.
+   *
+   * @param pfs the pfs
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the favorites for user
+   * @throws Exception the exception
+   */
+  public SearchResultList getFavoritesForUser(String terminology,
+    String version, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Remove concept note.
@@ -894,21 +906,52 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addConceptNote(String terminology, String version, String terminologyId,
-    String noteText, String authToken) throws Exception;
+  public void addConceptNote(String terminology, String version,
+    String terminologyId, String noteText, String authToken) throws Exception;
 
   /**
-   * Gets the favorites for user.
+   * Add code note.
    *
-   * @param pfs the pfs
    * @param terminology the terminology
    * @param version the version
+   * @param terminologyId the terminology id
+   * @param noteText the note text
    * @param authToken the auth token
-   * @return the favorites for user
    * @throws Exception the exception
    */
- public SearchResultList getFavoritesForUser(String terminology,
-    String version, PfsParameterJpa pfs, String authToken) throws Exception;
+  public void addCodeNote(String terminology, String version,
+    String terminologyId, String noteText, String authToken) throws Exception;
 
+  /**
+   * Remove code note.
+   *
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeCodeNote(Long noteId, String authToken) throws Exception;
+
+  /**
+   * Add descriptor note.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param noteText the note text
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void addDescriptorNote(String terminology, String version,
+    String terminologyId, String noteText, String authToken) throws Exception;
+
+  /**
+   * Remove descriptor note.
+   *
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeDescriptorNote(Long noteId, String authToken)
+    throws Exception;
 
 }

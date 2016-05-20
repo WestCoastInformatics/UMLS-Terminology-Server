@@ -1,42 +1,38 @@
 <div class="modal-header">
-  <h4>{{component.terminology}} {{component.type}} Notes:
+  <h4>{{component.terminology}} {{componentType}} Notes:
     {{component.terminologyId}} {{component.name}}</h4>
 </div>
 <div class="modal-body">
   <div>
-    <h5 ng-show="object.notes.length > 0">
-      <b>Notes<span ng-show="pagedNotes.length > 0">
-          ({{pagedNotes.totalCount}})</span></b>
+    <h5 ng-show="component.notes.length > 0">
+      <b>Notes<span ng-show="pagedData.data.length > 0">
+          ({{pagedData.totalCount}})</span></b>
     </h5>
+    
     <div pager paging="paging" count="pagedData.totalCount"
       callback="pageCallback"></div>
-    <table ng-show="pagedData.length > 0" class="table">
-      <thead class="table-select-row">
-        <tr>
-          <th class="col-md-6 col-xs-6">Note</th>
-          <th class="col-md-2 col-xs-2">Date</th>
-          <th class="col-md-2 col-xs-2">Author</th>
-          <th class="col-md-2 col-xs-2"></th>
-        </tr>
-      </thead>
+    <table ng-show="pagedData.data.length > 0" class="table table-hover">
       <tbody>
-        <tr ng-repeat="note in pagedNotes">
-          <td>
+        <tr ng-repeat="note in pagedData.data"
+          ng-mouseenter="note.hover = true;" ng-mouseleave="note.hover = false;">
+          <td class="col-md-8 col-xs-8">
             <div ng-bind-html="getNoteValue(note)"></div>
           </td>
-          <td>{{toDate(note.lastModified)}}</td>
-          <td>{{note.lastModifiedBy}}</td>
-          <td>
-            <a class="toolicon" title="Remove"
-              ng-click="removeNote(object, note); $event.stopPropagation()">
-              <i title="Remove note" class="noul material-icons md-18">delete</i>
-            </a>
+          <td class="col-m3-2 col-xs-2">
+            {{note.lastModifiedBy}}
+          </td>
+          <td class="col-md-3 col-xs-3">
+            <span ng-bind="note.lastModified | date:'medium'"></span>
+          </td>
+          <td class="col-md-1 col-xs-1">
+            <i ng-show="note.hover" title="Remove note"
+              ng-click="removeNote(note)"
+              class="noul glyphicon glyphicon-remove"></i>
           </td>
         </tr>
       </tbody>
     </table>
-    <textarea rows="4" cols="40" ng-model="newNote"
-        ui-tinymce="tinymceOptions"></textarea>
+    <textarea rows="4" cols="40" ng-model="newNote" ui-tinymce="tinymceOptions"></textarea>
   </div>
 </div>
 <div class="modal-footer">

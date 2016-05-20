@@ -11,6 +11,9 @@ tsApp.directive('tsHeader', [ '$rootScope', '$routeParams', 'securityService', '
         // pass values to scope
         scope.appConfig = appConfig;
 
+        // TODO Move this to utilService, combine with getHeaderOffset for anchorScroll points
+        // scope.isShowing = utilService.isHeaderShowing or some such
+        // use the window.innerWidth <= 800 to detect -xs 
         scope.isShowing = function() {
           switch ($routeParams.mode) {
           case 'simple':

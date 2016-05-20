@@ -7,7 +7,7 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
 
   // metadata (passed in)
   $scope.metadata = metadata;
-  
+
   // determine class type for display
   $scope.classType = null;
   if ($scope.metadata && $scope.metadata.terminology) {
@@ -35,11 +35,10 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
   };
 
   $scope.selectSearchResult = function(searchResult) {
-    $scope.getComponent(searchResult)
-      .then(function(response) {
+    $scope.getComponent(searchResult).then(function(response) {
 
-        $uibModalInstance.close(response);
-      });
+      $uibModalInstance.close(response);
+    });
   }
 
   $scope.cancel = function() {
@@ -67,8 +66,8 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
       return;
     }
     contentService.findComponentsAsList($scope.searchParams.query,
-      $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-      $scope.searchParams.page, $scope.searchParams).then(
+      $scope.metadata.terminology.organizingClassType, $scope.metadata.terminology.terminology,
+      $scope.metadata.terminology.version, $scope.searchParams.page, $scope.searchParams).then(
       function(data) {
 
         $scope.searchResults = data;
@@ -121,7 +120,6 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
     }
   };
 
-
   // set the top level component from a tree node
   $scope.getComponentFromTree = function(type, nodeScope) {
     var tree = nodeScope.$modelValue;
@@ -131,12 +129,11 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
   // Initialization
   //
 
-
   $scope.componentReportCallbacks = {
     getComponent : $scope.getComponent,
     getComponentFromTree : $scope.getComponentFromTree
-  
+
   };
-  
+
   // none
 });
