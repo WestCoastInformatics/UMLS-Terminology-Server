@@ -224,7 +224,7 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(version, "version");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/cui/"
+        client.target(config.getProperty("base.url") + "/content/concept/"
             + terminology + "/" + version + "/" + terminologyId);
     Response response =
         target.request(MediaType.APPLICATION_XML)
@@ -258,7 +258,7 @@ public class ContentClientRest extends RootClientRest implements
 
     WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/content/cui/"
+            + "/content/concept/"
             + terminology
             + "/"
             + version
@@ -296,7 +296,7 @@ public class ContentClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/content/cui"
+            + "/content/concept"
             + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
@@ -337,7 +337,7 @@ public class ContentClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/cui/"
+        client.target(config.getProperty("base.url") + "/content/concept/"
             + terminology + "/" + version + "/autocomplete/" + searchTerm);
     Response response =
         target.request(MediaType.APPLICATION_XML)
@@ -369,7 +369,7 @@ public class ContentClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/dui/"
+        client.target(config.getProperty("base.url") + "/content/descriptor/"
             + terminology + "/" + version + "/" + terminologyId);
     Response response =
         target.request(MediaType.APPLICATION_XML)
@@ -402,7 +402,7 @@ public class ContentClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/content/dui/"
+            + "/content/descriptor/"
             + terminology
             + "/"
             + version
@@ -440,7 +440,7 @@ public class ContentClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/content/dui"
+            + "/content/descriptor"
             + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
@@ -481,7 +481,7 @@ public class ContentClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/dui/"
+        client.target(config.getProperty("base.url") + "/content/descriptor/"
             + terminology + "/" + version + "/autocomplete/" + searchTerm);
     Response response =
         target.request(MediaType.APPLICATION_XML)
@@ -722,7 +722,7 @@ public class ContentClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/cui/"
+        client.target(config.getProperty("base.url") + "/content/concept/"
             + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
             + parentsOnly);
     String pfsString =
@@ -759,7 +759,7 @@ public class ContentClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/cui/"
+        client.target(config.getProperty("base.url") + "/content/concept/"
             + terminology + "/" + version + "/" + terminologyId
             + "/descendants/" + childrenOnly);
     String pfsString =
@@ -796,7 +796,7 @@ public class ContentClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/dui/"
+        client.target(config.getProperty("base.url") + "/content/descriptor/"
             + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
             + parentsOnly);
     String pfsString =
@@ -833,7 +833,7 @@ public class ContentClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/dui/"
+        client.target(config.getProperty("base.url") + "/content/descriptor/"
             + terminology + "/" + version + "/" + terminologyId
             + "/descendants/" + childrenOnly);
     String pfsString =
@@ -944,7 +944,7 @@ public class ContentClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
 
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/cui/"
+        client.target(config.getProperty("base.url") + "/content/concept/"
             + terminology + "/" + version + "/" + terminologyId + "/members");
     Response response =
         target.request(MediaType.APPLICATION_XML)
@@ -1167,7 +1167,7 @@ public class ContentClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url")
-        + "/content/cui/subset/all/" + terminology + "/" + version);
+        + "/content/concept/subset/all/" + terminology + "/" + version);
     Response response =
         target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
@@ -1245,7 +1245,7 @@ public class ContentClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/content/cui/subset/"
+            + "/content/concept/subset/"
             + subsetId
             + "/"
             + terminology
@@ -1300,7 +1300,7 @@ public class ContentClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/cui/"
+        client.target(config.getProperty("base.url") + "/content/concept/"
             + terminology + "/" + version + "/" + terminologyId
             + "/relationships/deep");
     String pfsString =
@@ -1339,7 +1339,7 @@ public class ContentClientRest extends RootClientRest implements
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for concept " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
-    return findRelationshipsHelper("cui", terminologyId, terminology, version,
+    return findRelationshipsHelper("concept", terminologyId, terminology, version,
         query, pfs, authToken);
   }
 
@@ -1354,7 +1354,7 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
-    return findRelationshipsHelper("dui", terminologyId, terminology, version,
+    return findRelationshipsHelper("descriptor", terminologyId, terminology, version,
         query, pfs, authToken);
   }
 
@@ -1441,7 +1441,7 @@ public class ContentClientRest extends RootClientRest implements
     Logger.getLogger(getClass()).debug(
         "Content Client - find mappings for concept " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs + ", " + query);
-    return findMappingsHelper("cui", terminologyId, terminology, version,
+    return findMappingsHelper("concept", terminologyId, terminology, version,
         query, pfs, authToken);
   }
 
@@ -1479,7 +1479,7 @@ public class ContentClientRest extends RootClientRest implements
     Logger.getLogger(getClass()).debug(
         "Content Client - find mappings for descriptor " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs + ", " + query);
-    return findMappingsHelper("dui", terminologyId, terminology, version,
+    return findMappingsHelper("descriptor", terminologyId, terminology, version,
         query, pfs, authToken);
   }
 
@@ -1545,7 +1545,7 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
-    return findTreesHelper("cui", terminologyId, terminology, version, pfs,
+    return findTreesHelper("concept", terminologyId, terminology, version, pfs,
         authToken);
   }
 
@@ -1559,7 +1559,7 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
-    return findTreesHelper("dui", terminologyId, terminology, version, pfs,
+    return findTreesHelper("descriptor", terminologyId, terminology, version, pfs,
         authToken);
   }
 
@@ -1626,7 +1626,7 @@ public class ContentClientRest extends RootClientRest implements
             + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
-    return findTreeForQueryHelper("cui", terminology, version, query, pfs,
+    return findTreeForQueryHelper("concept", terminology, version, query, pfs,
         authToken);
   }
 
@@ -1639,7 +1639,7 @@ public class ContentClientRest extends RootClientRest implements
             + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
-    return findTreeForQueryHelper("dui", terminology, version, query, pfs,
+    return findTreeForQueryHelper("descriptor", terminology, version, query, pfs,
         authToken);
   }
 
@@ -1711,7 +1711,7 @@ public class ContentClientRest extends RootClientRest implements
       throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/" + "/cui"
+        client.target(config.getProperty("base.url") + "/content/" + "/concept"
             + "/" + terminology + "/" + version + "/trees/children");
 
     String pfsString =
@@ -1742,7 +1742,7 @@ public class ContentClientRest extends RootClientRest implements
       throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/" + "/dui"
+        client.target(config.getProperty("base.url") + "/content/" + "/descriptor"
             + "/" + terminology + "/" + version + "/trees/children");
 
     String pfsString =
@@ -1801,7 +1801,7 @@ public class ContentClientRest extends RootClientRest implements
     PfsParameterJpa pfs, String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/" + "/cui"
+        client.target(config.getProperty("base.url") + "/content/" + "/concept"
             + "/" + terminology + "/" + version + "/trees/roots");
 
     String pfsString =
@@ -1857,7 +1857,7 @@ public class ContentClientRest extends RootClientRest implements
     PfsParameterJpa pfs, String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/" + "/dui"
+        client.target(config.getProperty("base.url") + "/content/" + "/descriptor"
             + "/" + terminology + "/" + version + "/trees/roots");
 
     String pfsString =
@@ -2081,6 +2081,33 @@ public class ContentClientRest extends RootClientRest implements
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public void addCodeNote(String terminology, String version,
+    String terminologyId, String noteText, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void removeCodeNote(Long noteId, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void addDescriptorNote(String terminology, String version,
+    String terminologyId, String noteText, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void removeDescriptorNote(Long noteId, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    
   }
 
 }

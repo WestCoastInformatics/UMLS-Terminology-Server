@@ -748,7 +748,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/cui/{terminology}/{version}/{terminologyId}")
+  @Path("/concept/{terminology}/{version}/{terminologyId}")
   @ApiOperation(value = "Get concept by id, terminology, and version", notes = "Get the root branch concept matching the specified parameters", response = ConceptJpa.class)
   public Concept getConcept(
     @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
@@ -758,7 +758,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -865,7 +865,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}")
+  @Path("/concept/{terminology}/{version}")
   @ApiOperation(value = "Find concepts matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultListJpa.class)
   public SearchResultList findConceptsForQuery(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
@@ -879,7 +879,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version
+        "RESTful call (Content): /concept/" + terminology + "/" + version
             + "?query=" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
     final ContentService contentService = new ContentServiceJpa();
@@ -905,7 +905,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui")
+  @Path("/concept")
   @ApiOperation(value = "Find concepts matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultListJpa.class)
   public SearchResultList findConceptsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
@@ -919,7 +919,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     final String jqlStr = jql == null ? "" : jql;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui?" + "query=" + queryStr + "&jql="
+        "RESTful call (Content): /concept?" + "query=" + queryStr + "&jql="
             + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
@@ -982,7 +982,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/cui/{terminology}/{version}/autocomplete/{searchTerm}")
+  @Path("/concept/{terminology}/{version}/autocomplete/{searchTerm}")
   @ApiOperation(value = "Find autocomplete matches for concept searches", notes = "Gets a list of search autocomplete matches for the specified search term", response = StringList.class)
   public StringList autocompleteConcepts(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
@@ -992,7 +992,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version
+        "RESTful call (Content): /concept/" + terminology + "/" + version
             + "/autocomplete/" + searchTerm);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -1014,7 +1014,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/dui/{terminology}/{version}/{terminologyId}")
+  @Path("/descriptor/{terminology}/{version}/{terminologyId}")
   @ApiOperation(value = "Get descriptor by id, terminology, and version", notes = "Get the root branch descriptor matching the specified parameters", response = DescriptorJpa.class)
   public Descriptor getDescriptor(
     @ApiParam(value = "Descriptor terminology id, e.g. D003933", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1024,7 +1024,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version + "/"
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -1061,7 +1061,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}")
+  @Path("/descriptor/{terminology}/{version}")
   @ApiOperation(value = "Find descriptors matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultListJpa.class)
   public SearchResultList findDescriptorsForQuery(
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
@@ -1075,7 +1075,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version
             + "?query=" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
     final ContentService contentService = new ContentServiceJpa();
@@ -1101,7 +1101,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/dui/")
+  @Path("/descriptor/")
   @ApiOperation(value = "Find descriptors matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultListJpa.class)
   public SearchResultList findDescriptorsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
@@ -1115,7 +1115,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     final String jqlStr = jql == null ? "" : jql;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui" + "?query=" + queryStr + "&jql="
+        "RESTful call (Content): /descriptor" + "?query=" + queryStr + "&jql="
             + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
@@ -1140,7 +1140,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/dui/{terminology}/{version}/autocomplete/{searchTerm}")
+  @Path("/descriptor/{terminology}/{version}/autocomplete/{searchTerm}")
   @ApiOperation(value = "Find autocomplete matches for descriptor searches", notes = "Gets a list of search autocomplete matches for the specified search term", response = StringList.class)
   public StringList autocompleteDescriptors(
     @ApiParam(value = "Terminology, e.g. MSH", required = true) @PathParam("terminology") String terminology,
@@ -1150,7 +1150,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version
             + "/autocomplete/" + searchTerm);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -1380,7 +1380,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
+  @Path("/concept/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
   @ApiOperation(value = "Find ancestor concepts", notes = "Gets a list of ancestor concepts", response = ConceptListJpa.class)
   public ConceptList findAncestorConcepts(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1392,7 +1392,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
@@ -1422,7 +1422,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
+  @Path("/concept/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
   @ApiOperation(value = "Find descendant concepts", notes = "Gets a list of descendant concepts", response = ConceptListJpa.class)
   public ConceptList findDescendantConcepts(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1434,7 +1434,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
@@ -1464,7 +1464,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
+  @Path("/descriptor/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
   @ApiOperation(value = "Find ancestor descriptors", notes = "Gets a list of ancestor descriptors", response = DescriptorListJpa.class)
   public DescriptorList findAncestorDescriptors(
     @ApiParam(value = "Descriptor terminology id, e.g. D003423", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1476,7 +1476,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version
             + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
@@ -1506,7 +1506,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
+  @Path("/descriptor/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
   @ApiOperation(value = "Find descendant descriptors", notes = "Gets a list of descendant descriptors", response = DescriptorListJpa.class)
   public DescriptorList findDescendantDescriptors(
     @ApiParam(value = "Descriptor terminology id, e.g. D002342", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1518,7 +1518,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version
             + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
@@ -1629,7 +1629,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/cui/{terminology}/{version}/{terminologyId}/members")
+  @Path("/concept/{terminology}/{version}/{terminologyId}/members")
   @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given concept id", response = SubsetMemberListJpa.class)
   public SubsetMemberList getSubsetMembersForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1639,7 +1639,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + terminologyId + "/members");
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -1711,7 +1711,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   })
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships")
+  @Path("/concept/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id", response = RelationshipListJpa.class)
   public RelationshipList findRelationshipsForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1723,7 +1723,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + terminologyId + "/relationships?query=" + query);
     final String queryStr = query == null ? "" : query;
 
@@ -1801,7 +1801,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships/deep")
+  @Path("/concept/{terminology}/{version}/{terminologyId}/relationships/deep")
   @ApiOperation(value = "Get deep relationships with this terminologyId", notes = "Get the relationships for the concept and also for any other atoms, concepts, descirptors, or codes in its graph for the specified concept id", response = RelationshipListJpa.class)
   public RelationshipList findDeepRelationshipsForConcept(
     @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1813,7 +1813,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + terminologyId + "/relationships/deep with query: " + query);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -1836,7 +1836,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships")
+  @Path("/descriptor/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id", response = RelationshipListJpa.class)
   public RelationshipList findRelationshipsForDescriptor(
     @ApiParam(value = "Descriptor terminology id, e.g. D042033", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1850,7 +1850,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version + "/"
             + terminologyId + "/relationships?query=" + queryStr);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -1961,7 +1961,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/cui/subset/all/{terminology}/{version}")
+  @Path("/concept/subset/all/{terminology}/{version}")
   @ApiOperation(value = "Get concept subsets", notes = "Get the concept level subsets", response = SubsetListJpa.class)
   public SubsetList getConceptSubsets(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1970,7 +1970,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version
+        "RESTful call (Content): /concept/" + terminology + "/" + version
             + "/subsets");
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2040,7 +2040,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui/subset/{subsetId}/{terminology}/{version}/members")
+  @Path("/concept/subset/{subsetId}/{terminology}/{version}/members")
   @ApiOperation(value = "Find concept subset members", notes = "Get the members for the indicated concept subset", response = SubsetMemberListJpa.class)
   public SubsetMemberList findConceptSubsetMembers(
     @ApiParam(value = "Subset id, e.g. 341823003", required = true) @PathParam("subsetId") String subsetId,
@@ -2055,7 +2055,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/subset/" + subsetId + "/" + terminology
+        "RESTful call (Content): /concept/subset/" + subsetId + "/" + terminology
             + "/" + version + "/members?query=" + queryStr);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2082,7 +2082,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/trees")
+  @Path("/concept/{terminology}/{version}/{terminologyId}/trees")
   @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given concept id", response = TreeListJpa.class)
   public TreeList findConceptTrees(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
@@ -2093,7 +2093,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + terminologyId + "/trees");
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2126,7 +2126,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/trees/")
+  @Path("/descriptor/{terminology}/{version}/{terminologyId}/trees/")
   @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given descriptor id", response = TreeListJpa.class)
   public TreeList findDescriptorTrees(
     @ApiParam(value = "Descriptor terminology id, e.g. D002943", required = true) @PathParam("terminologyId") String terminologyId,
@@ -2136,7 +2136,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version + "/"
             + terminologyId + "/trees");
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2214,7 +2214,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/trees")
+  @Path("/concept/{terminology}/{version}/trees")
   @ApiOperation(value = "Find concept trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = TreeJpa.class)
   public Tree findConceptTreeForQuery(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -2228,7 +2228,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version
+        "RESTful call (Content): /concept/" + terminology + "/" + version
             + "/trees?query=" + query);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2289,7 +2289,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/trees")
+  @Path("/descriptor/{terminology}/{version}/trees")
   @ApiOperation(value = "Find descriptor trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = TreeJpa.class)
   public Tree findDescriptorTreeForQuery(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -2303,7 +2303,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version
             + "/trees?query=" + query);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2440,7 +2440,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/trees/children")
+  @Path("/concept/{terminology}/{version}/{terminologyId}/trees/children")
   @ApiOperation(value = "Find children trees for a concept", notes = "Returns paged children trees for a concept. Note: not ancestorPath-sensitive", response = TreeJpa.class)
   public TreeList findConceptTreeChildren(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -2451,7 +2451,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + terminologyId + "/" + "/trees/children");
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2536,7 +2536,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/trees/children")
+  @Path("/descriptor/{terminology}/{version}/{terminologyId}/trees/children")
   @ApiOperation(value = "Find children trees for a descriptor", notes = "Returns paged children trees for a descriptor. Note: not ancestorPath-sensitive", response = TreeJpa.class)
   public TreeList findDescriptorTreeChildren(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -2547,7 +2547,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version + "/"
             + terminologyId + "/" + "/trees/children");
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2584,7 +2584,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/trees/roots")
+  @Path("/concept/{terminology}/{version}/trees/roots")
   @ApiOperation(value = "Find root trees for a concept-based terminology", notes = "Returns paged root trees for a concept-based terminology.", response = TreeJpa.class)
   public Tree findConceptTreeRoots(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -2594,7 +2594,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + "/trees/roots");
     final ContentService contentService = new ContentServiceJpa();
 
@@ -2662,7 +2662,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/trees/roots")
+  @Path("/descriptor/{terminology}/{version}/trees/roots")
   @ApiOperation(value = "Find root trees for a descriptor-based terminology", notes = "Returns paged root trees for a descriptor-based terminology.", response = TreeJpa.class)
   public Tree findDescriptorTreeRoots(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -2672,7 +2672,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+        "RESTful call (Content): /descriptor/" + terminology + "/" + version + "/"
             + "/trees/roots");
     final ContentService contentService = new ContentServiceJpa();
 
@@ -2859,7 +2859,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/cui/{terminologyId}/{terminology}/{version}/mappings")
+  @Path("/concept/{terminologyId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated concept", response = MappingListJpa.class)
   public MappingList findMappingsForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
@@ -2874,7 +2874,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminologyId + "/" + terminology
+        "RESTful call (Content): /concept/" + terminologyId + "/" + terminology
             + "/" + version + "/mappings" + queryStr);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -2937,7 +2937,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/dui/{terminologyId}/{terminology}/{version}/mappings")
+  @Path("/descriptor/{terminologyId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated descriptor", response = MappingListJpa.class)
   public MappingList findMappingsForDescriptor(
     @ApiParam(value = "Descriptor terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
@@ -2952,7 +2952,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminologyId + "/" + terminology
+        "RESTful call (Content): /descriptor/" + terminologyId + "/" + terminology
             + "/" + version + "/mappings" + queryStr);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3094,7 +3094,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @POST
-  @Path("/cui/note/{terminology}/{version}/{terminologyId}/add")
+  @Path("/concept/note/{terminology}/{version}/{terminologyId}/add")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a concept", notes = "Adds a user note to a concept", response = String.class)
   @Override
@@ -3106,7 +3106,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Project): /cui/" + terminology + "/"
+        "RESTful POST call (Project): /concept/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
     final SecurityService securityService = new SecurityServiceJpa();
@@ -3144,7 +3144,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @POST
-  @Path("/cui/note/{id}/remove")
+  @Path("/concept/note/{id}/remove")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a concept", notes = "Remove a note from a concept", response = String.class)
   @Override
@@ -3153,7 +3153,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Project): /cui/note" + noteId
+        "RESTful POST call (Project): /concept/note" + noteId
             + "/remove for authToken " + authToken);
 
     final SecurityService securityService = new SecurityServiceJpa();
@@ -3270,7 +3270,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @POST
-  @Path("/dui/note/{terminology}/{version}/{terminologyId}/add")
+  @Path("/descriptor/note/{terminology}/{version}/{terminologyId}/add")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a descriptor", notes = "Adds a user note to a descriptor", response = String.class)
   @Override
@@ -3282,7 +3282,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Project): /dui/" + terminology + "/"
+        "RESTful POST call (Project): /descriptor/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
     final SecurityService securityService = new SecurityServiceJpa();
@@ -3320,7 +3320,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @POST
-  @Path("/dui/note/{id}/remove")
+  @Path("/descriptor/note/{id}/remove")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a descriptor", notes = "Remove a note from a descriptor", response = String.class)
   @Override
@@ -3329,7 +3329,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Project): /dui/note" + noteId
+        "RESTful POST call (Project): /descriptor/note" + noteId
             + "/remove for authToken " + authToken);
 
     final SecurityService securityService = new SecurityServiceJpa();

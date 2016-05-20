@@ -65,7 +65,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @GET
-  @Path("/validate/cui/merge/{terminology}/{version}/{cui1}/{cui2}")
+  @Path("/validate/concept/merge/{terminology}/{version}/{cui1}/{cui2}")
   @ApiOperation(value = "Validate merge", notes = "Validates the merge of two concepts", response = ValidationResultJpa.class)
   public ValidationResult validateMerge(
     @ApiParam(value = "Terminology", required = true) @PathParam("terminology") String terminology,
@@ -76,7 +76,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Validation): /validate/cui/merge/" + terminology + "/"
+        "RESTful call (Validation): /validate/concept/merge/" + terminology + "/"
             + version + "/" + cui1 + "/" + cui2);
 
     ValidationService validationService = new ValidationServiceJpa();
@@ -192,14 +192,14 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @PUT
-  @Path("/cui")
+  @Path("/concept")
   @ApiOperation(value = "Validate Concept", notes = "Validates a concept", response = ValidationResult.class)
   public ValidationResult validateConcept(
     @ApiParam(value = "Concept", required = true) ConceptJpa concept,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /cui " + concept);
+        "RESTful call PUT (Project): /concept " + concept);
 
     ValidationService validationService = new ValidationServiceJpa();
     try {

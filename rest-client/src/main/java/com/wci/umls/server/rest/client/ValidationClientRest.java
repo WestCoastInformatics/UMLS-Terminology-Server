@@ -48,7 +48,7 @@ public class ValidationClientRest implements ValidationServiceRest {
     throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/cui");
+        client.target(config.getProperty("base.url") + "/validation/concept");
 
     String conceptString =
         (c != null ? ConfigUtility.getStringForGraph(c) : null);
@@ -106,7 +106,7 @@ public class ValidationClientRest implements ValidationServiceRest {
     String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/dui");
+        client.target(config.getProperty("base.url") + "/validation/descriptor");
 
     String descriptorString =
         (descriptor != null ? ConfigUtility.getStringForGraph(descriptor)
@@ -167,7 +167,7 @@ public class ValidationClientRest implements ValidationServiceRest {
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/validate/cui/merge/"
+        client.target(config.getProperty("base.url") + "/validate/concept/merge/"
             + terminology + "/" + version + "/" + cui1 + "/" + cui2);
 
     Response response =
