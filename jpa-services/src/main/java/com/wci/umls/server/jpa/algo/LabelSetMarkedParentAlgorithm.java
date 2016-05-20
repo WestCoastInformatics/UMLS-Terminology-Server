@@ -160,6 +160,7 @@ public class LabelSetMarkedParentAlgorithm extends
     if (ct == 0) {
       fireProgressEvent(100, "Finished.");
       logInfo("    NO HIERARCHICAL RELATIONSHIPS");
+      commit();
       return;
     }
 
