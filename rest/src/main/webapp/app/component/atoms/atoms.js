@@ -13,6 +13,7 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
     link : function(scope, element, attrs) {
 
       function getPagedList() {
+        console.debug('callbacks for atom', scope.callbacks)
         scope.pagedData = utilService.getPagedArray(scope.component.atoms, scope.paging);
       }
 

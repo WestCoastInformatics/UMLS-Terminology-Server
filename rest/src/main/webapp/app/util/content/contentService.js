@@ -47,6 +47,7 @@ tsApp
           matchTerminology : null,
           language : null,
           showExtension : false,
+          userNote : null,
           expression : {
             name : null,
             value : null,
@@ -480,6 +481,9 @@ tsApp
             if (searchParams.language) {
               pfs.queryRestriction += " AND atoms.language:\"" + searchParams.language + "\"";
             }
+            if (searchParams.userNote) {
+              pfs.queryRestriction += " AND notes.note:\"" + searchParams.userNote + "\"";
+            }
           }
 
           // Add anonymous condition for concepts
@@ -715,7 +719,7 @@ tsApp
 
             gpService.increment();
             $http.post(
-              contentUrl + wrapper.type + '/note/' + wrapper.terminology + '/' + wrapper.version
+              contentUrl + wrapper.type.toLowerCase() + '/note/' + wrapper.terminology + '/' + wrapper.version
                 + '/' + wrapper.terminologyId + '/add', note).then(function(response) {
               gpService.decrement();
               deferred.resolve(response.data);
@@ -737,7 +741,7 @@ tsApp
           } else {
 
             gpService.increment();
-            $http.post(contentUrl + wrapper.type + '/note/' + noteId + '/remove').then(
+            $http.post(contentUrl + wrapper.type.toLowerCase() + '/note/' + noteId + '/remove').then(
               function(response) {
                 gpService.decrement();
                 deferred.resolve(response.data);

@@ -107,6 +107,7 @@ public abstract class AbstractNote implements Note {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getTimestamp() {
     return timestamp;
   }
@@ -152,6 +153,7 @@ public abstract class AbstractNote implements Note {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getNote() {
     return this.note;
   }

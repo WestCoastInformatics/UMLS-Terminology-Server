@@ -151,6 +151,11 @@ tsApp.service('securityService', [
     this.isLoggedIn = function() {
       return user.authToken;
     };
+    
+    //
+    // Role functions
+    // Note that administrator is considered all roles
+    //
 
     // isAdmin function
     this.isAdmin = function() {
@@ -161,6 +166,26 @@ tsApp.service('securityService', [
     this.isUser = function() {
       return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'USER';
     };
+    
+    // isAuthor function 
+    this.isAuthor = function() {
+      return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'AUTHOR';
+    };
+    
+    // isReviewer function
+    this.isReviewer = function() {
+      return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'REVIEWER';
+    };
+    
+    // isViewer function
+    this.isViewer = function() {
+      return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'VIEWER';
+    };
+    
+    // isGuest function
+    this.isGuest = function() {
+      return user.applicationRole == 'GUEST';
+    }
 
     this.logout = function() {
       if (user.authToken == null) {

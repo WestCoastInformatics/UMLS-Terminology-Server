@@ -93,7 +93,7 @@ public abstract class RootServiceJpa implements RootService {
     // created on each instantiation
     manager = factory.createEntityManager();
     tx = manager.getTransaction();
-    
+
     // set the max clause count from config
     BooleanQuery.setMaxClauseCount(ConfigUtility.getLuceneMaxClauseCount());
   }
@@ -368,12 +368,18 @@ public abstract class RootServiceJpa implements RootService {
         String tStr = "";
         for (Method m : t.getClass().getMethods()) {
           if (m.getName().startsWith("get")) {
-            Object val = m.invoke(t);
-            if (val != null) {
-              tStr += val.toString();
+            try {
+              System.out.println(m.getName());
+              Object val = m.invoke(t);
+              if (val != null && val instanceof String) {
+                tStr += val.toString();
+              }
+            } catch (IllegalArgumentException e) {
+              // do nothing, skip field
             }
           }
         }
+        System.out.println(tStr + "\n  " + pfs.getQueryRestriction());
         if (tStr.toLowerCase()
             .indexOf(pfs.getQueryRestriction().toLowerCase()) != -1) {
           result.add(t);
@@ -591,8 +597,7 @@ public abstract class RootServiceJpa implements RootService {
     if (userMap.containsKey(userName)) {
       return userMap.get(userName);
     }
-    final javax.persistence.Query query =
-        manager
+    final javax.persistence.Query query = manager
         .createQuery("select u from UserJpa u where userName = :userName");
     query.setParameter("userName", userName);
     try {
@@ -897,9 +902,7 @@ public abstract class RootServiceJpa implements RootService {
     final String terminologyId, final String terminology, final String version,
     final Class<T> clazz) {
     try {
-      final javax.persistence.Query query =
-          manager
-              .createQuery("select a from "
+      final javax.persistence.Query query = manager.createQuery("select a from "
           + clazz.getName()
           + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
       query.setParameter("terminologyId", terminologyId);
@@ -976,7 +979,7 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public LogEntry addLogEntry(final String userName, final String terminology,
     final String version, final LogActivity activity, final String message)
-    throws Exception {
+      throws Exception {
     LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setTerminology(terminology);

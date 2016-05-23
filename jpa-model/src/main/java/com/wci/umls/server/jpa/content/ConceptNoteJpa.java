@@ -12,6 +12,7 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -23,6 +24,7 @@ import com.wci.umls.server.model.content.Concept;
 @Entity
 @Table(name = "concept_notes")
 @Audited
+@Indexed
 @XmlRootElement(name = "notes")
 public class ConceptNoteJpa extends AbstractNote {
 

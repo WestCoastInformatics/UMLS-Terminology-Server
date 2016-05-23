@@ -48,6 +48,7 @@ tsApp.controller('ContentCtrl', [
     // Scope variables initialized from services
     // TODO Add this to other controllers where preferences are modified
     $scope.user = securityService.getUser();
+    $scope.isGuestUser = securityService.isGuestUser;
     $scope.mode = $routeParams.mode === 'simple' ? 'simple' : 'full';
     $scope.metadata = metadataService.getModel();
     $scope.component = null;
@@ -111,7 +112,7 @@ tsApp.controller('ContentCtrl', [
 
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
-      $scope.autocompleteUrl = contentUrl + $scope.metadata.terminology.organizingClassType + '/'
+      $scope.autocompleteUrl = contentUrl + $scope.metadata.terminology.organizingClassType.toLowerCase() + '/'
         + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
         + "/autocomplete/";
 
@@ -258,17 +259,19 @@ tsApp.controller('ContentCtrl', [
       $scope.queryForTree = false;
       $scope.queryForList = true;
 
+      // prerequisite checking
       var hasQuery = $scope.searchParams && $scope.searchParams.query
         && $scope.searchParams.query.length > 0;
       var hasExpr = $scope.searchParams && $scope.searchParams.advancedMode
         && $scope.searchParams.expression && $scope.searchParams.expression.value
         && $scope.searchParams.expression.value.length > 0;
+     var hasNotes = $scope.searchParams && $scope.searchParams.advancedMode && $scope.searchParams.userNote
 
       // ensure query/expression string has appropriate length
-      if (!hasQuery && !hasExpr) {
+      if (!hasQuery && !hasExpr && !hasNotes) {
         if (!suppressWarnings) {
           alert("You must use at least one character to search"
-            + ($scope.searchParams.advancedMode ? " or supply an expression" : ""));
+            + ($scope.searchParams.advancedMode ? ", supply an expression, or search user notes" : ""));
 
           // added to prevent weird bug causing page to scroll down a few lines
           $location.hash('top');
@@ -683,7 +686,8 @@ tsApp.controller('ContentCtrl', [
       $scope.componentRetrievalCallbacks = {
         getComponent : $scope.getComponent,
         getComponentFromTree : $scope.getComponentFromTree,
-        getComponentFromWrapper : $scope.getComponentFromWrapper
+        getComponentFromWrapper : $scope.getComponentFromWrapper,
+        findComponentsForQuery : $scope.findComponentsForQuery
       }
       console.debug('  component retrieval callbacks', $scope.componentRetrievalCallbacks);
 
