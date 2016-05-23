@@ -52,7 +52,9 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   public void resolve(Concept concept) throws Exception {
     if (concept != null) {
       boolean nullId = concept.getId() == null;
-      concept.setMembers(new ArrayList<ConceptSubsetMember>());
+      
+      // TODO Resolve members individually a la SNOMEDCT
+      concept.getMembers().size();
       concept.getLabels().size();
 
       // Attributes

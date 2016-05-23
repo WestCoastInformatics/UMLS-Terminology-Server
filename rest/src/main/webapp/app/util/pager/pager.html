@@ -16,7 +16,7 @@
     ng-click="paging.filter = ''; callback.getPagedList(); "
     uib-tooltip="Click to clear filter text">Clear</button>
   <!-- Field sort order -->
-  <span class="nobreak" ng-show="paging.sortOptions && paging.sortOptions.length>0 && count > 1">
+  <span class="nobreak" ng-show="paging.sortOptions && paging.sortOptions.length>0 && count > 5">
     <span
       uib-tooltip="Sort - {{paging.sortAscending ? 'Ascending' : 'Descending'}}"
       ng-click="paging.page = 1; paging.sortAscending = !paging.sortAscending; callback.getPagedList();"

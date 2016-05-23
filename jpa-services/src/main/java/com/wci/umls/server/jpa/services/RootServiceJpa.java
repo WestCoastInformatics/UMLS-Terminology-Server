@@ -367,19 +367,23 @@ public abstract class RootServiceJpa implements RootService {
       for (T t : list) {
         String tStr = "";
         for (Method m : t.getClass().getMethods()) {
+          
+          // TODO Add annotation check for @Field, @Fields...
           if (m.getName().startsWith("get")) {
             try {
-              System.out.println(m.getName());
+             
               Object val = m.invoke(t);
               if (val != null && val instanceof String) {
-                tStr += val.toString();
+                
+                // TODO Use a stringbuilder here instead
+                tStr += val.toString() + " ";
               }
             } catch (IllegalArgumentException e) {
               // do nothing, skip field
             }
           }
         }
-        System.out.println(tStr + "\n  " + pfs.getQueryRestriction());
+    
         if (tStr.toLowerCase()
             .indexOf(pfs.getQueryRestriction().toLowerCase()) != -1) {
           result.add(t);
