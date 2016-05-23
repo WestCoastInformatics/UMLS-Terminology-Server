@@ -109,28 +109,12 @@ tsApp.controller('ContentCtrl', [
         return;
       }
 
-      // TODO Remove switch statement once organizing class type and component type are synced
-      // instead, just use lowercased metadata value
-      $scope.componentType = null;
-      switch ($scope.metadata.terminology.organizingClassType) {
-      case 'CONCEPT':
-        $scope.componentType = 'cui';
-        break;
-      case 'DESCRIPTOR':
-        $scope.componentType = 'dui';
-        break;
-      case 'CODE':
-        $scope.componentType = 'code';
-        break;
-      }
-
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
-      if ($scope.componentType) {
-        $scope.autocompleteUrl = contentUrl + $scope.componentType + '/'
-          + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
-          + "/autocomplete/";
-      }
+      $scope.autocompleteUrl = contentUrl + $scope.metadata.terminology.organizingClassType + '/'
+        + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
+        + "/autocomplete/";
+
     });
 
     // on route changes, save search params and last viewed component
@@ -218,19 +202,6 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
-    // Gets display text for component type (used in report title bar)
-    $scope.getComponentTypeText = function() {
-      switch ($scope.component.type) {
-      case 'cui':
-        return 'Concept';
-      case 'dui':
-        return 'Descriptor';
-      case 'code':
-        return 'Code';
-      default:
-        return 'Component';
-      }
-    }
 
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a search result
@@ -305,7 +276,7 @@ tsApp.controller('ContentCtrl', [
         return;
       }
       console.debug($scope.searchParams.page);
-      contentService.findComponentsAsList($scope.searchParams.query, $scope.componentType,
+      contentService.findComponentsAsList($scope.searchParams.query, $scope.metadata.terminology.organizingClassType,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
         $scope.searchParams.page, $scope.searchParams).then(function(data) {
         $scope.searchResults = data;

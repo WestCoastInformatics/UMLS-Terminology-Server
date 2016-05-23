@@ -10,7 +10,7 @@ tsApp.service('validationService', [ '$http', '$q', 'gpService', 'utilService',
 
       // validate concept
       gpService.increment();
-      $http.put(validationUrl + 'cui', concept).then(
+      $http.put(validationUrl + 'concept', concept).then(
       // success
       function(response) {
         console.debug('  result = ', response.data);

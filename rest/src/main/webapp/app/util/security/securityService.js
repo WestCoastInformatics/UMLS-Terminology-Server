@@ -347,20 +347,6 @@ tsApp.service('securityService', [
 
     // Create the base user favorite string, without timestamp
     function getUserFavoriteStr(type, terminology, version, terminologyId, name) {
-      // TODO Remove this once cui/concept normalization takes place
-      switch (type) {
-      case 'cui':
-        type = 'CONCEPT';
-        break;
-      case 'dui':
-        type = 'DESCRIPTOR';
-        break;
-      case 'code':
-        type = 'CODE';
-        break;
-      default:
-        console.error('Unexpected favorite type: ' + type);
-      }
       return type + '~~' + terminology + '~~' + version + '~~' + terminologyId + '~~' + name;
     }
 

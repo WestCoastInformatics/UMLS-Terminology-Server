@@ -6,22 +6,6 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
   // Component wrapper or full component
   $scope.component = component;
 
-  // TODO Remove once concept/cui integration happens
-  $scope.componentType = null;
-  switch ($scope.component.type) {
-  case 'cui':
-    $scope.componentType = 'Concept';
-    break;
-  case 'dui':
-    $scope.componentType = 'Descriptor';
-    break;
-  case 'code':
-    $scope.componentType = 'Code';
-    break;
-  default:
-    $scope.componentType =  $scope.component.type;
-  }
-
   function getPagedList() {
     console.debug('notes: getpageddata')
     $scope.pagedData = utilService.getPagedArray($scope.component.notes, $scope.paging);
