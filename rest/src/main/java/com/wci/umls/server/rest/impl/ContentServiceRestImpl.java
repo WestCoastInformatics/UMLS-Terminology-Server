@@ -231,11 +231,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/expression/index/{terminology}/{version}")
-  @ApiOperation(value = "Computes expression constraint indexes", notes = "Computes the indexes required for expression constraint searches for a given terminology and version")
-  public void computeEclIndexes(
+  @ApiOperation(value = "Computes expression indexes", notes = "Computes the indexes required for expression searches for a given terminology and version")
+  public void computeExpressionIndexes(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -247,7 +248,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     final ContentServiceJpa contentService = new ContentServiceJpa();
 
-    // TODO Add support for code/descriptor
+    // NOTE: Currently only ECL indexing supported
     final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
     algo.setTerminology(terminology);
     algo.setVersion(version);

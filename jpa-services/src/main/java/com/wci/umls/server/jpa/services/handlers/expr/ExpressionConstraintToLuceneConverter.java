@@ -180,27 +180,11 @@ public class ExpressionConstraintToLuceneConverter {
     /** The in attribute. */
     private boolean inAttribute;
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #visitErrorNode(org.antlr.v4.runtime.tree.ErrorNode)
-     */
     @Override
     public void visitErrorNode(ErrorNode node) {
       super.visitErrorNode(node);
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterSimpleexpressionconstraint(com.wci.umls
-     * .server.jpa.services.handlers
-     * .expr.ExpressionConstraintParser.SimpleexpressionconstraintContext)
-     */
     @Override
     public void enterSimpleexpressionconstraint(
       ExpressionConstraintParser.SimpleexpressionconstraintContext ctx) {
@@ -268,53 +252,22 @@ public class ExpressionConstraintToLuceneConverter {
       }
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterRefinement(com.wci.umls.server.jpa.services
-     * .handlers.expr.ExpressionConstraintParser.RefinementContext)
-     */
     @Override
     public void enterRefinement(ExpressionConstraintParser.RefinementContext ctx) {
       luceneQuery += " AND ";
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterAttribute(com.wci.umls.server.jpa.services
-     * .handlers.expr.ExpressionConstraintParser.AttributeContext)
-     */
     @Override
     public void enterAttribute(ExpressionConstraintParser.AttributeContext ctx) {
       inAttribute = true;
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #exitAttribute(com.wci.umls.server.jpa.services
-     * .handlers.expr.ExpressionConstraintParser.AttributeContext)
-     */
+   
     @Override
     public void exitAttribute(ExpressionConstraintParser.AttributeContext ctx) {
       inAttribute = false;
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterAttributename(com.wci.umls.server.jpa
-     * .services.handlers.expr.ExpressionConstraintParser.AttributenameContext)
-     */
     @Override
     public void enterAttributename(
       ExpressionConstraintParser.AttributenameContext ctx) {
@@ -327,15 +280,6 @@ public class ExpressionConstraintToLuceneConverter {
       }
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterExpressioncomparisonoperator(com.wci
-     * .umls.server.jpa.services.handlers
-     * .expr.ExpressionConstraintParser.ExpressioncomparisonoperatorContext)
-     */
     @Override
     public void enterExpressioncomparisonoperator(
       ExpressionConstraintParser.ExpressioncomparisonoperatorContext ctx) {
@@ -346,129 +290,53 @@ public class ExpressionConstraintToLuceneConverter {
       }
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterConjunction(com.wci.umls.server.jpa.
-     * services.handlers.expr.ExpressionConstraintParser.ConjunctionContext)
-     */
     @Override
     public void enterConjunction(
       ExpressionConstraintParser.ConjunctionContext ctx) {
       luceneQuery += " AND ";
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterDisjunction(com.wci.umls.server.jpa.
-     * services.handlers.expr.ExpressionConstraintParser.DisjunctionContext)
-     */
     @Override
     public void enterDisjunction(
       ExpressionConstraintParser.DisjunctionContext ctx) {
       luceneQuery += " OR ";
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterExclusion(com.wci.umls.server.jpa.services
-     * .handlers.expr.ExpressionConstraintParser.ExclusionContext)
-     */
     @Override
     public void enterExclusion(ExpressionConstraintParser.ExclusionContext ctx) {
       luceneQuery += " NOT ";
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterSubexpressionconstraint(com.wci.umls
-     * .server.jpa.services.handlers.expr
-     * .ExpressionConstraintParser.SubexpressionconstraintContext)
-     */
     @Override
     public void enterSubexpressionconstraint(
       ExpressionConstraintParser.SubexpressionconstraintContext ctx) {
       addLeftParenthesisIfNotNull(ctx.LEFT_PAREN());
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #exitSubexpressionconstraint(com.wci.umls.
-     * server.jpa.services.handlers.expr
-     * .ExpressionConstraintParser.SubexpressionconstraintContext)
-     */
     @Override
     public void exitSubexpressionconstraint(
       ExpressionConstraintParser.SubexpressionconstraintContext ctx) {
       addRightParenthesisIfNotNull(ctx.RIGHT_PAREN());
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterSubrefinement(com.wci.umls.server.jpa
-     * .services.handlers.expr.ExpressionConstraintParser.SubrefinementContext)
-     */
     @Override
     public void enterSubrefinement(
       ExpressionConstraintParser.SubrefinementContext ctx) {
       addLeftParenthesisIfNotNull(ctx.LEFT_PAREN());
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #exitSubrefinement(com.wci.umls.server.jpa
-     * .services.handlers.expr.ExpressionConstraintParser.SubrefinementContext)
-     */
     @Override
     public void exitSubrefinement(
       ExpressionConstraintParser.SubrefinementContext ctx) {
       addRightParenthesisIfNotNull(ctx.RIGHT_PAREN());
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterSubattributeset(com.wci.umls.server.
-     * jpa.services.handlers.expr.ExpressionConstraintParser
-     * .SubattributesetContext)
-     */
     @Override
     public void enterSubattributeset(
       ExpressionConstraintParser.SubattributesetContext ctx) {
       addLeftParenthesisIfNotNull(ctx.LEFT_PAREN());
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterExpressionconstraintvalue(com.wci.umls
-     * .server.jpa.services.handlers.
-     * expr.ExpressionConstraintParser.ExpressionconstraintvalueContext)
-     */
     @Override
     public void enterExpressionconstraintvalue(
       ExpressionConstraintParser.ExpressionconstraintvalueContext ctx) {
@@ -481,30 +349,12 @@ public class ExpressionConstraintToLuceneConverter {
       addLeftParenthesisIfNotNull(ctx.LEFT_PAREN());
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #exitExpressionconstraintvalue(com.wci.umls
-     * .server.jpa.services.handlers.expr
-     * .ExpressionConstraintParser.ExpressionconstraintvalueContext)
-     */
     @Override
     public void exitExpressionconstraintvalue(
       ExpressionConstraintParser.ExpressionconstraintvalueContext ctx) {
       addRightParenthesisIfNotNull(ctx.RIGHT_PAREN());
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #exitSubattributeset(com.wci.umls.server.jpa
-     * .services.handlers.expr.ExpressionConstraintParser
-     * .SubattributesetContext)
-     */
     @Override
     public void exitSubattributeset(
       ExpressionConstraintParser.SubattributesetContext ctx) {
@@ -535,72 +385,31 @@ public class ExpressionConstraintToLuceneConverter {
 
     // Unsupported enter methods below this line
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterCardinality(com.wci.umls.server.jpa.
-     * services.handlers.expr.ExpressionConstraintParser.CardinalityContext)
-     */
     @Override
     public void enterCardinality(
       ExpressionConstraintParser.CardinalityContext ctx) {
       throwUnsupported("cardinality");
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterAttributegroup(com.wci.umls.server.jpa
-     * .services.handlers.expr.ExpressionConstraintParser.AttributegroupContext)
-     */
     @Override
     public void enterAttributegroup(
       ExpressionConstraintParser.AttributegroupContext ctx) {
       throwUnsupported("attributeGroup");
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterStringcomparisonoperator(com.wci.umls
-     * .server.jpa.services.handlers.expr
-     * .ExpressionConstraintParser.StringcomparisonoperatorContext)
-     */
+
     @Override
     public void enterStringcomparisonoperator(
       ExpressionConstraintParser.StringcomparisonoperatorContext ctx) {
       throwUnsupported("stringComparisonOperator");
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterNumericcomparisonoperator(com.wci.umls
-     * .server.jpa.services.handlers.
-     * expr.ExpressionConstraintParser.NumericcomparisonoperatorContext)
-     */
     @Override
     public void enterNumericcomparisonoperator(
       ExpressionConstraintParser.NumericcomparisonoperatorContext ctx) {
       throwUnsupported("numericComparisonOperator");
     }
 
-    /*
-     * (TODO : Remove this)
-     * 
-     * @see com.wci.umls.server.jpa.services.handlers.expr.
-     * ExpressionConstraintBaseListener
-     * #enterReverseflag(com.wci.umls.server.jpa.
-     * services.handlers.expr.ExpressionConstraintParser.ReverseflagContext)
-     */
     @Override
     public void enterReverseflag(
       ExpressionConstraintParser.ReverseflagContext ctx) {

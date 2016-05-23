@@ -93,10 +93,7 @@ public abstract class RootServiceJpa implements RootService {
     // created on each instantiation
     manager = factory.createEntityManager();
     tx = manager.getTransaction();
-
-    // TODO Put the ecl file check here
-    // Add a static flag (set once, then checked)
-
+    
     // set the max clause count from config
     BooleanQuery.setMaxClauseCount(ConfigUtility.getLuceneMaxClauseCount());
   }

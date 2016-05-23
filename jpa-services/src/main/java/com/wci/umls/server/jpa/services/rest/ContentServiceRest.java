@@ -845,7 +845,7 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void computeEclIndexes(String terminology, String version,
+  public void computeExpressionIndexes(String terminology, String version,
     String authToken) throws Exception;
 
   /**

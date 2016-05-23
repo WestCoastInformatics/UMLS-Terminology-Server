@@ -167,16 +167,7 @@ tsApp
           console.debug('getComponent', wrapper);
 
           var deferred = $q.defer();
-
-          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
-          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
-          if (wrapper.type === 'CONCEPT')
-            wrapper.type = 'cui';
-          if (wrapper.type === 'DESCRIPTOR')
-            wrapper.type = 'dui';
-          if (wrapper.type === 'CODE')
-            wrapper.type = 'code';
-
+          
           // check prereqs
           if (!wrapper.type || !wrapper.terminologyId || !wrapper.terminology || !wrapper.version) {
             deferred.reject('Component object not fully specified');
@@ -189,7 +180,7 @@ tsApp
             // Make GET call
             gpService.increment();
             $http.get(
-              contentUrl + wrapper.type + "/" + wrapper.terminology + "/" + wrapper.version + "/"
+              contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/" + wrapper.version + "/"
                 + wrapper.terminologyId).then(
               // success
               function(response) {
@@ -200,7 +191,7 @@ tsApp
                     + wrapper.terminologyId + '/' + wrapper.terminology + '/' + wrapper.version);
                 } else {
 
-                  // TODO Consider returning this data as transient f
+                  // TODO Consider returning this data as transient
                   // Set the type of the returned component
                   data.type = wrapper.type;
 
@@ -352,15 +343,6 @@ tsApp
           // set up deferred
           var deferred = $q.defer();
 
-          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
-          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
-          if (wrapper.type === 'CONCEPT')
-            wrapper.type = 'cui';
-          if (wrapper.type === 'DESCRIPTOR')
-            wrapper.type = 'dui';
-          if (wrapper.type === 'CODE')
-            wrapper.type = 'code';
-
           // PFS
           var pfs = {
             startIndex : startIndex,
@@ -372,7 +354,7 @@ tsApp
           // Make post call
           gpService.increment();
           $http.post(
-            contentUrl + wrapper.type + '/' + wrapper.terminology + '/' + wrapper.version + '/'
+            contentUrl + wrapper.type.toLowerCase() + '/' + wrapper.terminology + '/' + wrapper.version + '/'
               + wrapper.terminologyId + '/trees', pfs).then(
           // success
           function(response) {
@@ -404,20 +386,12 @@ tsApp
             queryRestriction : null
           };
 
-          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
-          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
-          if (type === 'CONCEPT')
-            type = 'cui';
-          if (type === 'DESCRIPTOR')
-            type = 'dui';
-          if (type === 'CODE')
-            type = 'code';
 
           // Make POST call
           // @Path("/cui/{terminology}/{version}/{terminologyId}/trees/children")
           gpService.increment();
           $http.post(
-            contentUrl + type + '/' + tree.terminology + '/' + tree.version + '/'
+            contentUrl + type.toLowerCase() + '/' + tree.terminology + '/' + tree.version + '/'
               + tree.nodeTerminologyId + '/trees/children', pfs).then(
           // success
           function(response) {

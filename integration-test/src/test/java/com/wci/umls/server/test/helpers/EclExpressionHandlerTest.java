@@ -225,8 +225,7 @@ public class EclExpressionHandlerTest {
 
   @Test
   public void testResolveFocusConceptRangeAttributeRange() throws Exception {
-    // TODO This range only has one descendant or self of, returns same as
-    // non-range attribute. Find better example.
+   
     testEclQuery(
         "< 404684003 |clinical finding|: 363698007 |finding site| = << 39057004 |pulmonary valve structure|",
         5);

@@ -1471,8 +1471,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private List findAncestorsHelper(String terminologyId, String terminology,
     String version, boolean parentsOnly, String branch, PfsParameter pfs,
     Class<?> clazz, long[] totalCt) throws Exception {
-    // TODO: make this lucene based - much faster!, though treepos may have to
-    // exist already?
+  
     if (pfs != null && pfs.getQueryRestriction() != null) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
@@ -4219,10 +4218,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   }
 
   @Override
-  // TODO Decide how we want to handle terminology specific handlers with static
-  // map
+ 
   public ExpressionHandler getExpressionHandler(String terminology,
     String version) throws Exception {
+    
+    // NOTE: Only ECL expression searching currently supported.
     return new EclExpressionHandler(terminology, version);
   }
 

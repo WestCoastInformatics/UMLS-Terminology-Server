@@ -135,12 +135,6 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     }
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#reset()
-   */
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -161,50 +155,24 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
-   * addProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
-   */
   /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
-   * removeProgressListener
-   * (com.wci.umls.server.services.helpers.ProgressListener)
-   */
   /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#cancel
-   * ()
-   */
   /* see superclass */
   @Override
   public void cancel() {
     throw new UnsupportedOperationException("cannot cancel.");
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
-   * setProperties(java.util.Properties)
-   */
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
@@ -215,24 +183,12 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     }
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
-   * setSourceData(com.wci.umls.server.SourceData)
-   */
   /* see superclass */
   @Override
   public void setSourceData(SourceData sourceData) {
     this.sourceData = sourceData;
   }
 
-  /*
-   * (TODO : Remove this)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#close()
-   */
   /* see superclass */
   @Override
   public void close() throws Exception {

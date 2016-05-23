@@ -89,14 +89,14 @@ public class LuceneReindexEclMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.computeEclIndexes(terminology, version, authToken);
+        contentService.computeExpressionIndexes(terminology, version, authToken);
 
       } else {
         getLog().info("Running against server");
 
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        client.computeEclIndexes(terminology, version, authToken);
+        client.computeExpressionIndexes(terminology, version, authToken);
       }
 
     } catch (Exception e) {
