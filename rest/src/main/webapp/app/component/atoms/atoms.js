@@ -13,8 +13,9 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
     link : function(scope, element, attrs) {
 
       function getPagedList() {
-        console.debug('callbacks for atom', scope.callbacks)
+
         scope.pagedData = utilService.getPagedArray(scope.component.atoms, scope.paging);
+        console.debug('paged atoms', scope.pagedData);
       }
 
       // instantiate paging and paging callback function
@@ -40,6 +41,17 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
           getPagedList();
         }
       });
+      
+      scope.getComponentFromId = function(type, terminologyId, terminology, version) {
+        console.debug('getComponentFromId', type, terminologyId, terminology, version);
+        var wrapper = {
+          type : type,
+          terminologyId : terminologyId,
+          terminology :terminology,
+          version : version
+        }
+        scope.callbacks.getComponent(wrapper);
+      }
 
       // toggle an items collapsed state
       scope.toggleItemCollapse = function(item) {
