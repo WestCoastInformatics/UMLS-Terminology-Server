@@ -179,6 +179,8 @@ tsApp
 
             // Make GET call
             gpService.increment();
+            
+            // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the path
             $http.get(
               contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/" + wrapper.version + "/"
                 + wrapper.terminologyId).then(
@@ -191,7 +193,6 @@ tsApp
                     + wrapper.terminologyId + '/' + wrapper.terminology + '/' + wrapper.version);
                 } else {
 
-                  // TODO Consider returning this data as transient
                   // Set the type of the returned component
                   data.type = wrapper.type;
 
@@ -386,10 +387,9 @@ tsApp
             queryRestriction : null
           };
 
-
-          // Make POST call
-          // @Path("/cui/{terminology}/{version}/{terminologyId}/trees/children")
           gpService.increment();
+          
+          // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the path
           $http.post(
             contentUrl + type.toLowerCase() + '/' + tree.terminology + '/' + tree.version + '/'
               + tree.nodeTerminologyId + '/trees/children', pfs).then(
@@ -414,15 +414,6 @@ tsApp
           // Setup deferred
           var deferred = $q.defer();
 
-          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
-          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
-          if (type === 'CONCEPT')
-            type = 'cui';
-          if (type === 'DESCRIPTOR')
-            type = 'dui';
-          if (type === 'CODE')
-            type = 'code';
-
           // PFS
           // construct the pfs
           var pfs = {
@@ -434,7 +425,9 @@ tsApp
 
           // Make POST call
           gpService.increment();
-          $http.post(contentUrl + type + "/" + terminology + "/" + version + "/trees/roots", pfs)
+          
+          // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the path
+          $http.post(contentUrl + type.toLowerCase() + "/" + terminology + "/" + version + "/trees/roots", pfs)
             .then(
             // success
             function(response) {
@@ -488,24 +481,17 @@ tsApp
               pfs.queryRestriction += " AND atoms.language:\"" + searchParams.language + "\"";
             }
           }
-          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
-          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
-          if (type === 'CONCEPT')
-            type = 'cui';
-          if (type === 'DESCRIPTOR')
-            type = 'dui';
-          if (type === 'CODE')
-            type = 'code';
 
           // Add anonymous condition for concepts
-          if (type == "cui") {
+          if (type.toLowerCase() == "concept") {
             pfs.queryRestriction += " AND anonymous:false";
           }
 
           // Make POST call
+          // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the path
           gpService.increment();
           $http.post(
-            contentUrl + type + "/" + terminology + "/" + version + "?query="
+            contentUrl + type.toLowerCase() + "/" + terminology + "/" + version + "?query="
               + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
           // success
           function(response) {
@@ -559,19 +545,12 @@ tsApp
             }
           }
 
-          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
-          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
-          if (type === 'CONCEPT')
-            type = 'cui';
-          if (type === 'DESCRIPTOR')
-            type = 'dui';
-          if (wrapper.type === 'CODE')
-            type = 'code';
 
           // Make POST call
+          // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the path
           gpService.increment();
           $http.post(
-            contentUrl + type + "/" + terminology + "/" + version + "/trees?query="
+            contentUrl + type.toLowerCase() + "/" + terminology + "/" + version + "/trees?query="
               + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
           // success
           function(response) {
@@ -594,15 +573,6 @@ tsApp
 
           console.debug('findRelationships', wrapper, page, parameters);
           var deferred = $q.defer();
-
-          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
-          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
-          if (wrapper.type === 'CONCEPT')
-            wrapper.type = 'cui';
-          if (wrapper.type === 'DESCRIPTOR')
-            wrapper.type = 'dui';
-          if (wrapper.type === 'CODE')
-            wrapper.type = 'code';
 
           if (parameters)
 
@@ -650,9 +620,12 @@ tsApp
           if (query && !query.endsWith('*') && !query.endsWith('"')) {
             query += '*';
           }
+          
+          // perform the call
+          // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the path
           gpService.increment();
           $http.post(
-            contentUrl + wrapper.type + "/" + wrapper.terminology + "/" + wrapper.version + "/"
+            contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/" + wrapper.version + "/"
               + wrapper.terminologyId + "/relationships?query="
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             gpService.decrement();
@@ -672,16 +645,8 @@ tsApp
 
           var deferred = $q.defer();
 
-          // TODO Remove this once type/organizingClassType synced (CONCEPT replaces CUI
-          // NOTE Directly modifying the argument (bad!) in expectation of removal of this check
-          if (wrapper.type === 'CONCEPT')
-            wrapper.type = 'cui';
-          if (wrapper.type === 'DESCRIPTOR')
-            wrapper.type = 'dui';
-          if (wrapper.type === 'CODE')
-            wrapper.type = 'code';
 
-          if (wrapper.type !== 'cui') {
+          if (wrapper.type.toLowerCase() !== 'concept') {
             defer.reject('Deep relationships cannot be retrieved for type previs ' + prefix);
           }
 
@@ -705,9 +670,11 @@ tsApp
           // filtering
           var query = parameters.text;
 
+          // do not use glass pane, produces additional user lag on initial concept load
+          // i.e. retrieve concept, THEN get deep relationships
           // gpService.increment();
           $http.post(
-            contentUrl + wrapper.type + "/" + wrapper.terminology + "/" + wrapper.version + "/"
+            contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/" + wrapper.version + "/"
               + wrapper.terminologyId + "/relationships/deep?query="
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             // gpService.decrement();
