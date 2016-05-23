@@ -36,7 +36,7 @@
             {{item.terminology}} /</span>
           <span uib-tooltip="{{callbacks.getTermTypeName(item.termType)}}">{{item.termType}}</span>
           , {{item.language}} ]
-          component : {{!callbacks.getComponent}}
+         
           <!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
           <span
             ng-show="item.codeId != component.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
