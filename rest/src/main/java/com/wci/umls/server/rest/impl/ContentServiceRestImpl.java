@@ -3144,7 +3144,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
-  @POST
+  @DELETE
   @Path("/concept/note/{id}/remove")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a concept", notes = "Remove a note from a concept", response = String.class)
@@ -3232,7 +3232,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
-  @POST
+  @DELETE
   @Path("/code/note/{id}/remove")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a code", notes = "Remove a note from a code", response = String.class)
@@ -3320,7 +3320,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
-  @POST
+  @DELETE
   @Path("/descriptor/note/{id}/remove")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a descriptor", notes = "Remove a note from a descriptor", response = String.class)

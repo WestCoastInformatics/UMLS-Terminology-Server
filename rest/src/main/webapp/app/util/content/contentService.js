@@ -741,7 +741,7 @@ tsApp
           } else {
 
             gpService.increment();
-            $http.post(contentUrl + wrapper.type.toLowerCase() + '/note/' + noteId + '/remove').then(
+            $http['delete'](contentUrl + wrapper.type.toLowerCase() + '/note/' + noteId + '/remove').then(
               function(response) {
                 gpService.decrement();
                 deferred.resolve(response.data);

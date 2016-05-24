@@ -163,23 +163,21 @@
               ng-model="searchParams.expression.value"></textarea>
           </div>
         </div>
-        
       </div>
       <!--  Show note searching for non-guest users only -->
-       
-        <div ng-show="!isGuestUser()" class="row m10">
-          <div class="col-md-6 col-xs-3"
-            style="margin-right: 0px; padding-right: 0px;">
-            Notes <i class="glyphicon glyphicon-remove pull-right"
-              ng-show="searchParams.userNote"
-              ng-click="searchParams.userNote = null;"></i>
-          </div>
-          <div class="col-md-6 col-xs-9">
-            <input placeholder="Search text"
-              style="margin-bottom: 5px; width: 100%;"
-              ng-model="searchParams.userNote"></input>
-          </div>
+      <div ng-show="!isGuestUser()" class="row m10">
+        <div class="col-md-6 col-xs-3"
+          style="margin-right: 0px; padding-right: 0px;">
+          Notes <i class="glyphicon glyphicon-remove pull-right"
+            ng-show="searchParams.userNote"
+            ng-click="searchParams.userNote = null;"></i>
         </div>
+        <div class="col-md-6 col-xs-9">
+          <input placeholder="Search text"
+            style="margin-bottom: 5px; width: 100%;"
+            ng-model="searchParams.userNote"></input>
+        </div>
+      </div>
       <!--  Feedback -->
       <div class="row m10">
         <div class="col-md-12 col-xs-12">
@@ -192,78 +190,86 @@
     <!-- Search Results -->
     <div ng-show="queryForList && searchResults.results">
       <div class="alert alert-success">
+        <i class="glyphicon" ng-click="searchResultsCollapsed = !searchResultsCollapsed"
+          ng-class="[{'glyphicon-chevron-right' : searchResultsCollapsed}, {'glyphicon-chevron-down' : !searchResultsCollapsed}]"></i>&nbsp;
         Results ({{searchResults.totalCount}}) <i
           ng-show="!metadata.terminology.metathesaurus"
           class="pull-right glyphicon glyphicon-tree-conifer"
           ng-click="setTreeView()" uib-tooltip="Switch to tree view"
           tooltip-placement="right"></i>
       </div>
-      <!--  Margin added to prevent crowding -->
-      <uib-pagination items-per-page="pageSizes.general" max-size="5"
-        boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
-        next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-        ng-show="searchResults.totalCount > pageSizes.general"
-        total-items="searchResults.totalCount" ng-model="searchParams.page"
-        ng-change="findComponents(false)"></uib-pagination>
-      <table class="table table-hover" style="margin-top: 10px;"
-        ng-show="searchResults.results.length > 0">
-        <tbody>
-          <!-- table-hover makes use of the active class -->
-          <tr ng-class="{active: searchResult.active}"
-            ng-repeat="searchResult in searchResults.results"
-            ng-click="getComponent(metadata.terminology.organizingClassType, searchResult.terminologyId, searchResult.terminology, searchResult.version)">
-            <td>
-              <span class="nobreak">
-                <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
-                <span
-                  ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
-                <span class="breakword">{{searchResult.terminologyId}}</span>
-              </span>
-            </td>
-            <td>
-              <span class="breakword"> {{searchResult.value}}</span>
-              <span class="label label-default" ng-show="searchResult.obsolete"
-                uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p style="display: block;">&nbsp;</p>
-    </div>
-    <!-- Tree view -->
-    <div ng-show="queryForTree && searchResults.tree">
-      <div class="alert alert-success">
-        <span ng-show="searchOrBrowse === 'BROWSE'">Hierarchy</span>
-        <span ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search
-          Results</span>
-        <span ng-show="searchParams.query && searchResults.tree.totalCount == 0">No
-          Results</span>
-        <span ng-show="searchResults.tree.totalCount > 0">{{searchResults.tree.totalCount}}
-          Results</span>
-        <span class="pull-right">
-          <i class="glyphicon glyphicon-star"
-            ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
-            ng-click="toggleExtension()"
-            uib-tooltip="Click to hide extension highlights in tree"> </i> <i
-            class="glyphicon glyphicon-star-empty"
-            ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
-            ng-click="toggleExtension()"
-            uib-tooltip="Click to show extension highlights in tree"> </i>
-          &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
-            ng-click="setListView()" uib-tooltip="Switch to list view"
-            tooltip-placement="bottom"></i>
-        </span>
+      <div ng-show="!searchResultsCollapsed">
+        <!--  Margin added to prevent crowding -->
+        <uib-pagination items-per-page="pageSizes.general" max-size="5"
+          boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
+          next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+          ng-show="searchResults.totalCount > pageSizes.general"
+          total-items="searchResults.totalCount" ng-model="searchParams.page"
+          ng-change="findComponents(false)"></uib-pagination>
+        <table class="table table-hover" style="margin-top: 10px;"
+          ng-show="searchResults.results.length > 0">
+          <tbody>
+            <!-- table-hover makes use of the active class -->
+            <tr ng-class="{active: searchResult.active}"
+              ng-repeat="searchResult in searchResults.results"
+              ng-click="getComponent(metadata.terminology.organizingClassType, searchResult.terminologyId, searchResult.terminology, searchResult.version)">
+              <td>
+                <span class="nobreak">
+                  <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
+                  <span
+                    ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
+                  <span class="breakword">{{searchResult.terminologyId}}</span>
+                </span>
+              </td>
+              <td>
+                <span class="breakword"> {{searchResult.value}}</span>
+                <span class="label label-default"
+                  ng-show="searchResult.obsolete"
+                  uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="display: block;">&nbsp;</p>
       </div>
-      <uib-pagination style="display:block;" items-per-page="pageSizes.trees"
-        max-size="5" boundary-links="true" class="pagination-sm"
-        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
-        last-text="&raquo;"
-        ng-show="searchResults.tree.totalCount > pageSizes.trees"
-        total-items="searchResults.tree.totalCount" ng-model="searchParams.page"
-        ng-change="findComponents(false)"></uib-pagination>
-      <div tree-search-result metadata="metadata" search-results="searchResults"
-        parameters="searchParams" callbacks="srtCallbacks"></div>
-      <p style="display: block;">&nbsp;</p>
+      <!-- Tree view -->
+      <div ng-show="queryForTree && searchResults.tree">
+        <div class="alert alert-success">
+          <span ng-show="searchOrBrowse === 'BROWSE'">Hierarchy</span>
+          <span
+            ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search
+            Results</span>
+          <span
+            ng-show="searchParams.query && searchResults.tree.totalCount == 0">No
+            Results</span>
+          <span ng-show="searchResults.tree.totalCount > 0">{{searchResults.tree.totalCount}}
+            Results</span>
+          <span class="pull-right">
+            <i class="glyphicon glyphicon-star"
+              ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
+              ng-click="toggleExtension()"
+              uib-tooltip="Click to hide extension highlights in tree"> </i> <i
+              class="glyphicon glyphicon-star-empty"
+              ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
+              ng-click="toggleExtension()"
+              uib-tooltip="Click to show extension highlights in tree"> </i>
+            &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
+              ng-click="setListView()" uib-tooltip="Switch to list view"
+              tooltip-placement="bottom"></i>
+          </span>
+        </div>
+        <uib-pagination style="display:block;" items-per-page="pageSizes.trees"
+          max-size="5" boundary-links="true" class="pagination-sm"
+          previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+          last-text="&raquo;"
+          ng-show="searchResults.tree.totalCount > pageSizes.trees"
+          total-items="searchResults.tree.totalCount"
+          ng-model="searchParams.page" ng-change="findComponents(false)"></uib-pagination>
+        <div tree-search-result metadata="metadata"
+          search-results="searchResults" parameters="searchParams"
+          callbacks="srtCallbacks"></div>
+        <p style="display: block;">&nbsp;</p>
+      </div>
     </div>
     <!--  Favorites -->
     <div favorites="user.userPreferences.favorites" metadata="metadata"
