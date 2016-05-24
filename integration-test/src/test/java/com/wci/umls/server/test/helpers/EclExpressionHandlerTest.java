@@ -11,9 +11,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.PfscParameter;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.services.ContentService;
@@ -243,15 +243,15 @@ public class EclExpressionHandlerTest {
   @Test
   public void testSearchWithEcl() throws Exception {
     ContentService contentService = new ContentServiceJpa();
-    PfscParameter pfsc = new PfscParameterJpa();
-    pfsc.setExpression("< 91723000");
+    PfsParameter pfs = new PfsParameterJpa();
+    pfs.setExpression("< 91723000");
     SearchResultList results =
         contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT,
-            null, pfsc);
+            null, pfs);
     assertTrue(results.getTotalCount() == 1512);
     results =
         contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT,
-            "joint", pfsc);
+            "joint", pfs);
     assertTrue(results.getTotalCount() == 56);
 
   }

@@ -15,7 +15,6 @@ import org.junit.Test;
 
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Subset;
 
@@ -602,7 +601,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findConceptsForQuery(null, snomedVersion, "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find concepts for query with null terminology.");
     } catch (Exception e) {
       // do nothing
@@ -612,7 +611,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findConceptsForQuery("", snomedVersion, "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find concepts for query with empty string terminology.");
     } catch (Exception e) {
       // do nothing
@@ -622,7 +621,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST null version - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, null, "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find concepts for query with null terminology.");
     } catch (Exception e) {
       // do nothing
@@ -632,7 +631,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, "", "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find concepts for query with empty string terminology.");
     } catch (Exception e) {
       // do nothing
@@ -642,7 +641,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-          "care", new PfscParameterJpa(), null);
+          "care", new PfsParameterJpa(), null);
       fail("Exception should be thrown when trying to find concepts for query with null authToken.");
     } catch (Exception e) {
       // do nothing
@@ -652,7 +651,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-          "care", new PfscParameterJpa(), "TTT");
+          "care", new PfsParameterJpa(), "TTT");
       fail("Exception should be thrown when trying to find concepts for query with invalid authToken.");
     } catch (Exception e) {
       // do nothing
@@ -662,7 +661,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-          "care", new PfscParameterJpa(), "");
+          "care", new PfsParameterJpa(), "");
       fail("Exception should be thrown when trying to find concepts for query with empty string authToken.");
     } catch (Exception e) {
       // do nothing
@@ -681,7 +680,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findDescriptorsForQuery(null, snomedVersion, "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find descriptors for query with null terminology.");
     } catch (Exception e) {
       // do nothing
@@ -691,7 +690,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findDescriptorsForQuery("", snomedVersion, "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find descriptors for query with empty string terminology.");
     } catch (Exception e) {
       // do nothing
@@ -701,7 +700,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST null version - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, null, "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find descriptors for query with null terminology.");
     } catch (Exception e) {
       // do nothing
@@ -711,7 +710,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, "", "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find descriptors for query with empty string terminology.");
     } catch (Exception e) {
       // do nothing
@@ -721,7 +720,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, snomedVersion,
-          "care", new PfscParameterJpa(), null);
+          "care", new PfsParameterJpa(), null);
       fail("Exception should be thrown when trying to find descriptors for query with null authToken.");
     } catch (Exception e) {
       // do nothing
@@ -731,7 +730,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, snomedVersion,
-          "care", new PfscParameterJpa(), "TTT");
+          "care", new PfsParameterJpa(), "TTT");
       fail("Exception should be thrown when trying to find descriptors for query with invalid authToken.");
     } catch (Exception e) {
       // do nothing
@@ -741,7 +740,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, snomedVersion,
-          "care", new PfscParameterJpa(), "");
+          "care", new PfsParameterJpa(), "");
       fail("Exception should be thrown when trying to find descriptors for query with empty string authToken.");
     } catch (Exception e) {
       // do nothing
@@ -760,7 +759,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findCodesForQuery(null, snomedVersion, "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find codes for query with null terminology.");
     } catch (Exception e) {
       // do nothing
@@ -770,7 +769,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findCodesForQuery("", snomedVersion, "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find codes for query with empty string terminology.");
     } catch (Exception e) {
       // do nothing
@@ -780,7 +779,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST  null version - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, null, "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find codes for query with null terminology.");
     } catch (Exception e) {
       // do nothing
@@ -790,7 +789,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, "", "care",
-          new PfscParameterJpa(), authToken);
+          new PfsParameterJpa(), authToken);
       fail("Exception should be thrown when trying to find codes for query with empty string terminology.");
     } catch (Exception e) {
       // do nothing
@@ -800,7 +799,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, snomedVersion,
-          "care", new PfscParameterJpa(), null);
+          "care", new PfsParameterJpa(), null);
       fail("Exception should be thrown when trying to find codes for query with null authToken.");
     } catch (Exception e) {
       // do nothing
@@ -810,7 +809,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, snomedVersion,
-          "care", new PfscParameterJpa(), "TTT");
+          "care", new PfsParameterJpa(), "TTT");
       fail("Exception should be thrown when trying to find codes for query with invalid authToken.");
     } catch (Exception e) {
       // do nothing
@@ -820,7 +819,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, snomedVersion,
-          "care", new PfscParameterJpa(), "");
+          "care", new PfsParameterJpa(), "");
       fail("Exception should be thrown when trying to find codes for query with empty string authToken.");
     } catch (Exception e) {
       // do nothing

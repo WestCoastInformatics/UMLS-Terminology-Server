@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.services.ContentService;
 
@@ -53,7 +53,7 @@ public class SemanticCategorySearchTest {
     ContentService service = new ContentServiceJpa();
     SearchResultList list =
         service.findConceptsForQuery("SNOMEDCT_US", "2014_09_01", Branch.ROOT,
-            "atoms.nameSort:\"[A-Z].* (disorder)\"", new PfscParameterJpa());
+            "atoms.nameSort:\"[A-Z].* (disorder)\"", new PfsParameterJpa());
     Logger.getLogger(getClass()).info(" list = " + list);
 
   }

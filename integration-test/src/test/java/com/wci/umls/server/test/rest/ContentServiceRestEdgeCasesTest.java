@@ -17,7 +17,6 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Subset;
 
@@ -462,7 +461,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findConceptsForQuery("TTT", snomedVersion, "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid version - ");
@@ -470,7 +469,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findConceptsForQuery(snomedTerminology, "TTT", "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is null - empty results
     Logger.getLogger(getClass()).info("TEST null query - ");
@@ -478,7 +477,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findConceptsForQuery(snomedTerminology, snomedVersion, null,
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is empty string - empty results
     Logger.getLogger(getClass()).info("TEST empty query - ");
@@ -486,7 +485,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findConceptsForQuery(snomedTerminology, snomedVersion, "",
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
   }
 
@@ -504,7 +503,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findDescriptorsForQuery("TTT", snomedVersion, "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty results
     Logger.getLogger(getClass()).info("TEST invalid version - ");
@@ -512,7 +511,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findDescriptorsForQuery(snomedTerminology, "TTT", "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is null - empty results
     Logger.getLogger(getClass()).info("TEST null query - ");
@@ -520,7 +519,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findDescriptorsForQuery(snomedTerminology, snomedVersion, null,
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is empty string - empty results
     Logger.getLogger(getClass()).info("TEST empty query - ");
@@ -528,7 +527,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findDescriptorsForQuery(snomedTerminology, snomedVersion, "",
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
   }
 
   /**
@@ -545,7 +544,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findCodesForQuery("TTT", snomedVersion, "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid version - ");
@@ -553,7 +552,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findCodesForQuery(snomedTerminology, "TTT", "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is null - no results
     Logger.getLogger(getClass()).info("TEST null query - ");
@@ -561,7 +560,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findCodesForQuery(snomedTerminology, snomedVersion, null,
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is empty string - empty result
     Logger.getLogger(getClass()).info("TEST empty query - ");
@@ -569,7 +568,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
         0,
         contentService
             .findCodesForQuery(snomedTerminology, snomedVersion, "",
-                new PfscParameterJpa(), authToken).getObjects().size());
+                new PfsParameterJpa(), authToken).getObjects().size());
 
   }
 

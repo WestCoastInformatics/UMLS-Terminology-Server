@@ -36,7 +36,6 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
@@ -233,10 +232,10 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public SearchResultList findConceptsForQuery(String terminology,
-    String version, String query, PfscParameterJpa pfsc, String authToken)
+    String version, String query, PfsParameterJpa pfs, String authToken)
       throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - find concepts "
-        + terminology + ", " + version + ", " + query + ", " + pfsc);
+        + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
@@ -247,7 +246,7 @@ public class ContentClientRest extends RootClientRest
         + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     String pfsString = ConfigUtility
-        .getStringForGraph(pfsc == null ? new PfscParameterJpa() : pfsc);
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.xml(pfsString));
 
@@ -359,10 +358,10 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String query, PfscParameterJpa pfsc, String authToken)
+    String version, String query, PfsParameterJpa pfs, String authToken)
       throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - find descriptors "
-        + terminology + ", " + version + ", " + query + ", " + pfsc);
+        + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
@@ -372,7 +371,7 @@ public class ContentClientRest extends RootClientRest
         + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     String pfsString = ConfigUtility
-        .getStringForGraph(pfsc == null ? new PfscParameterJpa() : pfsc);
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.xml(pfsString));
 
@@ -485,9 +484,9 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public SearchResultList findCodesForQuery(String terminology, String version,
-    String query, PfscParameterJpa pfsc, String authToken) throws Exception {
+    String query, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - find codes "
-        + terminology + ", " + version + ", " + query + ", " + pfsc);
+        + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
@@ -497,7 +496,7 @@ public class ContentClientRest extends RootClientRest
         + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     String pfsString = ConfigUtility
-        .getStringForGraph(pfsc == null ? new PfscParameterJpa() : pfsc);
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.xml(pfsString));
 

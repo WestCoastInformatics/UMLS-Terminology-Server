@@ -39,7 +39,6 @@ import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -94,7 +93,6 @@ import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.ComponentInfoListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.AtomListJpa;
@@ -2457,12 +2455,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /* see superclass */
   @Override
   public SearchResultList findConceptsForQuery(String terminology,
-    String version, String branch, String query, PfscParameter pfsc)
+    String version, String branch, String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find concepts " + terminology + "/" + version + "/"
             + query);
-    SearchResultList results = findForQueryHelper(terminology, version, branch, query, pfsc,
+    SearchResultList results = findForQueryHelper(terminology, version, branch, query, pfs,
         ConceptJpa.class, ConceptJpa.class);
     for (SearchResult result : results.getObjects()) {
       result.setType(IdType.CONCEPT);
@@ -2484,12 +2482,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /* see superclass */
   @Override
   public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String branch, String query, PfscParameter pfsc)
+    String version, String branch, String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find descriptors " + terminology + "/" + version
             + "/" + query);
-    SearchResultList results = findForQueryHelper(terminology, version, branch, query, pfsc,
+    SearchResultList results = findForQueryHelper(terminology, version, branch, query, pfs,
         DescriptorJpa.class, DescriptorJpa.class);
     for (SearchResult result : results.getObjects()) {
       result.setType(IdType.DESCRIPTOR);
@@ -2516,7 +2514,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param version the version
    * @param branch the branch
    * @param query the query
-   * @param pfsc the pfsc
+   * @param pfs the pfs
    * @param fieldNamesKey the field names key
    * @param clazz the clazz
    * @return the search result list
@@ -2524,7 +2522,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   public <T extends AtomClass> SearchResultList findForQueryHelper(
     String terminology, String version, String branch, String query,
-    PfscParameter pfsc, Class<?> fieldNamesKey, Class<T> clazz)
+    PfsParameter pfs, Class<?> fieldNamesKey, Class<T> clazz)
     throws Exception {
     // Prepare results
     final SearchResultList results = new SearchResultListJpa();
@@ -2535,23 +2533,23 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     SearchResultList exprResults = null;
 
     // construct local pfs
-    PfscParameter localPfsc = new PfscParameterJpa(pfsc);
+    PfsParameter localPfs = new PfsParameterJpa(pfs);
 
     // declare search handler
     SearchHandler searchHandler = null;
 
-    if (pfsc.getExpression() != null && !pfsc.getExpression().isEmpty()) {
+    if (pfs.getExpression() != null && !pfs.getExpression().isEmpty()) {
 
       // get the results
       ExpressionHandler exprHandler =
           getExpressionHandler(terminology, version);
-      exprResults = exprHandler.resolve(pfsc.getExpression());
+      exprResults = exprHandler.resolve(pfs.getExpression());
 
       // if results found, constuct a query restriction
       if (exprResults.getCount() > 0) {
         String exprQueryRestr =
-            (pfsc.getQueryRestriction() != null
-                && !pfsc.getQueryRestriction().isEmpty() ? " AND " : "")
+            (pfs.getQueryRestriction() != null
+                && !pfs.getQueryRestriction().isEmpty() ? " AND " : "")
                 + "terminologyId:(";
         for (SearchResult exprResult : exprResults.getObjects()) {
           exprQueryRestr += exprResult.getTerminologyId() + " ";
@@ -2560,8 +2558,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         exprQueryRestr =
             exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")^"
                 + exprResults.getCount();
-        localPfsc.setQueryRestriction((pfsc.getQueryRestriction() != null
-            ? pfsc.getQueryRestriction() : "") + exprQueryRestr);
+        localPfs.setQueryRestriction((pfs.getQueryRestriction() != null
+            ? pfs.getQueryRestriction() : "") + exprQueryRestr);
       }
     }
 
@@ -2580,7 +2578,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (exprResults == null || exprResults.getCount() > 0) {
       luceneResults =
           searchHandler.getQueryResults(terminology, version, branch, query,
-              "atoms.nameSort", fieldNamesKey, clazz, localPfsc, totalCt,
+              "atoms.nameSort", fieldNamesKey, clazz, localPfs, totalCt,
               manager);
       Logger.getLogger(getClass()).debug(
           "    lucene result count = " + luceneResults.size());
@@ -2821,11 +2819,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /* see superclass */
   @Override
   public SearchResultList findCodesForQuery(String terminology, String version,
-    String branch, String query, PfscParameter pfsc) throws Exception {
+    String branch, String query, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find codes " + terminology + "/" + version + "/"
             + query);
-    SearchResultList results = findForQueryHelper(terminology, version, branch, query, pfsc,
+    SearchResultList results = findForQueryHelper(terminology, version, branch, query, pfs,
         CodeJpa.class, CodeJpa.class);
     for (SearchResult result : results.getObjects()) {
       result.setType(IdType.CODE);

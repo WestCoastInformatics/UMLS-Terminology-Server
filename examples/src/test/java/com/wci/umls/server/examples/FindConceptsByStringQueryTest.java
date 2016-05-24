@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
 /**
  * Example demonstrating finding descriptors by query.
@@ -73,11 +73,11 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     // results
     Logger.getLogger(getClass()).info(
         "Find concepts for 'ge*' with page size 10, first page");
-    PfscParameterJpa pfsc = new PfscParameterJpa();
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     list =
-        contentClient.findConceptsForQuery(terminology, version, "ge*", pfsc,
+        contentClient.findConceptsForQuery(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -88,12 +88,12 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     // Same test, but this time sort on name
     Logger.getLogger(getClass()).info(
         "Find concepts for 'ge*' with page size 10, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    pfsc.setSortField("name");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
+    pfs.setSortField("name");
     list =
-        contentClient.findConceptsForQuery(terminology, version, "ge*", pfsc,
+        contentClient.findConceptsForQuery(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -137,11 +137,11 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     // results
     Logger.getLogger(getClass()).info(
         "Find concepts for 'ge*' with page size 10, first page");
-    PfscParameterJpa pfsc = new PfscParameterJpa();
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     list =
-        contentClient.findConceptsForQuery(terminology, version, "ge*", pfsc,
+        contentClient.findConceptsForQuery(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -152,12 +152,12 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     // Same test, but this time sort on name
     Logger.getLogger(getClass()).info(
         "Find concepts for 'ge*' with page size 10, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    pfsc.setSortField("name");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
+    pfs.setSortField("name");
     list =
-        contentClient.findConceptsForQuery(terminology, version, "ge*", pfsc,
+        contentClient.findConceptsForQuery(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -170,12 +170,12 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     // Find concepts using a multi-word query
     Logger.getLogger(getClass()).info(
         "Find concepts for 'gestational diabetes' but only within SNOMEDCT_US");
-    pfsc = new PfscParameterJpa();
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     list =
         contentClient.findConceptsForQuery(terminology, version,
-            "\"gestational diabetes\" atoms.terminology:SNOMEDCT_US", pfsc,
+            "\"gestational diabetes\" atoms.terminology:SNOMEDCT_US", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());

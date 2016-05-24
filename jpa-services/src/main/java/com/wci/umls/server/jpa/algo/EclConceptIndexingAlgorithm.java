@@ -25,10 +25,10 @@ import org.apache.lucene.util.Version;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.PfscParameter;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.expr.EclConceptFieldNames;
 import com.wci.umls.server.model.content.Concept;
@@ -271,15 +271,15 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     // declare position, results list, and PFS parameter
     int pos = 0;
     SearchResultList concepts;
-    PfscParameter pfsc = new PfscParameterJpa();
-    pfsc.setMaxResults(batchSize);
+    PfsParameter pfs = new PfsParameterJpa();
+    pfs.setMaxResults(batchSize);
 
     // cycle over concepts
     do {
-      pfsc.setStartIndex(pos);
+      pfs.setStartIndex(pos);
       concepts =
           contentService.findConceptsForQuery(terminology, version,
-              Branch.ROOT, null, pfsc);
+              Branch.ROOT, null, pfs);
 
       // logging content on first retrieval
       if (pos == 0) {
