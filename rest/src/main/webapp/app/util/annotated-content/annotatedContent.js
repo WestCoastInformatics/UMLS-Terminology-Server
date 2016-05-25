@@ -10,11 +10,14 @@ tsApp.directive('annotatedContent', [
     return {
       restrict : 'A',
       scope : {
+        // NOTE: metadata used for non-matching terminology display in html only
         metadata : '=',
         callbacks : '='
       },
       templateUrl : 'app/util/annotated-content/annotatedContent.html',
       link : function(scope, element, attrs) {
+        
+        // TODO Check into case sensitivity of filter for terminology ids
 
         console.debug('entered note components directive');
 
@@ -36,15 +39,12 @@ tsApp.directive('annotatedContent', [
           key : 'Name',
           value : 'name'
         }, {
-          key : 'Type',
-          value : 'type'
+          key : 'Terminology',
+          value : 'terminology'
         }, {
           key : 'Terminology Id',
           value : 'terminologyId'
-        }, {
-          key : 'Terminology',
-          value : 'terminology'
-        } ];
+        }];
 
         function getPagedList() {
 
@@ -59,42 +59,28 @@ tsApp.directive('annotatedContent', [
         }
         getPagedList();
 
-        scope.openFavorite = function(favorite) {
-          scope.callbacks.getComponent(favorite);
+        scope.openAnnotatedContent = function(content) {
+          scope.callbacks.getComponent(content);
         }
 
-        scope.removeFavorite = function(favorite) {
-          securityService.removeUserFavorite(favorite.type, favorite.terminology, favorite.version,
-            favorite.terminologyId, favorite.value).then(function(response) {
+        scope.removeAnnotatedContent = function(content) {
+          securityService.removeUserAnnotatedContent(content.type, content.terminology, content.version,
+            content.terminologyId, content.value).then(function(response) {
             getPagedList();
-            scope.callbacks.checkFavoriteStatus();
+            scope.callbacks.checkAnnotatedContentStatus();
 
           });
         }
 
-        // watch for broadcast favorite update notification
+        // watch for broadcast content update notification
         scope.$on('termServer::noteChange', function(event, data) {
 
           console.debug('annotatedContent: received noteChange', event, data, scope.pagedData);
-
-          // check if referenced component is in list
-          if (data && data.component) {
-            for (var i = 0; i < scope.pagedData.results.length; i++) {
-              console.debug(' comparing ' + scope.pagedData.results[i].id + ' to '
-                + data.component.id)
-              if (scope.pagedData.results[i].id === data.component.id) {
-                console.debug('  component in viewed list, refreshing');
-                getPagedList();
-                break;
-              }
-            }
-          } else {
-            console.debug(' no data received"0;')
-          }
+          getPagedList();
         });
 
         // Open notes modal, from either wrapper or component
-        scope.viewNotes = function(favorite) {
+        scope.viewNotes = function(content) {
 
           var modalInstance = $uibModal.open({
             animation : scope.animationsEnabled,
@@ -104,7 +90,7 @@ tsApp.directive('annotatedContent', [
             size : 'lg',
             resolve : {
               component : function() {
-                return favorite;
+                return content;
 
               }
             }

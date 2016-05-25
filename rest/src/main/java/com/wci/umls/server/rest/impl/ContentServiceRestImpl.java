@@ -2938,7 +2938,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/favorites/{terminology}/{version}")
+  @Path("/favorites")
   @ApiOperation(value = "Get user favorites", notes = "Gets user favorites for a terminology and version", response = String.class)
   @Override
   public SearchResultList getFavoritesForUser(
@@ -3321,7 +3321,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         sr.setTerminology(conceptNote.getConcept().getTerminology());
         sr.setVersion(conceptNote.getConcept().getVersion());
         sr.setTerminologyId(conceptNote.getConcept().getTerminologyId());
-        sr.setType(IdType.CONCEPT);
+        sr.setType(conceptNote.getConcept().getType());
         sr.setValue(conceptNote.getConcept().getName());
 
         if (!results.contains(sr)) {
@@ -3340,7 +3340,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         sr.setTerminology(descriptorNote.getDescriptor().getTerminology());
         sr.setVersion(descriptorNote.getDescriptor().getVersion());
         sr.setTerminologyId(descriptorNote.getDescriptor().getTerminologyId());
-        sr.setType(IdType.CONCEPT);
+        sr.setType(descriptorNote.getDescriptor().getType());
         sr.setValue(descriptorNote.getDescriptor().getName());
 
         if (!results.contains(sr)) {
@@ -3360,7 +3360,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         sr.setTerminology(codeNote.getCode().getTerminology());
         sr.setVersion(codeNote.getCode().getVersion());
         sr.setTerminologyId(codeNote.getCode().getTerminologyId());
-        sr.setType(IdType.CONCEPT);
+        sr.setType(codeNote.getCode().getType());
         sr.setValue(codeNote.getCode().getName());
 
         if (!results.contains(sr)) {

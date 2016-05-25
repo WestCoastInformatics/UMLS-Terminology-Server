@@ -205,8 +205,6 @@ public class AbstractListUnit<T> {
     xml = ConfigUtility.getStringForGraph(list);
 
     ResultList<T> list3 = ConfigUtility.getGraphForString(xml, list.getClass());
-    System.out.println(list.toString());
-    System.out.println(list3.toString());
     assertTrue(list.equals(list3));
 
     // Add 2 contents

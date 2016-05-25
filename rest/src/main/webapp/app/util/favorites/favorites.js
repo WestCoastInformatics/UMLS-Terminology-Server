@@ -5,11 +5,13 @@ tsApp.directive('favorites', [
   'contentService',
   'securityService',
   '$uibModal',
-  function($rootScope, utilService, contentService, securityService, $uibModal) {
+  '$timeout',
+  function($rootScope, utilService, contentService, securityService, $uibModal, $timeout) {
     console.debug('configure favorites directive');
     return {
       restrict : 'A',
       scope : {
+        // NOTE:  metadata used for non-matching terminology display in html only
         metadata : '=',
         favorites : '=',
         callbacks : '='
@@ -18,7 +20,7 @@ tsApp.directive('favorites', [
       link : function(scope, element, attrs) {
 
         // instantiate paging and paging callback function
-        scope.pagedData = [];
+        scope.pagedData = null;
         scope.paging = utilService.getPaging();
         scope.pageCallback = {
           getPagedList : getPagedList
@@ -36,9 +38,12 @@ tsApp.directive('favorites', [
           value : 'name'
         },
 
-        // TODO Make sure this actually works :)
         {
-          key : 'Type Id',
+          key : 'Terminology',
+          value : 'terminology'
+        },
+        {
+          key : 'Terminology Id',
           value : 'terminologyId'
         }, {
           key : 'Timestamp',
@@ -47,28 +52,27 @@ tsApp.directive('favorites', [
 
         function getPagedList() {
 
-          // do not make call unless metadata exists
-          if (!scope.metadata || !scope.metadata.terminology) {
-            return;
-          }
-
           // Request from service
-          contentService.getUserFavorites(scope.metadata.terminology.terminology,
-            scope.metadata.terminology.version, scope.paging).then(function(response) {
+          contentService.getUserFavorites(scope.paging).then(function(response) {
             scope.pagedData = response;
 
           });
         }
-        // watch the component
-        scope.$watch('metadata', function() {
-          getPagedList();
-        }, true);
-
-        // watch the favorites
+    
+        // watch the favorites for first-load initialization
         scope.$watch('favorites', function() {
-          getPagedList();
+         if (scope.pagedData == null) {
+           getPagedList();
+         }
         }, true);
 
+        // watch for favorite change notifications
+        // TODO This can result in duplicate calls where top-level favorites
+        // change. Resolve this once websocket functionality is complete.
+        scope.$on('termServer::favoriteChange', function(event, data) {
+          getPagedList();
+        });
+        
         // watch for broadcast favorite update notification
         scope.$on('termServer::noteChange', function(event, data) {
           

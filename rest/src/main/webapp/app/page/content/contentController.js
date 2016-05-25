@@ -17,10 +17,11 @@ tsApp.controller('ContentCtrl', [
   'metadataService',
   'contentService',
   'configureService',
+  'websocketService',
   'appConfig',
   function($rootScope, $scope, $routeParams, $http, $uibModal, $location, $q, $anchorScroll, $sce,
     $uibModal, gpService, utilService, tabService, securityService, metadataService,
-    contentService, configureService, appConfig) {
+    contentService, configureService, websocketService, appConfig) {
     console.debug('configure ContentCtrl');
 
     // tabs are showing
@@ -57,6 +58,7 @@ tsApp.controller('ContentCtrl', [
     // Search parameters
     $scope.searchParams = contentService.getSearchParams();
     $scope.searchResults = null;
+    $scope.searchResultsCollapsed = false;
     $scope.searchOrBrowse = null;
 
     // favorites
@@ -147,8 +149,8 @@ tsApp.controller('ContentCtrl', [
           $scope.setListView();
         }
         // if a query is specified, research 
-        if ($scope.searchParams.query) {
-          $scope.findComponents(false);
+        if ($scope.searchParams.query || $scope.searchParams.advancedMode) {
+          $scope.findComponents(false, true);
         }
 
         deferred.resolve();
@@ -234,9 +236,10 @@ tsApp.controller('ContentCtrl', [
       $scope.findComponents(true);
     };
 
-    $scope.performNewSearch = function() {
+    $scope.performNewSearch = function(suppressWarnings) {
       $scope.searchParams.page = 1;
-      $scope.findComponents(true, false);
+      $scope.searchResultsCollapsed = false;
+      $scope.findComponents(true, suppressWarnings);
     }
 
     // Find concepts based on current search
@@ -272,7 +275,7 @@ tsApp.controller('ContentCtrl', [
       if (!hasQuery && !hasExpr && !hasNotes) {
         if (!suppressWarnings) {
           alert("You must use at least one character to search"
-            + ($scope.searchParams.advancedMode ? ", supply an expression, or search user notes"
+            + ($scope.searchParams.advancedMode ? ($scope.metadata.terminology.descriptionLogicTerminology ? ", supply an expression," : "") + " or search user notes"
               : ""));
 
           // added to prevent weird bug causing page to scroll down a few lines
@@ -665,11 +668,13 @@ tsApp.controller('ContentCtrl', [
         securityService.removeUserFavorite(type, terminology, version, terminologyId, name).then(
           function() {
             $scope.isFavorite = false;
+            websocketService.fireFavoriteChange();
           });
       } else {
         securityService.addUserFavorite(type, terminology, version, terminologyId, name).then(
           function() {
             $scope.isFavorite = true;
+            websocketService.fireFavoriteChange();
           });
       }
     }

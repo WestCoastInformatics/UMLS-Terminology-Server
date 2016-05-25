@@ -536,9 +536,14 @@ tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'g
     // To be replaced once the WebSocket is functional
     //
     
-    this.fireNoteChange = function(event) {
-      console.debug('websocketService: fireNoteChange event', event);
-      $rootScope.$broadcast('termServer::noteChange', event);
+    this.fireNoteChange = function(data) {
+      console.debug('websocketService: fireNoteChange event', data);
+      $rootScope.$broadcast('termServer::noteChange', data);
+    };
+    
+    this.fireFavoriteChange = function(data) {
+      console.debug('websocketService: fireNoteChange event', data);
+      $rootScope.$broadcast('termServer::favoriteChange', data);
     };
 
   } ]);

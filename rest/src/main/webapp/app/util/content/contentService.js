@@ -761,10 +761,10 @@ tsApp
         // NOTE: This uses the paging structure in utilService.getPaging
         // parallel to uses in component report elements (atoms, relationships...)
         // instead of the getSearchParams structure for standard queries
-        this.getUserFavorites = function(terminology, version, parameters) {
-          console.debug('get user favorites', terminology, version, parameters);
+        this.getUserFavorites = function(parameters) {
+          console.debug('get user favorites', parameters);
           var deferred = $q.defer();
-          if (!terminology || !version || !parameters) {
+          if (!parameters) {
             deferred.reject('Parameters must be specified');
           } else {
 
@@ -777,7 +777,7 @@ tsApp
             };
 
             gpService.increment();
-            $http.post(contentUrl + '/favorites/' + terminology + '/' + version, pfs).then(
+            $http.post(contentUrl + '/favorites', pfs).then(
               function(response) {
                 gpService.decrement();
                 deferred.resolve(response.data);
@@ -802,6 +802,10 @@ tsApp
             sortField : parameters.sortField ? parameters.sortField : 'name',
             ascending : parameters.sortAscending
           };
+          
+          if (query && !query.endsWith("*")) {
+            query += "*";
+          }
 
           gpService.increment();
           $http.post(
