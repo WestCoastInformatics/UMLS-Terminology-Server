@@ -155,9 +155,9 @@ public class AtomJpaUnitTest {
     ProxyTester tester4 = new ProxyTester(new DefinitionJpa());
     Definition def = (Definition) tester4.createObject(1);
 
-    atom.addAttribute(att);
-    atom.addDefinition(def);
-    atom.addRelationship(rel);
+    atom.getAttributes().add(att);
+    atom.getDefinitions().add(def);
+    atom.getRelationships().add(rel);
 
     Atom atom2 = new AtomJpa(atom, false);
     assertEquals(0, atom2.getAttributes().size());

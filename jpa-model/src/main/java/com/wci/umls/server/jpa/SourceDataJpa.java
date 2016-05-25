@@ -35,7 +35,7 @@ import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
 
 /**
- * JPA
+ * JPA.
  */
 @Entity
 @Table(name = "source_data", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -56,19 +56,19 @@ public class SourceDataJpa implements SourceData {
   @Column(nullable = false, unique = true)
   private String name;
 
-  /** The source data description */
+  /** The source data description. */
   @Column(nullable = true, unique = false)
   private String terminology;
 
-  /** The source data description */
+  /** The source data description. */
   @Column(nullable = true, unique = false)
   private String version;
 
-  /** The source data description */
+  /** The source data description. */
   @Column(nullable = true, unique = false)
   private String releaseVersion;
 
-  /** The source data description */
+  /** The source data description. */
   @Column(nullable = true, unique = false, length = 4000)
   private String description;
 
@@ -88,11 +88,11 @@ public class SourceDataJpa implements SourceData {
   @OneToMany(targetEntity = SourceDataFileJpa.class, orphanRemoval = true)
   private List<SourceDataFile> sourceDataFiles = new ArrayList<>();
 
-  /** The status */
+  /** The status. */
   @Column(nullable = true, unique = false)
   private SourceData.Status status = SourceData.Status.NEW;
 
-  /** The status text */
+  /** The status text. */
   @Column(nullable = true, unique = false, length = 4000)
   private String statusText;
 
@@ -271,29 +271,16 @@ public class SourceDataJpa implements SourceData {
     this.statusText = statusText;
   }
 
+  /* see superclass */
   @Override
   public String getDescription() {
     return description;
   }
 
+  /* see superclass */
   @Override
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  @Override
-  public void addSourceDataFile(SourceDataFile sourceDataFile) {
-    if (this.sourceDataFiles == null) {
-      sourceDataFiles = new ArrayList<>();
-    }
-    this.sourceDataFiles.add(sourceDataFile);
-  }
-
-  @Override
-  public void removeSourceDataFile(SourceDataFile sourceDataFile) {
-    if (this.sourceDataFiles != null) {
-      this.sourceDataFiles.remove(sourceDataFile);
-    }
   }
 
   /* see superclass */
@@ -309,6 +296,7 @@ public class SourceDataJpa implements SourceData {
     this.sourceDataFiles = sourceDataFiles;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -335,6 +323,7 @@ public class SourceDataJpa implements SourceData {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -391,6 +380,7 @@ public class SourceDataJpa implements SourceData {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "SourceDataJpa [id=" + id + ", name=" + name + ", description="
@@ -401,31 +391,37 @@ public class SourceDataJpa implements SourceData {
         + ", handlerStatus=" + handlerStatus + "]";
   }
 
+  /* see superclass */
   @Override
   public String getTerminology() {
     return this.terminology;
   }
 
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
+  /* see superclass */
   @Override
   public String getVersion() {
     return this.version;
   }
 
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
+  /* see superclass */
   @Override
   public String getReleaseVersion() {
     return this.releaseVersion;
   }
 
+  /* see superclass */
   @Override
   public void setReleaseVersion(String releaseVersion) {
     this.releaseVersion = releaseVersion;

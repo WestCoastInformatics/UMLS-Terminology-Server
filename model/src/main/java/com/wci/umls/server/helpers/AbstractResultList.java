@@ -53,17 +53,6 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     return objects.contains(element);
   }
 
-  /* see superclass */
-  @Override
-  public void addObject(T object) {
-    objects.add(object);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeObject(T object) {
-    objects.remove(object);
-  }
 
   /* see superclass */
   @Override

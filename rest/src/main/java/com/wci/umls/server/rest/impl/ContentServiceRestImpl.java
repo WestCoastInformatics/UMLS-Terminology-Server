@@ -2108,7 +2108,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
         final Tree tree = contentService.getTreeForTreePosition(treepos);
-        treeList.addObject(tree);
+        treeList.getObjects().add(tree);
       }
       treeList.setTotalCount(list.getTotalCount());
       return treeList;
@@ -2152,7 +2152,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           .getObjects()) {
         final Tree tree = contentService.getTreeForTreePosition(treepos);
 
-        treeList.addObject(tree);
+        treeList.getObjects().add(tree);
       }
       treeList.setTotalCount(list.getTotalCount());
       return treeList;
@@ -2196,7 +2196,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           .getObjects()) {
         final Tree tree = contentService.getTreeForTreePosition(treepos);
 
-        treeList.addObject(tree);
+        treeList.getObjects().add(tree);
       }
       treeList.setTotalCount(list.getTotalCount());
       return treeList;
@@ -2470,7 +2470,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
         final Tree childTree = new TreeJpa(childTreePosition);
-        childTrees.addObject(childTree);
+        childTrees.getObjects().add(childTree);
       }
 
       childTrees.setTotalCount(childTreePositions.getTotalCount());
@@ -2518,7 +2518,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
         final Tree childTree = new TreeJpa(childTreePosition);
-        childTrees.addObject(childTree);
+        childTrees.getObjects().add(childTree);
       }
 
       childTrees.setTotalCount(childTreePositions.getTotalCount());
@@ -2566,7 +2566,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
         final Tree childTree = new TreeJpa(childTreePosition);
-        childTrees.addObject(childTree);
+        childTrees.getObjects().add(childTree);
       }
 
       childTrees.setTotalCount(childTreePositions.getTotalCount());
@@ -3079,7 +3079,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         searchResult.setValue(atomClass.getName());
         searchResult.setProperty(new KeyValuePair("hasNotes", String
             .valueOf(hasNotes)));
-        results.addObject(searchResult);
+        results.getObjects().add(searchResult);
       }
       return results;
 

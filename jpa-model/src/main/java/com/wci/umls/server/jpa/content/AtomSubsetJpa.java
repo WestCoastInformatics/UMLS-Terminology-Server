@@ -53,7 +53,7 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
 
     if (deepCopy) {
       for (AtomSubsetMember member : subset.getMembers()) {
-        addMember(new AtomSubsetMemberJpa(member, deepCopy));
+        getMembers().add(new AtomSubsetMemberJpa(member, deepCopy));
       }
     }
   }
@@ -74,23 +74,6 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
     this.members = members;
   }
 
-  /* see superclass */
-  @Override
-  public void addMember(AtomSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<>();
-    }
-    members.add(member);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeMember(AtomSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<>();
-    }
-    members.remove(member);
-  }
 
   /* see superclass */
   @Override

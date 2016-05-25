@@ -47,19 +47,6 @@ public interface ResultList<T> {
    */
   public boolean contains(T element);
 
-  /**
-   * Adds the object.
-   *
-   * @param object the object
-   */
-  public void addObject(T object);
-
-  /**
-   * Removes the object.
-   *
-   * @param object the object
-   */
-  public void removeObject(T object);
 
   /**
    * Sets the objects.

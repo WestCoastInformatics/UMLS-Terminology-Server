@@ -779,7 +779,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                 + " - "
                 + (def.getValue().replaceAll("\r", "").replaceAll("\n", "")));
             addDefinition(def, concept);
-            concept.addDefinition(def);
+            concept.getDefinitions().add(def);
           }
 
           // Add atom to concept for this rubric
@@ -787,7 +787,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             final Atom atom =
                 createAtom(rubricId, rubricKind, labelChars.toString(),
                     concept.getTerminologyId());
-            concept.addAtom(atom);
+            concept.getAtoms().add(atom);
 
             logInfo("  Add Atom for class " + code + " - " + rubricKind + " - "
                 + (atom.getName().replaceAll("\r", "").replaceAll("\n", "")));
@@ -898,7 +898,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               value = "\u2020 (dagger)";
             }
             final Attribute att = createAttribute("USAGE", value);
-            concept.addAttribute(att);
+            concept.getAttributes().add(att);
             addAttribute(att, concept);
             classUsageMap.put(concept.getTerminologyId(), value);
 
@@ -1217,7 +1217,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             "  Add Definition for class " + code + " - " + rubricKind + " - "
                 + (def.getValue().replaceAll("\r", "").replaceAll("\n", "")));
         addDefinition(def, concept);
-        concept.addDefinition(def);
+        concept.getDefinitions().add(def);
       }
 
       // Add atom to concept for this rubric
@@ -1226,7 +1226,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         final Atom atom =
             createAtom(rubricId, rubricKind, labelChars.toString(),
                 concept.getTerminologyId());
-        concept.addAtom(atom);
+        concept.getAtoms().add(atom);
       }
 
     }
@@ -1420,7 +1420,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       for (Attribute att : modConcept.getAttributes()) {
         Attribute copy = new AttributeJpa(att);
         copy.setId(null);
-        concept.addAttribute(copy);
+        concept.getAttributes().add(copy);
         addAttribute(copy, concept);
         logInfo("          copy attribute - " + copy.getName() + ", "
             + copy.getValue());
@@ -1431,7 +1431,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // Make usage attribute
         String value = classUsageMap.get(parentConcept.getTerminologyId());
         final Attribute att = createAttribute("USAGE", value);
-        concept.addAttribute(att);
+        concept.getAttributes().add(att);
         addAttribute(att, concept);
         classUsageMap.put(concept.getTerminologyId(), value);
       }
@@ -1450,7 +1450,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               copy.getTerminologyId());
           preferredFound = true;
         }
-        concept.addAtom(copy);
+        concept.getAtoms().add(copy);
         logInfo("          copy atom - " + copy.getTermType() + ", "
             + copy.getName());
 
@@ -1476,7 +1476,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           final Atom atom =
               createAtom(code, "preferred", parentConcept.getName(),
                   concept.getTerminologyId());
-          concept.addAtom(atom);
+          concept.getAtoms().add(atom);
         } else {
           throw new Exception(
               "Non-placeholder ModifierClass without preferred rubric:  "
@@ -2123,7 +2123,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   @Override
   public void computeExpressionIndexes() throws Exception {
-   // do nothing
+    // do nothing
   }
 
 }

@@ -197,7 +197,7 @@ public class ConceptRelationshipJpaUnitTest {
 
     rel.setFrom(fromConcept);
     rel.setTo(toConcept);
-    rel.addAttribute(att);
+    rel.getAttributes().add(att);
 
     ConceptRelationship rel2 = new ConceptRelationshipJpa(rel, false);
     assertEquals(0, rel2.getAttributes().size());

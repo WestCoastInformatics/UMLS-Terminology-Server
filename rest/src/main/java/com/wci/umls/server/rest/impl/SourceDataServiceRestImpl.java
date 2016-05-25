@@ -153,7 +153,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
         sdf.setLastModifiedBy(userName);
         sdf.setSourceData(sourceData);
 
-        sourceData.addSourceDataFile(sdf);
+        sourceData.getSourceDataFiles().add(sdf);
 
         service.addSourceDataFile(sdf);
       }
@@ -279,7 +279,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
 
       // remove this entry from its source data
       SourceData sourceData = sourceDataFile.getSourceData();
-      sourceData.removeSourceDataFile(sourceDataFile);
+      sourceData.getSourceDataFiles().remove(sourceDataFile);
       service.updateSourceData(sourceData);
 
       // remove the database entry
@@ -595,7 +595,8 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Source Data): /data/load " + (sourceData == null ? "No source data" : sourceData.getName()));
+        "RESTful call (Source Data): /data/load "
+            + (sourceData == null ? "No source data" : sourceData.getName()));
 
     try {
       authorizeApp(securityService, authToken, "load from source data",

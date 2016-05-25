@@ -190,7 +190,7 @@ public class AtomRelationshipJpaUnitTest {
 
     rel.setFrom(fromAtom);
     rel.setTo(toAtom);
-    rel.addAttribute(att);
+    rel.getAttributes().add(att);
 
     AtomRelationship rel2 = new AtomRelationshipJpa(rel, false);
     assertEquals(0, rel2.getAttributes().size());

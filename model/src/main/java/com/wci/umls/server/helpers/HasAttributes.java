@@ -26,19 +26,6 @@ public interface HasAttributes {
    */
   public void setAttributes(List<Attribute> attributes);
 
-  /**
-   * Adds the attribute.
-   *
-   * @param attribute the attribute
-   */
-  public void addAttribute(Attribute attribute);
-
-  /**
-   * Removes the attribute.
-   *
-   * @param attribute the attribute
-   */
-  public void removeAttribute(Attribute attribute);
 
   /**
    * Returns the attribute by name.

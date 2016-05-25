@@ -28,18 +28,5 @@ public interface HasRelationships<T extends Relationship<? extends ComponentHasA
    */
   public void setRelationships(List<T> relationships);
 
-  /**
-   * Adds the relationship.
-   *
-   * @param relationship the relationship
-   */
-  public void addRelationship(T relationship);
-
-  /**
-   * Removes the relationship.
-   *
-   * @param relationship the relationship
-   */
-  public void removeRelationship(T relationship);
 
 }

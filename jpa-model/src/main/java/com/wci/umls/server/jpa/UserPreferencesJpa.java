@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -62,11 +61,11 @@ public class UserPreferencesJpa implements UserPreferences {
   @Column(nullable = true)
   private String lastTerminology;
 
-  /** The prec list */
+  /** The prec list. */
   @OneToOne(targetEntity = PrecedenceListJpa.class, optional = true)
   private PrecedenceList precedenceList = null;
-  
-  /** The favorites */
+
+  /** The favorites. */
   @ElementCollection(fetch = FetchType.EAGER)
   private List<String> favorites = null;
 
@@ -295,27 +294,17 @@ public class UserPreferencesJpa implements UserPreferences {
       precedenceList.setId(id);
     }
   }
+
+  /* see superclass */
   @Override
   public void setFavorites(List<String> favorites) {
     this.favorites = favorites;
   }
+
+  /* see superclass */
   @Override
   public List<String> getFavorites() {
     return this.favorites;
-  }
-  @Override
-  public void addFavorite(String favorite) {
-    if (this.favorites == null) {
-      this.favorites = new ArrayList<>();
-    }
-    favorites.add(favorite);
-  }
-  @Override
-  public void removeFavorite(String favorite) {
-    if (favorites == null) {
-      this.favorites = new ArrayList<>();
-    }
-    favorites.remove(favorite);
   }
 
   /* see superclass */

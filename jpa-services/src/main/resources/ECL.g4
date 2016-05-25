@@ -1,0 +1,84 @@
+grammar ECL;
+expressionconstraint : ws ( refinedexpressionconstraint | compoundexpressionconstraint | simpleexpressionconstraint ) ws;
+simpleexpressionconstraint : (constraintoperator ws)? focusconcept;
+refinedexpressionconstraint : simpleexpressionconstraint ws ':' ws refinement; 
+compoundexpressionconstraint : conjunctionexpressionconstraint | disjunctionexpressionconstraint | exclusionexpressionconstraint; 
+conjunctionexpressionconstraint : subexpressionconstraint (ws conjunction ws subexpressionconstraint)+; 
+disjunctionexpressionconstraint : subexpressionconstraint (ws disjunction ws subexpressionconstraint)+;
+exclusionexpressionconstraint : subexpressionconstraint ws exclusion ws subexpressionconstraint;
+subexpressionconstraint : simpleexpressionconstraint | ('(' ws (compoundexpressionconstraint | refinedexpressionconstraint) ws ')');
+focusconcept : ( MEMBEROF ws )? (conceptreference | WILDCARD);
+MEMBEROF : '^';
+conceptreference : conceptid (ws '|' ws term ws '|')?;
+conceptid : sctid;
+term : nonwsnonpipe+ ( SP+ nonwsnonpipe+ )*;
+WILDCARD : '*';
+constraintoperator : DESCENDANTORSELFOF | DESCENDANTOF | ANCESTORORSELFOF | ANCESTOROF;
+DESCENDANTOF : '<';
+DESCENDANTORSELFOF : '<<';
+ANCESTOROF : '>';
+ANCESTORORSELFOF : '>>';
+conjunction : (('a'|'A') ('n'|'N') ('d'|'D') mws) | ',';
+disjunction : ('o'|'O') ('r'|'R') mws;
+exclusion : ('m'|'M') ('i'|'I') ('n'|'N') ('u'|'U') ('s'|'S') mws;
+refinement : subrefinement ws (conjunctionrefinementset | disjunctionrefinementset)?;
+conjunctionrefinementset : (ws conjunction ws subrefinement)+;
+disjunctionrefinementset : (ws disjunction ws subrefinement)+;
+subrefinement : attributeset | attributegroup | ('(' ws refinement ws ')');
+attributeset : subattributeset ws (conjunctionattributeset | disjunctionattributeset)?;
+conjunctionattributeset : (ws conjunction ws subattributeset)+;
+disjunctionattributeset : (ws disjunction ws subattributeset)+;
+subattributeset : attribute | ('(' ws attributeset ws ')');
+attributegroup : (cardinality ws)? '{' ws attributeset ws '}';
+attribute : (cardinality ws)? (REVERSEFLAG ws)? (attributeoperator ws)? attributename ws ((EXPRESSIONCOMPARISONOPERATOR ws expressionconstraintvalue) | (NUMERICCOMPARISONOPERATOR ws numericvalue) | (STRINGCOMPARISONOPERATOR ws stringvalue) );
+cardinality : '[' nonnegativeintegervalue TO (nonnegativeintegervalue | MANY) ']';
+TO : '..';
+MANY : '*';
+REVERSEFLAG : 'R';
+attributeoperator : DESCENDANTORSELFOF | DESCENDANTOF;
+attributename : conceptreference | WILDCARD;
+expressionconstraintvalue : simpleexpressionconstraint | ('(' ws (refinedexpressionconstraint | compoundexpressionconstraint) ws ')');
+EXPRESSIONCOMPARISONOPERATOR : '=' | '!=';
+NUMERICCOMPARISONOPERATOR : '=' | '!=' | '<=' | '<' | '>=' | '>';
+STRINGCOMPARISONOPERATOR : '=' | '!='; 
+numericvalue : '#' ( decimalvalue | integervalue);
+stringvalue : QM (anynonescapedchar | escapedchar)+ QM;
+integervalue : ( ('-'|'+')? DIGITNONZERO DIGIT* ) | ZERO;
+decimalvalue : integervalue '.' DIGIT+;
+nonnegativeintegervalue : (DIGITNONZERO DIGIT* ) | ZERO;
+sctid : alphanumericnonus ( alphanumeric ) (alphanumeric) (alphanumeric) ((alphanumeric)? | ((alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)) | ((alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric) (alphanumeric)));
+ws : ( SP | HTAB | CR | LF )*; // optional white space
+mws : ( SP | HTAB | CR | LF )+; // mandatory white space
+SP : ' ';
+HTAB : '\u0009'; // tab
+CR : '\u000D'; // carriage return
+LF : '\u000A'; // line feed
+QM : '\u0022'; // quotation mark
+BS : '\\';
+ALPHA : '\u0041'..'\u005A' | '\u0061'..'\u007A' ;
+DIGIT : '\u0030'..'\u0039';
+ZERO : '\u0030';
+DIGITNONZERO : '\u0031'..'\u0039';
+alphanumericnonus : DIGIT | ALPHA | '\u002E' ;
+alphanumeric : DIGIT | ALPHA | '\u002E' | '\u002D' ;
+WS1 : '\u0021'..'\u007B';
+WS2 : '\u007D'..'\u007E';
+nonwsnonpipe :  WS1 | WS2 | utf8_2 | utf8_3 | utf8_4 ;
+ANY1 : '\u0020'..'\u0021';
+ANY2 : '\u0023'..'\u005B';
+ANY3 : '\u005D'..'\u007E';
+anynonescapedchar : ( HTAB | CR | LF | ANY1 | ANY2 | ANY3 | utf8_2 | utf8_3 | utf8_4 );
+escapedchar : (BS QM) | (BS BS);
+UTF2 : '\u00C2'..'\u00DF';
+utf8_2 : UTF2 UTF8_TAIL;
+UTF3_HELPER1 : '\u00A0'..'\u00BF';
+UTF3_HELPER2 : '\u00E1'..'\u00EC';
+UTF3_HELPER3 : '\u0080'..'\u009F';
+UTF3_HELPER4 : '\u00EE'..'\u00EF';
+utf8_3 : ('\u00E0' UTF3_HELPER1 UTF8_TAIL) | (UTF3_HELPER2 ( UTF8_TAIL ) (UTF8_TAIL)) | ('\u00ED' UTF3_HELPER3 UTF8_TAIL) | (UTF3_HELPER4 ( UTF8_TAIL ) (UTF8_TAIL));
+UTF4_HELPER1 : '\u0090'..'\u00BF';
+UTF4_HELPER2 : '\u00F1'..'\u00F3';
+UTF4_HELPER3 : '\u0080'..'\u008F';
+utf8_4 : ('\u00F0' UTF4_HELPER1 ( UTF8_TAIL ) (UTF8_TAIL)) | (UTF4_HELPER2 ( UTF8_TAIL ) (UTF8_TAIL) (UTF8_TAIL)) | ('\u00F4' UTF4_HELPER3 ( UTF8_TAIL ) (UTF8_TAIL));
+UTF8_TAIL : '\u0080'..'\u00BF';
+

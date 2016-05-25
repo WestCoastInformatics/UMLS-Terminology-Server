@@ -27,20 +27,6 @@ public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets {
   public void setAtoms(List<Atom> atoms);
 
   /**
-   * Add atom.
-   *
-   * @param atom the atom
-   */
-  public void addAtom(Atom atom);
-
-  /**
-   * Remove atom.
-   *
-   * @param atom the atom
-   */
-  public void removeAtom(Atom atom);
-
-  /**
    * Gets the workflow status.
    *
    * @return the workflow status

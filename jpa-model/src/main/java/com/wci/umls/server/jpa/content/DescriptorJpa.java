@@ -77,10 +77,11 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
 
     if (deepCopy) {
       for (Definition definition : descriptor.getDefinitions()) {
-        addDefinition(new DefinitionJpa(definition, deepCopy));
+        getDefinitions().add(new DefinitionJpa(definition, deepCopy));
       }
       for (DescriptorRelationship relationship : descriptor.getRelationships()) {
-        addRelationship(new DescriptorRelationshipJpa(relationship, deepCopy));
+        getRelationships().add(
+            new DescriptorRelationshipJpa(relationship, deepCopy));
       }
 
     }
@@ -103,26 +104,6 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   }
 
   /* see superclass */
-  @Override
-  public void addDefinition(Definition definition) {
-    if (definitions == null) {
-      definitions = new ArrayList<>(1);
-    }
-    definitions.add(definition);
-
-  }
-
-  /* see superclass */
-  @Override
-  public void removeDefinition(Definition definition) {
-    if (definitions == null) {
-      definitions = new ArrayList<>(1);
-    }
-    definitions.remove(definition);
-
-  }
-
-  /* see superclass */
   @XmlElement(type = DescriptorRelationshipJpa.class)
   @Override
   public List<DescriptorRelationship> getRelationships() {
@@ -137,24 +118,6 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   public void setRelationships(List<DescriptorRelationship> relationships) {
     this.relationships = relationships;
 
-  }
-
-  /* see superclass */
-  @Override
-  public void addRelationship(DescriptorRelationship relationship) {
-    if (relationships == null) {
-      relationships = new ArrayList<>(1);
-    }
-    relationships.add(relationship);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeRelationship(DescriptorRelationship relationship) {
-    if (relationships == null) {
-      relationships = new ArrayList<>(1);
-    }
-    relationships.remove(relationship);
   }
 
   /* see superclass */

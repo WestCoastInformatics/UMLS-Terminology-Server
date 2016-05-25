@@ -42,12 +42,13 @@ import com.wci.umls.server.model.content.AtomClass;
  * Abstract JPA-enabled implementation of {@link AtomClass}.
  */
 @AnalyzerDefs({
-    @AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class) , filters = {
+    @AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
         @TokenFilterDef(factory = StandardFilterFactory.class),
         @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-    }), @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
+    }),
+    @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
     // Split input into tokens according to tokenizer
-    tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class) , filters = {
+    tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class), filters = {
         // Normalize token text to lowercase, as the user is unlikely to
         // care about casing when searching for matches
         @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
@@ -62,9 +63,10 @@ import com.wci.umls.server.model.content.AtomClass;
             @Parameter(name = "minGramSize", value = "3"),
             @Parameter(name = "maxGramSize", value = "50")
         })
-    }), @AnalyzerDef(name = "autocompleteNGramAnalyzer",
+    }),
+    @AnalyzerDef(name = "autocompleteNGramAnalyzer",
     // Split input into tokens according to tokenizer
-    tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class) , filters = {
+    tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
         // Normalize token text to lowercase, as the user is unlikely to
         // care about casing when searching for matches
         @TokenFilterDef(factory = WordDelimiterFilterFactory.class),
@@ -102,7 +104,6 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   @Column(nullable = true)
   private String workflowStatus;
 
-
   /**
    * Instantiates an empty {@link AbstractAtomClass}.
    */
@@ -122,7 +123,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     workflowStatus = atomClass.getWorkflowStatus();
     if (deepCopy) {
       for (Atom atom : atomClass.getAtoms()) {
-        addAtom(new AtomJpa(atom, deepCopy));
+        getAtoms().add(new AtomJpa(atom, deepCopy));
       }
     }
   }
@@ -141,24 +142,6 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   @Override
   public void setAtoms(List<Atom> atoms) {
     this.atoms = atoms;
-  }
-
-  /* see superclass */
-  @Override
-  public void addAtom(Atom atom) {
-    if (atoms == null) {
-      atoms = new ArrayList<>();
-    }
-    atoms.add(atom);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeAtom(Atom atom) {
-    if (atoms == null) {
-      atoms = new ArrayList<>();
-    }
-    atoms.remove(atom);
   }
 
   /* see superclass */
@@ -251,12 +234,12 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     }
     final int index = branchedTo.indexOf(closedBranch);
     if (index != -1) {
-      branchedTo = branchedTo.substring(0, index - 1)
-          + branchedTo.substring(index + closedBranch.length() + 1);
+      branchedTo =
+          branchedTo.substring(0, index - 1)
+              + branchedTo.substring(index + closedBranch.length() + 1);
     }
 
   }
-
 
   /* see superclass */
   @Override

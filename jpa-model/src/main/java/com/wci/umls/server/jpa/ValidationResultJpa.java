@@ -73,28 +73,6 @@ public class ValidationResultJpa implements ValidationResult {
   }
 
   /* see superclass */
-  @Override
-  public void addError(String error) {
-    this.errors.add(error);
-  }
-
-  /* see superclass */
-  @Override
-  public void addErrors(Set<String> errorSet) {
-    if (this.errors != null) {
-      this.errors.addAll(errorSet);
-    } else {
-      this.errors = new HashSet<>(errorSet);
-    }
-  }
-
-  /* see superclass */
-  @Override
-  public void removeError(String error) {
-    this.errors.remove(error);
-  }
-
-  /* see superclass */
   @XmlElement(type = String.class)
   @Override
   public Set<String> getWarnings() {
@@ -109,27 +87,6 @@ public class ValidationResultJpa implements ValidationResult {
 
   /* see superclass */
   @Override
-  public void addWarning(String warning) {
-    this.warnings.add(warning);
-  }
-
-  /* see superclass */
-  @Override
-  public void addWarnings(Set<String> warningSet) {
-    if (this.warnings != null)
-      this.warnings.addAll(warningSet);
-    else
-      this.warnings = new HashSet<>(warningSet);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeWarning(String warning) {
-    this.warnings.remove(warning);
-  }
-
-  /* see superclass */
-  @Override
   public Set<String> getComments() {
     return comments;
   }
@@ -138,24 +95,6 @@ public class ValidationResultJpa implements ValidationResult {
   @Override
   public void setComments(Set<String> comments) {
     this.comments = comments;
-  }
-
-  /* see superclass */
-  @Override
-  public void removeComment(String comment) {
-    comments.remove(comment);
-  }
-
-  /* see superclass */
-  @Override
-  public void addComment(String comment) {
-    comments.add(comment);
-  }
-
-  /* see superclass */
-  @Override
-  public void addComment(Set<String> comments) {
-    comments.addAll(comments);
   }
 
   /* see superclass */

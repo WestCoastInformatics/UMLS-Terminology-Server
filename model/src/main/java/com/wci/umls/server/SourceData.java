@@ -119,7 +119,6 @@ public interface SourceData extends HasTerminology, HasLastModified, HasName {
    */
   public void setDescription(String description);
 
-
   /**
    * Gets the release version.
    *
@@ -133,19 +132,5 @@ public interface SourceData extends HasTerminology, HasLastModified, HasName {
    * @param releaseVersion the new release version
    */
   public void setReleaseVersion(String releaseVersion);
-
-  /**
-   * Add source data file.
-   *
-   * @param sourceDataFile the source data file
-   */
-  public void addSourceDataFile(SourceDataFile sourceDataFile);
-
-  /**
-   * Remove source data file.
-   *
-   * @param sourceDataFile the source data file
-   */
-  public void removeSourceDataFile(SourceDataFile sourceDataFile);
 
 }

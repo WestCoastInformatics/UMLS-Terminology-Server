@@ -582,7 +582,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = concept.getAttributeByName("moduleId");
         } else {
           attribute = new AttributeJpa();
-          concept2.addAttribute(attribute);
+          concept2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
@@ -594,7 +594,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute2 = concept.getAttributeByName("definitionStatusId");
         } else {
           attribute2 = new AttributeJpa();
-          concept2.addAttribute(attribute2);
+          concept2.getAttributes().add(attribute2);
         }
         setCommonFields(attribute2, date);
         attribute2.setName("definitionStatusId");
@@ -750,7 +750,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             attribute = atom.getAttributeByName("moduleId");
           } else {
             attribute = new AttributeJpa();
-            atom2.addAttribute(attribute);
+            atom2.getAttributes().add(attribute);
           }
           setCommonFields(attribute, date);
           attribute.setName("moduleId");
@@ -762,7 +762,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             attribute2 = atom.getAttributeByName("caseSignificanceId");
           } else {
             attribute2 = new AttributeJpa();
-            atom2.addAttribute(attribute2);
+            atom2.getAttributes().add(attribute2);
           }
           setCommonFields(attribute2, date);
           attribute2.setName("caseSignificanceId");
@@ -778,7 +778,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             Logger.getLogger(getClass()).debug("      add atom - " + atom2);
             atom2 = addAtom(atom2);
             idMap.put(atom2.getTerminologyId(), atom2.getId());
-            concept.addAtom(atom2);
+            concept.getAtoms().add(atom2);
             modifiedConcepts.add(concept);
             objectsAdded++;
           }
@@ -789,8 +789,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
               Logger.getLogger(getClass())
                   .debug("      update atom - " + atom2);
               updateAtom(atom2);
-              concept.removeAtom(atom);
-              concept.addAtom(atom2);
+              concept.getAtoms().remove(atom);
+              concept.getAtoms().add(atom2);
               modifiedConcepts.add(concept);
             }
             updateAttributes(atom2, atom);
@@ -928,7 +928,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             attribute = def.getAttributeByName("moduleId");
           } else {
             attribute = new AttributeJpa();
-            def2.addAttribute(attribute);
+            def2.getAttributes().add(attribute);
           }
           setCommonFields(attribute, date);
           attribute.setName("moduleId");
@@ -940,7 +940,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             attribute2 = def.getAttributeByName("caseSignificanceId");
           } else {
             attribute2 = new AttributeJpa();
-            def2.addAttribute(attribute2);
+            def2.getAttributes().add(attribute2);
           }
           setCommonFields(attribute2, date);
           attribute2.setName("caseSignificanceId");
@@ -957,7 +957,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
                 .debug("      add definition - " + def2);
             def2 = addAtom(def2);
             idMap.put(def2.getTerminologyId(), def2.getId());
-            concept.addAtom(def2);
+            concept.getAtoms().add(def2);
             modifiedConcepts.add(concept);
             objectsAdded++;
           }
@@ -968,8 +968,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
               Logger.getLogger(getClass()).debug(
                   "      update definition - " + def2);
               updateAtom(def2);
-              concept.removeAtom(def);
-              concept.addAtom(def2);
+              concept.getAtoms().remove(def);
+              concept.getAtoms().add(def2);
               modifiedConcepts.add(concept);
             }
             updateAttributes(def2, def);
@@ -1089,7 +1089,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("acceptabilityId");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("acceptabilityId");
@@ -1109,7 +1109,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
               "      add language refset member = " + member2);
           member2 = (AtomSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
-          atom.addMember(member2);
+          atom.getMembers().add(member2);
           modifiedAtoms.add(atom);
           objectsAdded++;
         }
@@ -1125,8 +1125,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             Logger.getLogger(getClass()).debug(
                 "      update langauge refset member - " + member2);
             updateSubsetMember(member2);
-            atom.removeMember(member);
-            atom.addMember(member2);
+            atom.getMembers().remove(member);
+            atom.getMembers().add(member2);
             modifiedAtoms.add(atom);
           }
           updateAttributes(member2, member);
@@ -1245,7 +1245,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
               "      add simple refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
-          concept.addMember(member2);
+          concept.getMembers().add(member2);
           modifiedConcepts.add(concept);
           objectsAdded++;
         }
@@ -1261,8 +1261,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             Logger.getLogger(getClass()).debug(
                 "      update simple refset member - " + member2);
             updateSubsetMember(member2);
-            concept.removeMember(member);
-            concept.addMember(member2);
+            concept.getMembers().remove(member);
+            concept.getMembers().add(member2);
             modifiedConcepts.add(concept);
           }
           updateAttributes(member2, member);
@@ -1360,7 +1360,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("mapTarget");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("mapTarget");
@@ -1381,7 +1381,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
               "      add simple map refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
-          concept.addMember(member2);
+          concept.getMembers().add(member2);
           modifiedConcepts.add(concept);
           objectsAdded++;
         }
@@ -1397,8 +1397,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             Logger.getLogger(getClass()).debug(
                 "      update simple map refset member - " + member2);
             updateSubsetMember(member2);
-            concept.removeMember(member);
-            concept.addMember(member2);
+            concept.getMembers().remove(member);
+            concept.getMembers().add(member2);
             modifiedConcepts.add(concept);
           }
           updateAttributes(member2, member);
@@ -1623,7 +1623,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("descriptionFormat");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("descriptionFormat");
@@ -1635,7 +1635,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("descriptionLength");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("descriptionLength");
@@ -1656,7 +1656,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
               "      add atom type refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
-          concept.addMember(member2);
+          concept.getMembers().add(member2);
           modifiedConcepts.add(concept);
           objectsAdded++;
         }
@@ -1673,8 +1673,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             Logger.getLogger(getClass()).debug(
                 "      update atom type refset member - " + member2);
             updateSubsetMember(member2);
-            concept.removeMember(member);
-            concept.addMember(member2);
+            concept.getMembers().remove(member);
+            concept.getMembers().add(member2);
             modifiedConcepts.add(concept);
           }
           updateAttributes(member2, member);
@@ -1772,7 +1772,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("attributeDescription");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("attributeDescription");
@@ -1784,7 +1784,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("attributeType");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("attributeType");
@@ -1796,7 +1796,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("attributeOrder");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("attributeOrder");
@@ -1816,7 +1816,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
               "      add refset descriptor refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
-          concept.addMember(member2);
+          concept.getMembers().add(member2);
           modifiedConcepts.add(concept);
           objectsAdded++;
         }
@@ -1834,8 +1834,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             Logger.getLogger(getClass()).debug(
                 "      update refset descriptor refset member - " + member2);
             updateSubsetMember(member2);
-            concept.removeMember(member);
-            concept.addMember(member2);
+            concept.getMembers().remove(member);
+            concept.getMembers().add(member2);
             modifiedConcepts.add(concept);
           }
           updateAttributes(member2, member);
@@ -1933,7 +1933,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("sourceEffectiveTime");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("sourceEffectiveTime");
@@ -1946,7 +1946,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("targetEffectiveTime");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("targetEffectiveTime");
@@ -1967,7 +1967,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
               "      add module dependency refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
-          concept.addMember(member2);
+          concept.getMembers().add(member2);
           modifiedConcepts.add(concept);
           objectsAdded++;
         }
@@ -1984,8 +1984,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             Logger.getLogger(getClass()).debug(
                 "      update module dependency refset member - " + member2);
             updateSubsetMember(member2);
-            concept.removeMember(member);
-            concept.addMember(member2);
+            concept.getMembers().remove(member);
+            concept.getMembers().add(member2);
             modifiedConcepts.add(concept);
           }
           updateAttributes(member2, member);
@@ -2101,7 +2101,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = member.getAttributeByName("valueId");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          member2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("valueId");
@@ -2123,10 +2123,10 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           member2 = addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
           if (isConcept) {
-            concept.addMember((ConceptSubsetMember) member2);
+            concept.getMembers().add((ConceptSubsetMember) member2);
             modifiedConcepts.add(concept);
           } else {
-            atom.addMember((AtomSubsetMember) member2);
+            atom.getMembers().add((AtomSubsetMember) member2);
             modifiedAtoms.add(atom);
           }
           objectsAdded++;
@@ -2144,12 +2144,12 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
                 "      update attribute value refset member - " + member2);
             updateSubsetMember(member2);
             if (isConcept) {
-              concept.removeMember((ConceptSubsetMember) member);
-              concept.addMember((ConceptSubsetMember) member2);
+              concept.getMembers().remove(member);
+              concept.getMembers().add((ConceptSubsetMember) member2);
               modifiedConcepts.add(concept);
             } else {
-              atom.removeMember((AtomSubsetMember) member);
-              atom.addMember((AtomSubsetMember) member2);
+              atom.getMembers().remove(member);
+              atom.getMembers().add((AtomSubsetMember) member2);
               modifiedAtoms.add(atom);
             }
           }
@@ -2358,7 +2358,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = rel.getAttributeByName("moduleId");
         } else {
           attribute = new AttributeJpa();
-          rel2.addAttribute(attribute);
+          rel2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
@@ -2371,7 +2371,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           Logger.getLogger(getClass()).debug("      add rel - " + rel2);
           rel2 = (ConceptRelationship) addRelationship(rel2);
           idMap.put(rel2.getTerminologyId(), rel2.getId());
-          sourceConcept.addRelationship(rel2);
+          sourceConcept.getRelationships().add(rel2);
           modifiedConcepts.add(sourceConcept);
           objectsAdded++;
         }
@@ -2381,8 +2381,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           if (!rel.equals(rel2)) {
             Logger.getLogger(getClass()).debug("      update rel - " + rel2);
             updateRelationship(rel2);
-            sourceConcept.removeRelationship(rel);
-            sourceConcept.addRelationship(rel);
+            sourceConcept.getRelationships().remove(rel);
+            sourceConcept.getRelationships().add(rel);
             modifiedConcepts.add(sourceConcept);
           }
           updateAttributes(rel2, rel);
@@ -2555,7 +2555,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = rel.getAttributeByName("moduleId");
         } else {
           attribute = new AttributeJpa();
-          rel2.addAttribute(attribute);
+          rel2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
@@ -2567,7 +2567,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute2 = rel.getAttributeByName("characteristicTypeId");
         } else {
           attribute2 = new AttributeJpa();
-          rel2.addAttribute(attribute2);
+          rel2.getAttributes().add(attribute2);
         }
         setCommonFields(attribute2, date);
         attribute2.setName("characteristicTypeId");
@@ -2579,7 +2579,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute3 = rel.getAttributeByName("modifierId");
         } else {
           attribute3 = new AttributeJpa();
-          rel2.addAttribute(attribute3);
+          rel2.getAttributes().add(attribute3);
         }
         setCommonFields(attribute3, date);
         attribute3.setName("modifierId");
@@ -2594,7 +2594,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           Logger.getLogger(getClass()).debug("      add rel - " + rel2);
           rel2 = (ConceptRelationship) addRelationship(rel2);
           idMap.put(rel2.getTerminologyId(), rel2.getId());
-          sourceConcept.addRelationship(rel2);
+          sourceConcept.getRelationships().add(rel2);
           modifiedConcepts.add(sourceConcept);
           objectsAdded++;
         }
@@ -2604,8 +2604,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           if (!rel.equals(rel2)) {
             Logger.getLogger(getClass()).debug("      update rel - " + rel2);
             updateRelationship(rel2);
-            sourceConcept.removeRelationship(rel);
-            sourceConcept.addRelationship(rel);
+            sourceConcept.getRelationships().remove(rel);
+            sourceConcept.getRelationships().add(rel);
             modifiedConcepts.add(sourceConcept);
           }
           updateAttributes(rel2, rel);
@@ -2776,7 +2776,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       attribute = member.getAttributeByName("moduleId");
     } else {
       attribute = new AttributeJpa();
-      member.addAttribute(attribute);
+      member.getAttributes().add(attribute);
     }
     setCommonFields(attribute, date);
     attribute.setName("moduleId");
@@ -2818,7 +2818,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = subset2.getAttributeByName("moduleId");
         } else {
           attribute = new AttributeJpa();
-          subset2.addAttribute(attribute);
+          subset2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
@@ -2861,7 +2861,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = subset2.getAttributeByName("moduleId");
         } else {
           attribute = new AttributeJpa();
-          subset2.addAttribute(attribute);
+          subset2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
@@ -2897,7 +2897,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       setCommonFields(attribute, date);
       attribute.setName("moduleId");
       attribute.setValue(concept.getAttributeByName("moduleId").getValue());
-      subset.addAttribute(attribute);
+      subset.getAttributes().add(attribute);
       addAttribute(attribute, member);
       cacheAttributeMetadata(attribute);
 
@@ -2926,7 +2926,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       setCommonFields(attribute, date);
       attribute.setName("moduleId");
       attribute.setValue(concept.getAttributeByName("moduleId").getValue());
-      subset.addAttribute(attribute);
+      subset.getAttributes().add(attribute);
       addAttribute(attribute, member);
       cacheAttributeMetadata(attribute);
 
@@ -3005,7 +3005,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       attribute = mapping.getAttributeByName("moduleId");
     } else {
       attribute = new AttributeJpa();
-      mapping.addAttribute(attribute);
+      mapping.getAttributes().add(attribute);
     }
     setCommonFields(attribute, date);
     attribute.setName("moduleId");
@@ -3048,7 +3048,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           attribute = mapSet2.getAttributeByName("moduleId");
         } else {
           attribute = new AttributeJpa();
-          mapSet2.addAttribute(attribute);
+          mapSet2.getAttributes().add(attribute);
         }
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
@@ -3086,7 +3086,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       setCommonFields(attribute, date);
       attribute.setName("moduleId");
       attribute.setValue(concept.getAttributeByName("moduleId").getValue());
-      mapSet.addAttribute(attribute);
+      mapSet.getAttributes().add(attribute);
       addAttribute(attribute, mapping);
       cacheAttributeMetadata(attribute);
 

@@ -2598,7 +2598,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         sr.setTerminologyId(r.getTerminologyId());
         sr.setValue(r.getName());
         sr.setScore(scoreMap.get(r.getId()));
-        results.addObject(sr);
+        results.getObjects().add(sr);
       }
     }
 
@@ -2745,7 +2745,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       sr.setVersion(atomClass.getVersion());
       sr.setValue(atomClass.getName());
       sr.setObsolete(atomClass.isObsolete());
-      results.addObject(sr);
+      results.getObjects().add(sr);
     }
 
     results.setTotalCount(totalCt[0]);
@@ -2811,7 +2811,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     for (final AtomClass result : results) {
       // exclude duplicates
       if (!list.contains(result.getName()))
-        list.addObject(result.getName());
+        list.getObjects().add(result.getName());
     }
     return list;
   }
@@ -3544,7 +3544,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       RelationshipList list = new RelationshipListJpa();
       list.setTotalCount(totalCt[0]);
       for (final ConceptRelationship cr : conceptRelList) {
-        list.addObject(cr);
+        list.getObjects().add(cr);
       }
 
       return list;

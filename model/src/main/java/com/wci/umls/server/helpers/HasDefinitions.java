@@ -26,18 +26,5 @@ public interface HasDefinitions {
    */
   public void setDefinitions(List<Definition> definitions);
 
-  /**
-   * Adds the definition.
-   *
-   * @param definition the definition
-   */
-  public void addDefinition(Definition definition);
-
-  /**
-   * Removes the definition.
-   *
-   * @param definition the definition
-   */
-  public void removeDefinition(Definition definition);
 
 }

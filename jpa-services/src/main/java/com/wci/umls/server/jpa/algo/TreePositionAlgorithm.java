@@ -252,7 +252,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
             sty.setTimestamp(startDate);
             sty.setLastModified(startDate);
             addSemanticTypeComponent(sty, concept);
-            concept.addSemanticType(sty);
+            concept.getSemanticTypes().add(sty);
           }
           updateConcept(concept);
           logAndCommit(++objectCt, logCt, commitCt);
@@ -350,7 +350,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
         return descConceptIds;
       } else {
         // add error to validation result
-        validationResult.addError("Cycle detected for concept " + id
+        validationResult.getErrors().add("Cycle detected for concept " + id
             + ", ancestor path is " + ancestorPath);
       }
 
@@ -454,7 +454,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
     if (descConceptIds.contains(id)) {
 
       // add error to validation result
-      validationResult.addError("Concept " + id + " claims itself as a child");
+      validationResult.getErrors().add("Concept " + id + " claims itself as a child");
 
       // remove this terminology id to prevent infinite loop
       descConceptIds.remove(id);

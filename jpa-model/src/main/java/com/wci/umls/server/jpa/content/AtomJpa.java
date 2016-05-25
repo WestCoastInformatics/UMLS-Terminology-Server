@@ -160,13 +160,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
     if (deepCopy) {
       for (Definition definition : atom.getDefinitions()) {
-        addDefinition(new DefinitionJpa(definition, deepCopy));
+        getDefinitions().add(new DefinitionJpa(definition, deepCopy));
       }
       for (AtomRelationship relationship : atom.getRelationships()) {
-        addRelationship(new AtomRelationshipJpa(relationship, deepCopy));
+        getRelationships().add(new AtomRelationshipJpa(relationship, deepCopy));
       }
       for (AtomSubsetMember member : atom.getMembers()) {
-        addMember(new AtomSubsetMemberJpa(member, deepCopy));
+        getMembers().add(new AtomSubsetMemberJpa(member, deepCopy));
       }
     }
   }
@@ -374,42 +374,6 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  public void addDefinition(Definition definition) {
-    if (definitions == null) {
-      definitions = new ArrayList<>(1);
-    }
-    definitions.add(definition);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeDefinition(Definition definition) {
-    if (definitions == null) {
-      definitions = new ArrayList<>(1);
-    }
-    definitions.remove(definition);
-  }
-
-  /* see superclass */
-  @Override
-  public void addRelationship(AtomRelationship relationship) {
-    if (relationships == null) {
-      relationships = new ArrayList<>(1);
-    }
-    relationships.add(relationship);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeRelationship(AtomRelationship relationship) {
-    if (relationships == null) {
-      relationships = new ArrayList<>(1);
-    }
-    relationships.remove(relationship);
-  }
-
-  /* see superclass */
-  @Override
   @FieldBridge(impl = MapValueToCsvBridge.class)
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
@@ -459,24 +423,6 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void setMembers(List<AtomSubsetMember> members) {
     this.members = members;
-  }
-
-  /* see superclass */
-  @Override
-  public void addMember(AtomSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<AtomSubsetMember>();
-    }
-    members.add(member);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeMember(AtomSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<AtomSubsetMember>();
-    }
-    members.remove(member);
   }
 
   @Override

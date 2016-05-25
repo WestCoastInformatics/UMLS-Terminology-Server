@@ -197,7 +197,7 @@ public class CodeRelationshipJpaUnitTest {
 
     rel.setFrom(fromCode);
     rel.setTo(toCode);
-    rel.addAttribute(att);
+    rel.getAttributes().add(att);
 
     CodeRelationship rel2 = new CodeRelationshipJpa(rel, false);
     assertEquals(0, rel2.getAttributes().size());
