@@ -24,6 +24,7 @@ import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
  * The Class DescriptorJpa.
@@ -181,27 +182,21 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @XmlElement(type = DescriptorNoteJpa.class)
   @Override
   public List<Note> getNotes() {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>(1);
+    }
     return this.notes;
   }
 
-  /* see superclass */
   @Override
-  public void addNote(Note note) {
-    if (this.notes == null) {
-      this.notes = new ArrayList<>();
-    }
-    notes.add(note);
-
+  public void setType(IdType type) {
+    // N/A
   }
 
-  /* see superclass */
   @Override
-  public void removeNote(Note note) {
-    if (this.notes == null) {
-      this.notes = new ArrayList<>();
-    }
-    notes.remove(note);
-
+  public IdType getType() {
+    return IdType.DESCRIPTOR;
   }
+
 
 }

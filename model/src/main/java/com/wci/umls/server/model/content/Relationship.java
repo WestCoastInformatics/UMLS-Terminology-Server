@@ -13,7 +13,7 @@ import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
  */
 public interface Relationship<S extends ComponentHasAttributes, T extends ComponentHasAttributes>
     extends ComponentHasAttributes, HasAlternateTerminologyIds {
-
+  
   /**
    * Returns the from.
    *

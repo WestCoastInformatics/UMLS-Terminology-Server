@@ -21,18 +21,4 @@ public interface HasNotes  {
    */
   public List<Note> getNotes();
   
-  /**
-   * Add note.
-   *
-   * @param note the note
-   */
-  public void addNote(Note note);
-  
-  /**
-   * Remove note.
-   *
-   * @param note the note
-   */
-  public void removeNote(Note note);
-
 }

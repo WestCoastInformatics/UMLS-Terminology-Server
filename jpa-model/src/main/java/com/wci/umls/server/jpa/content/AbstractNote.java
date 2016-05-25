@@ -11,6 +11,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -25,6 +26,10 @@ import com.wci.umls.server.helpers.Note;
  */
 @Audited
 @MappedSuperclass
+@XmlSeeAlso({
+    CodeNoteJpa.class, ConceptNoteJpa.class,
+    DescriptorNoteJpa.class
+})
 public abstract class AbstractNote implements Note {
   
   /** The id. */

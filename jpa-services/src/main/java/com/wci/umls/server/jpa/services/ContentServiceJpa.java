@@ -4574,6 +4574,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // Remove the component
     removeHasLastModified(id, ComponentInfoJpa.class);
   }
+  
+  // TODO Consolidate three functions into one, simply return a single NoteList
+  // containing all types of notes
 
   @Override
   public NoteList findConceptNotesForQuery(String query,

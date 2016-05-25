@@ -57,6 +57,7 @@ public class DescriptorJpaUnitTest {
   public void testModelGetSet015() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet015");
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("type");
     tester.test();
   }
 

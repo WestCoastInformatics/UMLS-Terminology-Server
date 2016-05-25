@@ -23,6 +23,7 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
  * The Class CodeJpa.
@@ -30,7 +31,7 @@ import com.wci.umls.server.model.content.CodeRelationship;
 @Entity
 @Table(name = "codes", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}))
+}) )
 @Audited
 @Indexed
 @XmlRootElement(name = "code")
@@ -39,7 +40,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   /** The relationships. */
   @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
   private List<CodeRelationship> relationships = new ArrayList<>(1);
-  
+
   /** The notes. */
   @OneToMany(mappedBy = "code", targetEntity = CodeNoteJpa.class)
   @IndexedEmbedded(targetElement = CodeNoteJpa.class)
@@ -137,27 +138,22 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   @XmlElement(type = CodeNoteJpa.class)
   @Override
   public List<Note> getNotes() {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>(1);
+    }
     return this.notes;
   }
 
-  /* see superclass */
-  @Override
-  public void addNote(Note note) {
-    if (this.notes == null) {
-      this.notes = new ArrayList<>();
-    }
-    notes.add(note);
 
+  @Override
+  public void setType(IdType type) {
+    // N/A
   }
 
-  /* see superclass */
   @Override
-  public void removeNote(Note note) {
-    if (this.notes == null) {
-      this.notes = new ArrayList<>();
-    }
-    notes.remove(note);
-
+  public IdType getType() {
+    return IdType.CODE;
   }
+
 
 }

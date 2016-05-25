@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.Concept;
 @Table(name = "concept_notes")
 @Audited
 @Indexed
-@XmlRootElement(name = "notes")
+@XmlRootElement(name = "note")
 public class ConceptNoteJpa extends AbstractNote {
 
   /** The concept. */

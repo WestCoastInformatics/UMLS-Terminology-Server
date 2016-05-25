@@ -3065,7 +3065,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // add the note, add it to the concept, and update the concept
       Note newNote = contentService.addNote(note);
-      concept.addNote(newNote);
+      concept.getNotes().add(newNote);
       contentService.updateConcept(concept);
 
     } catch (Exception e) {
@@ -3101,7 +3101,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           (ConceptNoteJpa) contentService.getNote(noteId, ConceptNoteJpa.class);
       Concept concept = note.getConcept();
 
-      concept.removeNote(note);
+      concept.getNotes().remove(note);
       contentService.updateConcept(concept);
       contentService.removeNote(noteId, ConceptNoteJpa.class);
 
@@ -3151,7 +3151,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // add the note, add it to the code, and update the code
       Note newNote = contentService.addNote(note);
-      code.addNote(newNote);
+      code.getNotes().add(newNote);
       contentService.updateCode(code);
 
     } catch (Exception e) {
@@ -3186,7 +3186,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           (CodeNoteJpa) contentService.getNote(noteId, CodeNoteJpa.class);
       Code code = note.getCode();
 
-      code.removeNote(note);
+      code.getNotes().remove(note);
       contentService.updateCode(code);
       contentService.removeNote(noteId, CodeNoteJpa.class);
 
@@ -3236,7 +3236,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // add the note, add it to the descriptor, and update the descriptor
       Note newNote = contentService.addNote(note);
-      descriptor.addNote(newNote);
+      descriptor.getNotes().add(newNote);
       contentService.updateDescriptor(descriptor);
 
     } catch (Exception e) {
@@ -3272,7 +3272,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           .getNote(noteId, DescriptorNoteJpa.class);
       Descriptor descriptor = note.getDescriptor();
 
-      descriptor.removeNote(note);
+      descriptor.getNotes().remove(note);
       contentService.updateDescriptor(descriptor);
       contentService.removeNote(noteId, DescriptorNoteJpa.class);
 
@@ -3287,7 +3287,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @POST
   @Path("/component/notes")
-  @ApiOperation(value = "Get user favorites", notes = "Gets user favorites for a terminology and version", response = String.class)
+  @ApiOperation(value = "Get components annotated by a user", notes = "Gets user favorites for a terminology and version", response = String.class)
   @Override
   public SearchResultList getComponentsWithNotesForQuery(
     @ApiParam(value = "Query text", required = false) @QueryParam("query") String query,

@@ -32,6 +32,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
  * JPA-enabled implementation of {@link Concept}.
@@ -380,6 +381,34 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     this.labels = labels;
 
   }
+  
+
+  @Override
+  public void setNotes(List<Note> notes) {
+    this.notes = notes;
+
+  }
+
+  @Override
+  @XmlElement(type = ConceptNoteJpa.class)
+  public List<Note> getNotes() {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>(1);
+    }
+    return this.notes;
+  }
+
+  @Override
+  public void setType(IdType type) {
+   // N/A
+    
+  }
+
+  @Override
+  public IdType getType() {
+    return IdType.CONCEPT;
+  }
+
 
   /* see superclass */
   @Override
@@ -412,36 +441,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     if (usesRelationshipUnion != other.usesRelationshipUnion)
       return false;
     return true;
-  }
-
-  @Override
-  public void setNotes(List<Note> notes) {
-    this.notes = notes;
-
-  }
-
-  @Override
-  @XmlElement(type = ConceptNoteJpa.class)
-  public List<Note> getNotes() {
-    return this.notes;
-  }
-
-  @Override
-  public void addNote(Note note) {
-    if (this.notes == null) {
-      this.notes = new ArrayList<>();
-    }
-    notes.add(note);
-
-  }
-
-  @Override
-  public void removeNote(Note note) {
-    if (this.notes == null) {
-      this.notes = new ArrayList<>();
-    }
-    notes.remove(note);
-
   }
 
 }
