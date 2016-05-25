@@ -2469,8 +2469,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   @Override
   public void computeExpressionIndexes() throws Exception {
-   // do nothing
-    
+    final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
+    algo.setTerminology(getTerminology());
+    algo.setVersion(getVersion());
+    algo.compute();
   }
 
 }
