@@ -79,7 +79,29 @@ public class ConceptNoteJpa extends AbstractNote {
   public Long getConceptId() {
     return (concept != null) ? concept.getId() : 0;
   }
-
+  
+  /**
+   * Returns the concept name.
+   *
+   * @return the concept name
+   */
+  @XmlElement
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public String getConceptName() {
+    return (concept != null) ? concept.getName() : "";
+  }
+  
+  /**
+   * Returns the concept name.
+   *
+   * @return the concept name
+   */
+  @XmlElement
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getConceptTerminologyId() {
+    return (concept != null) ? concept.getTerminologyId() : "";
+  }
+  
   /**
    * Sets the concept id.
    *

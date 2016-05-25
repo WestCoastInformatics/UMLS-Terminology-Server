@@ -1,0 +1,44 @@
+<div ng-show="pagedData.totalCount > 0 || paging.filter">
+  <div class="alert alert-success"
+    ng-click="annotatedContentCollapsed = !annotatedContentCollapsed">
+    <i class="glyphicon"
+      ng-class="[{'glyphicon-chevron-right' : annotatedContentCollapsed}, {'glyphicon-chevron-down' : !annotatedContentCollapsed}]">
+    </i>&nbsp; Annotated Content ({{pagedData.totalCount}})
+  </div>
+  <div ng-show="!annotatedContentCollapsed">
+    <div pager paging="paging" count="pagedData.totalCount"
+      callback="pageCallback"></div>
+    <table class="table table-hover" ng-show="pagedData.results.length > 0">
+      <tbody>
+        <!-- table-hover makes use of the active class -->
+        <tr ng-class="{active: favorite.active}"
+          ng-mouseenter="favorite.hover = true;"
+          ng-mouseleave="favorite.hover = false;"
+          ng-repeat="favorite in pagedData.results">
+          <!--  Only put ng-click callback on first two cells (i.e. not the controls cell) -->
+          <td
+            ng-click="callbacks.getComponent(favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
+            <span class="nobreak">
+              {{favorite.active}}
+              <span
+                ng-show="favorite.terminology != metadata.terminology.terminology">{{favorite.terminology}}/</span>
+              <span class="breakword">{{favorite.terminologyId}}</span>
+            </span>
+          </td>
+          <td
+            ng-click="callbacks.getComponent(favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
+            <span class="breakword"> {{favorite.value}}</span>
+          </td>
+          <td style="width: 15%;">
+            <!-- Always show note control -->
+           
+              <i
+                ng-class="[{noul : favorite.property.key === 'hasNotes' && favorite.property.value === 'true'}, {grey : favorite.property.key === 'hasNotes' && favorite.property.value !== 'true'}]"
+                ng-click="viewNotes(favorite)" class="glyphicon glyphicon-book glyphicon-muted noul"
+                title="View, Add, or Remove Notes"></i> &nbsp;
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

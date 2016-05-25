@@ -1,8 +1,9 @@
 <div ng-show="pagedData.totalCount > 0 || paging.filter">
-  <div class="alert alert-success">
-    <i class="glyphicon" ng-click="favoritesCollapsed = !favoritesCollapsed"
+  <div class="alert alert-success"
+    ng-click="favoritesCollapsed = !favoritesCollapsed">
+    <i class="glyphicon"
       ng-class="[{'glyphicon-chevron-right' : favoritesCollapsed}, {'glyphicon-chevron-down' : !favoritesCollapsed}]"></i>&nbsp;
-    Favorites ({{pagedData.totalCount}})
+    Favorite Content ({{pagedData.totalCount}})
   </div>
   <div ng-show="!favoritesCollapsed">
     <div pager paging="paging" count="pagedData.totalCount"
@@ -29,15 +30,24 @@
             <span class="breakword"> {{favorite.value}}</span>
           </td>
           <td style="width: 15%;">
-            <!--  Only show the controls if the current row is hovered over -->
-            <span ng-show="favorite.hover">
-              <i
-                ng-class="[{noul : favorite.property.key === 'hasNotes' && favorite.property.value === 'true'}, {grey : favorite.property.key === 'hasNotes' && favorite.property.value !== 'true'}]"
-                ng-click="viewNotes(favorite)" class="glyphicon glyphicon-book"
-                title="Add/View Notes"></i> &nbsp; <i confirm="Confirm me!"
-                class="glyphicon glyphicon-remove noul" title="Remove Favorite"
-                ng-click="removeFavorite(favorite)"></i>
-            </span>
+            <!-- Always show blue note icon if favorite has notes -->
+            <i
+              ng-show="favorite.property.key === 'hasNotes' && favorite.property.value === 'true'"
+              ng-click="viewNotes(favorite)"
+              class="glyphicon glyphicon-book glyphicon-muted noul"
+              title="View, Add, or Remove Notes"></i>
+            <!-- Show muted grey note icon on hover if favorite does not have notes -->
+            <i
+              ng-show="favorite.hover && !(favorite.property.key === 'hasNotes' && favorite.property.value === 'true')"
+              ng-class="[{noul : favorite.property.key === 'hasNotes' && favorite.property.value === 'true'}, {grey : favorite.property.key === 'hasNotes' && favorite.property.value !== 'true'}]"
+              ng-click="viewNotes(favorite)"
+              class="glyphicon glyphicon-book glyphicon-muted" title="Add Notes"></i>
+            <!-- Add space between icons -->
+            &nbsp;
+            <!--  Show remove favorite button on hover -->
+            <i ng-show="favorite.hover" confirm="Confirm me!"
+              class="glyphicon glyphicon-remove noul glyphicon-muted"
+              title="Remove Favorite" ng-click="removeFavorite(favorite)"></i>
           </td>
         </tr>
       </tbody>

@@ -158,6 +158,4 @@ public abstract class AbstractNote implements Note {
     return this.note;
   }
 
-
-
 }

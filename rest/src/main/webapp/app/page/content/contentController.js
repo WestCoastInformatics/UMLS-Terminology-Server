@@ -112,7 +112,8 @@ tsApp.controller('ContentCtrl', [
 
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
-      $scope.autocompleteUrl = contentUrl + $scope.metadata.terminology.organizingClassType.toLowerCase() + '/'
+      $scope.autocompleteUrl = contentUrl
+        + $scope.metadata.terminology.organizingClassType.toLowerCase() + '/'
         + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
         + "/autocomplete/";
 
@@ -203,7 +204,6 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
-
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a search result
     $scope.getComponent = function(type, terminologyId, terminology, version) {
@@ -265,13 +265,15 @@ tsApp.controller('ContentCtrl', [
       var hasExpr = $scope.searchParams && $scope.searchParams.advancedMode
         && $scope.searchParams.expression && $scope.searchParams.expression.value
         && $scope.searchParams.expression.value.length > 0;
-     var hasNotes = $scope.searchParams && $scope.searchParams.advancedMode && $scope.searchParams.userNote
+      var hasNotes = $scope.searchParams && $scope.searchParams.advancedMode
+        && $scope.searchParams.userNote
 
       // ensure query/expression string has appropriate length
       if (!hasQuery && !hasExpr && !hasNotes) {
         if (!suppressWarnings) {
           alert("You must use at least one character to search"
-            + ($scope.searchParams.advancedMode ? ", supply an expression, or search user notes" : ""));
+            + ($scope.searchParams.advancedMode ? ", supply an expression, or search user notes"
+              : ""));
 
           // added to prevent weird bug causing page to scroll down a few lines
           $location.hash('top');
@@ -279,16 +281,17 @@ tsApp.controller('ContentCtrl', [
         return;
       }
       console.debug($scope.searchParams.page);
-      contentService.findComponentsAsList($scope.searchParams.query, $scope.metadata.terminology.organizingClassType,
-        $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-        $scope.searchParams.page, $scope.searchParams).then(function(data) {
-        $scope.searchResults = data;
+      contentService.findComponentsAsList($scope.searchParams.query,
+        $scope.metadata.terminology.organizingClassType, $scope.metadata.terminology.terminology,
+        $scope.metadata.terminology.version, $scope.searchParams.page, $scope.searchParams).then(
+        function(data) {
+          $scope.searchResults = data;
 
-        if (loadFirst && $scope.searchResults.results.length > 0) {
-          // pass the search result (as wrapper)
-          $scope.getComponentFromWrapper($scope.searchResults.results[0]);
-        }
-      });
+          if (loadFirst && $scope.searchResults.results.length > 0) {
+            // pass the search result (as wrapper)
+            $scope.getComponentFromWrapper($scope.searchResults.results[0]);
+          }
+        });
     };
 
     // Perform search and populate tree view
@@ -632,10 +635,13 @@ tsApp.controller('ContentCtrl', [
         }
       });
 
+      // on close or cancel, re-retrieve the concept for updated notes
       modalInstance.result.then(function() {
-
+        // re-retrieve the concept
+        $scope.getComponentFromWrapper($scope.component);
       }, function() {
-        // do nothing
+        // re-retrieve the concept
+        $scope.getComponentFromWrapper($scope.component);
       });
     };
 

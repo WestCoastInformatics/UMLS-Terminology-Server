@@ -22,4 +22,5 @@ public interface Note extends HasLastModified {
    */
   public String getNote();
 
+
 }

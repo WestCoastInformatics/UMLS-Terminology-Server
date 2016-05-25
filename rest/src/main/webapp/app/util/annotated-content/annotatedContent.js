@@ -1,32 +1,33 @@
 // Content controller
-tsApp.directive('favorites', [
+tsApp.directive('annotatedContent', [
   '$rootScope',
   'utilService',
   'contentService',
   'securityService',
   '$uibModal',
   function($rootScope, utilService, contentService, securityService, $uibModal) {
-    console.debug('configure favorites directive');
+    console.debug('configure note components directive');
     return {
       restrict : 'A',
       scope : {
         metadata : '=',
-        favorites : '=',
         callbacks : '='
       },
-      templateUrl : 'app/util/favorites/favorites.html',
+      templateUrl : 'app/util/annotated-content/annotatedContent.html',
       link : function(scope, element, attrs) {
+
+        console.debug('entered note components directive');
 
         // instantiate paging and paging callback function
         scope.pagedData = [];
         scope.paging = utilService.getPaging();
+        console.debug(scope.paging);
         scope.pageCallback = {
           getPagedList : getPagedList
         };
 
         scope.paging.sortField = 'name';
         scope.paging.sortAscending = true;
-        scope.paging.showInferred = false;
 
         // Default is Group/Type, where in getpagedData
         // relationshipType is automatically appended as a multi-
@@ -34,60 +35,29 @@ tsApp.directive('favorites', [
         scope.paging.sortOptions = [ {
           key : 'Name',
           value : 'name'
-        },
-
-        // TODO Make sure this actually works :)
-        {
-          key : 'Type Id',
+        }, {
+          key : 'Type',
+          value : 'type'
+        }, {
+          key : 'Terminology Id',
           value : 'terminologyId'
         }, {
-          key : 'Timestamp',
-          value : 'timestamp'
+          key : 'Terminology',
+          value : 'terminology'
         } ];
 
         function getPagedList() {
 
-          // do not make call unless metadata exists
-          if (!scope.metadata || !scope.metadata.terminology) {
-            return;
-          }
+          console.debug('get components with notes', scope.paging);
 
           // Request from service
-          contentService.getUserFavorites(scope.metadata.terminology.terminology,
-            scope.metadata.terminology.version, scope.paging).then(function(response) {
-            scope.pagedData = response;
+          contentService.getComponentsWithNotesForUser(scope.paging.filter, scope.paging).then(
+            function(response) {
+              scope.pagedData = response;
 
-          });
+            });
         }
-        // watch the component
-        scope.$watch('metadata', function() {
-          getPagedList();
-        }, true);
-
-        // watch the favorites
-        scope.$watch('favorites', function() {
-          getPagedList();
-        }, true);
-
-        // watch for broadcast favorite update notification
-        scope.$on('termServer::noteChange', function(event, data) {
-          
-          console.debug('favorites: received noteChange', event, data, scope.pagedData);
-
-          // check if referenced component is in list
-          if (data && data.component) {
-            for (var i = 0; i < scope.pagedData.results.length; i++) {
-              console.debug(' comparing ' + scope.pagedData.results[i].id + ' to ' + data.component.id)
-              if (scope.pagedData.results[i].id === data.component.id) {
-                console.debug('  component in viewed list, refreshing');
-                getPagedList();
-                break;
-              }
-            }
-          } else {
-            console.debug(' no data received"0;')
-          }
-        });
+        getPagedList();
 
         scope.openFavorite = function(favorite) {
           scope.callbacks.getComponent(favorite);
@@ -101,6 +71,27 @@ tsApp.directive('favorites', [
 
           });
         }
+
+        // watch for broadcast favorite update notification
+        scope.$on('termServer::noteChange', function(event, data) {
+
+          console.debug('annotatedContent: received noteChange', event, data, scope.pagedData);
+
+          // check if referenced component is in list
+          if (data && data.component) {
+            for (var i = 0; i < scope.pagedData.results.length; i++) {
+              console.debug(' comparing ' + scope.pagedData.results[i].id + ' to '
+                + data.component.id)
+              if (scope.pagedData.results[i].id === data.component.id) {
+                console.debug('  component in viewed list, refreshing');
+                getPagedList();
+                break;
+              }
+            }
+          } else {
+            console.debug(' no data received"0;')
+          }
+        });
 
         // Open notes modal, from either wrapper or component
         scope.viewNotes = function(favorite) {

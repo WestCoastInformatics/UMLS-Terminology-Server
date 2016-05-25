@@ -97,6 +97,10 @@ body {
 	cursor: auto; /* originally move */
 }
 
+.glyphicon-muted {
+	opacity : 0.8;
+}
+
 .glyphicon-leaf {
 	opacity: 0.5;
 }

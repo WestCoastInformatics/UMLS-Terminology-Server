@@ -1871,15 +1871,13 @@ public class ContentClientRest extends RootClientRest
   }
 
   @Override
-  public SearchResultList getFavoritesForUser(String terminology,
-    String version, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Client - get user favorites for " + terminology + ", "
-            + version + ", " + pfs);
+  public SearchResultList getFavoritesForUser(PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Client - get user favorites");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/favorites/" + terminology + "/" + version);
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/content/favorites");
     String pfsString = ConfigUtility
         .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
     Response response = target.request(MediaType.APPLICATION_XML)
@@ -1995,7 +1993,6 @@ public class ContentClientRest extends RootClientRest
     }
 
   }
-  
 
   @Override
   public void addCodeNote(String terminology, String version,
@@ -2010,8 +2007,8 @@ public class ContentClientRest extends RootClientRest
     validateNotEmpty(terminology, "terminology");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/content/code/note/"
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/content/code/note/"
             + terminology + "/" + version + "/" + terminologyId + "/add");
 
     Response response = target.request(MediaType.APPLICATION_XML)
@@ -2025,8 +2022,7 @@ public class ContentClientRest extends RootClientRest
   }
 
   @Override
-  public void removeCodeNote(Long noteId, String authToken)
-    throws Exception {
+  public void removeCodeNote(Long noteId, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - remove code note for id " + noteId);
 
@@ -2044,6 +2040,32 @@ public class ContentClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
 
+  }
+
+  @Override
+  public SearchResultList getComponentsWithNotesForQuery(String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Client - get components with notes for query");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/content/component/notes?query=" + query);
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SearchResultListJpa list = ConfigUtility.getGraphForString(resultString,
+        SearchResultListJpa.class);
+    return list;
   }
 
 }
