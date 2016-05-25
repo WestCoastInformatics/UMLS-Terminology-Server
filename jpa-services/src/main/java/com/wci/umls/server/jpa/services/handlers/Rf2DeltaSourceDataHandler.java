@@ -12,7 +12,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.services.ContentService;
@@ -149,7 +149,7 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
 
       // concepts must exist with this terminology/version
       if (contentService.findConceptsForQuery(sourceData.getTerminology(),
-          sourceData.getVersion(), Branch.ROOT, null, new PfscParameterJpa())
+          sourceData.getVersion(), Branch.ROOT, null, new PfsParameterJpa())
           .getTotalCount() > 0) {
         return true;
       } else {

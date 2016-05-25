@@ -8,7 +8,7 @@ import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Configurable;
 
 /**
- * Generically represents a sour.
+ * Generically represents a source data handler.
  */
 public interface SourceDataHandler extends Algorithm, Configurable {
 

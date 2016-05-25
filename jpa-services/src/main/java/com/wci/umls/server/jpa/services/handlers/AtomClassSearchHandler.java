@@ -35,7 +35,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.jpa.content.AbstractAtomClass;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
@@ -120,7 +119,7 @@ public class AtomClassSearchHandler implements SearchHandler {
 
     // Build a quote-stripped query for use in literal and norm fields
     String literalQuery = query == null ? "" : query;
-    
+
     if (literalQuery.startsWith("\"") && query.endsWith("\"")) {
       literalQuery = query.substring(1, query.length() - 1);
     }
@@ -302,18 +301,7 @@ public class AtomClassSearchHandler implements SearchHandler {
 
     // Apply paging and sorting parameters for the PFSC case
     // This is needed for the combined search with "search criteria"
-    if (!(pfs instanceof PfscParameter)) {
-      totalCt[0] = fullTextQuery.getResultSize();
-    } else if (pfs instanceof PfscParameter
-        && ((PfscParameter) pfs).getSearchCriteria().isEmpty()) {
-      // Get result size if we know it.
-      totalCt[0] = fullTextQuery.getResultSize();
-    } else {
-      // If with search criteria, save paging
-      fullTextQuery.setFirstResult(0);
-      fullTextQuery.setMaxResults(Integer.MAX_VALUE);
-      totalCt[0] = fullTextQuery.getResultSize();
-    }
+    totalCt[0] = fullTextQuery.getResultSize();
 
     // Only look to other algorithms if this is NOT a potential fielded query
     // and the query exists
@@ -420,7 +408,7 @@ public class AtomClassSearchHandler implements SearchHandler {
     fullTextQuery.setProjection(ProjectionConstants.SCORE,
         ProjectionConstants.THIS);
     final List<T> classes = new ArrayList<>();
-    
+
     @SuppressWarnings("unchecked")
     final List<Object[]> results = fullTextQuery.getResultList();
     for (final Object[] result : results) {

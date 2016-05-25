@@ -41,28 +41,28 @@ public class DefaultValidationCheck extends AbstractValidationCheck {
     }
 
     if (atom.getName() == null) {
-      result.addError("Atom does not have a preferred name.");
+      result.getErrors().add("Atom does not have a preferred name.");
       return result;
     }
 
     // Check for leading whitespace
     if (atom.getName().length() > 0
         && Character.isWhitespace(atom.getName().charAt(0))) {
-      result.addError("Atom name contains leading whitespace.");
+      result.getErrors().add("Atom name contains leading whitespace.");
     }
 
     // Check for trailing whitespace
     if (atom.getName().length() > 0
         && Character.isWhitespace(atom.getName().charAt(
             atom.getName().length() - 1))) {
-      result.addError("Atom name contains trailing whitespace.");
+      result.getErrors().add("Atom name contains trailing whitespace.");
     }
 
     // Check for duplicate whitespace
     Pattern pattern = Pattern.compile("(\\s)(\\s)");
     Matcher matcher = pattern.matcher(atom.getName());
     if (matcher.find()) {
-      result.addError("Atom name contains duplicate whitespace.");
+      result.getErrors().add("Atom name contains duplicate whitespace.");
     }
 
     // Check for disallowed whitespace
@@ -73,7 +73,7 @@ public class DefaultValidationCheck extends AbstractValidationCheck {
         || atom.getName().indexOf("\u00A0") != -1
         // zero-width space
         || atom.getName().indexOf("\u200B") != -1) {
-      result.addError("Atom name contains invalid whitespace.");
+      result.getErrors().add("Atom name contains invalid whitespace.");
     }
 
     return result;

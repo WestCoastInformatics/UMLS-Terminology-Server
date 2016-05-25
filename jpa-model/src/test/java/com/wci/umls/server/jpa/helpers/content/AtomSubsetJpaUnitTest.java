@@ -127,8 +127,8 @@ public class AtomSubsetJpaUnitTest {
     AtomSubsetMember member = (AtomSubsetMember) tester4.createObject(1);
     member.setMember(atom);
 
-    subset.addMember(member);
-    subset.addAttribute(att);
+    subset.getMembers().add(member);
+    subset.getAttributes().add(att);
 
     AtomSubset subset2 = new AtomSubsetJpa(subset, false);
     assertEquals(0, subset2.getAttributes().size());

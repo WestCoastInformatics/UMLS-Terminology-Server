@@ -60,69 +60,6 @@ public interface ValidationResult {
   public void setComments(Set<String> comments);
 
   /**
-   * Removewarning.
-   * 
-   * @param warning the warning
-   */
-  public void removeWarning(String warning);
-
-  /**
-   * Removes the comment.
-   *
-   * @param comment the comment
-   */
-  public void removeComment(String comment);
-
-  /**
-   * Addwarning.
-   * 
-   * @param warning the warning
-   */
-  public void addWarning(String warning);
-
-  /**
-   * Adds the comment.
-   *
-   * @param comment the comment
-   */
-  public void addComment(String comment);
-
-  /**
-   * Removes the error.
-   * 
-   * @param error the error
-   */
-  public void removeError(String error);
-
-  /**
-   * Adds the error.
-   * 
-   * @param error the error
-   */
-  public void addError(String error);
-
-  /**
-   * Adds the warnings.
-   * 
-   * @param warnings the warnings
-   */
-  public void addWarnings(Set<String> warnings);
-
-  /**
-   * Adds the comment.
-   *
-   * @param comment the comment
-   */
-  public void addComment(Set<String> comment);
-
-  /**
-   * Adds the errors.
-   * 
-   * @param errors the errors
-   */
-  public void addErrors(Set<String> errors);
-
-  /**
    * Merge a second validation result into this validation result
    * 
    * @param validationResult the validation result

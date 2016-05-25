@@ -1158,7 +1158,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     atom.setTermType(label);
     atom.setWorkflowStatus(published);
     addAtom(atom);
-    topConcept.addAtom(atom);
+    topConcept.getAtoms().add(atom);
     addConcept(topConcept);
   }
 
@@ -1231,7 +1231,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               getSubClassOfRelationship(concept, topConcept);
           Logger.getLogger(getClass()).debug("  add top relationship = " + rel);
           addRelationship(rel);
-          concept.addRelationship(rel);
+          concept.getRelationships().add(rel);
         } else {
           topConcept = getConceptForOwlClass(owlClass, ontology, 0);
         }
@@ -1269,7 +1269,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // ASSUMPTION: embedded anonymous concepts have been added
         Logger.getLogger(getClass()).debug("  add relationship = " + rel);
         addRelationship(rel);
-        concept.addRelationship(rel);
+        concept.getRelationships().add(rel);
       }
 
       // Update the concept a
@@ -1838,9 +1838,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         member.setSubset(subset);
         Logger.getLogger(getClass()).debug("  add member = " + member);
         addSubsetMember(member);
-        member.getMember().addMember(member);
+        member.getMember().getMembers().add(member);
         updateConcept(member.getMember());
-        subset.addMember(member);
+        subset.getMembers().add(member);
       }
       // Update the subset
       updateSubset(subset);
@@ -1968,7 +1968,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         concept.setName(atom.getName());
         flag = false;
       }
-      concept.addAtom(atom);
+      concept.getAtoms().add(atom);
     }
 
     //
@@ -1976,7 +1976,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
     final Set<Definition> defs = getDefinitions(owlClass, ontology);
     for (Definition def : defs) {
-      concept.addDefinition(def);
+      concept.getDefinitions().add(def);
     }
 
     //
@@ -1984,7 +1984,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
     final Set<Attribute> attributes = getAttributes(owlClass, ontology);
     for (Attribute attribute : attributes) {
-      concept.addAttribute(attribute);
+      concept.getAttributes().add(attribute);
 
     }
 
@@ -2074,7 +2074,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             ConceptRelationship rel2 = new ConceptRelationshipJpa(rel, true);
             rel2.setId(null);
             rel2.setFrom(concept);
-            concept.addRelationship(rel2);
+            concept.getRelationships().add(rel2);
           }
         }
         // next, handle unionOf
@@ -2090,7 +2090,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               getSubClassOfRelationship(concept, concept2);
           rel.setRelationshipType("unionOf");
           rel.setAdditionalRelationshipType("");
-          concept.addRelationship(rel);
+          concept.getRelationships().add(rel);
 
         }
 
@@ -2098,7 +2098,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         else if (expr2 instanceof OWLClass) {
           ConceptRelationship rel =
               getSubClassOfRelationship(concept, concept2);
-          concept.addRelationship(rel);
+          concept.getRelationships().add(rel);
         }
         // otherwise, unknown type
         else {
@@ -2167,7 +2167,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               getSubClassOfRelationship(concept, concept2);
           rel.setRelationshipType("other");
           rel.setAdditionalRelationshipType("");
-          concept.addRelationship(rel);
+          concept.getRelationships().add(rel);
         }
 
         // otherwise, unknown type
@@ -2211,7 +2211,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setName(concept.getName());
       Logger.getLogger(getClass()).debug("  add atom - " + atom);
       addAtom(atom);
-      concept.addAtom(atom);
+      concept.getAtoms().add(atom);
 
       Logger.getLogger(getClass()).debug("  add concept - " + concept);
       addConcept(concept);
@@ -2229,7 +2229,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       concept.setRelationships(new ArrayList<ConceptRelationship>());
       for (ConceptRelationship rel : relsToAdd) {
         addRelationship(rel);
-        concept.addRelationship(rel);
+        concept.getRelationships().add(rel);
         Logger.getLogger(getClass()).debug("  add relationship - " + rel);
       }
     }
@@ -2282,7 +2282,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         getTerminologyId(property.getIRI())).getAbbreviation());
     rel.setFrom(concept);
     rel.setTo(concept2);
-    concept.addRelationship(rel);
+    concept.getRelationships().add(rel);
 
     return concept;
   }
@@ -2469,8 +2469,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   @Override
   public void computeExpressionIndexes() throws Exception {
-   // do nothing
-    
+    final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
+    algo.setTerminology(getTerminology());
+    algo.setVersion(getVersion());
+    algo.compute();
   }
 
 }

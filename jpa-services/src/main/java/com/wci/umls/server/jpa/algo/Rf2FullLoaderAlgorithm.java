@@ -305,7 +305,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   @Override
   public void computeExpressionIndexes() throws Exception {
-    EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
+    final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
     algo.setTerminology(getTerminology());
     algo.setVersion(getVersion());
     algo.compute();

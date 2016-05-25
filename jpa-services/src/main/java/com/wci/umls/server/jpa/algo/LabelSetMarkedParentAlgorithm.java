@@ -159,6 +159,7 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
     if (ct == 0) {
       fireProgressEvent(100, "Finished.");
       logInfo("    NO HIERARCHICAL RELATIONSHIPS");
+      commit();
       return;
     }
 

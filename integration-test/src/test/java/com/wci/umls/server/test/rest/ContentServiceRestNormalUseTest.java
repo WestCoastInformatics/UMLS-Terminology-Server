@@ -17,7 +17,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
@@ -35,8 +34,6 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
-import com.wci.umls.server.jpa.helpers.SearchCriteriaJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
@@ -453,7 +450,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   public void testNormalUseRestContent008() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    PfscParameterJpa pfsc = new PfscParameterJpa();
+    PfsParameterJpa pfs = new PfsParameterJpa();
     SearchResultList searchResults;
 
     // Simple query, empty pfs
@@ -501,10 +498,10 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // Simple query, sorted on name
     Logger.getLogger(getClass()).info("  Simple query, sorted on name");
-    pfsc.setSortField("name");
+    pfs.setSortField("name");
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
+            "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(19, searchResults.getTotalCount());
@@ -512,16 +509,16 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
     assertEquals(19, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
+    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         ConceptJpa.class));
 
     // Simple query, sorted on name, descending order
     Logger.getLogger(getClass()).info(
         "  Simple query, sorted on name, descending order");
-    pfsc.setAscending(false);
+    pfs.setAscending(false);
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
+            "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(19, searchResults.getTotalCount());
@@ -529,7 +526,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
     assertEquals(19, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
+    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         ConceptJpa.class));
 
     // store the sorted results for later comparison
@@ -538,32 +535,32 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query, paged and sorted results, first page
     Logger.getLogger(getClass()).info(
         "  Simple query, paged and sorted results, first page");
-    pfsc.setSortField("name");
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(5);
+    pfs.setSortField("name");
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(5);
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
+            "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(19, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
+    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         ConceptJpa.class));
     assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-        sortedResults, pfsc));
+        sortedResults, pfs));
 
     // Simple query, paged and sorted results, second page
     Logger.getLogger(getClass()).info(
         "  Simple query, paged and sorted results, second page");
-    pfsc.setSortField("name");
-    pfsc.setStartIndex(5);
-    pfsc.setMaxResults(5);
+    pfs.setSortField("name");
+    pfs.setStartIndex(5);
+    pfs.setMaxResults(5);
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
+            "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(19, searchResults.getTotalCount());
@@ -571,17 +568,17 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
     assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-        sortedResults, pfsc));
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
+        sortedResults, pfs));
+    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         ConceptJpa.class));
 
     // Simple query, query restriction
     Logger.getLogger(getClass()).info("  Simple query, query restriction");
-    pfsc = new PfscParameterJpa();
-    pfsc.setQueryRestriction("terminologyId:169559003");
+    pfs = new PfsParameterJpa();
+    pfs.setQueryRestriction("terminologyId:169559003");
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
+            "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(1, searchResults.getTotalCount());
@@ -592,16 +589,14 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertTrue(searchResults.getObjects().get(0).getTerminologyId()
         .equals("169559003"));
 
-    SearchCriteria sc = new SearchCriteriaJpa();
-
     // Simple query, for "active only", empty pfs
     Logger.getLogger(getClass()).info(
         "  Simple query, for \"active only\", empty pfs");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
+    pfs = new PfsParameterJpa();
+    pfs.setActiveOnly(true);
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
+            "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(19, searchResults.getTotalCount());
@@ -611,13 +606,13 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // No query active only, first page
     Logger.getLogger(getClass()).info("  No query active only, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    pfs = new PfsParameterJpa();
+    pfs.setActiveOnly(true);
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            null, pfsc, authToken);
+            null, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     Logger.getLogger(getClass())
@@ -630,13 +625,13 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // No query, inactive only, first page
     Logger.getLogger(getClass()).info("  No query, inactive only, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setInactiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    pfs = new PfsParameterJpa();
+    pfs.setInactiveOnly(true);
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            null, pfsc, authToken);
+            null, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
@@ -645,37 +640,16 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(0, searchResults.getCount());
 
-    // No query, active and primitive only, first page
-    Logger.getLogger(getClass()).info(
-        "  No query, active and primitive only, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(3903, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
     // Simple query, active only, first page
     Logger.getLogger(getClass())
         .info("  Simple query, active only, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    pfs = new PfsParameterJpa();
+    pfs.setActiveOnly(true);
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "disease", pfsc, authToken);
+            "disease", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(210, searchResults.getTotalCount());
@@ -690,13 +664,13 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query, inactive only, first page
     Logger.getLogger(getClass()).info(
         "  Simple query, inactive only, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setInactiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    pfs = new PfsParameterJpa();
+    pfs.setInactiveOnly(true);
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     searchResults =
         contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "disease", pfsc, authToken);
+            "disease", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
@@ -704,198 +678,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
     assertEquals(0, searchResults.getCount());
-
-    // Simple query, active and primitive only, first page
-    Logger.getLogger(getClass()).info(
-        "  Simple query, active and primitive only, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "disease", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(210, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("disease"));
-    }
-
-    // No query, find "to" relationship from/type specified, first page
-    Logger.getLogger(getClass()).info(
-        "  No query, find \"to\" relationship from/type specified, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "361352008", false);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(2, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(2, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("muscle"));
-    }
-
-    // No query, find "to" relationship from/type specified (with descendants),
-    // first page
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"to\" relationship from/type specified (with descendants), first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "195879000", true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(4, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(4, searchResults.getCount());
-
-    // No query, find "to" and descendants, relationship from/type specified,
-    // first page
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"to\" and descendants, relationship from/type specified, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "361352008", false);
-    sc.setFindDescendants(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(8, searchResults.getCount());
-
-    // No query, find "to" and descendants and self, relationship from/type
-    // specified, first page
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"to\" and descendants and self, relationship from/type specified, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "361352008", false);
-    sc.setFindDescendants(true);
-    sc.setFindSelf(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(10, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // No query, find "to" and descendants, relationship type/from specified
-    // with desc, first page
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"to\" and descendants, relationship type/from specified with desc, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "195879000", true);
-    sc.setFindDescendants(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(45, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // No query, find "from", relationships type/to specified
-    Logger.getLogger(getClass()).info(
-        "  No query, find \"from\", relationships type/to specified");
-    sc = new SearchCriteriaJpa();
-    sc.setFindFromByRelationshipTypeAndTo("isa", "195879000", false);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(1, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(1, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("muscle"));
-    }
-
-    // No query, find "from", relationships type/to specified include
-    // descendants
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"from\", relationships type/to specified include descendants");
-    sc = new SearchCriteriaJpa();
-    sc.setFindFromByRelationshipTypeAndTo("isa", "195879000", true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(1, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(1, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
 
   }
 
@@ -908,7 +690,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("Start test");
 
     String query = "amino*";
-    PfscParameterJpa pfs = new PfscParameterJpa();
+    PfsParameterJpa pfs = new PfsParameterJpa();
     SearchResultList searchResults;
 
     // Simple query, empty pfs
@@ -1002,7 +784,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // More complex query using query restriction
     Logger.getLogger(getClass()).info("  Simple query with query restriction");
-    pfs = new PfscParameterJpa();
+    pfs = new PfsParameterJpa();
     pfs.setQueryRestriction("terminologyId:C118284");
     searchResults =
         contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
@@ -1017,10 +799,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertTrue(searchResults.getObjects().get(0).getTerminologyId()
         .equals("C118284"));
 
-    // search criteria tests
-    SearchCriteria sc = new SearchCriteriaJpa();
-
-    pfs = new PfscParameterJpa();
+    pfs = new PfsParameterJpa();
     pfs.setActiveOnly(true);
 
     // No query, ia active only
@@ -1034,7 +813,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // No query, active only with paging
     Logger.getLogger(getClass()).info("  No query, active only with paging");
-    pfs = new PfscParameterJpa();
+    pfs = new PfsParameterJpa();
     pfs.setActiveOnly(true);
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
@@ -1051,7 +830,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // No query, inactive only with paging
     Logger.getLogger(getClass()).info("  No query, inactive only with paging");
-    pfs = new PfscParameterJpa();
+    pfs = new PfsParameterJpa();
     pfs.setInactiveOnly(true);
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
@@ -1065,7 +844,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // No query, active only and primitive only
     Logger.getLogger(getClass()).info(
         "  No query, active only and primitive only");
-    pfs = new PfscParameterJpa();
+    pfs = new PfsParameterJpa();
     pfs.setActiveOnly(true);
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
@@ -1083,7 +862,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query and active only with paging
     Logger.getLogger(getClass()).info(
         "  Simple query and active only with paging");
-    pfs = new PfscParameterJpa();
+    pfs = new PfsParameterJpa();
     pfs.setActiveOnly(true);
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
@@ -1101,7 +880,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query and inactive active only with paging
     Logger.getLogger(getClass()).info(
         "  Simple query and inactive only with paging");
-    pfs = new PfscParameterJpa();
+    pfs = new PfsParameterJpa();
     pfs.setInactiveOnly(true);
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
@@ -1112,28 +891,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
     assertEquals(0, searchResults.getCount());
-
-    // Simple query and active only and primitive only
-    Logger.getLogger(getClass()).info(
-        "  Simple query and active only and primitive only with paging");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfs = new PfscParameterJpa();
-    pfs.setActiveOnly(true);
-    pfs.addSearchCriteria(sc);
-    pfs.setStartIndex(0);
-    pfs.setMaxResults(10);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            "disease", pfs, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(69, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
   }
 
   /**
@@ -1145,14 +902,14 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("Start test");
 
     String query = "amino*";
-    PfscParameterJpa pfsc = new PfscParameterJpa();
+    PfsParameterJpa pfs = new PfsParameterJpa();
     SearchResultList searchResults;
 
     // Simple query, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
     searchResults =
         contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
+            pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
@@ -1163,10 +920,10 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // Simple query, sort by name
     Logger.getLogger(getClass()).info("  Simple query, sort by name");
-    pfsc.setSortField("name");
+    pfs.setSortField("name");
     searchResults =
         contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
+            pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
@@ -1174,16 +931,16 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
     assertEquals(0, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
+    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         CodeJpa.class));
 
     // Simple query, sort by name descending
     Logger.getLogger(getClass()).info(
         "  Simple query, sort by name, descending");
-    pfsc.setAscending(false);
+    pfs.setAscending(false);
     searchResults =
         contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
+            pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
@@ -1191,7 +948,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
     assertEquals(0, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
+    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         CodeJpa.class));
 
     // store the sorted results
@@ -1200,32 +957,32 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query, sort by name, page
     Logger.getLogger(getClass()).info(
         "  Simple query, sort by name, first page");
-    pfsc.setSortField("name");
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(5);
+    pfs.setSortField("name");
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(5);
     searchResults =
         contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
+            pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
+    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         CodeJpa.class));
     assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-        sortedResults, pfsc));
+        sortedResults, pfs));
 
     // Simple query, sort by name, page
     Logger.getLogger(getClass()).info(
         "  Simple query, sort by name, second page");
-    pfsc.setSortField("name");
-    pfsc.setStartIndex(5);
-    pfsc.setMaxResults(5);
+    pfs.setSortField("name");
+    pfs.setStartIndex(5);
+    pfs.setMaxResults(5);
     searchResults =
         contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
+            pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
@@ -1233,17 +990,17 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
     // assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-    // sortedResults, pfsc));
-    // assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
+    // sortedResults, pfs));
+    // assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
     // CodeJpa.class));
 
     // More complex query using query restriction
     Logger.getLogger(getClass()).info("  Simple query with query restriction");
-    pfsc = new PfscParameterJpa();
-    pfsc.setQueryRestriction("terminologyId:C118284");
+    pfs = new PfsParameterJpa();
+    pfs.setQueryRestriction("terminologyId:C118284");
     searchResults =
         contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
+            pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
@@ -1254,15 +1011,12 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // assertTrue(searchResults.getObjects().get(0).getTerminologyId()
     // .equals("C118284"));
 
-    // search criteria tests
-    SearchCriteria sc = new SearchCriteriaJpa();
-
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
+    pfs = new PfsParameterJpa();
+    pfs.setActiveOnly(true);
     // No query, is active only
     Logger.getLogger(getClass()).info("  No query, active only");
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfsc,
+        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -1270,12 +1024,12 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // No query, active only with paging
     Logger.getLogger(getClass()).info("  No query, active only with paging");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    pfs = new PfsParameterJpa();
+    pfs.setActiveOnly(true);
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfsc,
+        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -1287,48 +1041,27 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // No query, inactive only with paging
     Logger.getLogger(getClass()).info("  No query, inactive only with paging");
-    pfsc = new PfscParameterJpa();
-    pfsc.setInactiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    pfs = new PfsParameterJpa();
+    pfs.setInactiveOnly(true);
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfsc,
+        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(0, searchResults.getCount());
-
-    // No query, active only and primitive only
-    Logger.getLogger(getClass()).info(
-        "  No query, active only and primitive only");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfsc,
-            authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(0, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
     assertEquals(0, searchResults.getCount());
 
     // Simple query and active only with paging
     Logger.getLogger(getClass()).info(
         "  Simple query and active only with paging");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    pfs = new PfsParameterJpa();
+    pfs.setActiveOnly(true);
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     searchResults =
         contentService.findCodesForQuery(mshTerminology, mshVersion, "disease",
-            pfsc, authToken);
+            pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
@@ -1340,37 +1073,16 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query and inactive active only with paging
     Logger.getLogger(getClass()).info(
         "  Simple query and inactive only with paging");
-    pfsc = new PfscParameterJpa();
-    pfsc.setInactiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    pfs = new PfsParameterJpa();
+    pfs.setInactiveOnly(true);
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     searchResults =
         contentService.findCodesForQuery(mshTerminology, mshVersion, "disease",
-            pfsc, authToken);
+            pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(0, searchResults.getTotalCount());
-    assertEquals(0, searchResults.getCount());
-
-    // Simple query and active only and primitive only
-    Logger.getLogger(getClass()).info(
-        "  Simple query and active only and primitive only with paging");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "disease",
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(0, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
     assertEquals(0, searchResults.getCount());
 
   }

@@ -549,7 +549,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
         cacheAttributeMetadata(attribute);
-        concept.addAttribute(attribute);
+        concept.getAttributes().add(attribute);
         addAttribute(attribute, concept);
 
         final Attribute attribute2 = new AttributeJpa();
@@ -557,7 +557,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute2.setName("definitionStatusId");
         attribute2.setValue(fields[4].intern());
         cacheAttributeMetadata(attribute2);
-        concept.addAttribute(attribute2);
+        concept.getAttributes().add(attribute2);
         addAttribute(attribute2, concept);
 
         // copy concept to shed any hibernate stuff
@@ -635,7 +635,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
-        relationship.addAttribute(attribute);
+        relationship.getAttributes().add(attribute);
         addAttribute(attribute, relationship);
 
         Attribute attribute2 = new AttributeJpa();
@@ -643,7 +643,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute2.setName("characteristicTypeId");
         attribute2.setValue(fields[8].intern());
         cacheAttributeMetadata(attribute2);
-        relationship.addAttribute(attribute2);
+        relationship.getAttributes().add(attribute2);
         addAttribute(attribute2, relationship);
 
         Attribute attribute3 = new AttributeJpa();
@@ -651,7 +651,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute3.setName("modifierId");
         attribute3.setValue(fields[9].intern());
         cacheAttributeMetadata(attribute3);
-        relationship.addAttribute(attribute3);
+        relationship.getAttributes().add(attribute3);
         addAttribute(attribute3, relationship);
 
         // get concepts from cache, they just need to have ids
@@ -736,7 +736,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
-        atom.addAttribute(attribute);
+        atom.getAttributes().add(attribute);
         addAttribute(attribute, atom);
 
         final Attribute attribute2 = new AttributeJpa();
@@ -744,7 +744,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute2.setName("caseSignificanceId");
         attribute2.setValue(fields[8].intern());
         cacheAttributeMetadata(attribute2);
-        atom.addAttribute(attribute2);
+        atom.getAttributes().add(attribute2);
         addAttribute(attribute2, atom);
 
         // set concept from cache and set initial prev concept
@@ -820,7 +820,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
-        def.addAttribute(attribute);
+        def.getAttributes().add(attribute);
         addAttribute(attribute, def);
 
         final Attribute attribute2 = new AttributeJpa();
@@ -828,7 +828,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute2.setName("caseSignificanceId");
         attribute2.setValue(fields[8].intern());
         cacheAttributeMetadata(attribute2);
-        def.addAttribute(attribute2);
+        def.getAttributes().add(attribute2);
         addAttribute(attribute2, def);
 
         // set concept from cache and set initial prev concept
@@ -898,7 +898,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
           // Add definitions
           if (definitionMap.containsKey(concept.getTerminologyId())) {
             for (Long id : definitionMap.get(concept.getTerminologyId())) {
-              concept.addDefinition(getDefinition(id));
+              concept.getDefinitions().add(getDefinition(id));
             }
           }
 
@@ -916,7 +916,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         }
         concept = getConcept(conceptIdMap.get(atom.getConceptId()));
       }
-      concept.addAtom(atom);
+      concept.getAtoms().add(atom);
       // Active atoms with pref typeId that are preferred from language refset
       // perspective is the pref name. This bypasses the pref name computer
       // but is way faster.
@@ -980,7 +980,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute.setName("acceptabilityId");
         attribute.setValue(fields[6].intern());
         cacheAttributeMetadata(attribute);
-        member.addAttribute(attribute);
+        member.getAttributes().add(attribute);
         addAttribute(attribute, member);
 
         addSubsetMember(member);
@@ -1043,7 +1043,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute.setValue(fields[6].intern());
         attributeNames.add(attribute.getName());
         cacheAttributeMetadata(attribute);
-        member.addAttribute(attribute);
+        member.getAttributes().add(attribute);
         addAttribute(attribute, member);
 
         // Add member
@@ -1162,7 +1162,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
-        relationship.addAttribute(attribute);
+        relationship.getAttributes().add(attribute);
         addAttribute(attribute, relationship);
 
         // get concepts from cache, they just need to have ids
@@ -1274,7 +1274,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute.setName("mapTarget");
         attribute.setValue(fields[6].intern());
         attributeNames.add(attribute.getName());
-        member.addAttribute(attribute);
+        member.getAttributes().add(attribute);
         addAttribute(attribute, member);
 
         // Add member
@@ -1390,7 +1390,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute.setName("attributeDescription");
         attribute.setValue(fields[6].intern());
         cacheAttributeMetadata(attribute);
-        member.addAttribute(attribute);
+        member.getAttributes().add(attribute);
         addAttribute(attribute, member);
 
         Attribute attribute2 = new AttributeJpa();
@@ -1398,7 +1398,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute2.setName("attributeType");
         attribute2.setValue(fields[7].intern());
         cacheAttributeMetadata(attribute2);
-        member.addAttribute(attribute2);
+        member.getAttributes().add(attribute2);
         addAttribute(attribute2, member);
 
         Attribute attribute3 = new AttributeJpa();
@@ -1406,7 +1406,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute3.setName("attributeOrder");
         attribute3.setValue(fields[8].intern());
         cacheAttributeMetadata(attribute3);
-        member.addAttribute(attribute3);
+        member.getAttributes().add(attribute3);
         addAttribute(attribute3, member);
 
         // Add member
@@ -1453,7 +1453,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute.setName("sourceEffectiveTime");
         attribute.setValue(fields[6].intern());
         attributeNames.add(attribute.getName());
-        member.addAttribute(attribute);
+        member.getAttributes().add(attribute);
         addAttribute(attribute, member);
 
         Attribute attribute2 = new AttributeJpa();
@@ -1461,7 +1461,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute2.setName("targetEffectiveTime");
         attribute2.setValue(fields[7].intern());
         attributeNames.add(attribute2.getName());
-        member.addAttribute(attribute2);
+        member.getAttributes().add(attribute2);
         addAttribute(attribute2, member);
 
         addSubsetMember(member);
@@ -1507,7 +1507,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute.setName("descriptionFormat");
         attribute.setValue(fields[6].intern());
         cacheAttributeMetadata(attribute);
-        member.addAttribute(attribute);
+        member.getAttributes().add(attribute);
         addAttribute(attribute, member);
 
         Attribute attribute2 = new AttributeJpa();
@@ -1515,7 +1515,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         attribute2.setName("descriptionLength");
         attribute2.setValue(fields[7].intern());
         attributeNames.add(attribute2.getName());
-        member.addAttribute(attribute2);
+        member.getAttributes().add(attribute2);
         addAttribute(attribute2, member);
 
         addSubsetMember(member);
@@ -1591,7 +1591,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       setCommonFields(attribute2, date);
       attribute2.setName("moduleId");
       attribute2.setValue(concept.getAttributeByName("moduleId").getValue());
-      subset.addAttribute(attribute2);
+      subset.getAttributes().add(attribute2);
       addAttribute(attribute2, member);
       addSubset(subset);
       atomSubsetMap.put(fields[4], subset);
@@ -1620,7 +1620,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       setCommonFields(attribute2, date);
       attribute2.setName("moduleId");
       attribute2.setValue(concept.getAttributeByName("moduleId").getValue());
-      subset.addAttribute(attribute2);
+      subset.getAttributes().add(attribute2);
       addAttribute(attribute2, member);
       addSubset(subset);
       conceptSubsetMap.put(fields[4], subset);
@@ -1638,7 +1638,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     attribute.setName("moduleId");
     attribute.setValue(fields[3].intern());
     cacheAttributeMetadata(attribute);
-    member.addAttribute(attribute);
+    member.getAttributes().add(attribute);
     addAttribute(attribute, member);
 
   }
@@ -1707,7 +1707,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       setCommonFields(attribute2, date);
       attribute2.setName("moduleId");
       attribute2.setValue(concept.getAttributeByName("moduleId").getValue());
-      mapSet.addAttribute(attribute2);
+      mapSet.getAttributes().add(attribute2);
       addAttribute(attribute2, mapSet);
       addMapSet(mapSet);
       mapSetMap.put(fields[4], mapSet);
@@ -1741,7 +1741,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     attribute.setName("moduleId");
     attribute.setValue(fields[3].intern());
     cacheAttributeMetadata(attribute);
-    mapping.addAttribute(attribute);
+    mapping.getAttributes().add(attribute);
     addAttribute(attribute, mapping);
 
   }
@@ -2113,9 +2113,10 @@ public class Rf2SnapshotLoaderAlgorithm extends
     readers = null;
   }
   
+  /* see superclass */
   @Override
   public void computeExpressionIndexes() throws Exception {
-    EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
+    final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
     algo.setTerminology(getTerminology());
     algo.setVersion(getVersion());
     algo.compute();

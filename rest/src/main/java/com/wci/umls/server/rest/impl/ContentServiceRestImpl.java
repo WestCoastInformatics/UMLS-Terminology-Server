@@ -68,7 +68,6 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
@@ -864,7 +863,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
 
@@ -874,7 +873,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /concept/" + terminology + "/" + version
             + "?query=" + queryStr + " with PFS parameter "
-            + (pfsc == null ? "empty" : pfsc.toString()));
+            + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
@@ -1052,7 +1051,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
 
@@ -1062,7 +1061,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /descriptor/" + terminology + "/"
             + version + "?query=" + queryStr + " with PFS parameter "
-            + (pfsc == null ? "empty" : pfsc.toString()));
+            + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descriptors by query",
@@ -1203,7 +1202,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
 
@@ -1213,7 +1212,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code/" + terminology + "/" + version
             + "?query=" + queryStr + " with PFS parameter "
-            + (pfsc == null ? "empty" : pfsc.toString()));
+            + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find codes by query",
@@ -2062,7 +2061,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
         final Tree tree = contentService.getTreeForTreePosition(treepos);
-        treeList.addObject(tree);
+        treeList.getObjects().add(tree);
       }
       treeList.setTotalCount(list.getTotalCount());
       return treeList;
@@ -2105,7 +2104,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           .getObjects()) {
         final Tree tree = contentService.getTreeForTreePosition(treepos);
 
-        treeList.addObject(tree);
+        treeList.getObjects().add(tree);
       }
       treeList.setTotalCount(list.getTotalCount());
       return treeList;
@@ -2147,7 +2146,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           .getObjects()) {
         final Tree tree = contentService.getTreeForTreePosition(treepos);
 
-        treeList.addObject(tree);
+        treeList.getObjects().add(tree);
       }
       treeList.setTotalCount(list.getTotalCount());
       return treeList;
@@ -2417,7 +2416,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
         final Tree childTree = new TreeJpa(childTreePosition);
-        childTrees.addObject(childTree);
+        childTrees.getObjects().add(childTree);
       }
 
       childTrees.setTotalCount(childTreePositions.getTotalCount());
@@ -2465,7 +2464,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
         final Tree childTree = new TreeJpa(childTreePosition);
-        childTrees.addObject(childTree);
+        childTrees.getObjects().add(childTree);
       }
 
       childTrees.setTotalCount(childTreePositions.getTotalCount());
@@ -2513,7 +2512,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
         final Tree childTree = new TreeJpa(childTreePosition);
-        childTrees.addObject(childTree);
+        childTrees.getObjects().add(childTree);
       }
 
       childTrees.setTotalCount(childTreePositions.getTotalCount());
@@ -3014,7 +3013,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         searchResult.setValue(atomClass.getName());
         searchResult.setProperty(
             new KeyValuePair("hasNotes", String.valueOf(hasNotes)));
-        results.addObject(searchResult);
+        results.getObjects().add(searchResult);
       }
       return results;
 

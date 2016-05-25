@@ -121,9 +121,6 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
     fireProgressEvent(0, "Starting...");
 
     final Date startDate = new Date();
-    // Disable transaction per operation and start transaction
-    setTransactionPerOperation(false);
-    beginTransaction();
 
     // Initialize rels
     fireProgressEvent(1, "Initialize hierarchical relationships");
@@ -175,6 +172,11 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
     else {
       logInfo("  concepts with descendants = " + parChd.size());
     }
+
+    // Disable transaction per operation and start transaction
+    // Keep this below the read query above
+    setTransactionPerOperation(false);
+    beginTransaction();
 
     //
     // Create transitive closure rels

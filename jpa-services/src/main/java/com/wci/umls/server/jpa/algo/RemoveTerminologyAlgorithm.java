@@ -449,7 +449,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
       /*
        * SearchResultList results = findConceptsForQuery(null, null,
        * Branch.ROOT, "atoms.terminology:" + terminology + " atoms.version:" +
-       * version, new PfscParameterJpa()); for (SearchResult result :
+       * version, new PfsParameterJpa()); for (SearchResult result :
        * results.getObjects()) { Concept concept = getConcept(result.getId());
        */
       query = manager.createQuery("SELECT a.id FROM ConceptJpa a");

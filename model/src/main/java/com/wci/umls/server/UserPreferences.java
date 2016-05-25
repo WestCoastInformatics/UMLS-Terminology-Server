@@ -124,18 +124,4 @@ public interface UserPreferences {
    */
   public List<String> getFavorites();
 
-  /**
-   * Add favorite.
-   *
-   * @param favorite the favorite
-   */
-  public void addFavorite(String favorite);
-
-  /**
-   * Remove favorite.
-   *
-   * @param favorite the favorite
-   */
-  public void removeFavorite(String favorite);
-
 }

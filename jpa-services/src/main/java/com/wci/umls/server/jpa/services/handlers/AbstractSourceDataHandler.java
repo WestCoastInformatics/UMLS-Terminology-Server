@@ -16,7 +16,7 @@ import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
- * The Class AbstractSourceDataHandler.
+ * Abstract implementation of SourceDataHandler.
  */
 public abstract class AbstractSourceDataHandler implements SourceDataHandler {
 

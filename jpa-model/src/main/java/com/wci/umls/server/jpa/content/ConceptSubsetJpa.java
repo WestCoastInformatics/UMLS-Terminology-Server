@@ -63,7 +63,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     labelSubset = subset.isLabelSubset();
     if (deepCopy) {
       for (ConceptSubsetMember member : subset.getMembers()) {
-        addMember(new ConceptSubsetMemberJpa(member, deepCopy));
+        getMembers().add(new ConceptSubsetMemberJpa(member, deepCopy));
       }
     }
 
@@ -83,24 +83,6 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   @Override
   public void setMembers(List<ConceptSubsetMember> members) {
     this.members = members;
-  }
-
-  /* see superclass */
-  @Override
-  public void addMember(ConceptSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<>();
-    }
-    members.add(member);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeMember(ConceptSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<>();
-    }
-    members.remove(member);
   }
 
   /* see superclass */

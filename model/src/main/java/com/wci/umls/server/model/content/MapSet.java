@@ -129,17 +129,6 @@ public interface MapSet extends ComponentHasAttributes {
    */
   public void setMappings(List<Mapping> mappings);
 
-  /**
-   * Adds the mapping.
-   * @param mapping the mapping
-   */
-  public void addMapping(Mapping mapping);
-
-  /**
-   * Removes the mapping.
-   * @param mapping the mapping
-   */
-  public void removeMapping(Mapping mapping);
 
   /**
    * Gets the from terminology.

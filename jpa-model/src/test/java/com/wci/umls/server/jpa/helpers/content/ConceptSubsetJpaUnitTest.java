@@ -129,8 +129,8 @@ public class ConceptSubsetJpaUnitTest {
     ConceptSubsetMember member = (ConceptSubsetMember) tester4.createObject(1);
     member.setMember(concept);
 
-    subset.addMember(member);
-    subset.addAttribute(att);
+    subset.getMembers().add(member);
+    subset.getAttributes().add(att);
 
     ConceptSubset subset2 = new ConceptSubsetJpa(subset, false);
     assertEquals(0, subset2.getAttributes().size());

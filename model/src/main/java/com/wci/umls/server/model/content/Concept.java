@@ -62,20 +62,6 @@ public interface Concept extends AtomClass, ComponentHasDefinitions,
   public void setSemanticTypes(List<SemanticTypeComponent> semanticTypes);
 
   /**
-   * Adds the semantic type.
-   *
-   * @param semanticType the semantic type
-   */
-  public void addSemanticType(SemanticTypeComponent semanticType);
-
-  /**
-   * Removes the semantic type.
-   *
-   * @param semanticType the semantic type
-   */
-  public void removeSemanticType(SemanticTypeComponent semanticType);
-
-  /**
    * Returns the uses relationship intersection.
    *
    * @return the uses relationship intersection

@@ -48,7 +48,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
 
     if (deepCopy) {
       for (Attribute attribute : component.getAttributes()) {
-        addAttribute(new AttributeJpa(attribute));
+        getAttributes().add(new AttributeJpa(attribute));
       }
     }
   }
@@ -67,24 +67,6 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
   @Override
   public void setAttributes(List<Attribute> attributes) {
     this.attributes = attributes;
-  }
-
-  /* see superclass */
-  @Override
-  public void addAttribute(Attribute attribute) {
-    if (attributes == null) {
-      attributes = new ArrayList<>(1);
-    }
-    attributes.add(attribute);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeAttribute(Attribute attribute) {
-    if (attributes == null) {
-      attributes = new ArrayList<>(1);
-    }
-    attributes.remove(attribute);
   }
 
   /* see superclass */

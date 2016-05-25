@@ -115,16 +115,17 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
     if (deepCopy) {
       for (Definition definition : concept.getDefinitions()) {
-        addDefinition(new DefinitionJpa(definition, deepCopy));
+        getDefinitions().add(new DefinitionJpa(definition, deepCopy));
       }
       for (ConceptRelationship relationship : concept.getRelationships()) {
-        addRelationship(new ConceptRelationshipJpa(relationship, deepCopy));
+        getRelationships().add(
+            new ConceptRelationshipJpa(relationship, deepCopy));
       }
       for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-        addSemanticType(new SemanticTypeComponentJpa(sty));
+        getSemanticTypes().add(new SemanticTypeComponentJpa(sty));
       }
       for (ConceptSubsetMember member : concept.getMembers()) {
-        addMember(new ConceptSubsetMemberJpa(member, deepCopy));
+        getMembers().add(new ConceptSubsetMemberJpa(member, deepCopy));
       }
     }
   }
@@ -154,34 +155,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   }
 
   /**
-   * Adds the definition.
-   *
-   * @param definition the definition
-   */
-  @Override
-  public void addDefinition(Definition definition) {
-    if (definitions == null) {
-      definitions = new ArrayList<>(1);
-    }
-    definitions.add(definition);
-
-  }
-
-  /**
-   * Removes the definition.
-   *
-   * @param definition the definition
-   */
-  @Override
-  public void removeDefinition(Definition definition) {
-    if (definitions == null) {
-      definitions = new ArrayList<>(1);
-    }
-    definitions.remove(definition);
-
-  }
-
-  /**
    * Returns the relationships.
    *
    * @return the relationships
@@ -204,32 +177,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   public void setRelationships(List<ConceptRelationship> relationships) {
     this.relationships = relationships;
 
-  }
-
-  /**
-   * Adds the relationship.
-   *
-   * @param relationship the relationship
-   */
-  @Override
-  public void addRelationship(ConceptRelationship relationship) {
-    if (relationships == null) {
-      relationships = new ArrayList<>(1);
-    }
-    relationships.add(relationship);
-  }
-
-  /**
-   * Removes the relationship.
-   *
-   * @param relationship the relationship
-   */
-  @Override
-  public void removeRelationship(ConceptRelationship relationship) {
-    if (relationships == null) {
-      relationships = new ArrayList<>(1);
-    }
-    relationships.remove(relationship);
   }
 
   /**
@@ -292,24 +239,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   /* see superclass */
   @Override
-  public void addSemanticType(SemanticTypeComponent semanticType) {
-    if (semanticTypes == null) {
-      semanticTypes = new ArrayList<>(1);
-    }
-    semanticTypes.add(semanticType);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeSemanticType(SemanticTypeComponent semanticType) {
-    if (semanticTypes == null) {
-      semanticTypes = new ArrayList<>(1);
-    }
-    semanticTypes.remove(semanticType);
-  }
-
-  /* see superclass */
-  @Override
   public boolean getUsesRelationshipIntersection() {
     return usesRelationshipIntersection;
   }
@@ -347,24 +276,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void setMembers(List<ConceptSubsetMember> members) {
     this.members = members;
-  }
-
-  /* see superclass */
-  @Override
-  public void addMember(ConceptSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<ConceptSubsetMember>();
-    }
-    members.add(member);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeMember(ConceptSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<ConceptSubsetMember>();
-    }
-    members.remove(member);
   }
 
   /* see superclass */

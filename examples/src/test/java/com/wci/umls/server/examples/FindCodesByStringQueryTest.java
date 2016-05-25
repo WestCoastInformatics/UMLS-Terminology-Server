@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
 /**
  * Example demonstrating finding descriptors by query.
@@ -72,11 +72,11 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
     // results
     Logger.getLogger(getClass()).info(
         "Find codes for 'ge*' with page size 10, first page");
-    PfscParameterJpa pfsc = new PfscParameterJpa();
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     list =
-        contentClient.findCodesForQuery(terminology, version, "ge*", pfsc,
+        contentClient.findCodesForQuery(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -87,12 +87,12 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
     // Same test, but this time sort on name
     Logger.getLogger(getClass()).info(
         "Find codes for 'ge*' with page size 10, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    pfsc.setSortField("name");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
+    pfs.setSortField("name");
     list =
-        contentClient.findCodesForQuery(terminology, version, "ge*", pfsc,
+        contentClient.findCodesForQuery(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -136,11 +136,11 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
     // results
     Logger.getLogger(getClass()).info(
         "Find codes for 'ge*' with page size 10, first page");
-    PfscParameterJpa pfsc = new PfscParameterJpa();
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
     list =
-        contentClient.findCodesForQuery(terminology, version, "ge*", pfsc,
+        contentClient.findCodesForQuery(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -151,12 +151,12 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
     // Same test, but this time sort on name
     Logger.getLogger(getClass()).info(
         "Find codes for 'ge*' with page size 10, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    pfsc.setSortField("name");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
+    pfs.setSortField("name");
     list =
-        contentClient.findCodesForQuery(terminology, version, "ge*", pfsc,
+        contentClient.findCodesForQuery(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());

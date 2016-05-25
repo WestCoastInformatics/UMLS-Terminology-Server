@@ -175,7 +175,7 @@ public class EclExpressionHandler implements ExpressionHandler {
           result.setTerminology(terminology);
           result.setVersion(version);
           result.setTerminologyId(conceptDoc.get(EclConceptFieldNames.ID));
-          results.addObject(result);
+          results.getObjects().add(result);
         }
         Logger.getLogger(getClass()).info(
             "  results = " + results.getCount() + ", query = " + luceneQuery);

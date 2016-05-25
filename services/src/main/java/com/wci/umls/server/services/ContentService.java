@@ -13,7 +13,6 @@ import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
@@ -122,7 +121,7 @@ public interface ContentService extends MetadataService {
    */
   public Subset getSubset(String terminologyId, String terminology,
     String version, String branch, Class<? extends Subset> subsetClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Gets the atom subsets.
@@ -290,8 +289,8 @@ public interface ContentService extends MetadataService {
    * @return the descriptors
    * @throws Exception the exception
    */
-  public DescriptorList getDescriptors(String terminologyId, String terminology,
-    String version) throws Exception;
+  public DescriptorList getDescriptors(String terminologyId,
+    String terminology, String version) throws Exception;
 
   /**
    * Gets the descriptor.
@@ -579,7 +578,7 @@ public interface ContentService extends MetadataService {
    */
   public TreePositionList findTreePositionsForConcept(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find concept tree positions for query.
@@ -594,7 +593,7 @@ public interface ContentService extends MetadataService {
    */
   public TreePositionList findConceptTreePositionsForQuery(String terminology,
     String version, String branch, String query, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find tree positions for descriptor.
@@ -609,7 +608,7 @@ public interface ContentService extends MetadataService {
    */
   public TreePositionList findTreePositionsForDescriptor(String descriptorId,
     String terminology, String version, String branch, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find descriptor tree positions for query.
@@ -639,7 +638,7 @@ public interface ContentService extends MetadataService {
    */
   public TreePositionList findTreePositionsForCode(String codeId,
     String terminology, String version, String branch, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find code tree positions for query.
@@ -654,7 +653,7 @@ public interface ContentService extends MetadataService {
    */
   public TreePositionList findCodeTreePositionsForQuery(String terminology,
     String version, String branch, String query, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find descendant descriptors.
@@ -702,7 +701,7 @@ public interface ContentService extends MetadataService {
    */
   public CodeList findDescendantCodes(String terminologyId, String terminology,
     String version, boolean childrenOnly, String branch, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find ancestor codes.
@@ -718,7 +717,7 @@ public interface ContentService extends MetadataService {
    */
   public CodeList findAncestorCodes(String terminologyId, String terminology,
     String version, boolean parentsOnly, String branch, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Gets the atom.
@@ -789,7 +788,7 @@ public interface ContentService extends MetadataService {
    */
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> addRelationship(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-      throws Exception;
+    throws Exception;
 
   /**
    * Update relationship.
@@ -799,7 +798,7 @@ public interface ContentService extends MetadataService {
    */
   public void updateRelationship(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-      throws Exception;
+    throws Exception;
 
   /**
    * Remove relationship.
@@ -808,9 +807,10 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeRelationship(Long id,
+  public void removeRelationship(
+    Long id,
     Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Get transitive relationship.
@@ -823,7 +823,7 @@ public interface ContentService extends MetadataService {
   public TransitiveRelationship<? extends AtomClass> getTransitiveRelationship(
     Long id,
     Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Add transitive relationship.
@@ -834,7 +834,7 @@ public interface ContentService extends MetadataService {
    */
   public TransitiveRelationship<? extends ComponentHasAttributes> addTransitiveRelationship(
     TransitiveRelationship<? extends ComponentHasAttributes> transitiveRelationship)
-      throws Exception;
+    throws Exception;
 
   /**
    * Update transitive relationship.
@@ -844,7 +844,7 @@ public interface ContentService extends MetadataService {
    */
   public void updateTransitiveRelationship(
     TransitiveRelationship<? extends ComponentHasAttributes> transitiveRelationship)
-      throws Exception;
+    throws Exception;
 
   /**
    * Remove transitive relationship.
@@ -853,9 +853,10 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeTransitiveRelationship(Long id,
+  public void removeTransitiveRelationship(
+    Long id,
     Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Get tree position.
@@ -867,7 +868,7 @@ public interface ContentService extends MetadataService {
    */
   public TreePosition<? extends AtomClass> getTreePosition(Long id,
     Class<? extends TreePosition<? extends AtomClass>> treeposClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Add tree position.
@@ -878,7 +879,7 @@ public interface ContentService extends MetadataService {
    */
   public TreePosition<? extends ComponentHasAttributesAndName> addTreePosition(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
-      throws Exception;
+    throws Exception;
 
   /**
    * Update tree position.
@@ -888,7 +889,7 @@ public interface ContentService extends MetadataService {
    */
   public void updateTreePosition(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
-      throws Exception;
+    throws Exception;
 
   /**
    * Remove tree position.
@@ -899,7 +900,7 @@ public interface ContentService extends MetadataService {
    */
   public void removeTreePosition(Long id,
     Class<? extends TreePosition<? extends AtomClass>> treeposClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Add subset.
@@ -938,7 +939,7 @@ public interface ContentService extends MetadataService {
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> addSubsetMember(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
-      throws Exception;
+    throws Exception;
 
   /**
    * Update subset member.
@@ -948,7 +949,7 @@ public interface ContentService extends MetadataService {
    */
   public void updateSubsetMember(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
-      throws Exception;
+    throws Exception;
 
   /**
    * Remove subset member.
@@ -957,9 +958,10 @@ public interface ContentService extends MetadataService {
    * @param memberClass the member class
    * @throws Exception the exception
    */
-  public void removeSubsetMember(Long id,
+  public void removeSubsetMember(
+    Long id,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find concepts for query.
@@ -968,13 +970,13 @@ public interface ContentService extends MetadataService {
    * @param version the version
    * @param branch the branch
    * @param query the query
-   * @param pfsc the pfsc
+   * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findConceptsForQuery(String terminology,
-    String version, String branch, String query, PfscParameter pfsc)
-      throws Exception;
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Autocomplete concepts.
@@ -995,13 +997,13 @@ public interface ContentService extends MetadataService {
    * @param version the version
    * @param branch the branch
    * @param query the query
-   * @param pfsc the pfsc
+   * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String branch, String query, PfscParameter pfsc)
-      throws Exception;
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Autocomplete descriptors.
@@ -1022,12 +1024,12 @@ public interface ContentService extends MetadataService {
    * @param version the version
    * @param branch the branch
    * @param query the query
-   * @param pfsc the pfsc
+   * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findCodesForQuery(String terminology, String version,
-    String branch, String query, PfscParameter pfsc) throws Exception;
+    String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
    * Autocomplete codes.
@@ -1071,8 +1073,7 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @return the all codes
    */
-  public CodeList getAllCodes(String terminology, String version,
-    String branch);
+  public CodeList getAllCodes(String terminology, String version, String branch);
 
   /**
    * Gets the all subsets.
@@ -1315,8 +1316,8 @@ public interface ContentService extends MetadataService {
    * @return the definitions
    * @throws Exception the exception
    */
-  public DefinitionList getDefinitions(String terminologyId, String terminology,
-    String version) throws Exception;
+  public DefinitionList getDefinitions(String terminologyId,
+    String terminology, String version) throws Exception;
 
   /**
    * Gets the definition.
@@ -1339,9 +1340,12 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    String terminologyId, String terminology, String version, String branch,
+    String terminologyId,
+    String terminology,
+    String version,
+    String branch,
     Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Gets the relationships.
@@ -1353,10 +1357,12 @@ public interface ContentService extends MetadataService {
    * @return the relationships
    * @throws Exception the exception
    */
-  public RelationshipList getRelationships(String terminologyId,
-    String terminology, String version,
+  public RelationshipList getRelationships(
+    String terminologyId,
+    String terminology,
+    String version,
     Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Get relationship.
@@ -1369,7 +1375,7 @@ public interface ContentService extends MetadataService {
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
     Long id,
     Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Get subset member.
@@ -1383,9 +1389,12 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    String terminologyId, String terminology, String version, String branch,
+    String terminologyId,
+    String terminology,
+    String version,
+    String branch,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Gets the subset members.
@@ -1397,10 +1406,12 @@ public interface ContentService extends MetadataService {
    * @return the subset members
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembers(String terminologyId,
-    String terminology, String version,
+  public SubsetMemberList getSubsetMembers(
+    String terminologyId,
+    String terminology,
+    String version,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Get subset member.
@@ -1413,7 +1424,7 @@ public interface ContentService extends MetadataService {
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
     Long id,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find codes for general query.
@@ -1477,7 +1488,7 @@ public interface ContentService extends MetadataService {
    */
   public TreePositionList findConceptTreePositionChildren(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find code tree position children.
@@ -1492,7 +1503,7 @@ public interface ContentService extends MetadataService {
    */
   public TreePositionList findCodeTreePositionChildren(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find descriptor tree position children.
@@ -1672,8 +1683,8 @@ public interface ContentService extends MetadataService {
    * @return the map sets
    * @throws Exception the exception
    */
-  public MapSetList getMapSets(String terminology, String version,
-    String branch) throws Exception;
+  public MapSetList getMapSets(String terminology, String version, String branch)
+    throws Exception;
 
   /**
    * Find mappings for concept.
@@ -1705,7 +1716,7 @@ public interface ContentService extends MetadataService {
    */
   public MappingList findMappingsForCode(String codeId, String terminology,
     String version, String branch, String query, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find mappings for descriptor.
@@ -1762,9 +1773,7 @@ public interface ContentService extends MetadataService {
    * @param type the type
    * @throws Exception the exception
    */
-  public void removeNote(Long id, Class<? extends Note> type)
-    throws Exception;
-  
+  public void removeNote(Long id, Class<? extends Note> type) throws Exception;
 
   /**
    * Add the component info.
@@ -1773,7 +1782,8 @@ public interface ContentService extends MetadataService {
    * @return the the component info
    * @throws Exception the exception
    */
-  public ComponentInfo addComponentInfo(ComponentInfo componentInfo) throws Exception;
+  public ComponentInfo addComponentInfo(ComponentInfo componentInfo)
+    throws Exception;
 
   /**
    * Update the component info.
@@ -1804,7 +1814,7 @@ public interface ContentService extends MetadataService {
    */
   public ComponentInfoList findComponentInfosForQuery(String userName,
     String terminology, String version, String queryStr, PfsParameter pfs)
-      throws Exception;
+    throws Exception;
 
   /**
    * Gets the note.
@@ -1814,7 +1824,8 @@ public interface ContentService extends MetadataService {
    * @return the note
    * @throws Exception the exception
    */
-  public Note getNote(Long id, Class<? extends Note> noteClass) throws Exception;
+  public Note getNote(Long id, Class<? extends Note> noteClass)
+    throws Exception;
 
   /**
    * Find code notes for user.

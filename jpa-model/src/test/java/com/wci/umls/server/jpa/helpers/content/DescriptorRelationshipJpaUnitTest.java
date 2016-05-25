@@ -197,7 +197,7 @@ public class DescriptorRelationshipJpaUnitTest {
 
     rel.setFrom(fromDescriptor);
     rel.setTo(toDescriptor);
-    rel.addAttribute(att);
+    rel.getAttributes().add(att);
 
     DescriptorRelationship rel2 = new DescriptorRelationshipJpa(rel, false);
     assertEquals(0, rel2.getAttributes().size());

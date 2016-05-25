@@ -30,17 +30,5 @@ public interface HasMembers<T extends SubsetMember<? extends ComponentHasAttribu
    */
   public void setMembers(List<T> members);
 
-  /**
-   * Adds a member.
-   * 
-   * @param member the member
-   */
-  public void addMember(T member);
 
-  /**
-   * Removes the member.
-   *
-   * @param member the member
-   */
-  public void removeMember(T member);
 }

@@ -113,17 +113,13 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
     toVersion = mapSet.getToVersion();
     if (deepCopy) {
       for (Mapping mapping : mapSet.getMappings()) {
-        addMapping(new MappingJpa(mapping, deepCopy));
+        getMappings().add(new MappingJpa(mapping, deepCopy));
       }
     }
 
   }
 
-  /**
-   * Gets the name.
-   *
-   * @return the name
-   */
+  /* see superclass */
   @Override
   @Fields({
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
@@ -133,121 +129,73 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
     return name;
   }
 
-  /**
-   * Sets the name.
-   *
-   * @param name the new name
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /**
-   * Gets the from complexity.
-   *
-   * @return the from complexity
-   */
+  /* see superclass */
   @Override
   public String getFromComplexity() {
     return fromComplexity;
   }
 
-  /**
-   * Sets the from complexity.
-   *
-   * @param fromComplexity the new from complexity
-   */
+  /* see superclass */
   @Override
   public void setFromComplexity(String fromComplexity) {
     this.fromComplexity = fromComplexity;
   }
 
-  /**
-   * Gets the to complexity.
-   *
-   * @return the to complexity
-   */
+  /* see superclass */
   @Override
   public String getToComplexity() {
     return toComplexity;
   }
 
-  /**
-   * Sets the to complexity.
-   *
-   * @param toComplexity the new to complexity
-   */
+  /* see superclass */
   @Override
   public void setToComplexity(String toComplexity) {
     this.toComplexity = toComplexity;
   }
 
-  /**
-   * Gets the to exhaustive.
-   *
-   * @return the to exhaustive
-   */
+  /* see superclass */
   @Override
   public String getToExhaustive() {
     return toExhaustive;
   }
 
-  /**
-   * Gets the from exhaustive.
-   *
-   * @return the from exhaustive
-   */
+  /* see superclass */
   @Override
   public String getFromExhaustive() {
     return fromExhaustive;
   }
 
-  /**
-   * Sets the to exhaustive.
-   *
-   * @param toExhaustive the new to exhaustive
-   */
+  /* see superclass */
   @Override
   public void setToExhaustive(String toExhaustive) {
     this.toExhaustive = toExhaustive;
   }
 
-  /**
-   * Sets the from exhaustive.
-   *
-   * @param fromExhaustive the new from exhaustive
-   */
+  /* see superclass */
   @Override
   public void setFromExhaustive(String fromExhaustive) {
     this.fromExhaustive = fromExhaustive;
   }
 
-  /**
-   * Sets the type.
-   *
-   * @param type the new type
-   */
+  /* see superclass */
   @Override
   public void setType(String type) {
     this.type = type;
   }
 
-  /**
-   * Gets the type.
-   *
-   * @return the type
-   */
+  /* see superclass */
   @Override
   public String getType() {
     return type;
   }
 
-  /**
-   * Gets the mappings.
-   *
-   * @return the mappings
-   */
+  /* see superclass */
   @XmlElement(type = MappingJpa.class)
   @Override
   public List<Mapping> getMappings() {
@@ -257,141 +205,71 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
     return mappings;
   }
 
-  /**
-   * Sets the mappings.
-   *
-   * @param mappings the new mappings
-   */
+  /* see superclass */
   @Override
   public void setMappings(List<Mapping> mappings) {
     this.mappings = mappings;
   }
 
-  /**
-   * Adds the mapping.
-   *
-   * @param mapping the mapping
-   */
-  @Override
-  public void addMapping(Mapping mapping) {
-    if (mappings == null) {
-      mappings = new ArrayList<>();
-    }
-    mappings.add(mapping);
-  }
-
-  /**
-   * Removes the mapping.
-   *
-   * @param mapping the mapping
-   */
-  @Override
-  public void removeMapping(Mapping mapping) {
-    if (mappings == null) {
-      mappings = new ArrayList<>();
-    }
-    mappings.remove(mapping);
-  }
-
-  /**
-   * Gets the from terminology.
-   *
-   * @return the from terminology
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminology() {
     return fromTerminology;
   }
 
-  /**
-   * Sets the from terminology.
-   *
-   * @param fromTerminology the new from terminology
-   */
+  /* see superclass */
   @Override
   public void setFromTerminology(String fromTerminology) {
     this.fromTerminology = fromTerminology;
   }
 
-  /**
-   * Gets the to terminology.
-   *
-   * @return the to terminology
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminology() {
     return toTerminology;
   }
 
-  /**
-   * Sets the to terminology.
-   *
-   * @param toTerminology the new to terminology
-   */
+  /* see superclass */
   @Override
   public void setToTerminology(String toTerminology) {
     this.toTerminology = toTerminology;
   }
 
-  /**
-   * Gets the from version.
-   *
-   * @return the from version
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromVersion() {
     return fromVersion;
   }
 
-  /**
-   * Sets the from version.
-   *
-   * @param fromVersion the new from version
-   */
+  /* see superclass */
   @Override
   public void setFromVersion(String fromVersion) {
     this.fromVersion = fromVersion;
   }
 
-  /**
-   * Gets the to version.
-   *
-   * @return the to version
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToVersion() {
     return toVersion;
   }
 
-  /**
-   * Sets the to version.
-   *
-   * @param toVersion the new to version
-   */
+  /* see superclass */
   @Override
   public void setToVersion(String toVersion) {
     this.toVersion = toVersion;
   }
 
-  /**
-   * Gets the complexity.
-   *
-   * @return the complexity
-   */
+  /* see superclass */
   @Override
   public String getComplexity() {
     return complexity;
   }
 
-  /**
-   * Sets the complexity.
-   *
-   * @param complexity the new complexity
-   */
+  /* see superclass */
   @Override
   public void setComplexity(String complexity) {
     this.complexity = complexity;

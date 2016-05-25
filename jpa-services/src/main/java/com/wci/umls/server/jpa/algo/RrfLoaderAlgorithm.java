@@ -1033,7 +1033,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final Definition def = new DefinitionJpa();
       final Atom atom = getAtom(atomIdMap.get(fields[1]));
 
-      atom.addDefinition(def);
+      atom.getDefinitions().add(def);
       modifiedAtoms.add(atom);
 
       def.setTimestamp(releaseVersionDate);
@@ -1173,7 +1173,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       } else if (fields[4].equals("AUI")) {
         // Get the concept for the AUI
         Atom atom = getAtom(atomIdMap.get(fields[3]));
-        atom.addAttribute(att);
+        atom.getAttributes().add(att);
         addAttribute(att, atom);
       }
       // Special case of a CODE attribute where the AUI has "NOCODE" as the code
@@ -1184,13 +1184,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           && atomCodeIdMap.get(fields[3]).equals("NOCODE")) {
         // Get the concept for the AUI
         final Atom atom = getAtom(atomIdMap.get(fields[3]));
-        atom.addAttribute(att);
+        atom.getAttributes().add(att);
         addAttribute(att, atom);
       } else if (fields[4].equals("RUI")) {
         // Get the relationship for the RUI
         final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship =
             getRelationship(relationshipMap.get(fields[3]), null);
-        relationship.addAttribute(att);
+        relationship.getAttributes().add(att);
         addAttribute(att, relationship);
       } else if (codesFlag && fields[4].equals("CODE")) {
         final Long codeId =
@@ -1204,7 +1204,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         } else {
           // Get the code for the terminology and CODE of the AUI
           final Code code = getCode(codeId);
-          code.addAttribute(att);
+          code.getAttributes().add(att);
           addAttribute(att, code);
         }
       } else if (fields[4].equals("CUI")) {
@@ -1213,7 +1213,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         att.setVersion(getVersion());
         final Concept concept =
             getConcept(conceptIdMap.get(getTerminology() + fields[0]));
-        concept.addAttribute(att);
+        concept.getAttributes().add(att);
         addAttribute(att, concept);
       } else if (fields[4].equals("SCUI")) {
         // Get the concept for the terminology and SCUI of the AUI
@@ -1230,7 +1230,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           final Concept concept =
               getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[3])
                   + atomConceptIdMap.get(fields[3])));
-          concept.addAttribute(att);
+          concept.getAttributes().add(att);
           addAttribute(att, concept);
         }
       } else if (fields[4].equals("SDUI")) {
@@ -1246,7 +1246,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         } else {
           // Get the descriptor for the terminology and SDUI of the AUI
           final Descriptor descriptor = getDescriptor(descriptorId);
-          descriptor.addAttribute(att);
+          descriptor.getAttributes().add(att);
           addAttribute(att, descriptor);
         }
       }
@@ -1486,8 +1486,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapping.setRule(fields[20]);
       mapping.setAdvice(fields[21]);
       // AVOID using these
-      // mapping.addAttribute(makeAttribute("MAPATN", fields[23]));
-      // mapping.addAttribute(makeAttribute("MAPATV", fields[24]));
+      // mapping.getAttributes().add(makeAttribute("MAPATN", fields[23]));
+      // mapping.getAttributes().add(makeAttribute("MAPATV", fields[24]));
 
       mapping.setTimestamp(releaseVersionDate);
       mapping.setLastModified(releaseVersionDate);
@@ -1515,34 +1515,34 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Make mapping attributes
       if (fields[4] != null && !fields[4].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "MAPID", fields[4]));
+        mapping.getAttributes().add(makeAttribute(mapping, "MAPID", fields[4]));
       }
       if (fields[5] != null && !fields[5].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "MAPSID", fields[5]));
+        mapping.getAttributes().add(makeAttribute(mapping, "MAPSID", fields[5]));
       }
       if (fields[6] != null && !fields[6].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "FROMID", fields[6]));
+        mapping.getAttributes().add(makeAttribute(mapping, "FROMID", fields[6]));
       }
       if (fields[7] != null && !fields[7].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "FROMSID", fields[7]));
+        mapping.getAttributes().add(makeAttribute(mapping, "FROMSID", fields[7]));
       }
       if (fields[10] != null && !fields[10].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "FROMRULE", fields[10]));
+        mapping.getAttributes().add(makeAttribute(mapping, "FROMRULE", fields[10]));
       }
       if (fields[11] != null && !fields[11].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "FROMRES", fields[11]));
+        mapping.getAttributes().add(makeAttribute(mapping, "FROMRES", fields[11]));
       }
       if (fields[14] != null && !fields[14].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "TOID", fields[14]));
+        mapping.getAttributes().add(makeAttribute(mapping, "TOID", fields[14]));
       }
       if (fields[15] != null && !fields[15].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "TOSID", fields[15]));
+        mapping.getAttributes().add(makeAttribute(mapping, "TOSID", fields[15]));
       }
       if (fields[18] != null && !fields[18].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "TORULE", fields[18]));
+        mapping.getAttributes().add(makeAttribute(mapping, "TORULE", fields[18]));
       }
       if (fields[19] != null && !fields[19].equals("")) {
-        mapping.addAttribute(makeAttribute(mapping, "TORES", fields[19]));
+        mapping.getAttributes().add(makeAttribute(mapping, "TORES", fields[19]));
       }
 
       // mapSet.addMapping(mapping);
@@ -1663,7 +1663,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       att.setTerminology(mapSet.getTerminology());
       att.setVersion(mapSet.getVersion());
       att.setTerminologyId(satui);
-      mapSet.addAttribute(att);
+      mapSet.getAttributes().add(att);
     } else if (atn.equals("MAPSETXRTARGETID")) {
       Attribute att = new AttributeJpa();
       att.setName("MAPSETXRTARGETID");
@@ -1678,7 +1678,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       att.setTerminology(mapSet.getTerminology());
       att.setVersion(mapSet.getVersion());
       att.setTerminologyId(satui);
-      mapSet.addAttribute(att);
+      mapSet.getAttributes().add(att);
     } else if (atn.equals("MAPSETRSAB")) {
       // If really a metathesaurus mapping, use terminology/version
       if (atv.equals(proxySab)) {
@@ -1896,7 +1896,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
           // This member is not yet committed, so no need for an
           // "updateSubsetMember" call.
-          member.addAttribute(memberAtt);
+          member.getAttributes().add(memberAtt);
 
         }
 
@@ -2242,7 +2242,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
       final Concept concept =
           getConcept(conceptIdMap.get(getTerminology() + fields[0]));
-      concept.addSemanticType(sty);
+      concept.getSemanticTypes().add(sty);
       modifiedConcepts.add(concept);
 
       sty.setTimestamp(releaseVersionDate);
@@ -2457,7 +2457,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           cui.setVersion(getVersion());
           cui.setWorkflowStatus(published);
         }
-        cui.addAtom(atom);
+        cui.getAtoms().add(atom);
         prevCui = fields[0];
       }
 
@@ -2539,7 +2539,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         cui.setVersion(atom.getVersion());
         cui.setWorkflowStatus(published);
       }
-      cui.addAtom(atom);
+      cui.getAtoms().add(atom);
       prevCui = atom.getConceptId();
     }
     if (cui != null) {
@@ -2589,7 +2589,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         dui.setVersion(atom.getVersion());
         dui.setWorkflowStatus(published);
       }
-      dui.addAtom(atom);
+      dui.getAtoms().add(atom);
       prevDui = atom.getDescriptorId();
     }
     if (dui != null) {
@@ -2655,7 +2655,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           code.setVersion(atom.getVersion());
           code.setWorkflowStatus(published);
         }
-        code.addAtom(atom);
+        code.getAtoms().add(atom);
         prevCode = atom.getCodeId();
       }
       if (code != null) {

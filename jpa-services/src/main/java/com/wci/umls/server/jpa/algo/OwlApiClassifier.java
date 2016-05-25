@@ -301,7 +301,7 @@ public class OwlApiClassifier implements Classifier {
         ConceptRelationship rel = getSubClassOfRelationship(chd, par);
         Logger.getLogger(getClass()).debug("  add relationship - " + rel);
         service.addRelationship(rel);
-        chd.addRelationship(rel);
+        chd.getRelationships().add(rel);
         service.logAndCommit(++objectCt, RootService.logCt,
             RootService.commitCt);
       }
@@ -450,7 +450,7 @@ public class OwlApiClassifier implements Classifier {
         rel2.setId(null);
         Logger.getLogger(getClass()).debug("  add relationship - " + rel);
         service.addRelationship(rel2);
-        chdConcept.addRelationship(rel2);
+        chdConcept.getRelationships().add(rel2);
         service.logAndCommit(++localCt + ct, RootService.logCt,
             RootService.commitCt);
       }

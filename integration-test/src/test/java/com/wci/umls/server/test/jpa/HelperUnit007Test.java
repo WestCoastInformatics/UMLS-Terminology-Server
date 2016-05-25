@@ -80,7 +80,7 @@ public class HelperUnit007Test {
     sty.setId(1L);
     sty.setTerminologyId("1");
     sty.setSemanticType("Clinical Drug");
-    concept.addSemanticType(sty);
+    concept.getSemanticTypes().add(sty);
     Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
     assertTrue(ReportHelper.getConceptReport(concept).contains("CONCEPT = "));
     assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
@@ -95,7 +95,7 @@ public class HelperUnit007Test {
     atom.setName("1");
     atom.setTermType("1");
     atom.setConceptId(concept.getTerminologyId());
-    concept.addAtom(atom);
+    concept.getAtoms().add(atom);
 
     Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
     assertTrue(ReportHelper.getConceptReport(concept).contains("CONCEPT = "));
@@ -111,7 +111,7 @@ public class HelperUnit007Test {
     r.setRelationshipType("1");
     r.setFrom(concept);
     r.setTo(concept);
-    concept.addRelationship(r);
+    concept.getRelationships().add(r);
     Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
     assertTrue(ReportHelper.getConceptReport(concept).contains("CONCEPT = "));
     assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
@@ -124,7 +124,7 @@ public class HelperUnit007Test {
     def.setId(1L);
     def.setTerminologyId("1");
     def.setValue("1");
-    concept.addDefinition(def);
+    concept.getDefinitions().add(def);
     Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
     assertTrue(ReportHelper.getConceptReport(concept).contains("CONCEPT = "));
     assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
@@ -133,8 +133,8 @@ public class HelperUnit007Test {
     assertTrue(ReportHelper.getConceptReport(concept).contains("REL = "));
     assertTrue(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
-    concept.removeDefinition(def);
-    atom.addDefinition(def);
+    concept.getDefinitions().remove(def);
+    atom.getDefinitions().add(def);
     Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
     assertTrue(ReportHelper.getConceptReport(concept).contains("CONCEPT = "));
     assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
@@ -148,7 +148,7 @@ public class HelperUnit007Test {
     att.setId(1L);
     att.setTerminologyId("1");
     att.setValue("1");
-    concept.addAttribute(att);
+    concept.getAttributes().add(att);
     Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
     assertTrue(ReportHelper.getConceptReport(concept).contains("CONCEPT = "));
     assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
@@ -158,8 +158,8 @@ public class HelperUnit007Test {
     assertTrue(ReportHelper.getConceptReport(concept).contains("REL = "));
     assertTrue(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
-    concept.removeAttribute(att);
-    atom.addAttribute(att);
+    concept.getAttributes().add(att);
+    atom.getAttributes().add(att);
     Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
     assertTrue(ReportHelper.getConceptReport(concept).contains("CONCEPT = "));
     assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
@@ -174,7 +174,7 @@ public class HelperUnit007Test {
     ar.setRelationshipType("1");
     ar.setFrom(atom);
     ar.setTo(atom);
-    atom.addRelationship(ar);
+    atom.getRelationships().add(ar);
     Logger.getLogger(getClass()).info(ReportHelper.getAtomReport(atom));
     assertTrue(ReportHelper.getAtomReport(atom).contains("ATOM = "));
     assertTrue(ReportHelper.getAtomReport(atom).contains("ATT = "));
