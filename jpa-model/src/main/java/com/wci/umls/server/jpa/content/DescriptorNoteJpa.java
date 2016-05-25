@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.Descriptor;
 @Table(name = "descriptor_notes")
 @Audited
 @Indexed
-@XmlRootElement(name = "note")
+@XmlRootElement(name = "descriptorNote")
 public class DescriptorNoteJpa extends AbstractNote {
 
   /** The descriptor. */
@@ -115,4 +115,38 @@ public class DescriptorNoteJpa extends AbstractNote {
     }
     descriptor.setId(descriptorId);
   }
+
+  /* see superclass */
+  @Override
+  public String toString() {
+    return "DescriptorNoteJpa [descriptorId=" + getDescriptorId() + "] " + super.toString();
+  }
+
+  /* see superclass */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((getDescriptorId() == null) ? 0 : getDescriptorId().hashCode());
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    DescriptorNoteJpa other = (DescriptorNoteJpa) obj;
+    if (getDescriptorId() == null) {
+      if (other.getDescriptorId() != null)
+        return false;
+    } else if (!getDescriptorId().equals(other.getDescriptorId()))
+      return false;
+    return true;
+  }
+  
 }

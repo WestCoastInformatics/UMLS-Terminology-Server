@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.Code;
 @Table(name = "code_notes")
 @Audited
 @Indexed
-@XmlRootElement(name = "note")
+@XmlRootElement(name = "codeNote")
 public class CodeNoteJpa extends AbstractNote {
 
   /** The code. */
@@ -113,5 +113,39 @@ public class CodeNoteJpa extends AbstractNote {
       code = new CodeJpa();
     }
     code.setId(codeId);
+  }
+  
+
+  /* see superclass */
+  @Override
+  public String toString() {
+    return "CodeNoteJpa [codeId=" + getCodeId() + "] " + super.toString();
+  }
+
+  /* see superclass */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((getCodeId() == null) ? 0 : getCodeId().hashCode());
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    CodeNoteJpa other = (CodeNoteJpa) obj;
+    if (getCodeId() == null) {
+      if (other.getCodeId() != null)
+        return false;
+    } else if (!getCodeId().equals(other.getCodeId()))
+      return false;
+    return true;
   }
 }

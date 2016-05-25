@@ -12,12 +12,12 @@ import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.content.RelationshipList;
-import com.wci.umls.server.jpa.content.AbstractRelationship;
+import com.wci.umls.server.jpa.content.AbstractNote;
 
 /**
  * JAXB enabled implementation of {@link RelationshipList}.
  */
-@XmlRootElement(name = "relationshipList")
+@XmlRootElement(name = "noteList")
 public class NoteListJpa
     extends
     AbstractResultList<Note>
@@ -25,7 +25,7 @@ public class NoteListJpa
 
   /* see superclass */
   @Override
-  @XmlElement(type = AbstractRelationship.class, name = "relationships")
+  @XmlElement(type = AbstractNote.class, name = "notes")
   public List<Note> getObjects() {
     return super.getObjectsTransient();
   }

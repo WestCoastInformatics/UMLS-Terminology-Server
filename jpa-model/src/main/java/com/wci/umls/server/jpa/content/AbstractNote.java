@@ -89,27 +89,7 @@ public abstract class AbstractNote implements Note {
     this.id = id;
   }
 
-  /**
-   * Gets the object id.
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return id == null ? "" : id.toString();
-  }
-
-  /**
-   * Sets the object id.
-   *
-   * @param id the new object id
-   */
-  public void setObjectId(String id) {
-    if (id != null) {
-      this.id = Long.parseLong(id);
-    }
-  }
-
+  
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -162,5 +142,46 @@ public abstract class AbstractNote implements Note {
   public String getNote() {
     return this.note;
   }
+
+  @Override
+  public String toString() {
+    return "AbstractNote [id=" + id + ", timestamp=" + timestamp
+        + ", lastModified=" + lastModified + ", lastModifiedBy="
+        + lastModifiedBy + ", note=" + note + "]";
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result
+        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result = prime * result + ((note == null) ? 0 : note.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    AbstractNote other = (AbstractNote) obj;
+    if (lastModifiedBy == null) {
+      if (other.lastModifiedBy != null)
+        return false;
+    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
+      return false;
+    if (note == null) {
+      if (other.note != null)
+        return false;
+    } else if (!note.equals(other.note))
+      return false;
+    return true;
+  }
+  
+  
 
 }
