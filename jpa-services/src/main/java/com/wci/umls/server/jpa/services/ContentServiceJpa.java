@@ -2410,7 +2410,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).info("Content Service - find concepts "
         + terminology + "/" + version + "/" + query);
     SearchResultList results = findForQueryHelper(terminology, version, branch,
-        query, pfsc, ConceptJpa.class, ConceptJpa.class);
+        query, pfs, ConceptJpa.class, ConceptJpa.class);
     for (SearchResult result : results.getObjects()) {
       result.setType(IdType.CONCEPT);
     }
@@ -2435,7 +2435,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).info("Content Service - find descriptors "
         + terminology + "/" + version + "/" + query);
     SearchResultList results = findForQueryHelper(terminology, version, branch,
-        query, pfsc, DescriptorJpa.class, DescriptorJpa.class);
+        query, pfs, DescriptorJpa.class, DescriptorJpa.class);
     for (SearchResult result : results.getObjects()) {
       result.setType(IdType.DESCRIPTOR);
     }
@@ -2494,8 +2494,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       // if results found, constuct a query restriction
       if (exprResults.getCount() > 0) {
-        String exprQueryRestr = (pfsc.getQueryRestriction() != null
-            && !pfsc.getQueryRestriction().isEmpty() ? " AND " : "")
+        String exprQueryRestr = (pfs.getQueryRestriction() != null
+            && !pfs.getQueryRestriction().isEmpty() ? " AND " : "")
             + "terminologyId:(";
         for (SearchResult exprResult : exprResults.getObjects()) {
           exprQueryRestr += exprResult.getTerminologyId() + " ";
@@ -2523,7 +2523,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // if no expression, or expression with results, perform lucene query
     if (exprResults == null || exprResults.getCount() > 0) {
       luceneResults = searchHandler.getQueryResults(terminology, version,
-          branch, query, "atoms.nameSort", fieldNamesKey, clazz, localPfsc,
+          branch, query, "atoms.nameSort", fieldNamesKey, clazz, localPfs,
           totalCt, manager);
       Logger.getLogger(getClass())
           .debug("    lucene result count = " + luceneResults.size());
@@ -2764,7 +2764,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).info("Content Service - find codes "
         + terminology + "/" + version + "/" + query);
     SearchResultList results = findForQueryHelper(terminology, version, branch,
-        query, pfsc, CodeJpa.class, CodeJpa.class);
+        query, pfs, CodeJpa.class, CodeJpa.class);
     for (SearchResult result : results.getObjects()) {
       result.setType(IdType.CODE);
     }
@@ -4587,7 +4587,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (ConceptNoteJpa note : luceneResults) {
-      results.addObject(note);
+      results.getObjects().add(note);
     }
     return results;
   }
@@ -4603,7 +4603,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (DescriptorNoteJpa note : luceneResults) {
-      results.addObject(note);
+      results.getObjects().add(note);
     }
     return results;
   }
@@ -4619,7 +4619,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (CodeNoteJpa note : luceneResults) {
-      results.addObject(note);
+      results.getObjects().add(note);
     }
    
     return results;

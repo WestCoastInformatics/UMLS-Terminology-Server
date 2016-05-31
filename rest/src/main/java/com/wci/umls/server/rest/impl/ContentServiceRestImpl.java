@@ -881,7 +881,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Empty queries return all results
       final SearchResultList sr = contentService.findConceptsForQuery(
-          terminology, version, Branch.ROOT, queryStr, pfsc);
+          terminology, version, Branch.ROOT, queryStr, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1069,7 +1069,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Empty queries return all results
       final SearchResultList sr = contentService.findDescriptorsForQuery(
-          terminology, version, Branch.ROOT, queryStr, pfsc);
+          terminology, version, Branch.ROOT, queryStr, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1220,7 +1220,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Empty queries returns all results
       final SearchResultList sr = contentService.findCodesForQuery(terminology,
-          version, Branch.ROOT, queryStr, pfsc);
+          version, Branch.ROOT, queryStr, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -3324,7 +3324,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         sr.setValue(conceptNote.getConcept().getName());
 
         if (!results.contains(sr)) {
-          results.addObject(sr);
+          results.getObjects().add(sr);
         }
       }
 
@@ -3343,7 +3343,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         sr.setValue(descriptorNote.getDescriptor().getName());
 
         if (!results.contains(sr)) {
-          results.addObject(sr);
+          results.getObjects().add(sr);
         }
       }
 
@@ -3363,7 +3363,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         sr.setValue(codeNote.getCode().getName());
 
         if (!results.contains(sr)) {
-          results.addObject(sr);
+          results.getObjects().add(sr);
         }
       }
 

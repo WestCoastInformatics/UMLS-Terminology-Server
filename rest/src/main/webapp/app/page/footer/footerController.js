@@ -40,6 +40,14 @@ tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', '$sce', 'gpService',
         scope.getGlassPaneCounter = function() {
           return gpService.glassPane.counter;
         };
+        
+        // get truncated version (no dashed content)
+        scope.getTruncatedVersion = function(version) {
+          if (version && version.indexOf('-') != -1) {
+            return version.substring(0, version.indexOf('-'));
+          }
+          else return version;
+        }
       }
     };
   } ]);

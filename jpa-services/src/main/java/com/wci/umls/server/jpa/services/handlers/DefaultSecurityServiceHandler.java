@@ -50,8 +50,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     if (getAdminUsersFromConfigFile().contains(username)) {
       user.setApplicationRole(UserRole.ADMINISTRATOR);
       user.setUserName(username);
-      user.setName(username.substring(0, 1).toUpperCase()
-          + username.substring(1));
+      user.setName(
+          username.substring(0, 1).toUpperCase() + username.substring(1));
       user.setEmail(username + "@example.com");
       return user;
     }
@@ -59,14 +59,20 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     if (getViewerUsersFromConfigFile().contains(username)) {
       user.setApplicationRole(UserRole.VIEWER);
       user.setUserName(username);
-      user.setName(username.substring(0, 1).toUpperCase()
-          + username.substring(1));
+      user.setName(
+          username.substring(0, 1).toUpperCase() + username.substring(1));
       user.setEmail(username + "@example.com");
       return user;
     }
 
-    // if user not specified, return null
-    return null;
+    // return new user with USER role
+
+    user.setApplicationRole(UserRole.USER);
+    user.setUserName(username);
+    user.setName(
+        username.substring(0, 1).toUpperCase() + username.substring(1));
+    user.setEmail(username + "@example.com");
+    return user;
   }
 
   /**
@@ -110,10 +116,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     String userList = properties.getProperty("users.viewer");
 
     if (userList == null) {
-      Logger
-          .getLogger(getClass())
-          .warn(
-              "Could not retrieve config parameter users.viewer for security handler DEFAULT");
+      Logger.getLogger(getClass()).warn(
+          "Could not retrieve config parameter users.viewer for security handler DEFAULT");
       return userSet;
     }
 
@@ -135,10 +139,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     Logger.getLogger(getClass()).info(properties.keySet());
 
     if (userList == null) {
-      Logger
-          .getLogger(getClass())
-          .warn(
-              "Could not retrieve config parameter users.admin for security handler DEFAULT");
+      Logger.getLogger(getClass()).warn(
+          "Could not retrieve config parameter users.admin for security handler DEFAULT");
       return userSet;
     }
 
