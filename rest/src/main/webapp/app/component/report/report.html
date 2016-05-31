@@ -16,7 +16,7 @@
     <span style="padding-bottom: 2px;"
       ng-show="metadata.terminology.descriptionLogicTerminology && component.fullyDefined"
       class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
-       </h3>
+  </h3>
   <!-- Buttons for suppressible/obsolete -->
   <!--  NOTE: descriptionLogicTerminologies ALWAYS show obsolete/suppressible
   but the button does not appear -->
@@ -24,7 +24,7 @@
     <span ng-show="showHidden">Hide</span>
     <span ng-show="!showHidden">Show </span>
     <span ng-show="metadata.obsoleteLabel">{{metadata.obsoleteLabel}}</span>
-    <span ng-show="!metadata.obsoleteLabel">Suppressible & Obsolete</span>
+    <span ng-show="!metadata.obsoleteLabel">Suppressible &amp; Obsolete</span>
   </button>
   <!-- Hierarchical tree -->
   <div tree-component component="component" metadata="metadata"
