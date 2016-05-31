@@ -8,19 +8,20 @@
     ng-show="getViewableTerminologies().length > 0">
     <form style="margin-bottom: 0px;">
       <div class="row m10">
-        <div class="col-md-2 col-xs-3">Terminology</div>
-        <div class="col-md-10 col-xs-9">
+        <div class="col-md-1 col-xs-3">Terminology</div>
+        <div class="col-md-11 col-xs-9">
           <select ng-model="metadata.terminology"
             ng-change="setTerminology(metadata.terminology)"
             ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'">
           </select>
-          <button ng-show="!metadata.terminology.metathesaurus" type="button"
+          <button style="margin-left: 15px;"
+            ng-show="!metadata.terminology.metathesaurus" type="button"
             class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
             uib-tooltip="Click to browse top level hierarchy">Browse</button>
         </div>
       </div>
       <div class="row m10">
-        <div class="col-md-2 col-xs-3"
+        <div class="col-md-1 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Query
           <span class="pull-right">
@@ -30,9 +31,9 @@
               tooltip-placement="bottom-right"></i>
           </span>
         </div>
-        <div class="col-md-7 col-xs-9">
+        <div class="col-md-11 col-xs-9">
           <div class="row">
-            <div class="col-md-8 col-xs-12">
+            <div class="col-md-6 col-xs-12">
               <input autofocus style="margin-bottom: 5px; width: 100%;"
                 type="text" ng-model="searchParams.query"
                 placeholder="Enter search terms"
@@ -42,7 +43,7 @@
                 typeahead-on-select="searchParams.page = 1 && findComponents(true)"
                 typeahead-editable="true" typeahead-min-length="3">
             </div>
-            <div class="col-md-4 col-xs-12">
+            <div class="col-md-4 col-xs-12" style="padding-left: 0px;">
               <button class="btn btn-sm btn-primary" type="submit"
                 ng-click="performNewSearch()">Search</button>
               <button class="btn btn-sm btn-warning" type="button"
@@ -60,13 +61,13 @@
   <div class="col-md-4 col-xs-12">
     <div ng-show="searchParams.advancedMode">
       <div ng-show="metadata.semanticTypes.length > 1" class="row m10">
-        <div class="col-md-6 col-xs-3"
+        <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
           Semantic Type <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.semanticType"
             ng-click="searchParams.semanticType = null;"></i>
         </div>
-        <div class="col-md-6 col-xs-9">
+        <div class="col-md-8 col-xs-8">
           <select style="margin-bottom: 5px; width: 100%;"
             ng-show="metadata.semanticTypes"
             ng-model="searchParams.semanticType"
@@ -79,13 +80,13 @@
       <div
         ng-show="metadata.terminology.metathesaurus && metadata.termTypes.length > 1"
         class="row m10">
-        <div class="col-md-6 col-xs-3"
+        <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
           Term Type <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.termType"
             ng-click="searchParams.termType = null;"></i>
         </div>
-        <div class="col-md-6 col-xs-9">
+        <div class="col-md-8 col-xs-8">
           <select style="margin-bottom: 5px; width: 100%" type="text"
             ng-options="termType.key as termType.key + ' / ' + termType.value for termType in metadata.termTypes"
             ng-model="searchParams.termType">
@@ -95,13 +96,13 @@
       </div>
       <!-- Only show match terminology for metathesaurus -->
       <div ng-show="metadata.terminology.metathesaurus" class="row m10">
-        <div class="col-md-6 col-xs-3"
+        <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
           Match Terminology <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.matchTerminology"
             ng-click="searchParams.matchTerminology = null;"></i>
         </div>
-        <div class="col-md-6 col-xs-9">
+        <div class="col-md-8 col-xs-8">
           <select style="margin-bottom: 5px; width: 100%" type="text"
             ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"
             ng-model="searchParams.matchTerminology">
@@ -111,13 +112,13 @@
       </div>
       <!--  Show only if more than one language -->
       <div ng-show="metadata.languages.length > 1" class="row m10">
-        <div class="col-md-6 col-xs-3"
+        <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
           Language <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.language"
             ng-click="searchParams.language = null;"></i>
         </div>
-        <div class="col-md-6 col-xs-9">
+        <div class="col-md-8 col-xs-8">
           <select style="margin-bottom: 5px; width: 100%" type="text"
             ng-options="language.key as language.key + ' / ' + language.value for language in metadata.languages"
             ng-model="searchParams.language">
@@ -128,7 +129,7 @@
       <!-- Expressions -->
       <div ng-show="metadata.terminology.descriptionLogicTerminology">
         <div class="row m10">
-          <div class="col-md-3 col-xs-3"
+          <div class="col-md-4 col-xs-4"
             style="margin-right: 0px; padding-right: 0px;">
             Expression <i class="glyphicon glyphicon-remove pull-right"
               ng-show="searchParams.expression.value"
@@ -140,7 +141,7 @@
               ng-model="searchParams.expression">
             </select>
           </div>
-          <div class="col-md-6 col-xs-6">
+          <div class="col-md-5 col-xs-5">
             <div ng-repeat="(k,v) in searchParams.expression.fields">
               <input style="margin-left: 10px; width: 80%" placeholder="{{k}}"
                 title="{{searchParams.expression.fields[k]}}"
@@ -154,32 +155,30 @@
           </div>
         </div>
         <div class="row m10">
-          <div class="col-md-6 col-xs-3"
+          <div class="col-md-4 col-xs-4"
             style="margin-right: 0px; padding-right: 0px;"></div>
-          <div class="col-md-6 col-xs-9">
-            <textarea placeholder="Enter raw expression"
+          <div class="col-md-8 col-xs-8">
+            <textarea placeholder="Expression text"
               style="margin-bottom: 5px; width: 100%;"
-              ng-show="searchParams.expression.isRawInput"
+              ng-disabled="!searchParams.expression.isRawInput"
               ng-model="searchParams.expression.value"></textarea>
           </div>
         </div>
-        
       </div>
       <!--  Show note searching for non-guest users only -->
-       
-        <div ng-show="!isGuestUser()" class="row m10">
-          <div class="col-md-6 col-xs-3"
-            style="margin-right: 0px; padding-right: 0px;">
-            Notes <i class="glyphicon glyphicon-remove pull-right"
-              ng-show="searchParams.userNote"
-              ng-click="searchParams.userNote = null;"></i>
-          </div>
-          <div class="col-md-6 col-xs-9">
-            <input placeholder="Search text"
-              style="margin-bottom: 5px; width: 100%;"
-              ng-model="searchParams.userNote"></input>
-          </div>
+      <div ng-show="!isGuestUser()" class="row m10">
+        <div class="col-md-4 col-xs-4"
+          style="margin-right: 0px; padding-right: 0px;">
+          Notes <i class="glyphicon glyphicon-remove pull-right"
+            ng-show="searchParams.userNote"
+            ng-click="searchParams.userNote = null;"></i>
         </div>
+        <div class="col-md-8 col-xs-8">
+          <input placeholder="Search text"
+            style="margin-bottom: 5px; width: 100%;"
+            ng-model="searchParams.userNote"></input>
+        </div>
+      </div>
       <!--  Feedback -->
       <div class="row m10">
         <div class="col-md-12 col-xs-12">
@@ -191,83 +190,94 @@
     <!-- End search controls-->
     <!-- Search Results -->
     <div ng-show="queryForList && searchResults.results">
-      <div class="alert alert-success">
-        Results ({{searchResults.totalCount}}) <i
+      <div class="alert alert-success"
+        ng-click="searchResultsCollapsed = !searchResultsCollapsed">
+        <i class="glyphicon"
+          ng-class="[{'glyphicon-chevron-right' : searchResultsCollapsed}, {'glyphicon-chevron-down' : !searchResultsCollapsed}]"></i>&nbsp;
+        Search Results ({{searchResults.totalCount}}) <i
           ng-show="!metadata.terminology.metathesaurus"
           class="pull-right glyphicon glyphicon-tree-conifer"
           ng-click="setTreeView()" uib-tooltip="Switch to tree view"
           tooltip-placement="right"></i>
       </div>
-      <!--  Margin added to prevent crowding -->
-      <uib-pagination items-per-page="pageSizes.general" max-size="5"
-        boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
-        next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-        ng-show="searchResults.totalCount > pageSizes.general"
-        total-items="searchResults.totalCount" ng-model="searchParams.page"
-        ng-change="findComponents(false)"></uib-pagination>
-      <table class="table table-hover" style="margin-top: 10px;"
-        ng-show="searchResults.results.length > 0">
-        <tbody>
-          <!-- table-hover makes use of the active class -->
-          <tr ng-class="{active: searchResult.active}"
-            ng-repeat="searchResult in searchResults.results"
-            ng-click="getComponent(metadata.terminology.organizingClassType, searchResult.terminologyId, searchResult.terminology, searchResult.version)">
-            <td>
-              <span class="nobreak">
-                <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
-                <span
-                  ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
-                <span class="breakword">{{searchResult.terminologyId}}</span>
-              </span>
-            </td>
-            <td>
-              <span class="breakword"> {{searchResult.value}}</span>
-              <span class="label label-default" ng-show="searchResult.obsolete"
-                uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p style="display: block;">&nbsp;</p>
-    </div>
-    <!-- Tree view -->
-    <div ng-show="queryForTree && searchResults.tree">
-      <div class="alert alert-success">
-        <span ng-show="searchOrBrowse === 'BROWSE'">Hierarchy</span>
-        <span ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search
-          Results</span>
-        <span ng-show="searchParams.query && searchResults.tree.totalCount == 0">No
-          Results</span>
-        <span ng-show="searchResults.tree.totalCount > 0">{{searchResults.tree.totalCount}}
-          Results</span>
-        <span class="pull-right">
-          <i class="glyphicon glyphicon-star"
-            ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
-            ng-click="toggleExtension()"
-            uib-tooltip="Click to hide extension highlights in tree"> </i> <i
-            class="glyphicon glyphicon-star-empty"
-            ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
-            ng-click="toggleExtension()"
-            uib-tooltip="Click to show extension highlights in tree"> </i>
-          &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
-            ng-click="setListView()" uib-tooltip="Switch to list view"
-            tooltip-placement="bottom"></i>
-        </span>
+      <div ng-show="!searchResultsCollapsed">
+        <!--  Margin added to prevent crowding -->
+        <uib-pagination items-per-page="pageSizes.general" max-size="5"
+          boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
+          next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+          ng-show="searchResults.totalCount > pageSizes.general"
+          total-items="searchResults.totalCount" ng-model="searchParams.page"
+          ng-change="findComponents(false)"></uib-pagination>
+        <table class="table table-hover" style="margin-top: 10px;"
+          ng-show="searchResults.results.length > 0">
+          <tbody>
+            <!-- table-hover makes use of the active class -->
+            <tr ng-class="{active: searchResult.active}"
+              ng-repeat="searchResult in searchResults.results"
+              ng-click="getComponent(metadata.terminology.organizingClassType, searchResult.terminologyId, searchResult.terminology, searchResult.version)">
+              <td>
+                <span class="nobreak">
+                  <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
+                  <span
+                    ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
+                  <span class="breakword">{{searchResult.terminologyId}}</span>
+                </span>
+              </td>
+              <td>
+                <span class="breakword"> {{searchResult.value}}</span>
+                <span class="label label-default"
+                  ng-show="searchResult.obsolete"
+                  uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="display: block;">&nbsp;</p>
       </div>
-      <uib-pagination style="display:block;" items-per-page="pageSizes.trees"
-        max-size="5" boundary-links="true" class="pagination-sm"
-        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
-        last-text="&raquo;"
-        ng-show="searchResults.tree.totalCount > pageSizes.trees"
-        total-items="searchResults.tree.totalCount" ng-model="searchParams.page"
-        ng-change="findComponents(false)"></uib-pagination>
-      <div tree-search-result metadata="metadata" search-results="searchResults"
-        parameters="searchParams" callbacks="srtCallbacks"></div>
-      <p style="display: block;">&nbsp;</p>
+      <!-- Tree view -->
+      <div ng-show="queryForTree && searchResults.tree">
+        <div class="alert alert-success">
+          <span ng-show="searchOrBrowse === 'BROWSE'">Hierarchy</span>
+          <span
+            ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search
+            Results</span>
+          <span
+            ng-show="searchParams.query && searchResults.tree.totalCount == 0">No
+            Results</span>
+          <span ng-show="searchResults.tree.totalCount > 0">{{searchResults.tree.totalCount}}
+            Results</span>
+          <span class="pull-right">
+            <i class="glyphicon glyphicon-star"
+              ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
+              ng-click="toggleExtension()"
+              uib-tooltip="Click to hide extension highlights in tree"> </i> <i
+              class="glyphicon glyphicon-star-empty"
+              ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
+              ng-click="toggleExtension()"
+              uib-tooltip="Click to show extension highlights in tree"> </i>
+            &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
+              ng-click="setListView()" uib-tooltip="Switch to list view"
+              tooltip-placement="bottom"></i>
+          </span>
+        </div>
+        <uib-pagination style="display:block;" items-per-page="pageSizes.trees"
+          max-size="5" boundary-links="true" class="pagination-sm"
+          previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+          last-text="&raquo;"
+          ng-show="searchResults.tree.totalCount > pageSizes.trees"
+          total-items="searchResults.tree.totalCount"
+          ng-model="searchParams.page" ng-change="findComponents(false)"></uib-pagination>
+        <div tree-search-result metadata="metadata"
+          search-results="searchResults" parameters="searchParams"
+          callbacks="srtCallbacks"></div>
+        <p style="display: block;">&nbsp;</p>
+      </div>
     </div>
     <!--  Favorites -->
     <div favorites="user.userPreferences.favorites" metadata="metadata"
       callbacks="favoritesCallbacks"></div>
+    <!--  Components with user notes -->
+    <div annotated-content metadata="metadata" callbacks="favoritesCallbacks"></div>
   </div>
   <div class="col-md-8 col-xs-12">
     <!-- error bar for reports section -->
@@ -308,20 +318,28 @@
         {{component.type}} Report <i
           class="glyphicon glyphicon-step-forward noul"
           ng-click="getComponentFromHistory(history.index + 1)"
-          ng-show="history.components.length > history.index + 1 && history.length > 0"
+          ng-show="history.components.length > history.index + 1 && history.components.length > 0"
           uib-tooltip="{{getComponentStr(history[history.index + 1])}}"></i>
-        &nbsp;&nbsp; <i ng-click="popout()"
+
+        &nbsp;&nbsp;
+        <!-- Popout control -->
+        <i ng-click="popout()"
           uib-tooltip="Open {{component.type}} in new window"
-          class="glyphicon glyphicon-share noul"></i> &nbsp;&nbsp; <i
-          ng-click="viewNotes()" uib-tooltip="Add/remove notes"
-          class="glyphicon glyphicon-book noul"></i> &nbsp;&nbsp; <i
-          ng-show="!isFavorite"
+          class="glyphicon glyphicon-share noul glyphicon-muted"></i> &nbsp;&nbsp;
+        <!-- Notes controls -->
+        <i ng-show="component.notes.length > 0" ng-click="viewNotes()" uib-tooltip="View, Add, or Remove Notes"
+          class="glyphicon glyphicon-tags noul glyphicon-muted"></i>
+          <i ng-show="component.notes.length == 0" ng-click="viewNotes()" uib-tooltip="Add Notes  "
+          class="glyphicon glyphicon-tag glyphicon-muted"></i>
+           &nbsp;&nbsp;
+        <!-- Favorite control -->
+        <i ng-show="!isFavorite"
           ng-click="toggleFavorite(component.type, component.terminology, component.version, component.terminologyId, component.name)"
           uib-tooltip="Add to favorites"
-          class="glyphicon glyphicon-heart-empty noul"></i> <i
+          class="glyphicon glyphicon-heart-empty noul glyphicon-muted"></i> <i
           ng-show="isFavorite"
           ng-click="toggleFavorite(component.type, component.terminology, component.version, component.terminologyId, component.name)"
-          uib-tooltip="Remove favorites" class="glyphicon glyphicon-heart noul"></i>
+          uib-tooltip="Remove favorites" class="glyphicon glyphicon-heart noul glyphicon-muted"></i>
       </div>
     </div>
     <!-- Component display -->

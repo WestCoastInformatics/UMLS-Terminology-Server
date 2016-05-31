@@ -82,15 +82,17 @@ public class DefaultSearchHandler implements SearchHandler {
     StringBuilder terminologyClause = new StringBuilder();
     if (terminology != null && !terminology.equals("") && version != null
         && !version.equals("")) {
-      terminologyClause.append(" AND terminology:" + terminology
-          + " AND version:" + version);
+      terminologyClause.append(
+          " AND terminology:" + terminology + " AND version:" + version);
     }
 
     // Assemble query
     StringBuilder finalQuery = new StringBuilder();
     if (fixedQuery.isEmpty()) {
-      // Just use PFS and skip the leading "AND"
-      finalQuery.append(terminologyClause.substring(5));
+      if (terminologyClause.length() > 0) {
+        // Just use PFS and skip the leading "AND"
+        finalQuery.append(terminologyClause.substring(5));
+      }
     } else if (combinedQuery.contains(" OR ")) {
       // Use parens
       finalQuery.append("(").append(combinedQuery).append(")")
@@ -102,16 +104,14 @@ public class DefaultSearchHandler implements SearchHandler {
     }
     FullTextQuery fullTextQuery = null;
     try {
-      fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-              finalQuery.toString(), pfs, manager);
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+          finalQuery.toString(), pfs, manager);
     } catch (ParseException | IllegalArgumentException e) {
       e.printStackTrace();
       // If there's a parse exception, try the literal query
       Logger.getLogger(getClass()).debug("PE query = " + finalQuery);
-      fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, escapedQuery
-              + terminologyClause, pfs, manager);
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+          escapedQuery + terminologyClause, pfs, manager);
     }
 
     totalCt[0] = fullTextQuery.getResultSize();

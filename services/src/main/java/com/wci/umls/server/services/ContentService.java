@@ -11,6 +11,7 @@ import java.util.Map;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -1825,5 +1826,35 @@ public interface ContentService extends MetadataService {
    */
   public Note getNote(Long id, Class<? extends Note> noteClass)
     throws Exception;
+
+  /**
+   * Find code notes for user.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @return the note list
+   * @throws Exception 
+   */
+  public NoteList findCodeNotesForQuery(String query, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find descriptor notes for user.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @return the note list
+   * @throws Exception 
+   */
+  public NoteList findDescriptorNotesForQuery(String query, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find concept notes for user.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @return the note list
+   * @throws Exception the exception
+   */
+  public NoteList findConceptNotesForQuery(String query, PfsParameter pfs) throws Exception;
 
 }

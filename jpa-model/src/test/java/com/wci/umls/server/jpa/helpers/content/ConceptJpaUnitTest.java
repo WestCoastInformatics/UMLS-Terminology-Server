@@ -57,6 +57,7 @@ public class ConceptJpaUnitTest {
   public void testModelGetSet011() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet011");
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("type");
     tester.test();
   }
 

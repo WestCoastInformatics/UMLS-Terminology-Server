@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.Concept;
 @Table(name = "concept_notes")
 @Audited
 @Indexed
-@XmlRootElement(name = "notes")
+@XmlRootElement(name = "conceptNote")
 public class ConceptNoteJpa extends AbstractNote {
 
   /** The concept. */
@@ -79,7 +79,29 @@ public class ConceptNoteJpa extends AbstractNote {
   public Long getConceptId() {
     return (concept != null) ? concept.getId() : 0;
   }
-
+  
+  /**
+   * Returns the concept name.
+   *
+   * @return the concept name
+   */
+  @XmlElement
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public String getConceptName() {
+    return (concept != null) ? concept.getName() : "";
+  }
+  
+  /**
+   * Returns the concept name.
+   *
+   * @return the concept name
+   */
+  @XmlElement
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getConceptTerminologyId() {
+    return (concept != null) ? concept.getTerminologyId() : "";
+  }
+  
   /**
    * Sets the concept id.
    *
@@ -92,4 +114,39 @@ public class ConceptNoteJpa extends AbstractNote {
     }
     concept.setId(conceptId);
   }
+
+  /* see superclass */
+  @Override
+  public String toString() {
+    return "ConceptNoteJpa [conceptId=" + getConceptId() + "] " + super.toString();
+  }
+
+  /* see superclass */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((getConceptId() == null) ? 0 : getConceptId().hashCode());
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ConceptNoteJpa other = (ConceptNoteJpa) obj;
+    if (getConceptId() == null) {
+      if (other.getConceptId() != null)
+        return false;
+    } else if (!getConceptId().equals(other.getConceptId()))
+      return false;
+    return true;
+  }
+  
+  
 }

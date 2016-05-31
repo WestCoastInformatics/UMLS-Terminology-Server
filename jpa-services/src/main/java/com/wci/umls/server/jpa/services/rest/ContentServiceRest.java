@@ -873,18 +873,6 @@ public interface ContentServiceRest {
   public SearchResultList getEclExpressionResults(String terminology,
     String version, String query, String authToken) throws Exception;
 
-  /**
-   * Gets the favorites for user.
-   *
-   * @param pfs the pfs
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @return the favorites for user
-   * @throws Exception the exception
-   */
-  public SearchResultList getFavoritesForUser(String terminology,
-    String version, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Remove concept note.
@@ -952,5 +940,29 @@ public interface ContentServiceRest {
    */
   public void removeDescriptorNote(Long noteId, String authToken)
     throws Exception;
+
+
+  /**
+   * Gets favorite components for a user.
+   *
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the favorites for user
+   * @throws Exception the exception
+   */
+  public SearchResultList getFavoritesForUser(PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Gets the components with notes for user.
+   *
+   * @param pfs the pfs
+   * @param query the query
+   * @param authToken the auth token
+   * @return the components with notes for user
+   * @throws Exception the exception
+   */
+  public SearchResultList getComponentsWithNotesForQuery(String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
 }

@@ -1,0 +1,44 @@
+<div ng-show="pagedData.totalCount > 0 || paging.filter">
+  <div class="alert alert-success"
+    ng-click="annotatedContentCollapsed = !annotatedContentCollapsed">
+    <i class="glyphicon"
+      ng-class="[{'glyphicon-chevron-right' : annotatedContentCollapsed}, {'glyphicon-chevron-down' : !annotatedContentCollapsed}]">
+    </i>&nbsp; Annotated Content ({{pagedData.totalCount}})
+  </div>
+  <div ng-show="!annotatedContentCollapsed">
+    <div pager paging="paging" count="pagedData.totalCount"
+      callback="pageCallback"></div>
+    <table class="table table-hover" ng-show="pagedData.results.length > 0">
+      <tbody>
+        <!-- table-hover makes use of the active class -->
+        <tr ng-class="{active: content.active}"
+          ng-mouseenter="content.hover = true;"
+          ng-mouseleave="content.hover = false;"
+          ng-repeat="content in pagedData.results">
+          <!--  Only put ng-click callback on first two cells (i.e. not the controls cell) -->
+          <td class="col-md-4 breakword "
+            ng-click="callbacks.getComponent(content.type, content.terminologyId, content.terminology, content.version)">
+            <span>
+              {{content.active}}
+              <span
+                ng-show="content.terminology != metadata.terminology.terminology">{{content.terminology}}&nbsp;/&nbsp;</span>
+              <span>{{content.terminologyId}}</span>
+            </span>
+          </td>
+          <td class="col-md-6"
+            ng-click="callbacks.getComponent(content.type, content.terminologyId, content.terminology, content.version)">
+            <span class=""> {{content.value}}</span>
+          </td>
+          <td class="col-md-2">
+            <!-- Always show note control -->
+            <i
+              ng-class="[{noul : content.property.key === 'hasNotes' && content.property.value === 'true'}, {grey : content.property.key === 'hasNotes' && content.property.value !== 'true'}]"
+              ng-click="viewNotes(content)"
+              class="glyphicon glyphicon-tags glyphicon-muted noul"
+              title="View, Add, or Remove Notes"></i> &nbsp;
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstance, $sce,
-  contentService, utilService, component) {
+  contentService, utilService, websocketService, component) {
 
   console.debug('component notes modal opened', component);
 
@@ -40,6 +40,9 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
     console.debug('Adding note: ', note);
     contentService.addComponentNote($scope.component, note).then(function(response) {
       $scope.refreshConcept();
+      websocketService.fireNoteChange({
+        component : $scope.component
+      });
     });
   }
 
@@ -47,9 +50,12 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
     console.debug('Remove note: ', note.id);
     contentService.removeComponentNote($scope.component, note.id).then(function(response) {
       $scope.refreshConcept();
+      websocketService.fireNoteChange({
+        component : $scope.component
+      });
     })
   }
-  
+
   $scope.refreshConcept = function() {
     // re-retrieve the component (from either wrapper or full component)
     contentService.getComponent($scope.component).then(function(response) {

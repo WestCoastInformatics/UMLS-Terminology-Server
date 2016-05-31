@@ -480,8 +480,8 @@ tsApp.service('gpService', function() {
 
 // Websocket service
 
-tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
-  function($location, utilService, gpService) {
+tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'gpService',
+  function($rootScope, $location, utilService, gpService) {
     console.debug('configure websocketService');
     this.data = {
       message : null
@@ -500,6 +500,8 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
       return url;
 
     };
+    
+    // TODO Add wiki entry about registering scopes and broadcast event receipt lists
 
     this.connection = new WebSocket(this.getUrl());
 
@@ -527,6 +529,21 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
     // Send a message to the websocket server endpoint
     this.send = function(message) {
       this.connection.send(JSON.stringify(message));
+    };
+    
+    //
+    // Temporary broadcast functions
+    // To be replaced once the WebSocket is functional
+    //
+    
+    this.fireNoteChange = function(data) {
+      console.debug('websocketService: fireNoteChange event', data);
+      $rootScope.$broadcast('termServer::noteChange', data);
+    };
+    
+    this.fireFavoriteChange = function(data) {
+      console.debug('websocketService: fireNoteChange event', data);
+      $rootScope.$broadcast('termServer::favoriteChange', data);
     };
 
   } ]);

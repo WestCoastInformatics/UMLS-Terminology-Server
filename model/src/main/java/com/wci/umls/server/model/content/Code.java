@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasNotes;
 
 /**
@@ -15,7 +16,7 @@ import com.wci.umls.server.helpers.HasNotes;
  * it has not clearly been defined which is which.
  */
 public interface Code extends AtomClass,
-    ComponentHasRelationships<CodeRelationship>, HasNotes {
+    ComponentHasRelationships<CodeRelationship>, HasNotes, ComponentInfo {
 
   // n/a
 

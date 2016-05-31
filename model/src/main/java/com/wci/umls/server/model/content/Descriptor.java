@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasNotes;
 
 /**
@@ -11,7 +12,7 @@ import com.wci.umls.server.helpers.HasNotes;
  * search/retrieval).
  */
 public interface Descriptor extends AtomClass, ComponentHasDefinitions,
-    ComponentHasRelationships<DescriptorRelationship>, HasNotes {
+    ComponentHasRelationships<DescriptorRelationship>, HasNotes, ComponentInfo {
 
   // n/a
 }
