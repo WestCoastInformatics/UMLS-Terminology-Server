@@ -58,10 +58,10 @@ public class GeneralConceptAxiomListUnitTest extends
     ms2 = (GeneralConceptAxiom) tester.createObject(2);
 
     ProxyTester tester2 = new ProxyTester(new ConceptJpa());
-    ms1.setLeftHandSide((Concept) tester2.createObject(1));
-    ms1.setRightHandSide((Concept) tester2.createObject(2));
-    ms2.setLeftHandSide((Concept) tester2.createObject(3));
-    ms2.setRightHandSide((Concept) tester2.createObject(4));
+    ms1.setLeftHandSide((Concept) tester2.createObject(0));
+    ms1.setRightHandSide((Concept) tester2.createObject(1));
+    ms2.setLeftHandSide((Concept) tester2.createObject(2));
+    ms2.setRightHandSide((Concept) tester2.createObject(3));
 
   }
 
