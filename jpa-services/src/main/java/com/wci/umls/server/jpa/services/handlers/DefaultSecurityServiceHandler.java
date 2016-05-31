@@ -25,10 +25,10 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
 
   /* see superclass */
   @Override
-  public User authenticate(String username, String password) throws Exception {
+  public User authenticate(String userName, String password) throws Exception {
 
-    // username must not be null
-    if (username == null)
+    // userName must not be null
+    if (userName == null)
       return null;
 
     // password must not be null
@@ -36,7 +36,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       return null;
 
     // for default security service, the password must equal the user name
-    if (!username.equals(password))
+    if (!userName.equals(password))
       return null;
 
     // check properties
@@ -47,32 +47,35 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     User user = new UserJpa();
 
     // check specified admin users list from config file
-    if (getAdminUsersFromConfigFile().contains(username)) {
+    if (getAdminUsersFromConfigFile().contains(userName)) {
       user.setApplicationRole(UserRole.ADMINISTRATOR);
-      user.setUserName(username);
-      user.setName(
-          username.substring(0, 1).toUpperCase() + username.substring(1));
-      user.setEmail(username + "@example.com");
+      user.setUserName(userName);
+      user.setName(userName.substring(0, 1).toUpperCase()
+          + userName.substring(1));
+      user.setEmail(userName + "@example.com");
       return user;
     }
 
-    if (getViewerUsersFromConfigFile().contains(username)) {
+    if (getUserUsersFromConfigFile().contains(userName)) {
+      user.setApplicationRole(UserRole.USER);
+      user.setUserName(userName);
+      user.setName(userName.substring(0, 1).toUpperCase()
+          + userName.substring(1));
+      user.setEmail(userName + "@example.com");
+      return user;
+    }
+
+    if (getViewerUsersFromConfigFile().contains(userName)) {
       user.setApplicationRole(UserRole.VIEWER);
-      user.setUserName(username);
-      user.setName(
-          username.substring(0, 1).toUpperCase() + username.substring(1));
-      user.setEmail(username + "@example.com");
+      user.setUserName(userName);
+      user.setName(userName.substring(0, 1).toUpperCase()
+          + userName.substring(1));
+      user.setEmail(userName + "@example.com");
       return user;
     }
 
-    // return new user with USER role
-
-    user.setApplicationRole(UserRole.USER);
-    user.setUserName(username);
-    user.setName(
-        username.substring(0, 1).toUpperCase() + username.substring(1));
-    user.setEmail(username + "@example.com");
-    return user;
+    // if user not specified, return null
+    return null;
   }
 
   /**
@@ -90,7 +93,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
   }
 
   /**
-   * Use the username as a token.
+   * Use the user name as a token.
    *
    * @param user the user
    * @return the string
@@ -116,8 +119,35 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     String userList = properties.getProperty("users.viewer");
 
     if (userList == null) {
-      Logger.getLogger(getClass()).warn(
-          "Could not retrieve config parameter users.viewer for security handler DEFAULT");
+      Logger
+          .getLogger(getClass())
+          .warn(
+              "Could not retrieve config parameter users.viewer for security handler DEFAULT");
+      return userSet;
+    }
+
+    for (String user : userList.split(","))
+      userSet.add(user);
+    return userSet;
+  }
+
+  /**
+   * Returns the user users from config file.
+   *
+   * @return the user users from config file
+   */
+  private Set<String> getUserUsersFromConfigFile() {
+
+    HashSet<String> userSet = new HashSet<>();
+    String userList = properties.getProperty("users.user");
+
+    Logger.getLogger(getClass()).info(properties.keySet());
+
+    if (userList == null) {
+      Logger
+          .getLogger(getClass())
+          .warn(
+              "Could not retrieve config parameter users.user for security handler DEFAULT");
       return userSet;
     }
 
@@ -139,8 +169,10 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     Logger.getLogger(getClass()).info(properties.keySet());
 
     if (userList == null) {
-      Logger.getLogger(getClass()).warn(
-          "Could not retrieve config parameter users.admin for security handler DEFAULT");
+      Logger
+          .getLogger(getClass())
+          .warn(
+              "Could not retrieve config parameter users.admin for security handler DEFAULT");
       return userSet;
     }
 
