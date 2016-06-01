@@ -11,13 +11,13 @@ tsApp.controller('MetadataCtrl', [
   'configureService',
   function($scope, $http, $location, gpService, utilService, tabService, securityService,
     metadataService, configureService) {
-    console.debug("configure MetadataCtrl", tabService.selectedTab.label);
+    console.debug("configure MetadataCtrl");
 
     // Clear error
     utilService.clearError();
 
     // Handle resetting tabs on "back" button
-    // tabService.setSelectedTabByLabel('Metadata');
+    tabService.setSelectedTabByLabel('Metadata');
 
     // the currently viewed terminology (set by default or user)
     $scope.user = securityService.getUser();

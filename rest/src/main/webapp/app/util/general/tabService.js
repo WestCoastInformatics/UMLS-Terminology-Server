@@ -1,30 +1,27 @@
 // Tab service
-tsApp.service('tabService', [
-  '$route',
-  '$location',
-  'utilService',
-  'gpService',
-  'securityService',
-  'appConfig',
-  function($route, $location, utilService, gpService, securityService, appConfig) {
+tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService', 'securityService',
+  'appConfig', function($route, $location, utilService, gpService, securityService, appConfig) {
     console.debug('configure tabService');
 
-    this.showTabs = false;
+    this.showTabs = true;
 
     // Available tabs
     // TODO Make private, with accessor
     this.tabs = [];
 
     if (appConfig.enabledTabs) {
+      securityService.getUser();
       var tabArray = appConfig.enabledTabs.split(',');
       for (var i = 0; i < tabArray.length; i++) {
         switch (tabArray[i]) {
         case 'source':
-          this.tabs.push({
-            link : 'source',
-            label : 'Sources',
-            role : 'USER'
-          });
+          if (securityService.hasPrivilegesOf('USER')) {
+            this.tabs.push({
+              link : 'source',
+              label : 'Sources',
+              role : 'USER'
+            });
+          }
           break;
         case 'content':
           this.tabs.push({
@@ -41,11 +38,14 @@ tsApp.service('tabService', [
           });
           break;
         case 'admin':
-          this.tabs.push({
-            link : 'admin',
-            label : 'Admin',
-            role : 'USER'
-          });
+          if (securityService.hasPrivilegesOf('USER')) {
+            this.tabs.push({
+              link : 'admin',
+              label : 'Admin',
+              role : 'USER'
+
+            });
+          }
           break;
         case 'default':
           console.error('Invalid tab ' + tabArray[i] + ' specified, skipping');
@@ -53,6 +53,7 @@ tsApp.service('tabService', [
       }
     }
     this.setShowing = function(showTabs) {
+      console.debug('setShowing', showTabs);
       this.showTabs = showTabs;
     };
 

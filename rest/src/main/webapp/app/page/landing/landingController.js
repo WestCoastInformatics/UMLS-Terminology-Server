@@ -11,32 +11,41 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
     $scope.launchApp = function() {
       if (appConfig.loginEnabled === 'true') {
         $location.path('/login');
-      } else if (appConfig.licenseEnabled === 'true') {
-        $location.path('/license');
       } else {
-        if (tabService.getTabs().length == 0) {
-          handleError('No tabs configured')
-        }
-        $location.path(tabService.getTabs()[0].link);
+
+        // authenticate as guest
+        securityService.authenticate('guest', 'guest').then(function(response) {
+
+          securityService.setUser(response);
+
+          // set request header authorization and reroute
+
+          if (appConfig.licenseEnabled === 'true') {
+
+            $location.path('/license');
+          } else {
+            if (tabService.tabs.length == 0) {
+              handleError('No tabs configured')
+            } else {
+              $location.path(tabService.tabs[0].link);
+            }
+          }
+        })
       }
     };
 
     // Initialize
     $scope.initialize = function() {
 
+      // if landing not enabled, launch the app
+      if (appConfig.landingEnabled !== 'true') {
+        $scope.launchApp();
+      }
       // on return to landing page, clear any errors
       utilService.clearError();
 
-      // Clear user info if we are using login
-      if (appConfig.loginEnabled === 'true') {
-        // Clear user info
-        securityService.clearUser();
-      }
+      securityService.clearUser();
 
-      // Otherwise, Set guest user, in case there is no login
-      else {
-        securityService.setGuestUser();
-      }
     };
 
     $scope.initialize();

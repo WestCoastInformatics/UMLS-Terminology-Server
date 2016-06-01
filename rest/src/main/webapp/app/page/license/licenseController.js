@@ -13,6 +13,8 @@ tsApp
         console.debug('configure LicenseCtrl');
 
         // NOTE: Do NOT clear error here (to preserve license error messages)
+        
+        tabService.setShowing(false);
 
         $scope.licenseChecked = false;
 
@@ -36,10 +38,10 @@ tsApp
             if (user && user.userPreferences && user.userPreferences.lastTab) {
               $location.path(user.userPreferences.lastTab)
             } else {
-              if (tabService.getTabs().length == 0) {
+              if (tabService.tabs.length == 0) {
                 handleError('No tabs configured')
               }
-              $location.path(tabService.getTabs()[0].link);
+              $location.path(tabService.tabs[0].link);
             }
           });
 
@@ -61,9 +63,11 @@ tsApp
         // check scroll height initially to catch short fragments
         checkScrollHeight();
 
-        // If no login page, set guest user
+        // If no login page, authenticate guest user
         if (appConfig.loginEnabled !== 'true') {
-          securityService.setGuestUser();
+          securityService.authenticate('guest', 'guest').then(function(response) {
+             securityService.setUser(response);
+          });
         }
 
       } ]);

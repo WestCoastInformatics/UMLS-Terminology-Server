@@ -28,8 +28,10 @@ tsApp
         console.debug('configure ContentCtrl');
 
         if ($routeParams.mode == 'simple') {
+          console.debug('  simple mode deletected, hide tabs');
           tabService.setShowing(false);
         } else {
+          console.debug('  non-simple mode detected, show tabs');
           tabService.setShowing(true);
         }
         

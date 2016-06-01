@@ -274,7 +274,7 @@
       </div>
     </div>
     <!--  Favorites -->
-    <div favorites="user.userPreferences.favorites" metadata="metadata"
+    <div ng-show="!isGuestUser()" favorites="user.userPreferences.favorites" metadata="metadata"
       callbacks="favoritesCallbacks"></div>
     <!--  Components with user notes -->
     <div annotated-content metadata="metadata" callbacks="favoritesCallbacks"></div>
@@ -333,11 +333,11 @@
           class="glyphicon glyphicon-tag glyphicon-muted"></i>
            &nbsp;&nbsp;
         <!-- Favorite control -->
-        <i ng-show="!isFavorite"
+        <i ng-show="!isFavorite && !isGuestUser()"
           ng-click="toggleFavorite(component.type, component.terminology, component.version, component.terminologyId, component.name)"
           uib-tooltip="Add to favorites"
           class="glyphicon glyphicon-heart-empty noul glyphicon-muted"></i> <i
-          ng-show="isFavorite"
+          ng-show="isFavorite  && !isGuestUser()"
           ng-click="toggleFavorite(component.type, component.terminology, component.version, component.terminologyId, component.name)"
           uib-tooltip="Remove favorites" class="glyphicon glyphicon-heart noul glyphicon-muted"></i>
       </div>

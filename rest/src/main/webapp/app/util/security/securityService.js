@@ -1,4 +1,3 @@
-
 // Security service
 tsApp.service('securityService', [
   '$http',
@@ -7,8 +6,9 @@ tsApp.service('securityService', [
   '$cookies',
   'utilService',
   'gpService',
+  'projectService',
   'appConfig',
-  function($http, $location, $q, $cookies, utilService, gpService, appConfig) {
+  function($http, $location, $q, $cookies, utilService, gpService, projectService, appConfig) {
     console.debug('configure securityService');
 
     // Declare the user
@@ -93,6 +93,8 @@ tsApp.service('securityService', [
       user.password = "";
       user.applicationRole = data.applicationRole;
       user.userPreferences = data.userPreferences;
+      $http.defaults.headers.common.Authorization = data.authToken;
+      projectService.getUserHasAnyRole();
 
       // Whenver set user is called, we should save a cookie
       $cookies.put('user', JSON.stringify(user));
@@ -151,28 +153,33 @@ tsApp.service('securityService', [
     this.isLoggedIn = function() {
       return user.authToken;
     };
-    
+
     //
     // Role functions
     // Note that administrator is considered all roles
     //
     this.hasPrivilegesOf = function(role) {
-      switch(role) {
+      console.debug('privileges check', role, user);
+      switch (role) {
       case 'ADMINISTRATOR':
         return this.isAdmin();
-      case 'USER':
-        return this.isUser();
-      case 'AUTHOR':
-        return this.isAuthor();
       case 'REVIEWER':
-        return this.isReviewer();
+        return this.isReviewer() || this.isAdmin();
+      case 'AUTHOR':
+        return this.isAuthor() || this.isReviewer() || this.isAdmin();
+
+      case 'USER':
+        console.debug('success', this.isUser() || this.isAuthor() || this.isReviewer() || this.isAdmin());
+        return this.isUser() || this.isAuthor() || this.isReviewer() || this.isAdmin();
       case 'VIEWER':
-        return this.isViewer();
+        return this.isViewer() || this.isUser() || this.isAuthor() || this.isReviewer()
+          || this.isAdmin();
       case 'GUEST':
-        return this.isGuest();
       default:
         return true;
       }
+      console.debug('fail');
+      return false;
     }
 
     // isAdmin function
@@ -184,53 +191,58 @@ tsApp.service('securityService', [
     this.isUser = function() {
       return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'USER';
     };
-    
+
     // isAuthor function 
     this.isAuthor = function() {
       return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'AUTHOR';
     };
-    
+
     // isReviewer function
     this.isReviewer = function() {
       return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'REVIEWER';
     };
-    
+
     // isViewer function
     this.isViewer = function() {
       return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'VIEWER';
     };
-    
+
     // isGuest function
     this.isGuest = function() {
       return user.applicationRole == 'GUEST';
     }
 
     this.logout = function() {
+
+      var deferred = $q.defer();
       if (user.authToken == null) {
         window.alert("You are not currently logged in");
-        return;
+        deferred.reject('Not currently logged in')
+      } else {
+        gpService.increment();
+
+        // logout
+        $http.get(securityUrl + 'logout/' + user.authToken).then(
+        // success
+        function(response) {
+
+          // clear scope variables
+          httpClearUser();
+
+          // clear http authorization header
+          $http.defaults.headers.common.Authorization = null;
+          gpService.decrement();
+          deferred.resolve('Successfully logged out');
+
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject('Failed to logout');
+        });
+        return deferred.promise;
       }
-      gpService.increment();
-
-      // logout
-      $http.get(securityUrl + 'logout/' + user.authToken).then(
-      // success
-      function(response) {
-
-        // clear scope variables
-        httpClearUser();
-
-        // clear http authorization header
-        $http.defaults.headers.common.Authorization = null;
-        $location.path("/");
-        gpService.decrement();
-
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-      });
     };
 
     // get all users
@@ -395,6 +407,11 @@ tsApp.service('securityService', [
 
     // Gets the user favorite string object without reference to name or timestamp
     function getUserFavorite(type, terminology, version, terminologyId) {
+
+      if (!user || !userPreferences || !userPreferences.favorites) {
+        return null;
+      }
+
       var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
 
       var matchFound = false;
@@ -418,27 +435,32 @@ tsApp.service('securityService', [
     }
 
     this.addUserFavorite = function(type, terminology, version, terminologyId, name) {
+
       var deferred = $q.defer();
-      if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
-        deferred.reject('Insufficient arguments');
-      }
-      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name)
-      if (!user.userPreferences.favorites) {
-        user.userPreferences.favorites = [];
-      }
-
-      if (!this.isUserFavorite(type, terminology, version, terminologyId)) {
-
-        // add the timestamp after verifying this component info is not matched
-        user.userPreferences.favorites.push(delimitedStr + '~~' + new Date().getTime());
-
-        this.updateUserPreferences(user.userPreferences).then(function(response) {
-          deferred.resolve(response);
-        }, function(response) {
-          deferred.reject(response);
-        });
+      if (this.isGuestUser()) {
+        $q.reject('Cannot add favorites for guest user');
       } else {
-        deferred.reject('Favorite already exists');
+        if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
+          deferred.reject('Insufficient arguments');
+        }
+        var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name)
+        if (!user.userPreferences.favorites) {
+          user.userPreferences.favorites = [];
+        }
+
+        if (!this.isUserFavorite(type, terminology, version, terminologyId)) {
+
+          // add the timestamp after verifying this component info is not matched
+          user.userPreferences.favorites.push(delimitedStr + '~~' + new Date().getTime());
+
+          this.updateUserPreferences(user.userPreferences).then(function(response) {
+            deferred.resolve(response);
+          }, function(response) {
+            deferred.reject(response);
+          });
+        } else {
+          deferred.reject('Favorite already exists');
+        }
       }
 
       return deferred.promise;
@@ -496,21 +518,22 @@ tsApp.service('securityService', [
       if (this.isGuestUser()) {
         console.log('Skipped updating preferences for guest user');
         deferred.reject('guest user');
-      }
+      } else {
 
-      gpService.increment();
-      $http.post(securityUrl + 'user/preferences/update', userPreferences).then(
-      // success
-      function(response) {
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
+        gpService.increment();
+        $http.post(securityUrl + 'user/preferences/update', userPreferences).then(
+        // success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      }
       return deferred.promise;
     };
 
@@ -519,6 +542,31 @@ tsApp.service('securityService', [
         return item.terminology === terminology && item.terminologyId === terminologyId
           && item.version === version && item.type === type;
       }).length > 0;
+    }
+
+    this.authenticate = function(userName, password) {
+
+      var deferred = $q.defer();
+
+      // login
+      $http({
+        url : securityUrl + 'authenticate/' + userName,
+        method : 'POST',
+        data : password,
+        headers : {
+          'Content-Type' : 'text/plain'
+        }
+      }).then(function(response) {
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        deferred.reject(response.data);
+      });
+
+      return deferred.promise;
+
     }
 
   } ]);
