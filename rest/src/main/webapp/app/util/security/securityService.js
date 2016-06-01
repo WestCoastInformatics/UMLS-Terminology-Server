@@ -156,6 +156,24 @@ tsApp.service('securityService', [
     // Role functions
     // Note that administrator is considered all roles
     //
+    this.hasPrivilegesOf = function(role) {
+      switch(role) {
+      case 'ADMINISTRATOR':
+        return this.isAdmin();
+      case 'USER':
+        return this.isUser();
+      case 'AUTHOR':
+        return this.isAuthor();
+      case 'REVIEWER':
+        return this.isReviewer();
+      case 'VIEWER':
+        return this.isViewer();
+      case 'GUEST':
+        return this.isGuest();
+      default:
+        return true;
+      }
+    }
 
     // isAdmin function
     this.isAdmin = function() {

@@ -8,7 +8,8 @@ tsApp
       'securityService',
       'utilService',
       'appConfig',
-      function($scope, $location, securityService, utilService, appConfig) {
+      'tabService',
+      function($scope, $location, securityService, utilService, appConfig, tabService) {
         console.debug('configure LicenseCtrl');
 
         // NOTE: Do NOT clear error here (to preserve license error messages)
@@ -31,8 +32,13 @@ tsApp
         // function to launch application
         $scope.acceptLicense = function() {
           securityService.acceptLicense().then(function(response) {
-            console.debug('rerouting to content');
-            $location.path('/content');
+            var user = securityService.getUser();
+            if (user && user.userPreferences && user.userPreferences.lastTab) {
+              $location.path(user.userPreferences.lastTab)
+            } else {
+              console.debug('rerouting to first available tab');
+              tabService.viewFirstViewableTab();
+            }
           });
 
         };

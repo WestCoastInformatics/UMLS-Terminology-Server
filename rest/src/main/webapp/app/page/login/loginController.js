@@ -64,11 +64,7 @@ tsApp.controller('LoginCtrl', [
         // file upload or content based on role
         else {
 
-          if (response.data.applicationRole == 'VIEWER') {
-            $location.path("/content");
-          } else {
-            $location.path("/source");
-          }
+         tabService.viewFirstViewableTab();
 
         }
         gpService.decrement();

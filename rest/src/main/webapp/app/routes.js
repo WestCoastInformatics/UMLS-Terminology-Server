@@ -1,7 +1,14 @@
 // Route
 tsApp.config(function configureRoutes($routeProvider, appConfig) {
 
-  console.debug('Configure routes');
+ 
+  
+  if (!appConfig) {
+    console.error('Application configuration could not be retrieved, see appConfig.js');
+  }
+  if (appConfig && !appConfig.enabledTabs) {
+    console.error('No tabs specified for user view in appConfig.js');
+  }
 
   $routeProvider.when('/configure', {
     templateUrl : 'app/page/configure/configure.html',
@@ -10,42 +17,53 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
   });
 
   // Source Data Configurations
-  $routeProvider.when('/source', {
-    controller : 'SourceCtrl',
-    templateUrl : 'app/page/source/source.html',
-    reloadOnSearch : false
-  });
+  if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('source') != -1) {
+    console.debug('Route enabled: source');
+    $routeProvider.when('/source', {
+      controller : 'SourceCtrl',
+      templateUrl : 'app/page/source/source.html',
+      reloadOnSearch : false
+    });
+  }
 
   // Content -- Default Mode
-  $routeProvider.when('/content', {
-    templateUrl : 'app/page/content/content.html',
-    controller : 'ContentCtrl',
-    reloadOnSearch : false
-  });
+  if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('content') != -1) {
+    console.debug('Route enabled: content');
+    $routeProvider.when('/content', {
+      templateUrl : 'app/page/content/content.html',
+      controller : 'ContentCtrl',
+      reloadOnSearch : false
+    });
 
-  // Content with mode set (e.g. 'simple' for component report)
-  $routeProvider.when('/content/:mode/:type/:terminology/:version/:terminologyId', {
-    templateUrl : function(urlAttr) {
-      return 'app/page/content/' + urlAttr.mode + '.html';
-    },
-    controller : 'ContentCtrl',
-    reloadOnSearch : false
-  });
+    // Content with mode set (e.g. 'simple' for component report)
+    $routeProvider.when('/content/:mode/:type/:terminology/:version/:terminologyId', {
+      templateUrl : function(urlAttr) {
+        return 'app/page/content/' + urlAttr.mode + '.html';
+      },
+      controller : 'ContentCtrl',
+      reloadOnSearch : false
+    });
+  }
 
   // Metadata View
-
-  $routeProvider.when('/metadata', {
-    templateUrl : 'app/page/metadata/metadata.html',
-    controller : 'MetadataCtrl',
-    reloadOnSearch : false
-  });
+  if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('metadata') != -1) {
+    console.debug('Route enabled: metadata');
+    $routeProvider.when('/metadata', {
+      templateUrl : 'app/page/metadata/metadata.html',
+      controller : 'MetadataCtrl',
+      reloadOnSearch : false
+    });
+  }
 
   // Administrative Page
-  $routeProvider.when('/admin', {
-    templateUrl : 'app/page/admin/admin.html',
-    controller : 'AdminCtrl',
-    reloadOnSearch : false
-  });
+  if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('admin') != -1) {
+    console.debug('Route enabled: admin');
+    $routeProvider.when('/admin', {
+      templateUrl : 'app/page/admin/admin.html',
+      controller : 'AdminCtrl',
+      reloadOnSearch : false
+    });
+  }
 
   //
   // Configurable routes
@@ -81,7 +99,7 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
     if (appConfig && appConfig.landingEnabled !== 'true') {
       $routeProvider.when('/', loginRoute);
     }
-  } 
+  }
 
   // if license enabled
   if (appConfig && appConfig.licenseEnabled === 'true') {
@@ -90,10 +108,18 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
       $routeProvider.when('/', licenseRoute);
     }
   }
+  
+  // if none enabled, default is first tab
+  if (appConfig.landingEnabled !== 'true' && appConfig.loginEnabled !== 'true' && appConfig.licenseEnabled !== 'true') {
+    console.log('Setting start path to first specified tab: ' + appConfig.enabledTabs.split(',')[0])
+    $routeProvider.when('/', appConfig.enabledTabs.split(',')[0]);
+  }
 
-  // otherwise, redirect to content
+  // otherwise, redirect to root
   $routeProvider.otherwise({
     redirectTo : '/'
   });
+  
+
 
 });

@@ -36,9 +36,9 @@ tsApp.controller('ContentCtrl', [
     // pass app configuration constants to scope (for email link)
     $scope.appConfig = appConfig;
 
-    // Handle resetting tabs on "back" button, but also handles non-standard
+    // Handle resetting tabs on "back" and "reload" button, but also handles non-standard
     // content modes which may not have tabs
-    if (tabService.selectedTab.label != 'Content' && !$routeParams.mode) {
+    if (!$routeParams.mode) {
       tabService.setSelectedTabByLabel('Content');
     }
 
