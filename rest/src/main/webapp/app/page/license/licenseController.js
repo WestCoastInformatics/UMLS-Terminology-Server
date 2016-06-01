@@ -36,8 +36,10 @@ tsApp
             if (user && user.userPreferences && user.userPreferences.lastTab) {
               $location.path(user.userPreferences.lastTab)
             } else {
-              console.debug('rerouting to first available tab');
-              tabService.setSelectedTabForIndex(0);
+              if (tabService.getTabs().length == 0) {
+                handleError('No tabs configured')
+              }
+              $location.path(tabService.getTabs()[0].link);
             }
           });
 

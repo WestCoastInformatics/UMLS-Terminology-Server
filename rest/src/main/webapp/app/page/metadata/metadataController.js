@@ -17,7 +17,7 @@ tsApp.controller('MetadataCtrl', [
     utilService.clearError();
 
     // Handle resetting tabs on "back" button
-    tabService.setSelectedTabByLabel('Metadata');
+    // tabService.setSelectedTabByLabel('Metadata');
 
     // the currently viewed terminology (set by default or user)
     $scope.user = securityService.getUser();

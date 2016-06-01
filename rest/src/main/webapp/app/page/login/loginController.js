@@ -63,8 +63,10 @@ tsApp.controller('LoginCtrl', [
         // if no previous preferences (first visit), go to source for initial
         // file upload or content based on role
         else {
-
-         tabService.setSelectedTabForIndex(0);
+          if (tabService.getTabs().length == 0) {
+            handleError('No tabs configured')
+          }
+          $location.path(tabService.getTabs()[0].link);
 
         }
         gpService.decrement();
