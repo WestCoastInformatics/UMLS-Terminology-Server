@@ -16,6 +16,7 @@ tsApp.constant('appConfig', {
   projectVersion : '${project.version}',
 
   // routing variables
+  enabledTabs: '${deploy.enabled.tabs}',
   landingEnabled : '${deploy.landing.enabled}',
   licenseEnabled : '${deploy.license.enabled}',
   loginEnabled : '${deploy.login.enabled}',
