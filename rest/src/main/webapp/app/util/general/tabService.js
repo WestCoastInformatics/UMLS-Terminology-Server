@@ -12,6 +12,7 @@ tsApp.service('tabService', [
     this.showTabs = false;
 
     // Available tabs
+    // TODO Make private, with accessor
     this.tabs = [];
 
     if (appConfig.enabledTabs) {
@@ -51,20 +52,6 @@ tsApp.service('tabService', [
         }
       }
     }
-
-    this.viewFirstViewableTab = function() {
-      console.debug('switching to first enabled tab', appConfig.enabledTabs.split(',')[0],
-        $route.routes);
-      for ( var i = 0 ; i < this.tabs.length; i++) {
-        console.debug('checking tab privilege', this.tabs[i].role, securityService.hasPrivilegesOf(this.tabs[i].role));
-        
-        if (securityService.hasPrivilegesOf(this.tabs[i].role)) {
-          this.setSelectedTabByIndex(i);
-          break;
-        }
-      }
-    }
-
     this.setShowing = function(showTabs) {
       this.showTabs = showTabs;
     };

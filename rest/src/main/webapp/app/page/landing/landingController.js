@@ -14,7 +14,8 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
       } else if (appConfig.licenseEnabled === 'true') {
         $location.path('/license');
       } else {
-        $location.path('/content');
+        // TODO Check this
+        $location.path(tabService.tabs[0].link);
       }
     };
 

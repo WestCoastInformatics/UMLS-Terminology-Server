@@ -37,7 +37,7 @@ tsApp
               $location.path(user.userPreferences.lastTab)
             } else {
               console.debug('rerouting to first available tab');
-              tabService.viewFirstViewableTab();
+              tabService.setSelectedTabForIndex(0);
             }
           });
 

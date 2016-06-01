@@ -64,7 +64,7 @@ tsApp.controller('LoginCtrl', [
         // file upload or content based on role
         else {
 
-         tabService.viewFirstViewableTab();
+         tabService.setSelectedTabForIndex(0);
 
         }
         gpService.decrement();
