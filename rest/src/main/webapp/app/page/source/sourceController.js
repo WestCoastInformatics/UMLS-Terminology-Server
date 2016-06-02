@@ -6,10 +6,10 @@ tsApp
       utilService, securityService, gpService, FileUploader, tabService, configureService) {
       console.debug('configure SourceCtrl');
 
-      // Handle resetting tabs on "back" button
-      if (tabService.selectedTab.label != 'Source') {
-        tabService.setSelectedTabByLabel('Source');
-      }
+      tabService.setShowing(true);
+
+      // ensure correct tab setting on 'back' and 'reload' events
+      tabService.setSelectedTabByLabel('Sources');
 
       // /////////////////////
       // Local variables

@@ -1,31 +1,57 @@
 // Tab service
-tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'securityService',
-  function($location, utilService, gpService, securityService) {
+tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService', 'securityService',
+  'appConfig', function($route, $location, utilService, gpService, securityService, appConfig) {
     console.debug('configure tabService');
 
-    this.showTabs = false;
+    this.showTabs = true;
 
     // Available tabs
-    this.tabs = [ {
-      link : 'source',
-      label : 'Sources',
-      role : 'USER'
+    // TODO Make private, with accessor
+    this.tabs = [];
 
-    }, {
-      link : 'content',
-      label : 'Content',
-      role : false
-    }, {
-      link : 'metadata',
-      label : 'Metadata',
-      role : false
-    }, {
-      link : 'admin',
-      label : 'Admin',
-      role : 'USER'
-    } ];
+    if (appConfig.enabledTabs) {
+      securityService.getUser();
+      var tabArray = appConfig.enabledTabs.split(',');
+      for (var i = 0; i < tabArray.length; i++) {
+        switch (tabArray[i]) {
+        case 'source':
+          this.tabs.push({
+            link : 'source',
+            label : 'Sources',
+            role : 'USER'
+          });
 
+          break;
+        case 'content':
+          this.tabs.push({
+            link : 'content',
+            label : 'Content',
+            role : false
+          });
+          break;
+        case 'metadata':
+          this.tabs.push({
+            link : 'metadata',
+            label : 'Metadata',
+            role : false
+          });
+          break;
+        case 'admin':
+          this.tabs.push({
+            link : 'admin',
+            label : 'Admin',
+            role : 'ADMINISTRATOR'
+
+          });
+
+          break;
+        case 'default':
+          console.error('Invalid tab ' + tabArray[i] + ' specified, skipping');
+        }
+      }
+    }
     this.setShowing = function(showTabs) {
+      console.debug('setShowing', showTabs);
       this.showTabs = showTabs;
     };
 
@@ -34,21 +60,29 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'security
     };
 
     // the selected tab
-    // Have the tab default to /content to support the varying routeParams
-    // stuff.
-    this.selectedTab = this.tabs[1];
+    this.selectedTab = null;
 
     // Sets the selected tab
     this.setSelectedTab = function(tab) {
       this.selectedTab = tab;
       $location.path(tab.link);
     };
+    
+    this.getFirstViewableTab = function() {
+      for (var i = 0; i < this.tabs.length; i++) {
+        if (securityService.hasPrivilegesOf(this.tabs[i].role)) {
+          return this.tabs[i];
+        }
+      }
+      utilService.setError('Configuration Error: User has no viewable tabs');
+      return null;
+    }
 
     // sets the selected tab by label
     // to be called by controllers when their
     // respective tab is selected
     this.setSelectedTabByLabel = function(label) {
-      console.debug("set selected tab", label);
+      console.debug("set selected tab", label, this.tabs);
       for (var i = 0; i < this.tabs.length; i++) {
         console.debug("  " + this.tabs[i].label, label);
         if (this.tabs[i].label === label) {
@@ -58,5 +92,11 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'security
         }
       }
     };
+
+    this.setSelectedTabByIndex = function(index) {
+      console.debug("set selected tab", index);
+      this.selectedTab = this.tabs[index];
+      $location.path(this.selectedTab.link);
+    }
 
   } ]);

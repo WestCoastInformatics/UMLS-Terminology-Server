@@ -306,8 +306,8 @@ tsApp
           },
           // error
           function(response) {
-            utilService.handleError(response);
             gpService.decrement();
+            utilService.handleError(response);
             deferred.reject(response.data);
           });
           return deferred.promise;

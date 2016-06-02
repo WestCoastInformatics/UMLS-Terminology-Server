@@ -23,10 +23,16 @@
               <a class="navbar-link" href="{{appConfig.deployLink}}">{{appConfig.deployCopyright}}</a>
             </p></li>
           <li ng-show="user.name != 'Guest'"><p class="navbar-text">{{user.name}}</p></li>
-          <li
-            ng-show="user.authToken != null && appConfig.loginEnabled === 'true'">
-            <button class="btn btn-sm btn-primary btn-structure"
-              style="margin-top: 10px" ng-click="logout()">Logout</button>
+          <li>
+            <!--  Return to login screen -->
+            <button
+              ng-show="user.authToken != null && appConfig.loginEnabled === 'true'"
+              class="btn btn-sm btn-primary btn-structure"
+              style="margin-top: 10px" ng-click="logout()">Logout</button> <!--  Return to landing screen -->
+            <button
+              ng-show="user.name === 'Guest' && appConfig.landingEnabled === 'true' && appConfig.loginEnabled == 'false'"
+              class="btn btn-sm btn-primary btn-structure"
+              style="margin-top: 10px" ng-click="logout()">Exit</button>
           </li>
           <li>&nbsp;
             <p class="navbar-text">{{getTruncatedVersion(appConfig.projectVersion)}}</p>

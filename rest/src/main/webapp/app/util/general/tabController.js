@@ -52,28 +52,10 @@ tsApp.controller('TabCtrl', [
     // for ng-show on an individual tab
     $scope.isTabShowing = function(tab) {
 
-      // Don't show tabs on the "simple" view
-      if ($routeParams.mode == 'simple') {
-        return false;
-      }
-
       // show tabs without a role
       if (!tab.role) {
         return true;
       }
-      // show ANY tabs if the user has any role (e.g. "Edit")
-      if (tab.role == 'ANY') {
-        return !!$scope.userProjectsInfo.anyRole;
-      }
-      // Show USER tabs if the user has that application role (e.g. "Admin")
-      if (tab.role == 'USER') {
-        return securityService.isUser();
-      }
-      // Show ADMINISTRATOR tabs if the user has that application role (e.g.
-      // "Upload")
-      if (tab.role == 'ADMINISTRATOR') {
-        return securityService.isAdmin();
-      }
-      return false;
+      else return securityService.hasPrivilegesOf(tab.role);
     };
   } ]);
