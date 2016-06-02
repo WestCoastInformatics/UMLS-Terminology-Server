@@ -497,6 +497,7 @@ tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'g
       url = url.replace('index2.html', '');
       url = url.substring(0, url.indexOf('#'));
       url = url + "/websocket";
+      console.debug("Websocket URL" + url);
       return url;
 
     };
