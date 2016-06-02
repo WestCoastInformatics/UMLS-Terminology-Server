@@ -34,7 +34,7 @@ tsApp
           console.debug('  non-simple mode detected, show tabs');
           tabService.setShowing(true);
         }
-        
+
         // retrieve the user
         $scope.user = securityService.getUser();
         console.debug($scope.user);
@@ -141,8 +141,10 @@ tsApp
 
         // Configure tab and accordion
         $scope.configureTab = function() {
-          $scope.user.userPreferences.lastTab = '/content';
-          securityService.updateUserPreferences($scope.user.userPreferences);
+          if ($scope.user && $scope.user.userPreferences) {
+            $scope.user.userPreferences.lastTab = '/content';
+            securityService.updateUserPreferences($scope.user.userPreferences);
+          }
         };
 
         // Sets the terminololgy
