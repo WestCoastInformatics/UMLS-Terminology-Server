@@ -58,7 +58,7 @@ tsApp.controller('LoginCtrl', [
           if (tabService.getTabs().length == 0) {
             utilService.handleError('No tabs configured');
           }
-          $location.path(tabService.getTabs()[0].link);
+          $location.path(tabService.tabs[0].link);
 
         }
       

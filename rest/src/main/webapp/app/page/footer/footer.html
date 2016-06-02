@@ -30,7 +30,7 @@
               class="btn btn-sm btn-primary btn-structure"
               style="margin-top: 10px" ng-click="logout()">Logout</button> <!--  Return to landing screen -->
             <button
-              ng-show="user.name === 'Guest' && appConfig.landingEnabled === 'true'"
+              ng-show="user.name === 'Guest' && appConfig.landingEnabled === 'true' && appConfig.loginEnabled == 'false'"
               class="btn btn-sm btn-primary btn-structure"
               style="margin-top: 10px" ng-click="logout()">Exit</button>
           </li>
