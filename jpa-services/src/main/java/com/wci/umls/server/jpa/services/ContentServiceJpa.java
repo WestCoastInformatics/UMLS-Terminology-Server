@@ -3847,7 +3847,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @SuppressWarnings("unchecked")
   @Override
   public Tree getTreeForTreePosition(
-    TreePosition<? extends AtomClass> treePosition) throws Exception {
+    TreePosition<? extends ComponentHasAttributesAndName> treePosition) throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - get tree for tree position");
 
@@ -4061,7 +4061,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (tpList.getCount() == 0) {
       return new TreePositionListJpa();
     }
-    final TreePosition<? extends AtomClass> treePosition =
+    final TreePosition<? extends ComponentHasAttributesAndName> treePosition =
         tpList.getObjects().get(0);
 
     final Long tpId = treePosition.getNode().getId();

@@ -1473,7 +1473,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public Tree getTreeForTreePosition(
-    TreePosition<? extends AtomClass> treePosition) throws Exception;
+    TreePosition<? extends ComponentHasAttributesAndName> treePosition) throws Exception;
 
   /**
    * Find concept tree position children.

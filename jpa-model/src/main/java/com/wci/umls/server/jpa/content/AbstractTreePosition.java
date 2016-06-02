@@ -13,7 +13,7 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
@@ -26,7 +26,7 @@ import com.wci.umls.server.model.content.TreePosition;
     CodeTreePositionJpa.class, ConceptTreePositionJpa.class,
     DescriptorTreePositionJpa.class
 })
-public abstract class AbstractTreePosition<T extends AtomClass> extends
+public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndName> extends
     AbstractComponentHasAttributes implements TreePosition<T> {
 
   /** The additional relationship type. */

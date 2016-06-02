@@ -14,11 +14,14 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomTreePosition;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTreePosition;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -128,6 +131,10 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
     if (idType == IdType.CODE) {
       tableName = "CodeRelationshipJpa";
       tableName2 = "CodeJpa";
+    }
+    if (idType == IdType.ATOM) {
+      tableName = "AtomRelationshipJpa";
+      tableName2 = "AtomJpa";
     }
     @SuppressWarnings("unchecked")
     final List<Object[]> relationships =
@@ -375,6 +382,11 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
       final Code code = getCode(id);
       ctp.setNode(code);
       tp = ctp;
+    } else if (idType == IdType.ATOM) {
+      final AtomTreePosition atp = new AtomTreePositionJpa();
+      final Atom atom = getAtom(id);
+      atp.setNode(atom);
+      tp = atp;
     } else {
       throw new Exception("Unsupported id type: " + idType);
     }

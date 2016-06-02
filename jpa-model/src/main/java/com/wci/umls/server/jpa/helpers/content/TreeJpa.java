@@ -21,6 +21,7 @@ import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
@@ -98,7 +99,7 @@ public class TreeJpa implements Tree {
    *
    * @param treePosition the tree position
    */
-  public TreeJpa(TreePosition<? extends AtomClass> treePosition) {
+  public TreeJpa(TreePosition<? extends ComponentHasAttributesAndName> treePosition) {
 
     if (treePosition == null)
       throw new IllegalArgumentException(
@@ -112,7 +113,9 @@ public class TreeJpa implements Tree {
     this.childCt = treePosition.getChildCt();
     this.ancestorPath = treePosition.getAncestorPath();
     this.children = new ArrayList<>();
-    this.labels = treePosition.getNode().getLabels();
+    if (treePosition.getNode() instanceof AtomClass) {
+      this.labels = ((AtomClass)treePosition.getNode()).getLabels();
+    }
   }
 
   /* see superclass */
