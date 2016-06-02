@@ -57,7 +57,7 @@ tsApp.controller('LoginCtrl', [
         // file upload or content based on role
         else {
           if (tabService.tabs.length == 0) {
-            handleError('No tabs configured')
+            utilService.handleError('No tabs configured')
           }
           $location.path(tabService.tabs[0].link);
 
