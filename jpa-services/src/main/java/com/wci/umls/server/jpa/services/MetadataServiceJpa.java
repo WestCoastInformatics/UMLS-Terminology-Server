@@ -1401,4 +1401,21 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     return "MetadataServiceJpa";
   }
 
+  /* see superclass */
+  @Override
+  public SemanticTypeList getSemanticTypeDescendants(String terminology,
+    String version, String treeNumber, boolean includeSelf) throws Exception {
+    Logger.getLogger(getClass()).info("Metadata service - get semantic type descendants "
+        + terminology + ", " + version + ", " + treeNumber + ", " + includeSelf);
+    if (helperMap.containsKey(terminology)) {
+      return helperMap.get(terminology).getSemanticTypeDescendants(terminology, version, treeNumber, includeSelf);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getSemanticTypeDescendants(terminology,
+          version, treeNumber, includeSelf);
+    } else {
+      // return an empty map
+      return new SemanticTypeListJpa();
+    }
+  }
+
 }

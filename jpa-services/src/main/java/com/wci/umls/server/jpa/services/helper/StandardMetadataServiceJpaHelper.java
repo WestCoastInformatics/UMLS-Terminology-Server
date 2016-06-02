@@ -3,6 +3,9 @@
  */
 package com.wci.umls.server.jpa.services.helper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.NoResultException;
 
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -25,6 +28,7 @@ import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.services.MetadataService;
 
 /**
@@ -266,6 +270,23 @@ public class StandardMetadataServiceJpaHelper extends
   @Override
   public String getName() {
     return "Standard Metadata Handler";
+  }
+  
+  /* see superclass */
+  @Override
+  public SemanticTypeList getSemanticTypeDescendants(String terminology,
+    String version, String treeNumber, boolean includeSelf) throws Exception {
+    List<SemanticType> descendants = new ArrayList<>();
+    SemanticTypeList allStys = getSemanticTypes(terminology, version);
+    for (SemanticType sty : allStys.getObjects()) {
+      if ((includeSelf && sty.getTreeNumber().equals(treeNumber)) ||
+          sty.getTreeNumber().startsWith(treeNumber)) 
+        descendants.add(sty);
+    }
+    SemanticTypeList descendantList = new SemanticTypeListJpa();
+    descendantList.setObjects(descendants);
+    descendantList.setTotalCount(descendants.size());
+    return descendantList;
   }
 
 }

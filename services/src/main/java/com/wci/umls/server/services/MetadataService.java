@@ -624,4 +624,15 @@ public interface MetadataService extends RootService, Configurable {
   public GraphResolutionHandler getGraphResolutionHandler(String terminology)
     throws Exception;
 
+  /**
+   * Gets the semantic type descendants.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param treeNumber the tree number
+   * @param includeSelf the include self
+   * @return the semantic type descendants
+   * @throws Exception the exception
+   */
+  public SemanticTypeList getSemanticTypeDescendants(String terminology, String version, String treeNumber, boolean includeSelf) throws Exception;
 }

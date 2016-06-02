@@ -28,6 +28,7 @@ import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
@@ -469,6 +470,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.SRDEF);
     final String[] fields = new String[10];
+    String structuralChemicalTreeNumber = "";
+    String functionalChemicalTreeNumber = "";
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
@@ -506,6 +509,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         sty.setTypeId(fields[1]);
         sty.setUsageNote(fields[6]);
         sty.setValue(fields[2]);
+        
+        if (fields[2].equals("Chemical Viewed Structurally"))
+          structuralChemicalTreeNumber = fields[3];
+        if (fields[2].equals("Chemical Viewed Functionally"))
+          functionalChemicalTreeNumber = fields[3];        
 
         sty.setTimestamp(releaseVersionDate);
         sty.setLastModified(releaseVersionDate);
@@ -518,6 +526,22 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
+    commitClearBegin();
+    
+    SemanticTypeList structuralDescendants = 
+        getSemanticTypeDescendants(getTerminology(), getVersion(), structuralChemicalTreeNumber, true);
+    for (SemanticType sty : structuralDescendants.getObjects()) {
+      sty.setStructuralChemical(true);
+      updateSemanticType(sty);
+    }
+    SemanticTypeList functionalDescendants = 
+        getSemanticTypeDescendants(getTerminology(), getVersion(), functionalChemicalTreeNumber, true);
+    for (SemanticType sty : functionalDescendants.getObjects()) {
+      sty.setFunctionalChemical(true);
+      updateSemanticType(sty);
+    }
+
+    commitClearBegin();
   }
 
   /**
