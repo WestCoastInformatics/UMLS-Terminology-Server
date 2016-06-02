@@ -171,7 +171,7 @@ tsApp.service('securityService', [
       }
       console.debug('fail');
       return false;
-    }
+    };
 
     // isAdmin function
     this.isAdmin = function() {
@@ -198,7 +198,7 @@ tsApp.service('securityService', [
       var deferred = $q.defer();
       if (user.authToken == null) {
         window.alert("You are not currently logged in");
-        deferred.reject('Not currently logged in')
+        deferred.reject('Not currently logged in');
       } else {
       gpService.increment();
 
@@ -552,6 +552,6 @@ tsApp.service('securityService', [
 
       return deferred.promise;
 
-    }
+    };
 
   } ]);

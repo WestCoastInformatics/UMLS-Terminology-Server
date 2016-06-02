@@ -11,7 +11,7 @@ tsApp.controller('LoginCtrl', [
   'configureService',
   'tabService',
   'appConfig',
-  function($rootScope, $scope, $http, $location, securityService, gpService, utilService,
+  function($rootScope, $scope, $http, $location, securityService, utilService,
     projectService, configureService, tabService, appConfig) {
     console.debug('configure LoginCtrl');
     
@@ -44,7 +44,6 @@ tsApp.controller('LoginCtrl', [
 
         // if license required, go to license page
         if (appConfig.licenseEnabled === 'true') {
-          console.debug('gpc: ', gpService.glassPane.counter);
           $location.path('/license');
         }
 
@@ -57,7 +56,7 @@ tsApp.controller('LoginCtrl', [
         // file upload or content based on role
         else {
           if (tabService.getTabs().length == 0) {
-            handleError('No tabs configured')
+            utilService.handleError('No tabs configured');
           }
           $location.path(tabService.getTabs()[0].link);
 
@@ -68,7 +67,6 @@ tsApp.controller('LoginCtrl', [
       // error
       function(response) {
         utilService.handleError(response);
-        gpService.decrement();
       });
     };
 
