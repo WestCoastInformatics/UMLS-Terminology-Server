@@ -22,7 +22,7 @@ var sourceDataUrl = 'file/';
 var configureUrl = 'configure/';
 
 tsApp
-  .run(function checkConfig($rootScope, $http, $route, appConfig, configureService, utilService) {
+  .run(function checkConfig($rootScope, $http, $route, appConfig, configureService, utilService, securityService) {
 
     var errMsg = '';
 
@@ -39,6 +39,11 @@ tsApp
         if (appConfig[key].startsWith('${')) {
           errMsg += 'Configuration property ' + key + ' not set in project or configuration file';
         }
+      }
+      
+      // if login not enabled, set guest user
+      if (appConfig.loginEnabled !== 'true') {
+        securityService.setGuestUser();
       }
     }
     if (errMsg.length > 0) {

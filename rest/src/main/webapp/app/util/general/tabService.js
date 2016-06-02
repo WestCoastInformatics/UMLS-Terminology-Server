@@ -15,13 +15,12 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
       for (var i = 0; i < tabArray.length; i++) {
         switch (tabArray[i]) {
         case 'source':
-          if (securityService.hasPrivilegesOf('USER')) {
-            this.tabs.push({
-              link : 'source',
-              label : 'Sources',
-              role : 'USER'
-            });
-          }
+          this.tabs.push({
+            link : 'source',
+            label : 'Sources',
+            role : 'USER'
+          });
+
           break;
         case 'content':
           this.tabs.push({
@@ -38,14 +37,13 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
           });
           break;
         case 'admin':
-          if (securityService.hasPrivilegesOf('USER')) {
-            this.tabs.push({
-              link : 'admin',
-              label : 'Admin',
-              role : 'USER'
+          this.tabs.push({
+            link : 'admin',
+            label : 'Admin',
+            role : 'ADMINISTRATOR'
 
-            });
-          }
+          });
+
           break;
         case 'default':
           console.error('Invalid tab ' + tabArray[i] + ' specified, skipping');
@@ -69,6 +67,16 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
       this.selectedTab = tab;
       $location.path(tab.link);
     };
+    
+    this.getFirstViewableTab = function() {
+      for (var i = 0; i < this.tabs.length; i++) {
+        if (securityService.hasPrivilegesOf(this.tabs[i].role)) {
+          return this.tabs[i];
+        }
+      }
+      utilService.setError('Configuration Error: User has no viewable tabs');
+      return null;
+    }
 
     // sets the selected tab by label
     // to be called by controllers when their

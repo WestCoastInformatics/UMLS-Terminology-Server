@@ -159,22 +159,13 @@ tsApp.service('securityService', [
     // Note that administrator is considered all roles
     //
     this.hasPrivilegesOf = function(role) {
-      console.debug('privileges check', role, user);
       switch (role) {
       case 'ADMINISTRATOR':
         return this.isAdmin();
-      case 'REVIEWER':
-        return this.isReviewer() || this.isAdmin();
-      case 'AUTHOR':
-        return this.isAuthor() || this.isReviewer() || this.isAdmin();
-
-      case 'USER':
-        console.debug('success', this.isUser() || this.isAuthor() || this.isReviewer() || this.isAdmin());
-        return this.isUser() || this.isAuthor() || this.isReviewer() || this.isAdmin();
+      case 'USER':    
+        return this.isUser() ||  this.isAdmin();
       case 'VIEWER':
-        return this.isViewer() || this.isUser() || this.isAuthor() || this.isReviewer()
-          || this.isAdmin();
-      case 'GUEST':
+        return this.isViewer() || this.isUser() || this.isAdmin();
       default:
         return true;
       }
@@ -184,32 +175,22 @@ tsApp.service('securityService', [
 
     // isAdmin function
     this.isAdmin = function() {
-      return user.applicationRole == 'ADMINISTRATOR';
+      return user.userRole === 'ADMINISTRATOR';
     };
 
     // isUser function
     this.isUser = function() {
-      return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'USER';
-    };
-
-    // isAuthor function 
-    this.isAuthor = function() {
-      return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'AUTHOR';
-    };
-
-    // isReviewer function
-    this.isReviewer = function() {
-      return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'REVIEWER';
+      return user.userRole === 'USER';
     };
 
     // isViewer function
     this.isViewer = function() {
-      return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'VIEWER';
+      return user.userRole === 'VIEWER';
     };
 
     // isGuest function
     this.isGuest = function() {
-      return user.applicationRole == 'GUEST';
+      return true;
     }
 
     this.logout = function() {
@@ -548,6 +529,8 @@ tsApp.service('securityService', [
 
       var deferred = $q.defer();
 
+      gpService.increment();
+
       // login
       $http({
         url : securityUrl + 'authenticate/' + userName,
@@ -557,10 +540,12 @@ tsApp.service('securityService', [
           'Content-Type' : 'text/plain'
         }
       }).then(function(response) {
+        gpService.decrement();
         deferred.resolve(response.data);
       },
       // error
       function(response) {
+        gpService.decrement();
         utilService.handleError(response);
         deferred.reject(response.data);
       });

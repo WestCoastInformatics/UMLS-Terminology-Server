@@ -44,6 +44,7 @@ tsApp.controller('LoginCtrl', [
 
         // if license required, go to license page
         if (appConfig.licenseEnabled === 'true') {
+          console.debug('gpc: ', gpService.glassPane.counter);
           $location.path('/license');
         }
 
@@ -61,7 +62,7 @@ tsApp.controller('LoginCtrl', [
           $location.path(tabService.getTabs()[0].link);
 
         }
-        gpService.decrement();
+      
       },
 
       // error
