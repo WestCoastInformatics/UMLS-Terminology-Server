@@ -2,7 +2,7 @@
 tsApp.config(function configureRoutes($routeProvider, appConfig) {
 
   console.debug('Configuring routes', appConfig);
-  
+
   if (!appConfig) {
     console.error('Application configuration could not be retrieved, see appConfig.js');
   }
@@ -17,7 +17,8 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
   });
 
   // Source Data Configurations
-  if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('source') != -1 && appConfig.loginEnabled === 'true') {
+  if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('source') != -1
+    && appConfig.loginEnabled === 'true') {
     console.debug('Route enabled: source');
     $routeProvider.when('/source', {
       controller : 'SourceCtrl',
@@ -108,19 +109,22 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
       $routeProvider.when('/', licenseRoute);
     }
   }
-  
+
   // if none enabled, default is content
   // TODO Outstanding issue here, need to detect tab role, but don't have that prior to tabService initialization
-  if (appConfig.landingEnabled !== 'true' && appConfig.loginEnabled !== 'true' && appConfig.licenseEnabled !== 'true') {
+  if (appConfig.landingEnabled !== 'true' && appConfig.loginEnabled !== 'true'
+    && appConfig.licenseEnabled !== 'true') {
     console.log('No landing, license, or login pages -- default route is /content')
-    $routeProvider.when('/', '/content');
+    $routeProvider.when('/', {
+      templateUrl : 'app/page/content/content.html',
+      controller : 'ContentCtrl',
+      reloadOnSearch : false
+    });
   }
 
   // otherwise, redirect to root
   $routeProvider.otherwise({
     redirectTo : '/'
   });
-  
-
 
 });

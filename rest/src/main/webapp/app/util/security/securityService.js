@@ -389,7 +389,7 @@ tsApp.service('securityService', [
     // Gets the user favorite string object without reference to name or timestamp
     function getUserFavorite(type, terminology, version, terminologyId) {
 
-      if (!user || !userPreferences || !userPreferences.favorites) {
+      if (!user || !user.userPreferences || !user.userPreferences.favorites) {
         return null;
       }
 
