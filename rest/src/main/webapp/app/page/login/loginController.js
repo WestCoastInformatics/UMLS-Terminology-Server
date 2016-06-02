@@ -5,7 +5,6 @@ tsApp.controller('LoginCtrl', [
   '$http',
   '$location',
   'securityService',
-  'gpService',
   'utilService',
   'projectService',
   'configureService',
