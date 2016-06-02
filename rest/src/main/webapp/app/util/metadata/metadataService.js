@@ -7,9 +7,6 @@ tsApp.service('metadataService', [
   'tabService',
   function($http, $q, gpService, utilService, tabService) {
     console.debug("configure metadataService");
-
-    // ensure tab correctly set for 'back' and 'reload' events
-    tabService.setSelectedTabByLabel('Metadata');
     
     // The metadata for current terminology
     var metadata = {

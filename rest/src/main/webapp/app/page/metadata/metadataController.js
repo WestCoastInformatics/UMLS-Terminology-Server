@@ -11,7 +11,7 @@ tsApp.controller('MetadataCtrl', [
   'configureService',
   function($scope, $http, $location, gpService, utilService, tabService, securityService,
     metadataService, configureService) {
-    console.debug("configure MetadataCtrl", tabService.selectedTab.label);
+    console.debug("configure MetadataCtrl");
 
     // Clear error
     utilService.clearError();

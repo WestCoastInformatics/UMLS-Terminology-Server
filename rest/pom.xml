@@ -30,9 +30,9 @@
     <deploy.feedback.email>info@westcoastinformatics.com</deploy.feedback.email>
     <deploy.presented.by>Presented by West Coast Informatics, LLC</deploy.presented.by>
     <deploy.enabled.tabs>source,content,metadata</deploy.enabled.tabs>
-    <deploy.landing.enabled>true</deploy.landing.enabled>
-    <deploy.login.enabled>true</deploy.login.enabled>
-    <deploy.license.enabled>true</deploy.license.enabled>
+    <deploy.landing.enabled>false</deploy.landing.enabled>
+    <deploy.login.enabled>false</deploy.login.enabled>
+    <deploy.license.enabled>false</deploy.license.enabled>
     <deploy.license.text>Dev License Agreement Text</deploy.license.text>
 
   </properties>

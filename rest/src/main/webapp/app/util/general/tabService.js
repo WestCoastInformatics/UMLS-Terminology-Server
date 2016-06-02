@@ -1,20 +1,16 @@
 // Tab service
-tsApp.service('tabService', [
-  '$route',
-  '$location',
-  'utilService',
-  'gpService',
-  'securityService',
-  'appConfig',
-  function($route, $location, utilService, gpService, securityService, appConfig) {
+tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService', 'securityService',
+  'appConfig', function($route, $location, utilService, gpService, securityService, appConfig) {
     console.debug('configure tabService');
 
-    this.showTabs = false;
+    this.showTabs = true;
 
     // Available tabs
+    // TODO Make private, with accessor
     this.tabs = [];
 
     if (appConfig.enabledTabs) {
+      securityService.getUser();
       var tabArray = appConfig.enabledTabs.split(',');
       for (var i = 0; i < tabArray.length; i++) {
         switch (tabArray[i]) {
@@ -24,6 +20,7 @@ tsApp.service('tabService', [
             label : 'Sources',
             role : 'USER'
           });
+
           break;
         case 'content':
           this.tabs.push({
@@ -43,29 +40,18 @@ tsApp.service('tabService', [
           this.tabs.push({
             link : 'admin',
             label : 'Admin',
-            role : 'USER'
+            role : 'ADMINISTRATOR'
+
           });
+
           break;
         case 'default':
           console.error('Invalid tab ' + tabArray[i] + ' specified, skipping');
         }
       }
     }
-
-    this.viewFirstViewableTab = function() {
-      console.debug('switching to first enabled tab', appConfig.enabledTabs.split(',')[0],
-        $route.routes);
-      for ( var i = 0 ; i < this.tabs.length; i++) {
-        console.debug('checking tab privilege', this.tabs[i].role, securityService.hasPrivilegesOf(this.tabs[i].role));
-        
-        if (securityService.hasPrivilegesOf(this.tabs[i].role)) {
-          this.setSelectedTabByIndex(i);
-          break;
-        }
-      }
-    }
-
     this.setShowing = function(showTabs) {
+      console.debug('setShowing', showTabs);
       this.showTabs = showTabs;
     };
 
@@ -81,6 +67,16 @@ tsApp.service('tabService', [
       this.selectedTab = tab;
       $location.path(tab.link);
     };
+    
+    this.getFirstViewableTab = function() {
+      for (var i = 0; i < this.tabs.length; i++) {
+        if (securityService.hasPrivilegesOf(this.tabs[i].role)) {
+          return this.tabs[i];
+        }
+      }
+      utilService.setError('Configuration Error: User has no viewable tabs');
+      return null;
+    }
 
     // sets the selected tab by label
     // to be called by controllers when their

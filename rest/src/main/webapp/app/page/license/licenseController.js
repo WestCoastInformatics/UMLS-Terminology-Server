@@ -1,4 +1,4 @@
-// Landingcontroller
+// License acceptance controller
 tsApp
   .controller(
     'LicenseCtrl',
@@ -13,6 +13,8 @@ tsApp
         console.debug('configure LicenseCtrl');
 
         // NOTE: Do NOT clear error here (to preserve license error messages)
+
+        tabService.setShowing(false);
 
         $scope.licenseChecked = false;
 
@@ -36,8 +38,10 @@ tsApp
             if (user && user.userPreferences && user.userPreferences.lastTab) {
               $location.path(user.userPreferences.lastTab)
             } else {
-              console.debug('rerouting to first available tab');
-              tabService.viewFirstViewableTab();
+              if (tabService.tabs.length == 0) {
+                handleError('No tabs configured')
+              }
+              $location.path(tabService.getFirstViewableTab().link);
             }
           });
 
@@ -58,10 +62,4 @@ tsApp
 
         // check scroll height initially to catch short fragments
         checkScrollHeight();
-
-        // If no login page, set guest user
-        if (appConfig.loginEnabled !== 'true') {
-          securityService.setGuestUser();
-        }
-
       } ]);
