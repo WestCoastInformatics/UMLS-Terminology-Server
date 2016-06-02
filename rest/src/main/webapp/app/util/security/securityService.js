@@ -173,7 +173,7 @@ tsApp.service('securityService', [
       default:
         return true;
       }
-    }
+    };
 
     // isAdmin function
     this.isAdmin = function() {
@@ -203,7 +203,7 @@ tsApp.service('securityService', [
     // isGuest function
     this.isGuest = function() {
       return user.applicationRole == 'GUEST';
-    }
+    };
 
     this.logout = function() {
       if (user.authToken == null) {
@@ -415,14 +415,14 @@ tsApp.service('securityService', [
         return false;
       }
 
-    }
+    };
 
     this.addUserFavorite = function(type, terminology, version, terminologyId, name) {
       var deferred = $q.defer();
       if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
         deferred.reject('Insufficient arguments');
       }
-      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name)
+      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
       if (!user.userPreferences.favorites) {
         user.userPreferences.favorites = [];
       }
@@ -443,7 +443,7 @@ tsApp.service('securityService', [
 
       return deferred.promise;
 
-    }
+    };
 
     this.removeUserFavorite = function(type, terminology, version, terminologyId, name) {
 
@@ -458,7 +458,7 @@ tsApp.service('securityService', [
       var matchFound = false;
       for (var i = 0; i < user.userPreferences.favorites.length; i++) {
         if (user.userPreferences.favorites[i].indexOf(delimitedStr) != -1) {
-          console.debug('match found: ', user.userPreferences.favorites[i])
+          console.debug('match found: ', user.userPreferences.favorites[i]);
           matchFound = true;
           user.userPreferences.favorites.splice(i, 1);
           break;
@@ -476,7 +476,7 @@ tsApp.service('securityService', [
 
       return deferred.promise;
 
-    }
+    };
 
     // update user preferences
     this.updateUserPreferences = function(userPreferences) {
@@ -519,6 +519,6 @@ tsApp.service('securityService', [
         return item.terminology === terminology && item.terminologyId === terminologyId
           && item.version === version && item.type === type;
       }).length > 0;
-    }
+    };
 
   } ]);
