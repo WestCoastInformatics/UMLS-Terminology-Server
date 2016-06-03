@@ -5,6 +5,7 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
 
   // Component wrapper or full component
   $scope.component = component;
+  $scope.tinymceOptions = utilService.tinymceOptions;
 
   function getPagedList() {
     console.debug('notes: getpageddata');
@@ -62,6 +63,11 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
       $scope.component = response;
       getPagedList();
     });
+  };
+  
+  // Render date
+  $scope.toDate = function(x) {
+    return utilService.toDate(x);
   };
 
   //

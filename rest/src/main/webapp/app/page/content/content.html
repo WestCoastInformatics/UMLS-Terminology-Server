@@ -215,15 +215,15 @@
             <tr ng-class="{active: searchResult.active}"
               ng-repeat="searchResult in searchResults.results"
               ng-click="getComponent(metadata.terminology.organizingClassType, searchResult.terminologyId, searchResult.terminology, searchResult.version)">
-              <td>
-                <span class="nobreak">
+              <td class="col-md-4 col-xs-4">
+                <span>
                   <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
                   <span
                     ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
                   <span class="breakword">{{searchResult.terminologyId}}</span>
                 </span>
               </td>
-              <td>
+              <td class="col-md-8 col-xs-8">
                 <span class="breakword"> {{searchResult.value}}</span>
                 <span class="label label-default"
                   ng-show="searchResult.obsolete"
@@ -286,7 +286,7 @@
     </div>
     <!-- Title bar & Navigation history -->
     <div class="row">
-      <div class="col-md-12 nobreak alert alert-info" ng-if="component != null">
+      <div class="col-md-12 col-xs-12 nobreak alert alert-info" ng-if="component != null">
         <div style="display: inline" uib-dropdown dropdown-append-to-body>
           <i uib-tooltip="View All History"
             ng-show="history.components.length > 2"

@@ -56,6 +56,15 @@ tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureSe
     });
   }
 
+  }
+
+  if (errMsg.length > 0) {
+    // Send an embedded 'data' object
+    utilService.handleError({
+      data : 'Configuration Error:\n' + errMsg
+    });
+  }
+
   // check and set whether application is configured
   $http.get(configureUrl + 'configured').then(function(response) {
     $rootScope.isConfigured = response.data;
@@ -100,8 +109,9 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 } ]);
 
 // Confirm dialog conroller and directive
-tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
 
+// Confirm dialog conroller and directive
+tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
   // Local data for scope
   $scope.data = angular.copy(data);
 
@@ -125,20 +135,19 @@ tsApp
 
 tsApp.factory('$confirm', function($uibModal, $confirmModalDefaults) {
   return function(data, settings) {
-    settings = angular.extend($confirmModalDefaults, (settings || {}));
-    data = data || {};
+    var lsettings = angular.extend($confirmModalDefaults, (settings || {}));
 
-    if ('templateUrl' in settings && 'template' in settings) {
-      delete settings.template;
+    if ('templateUrl' in lsettings && 'template' in lsettings) {
+      delete lsettings.template;
     }
 
-    settings.resolve = {
+    lsettings.resolve = {
       data : function() {
-        return data;
+        return data || {};
       }
     };
 
-    return $uibModal.open(settings).result;
+    return $uibModal.open(lsettings).result;
   };
 });
 
@@ -152,7 +161,6 @@ tsApp.directive('confirm', function($confirm) {
       confirm : '@'
     },
     link : function(scope, element, attrs) {
-
       function reBind(func) {
 
         element.unbind('click').bind('click', function() {
@@ -161,6 +169,7 @@ tsApp.directive('confirm', function($confirm) {
       }
 
       function bindConfirm() {
+        console.debug("YYY  bind confirm");
         $confirm({
           text : scope.confirm
         }).then(scope.ngClick);
@@ -169,17 +178,20 @@ tsApp.directive('confirm', function($confirm) {
       if ('confirmIf' in attrs) {
 
         scope.$watch('confirmIf', function(newVal) {
-          if (newVal) {
+          if (newVal || newVal === undefined) {
             reBind(bindConfirm);
           } else {
             reBind(function() {
+              console.debug("ZZZZ",newVal,attrs);
               scope.$apply(scope.ngClick);
             });
           }
         });
       } else {
+        console.debug("WWWW");
         reBind(bindConfirm);
       }
+      console.debug("AAAA",element);
     }
   };
 });
