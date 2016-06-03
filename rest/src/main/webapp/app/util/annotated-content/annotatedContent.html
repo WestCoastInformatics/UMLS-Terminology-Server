@@ -21,8 +21,8 @@
               {{content.active}}
               <span
                 ng-show="content.terminology != metadata.terminology.terminology">{{content.terminology}} /</span>
-            <span ng-show="content.terminologyId.length < 11">{{content.terminologyId}}</span>
-            <span ng-show="content.terminologyId.length > 10" class="breakword">{{content.terminologyId}}</span>
+            <span ng-show="content.terminologyId.length < 12">{{content.terminologyId}}</span>
+            <span ng-show="content.terminologyId.length > 11" class="breakword">{{content.terminologyId}}</span>
           </td>
           <td class="col-md-7 col-xs-7"
             ng-click="callbacks.getComponent(content.type, content.terminologyId, content.terminology, content.version)">

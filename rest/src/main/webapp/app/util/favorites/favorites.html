@@ -21,8 +21,8 @@
             <span
               ng-show="favorite.terminology != metadata.terminology.terminology">{{favorite.terminology}}
               /</span>
-            <span ng-show="favorite.terminologyId.length < 11">{{favorite.terminologyId}}</span>
-            <span ng-show="favorite.terminologyId.length > 10" class="breakword">{{favorite.terminologyId}}</span>
+            <span ng-show="favorite.terminologyId.length < 12">{{favorite.terminologyId}}</span>
+            <span ng-show="favorite.terminologyId.length > 11" class="breakword">{{favorite.terminologyId}}</span>
           </td>
           <td class="col-md-7 col-xs-7"
             ng-click="callbacks.getComponent(favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
