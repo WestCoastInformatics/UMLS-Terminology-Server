@@ -314,7 +314,7 @@ tsApp
 
       $scope.updateSourceDataFromPoll = function(polledSourceData) {
         if (!polledSourceData) {
-          console.error('Cannot update source data from poll results');
+          utilService.setError('Cannot update source data from poll results');
           return;
         }
 

@@ -225,7 +225,7 @@ tsApp
             terminologyId : terminologyId,
             terminology : terminology,
             version : version
-          }
+          };
 
           contentService.getComponent(wrapper).then(function(response) {
 
@@ -248,7 +248,7 @@ tsApp
           $scope.searchParams.page = 1;
           $scope.searchResultsCollapsed = false;
           $scope.findComponents(true, suppressWarnings);
-        }
+        };
 
         // Find concepts based on current search
         // - loadFirst indicates whether to auto-load result[0]
@@ -277,7 +277,7 @@ tsApp
             && $scope.searchParams.expression && $scope.searchParams.expression.value
             && $scope.searchParams.expression.value.length > 0;
           var hasNotes = $scope.searchParams && $scope.searchParams.advancedMode
-            && $scope.searchParams.userNote
+            && $scope.searchParams.userNote;
 
           // ensure query/expression string has appropriate length
           if (!hasQuery && !hasExpr && !hasNotes) {
@@ -350,7 +350,7 @@ tsApp
           console.debug('getComponentFromWrapper', wrapper);
           $scope.getComponent(wrapper.type, wrapper.terminologyId, wrapper.terminology,
             wrapper.version);
-        }
+        };
 
         // Load hierarchy into tree view
         $scope.browseHierarchy = function() {
@@ -503,7 +503,7 @@ tsApp
             fromIndex : fromIndex,
             toIndex : toIndex,
             components : components
-          }
+          };
         }
 
         // Retrieve a component from the history list
@@ -511,7 +511,7 @@ tsApp
 
           // if currently viewed do nothing
           if (index === $scope.history.index) {
-            console.debug('getComponentFromHistory: currently viewed, do nothing')
+            console.debug('getComponentFromHistory: currently viewed, do nothing');
             return;
           }
 
@@ -563,7 +563,7 @@ tsApp
         //
 
         $scope.setExpression = function() {
-          console.debug('Setting expression from ', $scope.searchParams.expression)
+          console.debug('Setting expression from ', $scope.searchParams.expression);
 
           // ensure all fields set to wildcard if not set
           for ( var key in $scope.searchParams.expression.fields) {
@@ -596,7 +596,7 @@ tsApp
           }
           $scope.searchParams.expression.value = null;
           $scope.searchParams.expression = $scope.expressions[0];
-        }
+        };
 
         // get the defined expressions and set to the first option
         $scope.configureExpressions = function() {
@@ -687,7 +687,7 @@ tsApp
                 websocketService.fireFavoriteChange();
               });
           }
-        }
+        };
 
         //
         // Callback Function Objects
@@ -709,7 +709,7 @@ tsApp
             getComponentFromTree : $scope.getComponentFromTree,
             getComponentFromWrapper : $scope.getComponentFromWrapper,
             findComponentsForQuery : $scope.findComponentsForQuery
-          }
+          };
           console.debug('  component retrieval callbacks', $scope.componentRetrievalCallbacks);
 
           //
@@ -745,7 +745,7 @@ tsApp
             .extendCallbacks($scope.favoritesCallbacks, $scope.componentRetrievalCallbacks);
           console.debug('  Favorites callbacks', $scope.favoritesCallbacks);
 
-        }
+        };
 
         //
         // Initialize

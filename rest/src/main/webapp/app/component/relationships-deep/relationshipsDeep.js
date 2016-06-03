@@ -72,7 +72,7 @@ tsApp.directive('relationshipsDeep', [
             terminology : scope.component.terminology,
             version : scope.component.version,
             terminologyId: scope.component.terminologyId
-          }
+          };
 
           // Request from service
           contentService.findDeepRelationships(wrapper, scope.paging.page,

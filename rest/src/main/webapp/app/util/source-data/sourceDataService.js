@@ -203,7 +203,7 @@ tsApp.service('sourceDataService', [
       console.debug('loading source data from id ' + id);
       var deferred = $q.defer();
       if (!id) {
-        console.error('Attempted to load from null or undefined id');
+        utilService.setError('Attempted to load from null or undefined id');
         deferred.reject('No id specified');
       } else {
         if (!suppressGlassPane) {
@@ -232,7 +232,7 @@ tsApp.service('sourceDataService', [
       console.debug('loading source data for ' + sourceData.name);
       var deferred = $q.defer();
       if (!sourceData) {
-        console.error('Attempted to load from null or undefined source data');
+        utilService.setError('Attempted to load from null or undefined source data');
         deferred.reject('No source data specified');
       } else {
         gpService.increment();
@@ -257,7 +257,7 @@ tsApp.service('sourceDataService', [
       console.debug('removing from source data for ' + sourceData.name);
       var deferred = $q.defer();
       if (!sourceData) {
-        console.error('Attempted to remove from null or undefined source data');
+        utilService.setError('Attempted to remove from null or undefined source data');
         deferred.reject('No source data specified');
       } else {
         gpService.increment();
@@ -294,7 +294,7 @@ tsApp.service('sourceDataService', [
       var deferred = $q.defer();
 
       if (!terminology && !version) {
-        console.error('Must specify all of terminology and version to retrieve log entries');
+        utilService.setError('Must specify all of terminology and version to retrieve log entries');
         deferred.reject(null);
       }
 

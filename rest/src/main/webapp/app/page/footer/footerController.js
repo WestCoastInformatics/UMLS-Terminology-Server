@@ -52,7 +52,7 @@ tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce',
             return version.substring(0, version.indexOf('-'));
           }
           else return version;
-        }
+        };
       }
     };
   } ]);
