@@ -2,8 +2,8 @@
   <div class="alert alert-success"
     ng-click="favoritesCollapsed = !favoritesCollapsed">
     <i class="glyphicon"
-      ng-class="[{'glyphicon-chevron-right' : favoritesCollapsed}, {'glyphicon-chevron-down' : !favoritesCollapsed}]"></i>&nbsp;
-    Favorite Content ({{pagedData.totalCount}})
+      ng-class="[{'glyphicon-chevron-right' : favoritesCollapsed}, {'glyphicon-chevron-down' : !favoritesCollapsed}]"></i>
+    &nbsp; Favorite Content ({{pagedData.totalCount}})
   </div>
   <div ng-show="!favoritesCollapsed">
     <div pager paging="paging" count="pagedData.totalCount"
@@ -16,20 +16,20 @@
           ng-mouseleave="favorite.hover = false;"
           ng-repeat="favorite in pagedData.results">
           <!--  Only put ng-click callback on first two cells (i.e. not the controls cell) -->
-          <td class="col-md-4 breakword"
+          <td class="col-md-4 col-xs-4"
             ng-click="callbacks.getComponent(favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
-            <span >
-              <span
-                ng-show="favorite.terminology != metadata.terminology.terminology">{{favorite.terminology}}&nbsp;/&nbsp;</span>
-              <span>{{favorite.terminologyId}}</span>
-            </span>
+            <span
+              ng-show="favorite.terminology != metadata.terminology.terminology">{{favorite.terminology}}
+              /</span>
+            <span ng-show="favorite.terminologyId.length < 11">{{favorite.terminologyId}}</span>
+            <span ng-show="favorite.terminologyId.length > 10" class="breakword">{{favorite.terminologyId}}</span>
           </td>
-          <td class="col-md-6"
+          <td class="col-md-7 col-xs-7"
             ng-click="callbacks.getComponent(favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
             <span class=""> {{favorite.value}}</span>
-          </td>
-          <td class="col-md-2">
             <!-- Always show blue note icon if favorite has notes -->
+          </td>
+          <td class="col-md-1 col-xs-1 nobreak">
             <i
               ng-show="favorite.property.key === 'hasNotes' && favorite.property.value === 'true'"
               ng-click="viewNotes(favorite)"
@@ -44,7 +44,8 @@
             <!-- Add space between icons -->
             &nbsp;
             <!--  Show remove favorite button on hover -->
-            <i ng-show="favorite.hover" confirm="Confirm me!"
+            <i ng-show="favorite.hover"
+              confirm="Are you sure you want to remove the favorite?"
               class="glyphicon glyphicon-remove noul glyphicon-muted"
               title="Remove Favorite" ng-click="removeFavorite(favorite)"></i>
           </td>

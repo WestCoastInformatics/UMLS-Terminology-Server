@@ -46,9 +46,9 @@ tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureSe
     if (appConfig.loginEnabled !== 'true') {
       securityService.setGuestUser();
     }
-    
+
   }
-  
+
   if (errMsg.length > 0) {
     // Send an embedded 'data' object
     utilService.handleError({
@@ -100,8 +100,9 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 } ]);
 
 // Confirm dialog conroller and directive
-tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
 
+// Confirm dialog conroller and directive
+tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
   // Local data for scope
   $scope.data = angular.copy(data);
 
@@ -125,20 +126,19 @@ tsApp
 
 tsApp.factory('$confirm', function($uibModal, $confirmModalDefaults) {
   return function(data, settings) {
-    settings = angular.extend($confirmModalDefaults, (settings || {}));
-    data = data || {};
+    var lsettings = angular.extend($confirmModalDefaults, (settings || {}));
 
-    if ('templateUrl' in settings && 'template' in settings) {
-      delete settings.template;
+    if ('templateUrl' in lsettings && 'template' in lsettings) {
+      delete lsettings.template;
     }
 
-    settings.resolve = {
+    lsettings.resolve = {
       data : function() {
-        return data;
+        return data || {};
       }
     };
 
-    return $uibModal.open(settings).result;
+    return $uibModal.open(lsettings).result;
   };
 });
 
@@ -152,34 +152,37 @@ tsApp.directive('confirm', function($confirm) {
       confirm : '@'
     },
     link : function(scope, element, attrs) {
-
       function reBind(func) {
-
+        console.debug("XXXX",attrs);
         element.unbind('click').bind('click', function() {
           func();
         });
       }
 
       function bindConfirm() {
+        console.debug("YYY  bind confirm");
         $confirm({
           text : scope.confirm
         }).then(scope.ngClick);
       }
 
       if ('confirmIf' in attrs) {
-
+        console.debug("BBBB",element);
         scope.$watch('confirmIf', function(newVal) {
-          if (newVal) {
+          if (newVal || newVal === undefined) {
             reBind(bindConfirm);
           } else {
             reBind(function() {
+              console.debug("ZZZZ",newVal,attrs);
               scope.$apply(scope.ngClick);
             });
           }
         });
       } else {
+        console.debug("WWWW");
         reBind(bindConfirm);
       }
+      console.debug("AAAA",element);
     }
   };
 });
