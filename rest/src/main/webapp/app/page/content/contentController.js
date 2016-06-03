@@ -65,7 +65,7 @@ tsApp
 
         // Search parameters
         $scope.searchParams = contentService.getSearchParams();
-        $scope.searchResults = null;
+        $scope.searchResults = {};
         $scope.searchResultsCollapsed = false;
         $scope.searchOrBrowse = null;
 
@@ -319,7 +319,7 @@ tsApp
             return;
           }
 
-          contentService.findComponentsAsTree($scope.searchParams.query,
+          contentService.findComponentsAsTree($scope.searchParams.query, $scope.metadata.terminology.organizingClassType,
             $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
             $scope.searchParams.page, $scope.searchParams).then(function(data) {
 
@@ -361,13 +361,14 @@ tsApp
           $scope.searchParams.page = 1;
           $scope.searchParams.query = null;
 
-          contentService.getTreeRoots($scope.metadata.terminology.terminology,
+          contentService.getTreeRoots($scope.metadata.terminology.organizingClassType, $scope.metadata.terminology.terminology,
             $scope.metadata.terminology.version, $scope.searchParams.page).then(function(data) {
             // for ease and consistency of use of the ui tree
             // directive
             // force the single tree into a ui-tree data
             // structure with count
             // variables
+              $scope.queryForTree = true;
             $scope.searchResults.tree = [];
             $scope.searchResults.tree.push(data);
             // treeList array of size 1

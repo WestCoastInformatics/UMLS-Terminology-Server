@@ -12,7 +12,7 @@ tsApp.directive('treeSearchResult', [
       scope : {
         
         // metadata
-        meatdata : '=',
+        metadata : '=',
         
         // set search results if viewing trees for search
         searchResults : '=',
@@ -116,7 +116,7 @@ tsApp.directive('treeSearchResult', [
           // children length
           // NOTE: Offset by 1 to incorporate the (possibly) already loaded item
 
-          contentService.getChildTrees(tree, tree.children.length - 1).then(function(data) {
+          contentService.getChildTrees(tree, scope.metadata.terminology.organizingClassType, tree.children.length - 1).then(function(data) {
             deferred.resolve(data.trees);
           }, function(error) {
             utilService.setError('Unexpected error retrieving children');
