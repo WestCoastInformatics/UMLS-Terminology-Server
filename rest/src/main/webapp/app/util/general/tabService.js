@@ -5,12 +5,14 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
 
     this.showTabs = true;
 
-    // Available tabs
-    // TODO Make private, with accessor
-    this.tabs = [];
+    // Available tabs, keep as array
+    this.tabs = new Array();
 
+    // Setup tabs array based on "enabled tabs"
     if (appConfig.enabledTabs) {
+      // Verify user cookie properly setup - TODO: does this make sense here?
       securityService.getUser();
+
       var tabArray = appConfig.enabledTabs.split(',');
       for (var i = 0; i < tabArray.length; i++) {
         switch (tabArray[i]) {
@@ -46,15 +48,22 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
 
           break;
         case 'default':
-          console.error('Invalid tab ' + tabArray[i] + ' specified, skipping');
+          utilService.setError('Invalid tab ' + tabArray[i] + ' specified, skipping');
         }
       }
     }
+
+    // Fail if no enabled tabs
+    else {
+      utilService.setError('Configuration error: no enabled tabs in appConfig');
+    }
+
+    // Set a flag indicating whether tabs are to be showing
     this.setShowing = function(showTabs) {
-      console.debug('setShowing', showTabs);
       this.showTabs = showTabs;
     };
 
+    // Indicates whether tabs are showing at all
     this.isShowing = function() {
       return this.showTabs;
     };
@@ -67,24 +76,12 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
       this.selectedTab = tab;
       $location.path(tab.link);
     };
-    
-    this.getFirstViewableTab = function() {
-      for (var i = 0; i < this.tabs.length; i++) {
-        if (securityService.hasPrivilegesOf(this.tabs[i].role)) {
-          return this.tabs[i];
-        }
-      }
-      utilService.setError('Configuration Error: User has no viewable tabs');
-      return null;
-    }
 
     // sets the selected tab by label
     // to be called by controllers when their
     // respective tab is selected
     this.setSelectedTabByLabel = function(label) {
-      console.debug("set selected tab", label, this.tabs);
       for (var i = 0; i < this.tabs.length; i++) {
-        console.debug("  " + this.tabs[i].label, label);
         if (this.tabs[i].label === label) {
           this.selectedTab = this.tabs[i];
           $location.path(this.selectedTab.link);
@@ -93,10 +90,27 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
       }
     };
 
-    this.setSelectedTabByIndex = function(index) {
-      console.debug("set selected tab", index);
-      this.selectedTab = this.tabs[index];
-      $location.path(this.selectedTab.link);
-    }
+    // Route an authorized user to the starting tab
+    this.routeAuthorizedUser = function(userPreferences) {
+      // If user preferences tab is set and valid, go to that path
+      if (userPreferences && userPreferences.lastTab) {
+
+        // Ensure user preferences lastTab is valid
+        if (appConfig.enabledTabs.indexOf(userPreferences.lastTab.replace('/', '')) != -1) {
+          $location.path(userPreferences.lastTab);
+        }
+
+        // If user preferences lastTab is invalid, just go to first tab.
+        else {
+          $location.path(this.tabs[0].link);
+        }
+
+      }
+
+      // Otherwise, just go to the first tab
+      else {
+        $location.path(this.tabs[0].link);
+      }
+    };
 
   } ]);

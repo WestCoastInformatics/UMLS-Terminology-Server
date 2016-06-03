@@ -22,28 +22,22 @@ tsApp
         securityService.checkLicense().then(
         // license accepted
         function(response) {
-          console.debug('license cookie', response);
           $scope.acceptLicense();
         },
         // license not accepted
         function() {
-          console.debug('license not found');
           $scope.licenseChecked = true;
         });
 
         // function to launch application
         $scope.acceptLicense = function() {
-          securityService.acceptLicense().then(function(response) {
-            var user = securityService.getUser();
-            if (user && user.userPreferences && user.userPreferences.lastTab) {
-              $location.path(user.userPreferences.lastTab)
-            } else {
-              if (tabService.tabs.length == 0) {
-                handleError('No tabs configured')
-              }
-              $location.path(tabService.getFirstViewableTab().link);
-            }
-          });
+          securityService.acceptLicense().then(
+            function(response) {
+              var user = securityService.getUser();
+              // Route the user to starting tab
+              tabService.routeAuthorizedUser(user.userPreferences);
+
+            });
 
         };
 

@@ -13,20 +13,28 @@ import java.util.Set;
 import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCodes;
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.apache.log4j.Logger;
+
 /**
  * Websocket for asynchronous notifications. For now just messages, but could be
  * JSON representations of objects.
+ * 
+ * <pre>
+ * Useful URL: http://www.programmingforliving.com/2013/08/websocket-with-apache-tomcat-8.html
+ * Useful URL: http://www.programmingforliving.com/2013/08/websocket-tomcat-8-ServerEndpointConfig-Configurator.html
+ * </pre>
  */
 @ServerEndpoint(value = "/websocket", configurator = NotificationWebsocketConfigurator.class)
 public class NotificationWebsocket {
 
   /** The sessions. */
-  private static Set<Session> sessions = Collections
+  private Set<Session> sessions = Collections
       .synchronizedSet(new HashSet<Session>());
 
   /**
@@ -41,22 +49,36 @@ public class NotificationWebsocket {
    *
    * @param session the session
    */
-  @SuppressWarnings("static-method")
   @OnOpen
   public void onOpen(Session session) {
     // Add to sessions list
-    sessions.add(session);
+    synchronized (sessions) {
+      sessions.add(session);
+    }
   }
 
   /**
    * On close.
    *
    * @param userSession the user session
+   * @param reason the reason
    */
-  @SuppressWarnings("static-method")
   @OnClose
-  public void onClose(Session userSession) {
-    sessions.remove(userSession);
+  public void onClose(Session userSession, CloseReason reason) {
+    closeSession(userSession);
+  }
+
+  /**
+   * On error.
+   *
+   * @param session the session
+   * @param t the t
+   * @throws Throwable the throwable
+   */
+  @OnError
+  public void onError(Session session, Throwable t) throws Throwable {
+    Logger.getLogger(getClass()).error(
+        "SimpleMonitor2: onError() invoked, Exception = " + t.getMessage());
   }
 
   /**
@@ -76,7 +98,6 @@ public class NotificationWebsocket {
    *
    * @param message the message
    */
-  @SuppressWarnings("static-method")
   public void send(String message) {
     // Remove closed sessions
     Set<Session> copy = new HashSet<>(sessions);
@@ -106,5 +127,21 @@ public class NotificationWebsocket {
       }
     }
 
+  }
+
+  /**
+   * Close session.
+   *
+   * @param s the s
+   */
+  private void closeSession(Session s) {
+    synchronized (sessions) {
+      try {
+        s.close();
+      } catch (Throwable e) {
+        // Ignore
+      }
+      sessions.remove(s);
+    }
   }
 }

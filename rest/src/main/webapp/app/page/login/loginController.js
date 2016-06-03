@@ -48,33 +48,14 @@ tsApp.controller('LoginCtrl',
                 $location.path('/license');
               }
 
-              // otherwise, use previous tab in preferences (if it exists)
-              else if (response.userPreferences && response.userPreferences.lastTab) {
-                // Ensure user preferences lastTab is valid
-                if (appConfig.enabledTabs
-                  .indexOf(response.userPreferences.lastTab.replace('/', '')) != -1) {
-                  $location.path(response.userPreferences.lastTab);
-                } 
-                
-                // If user preferences lastTab is invalid, just go to first bab.
-                else {                  
-                  $location.path(tabService.tabs[0].link);
-                }
-
-              }
-
-              // if no previous preferences (first visit), go to source for
-              // initial
-              // file upload or content based on role
+              // otherwise
               else {
-                console.debug('first visit', tabService.tabs);
-                if (tabService.tabs.length == 0) {
-                  utilService.handleError('No tabs configured');
-                }
-                $location.path(tabService.tabs[0].link);
+                
+                // Route the user to starting tab
+                tabService.routeAuthorizedUser(response.userPreferences);
 
               }
-
+                
             },
 
             // error
