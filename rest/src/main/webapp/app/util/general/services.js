@@ -286,7 +286,7 @@ tsApp
 
           // apply sort if specified
           if (paging.sortField) {
-            console.debug('sorting', paging.sortField, paging.sortAscending)
+            console.debug('sorting', paging.sortField, paging.sortAscending);
             // if ascending specified, use that value, otherwise use false
             newArray.sort(this.sortBy(paging.sortField, paging.sortAscending));
           }
@@ -452,7 +452,7 @@ tsApp
             }
             callbacks[key] = itemsToAdd[key];
           }
-        }
+        };
 
       } ]);
 

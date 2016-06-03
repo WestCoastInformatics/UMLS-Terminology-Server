@@ -113,7 +113,7 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
   // if none enabled, default is content/
   if (appConfig.landingEnabled !== 'true' && appConfig.loginEnabled !== 'true'
     && appConfig.licenseEnabled !== 'true') {
-    console.debug('No landing, license, or login pages -- default route is /content')
+    console.debug('No landing, license, or login pages -- default route is /content');
     $routeProvider.when('/', {
       templateUrl : 'app/page/content/content.html',
       controller : 'ContentCtrl',

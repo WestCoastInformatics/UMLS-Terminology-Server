@@ -39,7 +39,7 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
 
       $uibModalInstance.close(response);
     });
-  }
+  };
 
   $scope.cancel = function() {
     $uibModalInstance.dismiss('cancel');

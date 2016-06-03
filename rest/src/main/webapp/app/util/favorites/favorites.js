@@ -11,7 +11,7 @@ tsApp.directive('favorites', [
     return {
       restrict : 'A',
       scope : {
-        // NOTE:  metadata used for non-matching terminology display in html only
+        // NOTE: metadata used for non-matching terminology display in html only
         metadata : '=',
         favorites : '=',
         callbacks : '='
@@ -41,8 +41,7 @@ tsApp.directive('favorites', [
         {
           key : 'Terminology',
           value : 'terminology'
-        },
-        {
+        }, {
           key : 'Terminology Id',
           value : 'terminologyId'
         }, {
@@ -58,12 +57,12 @@ tsApp.directive('favorites', [
 
           });
         }
-    
+
         // watch the favorites for first-load initialization
         scope.$watch('favorites', function() {
-         if (scope.pagedData == null) {
-           getPagedList();
-         }
+          if (scope.pagedData == null) {
+            getPagedList();
+          }
         }, true);
 
         // watch for favorite change notifications
@@ -72,16 +71,17 @@ tsApp.directive('favorites', [
         scope.$on('termServer::favoriteChange', function(event, data) {
           getPagedList();
         });
-        
+
         // watch for broadcast favorite update notification
         scope.$on('termServer::noteChange', function(event, data) {
-          
+
           console.debug('favorites: received noteChange', event, data, scope.pagedData);
 
           // check if referenced component is in list
           if (data && data.component) {
             for (var i = 0; i < scope.pagedData.results.length; i++) {
-              console.debug(' comparing ' + scope.pagedData.results[i].id + ' to ' + data.component.id)
+              console.debug(' comparing ' + scope.pagedData.results[i].id + ' to '
+                + data.component.id);
               if (scope.pagedData.results[i].id === data.component.id) {
                 console.debug('  component in viewed list, refreshing');
                 getPagedList();
@@ -89,13 +89,13 @@ tsApp.directive('favorites', [
               }
             }
           } else {
-            console.debug(' no data received"0;')
+            console.debug(' no data received"0;');
           }
         });
 
         scope.openFavorite = function(favorite) {
           scope.callbacks.getComponent(favorite);
-        }
+        };
 
         scope.removeFavorite = function(favorite) {
           securityService.removeUserFavorite(favorite.type, favorite.terminology, favorite.version,
@@ -104,7 +104,7 @@ tsApp.directive('favorites', [
             scope.callbacks.checkFavoriteStatus();
 
           });
-        }
+        };
 
         // Open notes modal, from either wrapper or component
         scope.viewNotes = function(favorite) {
@@ -124,7 +124,7 @@ tsApp.directive('favorites', [
           });
 
           modalInstance.result.then(function() {
-
+            // do nothing
           }, function() {
             // do nothing
           });

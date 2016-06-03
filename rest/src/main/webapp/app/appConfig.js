@@ -17,13 +17,9 @@ tsApp.constant('appConfig', {
 
   // routing variables
   enabledTabs: '${deploy.enabled.tabs}',
-//  landingEnabled : '${deploy.landing.enabled}',  
-//  licenseEnabled : '${deploy.license.enabled}',
-//  loginEnabled : '${deploy.login.enabled}',
-  landingEnabled : 'true',
-  loginEnabled : 'true',
-  licenseEnabled : 'true',
-
+  landingEnabled : '${deploy.landing.enabled}',  
+  licenseEnabled : '${deploy.license.enabled}',
+  loginEnabled : '${deploy.login.enabled}',
   
   // other
   siteTrackingCode : "${site.tracking.code}"

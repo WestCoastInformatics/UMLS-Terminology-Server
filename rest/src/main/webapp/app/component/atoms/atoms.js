@@ -49,9 +49,9 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
           terminologyId : terminologyId,
           terminology :terminology,
           version : version
-        }
+        };
         scope.callbacks.getComponent(wrapper);
-      }
+      };
 
       // toggle an items collapsed state
       scope.toggleItemCollapse = function(item) {

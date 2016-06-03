@@ -129,7 +129,7 @@ tsApp
 
         this.getExpressions = function() {
           return expressions;
-        }
+        };
 
         // Autocomplete function
         this.autocomplete = function(searchTerms, autocompleteUrl) {
@@ -244,19 +244,19 @@ tsApp
 
         this.setLastSearchParams = function(searchParams) {
           this.searchParams = searchParams;
-        }
+        };
 
         this.getLastSearchParams = function() {
           return this.searchParams;
-        }
+        };
 
         this.setLastComponent = function(component) {
           this.lastComponent = component;
-        }
+        };
 
         this.getLastComponent = function() {
           return this.lastComponent;
-        }
+        };
 
         // add a component history entry
         this.addComponentToHistory = function(terminologyId, terminology, version, type, name) {
@@ -286,12 +286,12 @@ tsApp
             'index' : history.length
           });
           history.index = history.components.length - 1;
-        }
+        };
 
         // Accessor for the history object
         this.getHistory = function() {
           return history;
-        }
+        };
 
         // Clears history
         this.clearHistory = function() {
@@ -717,7 +717,7 @@ tsApp
               gpService.decrement();
               deferred.reject(response.data);
             });
-        }
+        };
 
         this.addComponentNote = function(wrapper, note) {
           var deferred = $q.defer();
@@ -741,7 +741,7 @@ tsApp
 
             return deferred.promise;
           }
-        }
+        };
 
         this.removeComponentNote = function(wrapper, noteId) {
           var deferred = $q.defer();
@@ -764,7 +764,7 @@ tsApp
 
             return deferred.promise;
           }
-        }
+        };
 
         // Get the user favorites
         // NOTE: This uses the paging structure in utilService.getPaging
@@ -799,7 +799,7 @@ tsApp
 
           }
           return deferred.promise;
-        }
+        };
 
         this.getComponentsWithNotesForUser = function(query, parameters) {
           console.debug('get components with notes', query, parameters);
@@ -830,7 +830,7 @@ tsApp
           });
 
           return deferred.promise;
-        }
+        };
 
         /**
          * Callback functions needed by directives NOTE: getComponent and
@@ -842,8 +842,8 @@ tsApp
           return {
             findRelationships : this.findRelationships,
             findDeepRelationships : this.findDeepRelationships
-          }
-        }
+          };
+        };
 
         // end
 
