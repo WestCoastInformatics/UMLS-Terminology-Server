@@ -234,48 +234,45 @@
         </table>
         <p style="display: block;">&nbsp;</p>
       </div>
-      <!-- Tree view -->
-      <div ng-show="queryForTree && searchResults.tree">
-        <div class="alert alert-success">
-          <span ng-show="searchOrBrowse === 'BROWSE'">Hierarchy</span>
-          <span
-            ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search
-            Results</span>
-          <span
-            ng-show="searchParams.query && searchResults.tree.totalCount == 0">No
-            Results</span>
-          <span ng-show="searchResults.tree.totalCount > 0">{{searchResults.tree.totalCount}}
-            Results</span>
-          <span class="pull-right">
-            <i class="glyphicon glyphicon-star"
-              ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
-              ng-click="toggleExtension()"
-              uib-tooltip="Click to hide extension highlights in tree"> </i> <i
-              class="glyphicon glyphicon-star-empty"
-              ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
-              ng-click="toggleExtension()"
-              uib-tooltip="Click to show extension highlights in tree"> </i>
-            &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
-              ng-click="setListView()" uib-tooltip="Switch to list view"
-              tooltip-placement="bottom"></i>
-          </span>
-        </div>
-        <uib-pagination style="display:block;" items-per-page="pageSizes.trees"
-          max-size="5" boundary-links="true" class="pagination-sm"
-          previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
-          last-text="&raquo;"
-          ng-show="searchResults.tree.totalCount > pageSizes.trees"
-          total-items="searchResults.tree.totalCount"
-          ng-model="searchParams.page" ng-change="findComponents(false)"></uib-pagination>
-        <div tree-search-result metadata="metadata"
-          search-results="searchResults" parameters="searchParams"
-          callbacks="srtCallbacks"></div>
-        <p style="display: block;">&nbsp;</p>
+    </div>
+    <!-- Tree view -->
+    <div ng-show="queryForTree && searchResults.tree">
+      <div class="alert alert-success">
+        <span ng-show="searchOrBrowse === 'BROWSE'">Hierarchy</span>
+        <span ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search
+          Results</span>
+        <span ng-show="searchParams.query && searchResults.tree.totalCount == 0">No
+          Results</span>
+        <span ng-show="searchResults.tree.totalCount > 0">{{searchResults.tree.totalCount}}
+          Results</span>
+        <span class="pull-right">
+          <i class="glyphicon glyphicon-star"
+            ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
+            ng-click="toggleExtension()"
+            uib-tooltip="Click to hide extension highlights in tree"> </i> <i
+            class="glyphicon glyphicon-star-empty"
+            ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
+            ng-click="toggleExtension()"
+            uib-tooltip="Click to show extension highlights in tree"> </i>
+          &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
+            ng-click="setListView()" uib-tooltip="Switch to list view"
+            tooltip-placement="bottom"></i>
+        </span>
       </div>
+      <uib-pagination style="display:block;" items-per-page="pageSizes.trees"
+        max-size="5" boundary-links="true" class="pagination-sm"
+        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+        last-text="&raquo;"
+        ng-show="searchResults.tree.totalCount > pageSizes.trees"
+        total-items="searchResults.tree.totalCount" ng-model="searchParams.page"
+        ng-change="findComponents(false)"></uib-pagination>
+      <div tree-search-result metadata="metadata" search-results="searchResults"
+        parameters="searchParams" callbacks="srtCallbacks"></div>
+      <p style="display: block;">&nbsp;</p>
     </div>
     <!--  Favorites -->
-    <div ng-show="!isGuestUser()" favorites="user.userPreferences.favorites" metadata="metadata"
-      callbacks="favoritesCallbacks"></div>
+    <div ng-show="!isGuestUser()" favorites="user.userPreferences.favorites"
+      metadata="metadata" callbacks="favoritesCallbacks"></div>
     <!--  Components with user notes -->
     <div annotated-content metadata="metadata" callbacks="favoritesCallbacks"></div>
   </div>
@@ -320,18 +317,19 @@
           ng-click="getComponentFromHistory(history.index + 1)"
           ng-show="history.components.length > history.index + 1 && history.components.length > 0"
           uib-tooltip="{{getComponentStr(history[history.index + 1])}}"></i>
-
         &nbsp;&nbsp;
         <!-- Popout control -->
         <i ng-click="popout()"
           uib-tooltip="Open {{component.type}} in new window"
-          class="glyphicon glyphicon-share noul glyphicon-muted"></i> &nbsp;&nbsp;
+          class="glyphicon glyphicon-share noul glyphicon-muted"></i>
+        &nbsp;&nbsp;
         <!-- Notes controls -->
-        <i ng-show="component.notes.length > 0" ng-click="viewNotes()" uib-tooltip="View, Add, or Remove Notes"
-          class="glyphicon glyphicon-tags noul glyphicon-muted"></i>
-          <i ng-show="component.notes.length == 0" ng-click="viewNotes()" uib-tooltip="Add Notes  "
-          class="glyphicon glyphicon-tag glyphicon-muted"></i>
-           &nbsp;&nbsp;
+        <i ng-show="component.notes.length > 0" ng-click="viewNotes()"
+          uib-tooltip="View, Add, or Remove Notes"
+          class="glyphicon glyphicon-tags noul glyphicon-muted"></i> <i
+          ng-show="component.notes.length == 0" ng-click="viewNotes()"
+          uib-tooltip="Add Notes  "
+          class="glyphicon glyphicon-tag glyphicon-muted"></i> &nbsp;&nbsp;
         <!-- Favorite control -->
         <i ng-show="!isFavorite && !isGuestUser()"
           ng-click="toggleFavorite(component.type, component.terminology, component.version, component.terminologyId, component.name)"
@@ -339,7 +337,8 @@
           class="glyphicon glyphicon-heart-empty noul glyphicon-muted"></i> <i
           ng-show="isFavorite  && !isGuestUser()"
           ng-click="toggleFavorite(component.type, component.terminology, component.version, component.terminologyId, component.name)"
-          uib-tooltip="Remove favorites" class="glyphicon glyphicon-heart noul glyphicon-muted"></i>
+          uib-tooltip="Remove favorites"
+          class="glyphicon glyphicon-heart noul glyphicon-muted"></i>
       </div>
     </div>
     <!-- Component display -->

@@ -46,6 +46,15 @@ tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureSe
     if (appConfig.loginEnabled !== 'true') {
       securityService.setGuestUser();
     }
+    
+  }
+  
+  if (errMsg.length > 0) {
+    // Send an embedded 'data' object
+    utilService.handleError({
+      data : 'Configuration Error:\n' + errMsg
+    });
+  }
 
   }
 
@@ -153,7 +162,7 @@ tsApp.directive('confirm', function($confirm) {
     },
     link : function(scope, element, attrs) {
       function reBind(func) {
-        console.debug("XXXX",attrs);
+
         element.unbind('click').bind('click', function() {
           func();
         });
@@ -167,7 +176,7 @@ tsApp.directive('confirm', function($confirm) {
       }
 
       if ('confirmIf' in attrs) {
-        console.debug("BBBB",element);
+
         scope.$watch('confirmIf', function(newVal) {
           if (newVal || newVal === undefined) {
             reBind(bindConfirm);
