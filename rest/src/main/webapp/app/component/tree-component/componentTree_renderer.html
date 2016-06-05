@@ -1,14 +1,15 @@
 
 <div ui-tree-handle>
   <!--  Link tree control icon for expansion and contraction -->
-  <a ng-if="tree.childCt > 0" data-nodrag ng-click="toggleTree(this)">
-    <span class="glyphicon" ng-class="getTreeNodeIcon(this)"></span>
-  </a>
+  <i ng-if="tree.childCt > 0" data-nodrag ng-click="toggleTree(this)"
+    class="noul glyphicon" ng-class="getTreeNodeIcon(this)"></i>
   <!-- Unlinked leaf icon for leaf node -->
   <i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
   <!-- if not the component viewed, render with hyperlink -->
-  <span ng-show="tree.nodeTerminologyId != component.terminologyId">{{mode}}
-    <a ng-show="callbacks.getComponentFromTree"  ng-click="callbacks.getComponentFromTree(metadata.terminology.organizingClassType, this)">
+  <span ng-show="tree.nodeTerminologyId != component.terminologyId">
+    {{mode}}
+    <a ng-show="callbacks.getComponentFromTree"
+      ng-click="callbacks.getComponentFromTree(metadata.terminology.organizingClassType, this)">
       {{tree.nodeTerminologyId}}</a>
     : {{tree.nodeName}}
     <span ng-show="!callbacks.getComponentFromTree">

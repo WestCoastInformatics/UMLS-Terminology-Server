@@ -56,15 +56,6 @@ tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureSe
     });
   }
 
-  }
-
-  if (errMsg.length > 0) {
-    // Send an embedded 'data' object
-    utilService.handleError({
-      data : 'Configuration Error:\n' + errMsg
-    });
-  }
-
   // check and set whether application is configured
   $http.get(configureUrl + 'configured').then(function(response) {
     $rootScope.isConfigured = response.data;
