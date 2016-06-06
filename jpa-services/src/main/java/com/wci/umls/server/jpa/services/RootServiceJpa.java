@@ -365,26 +365,24 @@ public abstract class RootServiceJpa implements RootService {
         && !pfs.getQueryRestriction().isEmpty()) {
       result = new ArrayList<>();
       for (T t : list) {
-        String tStr = "";
+        StringBuilder tStr = new StringBuilder();
         for (Method m : t.getClass().getMethods()) {
-          
+
           // TODO Add annotation check for @Field, @Fields...
           if (m.getName().startsWith("get")) {
             try {
-             
+
               Object val = m.invoke(t);
               if (val != null && val instanceof String) {
-                
-                // TODO Use a stringbuilder here instead
-                tStr += val.toString() + " ";
+                tStr.append(val.toString() + " ");
               }
             } catch (IllegalArgumentException e) {
               // do nothing, skip field
             }
           }
         }
-    
-        if (tStr.toLowerCase()
+
+        if (tStr.toString().toLowerCase()
             .indexOf(pfs.getQueryRestriction().toLowerCase()) != -1) {
           result.add(t);
         }
