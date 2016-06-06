@@ -67,7 +67,7 @@ tsApp
         // Search parameters
         $scope.searchParams = contentService.getSearchParams();
         $scope.searchResults = {};
-        $scope.searchResultsCollapsed = false;
+        $scope.searchResultsCollapsed = true;
         $scope.searchOrBrowse = null;
 
         // favorites

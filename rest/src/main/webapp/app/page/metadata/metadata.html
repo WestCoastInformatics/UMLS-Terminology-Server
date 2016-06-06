@@ -1,10 +1,9 @@
 <!-- Controlled by MetadataCtrl (in metadataController.js)  -->
 <div class="row">
 
-  <div class="col-md-3 col-xs-3 alert alert-warning" style="margin-left: 25px;" ng-show="!metadata.terminology.terminology">
-    No terminology selected.
-  </div>
- 
+  <div class="col-md-3 col-xs-3 alert alert-warning" style="margin-left: 25px;"
+    ng-show="!metadata.terminology.terminology">No terminology selected.</div>
+
   <!-- Metadata -->
   <div class="col-md-12 col-xs-12" ng-show="metadata.terminology.terminology">
 
@@ -15,17 +14,33 @@
       <li>Version: {{metadata.terminology.version}}</li>
       <li>Organizing Class Type:
         {{metadata.terminology.organizingClassType}}</li>
-      <li>Precedence List (in rank order)
-        <ul>
-          <li ng-repeat="pair in metadata.precedenceList.keyValuePairs">{{pair.key}}/{{pair.value}}</li>
-        </ul>
-      </li>
-      <li ng-repeat="item in metadata.entries"
-        ng-show="item.keyValuePairs.length > 0"><b>{{item.name}}</b>
-        <ul>
-          <li ng-repeat="pair in item.keyValuePairs"><span
-              class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
-        </ul></li>
     </ul>
+
+    <!-- PrecedenceList -->
+    <div>
+      <div class="alert alert-success"
+        ng-click="resultsExpanded['pl'] = !resultsExpanded['pl']">
+        <i class="glyphicon" class="alert alert-success"
+          ng-class="[{'glyphicon-chevron-right' : !resultsExpanded['pl']}, {'glyphicon-chevron-down' : resultsExpanded['pl']}]"></i>
+        &nbsp; Precedence List (in rank order)
+      </div>
+      <ul ng-show="resultsExpanded['pl']">
+        <li ng-repeat="pair in metadata.precedenceList.keyValuePairs">{{pair.key}}/{{pair.value}}</li>
+      </ul>
+    </div>
+
+    <!-- Other metadata -->
+    <div ng-repeat="item in metadata.entries">
+      <div ng-click="resultsExpanded[item.name] = !resultsExpanded[item.name]"
+        class="alert alert-success">
+        <i class="glyphicon"
+          ng-class="[{'glyphicon-chevron-right' : !resultsExpanded[item.name]}, {'glyphicon-chevron-down' : resultsExpanded[item.name]}]"></i>
+        &nbsp; {{item.name}}
+      </div>
+      <ul ng-show="resultsExpanded[item.name]">
+        <li ng-repeat="pair in item.keyValuePairs"><span
+            class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
+      </ul>
+    </div>
   </div>
 </div>

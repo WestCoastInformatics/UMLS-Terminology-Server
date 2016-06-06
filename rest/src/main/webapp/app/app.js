@@ -160,7 +160,6 @@ tsApp.directive('confirm', function($confirm) {
       }
 
       function bindConfirm() {
-        console.debug("YYY  bind confirm");
         $confirm({
           text : scope.confirm
         }).then(scope.ngClick);
@@ -173,16 +172,13 @@ tsApp.directive('confirm', function($confirm) {
             reBind(bindConfirm);
           } else {
             reBind(function() {
-              console.debug("ZZZZ",newVal,attrs);
               scope.$apply(scope.ngClick);
             });
           }
         });
       } else {
-        console.debug("WWWW");
         reBind(bindConfirm);
       }
-      console.debug("AAAA",element);
     }
   };
 });

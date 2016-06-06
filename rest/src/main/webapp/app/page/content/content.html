@@ -194,12 +194,14 @@
     </div>
     <!-- End search controls-->
     <!-- Search Results -->
-    <div ng-show="queryForList && searchResults.results">
+    <div ng-show="queryForList ">
       <div class="alert alert-success"
         ng-click="searchResultsCollapsed = !searchResultsCollapsed">
         <i class="glyphicon"
           ng-class="[{'glyphicon-chevron-right' : searchResultsCollapsed}, {'glyphicon-chevron-down' : !searchResultsCollapsed}]"></i>
-        &nbsp; Search Results ({{searchResults.totalCount}})
+        &nbsp; Search Results 
+        <span ng-show="searchResults.results">({{searchResults.totalCount}})</span>
+        <span ng-show="!searchResults.results">(no search yet)</span>
         <i ng-show="!metadata.terminology.metathesaurus"
           class="pull-right glyphicon glyphicon-tree-conifer"
           ng-click="setTreeView()" title="Switch to tree view"
@@ -241,7 +243,7 @@
       </div>
     </div>
     <!-- Tree view -->
-    <div ng-show="queryForTree && searchResults.tree">
+    <div ng-show="queryForTree ">
       <div class="alert alert-success">
         <span ng-show="searchOrBrowse === 'BROWSE'">Hierarchy</span>
         <span ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search

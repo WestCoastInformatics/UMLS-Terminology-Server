@@ -1,41 +1,15 @@
-<style>
-.landing-img {
-	border-radius: 10px;
-	border: 1px solid gray;
-	max-width: 100%;
-}
-
-.h350px {
-	max-height: 350px;
-}
-
-.h300px {
-	max-height: 300px;
-}
-
-.h200px {
-	max-height: 200px;
-}
-
-.w45 {
-	max-width: 45%;
-}
-
-.w30 {
-	max-width: 30%;
-}
-</style>
 <!-- Row: Introduction -->
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-12 col-xs-12">
     <h4>UMLS Terminology Browser</h4>
   </div>
 </div>
 <div class="row">
   <div class="col-md-5 col-xs-12">
     <p class="introText">
-      This demonstration UMLS terminology browser and app is loaded with a <i>Level
-        0 + SNOMEDCT_US</i> edition of the 2015AB UMLS&reg;. It contains complete
+      This demonstration UMLS terminology browser and app is loaded with a
+      <i>Level 0 + SNOMEDCT_US</i>
+      edition of the 2016AA UMLS&reg; Metathesaurus. It contains complete
       versions of many terminologies, including SNOMED CT, MeSH, ICD10, RXNORM,
       and others. The data set contains over 1.6 million concepts with over 5.5
       million individual terms from constituent terminologies.
@@ -58,14 +32,18 @@
     </p>
   </div>
   <div class="col-md-7 col-xs-12">
-    <img class="h300px landing-img" src="images/landing_demo_screenshot.png"
-      title="UMLS Terminology Server application screenshot">
+    <span class="visible-xs">&nbsp;</span>
+    <a href="images/landing_demo_screenshot.png">
+      <img class="h300px landing-img" src="images/landing_demo_screenshot.png"
+        title="UMLS Terminology Server application screenshot">
+    </a>
   </div>
 </div>
 <hr>
+
 <!-- Feature Row: Searching Algorithms and Advanced Searching -->
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-12 col-xs-12">
     <h4>Fast and Convenient Searching</h4>
   </div>
 </div>
@@ -75,6 +53,7 @@
     tuned algorithms based on Apache Lucene indexing. Search features include:
     <ul>
       <li>Simple and intuitive text entry to search by name or code</li>
+      <li>Typeahead (autocomplete) for textual searches</li>
       <li>Scored results indicate fidelity of matching terms.</li>
       <li>Spelling correction for commonly misspelled terms.</li>
       <li>Comprehensive acronym expansion.</li>
@@ -85,22 +64,28 @@
     semantic and term types, or terminologies within a metathesaurus. <br>
   </div>
   <div class="col-md-7 col-xs-12">
-    <div class="row">
-      <div class="col-md-6">
-        <img class="h350px landing-img" src="images/landing_search_basic.png"
+    <span class="visible-xs">&nbsp;</span>
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_search_basic.png">
+        <img class="h450px landing-img" src="images/landing_search_basic.png"
           title="Basic text search">
-      </div>
-      <div class="col-md-6">
-        <img class="h350px landing-img" src="images/landing_search_advanced.png"
+      </a>
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_search_advanced.png">
+        <img class="h450px landing-img" src="images/landing_search_advanced.png"
           title="Advanced search restricted by semantic type">
-      </div>
+      </a>
     </div>
   </div>
 </div>
 <hr>
+
 <!-- Feature Row: Searching and Viewing Hierarchies -->
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-12 col-md-12">
     <h4>Navigate Hierarchical Terminologies</h4>
   </div>
 </div>
@@ -114,34 +99,43 @@
       <li>Retrieve search results as hierarchical trees instead of a simple
         list.
       <li>Open and close parents, siblings, and children for any object.</li>
-      <li>Highlight and retrieve details for terminology extensions.</li>
-      <li>View and browse through individual paths to any given object.</li>
+      <li>Highlight and retrieve details for terminology extensions or
+        subsets.</li>
+      <li>View and browse all individual paths to any given object.</li>
     </ul>
   </div>
   <div class="col-md-7 col-xs-12">
-    <div class="row">
-      <div class="col-md-4">
-        <img class="h350px landing-img"
+    <div class="col-md-4 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_hierarchy_extensions.png">
+        <img class="h450px landing-img"
           src="images/landing_hierarchy_extensions.png"
           title="Browsing top-level hierarchy, with extension content highlighted. Expand the tree on-demand at any point.">
-      </div>
-      <div class="col-md-4">
-        <img class="h350px landing-img"
+      </a>
+    </div>
+    <div class="col-md-4 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_hierarchy_search.png">
+        <img class="h450px landing-img"
           src="images/landing_hierarchy_search.png"
           title="Browse hierarchical context of search results, with extension content highlighted.">
-      </div>
-      <div class="col-md-4">
-        <img class="h200px landing-img"
+      </a>
+    </div>
+    <div class="col-md-4 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_hierarchy_individual.png">
+        <img class="h300px landing-img"
           src="images/landing_hierarchy_individual.png"
           title="Cycle through individual hierarchical paths for individual content. Browse siblings, descendants, ancestors.">
-      </div>
+      </a>
     </div>
   </div>
 </div>
 <hr>
+
 <!-- Feature Row:  Metathesaurus deep relationships -->
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-12 col-xs-12">
     <h4>Metathesaurus Deep Relationships</h4>
   </div>
 </div>
@@ -149,44 +143,68 @@
   <div class="col-md-5 col-xs-12">
     Browse through "deep" relationships between concepts in a metathesaurus
     terminology (e.g. UMLS). Search through deep relationships by text, or sort
-    by terminology connection, relationship type, and target object details. <br>
+    by terminology connection, relationship type, and target object details.
+    <ul>
+      <li>Extrapolate source-asserted relationships up to the Metathesaurus
+        level.</li>
+      <li>High-performance, supporting concepts with many thousands of
+        relationships.</li>
+    </ul>
   </div>
   <div class="col-md-7 col-xs-12">
-    <img class="h200px landing-img" src="images/landing_deep_relationships.png"
-      title="Deep relationships between concepts, with filter text and descending sort by additional relationship type">
+    <span class="visible-xs">&nbsp;</span>
+    <a href="images/landing_deep_relationships.png">
+      <img class="h300px landing-img"
+        src="images/landing_deep_relationships.png"
+        title="Deep relationships between concepts, with filter text and descending sort by additional relationship type">
+    </a>
   </div>
 </div>
 <hr>
+
 <!-- Feature Row:  Navigation through Atoms and Relationships -->
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-12 col-xs-12">
     <h4>Easy Navigation and Session History</h4>
   </div>
 </div>
 <div class="row">
-  <div class="col-md-5 col-xs-12">Navigate between contents and
-    terminologies with convenient in-line links. Quickly return to previously
-    viewed content using the session history controls at the top of the content
-    report.</div>
+  <div class="col-md-5 col-xs-12">
+    Explore concepts in the Metathesaurus as well as from the perspective of
+    individual source terminologies without getting lost.
+    <ul>
+      <li>Navigate between contents and terminologies with convenient
+        in-line links.</li>
+      <li>Quickly return to previously viewed content using the session
+        history controls at the top of the content report.</li>
+      <li>"Pop out" views into new windows/tabs for side-by-side
+        comparison.</li>
+    </ul>
+  </div>
   <div class="col-md-7 col-xs-12">
-    <div class="row">
-      <div class="col-md-6 col-xs-12">
-        <img class="h200px landing-img"
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_navigation_terminology.png">
+        <img class="h300px landing-img"
           src="images/landing_navigation_terminology.png"
           title="Click through links in atoms and relationships to conveniently walk through intra- and inter-terminology linkages.">
-      </div>
-      <div class="col-md-6 col-xs-12">
-        <img class="h200px landing-img"
+      </a>
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_navigation_history.png">
+        <img class="h300px landing-img"
           src="images/landing_navigation_history.png"
           title="Easily return to previously viewed content with the sesion history controls at the top of the content report.">
-      </div>
+      </a>
     </div>
   </div>
 </div>
 <hr>
+
 <!-- Feature Row:  Favorites -->
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-12 col-xs-12">
     <h4>Save Favorite Content</h4>
   </div>
 </div>
@@ -196,14 +214,18 @@
     favorites from any point in the application. Filter and sort your personal
     list.</div>
   <div class="col-md-7 col-xs-12">
-    <img class="h200px landing-img" src="images/landing_favorites.png"
-      title="Favorites list, showing one favorite with annotations. Note the add/remove favorite button on the concept report.">
+    <span class="visible-xs">&nbsp;</span>
+    <a href="images/landing_favorites.png">
+      <img class="h300px landing-img" src="images/landing_favorites.png"
+        title="Favorites list, showing one favorite with annotations. Note the add/remove favorite button on the concept report.">
+    </a>
   </div>
 </div>
 <hr>
+
 <!-- Feature Row:  User Notes -->
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-12 col-xs-12">
     <h4>Annotate Content</h4>
   </div>
 </div>
@@ -219,22 +241,27 @@
     </ul>
   </div>
   <div class="col-md-7 col-xs-12">
-    <div class="row">
-      <div class="col-md-6">
-        <img class="h200px landing-img" src="images/landing_notes_sidebar.png"
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_notes_sidebar.png">
+        <img class="h300px landing-img" src="images/landing_notes_sidebar.png"
           title="Access your annotated content at all time, with filtering and sorting support for listed content.">
-      </div>
-      <div class="col-md-6">
-        <img class="h200px landing-img" src="images/landing_notes_modal.png"
+      </a>
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_notes_modal.png">
+        <img class="h300px landing-img" src="images/landing_notes_modal.png"
           title="Pop-up modal for viewing, adding, and deleting rich-text annotations. ">
-      </div>
+      </a>
     </div>
   </div>
 </div>
 <hr>
+
 <!-- Feature Row:  Inspect terminology metadata -->
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-12 col-xs-12">
     <h4>Inspect Terminology Metadata</h4>
   </div>
 </div>
@@ -252,49 +279,57 @@
     </ul>
   </div>
   <div class="col-md-7 col-xs-12">
-    <div class="row">
-      <div class="col-md-6">
-        <img class="h200px landing-img" src="images/landing_metadata_top.png"
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_metadata_top.png">
+        <img class="h300px landing-img" src="images/landing_metadata_top.png"
           title="Easily access terminology metadata via the Metadata tab.">
-      </div>
-      <div class="col-md-6">
-        <img class="h200px landing-img" src="images/landing_metadata_more.png"
+      </a>
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_metadata_more.png">
+        <img class="h300px landing-img" src="images/landing_metadata_more.png"
           title="Sample metadata sections for UMLS.">
-      </div>
+      </a>
     </div>
   </div>
-  <hr>
-  <div class="row">
-    <div class="col-md-12">
-      <h4>Customizable Features</h4>
-    </div>
+</div>
+<hr>
+
+<!-- Feature Row: customizeable features -->
+<div class="row">
+  <div class="col-md-12 col-xs-12">
+    <h4>Customizable Features</h4>
   </div>
-  <div class="row">
-    <div class="col-md-5 col-xs-12">
-      The Terminology Server comes with easily overridden defaults for
-      customizable display and function.
-      <ul>
-        <li>Create security handlers for your own particular needs.</li>
-        <li>Customize search handling for particular terminologies or
-          cases.</li>
-        <li>Write custom loaders for unsupported data formats, or tweak the
-          existing loaders for standard formats (Owl, RRF, RF2, ClaML), etc.).</li>
-        <li>Create your own landing page, require a custom user license,
-          display a custom login page.</li>
-      </ul>
+</div>
+<div class="row">
+  <div class="col-md-5 col-xs-12">
+    The Terminology Server comes with easily overridden defaults for
+    customizable display and function.
+    <ul>
+      <li>Create security handlers for your own particular needs.</li>
+      <li>Customize search handling for particular terminologies or cases.</li>
+      <li>Write custom loaders for unsupported data formats, or tweak the
+        existing loaders for standard formats (Owl, RRF, RF2, ClaML), etc.).</li>
+      <li>Create your own landing page, require a custom user license,
+        display a custom login page.</li>
+    </ul>
+  </div>
+  <div class="col-md-7 col-xs-12">
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_custom_license.png">
+        <img class="h450px landing-img" src="images/landing_custom_license.png"
+          title="Example of customizable content: License Agreement .">
+      </a>
     </div>
-    <div class="col-md-7 col-xs-12">
-      <div class="row">
-        <div class="col-md-6">
-          <img class="h350px landing-img"
-            src="images/landing_custom_license.png"
-            title="Example of customizable content: License Agreement .">
-        </div>
-        <div class="col-md-6">
-          <img class="h350px landing-img" src="images/landing_custom_code.png"
-            title="The Term Server Application comes with sample code demonstrating how to construct customizable handlers for e.g. searching, security, and other uses.">
-        </div>
-      </div>
+    <div class="col-md-6 col-xs-12">
+      <span class="visible-xs">&nbsp;</span>
+      <a href="images/landing_custom_code.png">
+        <img class="h450px landing-img" src="images/landing_custom_code.png"
+          title="The Term Server Application comes with sample code demonstrating how to construct customizable handlers for e.g. searching, security, and other uses.">
+      </a>
     </div>
   </div>
 </div>
