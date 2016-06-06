@@ -23,15 +23,16 @@
     <config.version>${project.version}</config.version>
     <!-- Defaults for Eclipse dev -->
     <site.tracking.code></site.tracking.code>
-    <deploy.title>Dev Term Server</deploy.title>
+    <deploy.title>UMLS Terminology Server</deploy.title>
     <deploy.link>http://www.westcoastinformatics.com</deploy.link>
     <deploy.password.reset></deploy.password.reset>
     <deploy.footer.copyright>(c)2016</deploy.footer.copyright>
     <deploy.feedback.email>info@westcoastinformatics.com</deploy.feedback.email>
     <deploy.presented.by>Presented by West Coast Informatics, LLC</deploy.presented.by>
+    <deploy.enabled.tabs>content,metadata</deploy.enabled.tabs>
     <deploy.landing.enabled>true</deploy.landing.enabled>
     <deploy.login.enabled>true</deploy.login.enabled>
-    <deploy.license.enabled>true</deploy.license.enabled>
+    <deploy.license.enabled>false</deploy.license.enabled>
     <deploy.license.text>Dev License Agreement Text</deploy.license.text>
 
   </properties>

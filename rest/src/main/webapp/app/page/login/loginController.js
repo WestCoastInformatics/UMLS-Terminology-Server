@@ -5,13 +5,12 @@ tsApp.controller('LoginCtrl', [
   '$http',
   '$location',
   'securityService',
-  'gpService',
   'utilService',
   'projectService',
   'configureService',
   'tabService',
   'appConfig',
-  function($rootScope, $scope, $http, $location, securityService, gpService, utilService,
+  function($rootScope, $scope, $http, $location, securityService, utilService,
     projectService, configureService, tabService, appConfig) {
     console.debug('configure LoginCtrl');
     
@@ -31,23 +30,15 @@ tsApp.controller('LoginCtrl', [
         return;
       }
 
-      // login
-      gpService.increment();
-      return $http({
-        url : securityUrl + 'authenticate/' + name,
-        method : 'POST',
-        data : password,
-        headers : {
-          'Content-Type' : 'text/plain'
-        }
-      }).then(
+      securityService.authenticate(name, password).then(
       // success
       function(response) {
         utilService.clearError();
-        securityService.setUser(response.data);
+        
+        securityService.setUser(response);
 
         // set request header authorization and reroute
-        $http.defaults.headers.common.Authorization = response.data.authToken;
+        $http.defaults.headers.common.Authorization = response.authToken;
         projectService.getUserHasAnyRole();
 
         // if license required, go to license page
@@ -56,28 +47,26 @@ tsApp.controller('LoginCtrl', [
         }
 
         // otherwise, use previous tab in preferences (if it exists)
-        else if (response.data.userPreferences && response.data.userPreferences.lastTab) {
-          $location.path(response.data.userPreferences.lastTab);
+        else if (response.userPreferences && response.userPreferences.lastTab) {
+          $location.path(response.userPreferences.lastTab);
         }
 
         // if no previous preferences (first visit), go to source for initial
         // file upload or content based on role
         else {
-
-          if (response.data.applicationRole == 'VIEWER') {
-            $location.path("/content");
-          } else {
-            $location.path("/source");
+          console.debug('first visit', tabService.tabs)
+          if (tabService.tabs.length == 0) {
+            utilService.handleError('No tabs configured');
           }
+          $location.path(tabService.tabs[0].link);
 
         }
-        gpService.decrement();
+      
       },
 
       // error
       function(response) {
         utilService.handleError(response);
-        gpService.decrement();
       });
     };
 

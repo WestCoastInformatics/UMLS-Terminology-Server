@@ -1,4 +1,4 @@
-// Landingcontroller
+// License acceptance controller
 tsApp
   .controller(
     'LicenseCtrl',
@@ -8,10 +8,13 @@ tsApp
       'securityService',
       'utilService',
       'appConfig',
-      function($scope, $location, securityService, utilService, appConfig) {
+      'tabService',
+      function($scope, $location, securityService, utilService, appConfig, tabService) {
         console.debug('configure LicenseCtrl');
 
         // NOTE: Do NOT clear error here (to preserve license error messages)
+
+        tabService.setShowing(false);
 
         $scope.licenseChecked = false;
 
@@ -31,8 +34,15 @@ tsApp
         // function to launch application
         $scope.acceptLicense = function() {
           securityService.acceptLicense().then(function(response) {
-            console.debug('rerouting to content');
-            $location.path('/content');
+            var user = securityService.getUser();
+            if (user && user.userPreferences && user.userPreferences.lastTab) {
+              $location.path(user.userPreferences.lastTab)
+            } else {
+              if (tabService.tabs.length == 0) {
+                handleError('No tabs configured')
+              }
+              $location.path(tabService.getFirstViewableTab().link);
+            }
           });
 
         };
@@ -52,10 +62,4 @@ tsApp
 
         // check scroll height initially to catch short fragments
         checkScrollHeight();
-
-        // If no login page, set guest user
-        if (appConfig.loginEnabled !== 'true') {
-          securityService.setGuestUser();
-        }
-
       } ]);

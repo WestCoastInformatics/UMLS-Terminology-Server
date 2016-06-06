@@ -14,26 +14,22 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
       } else if (appConfig.licenseEnabled === 'true') {
         $location.path('/license');
       } else {
-        $location.path('/content');
+        if (tabService.tabs.length == 0) {
+          utilService.setError('No tabs configured')
+        } else {
+          $location.path(tabService.getFirstViewableTab().link);
+        }
       }
     };
 
     // Initialize
     $scope.initialize = function() {
 
+      // on return to landing, clear user
+      securityService.clearUser();
+      
       // on return to landing page, clear any errors
       utilService.clearError();
-
-      // Clear user info if we are using login
-      if (appConfig.loginEnabled === 'true') {
-        // Clear user info
-        securityService.clearUser();
-      }
-
-      // Otherwise, Set guest user, in case there is no login
-      else {
-        securityService.setGuestUser();
-      }
     };
 
     $scope.initialize();

@@ -4,9 +4,10 @@ tsApp.service('metadataService', [
   '$q',
   'gpService',
   'utilService',
-  function($http, $q, gpService, utilService) {
+  'tabService',
+  function($http, $q, gpService, utilService, tabService) {
     console.debug("configure metadataService");
-
+    
     // The metadata for current terminology
     var metadata = {
       terminology : null,

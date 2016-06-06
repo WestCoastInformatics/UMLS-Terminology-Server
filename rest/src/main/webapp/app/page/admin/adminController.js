@@ -22,10 +22,8 @@ tsApp
         // Clear error
         utilService.clearError();
 
-        // Handle resetting tabs on 'back' button
-        if (tabService.selectedTab.label != 'Admin') {
-          tabService.setSelectedTabByLabel('Admin');
-        }
+        // Handle resetting tabs on 'back' and 'reload' events button
+        tabService.setSelectedTabByLabel('Admin');
 
         //
         // Scope Variables

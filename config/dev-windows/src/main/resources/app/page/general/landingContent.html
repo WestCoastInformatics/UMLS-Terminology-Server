@@ -67,8 +67,7 @@
         </div>
         <div class="col-md-6 col-xs-12">
           <uib-carousel active="searchCarouselIndex" interval="0" no-wrap="true">
-          <uib-slide ng-repeat="slide in slides track by slide.id"
-            index="slide.id"> <img ng-src="{{slide.image}}"
+          <uib-slide index="0"> <img ng-src="landing-images/search.png"
             style="margin: auto;">
           <div class="carousel-caption">
             <p>{{slide.text}}</p>
@@ -132,30 +131,34 @@
       </div>
     </div>
     <hr>
-    <!-- Feature Row:  Mappings -->
+    
+     <!-- Feature Row:  Annotate Content -->
     <div>
       <div class="row">
         <div class="col-md-6 col-xs-12">
-          <h4>See Object Mappings</h4>
-          something something <br>
+          <h4>Annotate Content</h4>
+          Add rich-text notes to content 
         </div>
         <div class="col-md-6 col-xs-12">
           <img src="">
         </div>
       </div>
+    
     </div>
     <hr>
-    <!-- Feature Row:  Template -->
+   
+    <!-- Feature Row:  User Favorites -->
     <div>
       <div class="row">
         <div class="col-md-6 col-xs-12">
-          <h4>Save Favorites and Annotate Content</h4>
+          <h4>Save Favorite Content</h4>
+          Mark content as personal favorites for easy retrieval later.
         </div>
         <div class="col-md-6 col-xs-12">
           <img src="">
         </div>
       </div>
-      <div class="row" ng-show="learnMoreXXX">Additional content</div>
+    
     </div>
     <hr>
     <!-- Feature Row:  Inspect terminology metadata -->

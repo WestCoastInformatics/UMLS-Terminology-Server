@@ -1,6 +1,6 @@
 // Content controller
-tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', '$sce', 'gpService', 'securityService',
-  'appConfig', function($rootScope, $routeParams, $sce, gpService, securityService, appConfig) {
+tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce', 'gpService', 'securityService',
+  'appConfig', function($rootScope, $location, $routeParams, $sce, gpService, securityService, appConfig) {
     console.debug('configure footer directive');
     return {
       restrict : 'A',
@@ -28,7 +28,12 @@ tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', '$sce', 'gpService',
 
         // Logout method
         scope.logout = function() {
-          securityService.logout();
+          if (scope.appConfig.loginEnabled === 'true') {
+            securityService.logout();
+          } else {
+            securityService.clearUser();
+          }
+          $location.path('/');
         };
 
         // Check gp status

@@ -67,8 +67,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
     SecurityService securityService = new SecurityServiceJpa();
     try {
       User user = securityService.authenticate(username, password);
-      securityService.close();
-
+   
       if (user == null || user.getAuthToken() == null)
         throw new LocalException("Unable to authenticate user");
       return user;
