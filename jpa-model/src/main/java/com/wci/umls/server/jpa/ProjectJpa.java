@@ -45,6 +45,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.UserMapUserNameBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleBridge;
@@ -120,6 +121,16 @@ public class ProjectJpa implements Project {
   @OneToOne(targetEntity = PrecedenceListJpa.class, optional = true)
   private PrecedenceList precedenceList;
 
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Column(nullable = false)
+  private Map<String, String> semanticTypeCategoryMap = new HashMap<>();
+  
+
+  @Column(nullable = true)
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "valid_categories")
+  private List<String> validCategories = new ArrayList<>();
+  
   /**
    * Instantiates an empty {@link ProjectJpa}.
    */
@@ -145,6 +156,8 @@ public class ProjectJpa implements Project {
     userRoleMap = project.getUserRoleMap();
     feedbackEmail = project.getFeedbackEmail();
     precedenceList = project.getPrecedenceList();
+    validCategories = project.getValidCategories();
+    semanticTypeCategoryMap = project.getSemanticTypeCategoryMap();
   }
 
   /* see superclass */
@@ -293,6 +306,38 @@ public class ProjectJpa implements Project {
     this.validationChecks = validationChecks;
   }
 
+  /* see superclass */
+  @XmlElement
+  @Override
+  public List<String> getValidCategories() {
+    if (this.validCategories == null) {
+      this.validCategories = new ArrayList<String>();
+    }
+    return validCategories;
+  }
+
+  @Override
+  public void setValidCategories(List<String> validCategories) {
+    this.validCategories = validCategories;
+  }
+
+  /* see superclass */
+  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @Field(name = "semanticTypeCategoryMap", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Override
+  public Map<String, String> getSemanticTypeCategoryMap() {
+    if (semanticTypeCategoryMap == null) {
+      semanticTypeCategoryMap = new HashMap<>();
+    }
+    return semanticTypeCategoryMap;
+  }
+
+  /* see superclass */
+  @Override
+  public void setSemanticTypeCategoryMap(Map<String, String> semanticTypeCategoryMap) {
+    this.semanticTypeCategoryMap = semanticTypeCategoryMap;
+  }
+  
   /* see superclass */
   @XmlTransient
   @Override

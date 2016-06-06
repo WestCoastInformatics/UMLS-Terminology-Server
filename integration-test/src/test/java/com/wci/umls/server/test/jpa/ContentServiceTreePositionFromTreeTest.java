@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.services.ContentService;
 
@@ -60,7 +61,7 @@ public class ContentServiceTreePositionFromTreeTest {
         service.findTreePositionsForConcept("10944007", "SNOMEDCT_US",
             "2014_09_01", Branch.ROOT, new PfsParameterJpa());
 
-    TreePosition<? extends AtomClass> treepos = list.getObjects().get(0);
+    TreePosition<? extends ComponentHasAttributesAndName> treepos = list.getObjects().get(0);
     Logger.getLogger(getClass()).info(
         " first treepos = " + treepos.getNode().getId() + ", "
             + treepos.getAncestorPath());

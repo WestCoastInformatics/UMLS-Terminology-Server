@@ -8,7 +8,7 @@ import javax.persistence.MappedSuperclass;
 
 import org.hibernate.envers.Audited;
 
-import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 
 /**
@@ -18,7 +18,7 @@ import com.wci.umls.server.model.content.TransitiveRelationship;
  */
 @Audited
 @MappedSuperclass
-public abstract class AbstractTransitiveRelationship<T extends AtomClass>
+public abstract class AbstractTransitiveRelationship<T extends ComponentHasAttributesAndName>
     extends AbstractComponentHasAttributes implements TransitiveRelationship<T> {
 
   /** The depth. */

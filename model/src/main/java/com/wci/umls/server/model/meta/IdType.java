@@ -17,6 +17,9 @@ public enum IdType {
 
   /** The sdui. */
   DESCRIPTOR,
+  
+  /** The atom. */
+  ATOM,
 
   /** The other. */
   OTHER;
@@ -36,6 +39,8 @@ public enum IdType {
       return DESCRIPTOR;
     } else if (abbrev.equals("CODE")) {
       return CODE;
+    } else if (abbrev.equals("ATOM")) {
+      return ATOM;
     }
     try {
       return IdType.valueOf(abbrev);

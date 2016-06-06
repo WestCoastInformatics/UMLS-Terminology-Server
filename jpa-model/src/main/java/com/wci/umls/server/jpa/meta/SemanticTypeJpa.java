@@ -56,6 +56,14 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
   @Column(nullable = true, length = 4000)
   private String usageNote;
 
+  /** The structural chemical. */
+  @Column(nullable = false)
+  private boolean structuralChemical;
+  
+  /** The functional chemical. */
+  @Column(nullable = false)
+  private boolean functionalChemical;
+ 
   /**
    * Instantiates an empty {@link SemanticTypeJpa}.
    */
@@ -78,6 +86,8 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     usageNote = sty.getUsageNote();
     value = sty.getValue();
     nonHuman = sty.isNonHuman();
+    structuralChemical = sty.isStructuralChemical();
+    functionalChemical = sty.isFunctionalChemical();
   }
 
   /* see superclass */
@@ -173,6 +183,8 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
         prime * result + ((definition == null) ? 0 : definition.hashCode());
     result = prime * result + ((example == null) ? 0 : example.hashCode());
     result = prime * result + (nonHuman ? 1231 : 1237);
+    result = prime * result + (structuralChemical ? 1231 : 1237);
+    result = prime * result + (functionalChemical ? 1231 : 1237);
     result =
         prime * result + ((treeNumber == null) ? 0 : treeNumber.hashCode());
     result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
@@ -203,6 +215,10 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
       return false;
     if (nonHuman != other.nonHuman)
       return false;
+    if (structuralChemical != other.structuralChemical)
+      return false;
+    if (functionalChemical != other.functionalChemical)
+      return false;
     if (treeNumber == null) {
       if (other.treeNumber != null)
         return false;
@@ -232,6 +248,31 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     return "SemanticTypeJpa [value=" + value + ", definition=" + definition
         + ", example=" + example + ", typeId=" + typeId + ", nonHuman="
         + nonHuman + ", treeNumber=" + treeNumber + ", usageNote=" + usageNote
-        + "]";
+        + ", structuralChemical=" + structuralChemical + ", functionalChemical=" + functionalChemical + "]";
+  }
+
+  @Override
+  public boolean isChemical() {
+    return isStructuralChemical() || isFunctionalChemical();
+  }
+
+  @Override
+  public boolean isStructuralChemical() {
+    return structuralChemical;
+  }
+
+  @Override
+  public void setStructuralChemical(boolean structuralChemical) {
+    this.structuralChemical = structuralChemical;
+  }
+
+  @Override
+  public boolean isFunctionalChemical() {
+    return functionalChemical;
+  }
+
+  @Override
+  public void setFunctionalChemical(boolean functionalChemical) {
+    this.functionalChemical = functionalChemical;
   }
 }

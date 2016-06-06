@@ -4,10 +4,10 @@
 package com.wci.umls.server.model.content;
 
 /**
- * Represents a transitive relationship between two {@link AtomClass}es.
+ * Represents a transitive relationship between two {@link ComponentHasAttributesAndName}es.
  * @param <T> the type of hierarchy
  */
-public interface TransitiveRelationship<T extends AtomClass> extends
+public interface TransitiveRelationship<T extends ComponentHasAttributesAndName> extends
     ComponentHasAttributes {
 
   /**

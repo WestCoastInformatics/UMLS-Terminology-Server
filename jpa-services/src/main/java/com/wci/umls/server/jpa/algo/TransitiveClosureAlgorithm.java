@@ -14,12 +14,16 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomTransitiveRelationship;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -71,9 +75,9 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
    */
   public void setIdType(IdType idType) {
     if (idType != IdType.CONCEPT && idType != IdType.DESCRIPTOR
-        && idType != IdType.CODE) {
+        && idType != IdType.CODE && idType != IdType.ATOM) {
       throw new IllegalArgumentException(
-          "Only CONCEPT, DESCRIPTOR, and CODE types are allowed.");
+          "Only CONCEPT, DESCRIPTOR, ATOM and CODE types are allowed.");
     }
     this.idType = idType;
   }
@@ -130,6 +134,9 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
     }
     if (idType == IdType.CODE) {
       tableName = "CodeRelationshipJpa";
+    }
+    if (idType == IdType.ATOM) {
+      tableName = "AtomRelationshipJpa";
     }
     final javax.persistence.Query query =
         manager
@@ -213,6 +220,14 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
         ctr.setSuperType(superType);
         ctr.setSubType(ctr.getSuperType());
         tr = ctr;
+      } else if (idType == IdType.ATOM) {
+        final AtomTransitiveRelationship atr =
+            new AtomTransitiveRelationshipJpa();
+        final Atom superType = new AtomJpa();
+        superType.setId(code);
+        atr.setSuperType(superType);
+        atr.setSubType(atr.getSuperType());
+        tr = atr;
       } else {
         throw new Exception("Unexpected id type " + idType);
       }
@@ -288,6 +303,16 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
           ctr.setSuperType(superType);
           ctr.setSubType(subType);
           tr = ctr;
+        } else if (idType == IdType.ATOM) {
+          final AtomTransitiveRelationship atr =
+              new AtomTransitiveRelationshipJpa();
+          final Atom superType = new AtomJpa();
+          superType.setId(code);
+          final Atom subType = new AtomJpa();
+          subType.setId(desc);
+          atr.setSuperType(superType);
+          atr.setSubType(subType);
+          tr = atr;
         } else {
           throw new Exception("Illegal id type: " + idType);
         }

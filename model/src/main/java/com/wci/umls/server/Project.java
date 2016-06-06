@@ -169,4 +169,32 @@ public interface Project extends HasId {
    */
   public void setValidationChecks(List<String> validationChecks);
 
+  /**
+   * Gets the valid categories.
+   *
+   * @return the valid categories
+   */
+  public List<String> getValidCategories();
+
+  /**
+   * Sets the valid categories.
+   *
+   * @param validCategories the new valid categories
+   */
+  public void setValidCategories(List<String> validCategories);
+
+  /**
+   * Gets the semantic type category map.
+   *
+   * @return the semantic type category map
+   */
+  public Map<String, String> getSemanticTypeCategoryMap();
+
+  /**
+   * Sets the semantic type category map.
+   *
+   * @param semanticTypeCategoryMap the semantic type category map
+   */
+  public void setSemanticTypeCategoryMap(Map<String, String> semanticTypeCategoryMap);
+
 }
