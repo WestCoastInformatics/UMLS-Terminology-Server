@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
@@ -45,9 +46,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   /** The security service. */
   private SecurityService securityService;
 
-  /** The project service. */
-  private ProjectService projectService;
-
   /**
    * Instantiates an empty {@link MetaEditingServiceRestImpl}.
    *
@@ -55,7 +53,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    */
   public MetaEditingServiceRestImpl() throws Exception {
     securityService = new SecurityServiceJpa();
-    projectService = new ProjectServiceJpa();
   }
 
   /* see superclass */
@@ -79,21 +76,44 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       String action = "trying to add semantic type to concept";
 
       ContentService contentService = new ContentServiceJpa();
+      ProjectService projectService = new ProjectServiceJpa();
 
       try {
         authorizeProject(projectService, projectId, securityService, authToken,
             action, UserRole.AUTHOR);
 
+        // retrieve the project
+        Project project = projectService.getProject(projectId);
+
         // retrieve the concept
         Concept concept = contentService.getConcept(conceptId);
 
+        // throw exception on null retrieval
+        if (project == null) {
+          throw new Exception("Invalid project id");
+        }
+        if (concept == null) {
+          throw new Exception("Invalid concept id");
+        }
+
+        // throw exception on terminology mismatch
+        if (!concept.getTerminology().equals(project.getTerminology())) {
+          throw new Exception("Project and concept terminologies do not match");
+        }
+
+        // throw exception on branch mismatch
+        if (!concept.getBranch().equals(concept.getBranch())) {
+          throw new Exception("Project and concept branches do not match");
+        }
+
+        // throw exception if concept already has semantic type
         if (concept.getSemanticTypes().contains(semanticTypeComponent)) {
           throw new Exception("Concept already contains semantic type");
-        } else {
-          concept.getSemanticTypes().add(semanticTypeComponent);
-          contentService.updateConcept(concept);
-          return concept;
         }
+
+        concept.getSemanticTypes().add(semanticTypeComponent);
+        contentService.updateConcept(concept);
+        return concept;
 
       } catch (Exception e) {
         handleException(e, action);
@@ -125,14 +145,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     String action = "trying to remove semantic type from concept";
 
     ContentService contentService = new ContentServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
 
     try {
       authorizeProject(projectService, projectId, securityService, authToken,
           action, UserRole.AUTHOR);
 
+      // retrieve the project
+      Project project = projectService.getProject(projectId);
+
       // retrieve the concept
       Concept concept = contentService.getConcept(conceptId);
-      
+
+      // validate the project/concept pair
+      validateProjectAndConcept(project, concept);
+
       SemanticTypeComponent semanticTypeComponent = null;
       for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
         if (sty.getId().equals(semanticTypeComponentId)) {
@@ -140,11 +167,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         }
       }
       if (semanticTypeComponent == null) {
-        throw new Exception("Semantic type could not be removed from concept, not present");
+        throw new Exception(
+            "Semantic type could not be removed from concept, not present");
       }
       concept.getSemanticTypes().remove(semanticTypeComponent);
       return concept;
-
 
     } catch (Exception e) {
       handleException(e, action);
@@ -153,6 +180,33 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.close();
       projectService.close();
       securityService.close();
+    }
+  }
+
+  /**
+   * Validate project and concept.
+   *
+   * @param project the project
+   * @param concept the concept
+   */
+  private void validateProjectAndConcept(Project project, Concept concept)
+    throws Exception {
+    // throw exception on null retrieval
+    if (project == null) {
+      throw new Exception("Invalid project id");
+    }
+    if (concept == null) {
+      throw new Exception("Invalid concept id");
+    }
+
+    // throw exception on terminology mismatch
+    if (!concept.getTerminology().equals(project.getTerminology())) {
+      throw new Exception("Project and concept terminologies do not match");
+    }
+
+    // throw exception on branch mismatch
+    if (!concept.getBranch().equals(concept.getBranch())) {
+      throw new Exception("Project and concept branches do not match");
     }
   }
 }
