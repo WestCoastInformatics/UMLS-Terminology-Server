@@ -1,4 +1,4 @@
-package com.wci.umls.server.jpa.helpers.meta;
+package com.wci.umls.server.jpa.meta;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

@@ -88,24 +88,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         // retrieve the concept
         Concept concept = contentService.getConcept(conceptId);
 
-        // throw exception on null retrieval
-        if (project == null) {
-          throw new Exception("Invalid project id");
-        }
-        if (concept == null) {
-          throw new Exception("Invalid concept id");
-        }
-
-        // throw exception on terminology mismatch
-        if (!concept.getTerminology().equals(project.getTerminology())) {
-          throw new Exception("Project and concept terminologies do not match");
-        }
-
-        // throw exception on branch mismatch
-        if (!concept.getBranch().equals(concept.getBranch())) {
-          throw new Exception("Project and concept branches do not match");
-        }
-
+        checkPrerequisitesForProjectAndConcept(project, concept);
+        
         // throw exception if concept already has semantic type
         if (concept.getSemanticTypes().contains(semanticTypeComponent)) {
           throw new Exception("Concept already contains semantic type");
@@ -113,6 +97,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         concept.getSemanticTypes().add(semanticTypeComponent);
         contentService.updateConcept(concept);
+        
+        // TODO Validate the concept via ValidationServiceJpa
         return concept;
 
       } catch (Exception e) {
@@ -158,7 +144,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       Concept concept = contentService.getConcept(conceptId);
 
       // validate the project/concept pair
-      validateProjectAndConcept(project, concept);
+      checkPrerequisitesForProjectAndConcept(project, concept);
 
       SemanticTypeComponent semanticTypeComponent = null;
       for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
@@ -171,6 +157,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             "Semantic type could not be removed from concept, not present");
       }
       concept.getSemanticTypes().remove(semanticTypeComponent);
+      // TODO Validate the concept via ValidationServiceJpa
       return concept;
 
     } catch (Exception e) {
@@ -189,8 +176,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    * @param project the project
    * @param concept the concept
    */
-  private void validateProjectAndConcept(Project project, Concept concept)
+  private void checkPrerequisitesForProjectAndConcept(Project project, Concept concept)
     throws Exception {
+    
     // throw exception on null retrieval
     if (project == null) {
       throw new Exception("Invalid project id");
