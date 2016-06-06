@@ -137,7 +137,7 @@ public class UmlsIdentifierAssignmentHandler
   public String getTerminologyId(SemanticTypeComponent semanticTypeComponent,
     Concept concept) throws Exception {
 
-    // TODO construct the hash
+    // TODO need to construct the hash... somehow
     String hashCode = ""; // getHashCode(semanticTypeComponent)
     ContentService contentService = new ContentServiceJpa();
     try {
