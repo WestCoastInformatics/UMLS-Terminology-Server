@@ -44,7 +44,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /** The owner id. */
   @Column(nullable = false)
-  private Long ownerId;
+  private String ownerId;
 
   /** The owner type. */
   @Column(nullable = false)
@@ -74,7 +74,6 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     super();
     this.terminologyId = a.getTerminologyId();
     this.terminology = a.getTerminology();
-    this.version = a.getVersion();
     this.ownerId = a.getOwnerId();
     this.ownerType = a.getOwnerType();
     this.ownerQualifier = a.getOwnerQualifier();
@@ -119,25 +118,13 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
-  public String getVersion() {
-    return version;
-  }
-
-  /* see superclass */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  /* see superclass */
-  @Override
-  public Long getOwnerId() {
+  public String getOwnerId() {
     return ownerId;
   }
 
   /* see superclass */
   @Override
-  public void setOwnerId(Long ownerId) {
+  public void setOwnerId(String ownerId) {
     this.ownerId = ownerId;
   }
 

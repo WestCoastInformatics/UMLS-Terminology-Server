@@ -6,6 +6,8 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.jpa.helpers.meta.AttributeIdentityJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -25,14 +27,16 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.model.meta.AttributeIdentity;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * Default implementation of {@link IdentifierAssignmentHandler}. This supports
  * "application-managed" identifier assignment.
  */
-public class UmlsIdentifierAssignmentHandler implements
-    IdentifierAssignmentHandler {
+public class UmlsIdentifierAssignmentHandler
+    implements IdentifierAssignmentHandler {
 
   /* see superclass */
   @Override
@@ -94,7 +98,7 @@ public class UmlsIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(
     Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
-    throws Exception {
+      throws Exception {
     return relationship.getTerminologyId();
   }
 
@@ -102,7 +106,7 @@ public class UmlsIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(
     TransitiveRelationship<? extends ComponentHasAttributes> relationship)
-    throws Exception {
+      throws Exception {
     return relationship.getTerminologyId();
   }
 
@@ -110,7 +114,7 @@ public class UmlsIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
-    throws Exception {
+      throws Exception {
     return treepos.getTerminologyId();
   }
 
@@ -124,7 +128,7 @@ public class UmlsIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(
     SubsetMember<? extends ComponentHasAttributes, ? extends Subset> member)
-    throws Exception {
+      throws Exception {
     return member.getTerminologyId();
   }
 
@@ -132,7 +136,33 @@ public class UmlsIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(SemanticTypeComponent semanticTypeComponent,
     Concept concept) throws Exception {
-    return semanticTypeComponent.getTerminologyId();
+
+    // TODO construct the hash
+    String hashCode = ""; // getHashCode(semanticTypeComponent)
+    ContentService contentService = new ContentServiceJpa();
+    try {
+
+      AttributeIdentity a = contentService.getAttributeIdentity(hashCode);
+      if (a == null) {
+        a = new AttributeIdentityJpa();
+        a.setHashCode(hashCode);
+        a.setName(semanticTypeComponent.getSemanticType());
+        a.setOwnerId(concept.getTerminologyId());
+        a.setTerminology(semanticTypeComponent.getTerminology());
+        a.setTerminologyId(""); // TODO Generate this
+        a.setOwnerQualifier(""); // TODO Put what here?
+
+        a = contentService.addAttributeIdentity(a);
+
+        return a.getTerminologyId();
+      } else {
+        return a.getTerminologyId();
+      }
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      contentService.close();
+    }
   }
 
   /* see superclass */

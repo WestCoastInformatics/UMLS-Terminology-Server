@@ -1890,6 +1890,15 @@ public interface ContentService extends MetadataService {
 
   public AttributeIdentity getAttributeIdentity(String terminologyId,
     String terminology) throws Exception;
+  
+  /**
+   * Gets the attribute identity.
+   *
+   * @param hashCode the hash code
+   * @return the attribute identity
+   * @throws Exception the exception
+   */
+  public AttributeIdentity getAttributeIdentity(String hashCode) throws Exception;
 
   /**
    * Add attribute identity.
@@ -1901,7 +1910,7 @@ public interface ContentService extends MetadataService {
 
   public AttributeIdentity addAttributeIdentity(
     AttributeIdentity attributeIdentity) throws Exception;
-
+ 
   /**
    * Update attribute identity.
    *

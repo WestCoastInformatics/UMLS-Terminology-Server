@@ -5,12 +5,11 @@ package com.wci.umls.server.model.meta;
 
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasName;
-import com.wci.umls.server.helpers.HasTerminologyId;
 
 /**
  * Represents the name of an attribute.
  */
-public interface AttributeIdentity extends HasId, HasTerminologyId, HasName {
+public interface AttributeIdentity extends HasId, HasName {
 
   /**
    * Sets the owner type.
@@ -29,16 +28,16 @@ public interface AttributeIdentity extends HasId, HasTerminologyId, HasName {
   /**
    * Sets the owner id.
    *
-   * @param userId the new owner id
+   * @param ownerId the new owner id
    */
-  public void setOwnerId(Long userId);
+  public void setOwnerId(String ownerId);
 
   /**
    * Gets the owner id.
    *
    * @return the owner id
    */
-  public Long getOwnerId();
+  public String getOwnerId();
 
   /**
    * Sets the owner qualifier.
@@ -53,14 +52,13 @@ public interface AttributeIdentity extends HasId, HasTerminologyId, HasName {
    * @return the owner qualifier
    */
   public String getOwnerQualifier();
-  
+
   /**
    * Gets the hash code.
    *
    * @return the hash code
    */
   public String getHashCode();
-  
 
   /**
    * Sets the hash code.
@@ -69,5 +67,33 @@ public interface AttributeIdentity extends HasId, HasTerminologyId, HasName {
    */
   public void setHashCode(String hashCode);
 
+  /**
+   * Gets the terminology.
+   *
+   * @return the terminology
+   */
+  public String getTerminology();
+
+  /**
+   * Sets the terminology.
+   *
+   * @param terminology the new terminology
+   */
+  public void setTerminology(String terminology);
+  
+
+  /**
+   * Gets the terminology.
+   *
+   * @return the terminology
+   */
+  public String getTerminologyId();
+
+  /**
+   * Sets the terminology.
+   *
+   * @param terminologyId the new terminology id
+   */
+  public void setTerminologyId(String terminologyId);
 
 }

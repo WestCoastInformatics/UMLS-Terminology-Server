@@ -4660,6 +4660,25 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
+  public AttributeIdentity getAttributeIdentity(String hashCode)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get attribute identity " + hashCode);
+
+    try {
+      final javax.persistence.Query query = manager.createQuery(
+          "select a from AttributeIdentity a " + "where hashCode = :hashCode");
+      query.setParameter("hashCode", hashCode);
+
+      return (AttributeIdentity) query.getSingleResult();
+
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  /* see superclass */
+  @Override
   public AttributeIdentity getAttributeIdentity(String terminologyId,
     String terminology) throws Exception {
     Logger.getLogger(getClass())

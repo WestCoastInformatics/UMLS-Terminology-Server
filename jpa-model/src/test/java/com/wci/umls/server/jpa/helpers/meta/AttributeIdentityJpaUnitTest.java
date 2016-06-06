@@ -54,21 +54,19 @@ public class AttributeIdentityJpaUnitTest {
     atn.setId(1L);
     atn.setHashCode("9e107d9d372bb6826bd81d3542a419d6");
     atn.setName("name1");
-    atn.setOwnerId(1L);
+    atn.setOwnerId("1");
     atn.setOwnerQualifier("qualifier1");
     atn.setOwnerType(IdType.CONCEPT);
     atn.setTerminology("terminology");
-    atn.setVersion("version");
     atn.setTerminologyId("1");
 
     atn2.setId(2L);
     atn2.setHashCode("e4d909c290d0fb1ca068ffaddf22cbd06");
     atn2.setName("name2");
-    atn2.setOwnerId(2L);
+    atn2.setOwnerId("2");
     atn2.setOwnerQualifier("qualifier2");
     atn2.setOwnerType(IdType.CONCEPT);
     atn2.setTerminology("terminology");
-    atn2.setVersion("version");
     atn2.setTerminologyId("2");
 
   }
