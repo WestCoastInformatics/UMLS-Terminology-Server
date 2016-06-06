@@ -14,7 +14,6 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.HasTerminologyId;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Relationship;
 
 /**

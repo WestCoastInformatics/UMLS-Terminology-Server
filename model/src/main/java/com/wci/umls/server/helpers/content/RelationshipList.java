@@ -5,7 +5,6 @@ package com.wci.umls.server.helpers.content;
 
 import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.ResultList;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Relationship;
 
 /**

@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AbstractTreePosition;
-import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
 
