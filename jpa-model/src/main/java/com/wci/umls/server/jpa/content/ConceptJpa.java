@@ -357,9 +357,13 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       return false;
     return true;
   }
-
+  
+  @XmlElement(type = ComponentHistoryJpa.class)  
   @Override
   public List<ComponentHistory> getComponentHistory() {
+    if (componentHistories == null) {
+      componentHistories = new ArrayList<ComponentHistory>();
+    }
     return componentHistories;
   }
 
