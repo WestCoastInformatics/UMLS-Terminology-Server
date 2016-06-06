@@ -221,6 +221,22 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Find relationships for component info.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForComponentInfo(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+  
+  /**
    * Find descriptors for query.
    *
    * @param terminology the terminology

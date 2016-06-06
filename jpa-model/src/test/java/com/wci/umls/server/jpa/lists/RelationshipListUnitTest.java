@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
@@ -21,7 +22,6 @@ import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.Relationship;
@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.Relationship;
 @SuppressWarnings("rawtypes")
 public class RelationshipListUnitTest
     extends
-    AbstractListUnit<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> {
+    AbstractListUnit<Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> {
 
   /** The list test fixture . */
   private RelationshipList list;
@@ -140,6 +140,7 @@ public class RelationshipListUnitTest
     r8.setFrom(a);
     r8.setTo(a);
 
+    // TODO: add section for ComponentInfoRelationship
   }
 
   /**

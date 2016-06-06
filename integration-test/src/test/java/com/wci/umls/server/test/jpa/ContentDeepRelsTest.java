@@ -18,11 +18,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.ContentService;
 
@@ -65,7 +65,7 @@ public class ContentDeepRelsTest {
     RelationshipList list =
         service.findDeepRelationshipsForConcept("C0000097", "UMLS", "latest",
             Branch.ROOT, null, false, new PfsParameterJpa());
-    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()
@@ -88,7 +88,7 @@ public class ContentDeepRelsTest {
     list =
         service.findDeepRelationshipsForConcept("C0000097", "UMLS", "latest",
             Branch.ROOT, null, false, pfs);
-    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()
@@ -99,18 +99,18 @@ public class ContentDeepRelsTest {
     }
     // Test 10 objects
     assertEquals(10, list.getCount());
-    List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> list2 =
+    List<Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> list2 =
         new ArrayList<>(list.getObjects());
 
     // Test sort ordering by relationship type
     Collections
         .sort(
             list2,
-            new Comparator<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>>() {
+            new Comparator<Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>>() {
               @Override
               public int compare(
-                Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> o1,
-                Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> o2) {
+                Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> o1,
+                Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> o2) {
                 return o1.getRelationshipType().compareTo(
                     o2.getRelationshipType());
               }

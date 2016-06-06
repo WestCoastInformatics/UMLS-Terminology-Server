@@ -4,10 +4,12 @@
 package com.wci.umls.server.services.handlers;
 
 import com.wci.umls.server.helpers.Configurable;
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -96,6 +98,16 @@ public interface WorkflowListener extends Configurable {
    */
   public void conceptChanged(Concept concept, Action action) throws Exception;
 
+
+  /**
+   * Component history changed.
+   *
+   * @param componentHistory the component history
+   * @param action the action
+   * @throws Exception the exception
+   */
+  public void componentHistoryChanged(ComponentHistory componentHistory, Action action) throws Exception;
+
   /**
    * Descriptor of atom changed.
    *
@@ -172,7 +184,7 @@ public interface WorkflowListener extends Configurable {
    * @throws Exception the exception
    */
   public void relationshipChanged(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship,
+    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship,
     Action action) throws Exception;
 
   /**

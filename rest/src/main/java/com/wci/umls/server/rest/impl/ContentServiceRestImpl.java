@@ -26,6 +26,7 @@ import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
@@ -88,7 +89,6 @@ import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -1696,7 +1696,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
               version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
-      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -1821,7 +1821,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
               terminology, version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
-      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -1866,7 +1866,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           contentService.findRelationshipsForCode(terminologyId, terminology,
               version, Branch.ROOT, queryStr, false, pfs);
 
-      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -3398,6 +3398,54 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
     return null;
+  }
+
+  /* see superclass */
+
+  @Override
+  @POST
+  @Path("/componentInfo/{terminology}/{version}/{terminologyId}/relationships")
+  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given component info id", response = RelationshipListJpa.class)
+  public RelationshipList findRelationshipsForComponentInfo(
+    @ApiParam(value = "Component info terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Component info terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Component info version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query for searching relationships, e.g. component info id or concept name", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /componentInfo/" + terminology + "/" + version
+            + "/" + terminologyId + "/relationships?query=" + query);
+    final String queryStr = query == null ? "" : query;
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "retrieve relationships for the component info", UserRole.VIEWER);
+
+      final RelationshipList list =
+          contentService.findRelationshipsForComponentInfo(terminologyId,
+              terminology, version, Branch.ROOT, queryStr, false, pfs);
+
+      // Use graph resolver
+      for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(rel);
+      }
+
+      return list;
+
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve relationships for a component info");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
   }
 
 }

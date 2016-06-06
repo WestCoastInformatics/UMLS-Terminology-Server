@@ -5,10 +5,12 @@ package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -129,7 +131,7 @@ public class DefaultWorkflowListener implements WorkflowListener {
 
   @Override
   public void relationshipChanged(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship,
+    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship,
     Action action) throws Exception {
     // n/a
 
@@ -184,6 +186,12 @@ public class DefaultWorkflowListener implements WorkflowListener {
   public void mapSetChanged(MapSet mapSet, Action action) {
     // n/a
 
+  }
+
+  @Override
+  public void componentHistoryChanged(ComponentHistory componentHistory,
+    Action action) throws Exception {
+    // n/a    
   }
 
 }

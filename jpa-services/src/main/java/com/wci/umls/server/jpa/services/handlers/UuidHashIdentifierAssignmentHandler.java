@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
@@ -48,7 +49,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     // Based on the concept name and the terminology ids
     // of the active stated isa relationships
     StringBuilder hashKey = new StringBuilder().append(concept.getName());
-    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : concept
+    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : concept
         .getRelationships()) {
       if (rel.isHierarchical() && !rel.isObsolete() && !rel.isSuppressible()
           && rel.isStated()) {
@@ -64,7 +65,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     // Based on the descriptor name and the terminology ids
     // of the active stated isa relationships
     StringBuilder hashKey = new StringBuilder().append(descriptor.getName());
-    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : descriptor
+    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : descriptor
         .getRelationships()) {
       if (rel.isHierarchical() && !rel.isObsolete() && !rel.isSuppressible()
           && rel.isStated()) {
@@ -80,7 +81,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     // Based on the code name and the terminology ids
     // of the active stated isa relationships
     StringBuilder hashKey = new StringBuilder().append(code.getName());
-    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : code
+    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : code
         .getRelationships()) {
       if (rel.isHierarchical() && !rel.isObsolete() && !rel.isSuppressible()
           && rel.isStated()) {
@@ -144,7 +145,7 @@ public class UuidHashIdentifierAssignmentHandler implements
   /* see superclass */
   @Override
   public String getTerminologyId(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
     throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, relType, additionalRelType, group,

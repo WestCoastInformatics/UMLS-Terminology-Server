@@ -4,6 +4,7 @@
 package com.wci.umls.server.model.content;
 
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
+import com.wci.umls.server.helpers.HasTerminologyId;
 
 /**
  * Represents a relationship between two {@link ComponentHasAttributes}s.
@@ -11,7 +12,7 @@ import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
  * @param <S> the "from" object type
  * @param <T> the "to" object type
  */
-public interface Relationship<S extends ComponentHasAttributes, T extends ComponentHasAttributes>
+public interface Relationship<S extends HasTerminologyId, T extends HasTerminologyId>
     extends ComponentHasAttributes, HasAlternateTerminologyIds {
   
   /**

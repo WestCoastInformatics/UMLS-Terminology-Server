@@ -27,6 +27,7 @@ import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -53,6 +54,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /** The relationships. */
   @OneToMany(mappedBy = "from", targetEntity = ConceptRelationshipJpa.class)
   private List<ConceptRelationship> relationships = null;
+
+  @OneToMany(mappedBy = "referencedConcept", targetEntity = ComponentHistoryJpa.class)
+  private List<ComponentHistory> componentHistories = null;
 
   /** The semantic type components. */
   @IndexedEmbedded(targetElement = SemanticTypeComponentJpa.class)
@@ -352,6 +356,16 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     if (usesRelationshipUnion != other.usesRelationshipUnion)
       return false;
     return true;
+  }
+
+  @Override
+  public List<ComponentHistory> getComponentHistory() {
+    return componentHistories;
+  }
+
+  @Override
+  public void setComponentHistory(List<ComponentHistory> componentHistory) {
+    this.componentHistories = componentHistory;
   }
 
 }

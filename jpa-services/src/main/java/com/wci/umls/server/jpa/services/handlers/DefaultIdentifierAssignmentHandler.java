@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -92,7 +93,7 @@ public class DefaultIdentifierAssignmentHandler implements
   /* see superclass */
   @Override
   public String getTerminologyId(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
     throws Exception {
     return relationship.getTerminologyId();
   }

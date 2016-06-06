@@ -4,6 +4,7 @@
 package com.wci.umls.server.services.handlers;
 
 import com.wci.umls.server.helpers.Configurable;
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -113,7 +114,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
     throws Exception;
 
   /**

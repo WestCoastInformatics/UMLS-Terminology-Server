@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -22,7 +23,6 @@ import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultGraphResolutionHandler;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
@@ -141,7 +141,7 @@ public class Handler002Test {
     // TEST: exception
     try {
       handlerService
-          .resolve((Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>) null);
+          .resolve((Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>) null);
       fail("Calling resolve((Relationship)null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing

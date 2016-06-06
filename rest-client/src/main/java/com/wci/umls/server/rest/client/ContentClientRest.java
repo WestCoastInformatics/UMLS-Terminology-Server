@@ -1209,6 +1209,26 @@ public class ContentClientRest extends RootClientRest
     return findRelationshipsHelper("concept", terminologyId, terminology,
         version, query, pfs, authToken);
   }
+  
+  /* see superclass */
+  @Override
+  public RelationshipList findRelationshipsForComponentInfo(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - find relationships for component info "
+            + terminologyId + ", " + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Logger.getLogger(getClass())
+        .debug("Content Client - find relationships for component info "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs
+            + ", " + query);
+    return findRelationshipsHelper("componentInfo", terminologyId, terminology,
+        version, query, pfs, authToken);
+  }
 
   /* see superclass */
   @Override

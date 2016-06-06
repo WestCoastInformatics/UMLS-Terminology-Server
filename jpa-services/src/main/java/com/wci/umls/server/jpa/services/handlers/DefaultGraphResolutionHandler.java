@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -16,6 +17,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -59,7 +61,10 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // Attributes
       resolveAttributes(concept, nullId);
-
+      
+      // Component History
+      resolveComponentHistory(concept, nullId);
+      
       // Definitions
       for (Definition def : concept.getDefinitions()) {
         resolveDefinition(def, nullId);
@@ -147,6 +152,9 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // Attributes
       resolveAttributes(atom, nullId);
+      
+      // Component History
+      resolveComponentHistory(atom, nullId);      
 
       // Definitions
       for (Definition def : atom.getDefinitions()) {
@@ -174,7 +182,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   /* see superclass */
   @Override
   public void resolve(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
     throws Exception {
     if (relationship != null) {
       if (relationship.getFrom() != null) {
@@ -408,6 +416,26 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       att.getAlternateTerminologyIds().keySet();
       if (nullId) {
         att.setId(null);
+      }
+    }
+  }
+
+  protected void resolveComponentHistory(Atom component,
+    boolean nullId) {
+    for (ComponentHistory history : component.getComponentHistory()) {
+      history.getReferencedConcept().getTerminologyId();
+      if (nullId) {
+        history.setId(null);
+      }
+    }
+  }
+  
+  protected void resolveComponentHistory(Concept component,
+    boolean nullId) {
+    for (ComponentHistory history : component.getComponentHistory()) {
+      history.getReferencedConcept().getTerminologyId();
+      if (nullId) {
+        history.setId(null);
       }
     }
   }

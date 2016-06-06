@@ -6,6 +6,7 @@ package com.wci.umls.server.model.content;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
+import com.wci.umls.server.helpers.HasComponentHistory;
 import com.wci.umls.server.helpers.HasMembers;
 
 /**
@@ -14,7 +15,7 @@ import com.wci.umls.server.helpers.HasMembers;
  */
 public interface Atom extends ComponentHasAttributesAndName,
     ComponentHasDefinitions, ComponentHasRelationships<AtomRelationship>,
-    HasAlternateTerminologyIds, HasMembers<AtomSubsetMember> {
+    HasAlternateTerminologyIds, HasMembers<AtomSubsetMember>, HasComponentHistory {
 
   /**
    * Returns the string class id.

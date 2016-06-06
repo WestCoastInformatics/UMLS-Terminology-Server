@@ -31,7 +31,7 @@ import com.wci.umls.server.model.meta.IdType;
 public class ComponentInfoJpa implements ComponentInfo {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGen", table = "table_generator_", pkColumnValue = "Entity")
+  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
