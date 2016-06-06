@@ -5,6 +5,8 @@ package com.wci.umls.server.services;
 
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.helpers.ReleaseInfoList;
+import com.wci.umls.server.helpers.content.ComponentHistoryList;
+import com.wci.umls.server.model.content.ComponentHistory;
 
 /**
  * Generically represents a service for asking questions about content history.
@@ -209,5 +211,66 @@ public interface HistoryService extends ContentService {
    * @throws Exception the exception
    */
   public void removeReleaseInfo(Long id) throws Exception;
+
+  /**
+   * Gets the component history.
+   *
+   * @param id the id
+   * @return the component history
+   * @throws Exception the exception
+   */
+  public ComponentHistory getComponentHistory(Long id) throws Exception;
+
+  /**
+   * Gets the component history.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the component history
+   * @throws Exception the exception
+   */
+  public ComponentHistory getComponentHistory(String terminologyId, String terminology,
+    String version, String branch) throws Exception;
+
+  /**
+   * Adds the component history.
+   *
+   * @param componentHistory the component history
+   * @return the component history
+   * @throws Exception the exception
+   */
+  public ComponentHistory addComponentHistory(ComponentHistory componentHistory)
+    throws Exception;
+
+  /**
+   * Update component history.
+   *
+   * @param componentHistory the component history
+   * @throws Exception the exception
+   */
+  public void updateComponentHistory(ComponentHistory componentHistory)
+    throws Exception;
+
+  /**
+   * Removes the component history.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeComponentHistory(Long id) throws Exception;
+
+  /**
+   * Gets the component history.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the component history
+   * @throws Exception the exception
+   */
+  public ComponentHistoryList getComponentHistory(String terminologyId,
+    String terminology, String version) throws Exception;
 
 }

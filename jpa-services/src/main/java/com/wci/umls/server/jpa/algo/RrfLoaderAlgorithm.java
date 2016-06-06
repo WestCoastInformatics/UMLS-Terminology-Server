@@ -22,13 +22,16 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
+import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
@@ -37,6 +40,7 @@ import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
+import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
@@ -69,6 +73,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
@@ -1115,7 +1120,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAT);
     // make set of all atoms that got an additional attribute
     final Set<Atom> modifiedAtoms = new HashSet<>();
-    final Set<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> modifiedRelationships =
+    final Set<Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> modifiedRelationships =
         new HashSet<>();
     final Set<Code> modifiedCodes = new HashSet<>();
     final Set<Descriptor> modifiedDescriptors = new HashSet<>();
@@ -1212,7 +1217,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         addAttribute(att, atom);
       } else if (fields[4].equals("RUI")) {
         // Get the relationship for the RUI
-        final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship =
+        final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship =
             getRelationship(relationshipMap.get(fields[3]), null);
         relationship.getAttributes().add(att);
         addAttribute(att, relationship);
@@ -1291,7 +1296,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           updateAtom(a);
         }
         modifiedAtoms.clear();
-        for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : modifiedRelationships) {
+        for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> r : modifiedRelationships) {
           updateRelationship(r);
         }
         modifiedRelationships.clear();
@@ -1390,7 +1395,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       updateAtom(a);
     }
     modifiedAtoms.clear();
-    for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : modifiedRelationships) {
+    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> r : modifiedRelationships) {
       updateRelationship(r);
     }
     modifiedRelationships.clear();
@@ -2168,9 +2173,77 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           relationshipMap.put(fields[8], codeRel.getId());
         }
       } else {
-        Logger.getLogger(getClass()).debug(
-            "  SKIPPING relationship STYPE1!=STYPE2 - " + line);
-        continue;
+        String stype1 = fields[2];
+        String stype2 = fields[6];
+        
+        final ComponentInfoRelationship componentInfoRel =
+            new ComponentInfoRelationshipJpa();
+
+        ComponentInfo from = null;
+        if (stype2.equals("CODE")) { 
+          Long fromId = codeIdMap.get(atomTerminologyMap.get(fields[5])
+              + atomCodeIdMap.get(fields[5]));
+          Code code = getCode(fromId);
+          from = new ComponentInfoJpa(code); 
+
+        } else if (stype2.equals("SCUI")) {
+          Long fromId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
+              + atomConceptIdMap.get(fields[5]));
+          Concept concept = getConcept(fromId);
+          from = new ComponentInfoJpa(concept); 
+
+        } else if (stype2.equals("SDUI")) {
+          Long fromId = descriptorIdMap.get(atomTerminologyMap.get(fields[5])
+              + atomDescriptorIdMap.get(fields[5]));
+          Descriptor descriptor = getDescriptor(fromId);
+          from = new ComponentInfoJpa(descriptor);
+          
+        } else if (stype2.equals("AUI")) {
+          Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
+          from = new ComponentInfoJpa(); 
+          from.setTerminologyId(fromAtom.getTerminologyId()); 
+          from.setType(IdType.ATOM);        
+        }
+        
+        ComponentInfo to = null;
+        if (stype1.equals("CODE")) { 
+          Long toId = codeIdMap.get(atomTerminologyMap.get(fields[1])
+              + atomCodeIdMap.get(fields[1]));
+          Code code = getCode(toId);
+          to = new ComponentInfoJpa(code); 
+
+        } else if (stype1.equals("SCUI")) {
+          Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
+              + atomConceptIdMap.get(fields[1]));
+          Concept concept = getConcept(toId);
+          to = new ComponentInfoJpa(concept); 
+
+        } else if (stype1.equals("SDUI")) {
+          Long toId = descriptorIdMap.get(atomTerminologyMap.get(fields[1])
+              + atomDescriptorIdMap.get(fields[1]));
+          Descriptor descriptor = getDescriptor(toId);
+          to = new ComponentInfoJpa(descriptor);
+          
+        } else if (stype1.equals("AUI")) {
+          Atom toAtom = getAtom(atomIdMap.get(fields[1]));
+          to = new ComponentInfoJpa(); 
+          to.setTerminologyId(toAtom.getTerminologyId()); 
+          to.setType(IdType.ATOM); 
+        
+        }
+        if (from == null || to == null) {
+          // Referential integrity error
+          logError("line = " + line);
+          logError("Referential integrity issue with field 2 or 6: "
+              + fields[1] + ", " + fields[5]);
+        } else {
+          componentInfoRel.setFrom(from);
+          componentInfoRel.setTo(to);
+          setRelationshipFields(fields, componentInfoRel);
+          addRelationship(componentInfoRel);
+          relationshipMap.put(fields[8], componentInfoRel.getId());
+        }
+
       }
 
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
@@ -2191,7 +2264,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private void setRelationshipFields(
     final String[] fields,
-    final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
     throws Exception {
     relationship.setTimestamp(releaseVersionDate);
     relationship.setLastModified(releaseVersionDate);

@@ -6,6 +6,7 @@ package com.wci.umls.server.model.content;
 import java.util.List;
 
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.HasComponentHistory;
 import com.wci.umls.server.helpers.HasMembers;
 import com.wci.umls.server.helpers.HasNotes;
 
@@ -16,7 +17,7 @@ import com.wci.umls.server.helpers.HasNotes;
  */
 public interface Concept extends AtomClass, ComponentHasDefinitions,
     ComponentHasRelationships<ConceptRelationship>,
-    HasMembers<ConceptSubsetMember>, HasNotes, ComponentInfo {
+    HasMembers<ConceptSubsetMember>, HasNotes, ComponentInfo, HasComponentHistory {
 
   /**
    * Indicates whether or not the concept is fully defined. This is always false

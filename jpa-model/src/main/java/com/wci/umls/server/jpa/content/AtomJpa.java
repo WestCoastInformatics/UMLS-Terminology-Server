@@ -34,6 +34,7 @@ import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Definition;
 
 /**
@@ -73,6 +74,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /** The relationships. */
   @OneToMany(mappedBy = "from", targetEntity = AtomRelationshipJpa.class)
   private List<AtomRelationship> relationships = null;
+  
+  /** The component histories. */
+  @OneToMany(mappedBy = "referencedConcept", targetEntity = ComponentHistoryJpa.class)
+  private List<ComponentHistory> componentHistories = null;
 
   /** The concept terminology id map. */
   @ElementCollection(fetch = FetchType.EAGER)
@@ -528,5 +533,15 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
         + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
         + stringClassId + ", termType=" + termType + ", workflowStatus="
         + workflowStatus + "] - " + super.toString();
+  }
+
+  @Override
+  public List<ComponentHistory> getComponentHistory() {
+    return componentHistories;
+  }
+
+  @Override
+  public void setComponentHistory(List<ComponentHistory> componentHistory) {
+    this.componentHistories = componentHistory;
   }
 }

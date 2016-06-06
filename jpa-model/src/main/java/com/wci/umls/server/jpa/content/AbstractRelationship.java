@@ -13,6 +13,7 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Relationship;
 
@@ -26,9 +27,10 @@ import com.wci.umls.server.model.content.Relationship;
 @MappedSuperclass
 @XmlSeeAlso({
     CodeRelationshipJpa.class, ConceptRelationshipJpa.class,
-    DescriptorRelationshipJpa.class, AtomRelationshipJpa.class
+    DescriptorRelationshipJpa.class, AtomRelationshipJpa.class,
+    ComponentInfoRelationshipJpa.class
 })
-public abstract class AbstractRelationship<S extends ComponentHasAttributes, T extends ComponentHasAttributes>
+public abstract class AbstractRelationship<S extends HasTerminologyId, T extends HasTerminologyId>
     extends AbstractComponentHasAttributes implements Relationship<S, T> {
 
   /** The relationship type. */

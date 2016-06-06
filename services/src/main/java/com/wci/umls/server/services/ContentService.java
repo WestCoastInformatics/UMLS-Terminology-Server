@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ComponentInfoList;
+import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -786,8 +787,8 @@ public interface ContentService extends MetadataService {
    *         component has attributes>
    * @throws Exception the exception
    */
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> addRelationship(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+  public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> addRelationship(
+    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
     throws Exception;
 
   /**
@@ -797,7 +798,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public void updateRelationship(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
     throws Exception;
 
   /**
@@ -809,7 +810,7 @@ public interface ContentService extends MetadataService {
    */
   public void removeRelationship(
     Long id,
-    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
     throws Exception;
 
   /**
@@ -1339,12 +1340,12 @@ public interface ContentService extends MetadataService {
    * @return the relationship
    * @throws Exception the exception
    */
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
+  public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> getRelationship(
     String terminologyId,
     String terminology,
     String version,
     String branch,
-    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
     throws Exception;
 
   /**
@@ -1361,7 +1362,7 @@ public interface ContentService extends MetadataService {
     String terminologyId,
     String terminology,
     String version,
-    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
     throws Exception;
 
   /**
@@ -1372,9 +1373,9 @@ public interface ContentService extends MetadataService {
    * @return the relationship
    * @throws Exception the exception
    */
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
+  public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> getRelationship(
     Long id,
-    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
     throws Exception;
 
   /**
@@ -1856,5 +1857,22 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public NoteList findConceptNotesForQuery(String query, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find relationships for component info.
+   *
+   * @param componentInfoId the component info id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param inverseFlag the inverse flag
+   * @param pfs the pfs
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForComponentInfo(String componentInfoId,
+    String terminology, String version, String branch, String query,
+    boolean inverseFlag, PfsParameter pfs) throws Exception;
 
 }
