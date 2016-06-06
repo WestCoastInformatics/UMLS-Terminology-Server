@@ -105,9 +105,6 @@ public class MetaEditingServiceRestEdgeCasesTest
     project.setTerminology("testTerminology");
     projectService.updateProject((ProjectJpa) project, authToken);
     
-    //
-    // Test add where already exists, remove where does not exist
-    //
     try {
       metaEditingService.addSemanticType(project.getId(), c.getId(), sty2,
           authToken);
@@ -130,7 +127,7 @@ public class MetaEditingServiceRestEdgeCasesTest
     // verify removal did not succeed (concept still contains original sty)
     assertTrue(c.getSemanticTypes().contains(sty));
 
-    // reset the branch
+    // reset the terminology
     project.setTerminology(umlsTerminology);
     projectService.updateProject((ProjectJpa) project, authToken);
 
