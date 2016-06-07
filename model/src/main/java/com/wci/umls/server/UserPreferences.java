@@ -8,7 +8,7 @@ import java.util.List;
 import com.wci.umls.server.helpers.PrecedenceList;
 
 /**
- * The Interface UserPreferences.
+ * Represents user preferences.
  */
 public interface UserPreferences {
 

@@ -6,7 +6,7 @@ package com.wci.umls.server.algo;
 import com.wci.umls.server.services.helpers.ProgressReporter;
 
 /**
- * Generically represents an algortihm. Implementations must fully configure
+ * Represents an algortihm. Implementations must fully configure
  * themselves before the compute call is made.
  */
 public interface Algorithm extends ProgressReporter {

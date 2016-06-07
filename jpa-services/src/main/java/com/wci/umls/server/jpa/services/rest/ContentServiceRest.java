@@ -27,7 +27,7 @@ import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.StringClass;
 
 /**
- * The Interface ContentServiceRest.
+ * Represents a service for managing content.
  */
 public interface ContentServiceRest {
 

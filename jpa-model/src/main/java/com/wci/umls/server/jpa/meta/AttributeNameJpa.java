@@ -16,7 +16,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.model.meta.AttributeName;
 
 /**
- * JPA-enabled implementation of {@link AttributeName}.
+ * JPA and JAXB enabled implementation of {@link AttributeName}.
  */
 @Entity
 @Table(name = "attribute_names", uniqueConstraints = @UniqueConstraint(columnNames = {

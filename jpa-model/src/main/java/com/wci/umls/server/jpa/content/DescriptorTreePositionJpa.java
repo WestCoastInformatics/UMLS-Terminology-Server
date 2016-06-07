@@ -28,7 +28,7 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorTreePosition;
 
 /**
- * JPA-enabled implementation of {@link DescriptorTreePosition}.
+ * JPA and JAXB enabled implementation of {@link DescriptorTreePosition}.
  */
 @Entity
 @Table(name = "descriptor_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {

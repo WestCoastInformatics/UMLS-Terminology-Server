@@ -22,7 +22,7 @@
             {{note.lastModifiedBy}}
           </td>
           <td class="col-md-3 col-xs-3">
-            <span ng-bind="note.lastModified | date:'medium'"></span>
+            <span>{{toDate(note.lastModified)}}</span>
           </td>
           <td class="col-md-1 col-xs-1">
             <i ng-show="note.hover" title="Remove note"

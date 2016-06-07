@@ -17,7 +17,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.ReleaseProperty;
 
 /**
- * JPA enabled implementation of a {@link ReleaseProperty}.
+ * JPA and JAXB enabled implementation of a {@link ReleaseProperty}.
  */
 @Entity
 @Table(name = "release_properties")

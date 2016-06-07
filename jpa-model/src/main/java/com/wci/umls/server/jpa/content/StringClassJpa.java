@@ -20,7 +20,7 @@ import org.hibernate.search.annotations.Indexed;
 import com.wci.umls.server.model.content.StringClass;
 
 /**
- * The Class StringClassJpa.
+ * JPA and JAXB enabled implementation of {@link StringClass}.
  */
 @Entity
 @Table(name = "string_classes", uniqueConstraints = @UniqueConstraint(columnNames = {

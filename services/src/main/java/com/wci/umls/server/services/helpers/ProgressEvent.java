@@ -4,7 +4,7 @@
 package com.wci.umls.server.services.helpers;
 
 /**
- * Generically represents an update to progress information.
+ * Represents an update to progress information.
  */
 public class ProgressEvent {
 

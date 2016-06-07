@@ -17,7 +17,7 @@ import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.Relationship;
 
 /**
- * Abstract JPA-enabled implementation of {@link Relationship}.
+ * Abstract JPA and JAXB enabled implementation of {@link Relationship}.
  *
  * @param <S> the left hand side of the relationship
  * @param <T> the right hand side of the relationship

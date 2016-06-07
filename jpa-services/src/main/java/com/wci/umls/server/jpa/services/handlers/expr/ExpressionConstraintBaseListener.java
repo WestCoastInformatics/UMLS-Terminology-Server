@@ -8,11 +8,9 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * The listener interface for receiving expressionConstraint events. The class
  * that is interested in processing a expressionConstraint event implements this
  * interface, and the object created with that class is registered with a
- * component using the component's <code>addExpressionConstraintListener
- * <code> method. When the expressionConstraint event occurs, that object's
+ * component using the component's ddExpressionConstraintListener
+ * method. When the expressionConstraint event occurs, that object's
  * appropriate method is invoked.
- *
- * @see ExpressionConstraintEvent
  */
 @SuppressWarnings("all")
 public class ExpressionConstraintBaseListener implements

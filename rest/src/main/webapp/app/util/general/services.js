@@ -64,7 +64,10 @@ tsApp
 
         // Sets the error
         this.setError = function(message) {
+          console.error(message);
           this.error.message = message;
+          $location.hash('top');
+          $anchorScroll();
         };
 
         // Clears the error
@@ -102,9 +105,11 @@ tsApp
         // Handle error message
         this.handleError = function(response) {
           if (response.data && response.data.length > 100) {
+            console.error(this.error.longMessage);
             this.error.message = "Unexpected error, click the icon to view attached full error";
             this.error.longMessage = response.data;
           } else {
+            console.error(this.error.message);
             this.error.message = response.data;
           }
           // handle no message
@@ -113,6 +118,7 @@ tsApp
             e = new Error();
             console.log("ERROR", e.stack);
 
+            console.error(this.error.message);
             this.error.message = "Unexpected server side error.";
           }
           // If authtoken expired, relogin
@@ -280,7 +286,7 @@ tsApp
 
           // apply sort if specified
           if (paging.sortField) {
-            console.debug('sorting', paging.sortField, paging.sortAscending)
+            console.debug('sorting', paging.sortField, paging.sortAscending);
             // if ascending specified, use that value, otherwise use false
             newArray.sort(this.sortBy(paging.sortField, paging.sortAscending));
           }
@@ -441,11 +447,12 @@ tsApp
           }
           for ( var key in itemsToAdd) {
             if (callbacks.hasOwnProperty(key)) {
-              console.error('Error constructing callbacks, name clash for ' + key, callbacks);
+              utilService.setError('Error constructing callbacks, name clash for ' + key, callbacks);
+              return;
             }
             callbacks[key] = itemsToAdd[key];
           }
-        }
+        };
 
       } ]);
 
@@ -477,7 +484,6 @@ tsApp.service('gpService', function() {
 
 });
 
-
 // Websocket service
 
 tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'gpService',
@@ -497,11 +503,13 @@ tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'g
       url = url.replace('index2.html', '');
       url = url.substring(0, url.indexOf('#'));
       url = url + "/websocket";
+      console.debug("Websocket URL" + url);
       return url;
 
     };
-    
-    // TODO Add wiki entry about registering scopes and broadcast event receipt lists
+
+    // TODO Add wiki entry about registering scopes and broadcast event receipt
+    // lists
 
     this.connection = new WebSocket(this.getUrl());
 
@@ -530,17 +538,17 @@ tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'g
     this.send = function(message) {
       this.connection.send(JSON.stringify(message));
     };
-    
+
     //
     // Temporary broadcast functions
     // To be replaced once the WebSocket is functional
     //
-    
+
     this.fireNoteChange = function(data) {
       console.debug('websocketService: fireNoteChange event', data);
       $rootScope.$broadcast('termServer::noteChange', data);
     };
-    
+
     this.fireFavoriteChange = function(data) {
       console.debug('websocketService: fireNoteChange event', data);
       $rootScope.$broadcast('termServer::favoriteChange', data);

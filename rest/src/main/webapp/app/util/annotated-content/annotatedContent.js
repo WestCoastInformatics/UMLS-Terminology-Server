@@ -61,7 +61,7 @@ tsApp.directive('annotatedContent', [
 
         scope.openAnnotatedContent = function(content) {
           scope.callbacks.getComponent(content);
-        }
+        };
 
         scope.removeAnnotatedContent = function(content) {
           securityService.removeUserAnnotatedContent(content.type, content.terminology, content.version,
@@ -70,7 +70,7 @@ tsApp.directive('annotatedContent', [
             scope.callbacks.checkAnnotatedContentStatus();
 
           });
-        }
+        };
 
         // watch for broadcast content update notification
         scope.$on('termServer::noteChange', function(event, data) {
@@ -97,7 +97,7 @@ tsApp.directive('annotatedContent', [
           });
 
           modalInstance.result.then(function() {
-
+            // do nothing
           }, function() {
             // do nothing
           });

@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
@@ -18,11 +19,12 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
  * Unit testing for {@link ComponentInfoJpa}.
  */
-public class ComponentInfoUnitTest {
+public class ComponentInfoJpaUnitTest {
 
   /** The model object to test. */
   private ComponentInfoJpa object;
@@ -51,8 +53,8 @@ public class ComponentInfoUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet003");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelGetSet");
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -63,12 +65,9 @@ public class ComponentInfoUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode003");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("timestamp");
-    tester.include("lastModified");
-    tester.include("lastModifiedBy");
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
@@ -89,8 +88,8 @@ public class ComponentInfoUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy003");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelCopy");
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
     assertTrue(tester.testCopyConstructor(ComponentInfo.class));
@@ -102,8 +101,8 @@ public class ComponentInfoUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient003");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient");
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -114,8 +113,8 @@ public class ComponentInfoUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField003");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelNotNullField");
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("name");
     tester.include("timestamp");
@@ -134,13 +133,33 @@ public class ComponentInfoUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields003");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields");
     // not indexed
 
   }
   
-  // TODO Add test for delimited string constructor
+  /**
+   * Test field indexing.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testStringConstructor() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testStringConstructor");
+    // not indexed
+
+    final ComponentInfo info1 = new ComponentInfoJpa();
+    info1.setType(IdType.CONCEPT);
+    info1.setTerminologyId("1");
+    info1.setTerminology("1");
+    info1.setVersion("1");
+    info1.setName("1");
+
+    final ComponentInfo info2 = new ComponentInfoJpa("CONCEPT~~1~~1~~1~~1~~1");
+    
+    assertEquals(info1, info2);
+  }
 
   /**
    * Teardown.

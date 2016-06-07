@@ -26,7 +26,7 @@ import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 
 /**
- * JPA-enabled implementation of a {@link MapSet}.
+ * JPA and JAXB enabled implementation of a {@link MapSet}.
  */
 @Entity
 @Table(name = "mapsets", uniqueConstraints = @UniqueConstraint(columnNames = {

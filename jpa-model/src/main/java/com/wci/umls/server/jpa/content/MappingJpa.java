@@ -30,7 +30,7 @@ import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * JPA-enabled implementation of {@link Mapping}.
+ * JPA and JAXB enabled implementation of {@link Mapping}.
  */
 @Entity
 @Table(name = "mappings", uniqueConstraints = @UniqueConstraint(columnNames = {

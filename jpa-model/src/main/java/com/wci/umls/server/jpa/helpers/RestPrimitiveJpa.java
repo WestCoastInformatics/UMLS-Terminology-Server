@@ -9,8 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.helpers.RestPrimitive;
 
 /**
- * Generic object to contain a primitive result.
- * 
+ * Object to contain a primitive result.
  */
 @XmlRootElement(name = "restPrimitive")
 public class RestPrimitiveJpa implements RestPrimitive {

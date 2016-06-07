@@ -1,6 +1,5 @@
 // Content controller
 tsApp.directive('atoms', [ 'utilService', function(utilService) {
-  console.debug('configure atoms directive');
   return {
     restrict : 'A',
     scope : {
@@ -11,6 +10,7 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
     },
     templateUrl : 'app/component/atoms/atoms.html',
     link : function(scope, element, attrs) {
+      console.debug('configure atoms directive');
 
       function getPagedList() {
 
@@ -49,9 +49,9 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
           terminologyId : terminologyId,
           terminology :terminology,
           version : version
-        }
+        };
         scope.callbacks.getComponent(wrapper);
-      }
+      };
 
       // toggle an items collapsed state
       scope.toggleItemCollapse = function(item) {

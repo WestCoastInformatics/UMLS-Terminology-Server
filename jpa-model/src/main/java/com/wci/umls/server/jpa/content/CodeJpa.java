@@ -26,7 +26,7 @@ import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * The Class CodeJpa.
+ * JPA and JAXB enabled implementation of a {@link Code}.
  */
 @Entity
 @Table(name = "codes", uniqueConstraints = @UniqueConstraint(columnNames = {

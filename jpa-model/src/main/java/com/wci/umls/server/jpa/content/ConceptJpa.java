@@ -36,7 +36,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * JPA-enabled implementation of {@link Concept}.
+ * JPA and JAXB enabled implementation of {@link Concept}.
  */
 @Entity
 @Table(name = "concepts", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -357,10 +357,14 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       return false;
     return true;
   }
-
+  
+  @XmlElement(type = ComponentHistoryJpa.class)  
   @Override
   @XmlElement(type=ComponentHistoryJpa.class)
   public List<ComponentHistory> getComponentHistory() {
+    if (componentHistories == null) {
+      componentHistories = new ArrayList<ComponentHistory>();
+    }
     return componentHistories;
   }
 

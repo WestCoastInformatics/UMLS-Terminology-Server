@@ -22,7 +22,7 @@ import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Subset;
 
 /**
- * JPA-enabled implementation of an {@link Concept} {@link Subset}.
+ * JPA and JAXB enabled implementation of an {@link Concept} {@link Subset}.
  */
 @Entity
 @Table(name = "concept_subsets", uniqueConstraints = @UniqueConstraint(columnNames = {

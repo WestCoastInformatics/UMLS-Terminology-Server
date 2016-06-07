@@ -23,7 +23,7 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 
 /**
- * JPA-enabled implementation of {@link AtomRelationship}.
+ * JPA and JAXB enabled implementation of {@link AtomRelationship}.
  */
 @Entity
 @Table(name = "atom_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {

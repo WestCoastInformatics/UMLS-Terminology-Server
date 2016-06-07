@@ -11,7 +11,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 
 /**
- * Generically represents a validation check on a concept.
+ * Represents a validation check on a concept.
  */
 public interface ValidationCheck extends Configurable {
 

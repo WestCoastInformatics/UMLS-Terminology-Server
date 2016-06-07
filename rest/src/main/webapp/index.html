@@ -114,7 +114,7 @@
         <!-- Tab controller -->
         <div ng-controller="TabCtrl">
           
-          <ul ng-show="isShowing()" class="nav nav-tabs">
+          <ul ng-show="isShowing()" class="table-select-row nav nav-tabs">
             <li ng-show="isTabShowing(tab)" ng-class="tabClass(tab)" ng-repeat="tab in tabs"><a
                 ng-click="setSelectedTab(tab)"> {{tab.label}} </a></li>
           </ul>

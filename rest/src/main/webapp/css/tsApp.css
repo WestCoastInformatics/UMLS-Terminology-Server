@@ -184,3 +184,36 @@ body {
 	border: dotted 3px red;
 	padding: 10px;
 } /* Default class applied to drop zones on over */
+
+.landing-img {
+	border-radius: 10px;
+	border: 1px solid gray;
+	max-width: 100%;
+	display:block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.h450px {
+	max-height: 450px;
+}
+
+.h400px {
+	max-height: 400px;
+}
+
+.h400px {
+	max-height: 3d00px;
+}
+
+.w45 {
+	max-width: 45%;
+}
+
+.w30 {
+	max-width: 30%;
+}
+.m10 {
+	margin-top: 10px;
+}
+}

@@ -33,7 +33,7 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
- * JPA-enabled implementation of {@link Terminology}.
+ * JPA and JAXB enabled implementation of {@link Terminology}.
  */
 @Entity
 @Table(name = "terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {

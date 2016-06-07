@@ -112,8 +112,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The prefix. */
   private String prefix = "MR";
 
-  /** The proxy sab for the metathesaurus being loaded. */
-  // TODO: this should probably be configurable
+  /** An SAB used in a Metathesaurus that really should belong to getTerminology() */
+  /** e.g. MTH is really UMLS */
+  // TODO: should be configurable
   private String proxySab = "MTH";
 
   /** The single mode. */

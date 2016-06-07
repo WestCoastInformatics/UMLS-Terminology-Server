@@ -22,6 +22,7 @@ tsApp.controller('MetadataCtrl', [
     // the currently viewed terminology (set by default or user)
     $scope.user = securityService.getUser();
     $scope.metadata = metadataService.getModel();
+    $scope.resultsCollapsed = {};
 
     // Configure tab and accordion
     $scope.configureTab = function() {

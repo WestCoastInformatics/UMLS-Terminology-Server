@@ -26,7 +26,7 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.model.content.LexicalClass;
 
 /**
- * JPA-enabled implementation of {@link LexicalClass}.
+ * JPA and JAXB enabled implementation of {@link LexicalClass}.
  */
 @Entity
 @Table(name = "lexical_classes", uniqueConstraints = @UniqueConstraint(columnNames = {

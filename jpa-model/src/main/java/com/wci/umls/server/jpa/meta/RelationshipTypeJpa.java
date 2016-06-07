@@ -16,7 +16,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.model.meta.RelationshipType;
 
 /**
- * JPA-enabled implementation of {@link RelationshipType}.
+ * JPA and JAXB enabled implementation of {@link RelationshipType}.
  */
 @Entity
 @Table(name = "relationship_types", uniqueConstraints = @UniqueConstraint(columnNames = {

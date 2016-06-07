@@ -1,7 +1,7 @@
 // Landingcontroller
-tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securityService',
+tsApp.controller('LandingCtrl', [ '$scope', '$anchorScroll', '$location', 'utilService', 'securityService',
   'appConfig', 'tabService',
-  function($scope, $location, utilService, securityService, appConfig, tabService) {
+  function($scope, $anchorScroll, $location, utilService, securityService, appConfig, tabService) {
     console.debug('configure LandingCtrl');
 
     // disable tabs in landing view
@@ -13,21 +13,26 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
         $location.path('/login');
       } else if (appConfig.licenseEnabled === 'true') {
         $location.path('/license');
-      } else {
-        if (tabService.tabs.length == 0) {
-          utilService.setError('No tabs configured')
-        } else {
-          $location.path(tabService.getFirstViewableTab().link);
-        }
+      } 
+      // Assume no user preferences (always guest user), route to first tab
+      else {        
+        tabService.routeAuthorizedUser();
       }
     };
+    
+    $scope.gotoAnchor = function(anchorLink) {
+      $anchorScroll.yoffset = 500;
+      $location.hash(anchorLink);
+      $anchorScroll();
+      $anchorScroll.yoffset = 0;
+    }
 
     // Initialize
     $scope.initialize = function() {
 
       // on return to landing, clear user
       securityService.clearUser();
-      
+
       // on return to landing page, clear any errors
       utilService.clearError();
     };

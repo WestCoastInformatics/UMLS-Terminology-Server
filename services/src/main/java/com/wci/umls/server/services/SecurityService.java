@@ -10,7 +10,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.UserList;
 
 /**
- * The Interface SecurityService.
+ * Represents a service for authentication and user management.
  */
 public interface SecurityService extends RootService {
 

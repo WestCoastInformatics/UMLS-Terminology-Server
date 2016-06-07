@@ -32,8 +32,8 @@
     <deploy.enabled.tabs>content,metadata</deploy.enabled.tabs>
     <deploy.landing.enabled>true</deploy.landing.enabled>
     <deploy.login.enabled>true</deploy.login.enabled>
-    <deploy.license.enabled>false</deploy.license.enabled>
-    <deploy.license.text>Dev License Agreement Text</deploy.license.text>
+    <deploy.license.enabled>true</deploy.license.enabled>
+    <deploy.license.text>Enter customizable license text here.</deploy.license.text>
 
   </properties>
 

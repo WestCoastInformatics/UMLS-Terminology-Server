@@ -11,7 +11,7 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * The Class SearchResultJpa.
+ * JAXB enabled implementation of a {@link SearchResult}.
  */
 @XmlRootElement(name = "searchResult")
 public class SearchResultJpa implements SearchResult {

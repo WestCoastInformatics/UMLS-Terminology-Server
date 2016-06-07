@@ -1,16 +1,17 @@
 
 <div ui-tree-handle>
   <!-- Expand/collapse controls -->
-  <a ng-if="tree.children && tree.childCt > 0" data-nodrag
-    ng-click="toggleTree(this)">
-    <span class="glyphicon" ng-class="getTreeNodeIcon(this)"></span>
-  </a>
+  <i ng-if="tree.children&& tree.childCt > 0" data-nodrag
+    ng-click="toggleTree(this)" class="noul glyphicon"
+    ng-class="getTreeNodeIcon(this)"> </i>
 
   <!-- if this node has no children reported by child count -->
   <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
-  
+
   <!-- Component link and Derived Label Set highlighting on component id -->
-  <a ng-click="callbacks.getComponentFromTree(metadata.terminology.organizingClassType, this)" ng-show="tree.nodeTerminologyId !== 'dummy id'">
+  <a
+    ng-click="callbacks.getComponentFromTree(metadata.terminology.organizingClassType, this)"
+    ng-show="tree.nodeTerminologyId !== 'dummy id'">
     <span
       ng-show="!parameters.showExtension || !isDerivedLabelSetFromTree(this)"
       ng-bind-html="tree.nodeTerminologyId | highlight:parameters.query"></span>
@@ -20,26 +21,25 @@
       tooltip-placement="bottom-left" tooltip-popup-delay="250"
       uib-tooltip-html="labelTooltipHtml"></span>
   </a>
-  
+
   <!-- Label Set highlighting on component name-->
   <span ng-show="!parameters.showExtension || !isLabelSetFromTree(this)"
     ng-bind-html="tree.nodeName | highlight:parameters.query"></span>
   <span ng-show="parameters.showExtension && isLabelSetFromTree(this)"
     ng-bind-html="tree.nodeName | highlightLabel:tree.nodeName"
     ng-mouseover="getLabelSetsValueFromTree(this)"
-      tooltip-placement="bottom-left"
-      tooltip-popup-delay="250"
-      uib-tooltip-html="labelTooltipHtml"></span>
+    tooltip-placement="bottom-left" tooltip-popup-delay="250"
+    uib-tooltip-html="labelTooltipHtml"></span>
 
-  
+
   <!-- recursive display of next level of tree -->
   <ol ui-tree-nodes="" ng-model="tree.children" ng-class="{hidden: collapsed}">
-  
+
     <!--  render the children -->
     <li ng-repeat="tree in tree.children" ui-tree-node
       ng-include="'app/util/tree-search-result/searchResultsTree_renderer.html'"></li>
   </ol>
-  
+
   <!-- if not all children displayed, display a message -->
   <ol
     ng-show="!collapsed && tree.children.length < tree.childCt

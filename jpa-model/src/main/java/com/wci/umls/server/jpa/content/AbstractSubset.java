@@ -12,7 +12,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.model.content.Subset;
 
 /**
- * Abstract JPA-enabled implementation of {@link Subset}.
+ * Abstract JPA and JAXB enabled implementation of {@link Subset}.
  */
 @Audited
 @MappedSuperclass
