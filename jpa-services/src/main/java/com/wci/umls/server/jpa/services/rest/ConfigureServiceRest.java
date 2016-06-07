@@ -3,8 +3,7 @@ package com.wci.umls.server.jpa.services.rest;
 import java.util.HashMap;
 
 /**
- * Interface for Configuration Service REST APIs
- *
+ * Represents a service for configuring an environment.
  */
 public interface ConfigureServiceRest {
 
@@ -12,7 +11,7 @@ public interface ConfigureServiceRest {
    * Checks if is configured.
    *
    * @return true, if is configured
-   * @throws Exception
+   * @throws Exception the exception
    */
   public boolean isConfigured() throws Exception;
 
@@ -30,7 +29,7 @@ public interface ConfigureServiceRest {
    * process.
    *
    * @param authToken the auth token
-   * @throws Exception
+   * @throws Exception the exception
    */
   public void destroy(String authToken) throws Exception;
 
