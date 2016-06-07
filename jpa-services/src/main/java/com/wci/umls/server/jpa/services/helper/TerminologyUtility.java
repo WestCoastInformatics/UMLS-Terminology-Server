@@ -126,7 +126,7 @@ public class TerminologyUtility {
           "Unexpected null concept passed to getActiveParentConcepts.");
     }
     final List<Concept> results = new ArrayList<>();
-    for (ConceptRelationship rel : concept.getRelationships()) {
+    for (final ConceptRelationship rel : concept.getRelationships()) {
       if (rel.isHierarchical() && !rel.isObsolete()) {
         results.add(rel.getTo());
       }
@@ -148,7 +148,7 @@ public class TerminologyUtility {
           "Unexpected null descriptor passed to getActiveParentDescriptors.");
     }
     final List<Descriptor> results = new ArrayList<>();
-    for (DescriptorRelationship rel : descriptor.getRelationships()) {
+    for (final DescriptorRelationship rel : descriptor.getRelationships()) {
       if (rel.isHierarchical() && !rel.isObsolete()) {
         results.add(rel.getTo());
       }
@@ -168,9 +168,9 @@ public class TerminologyUtility {
   public static Set<String> getDescendantTypes(String typeValue,
     String terminology, String version) throws Exception {
     if (additionalTypeHierarchy.isEmpty()) {
-      MetadataService service = new MetadataServiceJpa();
+      final MetadataService service = new MetadataServiceJpa();
       try {
-        for (AdditionalRelationshipType type : service
+        for (final AdditionalRelationshipType type : service
             .getAdditionalRelationshipTypes(terminology, version).getObjects()) {
           additionalTypeHierarchy.put(
               terminology + version + type.getAbbreviation(),
@@ -235,7 +235,7 @@ public class TerminologyUtility {
           "Unexpected null code passed to getActiveParentCodes.");
     }
     final List<Code> results = new ArrayList<>();
-    for (CodeRelationship rel : code.getRelationships()) {
+    for (final CodeRelationship rel : code.getRelationships()) {
       if (rel.isHierarchical() && !rel.isObsolete()) {
         results.add(rel.getTo());
       }

@@ -100,8 +100,8 @@ public class NotificationWebsocket {
    */
   public void send(String message) {
     // Remove closed sessions
-    Set<Session> copy = new HashSet<>(sessions);
-    for (Session session : copy) {
+    final Set<Session> copy = new HashSet<>(sessions);
+    for (final Session session : copy) {
       if (!session.isOpen()) {
         sessions.remove(session);
       }
@@ -109,7 +109,7 @@ public class NotificationWebsocket {
 
     // Send message to all listeners
     synchronized (sessions) {
-      for (Session session : sessions) {
+      for (final Session session : sessions) {
         try {
           // Send async message
           session.getAsyncRemote().sendText(message);

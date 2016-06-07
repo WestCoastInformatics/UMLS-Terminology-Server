@@ -66,7 +66,7 @@ public class GetDescriptorRelationshipsTest extends ExampleSupport {
             terminology, version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -80,7 +80,7 @@ public class GetDescriptorRelationshipsTest extends ExampleSupport {
             terminology, version, "", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 

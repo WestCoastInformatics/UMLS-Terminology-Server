@@ -169,8 +169,8 @@ public class ProxyTester {
 
     // If includes contains entries and not all have been seen - error\
     if (includes != null) {
-      Set<String> notSeen = new HashSet<>();
-      for (String field : includes) {
+      final Set<String> notSeen = new HashSet<>();
+      for (final String field : includes) {
         if (!includesSeen.contains(field.toLowerCase())) {
           notSeen.add(field);
         }

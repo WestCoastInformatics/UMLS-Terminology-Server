@@ -55,6 +55,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @OneToMany(mappedBy = "from", targetEntity = ConceptRelationshipJpa.class)
   private List<ConceptRelationship> relationships = null;
 
+  /** The component histories. */
   @OneToMany(mappedBy = "referencedConcept", targetEntity = ComponentHistoryJpa.class)
   private List<ComponentHistory> componentHistories = null;
 
@@ -118,17 +119,17 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     }
 
     if (deepCopy) {
-      for (Definition definition : concept.getDefinitions()) {
+      for (final Definition definition : concept.getDefinitions()) {
         getDefinitions().add(new DefinitionJpa(definition, deepCopy));
       }
-      for (ConceptRelationship relationship : concept.getRelationships()) {
+      for (final ConceptRelationship relationship : concept.getRelationships()) {
         getRelationships().add(
             new ConceptRelationshipJpa(relationship, deepCopy));
       }
-      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         getSemanticTypes().add(new SemanticTypeComponentJpa(sty));
       }
-      for (ConceptSubsetMember member : concept.getMembers()) {
+      for (final ConceptSubsetMember member : concept.getMembers()) {
         getMembers().add(new ConceptSubsetMemberJpa(member, deepCopy));
       }
     }
@@ -296,7 +297,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     this.labels = labels;
 
   }
-  
 
   @Override
   public void setNotes(List<Note> notes) {
@@ -315,15 +315,14 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   @Override
   public void setType(IdType type) {
-   // N/A
-    
+    // N/A
+
   }
 
   @Override
   public IdType getType() {
     return IdType.CONCEPT;
   }
-
 
   /* see superclass */
   @Override
@@ -357,8 +356,8 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       return false;
     return true;
   }
-  
-  @XmlElement(type = ComponentHistoryJpa.class)  
+
+  @XmlElement(type = ComponentHistoryJpa.class)
   @Override
   public List<ComponentHistory> getComponentHistory() {
     if (componentHistories == null) {

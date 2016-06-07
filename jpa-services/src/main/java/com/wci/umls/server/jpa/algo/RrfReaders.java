@@ -98,7 +98,7 @@ public class RrfReaders {
    */
   public void openOriginalReaders(String prefix) throws Exception {
 
-    for (Keys key : Keys.values()) {
+    for (final Keys key : Keys.values()) {
       readers
           .put(key, getReader(key.toString().replace("MR", prefix) + ".RRF"));
     }
@@ -111,7 +111,7 @@ public class RrfReaders {
    * @throws Exception the exception
    */
   public void closeReaders() throws Exception {
-    for (BufferedReader reader : readers.values()) {
+    for (final BufferedReader reader : readers.values()) {
       try {
         reader.close();
       } catch (Exception e) {

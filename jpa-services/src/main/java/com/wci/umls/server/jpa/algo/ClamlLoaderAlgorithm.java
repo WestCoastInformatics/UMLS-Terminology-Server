@@ -499,11 +499,11 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (qName.equalsIgnoreCase("meta")) {
           // e.g. <Meta name="TopLevelSort"
           // value="- A B D F H K L N P R S T U W X Y Z"/>
-          String name = attributes.getValue("name");
+          final String name = attributes.getValue("name");
           if (name != null && name.equalsIgnoreCase("toplevelsort")) {
-            String value = attributes.getValue("value");
+            final String value = attributes.getValue("value");
             rootCodes = new ArrayList<>();
-            for (String code : value.split(" ")) {
+            for (final String code : value.split(" ")) {
               logInfo("  Adding root: " + code.trim());
               rootCodes.add(code.trim());
             }
@@ -883,7 +883,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             }
             children.add(concept);
             relsMap.put(parentCode + ":" + "isa", children);
-            for (Concept child : children) {
+            for (final Concept child : children) {
               childToParentCodeMap.put(child.getTerminologyId(), parentCode);
             }
             parentCodeHasChildrenMap.put(parentCode, true);
@@ -946,10 +946,11 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     @Override
     public void endDocument() throws SAXException {
       // Add relationships now that all concepts have been created
-      Map<String, Integer> relDisambiguation = new HashMap<>();
+      final Map<String, Integer> relDisambiguation = new HashMap<>();
 
       try {
-        for (Map.Entry<String, Set<Concept>> mapEntry : relsMap.entrySet()) {
+        for (final Map.Entry<String, Set<Concept>> mapEntry : relsMap
+            .entrySet()) {
 
           String key = mapEntry.getKey();
           String tokens[] = key.split(":");
@@ -981,7 +982,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             if (type.equals("dagger"))
               type = "\u2020 (dagger)";
 
-            for (Concept childConcept : mapEntry.getValue()) {
+            for (final Concept childConcept : mapEntry.getValue()) {
 
               if (conceptMap.containsKey(parentCode)) {
                 Logger.getLogger(getClass()).info(
@@ -996,7 +997,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                 relationship.setVersion(version);
 
                 Atom fromAtom = null;
-                for (Atom atom : childConcept.getAtoms()) {
+                for (final Atom atom : childConcept.getAtoms()) {
                   if (atom.getTerminologyId().equals(id)) {
                     fromAtom = atom;
                     break;
@@ -1008,7 +1009,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                 relationship.setFrom(fromAtom);
 
                 Atom toAtom = null;
-                for (Atom atom : conceptMap.get(parentCode).getAtoms()) {
+                for (final Atom atom : conceptMap.get(parentCode).getAtoms()) {
                   if (atom.getTerminologyId().equals(
                       preferredRubricMap.get(parentCode))) {
                     toAtom = atom;
@@ -1062,7 +1063,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                     + tokens.length);
           }
 
-          for (Concept childConcept : mapEntry.getValue()) {
+          for (final Concept childConcept : mapEntry.getValue()) {
             Logger.getLogger(getClass()).info(
                 "  Create Relationship " + childConcept.getTerminologyId()
                     + " " + type + " " + parentCode + " " + id);
@@ -1119,12 +1120,12 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         Set<Concept> conceptSet = new HashSet<>(conceptMap.values());
         // Now add all objects to the database
         int objectCt = 0;
-        for (Concept concept : conceptSet) {
+        for (final Concept concept : conceptSet) {
           if (modifierMap.containsKey(concept.getTerminologyId())) {
             continue;
           }
           // Add atoms
-          for (Atom atom : concept.getAtoms()) {
+          for (final Atom atom : concept.getAtoms()) {
             addAtom(atom);
           }
           addConcept(concept);
@@ -1133,7 +1134,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         commitClearBegin();
 
         logInfo("Load Atom Relationships");
-        for (AtomRelationship rel : atomRelationshipSet) {
+        for (final AtomRelationship rel : atomRelationshipSet) {
           if (modifierMap.containsKey(rel.getFrom().getConceptId())) {
             continue;
           }
@@ -1144,7 +1145,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         logInfo("Load Concept Relationships");
         // add rels after all concepts exist
-        for (ConceptRelationship rel : relationshipSet) {
+        for (final ConceptRelationship rel : relationshipSet) {
           if (conceptSet.contains(rel.getFrom())
               && conceptSet.contains(rel.getTo())
               && !modifierMap.containsKey(rel.getFrom().getTerminologyId())
@@ -1252,7 +1253,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // add it
         if (classToModifierMap.containsKey(cmpCode)) {
           // Find and save all modifiers at this level
-          for (String modifier : classToModifierMap.get(cmpCode)) {
+          for (final String modifier : classToModifierMap.get(cmpCode)) {
             modifiersToMatchedCodeMap.put(modifier, codeToModify);
             Logger.getLogger(getClass()).info(
                 "      Use modifier " + modifier + " for " + cmpCode);
@@ -1283,7 +1284,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // NOTE: this can go after the earlier section because we'll always
         // find an excluded modifier at a level lower than where it was defined
         if (classToExcludedModifierMap.containsKey(cmpCode)) {
-          for (String modifier : classToExcludedModifierMap.get(cmpCode)) {
+          for (final String modifier : classToExcludedModifierMap.get(cmpCode)) {
             // Check manual exclusion overrides.
             excludedModifiersToMatchedCodeMap.put(modifier, cmpCode);
           }
@@ -1303,7 +1304,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (modifiersForCode.size() > 0) {
 
         // Loop through all modifiers identified as applying to this code
-        for (String modifiedByCode : modifiersForCode) {
+        for (final String modifiedByCode : modifiersForCode) {
 
           // Apply 4th digit modifiers to 3 digit codes (and recursively call)
           // Apply 5th digit modifiers to 4 digit codes (which have length 5 due
@@ -1317,7 +1318,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             if (modifierMap.containsKey(modifiedByCode)) {
               // for each code on that modifier, create a
               // child and create a relationship
-              for (Map.Entry<String, Concept> mapEntry : modifierMap.get(
+              for (final Map.Entry<String, Concept> mapEntry : modifierMap.get(
                   modifiedByCode).entrySet()) {
 
                 Concept modConcept =
@@ -1417,8 +1418,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // ISA, which is created below
 
       // modConcept is a template, copy any of its attributes
-      for (Attribute att : modConcept.getAttributes()) {
-        Attribute copy = new AttributeJpa(att);
+      for (final Attribute att : modConcept.getAttributes()) {
+        final Attribute copy = new AttributeJpa(att);
         copy.setId(null);
         concept.getAttributes().add(copy);
         addAttribute(copy, concept);
@@ -1438,8 +1439,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // modConcept is a template, copy atoms and atom relationships
       boolean preferredFound = false;
-      for (Atom atom : modConcept.getAtoms()) {
-        Atom copy = new AtomJpa(atom, false);
+      for (final Atom atom : modConcept.getAtoms()) {
+        final Atom copy = new AtomJpa(atom, false);
         copy.setId(null);
         copy.setConceptId(code);
         copy.setTerminologyId(atom.getTerminologyId() + "~"
@@ -1458,7 +1459,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         final String modifierKey =
             modConcept.getTerminologyId() + ":" + atom.getTerminologyId();
         if (modifierRelsMap.containsKey(modifierKey)) {
-          for (String value : modifierRelsMap.get(modifierKey)) {
+          for (final String value : modifierRelsMap.get(modifierKey)) {
             final String relsMapKey = modifierKey + ":" + value;
             final String newRelsMapKey =
                 concept.getTerminologyId() + ":" + copy.getTerminologyId()
@@ -1515,7 +1516,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       children.add(concept);
       relsMap.put(parentCode + ":" + "isa", children);
-      for (Concept child : children) {
+      for (final Concept child : children) {
         childToParentCodeMap.put(child.getTerminologyId(), parentCode);
       }
       parentCodeHasChildrenMap.put(parentCode, true);
@@ -1881,7 +1882,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     RelationshipType chd = null;
     RelationshipType par = null;
     RelationshipType ro = null;
-    for (String rel : relTypes) {
+    for (final String rel : relTypes) {
       final RelationshipType type = new RelationshipTypeJpa();
       type.setTerminology(terminology);
       type.setVersion(version);
@@ -1913,7 +1914,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
         new HashMap<>();
-    for (String art : additionalRelationshipTypes) {
+    for (final String art : additionalRelationshipTypes) {
 
       final AdditionalRelationshipType relType =
           new AdditionalRelationshipTypeJpa();
@@ -1938,15 +1939,15 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       addAdditionalRelationshipType(inverseType);
     }
     // handle inverses
-    for (AdditionalRelationshipType type : inverses.keySet()) {
-      AdditionalRelationshipType inverseType = inverses.get(type);
+    for (final AdditionalRelationshipType type : inverses.keySet()) {
+      final AdditionalRelationshipType inverseType = inverses.get(type);
       type.setInverse(inverseType);
       inverseType.setInverse(type);
       updateAdditionalRelationshipType(type);
       updateAdditionalRelationshipType(inverseType);
     }
 
-    for (String tty : termTypes) {
+    for (final String tty : termTypes) {
 
       final TermType termType = new TermTypeJpa();
       termType.setAbbreviation(tty);
@@ -2007,7 +2008,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     pr.setValue("preferred");
     lkvp.add(pr);
     // next do anything else starting with "preferred"
-    for (String tty : termTypes) {
+    for (final String tty : termTypes) {
       if (!tty.equals("preferred") && tty.startsWith("preferred")) {
         final KeyValuePair pair = new KeyValuePair();
         pair.setKey(terminology);
@@ -2016,7 +2017,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
     // do everything else, then inclusions and exclusions
-    for (String tty : termTypes) {
+    for (final String tty : termTypes) {
       if (tty.indexOf("preferred") == -1 && !tty.equals("inclusion")
           && !tty.equals("exclusion")) {
         final KeyValuePair pair = new KeyValuePair();
@@ -2026,7 +2027,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
     // Then do inclusion
-    for (String tty : termTypes) {
+    for (final String tty : termTypes) {
       if (tty.equals("inclusion")) {
         final KeyValuePair pair = new KeyValuePair();
         pair.setKey(terminology);
@@ -2035,7 +2036,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
     // Then do inclusion
-    for (String tty : termTypes) {
+    for (final String tty : termTypes) {
       if (tty.equals("exclusion")) {
         final KeyValuePair pair = new KeyValuePair();
         pair.setKey(terminology);
@@ -2093,8 +2094,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         "nodeTerminologyId", "Rubrics", "Usage", "References"
     };
     int i = 0;
-    for (String label : labels) {
-      GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+    for (final String label : labels) {
+      final GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
       entry.setTerminology(terminology);
       entry.setVersion(version);
       entry.setLastModified(releaseVersionDate);

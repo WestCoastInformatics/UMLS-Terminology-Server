@@ -80,7 +80,7 @@ public class OwlUtility {
     if (!report.isInProfile()) {
 
       boolean flag = false;
-      for (OWLProfileViolation violation : report.getViolations()) {
+      for (final OWLProfileViolation violation : report.getViolations()) {
         // Allow violation: Use of undeclared annotation property
         if (violation.toString().indexOf(
             "Use of undeclared annotation property") == -1) {
@@ -111,7 +111,7 @@ public class OwlUtility {
     if (!report.isInProfile()) {
 
       boolean flag = false;
-      for (OWLProfileViolation violation : report.getViolations()) {
+      for (final OWLProfileViolation violation : report.getViolations()) {
         // Allow violation: Use of undeclared annotation property
         if (violation.toString().indexOf(
             "Use of undeclared annotation property") == -1) {
@@ -210,7 +210,7 @@ public class OwlUtility {
     // Logger.getLogger(OwlUtility.class).debug(
     // indent + "  annotation properties in signature = "
     // + expr.getAnnotationPropertiesInSignature().size());
-    // for (OWLAnnotationProperty prop :
+    // for (final OWLAnnotationProperty prop :
     // expr.getAnnotationPropertiesInSignature()) {
     // Logger.getLogger(OwlUtility.class).debug(indent + "    prop = " + prop);
     // }
@@ -218,21 +218,21 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  data type properties in signature = "
             + expr.getDataPropertiesInSignature().size());
-    for (OWLDataProperty prop : expr.getDataPropertiesInSignature()) {
+    for (final OWLDataProperty prop : expr.getDataPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    prop = " + prop);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  object properties in signature = "
             + expr.getObjectPropertiesInSignature());
-    for (OWLObjectProperty prop : expr.getObjectPropertiesInSignature()) {
+    for (final OWLObjectProperty prop : expr.getObjectPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    prop = " + prop);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  nested class expressions = "
             + expr.getNestedClassExpressions().size());
-    for (OWLClassExpression expr2 : expr.getNestedClassExpressions()) {
+    for (final OWLClassExpression expr2 : expr.getNestedClassExpressions()) {
       Logger.getLogger(OwlUtility.class).debug(
           indent + "    class expr = " + expr2);
     }
@@ -241,7 +241,7 @@ public class OwlUtility {
       Logger.getLogger(OwlUtility.class).debug(
           indent + "  operands = "
               + ((OWLObjectIntersectionOf) expr).getOperands().size());
-      for (OWLClassExpression expr2 : ((OWLObjectIntersectionOf) expr)
+      for (final OWLClassExpression expr2 : ((OWLObjectIntersectionOf) expr)
           .getOperands()) {
         Logger.getLogger(OwlUtility.class).debug(
             indent + "    operand = " + expr2);
@@ -258,7 +258,8 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  class assertion axioms = "
             + ontology.getClassAssertionAxioms(expr).size());
-    for (OWLClassAssertionAxiom axiom : ontology.getClassAssertionAxioms(expr)) {
+    for (final OWLClassAssertionAxiom axiom : ontology
+        .getClassAssertionAxioms(expr)) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    axiom = " + axiom);
     }
 
@@ -299,7 +300,7 @@ public class OwlUtility {
     // Logger.getLogger(OwlUtility.class).debug(
     // indent + "  annotation properties in signature = "
     // + owlClass.getAnnotationPropertiesInSignature().size());
-    // for (OWLAnnotationProperty prop : owlClass
+    // for (final OWLAnnotationProperty prop : owlClass
     // .getAnnotationPropertiesInSignature()) {
     // Logger.getLogger(OwlUtility.class).debug(indent + "    prop = " + prop);
     // }
@@ -307,21 +308,22 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  data type properties in signature = "
             + owlClass.getDataPropertiesInSignature().size());
-    for (OWLDataProperty prop : owlClass.getDataPropertiesInSignature()) {
+    for (final OWLDataProperty prop : owlClass.getDataPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    prop = " + prop);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  object properties in signature = "
             + owlClass.getObjectPropertiesInSignature());
-    for (OWLObjectProperty prop : owlClass.getObjectPropertiesInSignature()) {
+    for (final OWLObjectProperty prop : owlClass
+        .getObjectPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    prop = " + prop);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  nested class expressions = "
             + owlClass.getNestedClassExpressions().size());
-    for (OWLClassExpression expr : owlClass.getNestedClassExpressions()) {
+    for (final OWLClassExpression expr : owlClass.getNestedClassExpressions()) {
       Logger.getLogger(OwlUtility.class).debug(
           indent + "    class expr = " + expr);
     }
@@ -331,7 +333,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  class assertion axioms = "
             + ontology.getClassAssertionAxioms(owlClass).size());
-    for (OWLClassAssertionAxiom axiom : ontology
+    for (final OWLClassAssertionAxiom axiom : ontology
         .getClassAssertionAxioms(owlClass)) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    axiom = " + axiom);
     }
@@ -339,7 +341,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  disjoint classes axioms = "
             + ontology.getDisjointClassesAxioms(owlClass).size());
-    for (OWLDisjointClassesAxiom axiom : ontology
+    for (final OWLDisjointClassesAxiom axiom : ontology
         .getDisjointClassesAxioms(owlClass)) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    axiom = " + axiom);
     }
@@ -347,7 +349,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  disjoint union axioms = "
             + ontology.getDisjointUnionAxioms(owlClass).size());
-    for (OWLDisjointUnionAxiom axiom : ontology
+    for (final OWLDisjointUnionAxiom axiom : ontology
         .getDisjointUnionAxioms(owlClass)) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    axiom = " + axiom);
     }
@@ -355,7 +357,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  equivalent classes axioms = "
             + ontology.getEquivalentClassesAxioms(owlClass).size());
-    for (OWLEquivalentClassesAxiom axiom : ontology
+    for (final OWLEquivalentClassesAxiom axiom : ontology
         .getEquivalentClassesAxioms(owlClass)) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    axiom = " + axiom);
     }
@@ -363,7 +365,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  sub class axioms for subclass  = "
             + ontology.getSubClassAxiomsForSubClass(owlClass).size());
-    for (OWLSubClassOfAxiom axiom : ontology
+    for (final OWLSubClassOfAxiom axiom : ontology
         .getSubClassAxiomsForSubClass(owlClass)) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    axiom = " + axiom);
     }
@@ -371,7 +373,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  sub class axioms for superclass  = "
             + ontology.getSubClassAxiomsForSuperClass(owlClass).size());
-    for (OWLSubClassOfAxiom axiom : ontology
+    for (final OWLSubClassOfAxiom axiom : ontology
         .getSubClassAxiomsForSuperClass(owlClass)) {
       Logger.getLogger(OwlUtility.class).debug(indent + "    axiom = " + axiom);
     }
@@ -379,7 +381,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  annotation assertion axioms = "
             + ontology.getAnnotationAssertionAxioms(owlClass.getIRI()));
-    // for (OWLAnnotationAssertionAxiom axiom : ontology
+    // for (final OWLAnnotationAssertionAxiom axiom : ontology
     // .getAnnotationAssertionAxioms(owlClass.getIRI())) {
     // OWLAnnotation annotation = axiom.getAnnotation();
     // Logger.getLogger(OwlUtility.class).debug(indent + "    axiom = " +
@@ -422,21 +424,21 @@ public class OwlUtility {
     // Logger.getLogger(OwlUtility.class).debug(
     // "    annotation properties in signature = "
     // + prop.getAnnotationPropertiesInSignature().size());
-    // for (OWLAnnotationProperty aprop : prop
+    // for (final OWLAnnotationProperty aprop : prop
     // .getAnnotationPropertiesInSignature()) {
     // Logger.getLogger(OwlUtility.class).debug("      annotation = " + aprop);
     // }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    classes in signature = " + prop.getClassesInSignature().size());
-    for (OWLClass owlClass : prop.getClassesInSignature()) {
+    for (final OWLClass owlClass : prop.getClassesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      class = " + owlClass);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    data properties in signature = "
             + prop.getDataPropertiesInSignature().size());
-    for (OWLDataProperty dprop : prop.getDataPropertiesInSignature()) {
+    for (final OWLDataProperty dprop : prop.getDataPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class)
           .debug("      data property = " + dprop);
     }
@@ -445,21 +447,21 @@ public class OwlUtility {
         .debug(
             "    datatypes in signature = "
                 + prop.getDatatypesInSignature().size());
-    for (OWLDatatype dtype : prop.getDatatypesInSignature()) {
+    for (final OWLDatatype dtype : prop.getDatatypesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      datatype = " + dtype);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    nested class expressions = "
             + prop.getNestedClassExpressions().size());
-    for (OWLClassExpression expr : prop.getNestedClassExpressions()) {
+    for (final OWLClassExpression expr : prop.getNestedClassExpressions()) {
       Logger.getLogger(OwlUtility.class).debug("      expr = " + expr);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    object properties in signature = "
             + prop.getObjectPropertiesInSignature().size());
-    for (OWLObjectProperty oprop : prop.getObjectPropertiesInSignature()) {
+    for (final OWLObjectProperty oprop : prop.getObjectPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      property = " + oprop);
     }
 
@@ -468,7 +470,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         "    annotation assertion axioms = "
             + ontology.getAnnotationAssertionAxioms(prop.getIRI()));
-    // for (OWLAnnotationAssertionAxiom axiom : ontology
+    // for (final OWLAnnotationAssertionAxiom axiom : ontology
     // .getAnnotationAssertionAxioms(prop.getIRI())) {
     // Logger.getLogger(OwlUtility.class).debug("      axiom = " + axiom);
     // }
@@ -476,7 +478,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         "    annotation domain axioms = "
             + ontology.getAnnotationPropertyDomainAxioms(prop));
-    for (OWLAnnotationPropertyDomainAxiom axiom : ontology
+    for (final OWLAnnotationPropertyDomainAxiom axiom : ontology
         .getAnnotationPropertyDomainAxioms(prop)) {
       Logger.getLogger(OwlUtility.class).debug("      axiom = " + axiom);
     }
@@ -484,7 +486,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         "    annotation range axioms = "
             + ontology.getAnnotationPropertyRangeAxioms(prop));
-    for (OWLAnnotationPropertyRangeAxiom axiom : ontology
+    for (final OWLAnnotationPropertyRangeAxiom axiom : ontology
         .getAnnotationPropertyRangeAxioms(prop)) {
       Logger.getLogger(OwlUtility.class).debug("      axiom = " + axiom);
     }
@@ -520,21 +522,21 @@ public class OwlUtility {
     // Logger.getLogger(OwlUtility.class).debug(
     // "    annotation properties in signature = "
     // + prop.getAnnotationPropertiesInSignature().size());
-    // for (OWLAnnotationProperty aprop : prop
+    // for (final OWLAnnotationProperty aprop : prop
     // .getAnnotationPropertiesInSignature()) {
     // Logger.getLogger(OwlUtility.class).debug("      annotation = " + aprop);
     // }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    classes in signature = " + prop.getClassesInSignature().size());
-    for (OWLClass owlClass : prop.getClassesInSignature()) {
+    for (final OWLClass owlClass : prop.getClassesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      class = " + owlClass);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    data properties in signature = "
             + prop.getDataPropertiesInSignature().size());
-    for (OWLDataProperty dprop : prop.getDataPropertiesInSignature()) {
+    for (final OWLDataProperty dprop : prop.getDataPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class)
           .debug("      data property = " + dprop);
     }
@@ -543,21 +545,21 @@ public class OwlUtility {
         .debug(
             "    datatypes in signature = "
                 + prop.getDatatypesInSignature().size());
-    for (OWLDatatype dtype : prop.getDatatypesInSignature()) {
+    for (final OWLDatatype dtype : prop.getDatatypesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      datatype = " + dtype);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    nested class expressions = "
             + prop.getNestedClassExpressions().size());
-    for (OWLClassExpression expr : prop.getNestedClassExpressions()) {
+    for (final OWLClassExpression expr : prop.getNestedClassExpressions()) {
       Logger.getLogger(OwlUtility.class).debug("      expr = " + expr);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    object properties in signature = "
             + prop.getObjectPropertiesInSignature().size());
-    for (OWLObjectProperty oprop : prop.getObjectPropertiesInSignature()) {
+    for (final OWLObjectProperty oprop : prop.getObjectPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      property = " + oprop);
     }
 
@@ -566,7 +568,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         "    annotation assertion axioms = "
             + ontology.getAnnotationAssertionAxioms(prop.getIRI()));
-    for (OWLAnnotationAssertionAxiom axiom : ontology
+    for (final OWLAnnotationAssertionAxiom axiom : ontology
         .getAnnotationAssertionAxioms(prop.getIRI())) {
       Logger.getLogger(OwlUtility.class).debug("      axiom = " + axiom);
     }
@@ -574,7 +576,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         "    sub properties for sub property = "
             + ontology.getObjectSubPropertyAxiomsForSubProperty(prop).size());
-    for (OWLSubObjectPropertyOfAxiom axiom : ontology
+    for (final OWLSubObjectPropertyOfAxiom axiom : ontology
         .getObjectSubPropertyAxiomsForSubProperty(prop)) {
       Logger.getLogger(OwlUtility.class).debug("      axiom = " + axiom);
     }
@@ -582,7 +584,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         "    sub properties for super property = "
             + ontology.getObjectSubPropertyAxiomsForSuperProperty(prop).size());
-    for (OWLSubObjectPropertyOfAxiom axiom : ontology
+    for (final OWLSubObjectPropertyOfAxiom axiom : ontology
         .getObjectSubPropertyAxiomsForSuperProperty(prop)) {
       Logger.getLogger(OwlUtility.class).debug("      axiom = " + axiom);
     }
@@ -612,21 +614,21 @@ public class OwlUtility {
     // Logger.getLogger(OwlUtility.class).debug(
     // "    annotation properties in signature = "
     // + prop.getAnnotationPropertiesInSignature().size());
-    // for (OWLAnnotationProperty aprop : prop
+    // for (final OWLAnnotationProperty aprop : prop
     // .getAnnotationPropertiesInSignature()) {
     // Logger.getLogger(OwlUtility.class).debug("      annotation = " + aprop);
     // }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    classes in signature = " + prop.getClassesInSignature().size());
-    for (OWLClass owlClass : prop.getClassesInSignature()) {
+    for (final OWLClass owlClass : prop.getClassesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      class = " + owlClass);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    data properties in signature = "
             + prop.getDataPropertiesInSignature().size());
-    for (OWLDataProperty dprop : prop.getDataPropertiesInSignature()) {
+    for (final OWLDataProperty dprop : prop.getDataPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class)
           .debug("      data property = " + dprop);
     }
@@ -635,21 +637,21 @@ public class OwlUtility {
         .debug(
             "    datatypes in signature = "
                 + prop.getDatatypesInSignature().size());
-    for (OWLDatatype dtype : prop.getDatatypesInSignature()) {
+    for (final OWLDatatype dtype : prop.getDatatypesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      datatype = " + dtype);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    nested class expressions = "
             + prop.getNestedClassExpressions().size());
-    for (OWLClassExpression expr : prop.getNestedClassExpressions()) {
+    for (final OWLClassExpression expr : prop.getNestedClassExpressions()) {
       Logger.getLogger(OwlUtility.class).debug("      expr = " + expr);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    object properties in signature = "
             + prop.getObjectPropertiesInSignature().size());
-    for (OWLObjectProperty oprop : prop.getObjectPropertiesInSignature()) {
+    for (final OWLObjectProperty oprop : prop.getObjectPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      property = " + oprop);
     }
 
@@ -658,7 +660,7 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         "    annotation assertion axioms = "
             + ontology.getAnnotationAssertionAxioms(prop.getIRI()));
-    // for (OWLAnnotationAssertionAxiom axiom : ontology
+    // for (final OWLAnnotationAssertionAxiom axiom : ontology
     // .getAnnotationAssertionAxioms(prop.getIRI())) {
     // Logger.getLogger(OwlUtility.class).debug("      axiom = " + axiom);
     // }
@@ -687,21 +689,21 @@ public class OwlUtility {
     // Logger.getLogger(OwlUtility.class).debug(
     // "    annotation properties in signature = "
     // + prop.getAnnotationPropertiesInSignature().size());
-    // for (OWLAnnotationProperty aprop : prop
+    // for (final OWLAnnotationProperty aprop : prop
     // .getAnnotationPropertiesInSignature()) {
     // Logger.getLogger(OwlUtility.class).debug("      annotation = " + aprop);
     // }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    classes in signature = " + prop.getClassesInSignature().size());
-    for (OWLClass owlClass : prop.getClassesInSignature()) {
+    for (final OWLClass owlClass : prop.getClassesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      class = " + owlClass);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    data properties in signature = "
             + prop.getDataPropertiesInSignature().size());
-    for (OWLDataProperty dprop : prop.getDataPropertiesInSignature()) {
+    for (final OWLDataProperty dprop : prop.getDataPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class)
           .debug("      data property = " + dprop);
     }
@@ -710,21 +712,21 @@ public class OwlUtility {
         .debug(
             "    datatypes in signature = "
                 + prop.getDatatypesInSignature().size());
-    for (OWLDatatype dtype : prop.getDatatypesInSignature()) {
+    for (final OWLDatatype dtype : prop.getDatatypesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      datatype = " + dtype);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    nested class expressions = "
             + prop.getNestedClassExpressions().size());
-    for (OWLClassExpression expr : prop.getNestedClassExpressions()) {
+    for (final OWLClassExpression expr : prop.getNestedClassExpressions()) {
       Logger.getLogger(OwlUtility.class).debug("      expr = " + expr);
     }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    object properties in signature = "
             + prop.getObjectPropertiesInSignature().size());
-    for (OWLObjectProperty oprop : prop.getObjectPropertiesInSignature()) {
+    for (final OWLObjectProperty oprop : prop.getObjectPropertiesInSignature()) {
       Logger.getLogger(OwlUtility.class).debug("      property = " + oprop);
     }
 

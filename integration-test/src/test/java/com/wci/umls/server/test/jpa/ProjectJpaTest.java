@@ -158,6 +158,7 @@ public class ProjectJpaTest {
       projectService.removeProject(project.getId());
 
     } catch (Exception e) {
+      throw e;
     } finally {
       projectService.close();
       securityService.close();

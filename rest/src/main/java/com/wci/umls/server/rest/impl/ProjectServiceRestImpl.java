@@ -83,12 +83,12 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      String authUser =
+      final String authUser =
           authorizeApp(securityService, authToken, "add project",
               UserRole.ADMINISTRATOR);
 
       // check to see if project already exists
-      for (Project p : projectService.getProjects().getObjects()) {
+      for (final Project p : projectService.getProjects().getObjects()) {
         if (p.getName().equals(project.getName())
             && p.getDescription().equals(project.getDescription())) {
           throw new Exception(
@@ -135,7 +135,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
       // check to see if project already exists
       boolean found = false;
-      for (Project p : projectService.getProjects().getObjects()) {
+      for (final Project p : projectService.getProjects().getObjects()) {
         if (p.getId().equals(project.getId())) {
           found = true;
           break;
@@ -234,8 +234,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "get projects",
-          UserRole.VIEWER);
+      authorizeApp(securityService, authToken, "get projects", UserRole.VIEWER);
 
       ProjectList projects = projectService.getProjects();
 
@@ -332,7 +331,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       }
       final UserList list = securityService.findUsersForQuery(query, pfs);
       // lazy initialize with blank user prefs
-      for (User user : list.getObjects()) {
+      for (final User user : list.getObjects()) {
         user.setUserPreferences(null);
       }
       return list;
@@ -400,7 +399,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       }
       final UserList list = securityService.findUsersForQuery(query, pfs);
       // lazy initialize with blank user prefs
-      for (User user : list.getObjects()) {
+      for (final User user : list.getObjects()) {
         user.setUserPreferences(null);
       }
 
@@ -555,7 +554,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Project): /log/" + projectId + ", " + objectId + ", " + terminology + ", " + version + ", " + activity + ", " + lines);
+        "RESTful POST call (Project): /log/" + projectId + ", " + objectId
+            + ", " + terminology + ", " + version + ", " + activity + ", "
+            + lines);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -564,7 +565,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
       // Precondition checking -- must have terminology/version OR projectId set
       if (projectId == null && terminology == null && version == null) {
-        throw new LocalException("Project id or terminology/version must be set");
+        throw new LocalException(
+            "Project id or terminology/version must be set");
       }
 
       PfsParameter pfs = new PfsParameterJpa();
@@ -572,20 +574,21 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       pfs.setMaxResults(lines);
       pfs.setAscending(false);
       pfs.setSortField("lastModified");
-      
+
       String query = "";
-      
+
       // at least one of projectId or terminology/version must be set
       if (projectId != null) {
         query += "projectId:" + projectId;
       }
       if (terminology != null) {
-        query += (query.length() == 0 ? "" : " AND ") + "terminology:" + terminology;
+        query +=
+            (query.length() == 0 ? "" : " AND ") + "terminology:" + terminology;
       }
       if (version != null) {
         query += (query.length() == 0 ? "" : " AND ") + "version:" + version;
       }
-      
+
       // optional parameters
       if (objectId != null) {
         query += " AND objectId:" + objectId;
@@ -600,7 +603,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {
         final LogEntry entry = entries.get(i);
-        StringBuilder message = new StringBuilder();
+        final StringBuilder message = new StringBuilder();
         message.append("[").append(
             ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
         message.append("] ");
@@ -619,8 +622,5 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     }
     return null;
   }
-  
- 
-    
 
 }

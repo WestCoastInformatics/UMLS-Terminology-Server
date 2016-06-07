@@ -148,7 +148,7 @@ public class RrfFileSorter {
 
     // Sort files
     int[] fields = null;
-    for (String key : dirMap.keySet()) {
+    for (final String key : dirMap.keySet()) {
       Logger.getLogger(getClass()).info("  Sorting for " + key);
       final File file = findFile(new File(inputDir + dirMap.get(key)), key);
       Logger.getLogger(getClass()).info("    file = " + file);
@@ -201,7 +201,7 @@ public class RrfFileSorter {
   public File findFile(File dir, String prefix) throws Exception {
     File file = null;
     // file
-    for (File f : dir.listFiles()) {
+    for (final File f : dir.listFiles()) {
       if (f.getName().contains(prefix)) {
         if (file != null)
           throw new Exception("Multiple " + prefix + " files");

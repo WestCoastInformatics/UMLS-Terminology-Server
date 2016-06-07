@@ -328,10 +328,10 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
         (List<Project>) getQueryResults(query == null || query.isEmpty()
             ? "id:[* TO *]" : query, ProjectJpa.class, ProjectJpa.class, pfs,
             totalCt);
-    ProjectList result = new ProjectListJpa();
+    final ProjectList result = new ProjectListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
-    for (Project project : result.getObjects()) {
+    for (final Project project : result.getObjects()) {
       handleLazyInit(project);
     }
     return result;

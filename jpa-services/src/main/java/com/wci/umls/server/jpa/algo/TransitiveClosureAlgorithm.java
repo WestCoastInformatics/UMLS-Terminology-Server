@@ -387,7 +387,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
         return new HashSet<>(0);
       }
       // Iterate through children, mark as descendant and recursively call
-      for (Long chd : children) {
+      for (final Long chd : children) {
         if (ancPath.contains(chd)) {
           if (cycleTolerant) {
             return new HashSet<>(0);

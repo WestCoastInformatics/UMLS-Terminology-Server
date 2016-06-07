@@ -3199,10 +3199,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find concepts " + terminology + "/" + version + "/"
             + query);
-    SearchResultList results =
+    final SearchResultList results =
         findForQueryHelper(terminology, version, branch, query, pfs,
             ConceptJpa.class, ConceptJpa.class);
-    for (SearchResult result : results.getObjects()) {
+    for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.CONCEPT);
     }
     return results;
@@ -3247,10 +3247,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find descriptors " + terminology + "/" + version
             + "/" + query);
-    SearchResultList results =
+    final SearchResultList results =
         findForQueryHelper(terminology, version, branch, query, pfs,
             DescriptorJpa.class, DescriptorJpa.class);
-    for (SearchResult result : results.getObjects()) {
+    for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.DESCRIPTOR);
     }
     return results;
@@ -3320,7 +3320,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             (pfs.getQueryRestriction() != null
                 && !pfs.getQueryRestriction().isEmpty() ? " AND " : "")
                 + "terminologyId:(";
-        for (SearchResult exprResult : exprResults.getObjects()) {
+        for (final SearchResult exprResult : exprResults.getObjects()) {
           exprQueryRestr += exprResult.getTerminologyId() + " ";
         }
         // trim last space, close parenthesis and add boost based on count
@@ -3358,8 +3358,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // construct the search results (if any found)
     if (luceneResults != null) {
-      Map<Long, Float> scoreMap = searchHandler.getScoreMap();
-      for (T r : luceneResults) {
+      final Map<Long, Float> scoreMap = searchHandler.getScoreMap();
+      for (final T r : luceneResults) {
         SearchResult sr = new SearchResultJpa();
         sr.setId(r.getId());
         sr.setTerminology(r.getTerminology());
@@ -3603,10 +3603,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find codes " + terminology + "/" + version + "/"
             + query);
-    SearchResultList results =
+    final SearchResultList results =
         findForQueryHelper(terminology, version, branch, query, pfs,
             CodeJpa.class, CodeJpa.class);
-    for (SearchResult result : results.getObjects()) {
+    for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.CODE);
     }
     return results;
@@ -5802,8 +5802,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       @SuppressWarnings("unchecked")
-      List<Object[]> rows = query.getResultList();
-      for (Object[] row : rows) {
+      final List<Object[]> rows = query.getResultList();
+      for (final Object[] row : rows) {
         idMap.put((Long) row[0], row[1].toString());
       }
 
@@ -5960,14 +5960,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public NoteList findConceptNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
-    NoteList results = new NoteListJpa();
-    SearchHandler searchHandler = this.getSearchHandler(null);
+    final NoteList results = new NoteListJpa();
+    final SearchHandler searchHandler = this.getSearchHandler(null);
     final int[] totalCt = new int[1];
-    List<ConceptNoteJpa> luceneResults =
+    final List<ConceptNoteJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
             ConceptNoteJpa.class, ConceptNoteJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
-    for (ConceptNoteJpa note : luceneResults) {
+    for (final ConceptNoteJpa note : luceneResults) {
       results.getObjects().add(note);
     }
     return results;
@@ -5977,15 +5977,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public NoteList findDescriptorNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
-    NoteList results = new NoteListJpa();
-    SearchHandler searchHandler = this.getSearchHandler(null);
+    final NoteList results = new NoteListJpa();
+    final SearchHandler searchHandler = this.getSearchHandler(null);
     final int[] totalCt = new int[1];
-    List<DescriptorNoteJpa> luceneResults =
+    final List<DescriptorNoteJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
             DescriptorNoteJpa.class, DescriptorNoteJpa.class, pfs, totalCt,
             manager);
     results.setTotalCount(totalCt[0]);
-    for (DescriptorNoteJpa note : luceneResults) {
+    for (final DescriptorNoteJpa note : luceneResults) {
       results.getObjects().add(note);
     }
     return results;
@@ -5995,14 +5995,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public NoteList findCodeNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
-    NoteList results = new NoteListJpa();
-    SearchHandler searchHandler = this.getSearchHandler(null);
+    final NoteList results = new NoteListJpa();
+    final SearchHandler searchHandler = this.getSearchHandler(null);
     final int[] totalCt = new int[1];
-    List<CodeNoteJpa> luceneResults =
+    final List<CodeNoteJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
             CodeNoteJpa.class, CodeNoteJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
-    for (CodeNoteJpa note : luceneResults) {
+    for (final CodeNoteJpa note : luceneResults) {
       results.getObjects().add(note);
     }
 

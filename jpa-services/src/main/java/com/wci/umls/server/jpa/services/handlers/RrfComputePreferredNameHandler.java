@@ -46,8 +46,8 @@ public class RrfComputePreferredNameHandler implements
     // LRR isn't available here so just don't worry about it.
     String maxRank = "";
     Atom maxAtom = null;
-    for (Atom atom : atoms) {
-      String rank = getRank(atom, list);
+    for (final Atom atom : atoms) {
+      final String rank = getRank(atom, list);
       if (maxAtom == null) {
         maxAtom = atom;
         maxRank = rank;
@@ -73,7 +73,7 @@ public class RrfComputePreferredNameHandler implements
     final List<Atom> sortedAtoms = new ArrayList<>(atoms);
     // Get each atom rank
     final Map<Atom, String> atomRanks = new HashMap<>();
-    for (Atom atom : atoms) {
+    for (final Atom atom : atoms) {
       final String rank = getRank(atom, list);
       atomRanks.put(atom, rank);
     }

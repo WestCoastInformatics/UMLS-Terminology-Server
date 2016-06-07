@@ -77,7 +77,7 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
             terminology, version, null, null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
     // Now, see that this concept has only 126 "deep" relationships (which
@@ -92,7 +92,7 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
             terminology, version, pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 

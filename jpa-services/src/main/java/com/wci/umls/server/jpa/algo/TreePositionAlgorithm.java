@@ -433,7 +433,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
       // iterate over the child terminology ids
       // this iteration is entirely local and depends on no managed
       // objects
-      for (Long childConceptId : parChd.get(id)) {
+      for (final Long childConceptId : parChd.get(id)) {
 
         // call helper function on child concept
         // add the results to the local descendant set

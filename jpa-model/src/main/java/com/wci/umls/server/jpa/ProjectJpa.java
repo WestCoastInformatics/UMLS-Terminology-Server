@@ -121,16 +121,17 @@ public class ProjectJpa implements Project {
   @OneToOne(targetEntity = PrecedenceListJpa.class, optional = true)
   private PrecedenceList precedenceList;
 
+  /** The semantic type category map. */
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(nullable = false)
   private Map<String, String> semanticTypeCategoryMap = new HashMap<>();
-  
 
+  /** The valid categories. */
   @Column(nullable = true)
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "valid_categories")
   private List<String> validCategories = new ArrayList<>();
-  
+
   /**
    * Instantiates an empty {@link ProjectJpa}.
    */
@@ -337,10 +338,11 @@ public class ProjectJpa implements Project {
 
   /* see superclass */
   @Override
-  public void setSemanticTypeCategoryMap(Map<String, String> semanticTypeCategoryMap) {
+  public void setSemanticTypeCategoryMap(
+    Map<String, String> semanticTypeCategoryMap) {
     this.semanticTypeCategoryMap = semanticTypeCategoryMap;
   }
-  
+
   /* see superclass */
   @XmlTransient
   @Override

@@ -126,7 +126,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       return userSet;
     }
 
-    for (String user : userList.split(","))
+    for (final String user : userList.split(","))
       userSet.add(user);
     return userSet;
   }
@@ -151,7 +151,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       return userSet;
     }
 
-    for (String user : userList.split(","))
+    for (final String user : userList.split(","))
       userSet.add(user);
     return userSet;
   }
@@ -176,7 +176,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       return userSet;
     }
 
-    for (String user : userList.split(","))
+    for (final String user : userList.split(","))
       userSet.add(user);
     return userSet;
   }

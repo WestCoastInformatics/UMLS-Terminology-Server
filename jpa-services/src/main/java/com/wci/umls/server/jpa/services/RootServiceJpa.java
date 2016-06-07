@@ -368,9 +368,9 @@ public abstract class RootServiceJpa implements RootService {
     if (pfs != null && pfs.getQueryRestriction() != null
         && !pfs.getQueryRestriction().isEmpty()) {
       result = new ArrayList<>();
-      for (T t : list) {
-        StringBuilder sb = new StringBuilder();
-        for (Method m : t.getClass().getMethods()) {
+      for (final T t : list) {
+        final StringBuilder sb = new StringBuilder();
+        for (final Method m : t.getClass().getMethods()) {
 
           // TODO Add annotation check for @Field, @Fields...
           if (m.getName().startsWith("get")) {
@@ -429,7 +429,7 @@ public abstract class RootServiceJpa implements RootService {
             // if an exception is returned, simply pass equality
             try {
 
-              for (String sortField : sortFields) {
+              for (final String sortField : sortFields) {
                 final Object s1 = getSortFieldValue(t1, sortField);
                 final Object s2 = getSortFieldValue(t2, sortField);
 
@@ -605,7 +605,7 @@ public abstract class RootServiceJpa implements RootService {
     }
     final javax.persistence.Query query =
         manager
-        .createQuery("select u from UserJpa u where userName = :userName");
+            .createQuery("select u from UserJpa u where userName = :userName");
     query.setParameter("userName", userName);
     try {
       final User user = (User) query.getSingleResult();
@@ -676,7 +676,7 @@ public abstract class RootServiceJpa implements RootService {
       }
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          escapedQuery.toString(), pfs, manager);
+              escapedQuery.toString(), pfs, manager);
     }
 
     totalCt[0] = fullTextQuery.getResultSize();
@@ -914,8 +914,8 @@ public abstract class RootServiceJpa implements RootService {
       final javax.persistence.Query query =
           manager
               .createQuery("select a from "
-          + clazz.getName()
-          + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
+                  + clazz.getName()
+                  + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
       query.setParameter("terminologyId", terminologyId);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -991,7 +991,7 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public LogEntry addLogEntry(final String userName, final String terminology,
     final String version, final LogActivity activity, final String message)
-      throws Exception {
+    throws Exception {
     LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setTerminology(terminology);

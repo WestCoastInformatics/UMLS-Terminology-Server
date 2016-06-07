@@ -349,10 +349,10 @@ public class ConfigUtility {
         ConfigUtility.newHandlerInstance(handlerName, handlerClass, type);
 
     // Look up and build properties
-    Properties handlerProperties = new Properties();
+    final Properties handlerProperties = new Properties();
     handlerProperties.setProperty("security.handler", handlerName);
 
-    for (Object key : config.keySet()) {
+    for (final Object key : config.keySet()) {
       // Find properties like "metadata.service.handler.SNOMED.class"
       if (key.toString().startsWith(property + "." + handlerName + ".")) {
         String shortKey =
@@ -675,7 +675,7 @@ public class ConfigUtility {
    */
   static public boolean deleteDirectory(File path) {
     if (path.exists()) {
-      File[] files = path.listFiles();
+      final File[] files = path.listFiles();
       for (int i = 0; i < files.length; i++) {
         if (files[i].isDirectory()) {
           deleteDirectory(files[i]);
@@ -721,8 +721,8 @@ public class ConfigUtility {
     }
     msg.setSubject(subject);
     msg.setFrom(new InternetAddress(from));
-    String[] recipientsArray = recipients.split(";");
-    for (String recipient : recipientsArray) {
+    final String[] recipientsArray = recipients.split(";");
+    for (final String recipient : recipientsArray) {
       msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
     }
     Transport.send(msg);
@@ -852,7 +852,7 @@ public class ConfigUtility {
    */
   public static String getIndentForLevel(int level) {
 
-    StringBuilder sb = new StringBuilder().append("  ");
+    final StringBuilder sb = new StringBuilder().append("  ");
     for (int i = 0; i < level; i++) {
       sb.append("  ");
     }

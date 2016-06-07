@@ -37,8 +37,8 @@ public class IndexedFieldTester extends ProxyTester {
     Logger.getLogger(getClass()).debug(
         "Test analyzed indexed fields - " + clazz.getName());
 
-    Map<String, Boolean> analyzedFieldsMap = getAnalyzedFieldsMap(clazz);
-    for (String field : includes) {
+    final Map<String, Boolean> analyzedFieldsMap = getAnalyzedFieldsMap(clazz);
+    for (final String field : includes) {
       boolean found = false;
       if (analyzedFieldsMap.containsKey(field)) {
         found = analyzedFieldsMap.get(field);
@@ -49,7 +49,7 @@ public class IndexedFieldTester extends ProxyTester {
         return false;
       }
     }
-    for (String field : analyzedFieldsMap.keySet()) {
+    for (final String field : analyzedFieldsMap.keySet()) {
       if (analyzedFieldsMap.get(field) && !includes.contains(field)) {
         Logger.getLogger(getClass()).info(
             "  " + field + " should be in the include list as analyzed");
@@ -70,8 +70,8 @@ public class IndexedFieldTester extends ProxyTester {
     Logger.getLogger(getClass()).debug(
         "Test not analyzed indexed fields - " + clazz.getName());
 
-    Map<String, Boolean> analyzedFieldsMap = getAnalyzedFieldsMap(clazz);
-    for (String field : includes) {
+    final Map<String, Boolean> analyzedFieldsMap = getAnalyzedFieldsMap(clazz);
+    for (final String field : includes) {
       boolean found = true;
       if (analyzedFieldsMap.containsKey(field)) {
         found = analyzedFieldsMap.get(field);
@@ -82,7 +82,7 @@ public class IndexedFieldTester extends ProxyTester {
         return false;
       }
     }
-    for (String field : analyzedFieldsMap.keySet()) {
+    for (final String field : analyzedFieldsMap.keySet()) {
       if (!analyzedFieldsMap.get(field) && !includes.contains(field)) {
         Logger.getLogger(getClass()).info(
             "  " + field + " should be in the include list as not analyzed");
@@ -106,9 +106,9 @@ public class IndexedFieldTester extends ProxyTester {
     throws NoSuchMethodException, SecurityException {
 
     // initialize the name->analyzed pair map
-    Map<String, Boolean> nameAnalyzedPairs = new HashMap<>();
+    final Map<String, Boolean> nameAnalyzedPairs = new HashMap<>();
 
-    for (Method m : clazz.getMethods()) {
+    for (final Method m : clazz.getMethods()) {
 
       // Look at "get" method sfor field annotations
       String fieldName = null;
@@ -134,7 +134,7 @@ public class IndexedFieldTester extends ProxyTester {
       // check for Fields annotation
       if (m.isAnnotationPresent(org.hibernate.search.annotations.Fields.class)) {
         // add all specified fields
-        for (org.hibernate.search.annotations.Field f : m.getAnnotation(
+        for (final org.hibernate.search.annotations.Field f : m.getAnnotation(
             org.hibernate.search.annotations.Fields.class).value()) {
           if (f.name().equals("")) {
             nameAnalyzedPairs.put(fieldName.toLowerCase(),

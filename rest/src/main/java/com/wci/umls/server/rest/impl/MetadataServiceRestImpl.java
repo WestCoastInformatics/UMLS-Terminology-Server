@@ -150,7 +150,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     try {
 
       RootTerminology rootTerminology = null;
-      for (RootTerminology root : metadataService.getRootTerminologies()
+      for (final RootTerminology root : metadataService.getRootTerminologies()
           .getObjects()) {
         if (root.getTerminology().equals(terminology)) {
           rootTerminology = root;
@@ -164,7 +164,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       }
 
       Terminology term = null;
-      for (Terminology t : metadataService.getVersions(terminology)
+      for (final Terminology t : metadataService.getVersions(terminology)
           .getObjects()) {
         if (t.getVersion().equals(version)) {
           term = t;
@@ -180,19 +180,21 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       }
 
       // call jpa service and get complex map return type
-      Map<String, Map<String, String>> mapOfMaps =
+      final Map<String, Map<String, String>> mapOfMaps =
           metadataService.getAllMetadata(terminology, version);
 
       // convert complex map to KeyValuePair objects for easy transformation to
       // XML/JSON
-      KeyValuePairLists keyValuePairLists = new KeyValuePairLists();
-      for (Map.Entry<String, Map<String, String>> entry : mapOfMaps.entrySet()) {
-        String metadataType = entry.getKey();
-        Map<String, String> metadataPairs = entry.getValue();
-        KeyValuePairList keyValuePairList = new KeyValuePairList();
+      final KeyValuePairLists keyValuePairLists = new KeyValuePairLists();
+      for (final Map.Entry<String, Map<String, String>> entry : mapOfMaps
+          .entrySet()) {
+        final String metadataType = entry.getKey();
+        final Map<String, String> metadataPairs = entry.getValue();
+        final KeyValuePairList keyValuePairList = new KeyValuePairList();
         keyValuePairList.setName(metadataType);
-        for (Map.Entry<String, String> pairEntry : metadataPairs.entrySet()) {
-          KeyValuePair keyValuePair =
+        for (final Map.Entry<String, String> pairEntry : metadataPairs
+            .entrySet()) {
+          final KeyValuePair keyValuePair =
               new KeyValuePair(pairEntry.getKey().toString(),
                   pairEntry.getValue());
           keyValuePairList.addKeyValuePair(keyValuePair);
@@ -224,11 +226,11 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
     try {
       // authorize call
-      authorizeApp(securityService, authToken, "get latest versions of all terminologies",
-          UserRole.VIEWER);
+      authorizeApp(securityService, authToken,
+          "get latest versions of all terminologies", UserRole.VIEWER);
 
-      TerminologyList results = metadataService.getTerminologies();
-      for (Terminology terminology : results.getObjects()) {
+      final TerminologyList results = metadataService.getTerminologies();
+      for (final Terminology terminology : results.getObjects()) {
         metadataService.getGraphResolutionHandler(terminology.getTerminology())
             .resolve(terminology);
       }
@@ -259,13 +261,13 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     MetadataService metadataService = new MetadataServiceJpa();
 
     try {
-     
+
       // authorize call
       authorizeApp(securityService, authToken, "get terminologies",
           UserRole.VIEWER);
 
-      TerminologyList results = metadataService.getTerminologies();
-      for (Terminology terminology : results.getObjects()) {
+      final TerminologyList results = metadataService.getTerminologies();
+      for (final Terminology terminology : results.getObjects()) {
         metadataService.getGraphResolutionHandler(terminology.getTerminology())
             .resolve(terminology);
       }

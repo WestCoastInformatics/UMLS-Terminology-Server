@@ -65,7 +65,7 @@ public class ContentDeepRelsTest {
     RelationshipList list =
         service.findDeepRelationshipsForConcept("C0000097", "UMLS", "latest",
             Branch.ROOT, null, false, new PfsParameterJpa());
-    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
+    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()
@@ -88,7 +88,7 @@ public class ContentDeepRelsTest {
     list =
         service.findDeepRelationshipsForConcept("C0000097", "UMLS", "latest",
             Branch.ROOT, null, false, pfs);
-    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
+    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()

@@ -29,7 +29,10 @@ public class MetaEditingServiceRestDegenerateUseTest
     extends MetaEditingServiceRestTest {
 
   /** The auth tokens. */
-  private static String viewerToken, adminToken;
+  private static String viewerToken;
+  
+  /**  The admin token. */
+  private static String adminToken;
 
   /** The project. */
   private static Project project;

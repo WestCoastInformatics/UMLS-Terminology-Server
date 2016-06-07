@@ -54,28 +54,28 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   public void resolve(Concept concept) throws Exception {
     if (concept != null) {
       boolean nullId = concept.getId() == null;
-      
+
       // subset members
-      for (ConceptSubsetMember member : concept.getMembers()) {
+      for (final ConceptSubsetMember member : concept.getMembers()) {
         member.getTerminology();
         resolveAttributes(member, nullId);
       }
-      
+
       concept.getLabels().size();
 
       // Attributes
       resolveAttributes(concept, nullId);
-      
+
       // Component History
       resolveComponentHistory(concept, nullId);
-      
+
       // Definitions
-      for (Definition def : concept.getDefinitions()) {
+      for (final Definition def : concept.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
       // Semantic type components
-      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         if (nullId) {
           sty.setId(null);
         }
@@ -84,7 +84,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Atoms
-      for (Atom atom : concept.getAtoms()) {
+      for (final Atom atom : concept.getAtoms()) {
         // if the concept is "new", then the atom must be too
         if (nullId) {
           atom.setId(null);
@@ -93,7 +93,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Subsets
-      for (ConceptSubsetMember subset : concept.getMembers()) {
+      for (final ConceptSubsetMember subset : concept.getMembers()) {
         if (nullId) {
           subset.setId(null);
         }
@@ -156,21 +156,21 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // Attributes
       resolveAttributes(atom, nullId);
-      
+
       // Component History
-      resolveComponentHistory(atom, nullId);      
+      resolveComponentHistory(atom, nullId);
 
       // Definitions
-      for (Definition def : atom.getDefinitions()) {
+      for (final Definition def : atom.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
-      for (AtomSubsetMember member : atom.getMembers()) {
+      for (final AtomSubsetMember member : atom.getMembers()) {
         resolve(member);
       }
 
       // Relationships
-      for (AtomRelationship rel : atom.getRelationships()) {
+      for (final AtomRelationship rel : atom.getRelationships()) {
         if (nullId) {
           rel.setId(null);
         }
@@ -233,12 +233,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       resolveAttributes(descriptor, nullId);
 
       // Definitions
-      for (Definition def : descriptor.getDefinitions()) {
+      for (final Definition def : descriptor.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
       // Atoms
-      for (Atom atom : descriptor.getAtoms()) {
+      for (final Atom atom : descriptor.getAtoms()) {
         // if the concept is "new", then the atom must be too
         if (nullId) {
           atom.setId(null);
@@ -268,7 +268,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       resolveAttributes(code, nullId);
 
       // Atoms
-      for (Atom atom : code.getAtoms()) {
+      for (final Atom atom : code.getAtoms()) {
         // if the concept is "new", then the atom must be too
         if (nullId) {
           atom.setId(null);
@@ -297,7 +297,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       resolveAttributes(lexicalClass, false);
 
       // Atoms but none of the members
-      for (Atom atom : lexicalClass.getAtoms()) {
+      for (final Atom atom : lexicalClass.getAtoms()) {
         // if the concept is "new", then the atom must be too
         atom.getName();
         atom.getConceptTerminologyIds().keySet();
@@ -323,7 +323,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       resolveAttributes(stringClass, false);
 
       // Atoms but none of the members
-      for (Atom atom : stringClass.getAtoms()) {
+      for (final Atom atom : stringClass.getAtoms()) {
         // if the concept is "new", then the atom must be too
         atom.getName();
         atom.getConceptTerminologyIds().keySet();
@@ -415,7 +415,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @SuppressWarnings("static-method")
   protected void resolveAttributes(ComponentHasAttributes component,
     boolean nullId) {
-    for (Attribute att : component.getAttributes()) {
+    for (final Attribute att : component.getAttributes()) {
       att.getName();
       att.getAlternateTerminologyIds().keySet();
       if (nullId) {
@@ -424,19 +424,31 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
-  protected void resolveComponentHistory(Atom component,
-    boolean nullId) {
-    for (ComponentHistory history : component.getComponentHistory()) {
+  /**
+   * Resolve component history.
+   *
+   * @param component the component
+   * @param nullId the null id
+   */
+  @SuppressWarnings("static-method")
+  protected void resolveComponentHistory(Atom component, boolean nullId) {
+    for (final ComponentHistory history : component.getComponentHistory()) {
       history.getReferencedConcept().getTerminologyId();
       if (nullId) {
         history.setId(null);
       }
     }
   }
-  
-  protected void resolveComponentHistory(Concept component,
-    boolean nullId) {
-    for (ComponentHistory history : component.getComponentHistory()) {
+
+  /**
+   * Resolve component history.
+   *
+   * @param component the component
+   * @param nullId the null id
+   */
+  @SuppressWarnings("static-method")
+  protected void resolveComponentHistory(Concept component, boolean nullId) {
+    for (final ComponentHistory history : component.getComponentHistory()) {
       history.getReferencedConcept().getTerminologyId();
       if (nullId) {
         history.setId(null);

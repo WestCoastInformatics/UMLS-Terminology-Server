@@ -40,8 +40,8 @@ import com.wordnik.swagger.annotations.ApiParam;
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Api(value = "/metaediting", description = "Operations for metathesaurus editing")
-public class MetaEditingServiceRestImpl extends RootServiceRestImpl
-    implements MetaEditingServiceRest {
+public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
+    MetaEditingServiceRest {
 
   /** The security service. */
   private SecurityService securityService;
@@ -65,11 +65,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The internal id of the edited concept, e.g. 2", required = true) @PathParam("conceptId") Long conceptId,
     @ApiParam(value = "The semantic type to add", required = true) SemanticTypeComponent semanticTypeComponent,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("auththorization") String authToken)
-      throws Exception {
+    throws Exception {
     {
 
-      Logger.getLogger(getClass())
-          .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
+      Logger.getLogger(getClass()).info(
+          "RESTful POST call (MetaEditing): /sty/" + projectId + "/"
               + conceptId + "/add for user " + authToken + " with sty value "
               + semanticTypeComponent.getSemanticType());
 
@@ -135,11 +135,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The internal id of the edited concept, e.g. 2", required = true) @PathParam("conceptId") Long conceptId,
     @ApiParam(value = "The internal id of the semantic type, e.g. 3", required = true) @PathParam("semanticTypeComponentId") Long semanticTypeComponentId,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("auththorization") String authToken)
-      throws Exception {
+    throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /sty/" + projectId + "/" + conceptId
+            + "/remove for user " + authToken + " with id "
             + semanticTypeComponentId);
 
     String action = "trying to remove semantic type from concept";
@@ -161,7 +161,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       validateProjectAndConcept(project, concept);
 
       SemanticTypeComponent semanticTypeComponent = null;
-      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         if (sty.getId().equals(semanticTypeComponentId)) {
           semanticTypeComponent = sty;
         }
@@ -188,6 +188,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    *
    * @param project the project
    * @param concept the concept
+   * @throws Exception the exception
    */
   private void validateProjectAndConcept(Project project, Concept concept)
     throws Exception {

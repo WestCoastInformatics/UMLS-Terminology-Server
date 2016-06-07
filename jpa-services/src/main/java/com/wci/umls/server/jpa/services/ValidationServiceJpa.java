@@ -37,12 +37,12 @@ public class ValidationServiceJpa extends RootServiceJpa implements
     try {
       if (config == null)
         config = ConfigUtility.getConfigProperties();
-      String key = "validation.service.handler";
-      for (String handlerName : config.getProperty(key).split(",")) {
+      final String key = "validation.service.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
         if (handlerName.isEmpty())
           continue;
         // Add handlers to map
-        ValidationCheck handlerService =
+        final ValidationCheck handlerService =
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
                 handlerName, ValidationCheck.class);
         validationHandlersMap.put(handlerName, handlerService);
@@ -77,8 +77,8 @@ public class ValidationServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public ValidationResult validateConcept(Concept concept) {
-    ValidationResult result = new ValidationResultJpa();
-    for (String key : validationHandlersMap.keySet()) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
       result.merge(validationHandlersMap.get(key).validate(concept));
     }
     return result;
@@ -87,8 +87,8 @@ public class ValidationServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public ValidationResult validateAtom(Atom atom) {
-    ValidationResult result = new ValidationResultJpa();
-    for (String key : validationHandlersMap.keySet()) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
       result.merge(validationHandlersMap.get(key).validate(atom));
     }
     return result;
@@ -97,8 +97,8 @@ public class ValidationServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public ValidationResult validateDescriptor(Descriptor descriptor) {
-    ValidationResult result = new ValidationResultJpa();
-    for (String key : validationHandlersMap.keySet()) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
       result.merge(validationHandlersMap.get(key).validate(descriptor));
     }
     return result;
@@ -107,8 +107,8 @@ public class ValidationServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public ValidationResult validateCode(Code code) {
-    ValidationResult result = new ValidationResultJpa();
-    for (String key : validationHandlersMap.keySet()) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
       result.merge(validationHandlersMap.get(key).validate(code));
     }
     return result;
@@ -117,8 +117,8 @@ public class ValidationServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public ValidationResult validateMerge(Concept concept1, Concept concept2) {
-    ValidationResult result = new ValidationResultJpa();
-    for (String key : validationHandlersMap.keySet()) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
       result.merge(validationHandlersMap.get(key).validateMerge(concept1,
           concept2));
     }

@@ -55,7 +55,7 @@ public class FindDescriptorsByStringQueryTest extends ExampleSupport {
     SearchResultList list =
         contentClient.findDescriptorsForQuery(terminology, version, "aspirin",
             null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -65,7 +65,7 @@ public class FindDescriptorsByStringQueryTest extends ExampleSupport {
     list =
         contentClient.findDescriptorsForQuery(terminology, version,
             "gestational diabetes", null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -82,7 +82,7 @@ public class FindDescriptorsByStringQueryTest extends ExampleSupport {
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -98,7 +98,7 @@ public class FindDescriptorsByStringQueryTest extends ExampleSupport {
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 

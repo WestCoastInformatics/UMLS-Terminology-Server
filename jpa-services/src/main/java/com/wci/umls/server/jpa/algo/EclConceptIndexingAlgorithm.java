@@ -158,7 +158,7 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
         .info("  " + results.size() + " concepts found");
 
     // add the id->terminologyId mapping
-    for (Object[] o : results) {
+    for (final Object[] o : results) {
       idMap.put((Long) o[0], o[1].toString());
     }
 
@@ -184,11 +184,11 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
         "  " + results.size() + " transitive relationships retrieved");
 
     // cycle over results
-    for (Object[] o : results) {
+    for (final Object[] o : results) {
 
       // get the terminology ids
-      String conceptId = idMap.get(o[0]);
-      String ancestorId = idMap.get(o[1]);
+      final String conceptId = idMap.get(o[0]);
+      final String ancestorId = idMap.get(o[1]);
 
       // get/create the existing ancestors for this concept
       Set<String> ancestors = ancestorMap.get(conceptId);
@@ -221,7 +221,7 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     query.setParameter("version", version);
     results = query.getResultList();
 
-    for (Object[] o : results) {
+    for (final Object[] o : results) {
       subsetMap.put((Long) o[0], o[1].toString());
     }
     results.clear();
@@ -239,7 +239,7 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
         "  " + results.size() + " subset members retrieved");
 
     // cycle over results
-    for (Object[] o : results) {
+    for (final Object[] o : results) {
 
       // get the cached terminology ids
       String conceptId = idMap.get(o[0]);
@@ -287,8 +287,8 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
             "    " + concepts.getTotalCount() + " total concepts");
       }
 
-      for (SearchResult sr : concepts.getObjects()) {
-        Concept c = contentService.getConcept(sr.getId());
+      for (final SearchResult sr : concepts.getObjects()) {
+        final Concept c = contentService.getConcept(sr.getId());
         iwriter.addDocument(getConceptDocument(c));
       }
       pos += concepts.getCount();
@@ -328,20 +328,20 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
         concept.getName(), Field.Store.YES));
 
     // write the relationships
-    for (ConceptRelationship relationship : concept.getRelationships()) {
+    for (final ConceptRelationship relationship : concept.getRelationships()) {
 
       // Restrict to obsolete and inferred
       if (!relationship.isObsolete() && relationship.isInferred()) {
         relationshipCt++;
-        String type = relationship.getAdditionalRelationshipType();
-        String value = relationship.getTo().getTerminologyId();
+        final String type = relationship.getAdditionalRelationshipType();
+        final String value = relationship.getTo().getTerminologyId();
         conceptDoc.add(new StringField(type, value, Field.Store.NO));
       }
     }
 
     // write the ancestors
     if (ancestorMap.get(concept.getTerminologyId()) != null) {
-      for (String ancestor : ancestorMap.get(concept.getTerminologyId())) {
+      for (final String ancestor : ancestorMap.get(concept.getTerminologyId())) {
         ancestorCt++;
         conceptDoc.add(new StringField(EclConceptFieldNames.ANCESTOR, ancestor,
             Field.Store.NO));
@@ -350,7 +350,8 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
 
     // write the subsets
     if (subsetMemberMap.get(concept.getTerminologyId()) != null) {
-      for (String subset : subsetMemberMap.get(concept.getTerminologyId())) {
+      for (final String subset : subsetMemberMap
+          .get(concept.getTerminologyId())) {
         subsetCt++;
         conceptDoc.add(new StringField(EclConceptFieldNames.MEMBER_OF, subset,
             Field.Store.NO));

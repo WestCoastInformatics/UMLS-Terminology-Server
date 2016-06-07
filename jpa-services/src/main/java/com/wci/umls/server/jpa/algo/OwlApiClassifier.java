@@ -226,7 +226,7 @@ public class OwlApiClassifier implements Classifier {
       Logger.getLogger(getClass()).info(
           "  List unsatisfiable classes - equal to owl:Nothing");
       if (!unsatisfiable.isEmpty()) {
-        for (OWLClass owlClass : unsatisfiable) {
+        for (final OWLClass owlClass : unsatisfiable) {
           Logger.getLogger(getClass()).error("    class = " + owlClass);
           result.add(getConceptForOwlClass(owlClass, service));
         }
@@ -251,10 +251,10 @@ public class OwlApiClassifier implements Classifier {
     Set<Set<Concept>> equiv = new HashSet<>();
     final HistoryService service = new HistoryServiceJpa();
     try {
-      for (OWLClass owlClass : ontology.getClassesInSignature()) {
+      for (final OWLClass owlClass : ontology.getClassesInSignature()) {
         // get equivalent
-        Set<Concept> group = new HashSet<>();
-        for (OWLClass chdClass : reasoner.getEquivalentClasses(owlClass)) {
+        final Set<Concept> group = new HashSet<>();
+        for (final OWLClass chdClass : reasoner.getEquivalentClasses(owlClass)) {
           group.add(getConceptForOwlClass(chdClass, service));
         }
       }
@@ -288,17 +288,17 @@ public class OwlApiClassifier implements Classifier {
   public void addInferredHierarchicalRelationships(HistoryService service)
     throws Exception {
     int objectCt = 0;
-    for (OWLClass owlClass : ontology.getClassesInSignature()) {
+    for (final OWLClass owlClass : ontology.getClassesInSignature()) {
       // get sub-classes
-      for (OWLClass chdClass : reasoner.getSubClasses(owlClass, true)
+      for (final OWLClass chdClass : reasoner.getSubClasses(owlClass, true)
           .getFlattened()) {
         // Break if bottom node encountered
         if (chdClass.isBottomEntity()) {
           break;
         }
-        Concept chd = getConceptForOwlClass(chdClass, service);
-        Concept par = getConceptForOwlClass(owlClass, service);
-        ConceptRelationship rel = getSubClassOfRelationship(chd, par);
+        final Concept chd = getConceptForOwlClass(chdClass, service);
+        final Concept par = getConceptForOwlClass(owlClass, service);
+        final ConceptRelationship rel = getSubClassOfRelationship(chd, par);
         Logger.getLogger(getClass()).debug("  add relationship - " + rel);
         service.addRelationship(rel);
         chd.getRelationships().add(rel);
@@ -361,14 +361,14 @@ public class OwlApiClassifier implements Classifier {
     //
     // Use reasoner to find all sub-classes of the LHS.
     Map<String, Set<ConceptRelationship>> gcaRels = new HashMap<>();
-    for (GeneralConceptAxiom axiom : service.getGeneralConceptAxioms(
+    for (final GeneralConceptAxiom axiom : service.getGeneralConceptAxioms(
         terminology, version, Branch.ROOT).getObjects()) {
 
       // Get subclasses of the LHS
-      for (OWLClass owlClass : reasoner.getSubClasses(
+      for (final OWLClass owlClass : reasoner.getSubClasses(
           exprMap.get(axiom.getLeftHandSide().getTerminologyId()), true)
           .getFlattened()) {
-        Concept concept = getConceptForOwlClass(owlClass, service);
+        final Concept concept = getConceptForOwlClass(owlClass, service);
         if (!gcaRels.containsKey(concept.getTerminologyId())) {
           gcaRels.put(concept.getTerminologyId(),
               new HashSet<ConceptRelationship>());
@@ -409,7 +409,7 @@ public class OwlApiClassifier implements Classifier {
         "  Infer relationships - " + getTerminologyId(owlClass.getIRI()));
 
     // Get direct sub classes
-    for (OWLClass chdClass : reasoner.getSubClasses(owlClass, true)
+    for (final OWLClass chdClass : reasoner.getSubClasses(owlClass, true)
         .getFlattened()) {
 
       // Skip bottom node
@@ -423,7 +423,7 @@ public class OwlApiClassifier implements Classifier {
       // Bail if not all parents have been looked at yet
       final Set<Concept> parents = new HashSet<>();
       boolean allParentsVisited = true;
-      for (OWLClass parClass : reasoner.getSuperClasses(
+      for (final OWLClass parClass : reasoner.getSuperClasses(
           exprMap.get(chdConcept.getTerminologyId()), true).getFlattened()) {
         // Skip the top
         if (parClass.isTopEntity()) {
@@ -441,9 +441,9 @@ public class OwlApiClassifier implements Classifier {
       }
 
       // Get and add inferred role relationships
-      for (ConceptRelationship rel : getRelationshipsToInfer(chdConcept,
+      for (final ConceptRelationship rel : getRelationshipsToInfer(chdConcept,
           parents, gcaRels, reasoner, service)) {
-        ConceptRelationship rel2 = new ConceptRelationshipJpa(rel, true);
+        final ConceptRelationship rel2 = new ConceptRelationshipJpa(rel, true);
         rel2.setFrom(chdConcept);
         rel2.setInferred(true);
         rel2.setStated(false);
@@ -486,15 +486,15 @@ public class OwlApiClassifier implements Classifier {
     // Ignore obsolete or hierarchical relationships
     //
     Set<ConceptRelationship> candidateRels = new HashSet<>();
-    for (Concept par : parents) {
-      for (ConceptRelationship parRel : par.getRelationships()) {
+    for (final Concept par : parents) {
+      for (final ConceptRelationship parRel : par.getRelationships()) {
         if (parRel.isInferred() && !parRel.isObsolete()
             && !parRel.isHierarchical()) {
           candidateRels.add(parRel);
         }
       }
     }
-    for (ConceptRelationship chdRel : chd.getRelationships()) {
+    for (final ConceptRelationship chdRel : chd.getRelationships()) {
       if (chdRel.isStated() && !chdRel.isObsolete() && !chdRel.isHierarchical()) {
         candidateRels.add(chdRel);
       }
@@ -508,11 +508,11 @@ public class OwlApiClassifier implements Classifier {
     //
     // Iterate through candidate rels
     //
-    for (ConceptRelationship rel : candidateRels) {
+    for (final ConceptRelationship rel : candidateRels) {
       // Determine if this rel is a superclass rel of a more-specific one
       // if so, do not keep it
       boolean keep = true;
-      for (ConceptRelationship rel2 : candidateRels) {
+      for (final ConceptRelationship rel2 : candidateRels) {
         if (rel.equals(rel2)) {
           continue;
         }
@@ -563,7 +563,7 @@ public class OwlApiClassifier implements Classifier {
       return true;
     }
     boolean result = false;
-    for (OWLClass parClass : parents) {
+    for (final OWLClass parClass : parents) {
       if (isAncestor(anc, parClass, reasoner)) {
         result = true;
         break;
@@ -602,7 +602,7 @@ public class OwlApiClassifier implements Classifier {
 
     // test assumption
     if (concept1.isAnonymous()) {
-      for (ConceptRelationship rel : concept1.getRelationships()) {
+      for (final ConceptRelationship rel : concept1.getRelationships()) {
         if (rel.isHierarchical()) {
           throw new Exception(
               "Unexpected hierarchical relationship in anonymous concept");
@@ -610,7 +610,7 @@ public class OwlApiClassifier implements Classifier {
       }
     }
     if (concept2.isAnonymous()) {
-      for (ConceptRelationship rel : concept1.getRelationships()) {
+      for (final ConceptRelationship rel : concept1.getRelationships()) {
         if (rel.isHierarchical()) {
           throw new Exception(
               "Unexpected hierarchical relationship in anonymous concept");
@@ -664,14 +664,14 @@ public class OwlApiClassifier implements Classifier {
     boolean f = false;
     boolean g = false;
     boolean h = false;
-    for (ConceptRelationship rel : concept1.getRelationships()) {
+    for (final ConceptRelationship rel : concept1.getRelationships()) {
       // ASSUMPTION: all rels are stated
       if (!rel.isStated()) {
         throw new Exception("Unexpected non stated rel: " + rel + ", "
             + concept2);
       }
       boolean typeNotFound = true;
-      for (ConceptRelationship rel2 : concept2.getRelationships()) {
+      for (final ConceptRelationship rel2 : concept2.getRelationships()) {
         // ASSUMPTION: all rels are stated
         if (!rel.isStated()) {
           throw new Exception("Unexpected non stated rel: " + rel + ", "
@@ -705,9 +705,9 @@ public class OwlApiClassifier implements Classifier {
       }
     }
     // Compute h
-    for (ConceptRelationship rel : concept2.getRelationships()) {
+    for (final ConceptRelationship rel : concept2.getRelationships()) {
       boolean typeNotFound = true;
-      for (ConceptRelationship rel2 : concept1.getRelationships()) {
+      for (final ConceptRelationship rel2 : concept1.getRelationships()) {
         if (isSameOrSubType(rel.getAdditionalRelationshipType(),
             rel2.getAdditionalRelationshipType())) {
           typeNotFound = false;

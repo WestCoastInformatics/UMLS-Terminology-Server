@@ -52,7 +52,7 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
     super(subset, deepCopy);
 
     if (deepCopy) {
-      for (AtomSubsetMember member : subset.getMembers()) {
+      for (final AtomSubsetMember member : subset.getMembers()) {
         getMembers().add(new AtomSubsetMemberJpa(member, deepCopy));
       }
     }

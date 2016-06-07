@@ -44,16 +44,34 @@ import com.wci.umls.server.model.meta.IdType;
 public class ComponentInfoRelationshipJpa extends
     AbstractRelationship<ComponentInfo, ComponentInfo> implements ComponentInfoRelationship {
 
+  /** The from terminology id. */
   private String fromTerminologyId;
+
+  /** The from terminology. */
   private String fromTerminology;
+
+  /** The from version. */
   private String fromVersion;
+
+  /** The from name. */
   private String fromName;
+
+  /** The from type. */
   private IdType fromType;
 
+  /** The to terminology id. */
   private String toTerminologyId;
+
+  /** The to terminology. */
   private String toTerminology;
+
+  /** The to version. */
   private String toVersion;
+
+  /** The to name. */
   private String toName;
+
+  /** The to type. */
   private IdType toType;
 
   /** The alternate terminology ids. */
@@ -340,6 +358,7 @@ public class ComponentInfoRelationshipJpa extends
   }
 
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -362,6 +381,7 @@ public class ComponentInfoRelationshipJpa extends
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -418,6 +438,7 @@ public class ComponentInfoRelationshipJpa extends
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "ComponentInfoRelationshipJpa ["       

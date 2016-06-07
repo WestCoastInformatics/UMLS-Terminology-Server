@@ -154,7 +154,7 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
    */
   public static Set<String> splitAsSet(String line, String delim) {
     Set<String> tokens = new HashSet<String>();
-    for (String s : split(line, delim))
+    for (final String s : split(line, delim))
       tokens.add(s);
     return tokens;
   }
@@ -356,7 +356,7 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
   public static String join(List<String> strs, String delim) {
     StringBuilder sb = new StringBuilder(100);
     int i = 0;
-    for (String str : strs)
+    for (final String str : strs)
       sb.append(str).append((++i == strs.size() ? "" : delim));
     return sb.toString();
   }

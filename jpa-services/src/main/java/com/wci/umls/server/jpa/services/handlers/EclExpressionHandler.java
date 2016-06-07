@@ -91,7 +91,7 @@ public class EclExpressionHandler implements ExpressionHandler {
 
     // compute the internal functions from the modified SQS lucene converter
     // NOTE: Kept out of Converter to minimize SQS code modification
-    for (ExpressionConstraintToLuceneConverter.InternalFunction internalFunction : ExpressionConstraintToLuceneConverter.InternalFunction
+    for (final ExpressionConstraintToLuceneConverter.InternalFunction internalFunction : ExpressionConstraintToLuceneConverter.InternalFunction
         .values()) {
       internalFunctionPatternMap.put(internalFunction,
           Pattern.compile(".*(" + internalFunction + "\\(([^\\)]+)\\)).*"));
@@ -143,7 +143,7 @@ public class EclExpressionHandler implements ExpressionHandler {
         throw new LocalException(e.getMessage(), e);
       }
       try {
-        for (ExpressionConstraintToLuceneConverter.InternalFunction internalFunction : internalFunctionPatternMap
+        for (final ExpressionConstraintToLuceneConverter.InternalFunction internalFunction : internalFunctionPatternMap
             .keySet()) {
           while (luceneQuery.contains(internalFunction.name())) {
             luceneQuery =
@@ -234,7 +234,7 @@ public class EclExpressionHandler implements ExpressionHandler {
               EclConceptFieldNames.ANCESTOR, terminologyId)), maxResults);
 
       conceptRelatives = new ArrayList<>();
-      for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+      for (final ScoreDoc scoreDoc : topDocs.scoreDocs) {
         conceptRelatives
             .add(getDocument(scoreDoc).get(EclConceptFieldNames.ID));
       }
@@ -262,11 +262,11 @@ public class EclExpressionHandler implements ExpressionHandler {
   @SuppressWarnings("static-method")
   private String buildOptionsList(List<String> conceptRelatives,
     boolean includeIdFieldName) {
-    StringBuilder relativesIdBuilder = new StringBuilder();
+    final StringBuilder relativesIdBuilder = new StringBuilder();
     if (!conceptRelatives.isEmpty()) {
       relativesIdBuilder.append("(");
       boolean first = true;
-      for (String conceptRelative : conceptRelatives) {
+      for (final String conceptRelative : conceptRelatives) {
         if (first) {
           first = false;
         } else {

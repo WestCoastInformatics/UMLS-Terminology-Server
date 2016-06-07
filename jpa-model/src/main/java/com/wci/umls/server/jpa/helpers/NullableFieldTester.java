@@ -42,7 +42,7 @@ public class NullableFieldTester extends ProxyTester {
 
     Set<String> notNullFields = getNotNullFields(clazz);
     if (includes != null) {
-      for (String field : includes) {
+      for (final String field : includes) {
         if (!notNullFields.contains(field)) {
           Logger.getLogger(getClass()).info(
               "  " + field + " is not defined as nullable");
@@ -50,7 +50,7 @@ public class NullableFieldTester extends ProxyTester {
         }
       }
     }
-    for (String field : notNullFields) {
+    for (final String field : notNullFields) {
       if (includes == null || !includes.contains(field)) {
         Logger.getLogger(getClass()).info(
             "  " + field + " should be in the include list as nullable");
@@ -73,16 +73,16 @@ public class NullableFieldTester extends ProxyTester {
 
     Set<String> results = new HashSet<>();
 
-    for (Field field : FieldUtils.getAllFields(clazz)) {
+    for (final Field field : FieldUtils.getAllFields(clazz)) {
       if (field.isAnnotationPresent(Column.class)) {
-        Column annotation = field.getAnnotation(Column.class);
+        final Column annotation = field.getAnnotation(Column.class);
         if (!annotation.nullable()) {
           results.add(field.getName().toLowerCase());
         }
       }
 
       if (field.isAnnotationPresent(JoinColumn.class)) {
-        JoinColumn annotation = field.getAnnotation(JoinColumn.class);
+        final JoinColumn annotation = field.getAnnotation(JoinColumn.class);
         if (!annotation.nullable()) {
           results.add(field.getName().toLowerCase());
         }

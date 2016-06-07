@@ -117,7 +117,7 @@ public class MetaEditingServiceRestTest {
    */
   @Test
   public void test() throws Exception {
-    
+    // n/a
   }
 
   /**

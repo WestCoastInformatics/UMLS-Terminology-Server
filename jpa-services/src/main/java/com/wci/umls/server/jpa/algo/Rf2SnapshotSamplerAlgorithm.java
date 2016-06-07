@@ -96,7 +96,7 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
 
       // 2. Find other related concepts
       Logger.getLogger(getClass()).info("  Add distance 1 related concepts");
-      for (String concept : new HashSet<>(concepts)) {
+      for (final String concept : new HashSet<>(concepts)) {
         if (otherMap.get(concept) != null) {
           Logger.getLogger(getClass()).info(
               "    add concepts = " + otherMap.get(concept));
@@ -158,7 +158,7 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
             "    count (after metadata) = " + concepts.size());
 
         // 4. Find all concepts on path to root (e.g. walk up ancestors)
-        for (String chd : chdParMap.keySet()) {
+        for (final String chd : chdParMap.keySet()) {
           if (concepts.contains(chd)) {
             concepts.addAll(chdParMap.get(chd));
           }

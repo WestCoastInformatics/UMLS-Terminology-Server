@@ -122,7 +122,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     name = atomClass.getName();
     workflowStatus = atomClass.getWorkflowStatus();
     if (deepCopy) {
-      for (Atom atom : atomClass.getAtoms()) {
+      for (final Atom atom : atomClass.getAtoms()) {
         getAtoms().add(new AtomJpa(atom, deepCopy));
       }
     }

@@ -271,19 +271,19 @@ public class StandardMetadataServiceJpaHelper extends
   public String getName() {
     return "Standard Metadata Handler";
   }
-  
+
   /* see superclass */
   @Override
   public SemanticTypeList getSemanticTypeDescendants(String terminology,
     String version, String treeNumber, boolean includeSelf) throws Exception {
     List<SemanticType> descendants = new ArrayList<>();
     SemanticTypeList allStys = getSemanticTypes(terminology, version);
-    for (SemanticType sty : allStys.getObjects()) {
-      if ((includeSelf && sty.getTreeNumber().equals(treeNumber)) ||
-          sty.getTreeNumber().startsWith(treeNumber)) 
+    for (final SemanticType sty : allStys.getObjects()) {
+      if ((includeSelf && sty.getTreeNumber().equals(treeNumber))
+          || sty.getTreeNumber().startsWith(treeNumber))
         descendants.add(sty);
     }
-    SemanticTypeList descendantList = new SemanticTypeListJpa();
+    final SemanticTypeList descendantList = new SemanticTypeListJpa();
     descendantList.setObjects(descendants);
     descendantList.setTotalCount(descendants.size());
     return descendantList;

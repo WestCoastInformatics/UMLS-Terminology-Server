@@ -67,7 +67,7 @@ public class TerminologyRemoverMojo extends AbstractMojo {
     getLog().info("  version = " + version);
     try {
 
-      Properties properties = ConfigUtility.getConfigProperties();
+      final Properties properties = ConfigUtility.getConfigProperties();
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
@@ -85,8 +85,8 @@ public class TerminologyRemoverMojo extends AbstractMojo {
       }
 
       // authenticate
-      SecurityService service = new SecurityServiceJpa();
-      String authToken =
+      final SecurityService service = new SecurityServiceJpa();
+      final String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
 
@@ -94,13 +94,13 @@ public class TerminologyRemoverMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         getLog().info("  Remove concepts");
-        ContentServiceRest contentService = new ContentServiceRestImpl();
+        final ContentServiceRest contentService = new ContentServiceRestImpl();
         contentService.removeTerminology(terminology, version, authToken);
 
         getLog().info("  Remove release info");
-        HistoryServiceRest historyService = new HistoryServiceRestImpl();
-        for (ReleaseInfo info : historyService.getReleaseHistory(terminology,
-            authToken).getObjects()) {
+        final HistoryServiceRest historyService = new HistoryServiceRestImpl();
+        for (final ReleaseInfo info : historyService.getReleaseHistory(
+            terminology, authToken).getObjects()) {
           // Need to open a second one to reopen security service
           HistoryServiceRest historyService2 = new HistoryServiceRestImpl();
           if (info.getTerminology().equals(terminology)
@@ -113,13 +113,15 @@ public class TerminologyRemoverMojo extends AbstractMojo {
         getLog().info("Running against server");
 
         getLog().info("  Remove concepts");
-        ContentClientRest contentService = new ContentClientRest(properties);
+        final ContentClientRest contentService =
+            new ContentClientRest(properties);
         contentService.removeTerminology(terminology, version, authToken);
 
         getLog().info("  Remove release info");
-        HistoryClientRest historyService = new HistoryClientRest(properties);
-        for (ReleaseInfo info : historyService.getReleaseHistory(terminology,
-            authToken).getObjects()) {
+        final HistoryClientRest historyService =
+            new HistoryClientRest(properties);
+        for (final ReleaseInfo info : historyService.getReleaseHistory(
+            terminology, authToken).getObjects()) {
           if (info.getTerminology().equals(terminology)
               && info.getVersion().equals(version)) {
             historyService.removeReleaseInfo(info.getId(), authToken);

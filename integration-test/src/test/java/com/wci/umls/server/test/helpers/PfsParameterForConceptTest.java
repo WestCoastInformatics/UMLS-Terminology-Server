@@ -62,7 +62,7 @@ public class PfsParameterForConceptTest {
 
     List<Concept> concepts = new ArrayList<>();
 
-    for (SearchResult sr : results.getObjects()) {
+    for (final SearchResult sr : results.getObjects()) {
       Concept c =
           contentService.getConcept(sr.getTerminologyId(), sr.getTerminology(),
               sr.getVersion(), Branch.ROOT);
@@ -104,7 +104,7 @@ public class PfsParameterForConceptTest {
         return false;
     }
 
-    for (Concept c : concepts) {
+    for (final Concept c : concepts) {
 
       thisValue = field.get(c);
 

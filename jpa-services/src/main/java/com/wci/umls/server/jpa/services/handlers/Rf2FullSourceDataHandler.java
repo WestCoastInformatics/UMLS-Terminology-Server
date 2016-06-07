@@ -93,7 +93,7 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
     String revisedInputDir = null;
 
     // find the FULL file
-    for (File f : new File(inputDir).listFiles()) {
+    for (final File f : new File(inputDir).listFiles()) {
       if (f.getName().equals("Full")) {
         revisedInputDir = f.getAbsolutePath();
       }

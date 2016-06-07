@@ -73,9 +73,9 @@ public class IndexUtility {
           .getTypesAnnotatedWith(Indexed.class)) {
         reindexMap.put(clazz.getSimpleName(), clazz);
       }
-      Class<?>[] classes = reindexMap.values().toArray(new Class<?>[0]);
+      final Class<?>[] classes = reindexMap.values().toArray(new Class<?>[0]);
 
-      for (Class<?> clazz : classes) {
+      for (final Class<?> clazz : classes) {
         stringFieldNames.put(clazz,
             IndexUtility.getIndexedFieldNames(clazz, true));
         allFieldNames.put(clazz,
@@ -117,10 +117,10 @@ public class IndexUtility {
     stringExclusions.add("definitions");
     stringExclusions.add("branch");
 
-    Set<String> fieldNames = new HashSet<>();
+    final Set<String> fieldNames = new HashSet<>();
 
     // first cycle over all methods
-    for (Method m : clazz.getMethods()) {
+    for (final Method m : clazz.getMethods()) {
 
       // if no annotations, skip
       if (m.getAnnotations().length == 0) {
@@ -159,8 +159,8 @@ public class IndexUtility {
 
       // check for @Fields annotation
       if (m.isAnnotationPresent(Fields.class)) {
-        for (Field field : m.getAnnotation(Fields.class).value()) {
-          String fieldName = getFieldNameFromMethod(m, field);
+        for (final Field field : m.getAnnotation(Fields.class).value()) {
+          final String fieldName = getFieldNameFromMethod(m, field);
 
           fieldNames.add(fieldName);
         }
@@ -168,7 +168,7 @@ public class IndexUtility {
     }
 
     // second cycle over all fields
-    for (java.lang.reflect.Field f : getAllFields(clazz)) {
+    for (final java.lang.reflect.Field f : getAllFields(clazz)) {
       // check for @IndexedEmbedded
       if (f.isAnnotationPresent(IndexedEmbedded.class)) {
 
@@ -191,7 +191,8 @@ public class IndexUtility {
 
         }
 
-        for (String embeddedField : getIndexedFieldNames(jpaType, stringOnly)) {
+        for (final String embeddedField : getIndexedFieldNames(jpaType,
+            stringOnly)) {
           fieldNames.add(f.getName() + "." + embeddedField);
         }
       }
@@ -218,8 +219,8 @@ public class IndexUtility {
 
       // check for @Fields annotation
       if (f.isAnnotationPresent(Fields.class)) {
-        for (Field field : f.getAnnotation(Fields.class).value()) {
-          String fieldName = getFieldNameFromField(f, field);
+        for (final Field field : f.getAnnotation(Fields.class).value()) {
+          final String fieldName = getFieldNameFromField(f, field);
           fieldNames.add(fieldName);
         }
       }
@@ -228,13 +229,13 @@ public class IndexUtility {
 
     // Apply filters
     Set<String> filteredFieldNames = new HashSet<>();
-    OUTER: for (String fieldName : fieldNames) {
-      for (String exclusion : exclusions) {
+    OUTER: for (final String fieldName : fieldNames) {
+      for (final String exclusion : exclusions) {
         if (fieldName.contains(exclusion)) {
           continue OUTER;
         }
       }
-      for (String exclusion : stringExclusions) {
+      for (final String exclusion : stringExclusions) {
         if (stringOnly && fieldName.contains(exclusion)) {
           continue OUTER;
         }
@@ -336,14 +337,14 @@ public class IndexUtility {
     // check for Fields annotation
     if (m.isAnnotationPresent(org.hibernate.search.annotations.Fields.class)) {
       // add all specified fields
-      for (org.hibernate.search.annotations.Field f : m.getAnnotation(
+      for (final org.hibernate.search.annotations.Field f : m.getAnnotation(
           org.hibernate.search.annotations.Fields.class).value()) {
         annotationFields.add(f);
       }
     }
 
     // cycle over discovered fields and put name and analyze == YES into map
-    for (org.hibernate.search.annotations.Field f : annotationFields) {
+    for (final org.hibernate.search.annotations.Field f : annotationFields) {
       nameAnalyzedPairs.put(f.name(), f.analyze().equals(Analyze.YES) ? true
           : false);
     }
@@ -415,7 +416,7 @@ public class IndexUtility {
             .getIndexReaderAccessor().open(clazz));
     Set<Term> terms = new HashSet<>();
     luceneQuery.extractTerms(terms);
-    for (Term t : terms) {
+    for (final Term t : terms) {
       if (t.field() != null
           && !t.field().isEmpty()
           && !IndexUtility.getIndexedFieldNames(fieldNamesKey, false).contains(
@@ -452,10 +453,10 @@ public class IndexUtility {
         }
 
         // the constructed sort fields to sort on
-        List<SortField> sortFields = new ArrayList<>();
+        final List<SortField> sortFields = new ArrayList<>();
 
-        for (String sortFieldName : sortFieldNames) {
-          Map<String, Boolean> nameToAnalyzedMap =
+        for (final String sortFieldName : sortFieldNames) {
+          final Map<String, Boolean> nameToAnalyzedMap =
               IndexUtility.getNameAnalyzedPairsFromAnnotation(clazz,
                   sortFieldName);
 
@@ -511,7 +512,7 @@ public class IndexUtility {
           sortFields.add(sortField);
         }
 
-        SortField[] sfs = new SortField[sortFields.size()];
+        final SortField[] sfs = new SortField[sortFields.size()];
         for (int i = 0; i < sortFields.size(); i++) {
           sfs[i] = sortFields.get(i);
         }
