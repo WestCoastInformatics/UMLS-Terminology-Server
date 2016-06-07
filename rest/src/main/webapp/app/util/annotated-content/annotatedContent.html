@@ -16,20 +16,19 @@
           ng-mouseleave="content.hover = false;"
           ng-repeat="content in pagedData.results">
           <!--  Only put ng-click callback on first two cells (i.e. not the controls cell) -->
-          <td class="col-md-4 breakword "
+          <td class="col-md-4 col-xs-4"
             ng-click="callbacks.getComponent(content.type, content.terminologyId, content.terminology, content.version)">
-            <span>
               {{content.active}}
               <span
-                ng-show="content.terminology != metadata.terminology.terminology">{{content.terminology}}&nbsp;/&nbsp;</span>
-              <span>{{content.terminologyId}}</span>
-            </span>
+                ng-show="content.terminology != metadata.terminology.terminology">{{content.terminology}} /</span>
+            <span ng-show="content.terminologyId.length < 12">{{content.terminologyId}}</span>
+            <span ng-show="content.terminologyId.length > 11" class="breakword">{{content.terminologyId}}</span>
           </td>
-          <td class="col-md-6"
+          <td class="col-md-7 col-xs-7"
             ng-click="callbacks.getComponent(content.type, content.terminologyId, content.terminology, content.version)">
             <span class=""> {{content.value}}</span>
           </td>
-          <td class="col-md-2">
+          <td class="col-md-1 col-xs-1 nobreak">
             <!-- Always show note control -->
             <i
               ng-class="[{noul : content.property.key === 'hasNotes' && content.property.value === 'true'}, {grey : content.property.key === 'hasNotes' && content.property.value !== 'true'}]"

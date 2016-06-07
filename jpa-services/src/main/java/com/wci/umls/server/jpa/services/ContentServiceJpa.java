@@ -1397,7 +1397,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String version, boolean childrenOnly, String branch, PfsParameter pfs,
     Class<?> clazz, long[] totalCt) throws Exception {
 
-    if (pfs != null && pfs.getQueryRestriction() != null) {
+    if (pfs != null && pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
               + pfs.getQueryRestriction());
@@ -1455,7 +1455,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String version, boolean parentsOnly, String branch, PfsParameter pfs,
     Class<?> clazz, long[] totalCt) throws Exception {
 
-    if (pfs != null && pfs.getQueryRestriction() != null) {
+    if (pfs != null && pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
               + pfs.getQueryRestriction());
@@ -3348,7 +3348,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .debug("Content Service - find deep relationships for concept "
             + conceptId + "/" + terminology + "/" + version + "/" + filter);
 
-    if (pfs != null && pfs.getQueryRestriction() != null) {
+    if (pfs != null && pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
               + pfs.getQueryRestriction());

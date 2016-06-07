@@ -174,13 +174,6 @@ public class SecurityServiceJpa extends RootServiceJpa implements
       throw new LocalException(
           "Attempt to access a service without an AuthToken, the user is likely not logged in.");
 
-    // handle guest user unless
-    if (authToken.equals("guest")
-        && "true".equals(ConfigUtility.getConfigProperties().getProperty(
-            "security.guest.disabled"))) {
-      return "guest";
-    }
-
     // Replace double quotes in auth token.
     String parsedToken = authToken.replace("\"", "");
 
@@ -204,6 +197,14 @@ public class SecurityServiceJpa extends RootServiceJpa implements
       }
       return username;
     } else {
+
+      // handle guest user unless
+      if (authToken.equals("guest")
+          && "false".equals(ConfigUtility.getConfigProperties().getProperty(
+              "deploy.login.enabled"))) {
+        return "guest";
+      }
+
       throw new LocalException("AuthToken does not have a valid username.");
     }
   }
@@ -484,8 +485,5 @@ public class SecurityServiceJpa extends RootServiceJpa implements
       throw e;
     }
   }
-  
 
-  
- 
 }

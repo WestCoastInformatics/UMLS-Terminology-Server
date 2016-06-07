@@ -5,10 +5,11 @@
     {{metadata.hierarchiesLabel}}
     <span ng-show="treeCount > 1">
       (
-      <a class="glyphicon glyphicon-step-backward"
-        ng-click="getTreeByOffset(-1)"></a>
+      <i class="noul glyphicon glyphicon-step-backward" title="Previous tree position"
+        ng-click="getTreeByOffset(-1)"></i>
       {{treeViewed+1}} of {{treeCount}}
-      <a class="glyphicon glyphicon-step-forward" ng-click="getTreeByOffset(1)"></a>
+      <i class="noul glyphicon glyphicon-step-forward" 
+      title="Next tree position" ng-click="getTreeByOffset(1)"></i>
       )
     </span>
   </h4>

@@ -18,7 +18,7 @@ tsApp.directive('relationships', [
        
         // check callbacks supplied
         if (!scope.callbacks || !scope.callbacks.findRelationships) {
-          console.error('Relationships directive requires callbacks.findRelationships function');
+          utilService.setError('Relationships directive requires callbacks.findRelationships function');
         }
      
         // instantiate paging and paging callback function

@@ -144,7 +144,7 @@ tsApp.directive('treeComponent', [
           var deferred = $q.defer();
 
           if (!tree) {
-            console.error('getChildren called with null node');
+            utilSevice.setError('getChildren called with null node');
             deferred.resolve([]);
           }
 
@@ -154,7 +154,7 @@ tsApp.directive('treeComponent', [
           contentService.getChildTrees(tree, scope.component.type, tree.children.length - 1).then(function(data) {
             deferred.resolve(data.trees);
           }, function(error) {
-            console.error('Unexpected error retrieving children');
+            utilService.setError('Unexpected error retrieving children');
             deferred.resolve([]);
           });
 

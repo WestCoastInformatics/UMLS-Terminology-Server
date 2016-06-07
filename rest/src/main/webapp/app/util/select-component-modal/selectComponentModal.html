@@ -32,7 +32,7 @@
           <span
             ng-show="searchParams.query && searchResults && searchResults.totalCount == 0">No</span>
           <span ng-show="searchResults.totalCount > 0">{{searchResults.totalCount}}</span>
-          Results 
+          Results
         </div>
         <!--  Margin added to prevent crowding -->
         <uib-pagination items-per-page="pageSizes.general" max-size="5"
@@ -63,10 +63,8 @@
                   uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               </td>
               <td>
-                <a class="noul">
-                  <i class="glyphicon glyphicon-plus" uib-tooltip="Select"
-                    ng-click="selectSearchResult(searchResult)"></i>
-                </a>
+                <i class="noul glyphicon glyphicon-plus" title="Select"
+                  ng-click="selectSearchResult(searchResult)"></i>
               </td>
             </tr>
           </tbody>

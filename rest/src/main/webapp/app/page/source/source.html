@@ -30,19 +30,19 @@
     </table>
     <!-- Source Data details -->
     <div class="row" ng-show="currentSourceData" style="margin-top: 75px;">
-      <div class="col-md-4">
+      <div class="col-md-4 col-xs-4">
         <h4>Source Data Details</h4>
         <table class="table">
           <tr>
-            <td class="col-md-3">Name</td>
-            <td class="col-md-9">
+            <td class="col-md-3 col-xs-3">Name</td>
+            <td class="col-md-9 col-md-9" col-xs-9>
               <textarea style="width: 100%" ng-model="currentSourceData.name"
                 placeholder="Unique name for source data"></textarea>
             </td>
           </tr>
           <tr>
             <td>Description</td>
-            <td class="col-md-9">
+            <td class="col-md-9 col-xs-9">
               <textarea style="height: 100px; width: 100%"
                 ng-model="currentSourceData.description"
                 placeholder="Optional description"></textarea>
@@ -72,7 +72,7 @@
           </tr>
           <tr>
             <td>Actions</td>
-            <td class="col-md-9">
+            <td class="col-md-9 col-xs-9">
               <button class="btn btn-xs btn-primary"
                 ng-click="saveSourceData(currentSourceData)"
                 ng-show="isSourceDataModified">Save</button>
@@ -108,14 +108,14 @@
         </table>
       </div>
       <!-- Upload File -->
-      <div class="col-md-8" ng-show="!currentSourceData.id">
+      <div class="col-md-8 col-xs-8" ng-show="!currentSourceData.id">
         <div class="row">
           <h4>Upload File</h4>
           <div class="alert alert-warning">Please specify a name for your
             source data configuration and click save.</div>
         </div>
       </div>
-      <div class="col-md-8" ng-show="polls[currentSourceData.id]">
+      <div class="col-md-8 col-xs-8" ng-show="polls[currentSourceData.id]">
         <h4>Activity Log:
           {{getHumanText(polls[currentSourceData.id].status)}}</h4>
         <div class="well well-md" style="overflow-y: auto; max-height: 350px;">
@@ -124,7 +124,7 @@
           <pre>{{polls[currentSourceData.id].logEntries}}</pre>
         </div>
       </div>
-      <div class="col-md-8"
+      <div class="col-md-8 col-xs-8"
         ng-show="currentSourceData.id && !polls[currentSourceData.id]">
         <!--  Upload interface -->
         <div class="row">

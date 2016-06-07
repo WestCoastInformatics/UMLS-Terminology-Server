@@ -110,11 +110,10 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
     }
   }
 
-  // if none enabled, default is content
-  // TODO Outstanding issue here, need to detect tab role, but don't have that prior to tabService initialization
+  // if none enabled, default is content/
   if (appConfig.landingEnabled !== 'true' && appConfig.loginEnabled !== 'true'
     && appConfig.licenseEnabled !== 'true') {
-    console.log('No landing, license, or login pages -- default route is /content')
+    console.debug('No landing, license, or login pages -- default route is /content');
     $routeProvider.when('/', {
       templateUrl : 'app/page/content/content.html',
       controller : 'ContentCtrl',

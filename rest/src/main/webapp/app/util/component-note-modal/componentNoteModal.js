@@ -5,9 +5,10 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
 
   // Component wrapper or full component
   $scope.component = component;
+  $scope.tinymceOptions = utilService.tinymceOptions;
 
   function getPagedList() {
-    console.debug('notes: getpageddata')
+    console.debug('notes: getpageddata');
     $scope.pagedData = utilService.getPagedArray($scope.component.notes, $scope.paging);
     console.debug($scope.pagedData);
   }
@@ -44,7 +45,7 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
         component : $scope.component
       });
     });
-  }
+  };
 
   $scope.removeNote = function(note) {
     console.debug('Remove note: ', note.id);
@@ -53,8 +54,8 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
       websocketService.fireNoteChange({
         component : $scope.component
       });
-    })
-  }
+    });
+  };
 
   $scope.refreshConcept = function() {
     // re-retrieve the component (from either wrapper or full component)
@@ -62,14 +63,19 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
       $scope.component = response;
       getPagedList();
     });
-  }
+  };
+  
+  // Render date
+  $scope.toDate = function(x) {
+    return utilService.toDate(x);
+  };
 
   //
   // Initialization
   // 
   $scope.initialize = function() {
     $scope.refreshConcept();
-  }
+  };
   $scope.initialize();
 
   //
