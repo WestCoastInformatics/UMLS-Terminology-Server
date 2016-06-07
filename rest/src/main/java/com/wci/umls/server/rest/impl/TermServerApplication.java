@@ -46,6 +46,7 @@ public class TermServerApplication extends Application {
     beanConfig.setTitle("Term Server API");
     beanConfig.setDescription("RESTful calls for terminology server");
     beanConfig.setVersion(API_VERSION);
+    
     if (new ConfigureServiceRestImpl().isConfigured()) {
       beanConfig.setBasePath(
           ConfigUtility.getConfigProperties().getProperty("base.url"));
@@ -121,7 +122,7 @@ public class TermServerApplication extends Application {
     classes.add(ValidationServiceRestImpl.class);
     classes.add(SourceDataServiceRestImpl.class);
     classes.add(ConfigureServiceRestImpl.class);
-    classes.add(MetadataServiceRestImpl.class);
+    classes.add(MetaEditingServiceRestImpl.class);
 
     // register file upload support classes
     classes.add(MultiPartFeature.class);

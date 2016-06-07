@@ -6,8 +6,6 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.HasTerminologyId;
-import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -27,8 +25,6 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
-import com.wci.umls.server.model.meta.AttributeIdentity;
-import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**

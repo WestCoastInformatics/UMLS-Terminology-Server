@@ -44,7 +44,7 @@ public class MetaEditingClientRest extends RootClientRest
   public Concept addSemanticType(Long projectId, Long conceptId,
     SemanticTypeComponent semanticTypeComponent, String authToken)
       throws Exception {
-    Logger.getLogger(getClass()).debug("MetaEditing Client - add semantic type "
+    Logger.getLogger(getClass()).debug("MetaEditing Client - add semantic type to concept"
         + projectId + ", " + conceptId + ", " + semanticTypeComponent.toString() + ", " + authToken);
 
     validateNotEmpty( projectId, "projectId");
@@ -52,7 +52,7 @@ public class MetaEditingClientRest extends RootClientRest
     
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(
-        config.getProperty("base.url") + "/metaediting/sty/" + projectId + "/" + conceptId + "/add");
+        config.getProperty("base.url") + "/meta/sty/add?projectId=" + projectId + "&conceptId=" + conceptId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(semanticTypeComponent));
@@ -73,7 +73,7 @@ public class MetaEditingClientRest extends RootClientRest
   @Override
   public Concept removeSemanticType(Long projectId, Long conceptId,
     Long semanticTypeComponentId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug("MetaEditing Client - add semantic type "
+    Logger.getLogger(getClass()).debug("MetaEditing Client - remove semantic type from concept "
         + projectId + ", " + conceptId + ", " + semanticTypeComponentId + ", " + authToken);
 
     validateNotEmpty( projectId, "projectId");
@@ -81,7 +81,7 @@ public class MetaEditingClientRest extends RootClientRest
     
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(
-        config.getProperty("base.url") + "/metaediting/sty/" + projectId + "/" + conceptId + "/remove");
+        config.getProperty("base.url") + "/meta/sty/remove/" + semanticTypeComponentId + "?projectId=" + projectId + "&conceptId=" + conceptId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);

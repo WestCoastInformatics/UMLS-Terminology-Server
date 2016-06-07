@@ -9,6 +9,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
@@ -32,14 +33,14 @@ import com.wordnik.swagger.annotations.ApiParam;
 /**
  * REST implementation for {@link ContentServiceRest}..
  */
-@Path("/metaediting")
+@Path("/meta")
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-@Api(value = "/metaediting", description = "Operations for metathesaurus editing")
+@Api(value = "/meta", description = "Operations for metathesaurus editing")
 public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     implements MetaEditingServiceRest {
 
@@ -58,13 +59,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/sty/{projectId}/{conceptId}/add")
+  @Path("/sty/add")
   @ApiOperation(value = "Add semantic type to concept", notes = "Add semantic type to concept on a project branch")
   public Concept addSemanticType(
-    @ApiParam(value = "The internal project of the edited concept, e.g. 1", required = true) @PathParam("projectId") Long projectId,
-    @ApiParam(value = "The internal id of the edited concept, e.g. 2", required = true) @PathParam("conceptId") Long conceptId,
-    @ApiParam(value = "The semantic type to add", required = true) SemanticTypeComponent semanticTypeComponent,
-    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("auththorization") String authToken)
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponent semanticTypeComponent,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
     {
 
@@ -114,13 +115,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   @Override
   @POST
-  @Path("/sty/{projectId}/{conceptId}/{semanticTypeComponentId}/remove")
+  @Path("/sty/remove/{id}")
   @ApiOperation(value = "Remove semantic type from concept", notes = "Remove semantic type from concept on a project branch")
   public Concept removeSemanticType(
-    @ApiParam(value = "The internal project of the edited concept, e.g. 1", required = true) @PathParam("projectId") Long projectId,
-    @ApiParam(value = "The internal id of the edited concept, e.g. 2", required = true) @PathParam("conceptId") Long conceptId,
-    @ApiParam(value = "The internal id of the semantic type, e.g. 3", required = true) @PathParam("semanticTypeComponentId") Long semanticTypeComponentId,
-    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("auththorization") String authToken)
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Semantic type id, e.g. 3", required = true) @PathParam("id") Long semanticTypeComponentId,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
 
     Logger.getLogger(getClass())

@@ -111,16 +111,6 @@ public class MetaEditingServiceRestTest {
   }
   
   /**
-   * Test.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void test() throws Exception {
-    
-  }
-
-  /**
    * Teardown.
    *
    * @throws Exception the exception

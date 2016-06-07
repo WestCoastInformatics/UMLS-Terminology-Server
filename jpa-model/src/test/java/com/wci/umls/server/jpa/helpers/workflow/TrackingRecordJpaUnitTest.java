@@ -5,17 +5,6 @@ package com.wci.umls.server.jpa.helpers.workflow;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
