@@ -12,6 +12,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jsonp.JsonProcessingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -46,7 +47,7 @@ public class TermServerApplication extends Application {
     beanConfig.setTitle("Term Server API");
     beanConfig.setDescription("RESTful calls for terminology server");
     beanConfig.setVersion(API_VERSION);
-    
+
     if (new ConfigureServiceRestImpl().isConfigured()) {
       beanConfig.setBasePath(
           ConfigUtility.getConfigProperties().getProperty("base.url"));
@@ -145,7 +146,7 @@ public class TermServerApplication extends Application {
     instances.add(new JsonProcessingFeature());
 
     // Enable for LOTS of logging of HTTP requests
-    // instances.add(new LoggingFilter());
+    instances.add(new LoggingFilter());
     return instances;
   }
 

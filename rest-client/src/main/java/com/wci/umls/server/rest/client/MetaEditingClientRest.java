@@ -17,9 +17,9 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
  * A client for connecting to a content REST service.
@@ -42,7 +42,7 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public Concept addSemanticType(Long projectId, Long conceptId,
-    SemanticTypeComponent semanticTypeComponent, String authToken)
+    SemanticTypeComponentJpa semanticTypeComponent, String authToken)
       throws Exception {
     Logger.getLogger(getClass()).debug("MetaEditing Client - add semantic type to concept"
         + projectId + ", " + conceptId + ", " + semanticTypeComponent.toString() + ", " + authToken);

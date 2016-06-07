@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -64,7 +65,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public Concept addSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
-    @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponent semanticTypeComponent,
+    @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponentJpa semanticTypeComponent,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
     {
@@ -99,6 +100,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         concept.getSemanticTypes().add(semanticTypeComponent);
         contentService.updateConcept(concept);
         
+        // TODO Need to handle precedence lists here?
+        contentService.getGraphResolutionHandler(concept.getTerminology()).resolve(concept);
+      
         // TODO Validate the concept via ValidationServiceJpa
         return concept;
 
@@ -158,6 +162,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             "Semantic type could not be removed from concept, not present");
       }
       concept.getSemanticTypes().remove(semanticTypeComponent);
+      // contentService.updateConcept(concept);
+      
+      contentService.getGraphResolutionHandler(concept.getTerminology()).resolve(concept);
+      
       // TODO Validate the concept via ValidationServiceJpa
       return concept;
 

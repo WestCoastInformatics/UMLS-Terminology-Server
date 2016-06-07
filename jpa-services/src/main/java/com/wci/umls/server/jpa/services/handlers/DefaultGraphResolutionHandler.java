@@ -415,6 +415,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @SuppressWarnings("static-method")
   protected void resolveAttributes(ComponentHasAttributes component,
     boolean nullId) {
+    component.getAttributes().size();
     for (Attribute att : component.getAttributes()) {
       att.getName();
       att.getAlternateTerminologyIds().keySet();

@@ -19,8 +19,8 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
  * Implementation of the "MetaEditing Service REST Normal Use" Test Cases.
@@ -91,7 +91,7 @@ public class MetaEditingServiceRestDegenerateUseTest
     assertTrue(c.getSemanticTypes().size() > 0);
 
     // get the first semantic type
-    SemanticTypeComponent sty = c.getSemanticTypes().get(0);
+    SemanticTypeComponentJpa sty = (SemanticTypeComponentJpa) c.getSemanticTypes().get(0);
     assertNotNull(sty);
 
     // get a concept with different semantic type (for testing add)
@@ -99,7 +99,7 @@ public class MetaEditingServiceRestDegenerateUseTest
     Concept c2 = contentService.getConcept("C0000039", umlsTerminology,
         umlsVersion, adminToken);
     assertNotNull(c2);
-    SemanticTypeComponent sty2 = c2.getSemanticTypes().get(0);
+    SemanticTypeComponentJpa sty2 = (SemanticTypeComponentJpa) c2.getSemanticTypes().get(0);
     assertNotNull(sty2);
 
     //

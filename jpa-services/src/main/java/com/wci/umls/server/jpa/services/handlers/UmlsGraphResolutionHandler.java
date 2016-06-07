@@ -57,9 +57,12 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       // Relationships
       // Default behavior -- do not return relationships, require paging calls
       concept.setRelationships(new ArrayList<ConceptRelationship>());
-      
-   // lazy initialization of user annotations
+
+      // lazy initialization of user annotations
       concept.getNotes().size();
+      
+      // lazy initialization of component history
+      concept.getComponentHistory().size();
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
@@ -91,6 +94,9 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       // these are terminology-specific rels
       // they can show when browsing that terminology
       atom.setRelationships(new ArrayList<>());
+      
+      // resolve component history
+      resolveComponentHistory(atom, nullId);
 
     } else if (atom == null) {
       throw new Exception("Cannot resolve a null atom.");
