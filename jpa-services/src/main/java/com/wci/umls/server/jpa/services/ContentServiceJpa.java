@@ -2337,8 +2337,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * Adds the relationship.
    *
    * @param rel the rel
-   * @return the relationship<? extends component has attributes,? extends
-   *         component has attributes>
+   * @return the relationship
    * @throws Exception the exception
    */
   @Override
@@ -2483,7 +2482,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * Adds the transitive relationship.
    *
    * @param rel the rel
-   * @return the transitive relationship<? extends component has attributes>
+   * @return the transitive relationship
    * @throws Exception the exception
    */
   @Override
@@ -2604,7 +2603,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * Adds the tree position.
    *
    * @param treepos the treepos
-   * @return the tree position<? extends component has attributes and name>
+   * @return the tree position
    * @throws Exception the exception
    */
   @Override
@@ -2909,8 +2908,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * Adds the subset member.
    *
    * @param subsetMember the subset member
-   * @return the subset member<? extends component has attributes and name,?
-   *         extends subset>
+   * @return the subset member
    * @throws Exception the exception
    */
   @Override
