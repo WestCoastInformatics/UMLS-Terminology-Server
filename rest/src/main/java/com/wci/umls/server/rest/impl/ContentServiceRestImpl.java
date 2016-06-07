@@ -2950,11 +2950,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "get user favorites",
+      String userName = authorizeApp(securityService, authToken, "get user favorites",
           UserRole.VIEWER);
 
       UserPreferences preferences =
-          securityService.getUser(authToken).getUserPreferences();
+          securityService.getUser(userName).getUserPreferences();
 
       List<ComponentInfo> favorites = new ArrayList<>();
       for (String str : preferences.getFavorites()) {
