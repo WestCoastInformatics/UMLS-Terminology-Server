@@ -8,7 +8,7 @@ import com.wci.umls.server.helpers.KeyValuesMap;
 import com.wci.umls.server.helpers.content.RelationshipList;
 
 /**
- * Generically represents a service for performing maintenance actions.
+ * Represents a service for performing maintenance actions.
  */
 public interface ActionService extends RootService {
 

@@ -20,7 +20,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.GeneralConceptAxiom;
 
 /**
- * JPA-enabled implementation of {@link GeneralConceptAxiom}.
+ * JPA and JAXB enabled implementation of {@link GeneralConceptAxiom}.
  */
 @Entity
 @Table(name = "general_concept_axioms", uniqueConstraints = @UniqueConstraint(columnNames = {

@@ -7,10 +7,9 @@
  *************************************************************/
 package com.wci.umls.server.helpers;
 
-import com.wci.umls.server.model.meta.Language;
 
 /**
- * Represents a thing that is associated with a {@link Language}
+ * Represents a thing that has a language.
  */
 public interface HasLanguage {
 

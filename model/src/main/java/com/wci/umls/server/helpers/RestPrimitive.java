@@ -5,7 +5,6 @@ package com.wci.umls.server.helpers;
 
 /**
  * Generic object to contain a primitive result.
- * 
  */
 public interface RestPrimitive {
 

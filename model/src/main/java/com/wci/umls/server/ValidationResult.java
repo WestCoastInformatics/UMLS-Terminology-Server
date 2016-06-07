@@ -6,7 +6,7 @@ package com.wci.umls.server;
 import java.util.Set;
 
 /**
- * Generically represents a validation result, either an error or a warning.
+ * Represents a validation result, either an error or a warning.
  */
 public interface ValidationResult {
 

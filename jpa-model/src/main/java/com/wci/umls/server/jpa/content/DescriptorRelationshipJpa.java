@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 
 /**
- * JPA-enabled implementation of {@link DescriptorRelationship}.
+ * JPA and JAXB enabled implementation of {@link DescriptorRelationship}.
  */
 @Entity
 @Table(name = "descriptor_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {

@@ -17,7 +17,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 
 /**
- * JPA-enabled implementation of {@link AdditionalRelationshipType}.
+ * JPA and JAXB enabled implementation of {@link AdditionalRelationshipType}.
  */
 @Entity
 @Table(name = "additional_relationship_types", uniqueConstraints = @UniqueConstraint(columnNames = {

@@ -30,7 +30,7 @@ import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.model.meta.LogActivity;
 
 /**
- * The JPA enabled implementation of the log entry object.
+ * The JPA and JAXB enabled implementation of the log entry object.
  */
 @Entity
 @Table(name = "log_entries")

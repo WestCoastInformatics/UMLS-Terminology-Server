@@ -12,11 +12,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 
 /**
- * Unit testing for {@link CancelException}.
+ * Unit testing for {@link ConfigUtility}.
  */
 public class ConfigUtilityTest {
 
@@ -67,7 +66,7 @@ public class ConfigUtilityTest {
     normStr = ConfigUtility.normalize("(1 2) hydroxy");
     assertTrue(normStr.equals("1 2 hydroxy"));
     normStr = ConfigUtility.normalize("[1] 2) hydroxy");
-   assertTrue(normStr.equals("1 2 hydroxy"));
+    assertTrue(normStr.equals("1 2 hydroxy"));
 
     normStr = ConfigUtility.normalize("(1 {2} hydroxy");
     assertTrue(normStr.equals("1 2 hydroxy"));

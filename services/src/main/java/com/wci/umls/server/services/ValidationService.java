@@ -11,7 +11,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 
 /**
- * Generically represents a service for validating content.
+ * Represents a service for validating content.
  */
 public interface ValidationService extends RootService {
 

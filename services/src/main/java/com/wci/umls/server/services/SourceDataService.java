@@ -15,7 +15,7 @@ import com.wci.umls.server.helpers.SourceDataFileList;
 import com.wci.umls.server.helpers.SourceDataList;
 
 /**
- * Generically represents a service for accessing {@link Project} information.
+ * Represents a service for accessing {@link Project} information.
  */
 public interface SourceDataService extends RootService {
 

@@ -7,7 +7,7 @@ import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.helpers.SearchResultList;
 
 /**
- * The Interface ExpressionHandler.
+ * Represents a handler for resolving expressions.
  */
 public interface ExpressionHandler extends Configurable {
   
@@ -16,7 +16,7 @@ public interface ExpressionHandler extends Configurable {
    *
    * @param expr the expr
    * @return the count
-   * @throws Exception 
+   * @throws Exception the exception
    */
   public Integer getCount(String expr) throws Exception;
   

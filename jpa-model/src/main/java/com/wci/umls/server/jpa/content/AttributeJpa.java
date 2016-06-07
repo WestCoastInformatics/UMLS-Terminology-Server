@@ -19,7 +19,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.model.content.Attribute;
 
 /**
- * JPA-enabled implementation of {@link Attribute}.
+ * JPA and JAXB enabled implementation of {@link Attribute}.
  */
 @Entity
 @Table(name = "attributes", uniqueConstraints = @UniqueConstraint(columnNames = {

@@ -18,7 +18,7 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.model.meta.Citation;
 
 /**
- * JPA-enabled implementation of {@link Citation}.
+ * JPA and JAXB enabled implementation of {@link Citation}.
  */
 @Entity
 @Table(name = "citations")

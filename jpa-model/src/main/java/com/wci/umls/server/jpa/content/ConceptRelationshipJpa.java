@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 
 /**
- * JPA-enabled implementation of {@link ConceptRelationship}.
+ * JPA and JAXB enabled implementation of {@link ConceptRelationship}.
  */
 @Entity
 @Table(name = "concept_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {

@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.helpers.ProxyTester;
 
 /**
- * Automates JUnit testing of equals and hashcode methods.
+ * Automates JUnit testing of nullable fields.
  */
 public class NullableFieldTester extends ProxyTester {
 

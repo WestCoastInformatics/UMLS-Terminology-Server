@@ -3,10 +3,9 @@
  */
 package com.wci.umls.server.helpers;
 
-import com.wci.umls.server.User;
 
 /**
- * Represents a sortable list of {@link User}.
+ * Represents a sortable list of {@link ComponentInfo}.
  */
 public interface ComponentInfoList extends ResultList<ComponentInfo> {
   // nothing extra, a simple wrapper for easy serialization

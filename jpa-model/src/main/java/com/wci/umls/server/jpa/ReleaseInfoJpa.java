@@ -28,7 +28,7 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ReleaseProperty;
 
 /**
- * JPA enabled implementation of a {@link ReleaseInfo}.
+ * JPA and JAXB enabled implementation of a {@link ReleaseInfo}.
  */
 @Entity
 @Table(name = "release_infos", uniqueConstraints = {

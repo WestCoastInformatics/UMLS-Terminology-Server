@@ -21,7 +21,7 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.helpers.Note;
 
 /**
- * The Class AbstractNote.
+ * Abstract implementation of a {@link Note}.
  */
 @Audited
 @MappedSuperclass

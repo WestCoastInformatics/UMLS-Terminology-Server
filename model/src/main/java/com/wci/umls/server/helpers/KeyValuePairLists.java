@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Container for all of the metadata.
+ * Container for all lists of key value pair lists.
  */
 @XmlRootElement(name = "keyValuePairLists")
 public class KeyValuePairLists {

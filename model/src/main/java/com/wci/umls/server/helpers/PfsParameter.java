@@ -6,7 +6,7 @@ package com.wci.umls.server.helpers;
 import java.util.List;
 
 /**
- * The Interface PfsParameter.
+ * Represents a parameter for paging, filtering, and sorting (i.e. "pfs")
  */
 public interface PfsParameter {
 

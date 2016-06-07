@@ -19,7 +19,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.PropertyChain;
 
 /**
- * JPA-enabled implementation of {@link PropertyChain}.
+ * JPA and JAXB enabled implementation of {@link PropertyChain}.
  */
 @Entity
 @Table(name = "property_chains", uniqueConstraints = @UniqueConstraint(columnNames = {

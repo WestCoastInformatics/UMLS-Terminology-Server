@@ -35,7 +35,7 @@ import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
 
 /**
- * JPA.
+ * JPA and JAXB enabled implementation of {@link SourceData}.
  */
 @Entity
 @Table(name = "source_data", uniqueConstraints = @UniqueConstraint(columnNames = {

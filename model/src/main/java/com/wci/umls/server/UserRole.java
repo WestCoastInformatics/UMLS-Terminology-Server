@@ -4,8 +4,7 @@
 package com.wci.umls.server;
 
 /**
- * The Enum UserRole.
- *
+ * An enum for user and application roles.
  */
 public enum UserRole {
 

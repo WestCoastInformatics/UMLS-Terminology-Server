@@ -14,7 +14,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.model.meta.Language;
 
 /**
- * JPA-enabled implementation of {@link Language}.
+ * JPA and JAXB enabled implementation of {@link Language}.
  */
 @Entity
 @Table(name = "languages", uniqueConstraints = @UniqueConstraint(columnNames = {

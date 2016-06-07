@@ -23,7 +23,7 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.model.content.Definition;
 
 /**
- * JPA-enabled implementation of {@link Definition}.
+ * JPA and JAXB enabled implementation of {@link Definition}.
  */
 @Entity
 @Table(name = "definitions", uniqueConstraints = @UniqueConstraint(columnNames = {

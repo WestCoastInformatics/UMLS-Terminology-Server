@@ -8,7 +8,7 @@ import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Configurable;
 
 /**
- * Generically represents a source data handler.
+ * Represents a source data handler.
  */
 public interface SourceDataHandler extends Algorithm, Configurable {
 
@@ -20,8 +20,9 @@ public interface SourceDataHandler extends Algorithm, Configurable {
   public void setSourceData(SourceData sourceData);
 
   /**
-   * Removes the loaded data
-   * @throws Exception
+   * Removes the loaded data.
+   *
+   * @throws Exception the exception
    */
   public void remove() throws Exception;
 
@@ -30,7 +31,7 @@ public interface SourceDataHandler extends Algorithm, Configurable {
    * verifying that the data to be loaded is not already loaded.
    *
    * @return true, if is loadable
-   * @throws Exception
+   * @throws Exception the exception
    */
   public boolean checkPreconditions() throws Exception;
 

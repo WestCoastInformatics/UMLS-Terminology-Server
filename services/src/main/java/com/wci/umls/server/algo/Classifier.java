@@ -11,7 +11,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 
 /**
- * Generically represents a classifier.
+ * Represents a classifier.
  */
 public interface Classifier extends Algorithm {
 

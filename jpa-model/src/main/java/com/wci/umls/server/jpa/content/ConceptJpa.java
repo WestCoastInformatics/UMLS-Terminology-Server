@@ -36,7 +36,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * JPA-enabled implementation of {@link Concept}.
+ * JPA and JAXB enabled implementation of {@link Concept}.
  */
 @Entity
 @Table(name = "concepts", uniqueConstraints = @UniqueConstraint(columnNames = {

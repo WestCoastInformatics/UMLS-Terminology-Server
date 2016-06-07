@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 
 /**
- * JPA-enabled implementation of {@link CodeRelationship}.
+ * JPA and JAXB enabled implementation of {@link CodeRelationship}.
  */
 @Entity
 @Table(name = "code_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {

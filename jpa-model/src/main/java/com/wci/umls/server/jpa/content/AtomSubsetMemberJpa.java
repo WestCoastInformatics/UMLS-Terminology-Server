@@ -28,7 +28,7 @@ import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
- * Abstract JPA-enabled implementation of an {@link Atom} {@link SubsetMember}.
+ * Abstract JPA and JAXB enabled implementation of an {@link Atom} {@link SubsetMember}.
  */
 @Entity
 @Table(name = "atom_subset_members", uniqueConstraints = @UniqueConstraint(columnNames = {

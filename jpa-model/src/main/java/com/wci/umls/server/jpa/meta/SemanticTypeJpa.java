@@ -17,7 +17,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.model.meta.SemanticType;
 
 /**
- * JPA-enabled implementation of {@link SemanticType}.
+ * JPA and JAXB enabled implementation of {@link SemanticType}.
  */
 @Entity
 @Table(name = "semantic_types", uniqueConstraints = @UniqueConstraint(columnNames = {

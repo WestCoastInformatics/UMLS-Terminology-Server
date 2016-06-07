@@ -18,7 +18,7 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.model.meta.ContactInfo;
 
 /**
- * JPA-enabled implementation of {@link ContactInfo}.
+ * JPA and JAXB enabled implementation of {@link ContactInfo}.
  */
 @Entity
 @Table(name = "contact_info")

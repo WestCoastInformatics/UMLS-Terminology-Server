@@ -31,12 +31,8 @@ public class EclExpressionHandlerTest {
    *
    * @throws Exception the exception
    */
-  // TODO Remove this after development work and create formal integration
-  // testing
   @BeforeClass
   public static void setup() throws Exception {
-    System.setProperty("run.config.umls",
-        "D:/umlsserver/config/config.snomed.properties");
     handler = new EclExpressionHandler("SNOMEDCT", "latest");
   }
 
@@ -225,7 +221,7 @@ public class EclExpressionHandlerTest {
 
   @Test
   public void testResolveFocusConceptRangeAttributeRange() throws Exception {
-   
+
     testEclQuery(
         "< 404684003 |clinical finding|: 363698007 |finding site| = << 39057004 |pulmonary valve structure|",
         5);

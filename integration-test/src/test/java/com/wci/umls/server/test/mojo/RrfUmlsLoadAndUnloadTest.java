@@ -249,7 +249,6 @@ public class RrfUmlsLoadAndUnloadTest {
     historyService.closeFactory();
 
     // QA Terminology
-    // TODO: need a different set of QA checks for a "Metathesaurus"
     // Logger.getLogger(getClass()).info("QA database");
     // request = new DefaultInvocationRequest();
     // request.setPomFile(new File("../admin/qa/pom.xml"));

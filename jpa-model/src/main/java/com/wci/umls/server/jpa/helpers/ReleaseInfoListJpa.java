@@ -14,7 +14,7 @@ import com.wci.umls.server.helpers.ReleaseInfoList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 
 /**
- * JAXB-enabled implementation of {@link ReleaseInfoList}.
+ * JAXB enabled implementation of {@link ReleaseInfoList}.
  */
 @XmlRootElement(name = "releaseInfoList")
 public class ReleaseInfoListJpa extends AbstractResultList<ReleaseInfo>

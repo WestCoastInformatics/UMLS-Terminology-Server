@@ -10,7 +10,7 @@ import com.wci.umls.server.helpers.HasName;
 import com.wci.umls.server.helpers.HasTerminology;
 
 /**
- * Generically represents a collection of source data files and a Handler used
+ * Represents a collection of source data files and a Handler used
  * for those files.
  */
 public interface SourceData extends HasTerminology, HasLastModified, HasName {

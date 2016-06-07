@@ -39,7 +39,7 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 
 /**
- * Abstract JPA-enabled implementation of {@link AtomClass}.
+ * Abstract JPA and JAXB enabled implementation of {@link AtomClass}.
  */
 @AnalyzerDefs({
     @AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {

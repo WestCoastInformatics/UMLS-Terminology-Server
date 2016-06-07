@@ -23,7 +23,7 @@ import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.UsageType;
 
 /**
- * JPA-enabled implementation of {@link TermType}.
+ * JPA and JAXB enabled implementation of {@link TermType}.
  */
 @Entity
 @Table(name = "term_types", uniqueConstraints = @UniqueConstraint(columnNames = {

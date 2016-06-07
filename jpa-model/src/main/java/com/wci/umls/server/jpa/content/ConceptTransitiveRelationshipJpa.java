@@ -18,7 +18,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
 
 /**
- * JPA-enabled implementation of {@link ConceptTransitiveRelationship}.
+ * JPA and JAXB enabled implementation of {@link ConceptTransitiveRelationship}.
  */
 @Entity
 @Table(name = "concept_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {

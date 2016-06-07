@@ -4,7 +4,7 @@
 package com.wci.umls.server.helpers;
 
 /**
- * The Interface Note.
+ * Represents a note.
  */
 public interface Note extends HasLastModified {
 
