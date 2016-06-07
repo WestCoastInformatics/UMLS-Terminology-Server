@@ -755,7 +755,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
+    Logger.getLogger(getClass()).info("RESTful call (Content TEST): /concept/"
         + terminology + "/" + version + "/" + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
     try {

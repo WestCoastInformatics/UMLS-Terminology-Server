@@ -76,8 +76,13 @@ public class MetaEditingServiceRestNormalUseTest
             + umlsTerminology + ", " + umlsVersion + ", " + authToken);
 
     // get the concept
-    Concept c = contentService.getConcept("C0000005", umlsTerminology,
+    Concept c = null;
+    try {
+     c = contentService.getConcept("C0000005", umlsTerminology,
         umlsVersion, authToken);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     assertNotNull(c);
 
     // check against project

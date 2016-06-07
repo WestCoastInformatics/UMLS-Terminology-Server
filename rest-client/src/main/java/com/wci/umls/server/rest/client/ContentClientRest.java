@@ -205,7 +205,7 @@ public class ContentClientRest extends RootClientRest
   public Concept getConcept(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - get concept "
-        + terminologyId + ", " + terminology + ", " + version);
+        + terminologyId + ", " + terminology + ", " + version + ", " + authToken);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -334,6 +334,9 @@ public class ContentClientRest extends RootClientRest
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
+    
+    System.out.println(config.getProperty("base.url") + "/content/descriptor/"
+            + terminology + "/" + version + "/" + terminologyId);
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
