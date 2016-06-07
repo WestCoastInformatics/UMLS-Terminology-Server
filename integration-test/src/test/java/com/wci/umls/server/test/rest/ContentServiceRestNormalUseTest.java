@@ -368,7 +368,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(20);
     for (Subset subset : list.getObjects()) {
-      // TODO: separate tests for labelsubset
       if (subset instanceof ConceptSubsetJpa
           && ((ConceptSubsetJpa) subset).isLabelSubset()) {
         continue;

@@ -211,38 +211,30 @@ public class ComponentInfoJpa implements ComponentInfo {
     this.name = name;
   }
 
-  /* see superclass */
   @Override
   public String toString() {
-    return "UserFavoriteJpa [id=" + id + ", timestamp=" + timestamp
+    return "ComponentInfoJpa [id=" + id + ", timestamp=" + timestamp
         + ", lastModified=" + lastModified + ", lastModifiedBy="
         + lastModifiedBy + ", terminology=" + terminology + ", terminologyId="
-        + terminologyId + ", version=" + version + ", name=" + name + "]";
+        + terminologyId + ", version=" + version + ", name=" + name + ", type="
+        + type + "]";
   }
 
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result =
-        prime * result
-            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
         prime * result
             + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -252,16 +244,6 @@ public class ComponentInfoJpa implements ComponentInfo {
     if (getClass() != obj.getClass())
       return false;
     ComponentInfoJpa other = (ComponentInfoJpa) obj;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
@@ -276,11 +258,6 @@ public class ComponentInfoJpa implements ComponentInfo {
       if (other.terminologyId != null)
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
-      return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
-        return false;
-    } else if (!timestamp.equals(other.timestamp))
       return false;
     if (type != other.type)
       return false;

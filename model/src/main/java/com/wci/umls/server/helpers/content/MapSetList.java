@@ -5,7 +5,6 @@ package com.wci.umls.server.helpers.content;
 
 import com.wci.umls.server.helpers.ResultList;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
 
 /**
  * Represents a sortable list of {@link MapSet}
