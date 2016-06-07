@@ -15,7 +15,7 @@ import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 
 /**
- * JAXB enabled implementation of {@link UserList}.
+ * JAXB enabled implementation of {@link ComponentInfoList}.
  */
 @XmlRootElement(name = "userList")
 public class ComponentInfoListJpa extends AbstractResultList<ComponentInfo> implements ComponentInfoList {

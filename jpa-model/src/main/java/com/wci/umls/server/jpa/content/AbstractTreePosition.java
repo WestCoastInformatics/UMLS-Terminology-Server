@@ -17,7 +17,7 @@ import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
- * Abstract JPA-enabled implementation of {@link TreePosition}.
+ * Abstract JPA and JAXB enabled implementation of {@link TreePosition}.
  * @param <T> the type
  */
 @Audited

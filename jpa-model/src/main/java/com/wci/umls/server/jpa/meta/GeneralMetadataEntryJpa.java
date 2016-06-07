@@ -13,7 +13,7 @@ import org.hibernate.envers.Audited;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 
 /**
- * JPA-enabled implementation of {@link GeneralMetadataEntry}.
+ * JPA and JAXB enabled implementation of {@link GeneralMetadataEntry}.
  */
 @Entity
 @Table(name = "general_metadata_entries")

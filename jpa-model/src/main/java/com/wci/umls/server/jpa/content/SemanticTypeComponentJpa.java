@@ -19,7 +19,7 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
- * JPA-enabled implementation of {@link SemanticTypeComponent}.
+ * JPA and JAXB enabled implementation of {@link SemanticTypeComponent}.
  */
 @Entity
 @Table(name = "semantic_type_components", uniqueConstraints = @UniqueConstraint(columnNames = {

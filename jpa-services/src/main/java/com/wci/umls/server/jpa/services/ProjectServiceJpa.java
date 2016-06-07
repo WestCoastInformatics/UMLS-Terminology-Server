@@ -24,7 +24,7 @@ import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.services.ProjectService;
 
 /**
- * JPA enabled implementation of {@link ProjectService}.
+ * JPA and JAXB enabled implementation of {@link ProjectService}.
  */
 public class ProjectServiceJpa extends RootServiceJpa implements ProjectService {
 

@@ -26,7 +26,7 @@ import com.wci.umls.server.model.meta.ContactInfo;
 import com.wci.umls.server.model.meta.RootTerminology;
 
 /**
- * JPA-enabled implementation of {@link RootTerminology}.
+ * JPA and JAXB enabled implementation of {@link RootTerminology}.
  */
 @Entity
 @Table(name = "root_terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {

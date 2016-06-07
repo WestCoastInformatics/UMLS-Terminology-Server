@@ -3,11 +3,10 @@ package com.wci.umls.server.helpers;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * The Component Informational Pointer Object Represents information needed to
- * resolve a component supported by IdType
+ * Represents a pointer to some kind of component.
  */
-public interface ComponentInfo
-    extends HasTerminologyId, HasLastModified, HasName {
+public interface ComponentInfo extends HasTerminologyId, HasLastModified,
+    HasName {
 
   /**
    * Sets the type.

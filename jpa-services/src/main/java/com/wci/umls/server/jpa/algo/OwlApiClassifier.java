@@ -37,7 +37,7 @@ import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
- * The Class OwlApiClassifier.
+ * Classifier based on OWL-API.
  */
 public class OwlApiClassifier implements Classifier {
 

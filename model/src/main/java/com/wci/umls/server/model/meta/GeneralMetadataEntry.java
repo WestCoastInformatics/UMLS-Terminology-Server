@@ -4,7 +4,7 @@
 package com.wci.umls.server.model.meta;
 
 /**
- * Generically represents any other kind of metadata that does not conform to
+ * Represents any other kind of metadata that does not conform to
  * the model.
  */
 public interface GeneralMetadataEntry extends Abbreviation {

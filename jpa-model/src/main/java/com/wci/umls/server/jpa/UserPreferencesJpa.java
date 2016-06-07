@@ -27,7 +27,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 
 /**
- * JPA enabled implementation of {@link UserPreferences}.
+ * JPA and JAXB enabled implementation of {@link UserPreferences}.
  */
 @Entity
 @Table(name = "user_preferences")

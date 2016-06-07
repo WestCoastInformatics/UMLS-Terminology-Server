@@ -27,7 +27,7 @@ import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * The Class DescriptorJpa.
+ * JPA and JAXB enabled implementation of {@link Descriptor}.
  */
 @Entity
 @Table(name = "descriptors", uniqueConstraints = @UniqueConstraint(columnNames = {

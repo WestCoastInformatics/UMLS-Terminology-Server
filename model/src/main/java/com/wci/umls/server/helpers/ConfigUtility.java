@@ -65,7 +65,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 
 /**
- * Loads and serves configuration.
+ * Utility class for interacting with the configuration, serializing to JSON/XML
+ * and other purposes.
  */
 public class ConfigUtility {
 

@@ -6,7 +6,7 @@ package com.wci.umls.server.services.handlers;
 import com.wci.umls.server.helpers.Configurable;
 
 /**
- * Generically represents a handler that can lexically normalize a string.
+ * Represents a handler that can lexically normalize a string.
  */
 public interface NormalizedStringHandler extends Configurable {
 

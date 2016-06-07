@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
- * Generically represents an algorithm for assigning identifiers.
+ * Represents an algorithm for assigning identifiers.
  */
 public interface IdentifierAssignmentHandler extends Configurable {
 

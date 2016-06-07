@@ -150,7 +150,7 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 import com.wci.umls.server.services.handlers.WorkflowListener;
 
 /**
- * JPA enabled implementation of {@link ContentService}.
+ * JPA and JAXB enabled implementation of {@link ContentService}.
  */
 public class ContentServiceJpa extends MetadataServiceJpa implements
     ContentService {

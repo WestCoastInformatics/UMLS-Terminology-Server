@@ -10,7 +10,7 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
- * Represents a thing that has definitions.
+ * Represents a thing that has members.
  *
  * @param <T> the generic type
  */

@@ -10,7 +10,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.model.meta.LogActivity;
 
 /**
- * Generically represents a service.
+ * Represents a service.
  */
 public interface RootService {
 

@@ -37,7 +37,7 @@ import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 
 /**
- * JPA-enabled implementation of {@link Atom}.
+ * JPA and JAXB enabled implementation of {@link Atom}.
  */
 @Entity
 // @UniqueConstraint here is being used to create an index, not to enforce

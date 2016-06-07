@@ -59,7 +59,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
- * The Interface ContentService.
+ * Represents a service for interacting with content.
  */
 public interface ContentService extends MetadataService {
 
@@ -782,8 +782,7 @@ public interface ContentService extends MetadataService {
    * Add relationship.
    *
    * @param relationship the relationship
-   * @return the relationship<? extends component has attributes,? extends
-   *         component has attributes>
+   * @return the relationship
    * @throws Exception the exception
    */
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> addRelationship(
@@ -829,7 +828,7 @@ public interface ContentService extends MetadataService {
    * Add transitive relationship.
    *
    * @param transitiveRelationship the transitive relationship
-   * @return the transitive relationship<? extends component has attributes>
+   * @return the transitive relationship
    * @throws Exception the exception
    */
   public TransitiveRelationship<? extends ComponentHasAttributes> addTransitiveRelationship(
@@ -874,7 +873,7 @@ public interface ContentService extends MetadataService {
    * Add tree position.
    *
    * @param treepos the treepos
-   * @return the tree position<? extends component has attributes and name>
+   * @return the tree position
    * @throws Exception the exception
    */
   public TreePosition<? extends ComponentHasAttributesAndName> addTreePosition(
@@ -933,8 +932,7 @@ public interface ContentService extends MetadataService {
    * Add subset member.
    *
    * @param member the member
-   * @return the subset member<? extends component has attributes and name,?
-   *         extends subset>
+   * @return the subset member
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> addSubsetMember(
@@ -1833,9 +1831,10 @@ public interface ContentService extends MetadataService {
    * @param query the query
    * @param pfs the pfs
    * @return the note list
-   * @throws Exception 
+   * @throws Exception the exception
    */
-  public NoteList findCodeNotesForQuery(String query, PfsParameter pfs) throws Exception;
+  public NoteList findCodeNotesForQuery(String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find descriptor notes for user.
@@ -1843,9 +1842,10 @@ public interface ContentService extends MetadataService {
    * @param query the query
    * @param pfs the pfs
    * @return the note list
-   * @throws Exception 
+   * @throws Exception the exception
    */
-  public NoteList findDescriptorNotesForQuery(String query, PfsParameter pfs) throws Exception;
+  public NoteList findDescriptorNotesForQuery(String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find concept notes for user.
@@ -1855,6 +1855,7 @@ public interface ContentService extends MetadataService {
    * @return the note list
    * @throws Exception the exception
    */
-  public NoteList findConceptNotesForQuery(String query, PfsParameter pfs) throws Exception;
+  public NoteList findConceptNotesForQuery(String query, PfsParameter pfs)
+    throws Exception;
 
 }

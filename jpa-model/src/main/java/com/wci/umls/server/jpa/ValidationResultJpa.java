@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.ValidationResult;
 
 /**
- * JPA enabled implementation of {@link ValidationResult}.
+ * JPA and JAXB enabled implementation of {@link ValidationResult}.
  */
 @XmlRootElement
 public class ValidationResultJpa implements ValidationResult {

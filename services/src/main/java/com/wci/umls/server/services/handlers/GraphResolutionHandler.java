@@ -24,7 +24,7 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
- * Generically represents an algorithm for reading objects to a certain depth
+ * Represents an algorithm for reading objects to a certain depth
  * before sending them across the wire. It also handles wiring objects together
  * that have been sent in from across the wire. Thus the "depth" of the graph is
  * controlled by the implementation of this algortihm

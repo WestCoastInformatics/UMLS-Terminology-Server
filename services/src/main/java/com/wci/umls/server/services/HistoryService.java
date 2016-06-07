@@ -7,7 +7,7 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.helpers.ReleaseInfoList;
 
 /**
- * Generically represents a service for asking questions about content history.
+ * Represents a service for asking questions about content history.
  */
 public interface HistoryService extends ContentService {
   // //

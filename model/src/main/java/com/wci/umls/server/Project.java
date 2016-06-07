@@ -11,7 +11,8 @@ import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PrecedenceList;
 
 /**
- * Generically represents an editing project.
+ * Represents an project with users, roles, and configuration for
+ * editing.
  */
 public interface Project extends HasId {
 

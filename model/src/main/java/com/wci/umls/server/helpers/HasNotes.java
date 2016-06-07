@@ -3,7 +3,7 @@ package com.wci.umls.server.helpers;
 import java.util.List;
 
 /**
- * The Interface HasNotes.
+ * Represents a thing that has notes.
  */
 public interface HasNotes  {
 

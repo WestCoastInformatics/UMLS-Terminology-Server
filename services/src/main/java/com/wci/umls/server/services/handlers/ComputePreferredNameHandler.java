@@ -11,7 +11,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.model.content.Atom;
 
 /**
- * Generically represents an algorithm for computing preferred names.
+ * Represents an algorithm for computing preferred names.
  */
 public interface ComputePreferredNameHandler extends Configurable {
 

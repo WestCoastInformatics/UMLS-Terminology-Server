@@ -18,7 +18,7 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 
 /**
- * JPA-enabled implementation of {@link DescriptorTransitiveRelationship}.
+ * JPA and JAXB enabled implementation of {@link DescriptorTransitiveRelationship}.
  */
 @Entity
 @Table(name = "descriptor_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {

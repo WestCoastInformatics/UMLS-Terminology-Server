@@ -21,7 +21,7 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
- * Generically represents a validation check on a concept.
+ * Represents a validation check on a concept.
  */
 public interface WorkflowListener extends Configurable {
 

@@ -13,7 +13,7 @@ import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.content.ConceptList;
 
 /**
- * Generically represents a service for accessing {@link Project} information.
+ * Represents a service for accessing {@link Project} information.
  */
 public interface ProjectService extends RootService {
 

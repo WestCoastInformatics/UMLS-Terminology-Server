@@ -13,7 +13,7 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
- * Abstract JPA-enabled implementation of {@link SubsetMember}. Used mostly to
+ * Abstract JPA and JAXB enabled implementation of {@link SubsetMember}. Used mostly to
  * define the table.
  * @param <T> the member type
  * @param <S> the subset type

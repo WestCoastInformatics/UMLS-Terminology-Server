@@ -14,7 +14,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.model.content.AtomClass;
 
 /**
- * Generically represents an algorithm searching for {@link AtomClass} entities.
+ * Represents an algorithm searching for {@link AtomClass} entities.
  */
 public interface SearchHandler extends Configurable {
 

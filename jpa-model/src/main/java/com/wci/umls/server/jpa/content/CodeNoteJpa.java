@@ -16,10 +16,11 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Code;
 
 /**
- * The Class CodeNoteJpa.
+ * JPA and JAXB enabled implementation of a {@link Note} connected to a {@link Code}.
  */
 @Entity
 @Table(name = "code_notes")

@@ -19,7 +19,7 @@ import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.HistoryService;
 
 /**
- * JPA enabled implementation of {@link ContentService}.
+ * JPA and JAXB enabled implementation of {@link ContentService}.
  */
 public class HistoryServiceJpa extends ContentServiceJpa implements
     HistoryService {

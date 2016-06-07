@@ -51,7 +51,7 @@ import com.wci.umls.server.jpa.helpers.UserRoleBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
 
 /**
- * JPA enabled implementation of {@link Project}.
+ * JPA and JAXB enabled implementation of {@link Project}.
  */
 @Entity
 @Table(name = "projects", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -268,11 +268,13 @@ public class ProjectJpa implements Project {
     this.branch = branch;
   }
 
+  /* see superclass */
   @Override
   public String getFeedbackEmail() {
     return feedbackEmail;
   }
 
+  /* see superclass */
   @Override
   public void setFeedbackEmail(String feedbackEmail) {
     this.feedbackEmail = feedbackEmail;
@@ -288,6 +290,7 @@ public class ProjectJpa implements Project {
     return validationChecks;
   }
 
+  /* see superclass */
   @Override
   public void setValidationChecks(List<String> validationChecks) {
     this.validationChecks = validationChecks;
@@ -402,6 +405,7 @@ public class ProjectJpa implements Project {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "ProjectJpa [id=" + id + ", lastModified=" + lastModified

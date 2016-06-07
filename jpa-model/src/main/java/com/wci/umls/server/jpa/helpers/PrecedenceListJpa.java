@@ -32,7 +32,7 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
 
 /**
- * JPA-enabled implementation of {@link PrecedenceList}. This is a list of TTYs
+ * JPA and JAXB enabled implementation of {@link PrecedenceList}. This is a list of TTYs
  * used for a particular context. Individual editors can have their own TTY
  * perspectives, projects can have their own TTY perspectives, and the release
  * can have its own TTY perspective. This mechanism is used to determine which

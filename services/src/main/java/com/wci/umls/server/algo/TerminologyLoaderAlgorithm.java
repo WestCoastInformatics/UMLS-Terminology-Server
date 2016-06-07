@@ -3,25 +3,28 @@ package com.wci.umls.server.algo;
 import com.wci.umls.server.helpers.HasTerminology;
 
 /**
- * The Interface LoaderAlgorithm.
+ * Represents an algorithm for loading a terminology.
  */
 public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology {
 
   /**
    * Set input path.
-   * @param inputPath
+   *
+   * @param inputPath the input path
    */
   public void setInputPath(String inputPath);
 
   /**
    * Compute transitive closures.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   public void computeTransitiveClosures() throws Exception;
 
   /**
    * Compute tree positions.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   public void computeTreePositions() throws Exception;
 

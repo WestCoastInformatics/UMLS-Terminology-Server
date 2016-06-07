@@ -48,7 +48,7 @@ import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 
 /**
- * JPA enabled implementation of {@link User}.
+ * JPA and JAXB enabled implementation of {@link User}.
  */
 @Entity
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = {

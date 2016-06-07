@@ -18,7 +18,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 
 /**
- * JPA-enabled implementation of {@link CodeTransitiveRelationship}.
+ * JPA and JAXB enabled implementation of {@link CodeTransitiveRelationship}.
  */
 @Entity
 @Table(name = "code_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {

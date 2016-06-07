@@ -28,7 +28,7 @@ import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
- * Abstract JPA-enabled implementation of an {@link Concept}
+ * Abstract JPA and JAXB enabled implementation of an {@link Concept}
  * {@link SubsetMember}.
  */
 @Entity

@@ -7,7 +7,7 @@ import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.Configurable;
 
 /**
- * Generically represents a handler that can authenticate a user.
+ * Represents a handler that can authenticate a user.
  */
 public interface SecurityServiceHandler extends Configurable {
 

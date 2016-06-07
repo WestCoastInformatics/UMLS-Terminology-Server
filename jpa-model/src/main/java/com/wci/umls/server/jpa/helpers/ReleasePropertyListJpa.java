@@ -14,7 +14,7 @@ import com.wci.umls.server.helpers.ReleasePropertyList;
 import com.wci.umls.server.jpa.ReleasePropertyJpa;
 
 /**
- * JAXB-enabled implementation of {@link ReleasePropertyList}.
+ * JAXB enabled implementation of {@link ReleasePropertyList}.
  */
 @XmlRootElement(name = "releasePropertyList")
 public class ReleasePropertyListJpa extends AbstractResultList<ReleaseProperty>

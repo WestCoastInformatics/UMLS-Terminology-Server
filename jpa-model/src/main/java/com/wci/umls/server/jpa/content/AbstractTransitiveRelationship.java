@@ -12,7 +12,7 @@ import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 
 /**
- * Abstract JPA-enabled implementation of {@link TransitiveRelationship}.
+ * Abstract JPA and JAXB enabled implementation of {@link TransitiveRelationship}.
  *
  * @param <T> the component type
  */

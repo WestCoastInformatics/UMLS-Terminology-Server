@@ -8,7 +8,7 @@ import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 
 /**
- * Represents a sortable list of {@link Mapping}
+ * Represents a sortable list of {@link MapSet}
  */
 public interface MapSetList extends ResultList<MapSet> {
   // nothing extra, a simple wrapper for easy serialization
