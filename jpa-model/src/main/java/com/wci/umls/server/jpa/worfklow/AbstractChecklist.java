@@ -14,7 +14,6 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -38,7 +37,7 @@ public abstract class AbstractChecklist implements Checklist {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
-  
+
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -47,27 +46,28 @@ public abstract class AbstractChecklist implements Checklist {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-  
+
   /** the timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;  
+  private Date timestamp = null;
 
   /** The name. */
   @Column(nullable = false)
   private String name;
-  
+
   /** The description. */
   @Column(nullable = false)
   private String description;
-  
+
   /** The tracking records. */
-  @OneToMany(mappedBy = "worklist", targetEntity = TrackingRecordJpa.class)
+  @OneToMany(targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
-  
+
+  /** The workflow bin. */
   @Column(nullable = false)
   private WorkflowBin workflowBin;
-  
+
   /**
    * Instantiates an empty {@link AbstractChecklist}.
    */
@@ -142,27 +142,6 @@ public abstract class AbstractChecklist implements Checklist {
     this.id = id;
   }
 
-  /**
-   * Returns the object id. Needed for JAXB id
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return id == null ? "" : id.toString();
-  }
-
-  /**
-   * Sets the object id.
-   *
-   * @param id the object id
-   */
-  public void setObjectId(String id) {
-    if (id != null) {
-      this.id = Long.parseLong(id);
-    }
-  }
-
   /* see superclass */
   @XmlElement(type = TrackingRecordJpa.class)
   @Override
@@ -223,12 +202,14 @@ public abstract class AbstractChecklist implements Checklist {
         prime * result + ((description == null) ? 0 : description.hashCode());
     result =
         prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result =
+        prime * result
+            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-    result = prime * result
-        + ((trackingRecords == null) ? 0 : trackingRecords.hashCode());
+    result =
+        prime * result
+            + ((trackingRecords == null) ? 0 : trackingRecords.hashCode());
     result =
         prime * result + ((workflowBin == null) ? 0 : workflowBin.hashCode());
     return result;
@@ -289,8 +270,5 @@ public abstract class AbstractChecklist implements Checklist {
         + ", trackingRecords=" + trackingRecords + ", workflowBin="
         + workflowBin + "]";
   }
-  
-
-
 
 }

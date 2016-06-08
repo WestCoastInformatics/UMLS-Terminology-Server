@@ -36,7 +36,6 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.TrackingRecord;
-import com.wci.umls.server.model.workflow.Worklist;
 
 /**
  * JPA enabled implementation of {@link TrackingRecord}.
@@ -74,7 +73,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   /** The revision. */
   @Column(nullable = false)
   private boolean revision = false;
-  
+
   /** the timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -99,10 +98,6 @@ public class TrackingRecordJpa implements TrackingRecord {
 
   /** The review origin revision. */
   private Integer reviewOriginRevision = null;
- 
-  /** The worklist. */
-  @OneToOne(targetEntity = WorklistJpa.class)
-  private Worklist worklist = null;
 
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
@@ -129,7 +124,6 @@ public class TrackingRecordJpa implements TrackingRecord {
     concept = new ConceptJpa(record.getConcept(), false);
     originRevision = record.getOriginRevision();
     reviewOriginRevision = record.getReviewOriginRevision();
-    worklist = record.getWorklist();
   }
 
   /* see superclass */
@@ -186,8 +180,6 @@ public class TrackingRecordJpa implements TrackingRecord {
     this.authors = authors;
   }
 
-
-
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
@@ -203,7 +195,6 @@ public class TrackingRecordJpa implements TrackingRecord {
   public void setReviewers(List<String> reviewers) {
     this.reviewers = reviewers;
   }
-
 
   /* see superclass */
   @XmlTransient
@@ -236,10 +227,10 @@ public class TrackingRecordJpa implements TrackingRecord {
    * @return the concept terminology id
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getConceptTerminologyId() {    
+  public String getConceptTerminologyId() {
     return concept == null ? null : concept.getTerminologyId();
   }
-  
+
   /**
    * Sets the concept terminology id.
    *
@@ -265,7 +256,6 @@ public class TrackingRecordJpa implements TrackingRecord {
   public String getConceptName() {
     return concept == null ? "" : concept.getName();
   }
-
 
   /**
    * Returns the workflow status. For indexing.
@@ -343,27 +333,20 @@ public class TrackingRecordJpa implements TrackingRecord {
   public void setReviewOriginRevision(Integer revision) {
     reviewOriginRevision = revision;
   }
-  
-  @Override
-  public Worklist getWorklist() {
-    return worklist;
-  }
-  
-  @Override
-  public void setWorklist(Worklist worklist) {
-    this.worklist = worklist;
-  }
 
+  /* see superclass */
   @Override
   public Date getTimestamp() {
     return timestamp;
   }
 
+  /* see superclass */
   @Override
   public void setTimestamp(Date timestamp) {
     this.timestamp = timestamp;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -374,19 +357,24 @@ public class TrackingRecordJpa implements TrackingRecord {
     result = prime * result + (forReview ? 1231 : 1237);
     result =
         prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
-    result = prime * result
-        + ((originRevision == null) ? 0 : originRevision.hashCode());
-    result = prime * result + ((reviewOriginRevision == null) ? 0
-        : reviewOriginRevision.hashCode());
+    result =
+        prime * result
+            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result =
+        prime * result
+            + ((originRevision == null) ? 0 : originRevision.hashCode());
+    result =
+        prime
+            * result
+            + ((reviewOriginRevision == null) ? 0 : reviewOriginRevision
+                .hashCode());
     result = prime * result + ((reviewers == null) ? 0 : reviewers.hashCode());
     result = prime * result + (revision ? 1231 : 1237);
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-    result = prime * result + ((worklist == null) ? 0 : worklist.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -442,14 +430,10 @@ public class TrackingRecordJpa implements TrackingRecord {
         return false;
     } else if (!timestamp.equals(other.timestamp))
       return false;
-    if (worklist == null) {
-      if (other.worklist != null)
-        return false;
-    } else if (!worklist.equals(other.worklist))
-      return false;
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "TrackingRecordJpa [id=" + id + ", lastModified=" + lastModified
@@ -458,7 +442,8 @@ public class TrackingRecordJpa implements TrackingRecord {
         + ", timestamp=" + timestamp + ", authors=" + authors + ", reviewers="
         + reviewers + ", concept=" + concept + ", originRevision="
         + originRevision + ", reviewOriginRevision=" + reviewOriginRevision
-        + ", worklist=" + worklist + "]";
+        + "]";
+
   }
 
 }

@@ -458,7 +458,7 @@ public class ComponentInfoRelationshipJpa extends
         + ", isHierarchical()=" + isHierarchical() + ", isAssertedDirection()="
         + isAssertedDirection() + ", toString()=" + super.toString()
         + ", getAttributes()=" + getAttributes() + ", getId()=" + getId()
-        + ", getObjectId()=" + getObjectId() + ", getTimestamp()="
+        + ", getTimestamp()="
         + getTimestamp() + ", getLastModified()=" + getLastModified()
         + ", getLastModifiedBy()=" + getLastModifiedBy()
         + ", isSuppressible()=" + isSuppressible() + ", isObsolete()="
