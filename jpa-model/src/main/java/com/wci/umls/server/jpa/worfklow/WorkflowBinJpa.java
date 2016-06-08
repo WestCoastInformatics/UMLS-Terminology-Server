@@ -20,11 +20,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
-import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
@@ -36,7 +33,6 @@ import org.hibernate.search.bridge.builtin.EnumBridge;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
-import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
 /**
  * JPA-enabled implementation of a {@link WorkflowBin}.
@@ -45,7 +41,6 @@ import com.wci.umls.server.model.workflow.WorkflowEpoch;
 @Table(name = "workflow_bins", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "id"
 }))
-@Audited
 @Indexed
 @XmlRootElement(name = "workflowBin")
 public class WorkflowBinJpa implements WorkflowBin {
@@ -122,9 +117,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Temporal(TemporalType.TIMESTAMP)
   private Date creationTime = null;
   
-  /** The workflow epoch. */
-  @Column(nullable = false)
-  private WorkflowEpoch workflowEpoch;
+
   
   /**
    * Instantiates an empty {@link WorkflowBinJpa}.
@@ -154,7 +147,6 @@ public class WorkflowBinJpa implements WorkflowBin {
     this.editable = workflowBin.isEditable();
     this.workflowClusterTypes = workflowBin.getWorkflowClusterTypes();
     this.creationTime = workflowBin.getCreationTime();
-    this.workflowEpoch = workflowBin.getWorkflowEpoch();
     if (deepCopy) {
       this.trackingRecords = workflowBin.getTrackingRecords();
     }
@@ -370,18 +362,7 @@ public class WorkflowBinJpa implements WorkflowBin {
 
 
 
-  /* see superclass */
-  @Override
-  @XmlTransient
-  public WorkflowEpoch getWorkflowEpoch() {
-    return workflowEpoch;
-  }
 
-  /* see superclass */
-  @Override
-  public void setWorkflowEpoch(WorkflowEpoch workflowEpoch) {
-    this.workflowEpoch = workflowEpoch;
-  }
 
   @Override
   public int hashCode() {
@@ -410,8 +391,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     result = prime * result + ((workflowClusterTypes == null) ? 0
         : workflowClusterTypes.hashCode());
-    result = prime * result
-        + ((workflowEpoch == null) ? 0 : workflowEpoch.hashCode());
+
     return result;
   }
 
@@ -490,11 +470,7 @@ public class WorkflowBinJpa implements WorkflowBin {
         return false;
     } else if (!workflowClusterTypes.equals(other.workflowClusterTypes))
       return false;
-    if (workflowEpoch == null) {
-      if (other.workflowEpoch != null)
-        return false;
-    } else if (!workflowEpoch.equals(other.workflowEpoch))
-      return false;
+
     return true;
   }
 
@@ -507,7 +483,7 @@ public class WorkflowBinJpa implements WorkflowBin {
         + terminology + ", version=" + version + ", type=" + type + ", rank="
         + rank + ", editable=" + editable + ", trackingRecords="
         + trackingRecords + ", workflowClusterTypes=" + workflowClusterTypes
-        + ", creationTime=" + creationTime + ", workflowEpoch=" + workflowEpoch
+        + ", creationTime=" + creationTime 
         + "]";
   }
   

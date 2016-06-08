@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
@@ -65,7 +66,7 @@ public abstract class AbstractChecklist implements Checklist {
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /** The workflow bin. */
-  @Column(nullable = false)
+  @ManyToOne(targetEntity = WorkflowBinJpa.class)
   private WorkflowBin workflowBin;
 
   /**

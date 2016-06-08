@@ -1,21 +1,22 @@
 package com.wci.umls.server.jpa.worfklow;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -26,13 +27,12 @@ import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
 /**
- * JPA-enabled implementation of a {@link WorkflowBin}.
+ * JPA-enabled implementation of a {@link WorkflowEpoch}.
  */
 @Entity
 @Table(name = "workflow_epochs", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "id"
 }))
-@Audited
 @Indexed
 @XmlRootElement(name = "workflowEpoch")
 public class WorkflowEpochJpa implements WorkflowEpoch {
@@ -66,7 +66,9 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
   @Column(nullable = false)
   private boolean active;
   
-
+  /** The workflow bins. */
+  @OneToMany(targetEntity = WorkflowBinJpa.class)
+  private List<WorkflowBin> workflowBins = null;
   
   /**
    * Instantiates an empty {@link WorkflowEpochJpa}.
@@ -87,6 +89,7 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
     this.timestamp = workflowEpoch.getTimestamp();
     this.name = workflowEpoch.getName();
     this.active = workflowEpoch.isActive();
+    this.workflowBins = workflowEpoch.getWorkflowBins();
   }
 
   /* see superclass */
@@ -219,5 +222,17 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
         + ", name=" + name + ", active=" + active + "]";
   }
 
+  @Override
+  public List<WorkflowBin> getWorkflowBins() {
+    if (workflowBins == null) {
+      return new ArrayList<>();
+    }
+    return workflowBins;
+  }
+
+  @Override
+  public void setWorkflowBins(List<WorkflowBin> workflowBins) {
+    this.workflowBins = workflowBins;
+  }
 
 }
