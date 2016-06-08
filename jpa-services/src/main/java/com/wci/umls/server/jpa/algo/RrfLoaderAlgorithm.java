@@ -398,46 +398,28 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Commit
     commitClearBegin();
 
-    // Add release info for individual terminology
-    for (final Terminology terminology : getTerminologyLatestVersions()
-        .getObjects()) {
-      final String version = terminology.getVersion();
-      ReleaseInfo info = getReleaseInfo(terminology.getTerminology(), version);
-      if (info == null) {
-        info = new ReleaseInfoJpa();
-        info.setName(version);
-        info.setDescription(terminology.getTerminology() + " " + version
-            + " release");
-        info.setPlanned(false);
-        info.setPublished(true);
-        info.setReleaseBeginDate(null);
-        info.setReleaseFinishDate(releaseVersionDate);
-        info.setTerminology(terminology.getTerminology());
-        info.setVersion(version);
-        info.setLastModified(releaseVersionDate);
-        info.setLastModifiedBy(loader);
-        addReleaseInfo(info);
-      }
-    }
-
-    //
-    // Create ReleaseInfo for this release if it does not already exist
-    //
-    ReleaseInfo info = getReleaseInfo(getTerminology(), getReleaseVersion());
+    // Add release info for this load
+    final Terminology terminology =
+        getTerminologyLatestVersion(getTerminology());
+    ReleaseInfo info =
+        getReleaseInfo(terminology.getTerminology(), this.getReleaseVersion());
     if (info == null) {
       info = new ReleaseInfoJpa();
       info.setName(getReleaseVersion());
-      info.setDescription(getTerminology() + " " + getReleaseVersion()
-          + " release");
+      info.setDescription(terminology.getTerminology() + " "
+          + getReleaseVersion() + " release");
       info.setPlanned(false);
       info.setPublished(true);
       info.setReleaseBeginDate(null);
       info.setReleaseFinishDate(releaseVersionDate);
-      info.setTerminology(getTerminology());
-      info.setVersion(getVersion());
+      info.setTerminology(terminology.getTerminology());
+      info.setVersion(getReleaseVersion());
       info.setLastModified(releaseVersionDate);
       info.setLastModifiedBy(loader);
       addReleaseInfo(info);
+    } else {
+      throw new Exception("Release info unexpectedly already exists for "
+          + getReleaseVersion());
     }
 
     // Clear concept cache
