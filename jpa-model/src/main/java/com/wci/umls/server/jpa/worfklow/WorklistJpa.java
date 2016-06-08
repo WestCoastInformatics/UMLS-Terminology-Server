@@ -4,15 +4,10 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -36,11 +31,6 @@ import com.wci.umls.server.model.workflow.Worklist;
 @XmlRootElement(name = "worklist")
 public class WorklistJpa extends AbstractChecklist implements Worklist {
 
-  /** The id. */
-  @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
-  @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
-  private Long id;
   
   /** The assign date. */
   @Column(nullable = false)
@@ -63,7 +53,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   
   /** The group. */
   @Column(nullable = false)
-  private String group;
+  private String worklistGroup;
   
   /** The stamped by. */
   @Column(nullable = false)
@@ -92,21 +82,10 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.returnDate = worklist.getReturnDate();
     this.stampDate = worklist.getStampDate();
     this.editor = worklist.getEditor();
-    this.group = worklist.getGroup();
+    this.worklistGroup = worklist.getGroup();
     this.stampedBy = worklist.getStampedBy();
   }
 
-  /* see superclass */
-  @Override
-  public Long getId() {
-    return id;
-  }
-
-  /* see superclass */
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
 
   /* see superclass */
   @Override
@@ -125,13 +104,13 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Override
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getGroup() {
-    return group;
+    return worklistGroup;
   }
 
   /* see superclass */
   @Override
   public void setGroup(String group) {
-    this.group = group;
+    this.worklistGroup = group;
   }
 
   /* see superclass */
@@ -202,7 +181,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     result =
         prime * result + ((assignDate == null) ? 0 : assignDate.hashCode());
     result = prime * result + ((editor == null) ? 0 : editor.hashCode());
-    result = prime * result + ((group == null) ? 0 : group.hashCode());
+    result = prime * result + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
     result =
         prime * result + ((returnDate == null) ? 0 : returnDate.hashCode());
     result = prime * result + ((stampDate == null) ? 0 : stampDate.hashCode());
@@ -231,10 +210,10 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
         return false;
     } else if (!editor.equals(other.editor))
       return false;
-    if (group == null) {
-      if (other.group != null)
+    if (worklistGroup == null) {
+      if (other.worklistGroup != null)
         return false;
-    } else if (!group.equals(other.group))
+    } else if (!worklistGroup.equals(other.worklistGroup))
       return false;
     if (returnDate == null) {
       if (other.returnDate != null)
@@ -259,9 +238,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   @Override
   public String toString() {
-    return "WorklistJpa [id=" + id + ", assignDate=" + assignDate
+    return "WorklistJpa [id=" + getId() + ", assignDate=" + assignDate
         + ", returnDate=" + returnDate + ", stampDate=" + stampDate
-        + ", editor=" + editor + ", group=" + group + ", stampedBy=" + stampedBy
+        + ", editor=" + editor + ", group=" + worklistGroup + ", stampedBy=" + stampedBy
         + ", status=" + status + "]";
   }
 

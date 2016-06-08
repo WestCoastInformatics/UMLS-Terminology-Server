@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.model.workflow;
 
+import java.util.List;
+
 import com.wci.umls.server.helpers.HasLastModified;
 
 
@@ -38,5 +40,19 @@ public interface WorkflowEpoch extends HasLastModified {
    * @param active the new active
    */
   public void setActive(boolean active); 
+  
+  /**
+   * Gets the workflow bins.
+   *
+   * @return the workflow bins
+   */
+  public List<WorkflowBin> getWorkflowBins();
+  
+  /**
+   * Sets the workflow bins.
+   *
+   * @param workflowBins the new workflow bins
+   */
+  public void setWorkflowBins(List<WorkflowBin> workflowBins);
 
 }

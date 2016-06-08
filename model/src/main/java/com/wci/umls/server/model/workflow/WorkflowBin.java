@@ -182,17 +182,5 @@ public interface WorkflowBin extends HasLastModified {
    */
   public String getVersion();
   
-  /**
-   * Gets the workflow epoch.
-   *
-   * @return the workflow epoch
-   */
-  public WorkflowEpoch getWorkflowEpoch();
-  
-  /**
-   * Sets the workflow epoch.
-   *
-   * @param workflowEpoch the new workflow epoch
-   */
-  public void setWorkflowEpoch(WorkflowEpoch workflowEpoch);
+
 }
