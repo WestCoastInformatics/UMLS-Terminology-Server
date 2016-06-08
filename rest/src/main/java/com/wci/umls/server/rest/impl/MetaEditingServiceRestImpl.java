@@ -121,7 +121,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/sty/remove/{id}")
   @ApiOperation(value = "Remove semantic type from concept", notes = "Remove semantic type from concept on a project branch")
-  public Concept removeSemanticType(
+  public void removeSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
     @ApiParam(value = "Semantic type id, e.g. 3", required = true) @PathParam("id") Long semanticTypeComponentId,
@@ -163,15 +163,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       }
       concept.getSemanticTypes().remove(semanticTypeComponent);
       contentService.updateConcept(concept);
-      
-      contentService.getGraphResolutionHandler(concept.getTerminology()).resolve(concept);
-      
-      // TODO Validate the concept via ValidationServiceJpa
-      return concept;
+    
 
     } catch (Exception e) {
       handleException(e, action);
-      return null;
     } finally {
       contentService.close();
       projectService.close();

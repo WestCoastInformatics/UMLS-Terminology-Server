@@ -71,7 +71,7 @@ public class MetaEditingClientRest extends RootClientRest
   }
 
   @Override
-  public Concept removeSemanticType(Long projectId, Long conceptId,
+  public void removeSemanticType(Long projectId, Long conceptId,
     Long semanticTypeComponentId, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("MetaEditing Client - remove semantic type from concept "
         + projectId + ", " + conceptId + ", " + semanticTypeComponentId + ", " + authToken);
@@ -92,11 +92,6 @@ public class MetaEditingClientRest extends RootClientRest
     } else {
       throw new Exception(response.toString());
     }
-
-    // converting to object
-    Concept c = ConfigUtility.getGraphForString(resultString,
-        ConceptJpa.class);
-    return c;
   }
 
 }

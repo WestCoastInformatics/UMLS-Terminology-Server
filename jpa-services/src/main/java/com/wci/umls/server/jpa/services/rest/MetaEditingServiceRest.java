@@ -33,10 +33,9 @@ public interface MetaEditingServiceRest {
    * @param conceptId the concept id
    * @param semanticTypeComponentId the semantic type component id
    * @param authToken the auth token
-   * @return the concept
    * @throws Exception the exception
    */
-  public Concept removeSemanticType(Long projectId, Long conceptId, Long semanticTypeComponentId, String authToken) throws Exception;
+  public void removeSemanticType(Long projectId, Long conceptId, Long semanticTypeComponentId, String authToken) throws Exception;
 
 
 }
