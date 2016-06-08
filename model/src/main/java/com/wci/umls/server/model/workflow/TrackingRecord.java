@@ -130,5 +130,19 @@ public interface TrackingRecord extends HasLastModified {
    * @param revision the review origin revision
    */
   public void setReviewOriginRevision(Integer revision);
+  
+  /**
+   * Gets the worklist.
+   *
+   * @return the worklist
+   */
+  public Worklist getWorklist();
+
+  /**
+   * Sets the worklist.
+   *
+   * @param worklist the new worklist
+   */
+  public void setWorklist(Worklist worklist);
 
 }
