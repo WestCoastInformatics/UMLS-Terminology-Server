@@ -162,7 +162,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             "Semantic type could not be removed from concept, not present");
       }
       concept.getSemanticTypes().remove(semanticTypeComponent);
-      // contentService.updateConcept(concept);
+      contentService.updateConcept(concept);
       
       contentService.getGraphResolutionHandler(concept.getTerminology()).resolve(concept);
       

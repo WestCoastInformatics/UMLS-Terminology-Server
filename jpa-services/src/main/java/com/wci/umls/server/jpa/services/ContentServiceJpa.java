@@ -235,6 +235,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   static {
     try {
+      
+      
       config = ConfigUtility.getConfigProperties();
       final String key = "normalized.string.handler";
       final String handlerName = config.getProperty(key);

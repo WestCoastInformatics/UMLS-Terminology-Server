@@ -78,8 +78,8 @@ public class MetaEditingServiceRestNormalUseTest
     // get the concept
     Concept c = null;
     try {
-     c = contentService.getConcept("C0000005", umlsTerminology,
-        umlsVersion, authToken);
+      c = contentService.getConcept("C0000005", umlsTerminology, umlsVersion,
+          authToken);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -92,7 +92,8 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(c.getSemanticTypes().size() > 0);
 
     // get the first semantic type
-    SemanticTypeComponentJpa sty = (SemanticTypeComponentJpa) c.getSemanticTypes().get(0);
+    SemanticTypeComponentJpa sty =
+        (SemanticTypeComponentJpa) c.getSemanticTypes().get(0);
     assertNotNull(sty);
 
     //
