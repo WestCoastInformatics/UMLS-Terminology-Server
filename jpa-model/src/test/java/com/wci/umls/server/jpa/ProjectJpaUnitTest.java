@@ -178,6 +178,7 @@ public class ProjectJpaUnitTest {
     tester.include("description");
     tester.include("isPublic");
     tester.include("terminology");
+    tester.include("semanticTypeCategorymap");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -196,6 +197,7 @@ public class ProjectJpaUnitTest {
     tester.include("description");
     tester.include("userrolemap");
     tester.include("useranyrole");
+    tester.include("semanticTypeCategoryMap");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
