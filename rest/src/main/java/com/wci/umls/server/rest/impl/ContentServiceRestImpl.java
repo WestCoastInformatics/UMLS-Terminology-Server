@@ -84,6 +84,7 @@ import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
+import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
@@ -105,6 +106,7 @@ import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
+import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -747,6 +749,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /**
+   * Gets the concept.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the concept
+   */
   /* see superclass */
   @Override
   @GET
@@ -756,6 +766,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -763,6 +774,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /concept/" + terminology + "/" + version + "/"
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName =
           authorizeApp(securityService, authToken, "retrieve the concept",
@@ -774,8 +786,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       if (concept != null) {
         final PrecedenceList list =
-            getPrecedenceList(securityService, contentService, userName,
-                concept);
+            getPrecedenceList(securityService, contentService, projectService, userName,
+                concept, projectId);
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
         concept.setAtoms(contentService.getComputePreferredNameHandler(
             concept.getTerminology())
@@ -786,6 +798,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to retrieve a concept");
       return null;
     } finally {
+      projectService.close();
       contentService.close();
       securityService.close();
     }
@@ -1022,6 +1035,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Descriptor terminology id, e.g. D003933", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1029,6 +1043,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /descriptor/" + terminology + "/" + version
             + "/" + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName =
           authorizeApp(securityService, authToken, "retrieve the descriptor",
@@ -1040,8 +1055,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       if (descriptor != null) {
         final PrecedenceList list =
-            getPrecedenceList(securityService, contentService, userName,
-                descriptor);
+            getPrecedenceList(securityService, contentService, projectService, userName,
+                descriptor, projectId);
         contentService.getGraphResolutionHandler(terminology).resolve(
             descriptor);
         descriptor.setAtoms(contentService.getComputePreferredNameHandler(
@@ -1054,6 +1069,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to retrieve a descriptor");
       return null;
     } finally {
+      projectService.close();
       contentService.close();
       securityService.close();
     }
@@ -1180,6 +1196,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Code terminology id, e.g. U002135", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014AB", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1187,6 +1204,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /code/" + terminology + "/" + version + "/"
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName =
           authorizeApp(securityService, authToken, "retrieve the code",
@@ -1198,7 +1216,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       if (code != null) {
         final PrecedenceList list =
-            getPrecedenceList(securityService, contentService, userName, code);
+            getPrecedenceList(securityService, contentService, projectService, userName, code, projectId);
 
         contentService.getGraphResolutionHandler(terminology).resolve(code);
         code.setAtoms(contentService.getComputePreferredNameHandler(
@@ -1210,6 +1228,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to retrieve a code");
       return null;
     } finally {
+      projectService.close();
       contentService.close();
       securityService.close();
     }
@@ -1295,6 +1314,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Lexical class terminology id, e.g. L0356926", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Lexical class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Lexical class version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1302,6 +1322,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /lui/" + terminology + "/" + version + "/"
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName =
           authorizeApp(securityService, authToken,
@@ -1313,8 +1334,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       if (lexicalClass != null) {
         final PrecedenceList list =
-            getPrecedenceList(securityService, contentService, userName,
-                lexicalClass);
+            getPrecedenceList(securityService, contentService, projectService, userName,
+                lexicalClass, projectId);
         contentService.getGraphResolutionHandler(terminology).resolve(
             lexicalClass);
         lexicalClass.setAtoms(contentService.getComputePreferredNameHandler(
@@ -1327,6 +1348,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to retrieve a lexicalClass");
       return null;
     } finally {
+      projectService.close();
       contentService.close();
       securityService.close();
     }
@@ -1342,6 +1364,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "String class terminology id, e.g. S0356926", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "String class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "String class version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1349,6 +1372,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /sui/" + terminology + "/" + version + "/"
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName =
           authorizeApp(securityService, authToken, "retrieve the string class",
@@ -1360,8 +1384,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       if (stringClass != null) {
         final PrecedenceList list =
-            getPrecedenceList(securityService, contentService, userName,
-                stringClass);
+            getPrecedenceList(securityService, contentService, projectService, userName,
+                stringClass, projectId);
         contentService.getGraphResolutionHandler(terminology).resolve(
             stringClass);
         stringClass.setAtoms(contentService.getComputePreferredNameHandler(
@@ -1373,6 +1397,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to retrieve a stringClass");
       return null;
     } finally {
+      projectService.close();
       contentService.close();
       securityService.close();
     }
@@ -2988,13 +3013,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @SuppressWarnings("static-method")
   private PrecedenceList getPrecedenceList(SecurityService service,
-    MetadataService metadataService, String userName, AtomClass obj)
+    MetadataService metadataService, ProjectService projectService, String userName, AtomClass obj, Long projectId)
     throws Exception {
     final User user = service.getUser(userName);
     if (user.getUserPreferences() != null
         && user.getUserPreferences().getPrecedenceList() != null) {
       return user.getUserPreferences().getPrecedenceList();
     } else
+      if (projectId != null) {
+        if (projectService == null) {
+          throw new Exception("Project service not specified, could not retrieve precedence list");
+        }
+        return projectService.getProject(projectId).getPrecedenceList();
+      }
       return metadataService.getDefaultPrecedenceList(obj.getTerminology(),
           obj.getVersion());
   }

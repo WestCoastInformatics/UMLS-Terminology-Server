@@ -203,16 +203,16 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public Concept getConcept(String terminologyId, String terminology,
-    String version, String authToken) throws Exception {
+    String version, Long projectId, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - get concept "
-        + terminologyId + ", " + terminology + ", " + version + ", " + authToken);
+        + terminologyId + ", " + terminology + ", " + version + ", " + "," + projectId + "," + authToken);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/content/concept/"
-            + terminology + "/" + version + "/" + terminologyId);
+            + terminology + "/" + version + "/" + terminologyId + (projectId == null ? "" : "?projectId=" + projectId));
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -328,7 +328,7 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public Descriptor getDescriptor(String terminologyId, String terminology,
-    String version, String authToken) throws Exception {
+    String version, Long projectId, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - get descriptor "
         + terminologyId + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
@@ -336,12 +336,12 @@ public class ContentClientRest extends RootClientRest
     validateNotEmpty(version, "version");
     
     System.out.println(config.getProperty("base.url") + "/content/descriptor/"
-            + terminology + "/" + version + "/" + terminologyId);
+            + terminology + "/" + version + "/" + terminologyId + "/" + projectId);
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/content/descriptor/"
-            + terminology + "/" + version + "/" + terminologyId);
+            + terminology + "/" + version + "/" + terminologyId + (projectId == null ? "" : "?projectId=" + projectId));
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -456,10 +456,10 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public Code getCode(String terminologyId, String terminology, String version,
+  public Code getCode(String terminologyId, String terminology, String version, Long projectId,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - get code "
-        + terminologyId + ", " + terminology + ", " + version);
+        + terminologyId + ", " + terminology + ", " + version + ", " + projectId + ", " + authToken);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -581,16 +581,16 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public LexicalClass getLexicalClass(String terminologyId, String terminology,
-    String version, String authToken) throws Exception {
+    String version, Long projectId, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - get lexical class "
-        + terminologyId + ", " + terminology + ", " + version);
+        + terminologyId + ", " + terminology + ", " + version + ", " + projectId + ", " + authToken);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/lui/" + terminology + "/" + version + "/" + terminologyId);
+        + "/content/lui/" + terminology + "/" + version + "/" + terminologyId + (projectId == null ? "" : "?projectId=" + projectId));
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -610,16 +610,16 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public StringClass getStringClass(String terminologyId, String terminology,
-    String version, String authToken) throws Exception {
+    String version, Long projectId, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - get string class "
-        + terminologyId + ", " + terminology + ", " + version);
+        + terminologyId + ", " + terminology + ", " + version + ", " + projectId + ", " + authToken);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/sui/" + terminology + "/" + version + "/" + terminologyId);
+        + "/content/sui/" + terminology + "/" + version + "/" + terminologyId + (projectId == null ? "" : "?projectId=" + projectId));
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 

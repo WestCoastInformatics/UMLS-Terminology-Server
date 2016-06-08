@@ -82,9 +82,8 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     testId = "102466009";
 
     // get test concept
-    concept =
-        contentService.getConcept(testId, testTerminology, testVersion,
-            authToken);
+    concept = contentService.getConcept(testId, testTerminology, testVersion,
+        null, authToken);
 
   }
 
@@ -98,34 +97,35 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test with invalid terminologyId
-    Logger.getLogger(getClass()).info(
-        "TEST invalid terminology id - " + "-1, SNOMEDCT, 2014_09_01, "
-            + authToken);
+    Logger.getLogger(getClass()).info("TEST invalid terminology id - "
+        + "-1, SNOMEDCT, 2014_09_01, " + authToken);
     try {
-      contentService.getConcept("-1", snomedTerminology, snomedVersion,
+      contentService.getConcept("-1", snomedTerminology, snomedVersion, null,
           authToken);
-      fail("Exception should be thrown when trying to get a concept with invalid terminologyId.");
+      fail(
+          "Exception should be thrown when trying to get a concept with invalid terminologyId.");
     } catch (Exception e) {
       // do nothing
     }
 
     // Test with invalid terminology
-    Logger.getLogger(getClass()).info(
-        "TEST invalid terminology - " + "M0028634, TTT, 2015_2014_09_08, "
-            + authToken);
+    Logger.getLogger(getClass()).info("TEST invalid terminology - "
+        + "M0028634, TTT, 2015_2014_09_08, " + authToken);
     try {
-      contentService.getConcept("M0028634", "TTT", mshVersion, authToken);
-      fail("Exception should be thrown when trying to get a concept with invalid terminology.");
+      contentService.getConcept("M0028634", "TTT", mshVersion, null, authToken);
+      fail(
+          "Exception should be thrown when trying to get a concept with invalid terminology.");
     } catch (Exception e) {
       // do nothing
     }
 
     // Test with invalid version
-    Logger.getLogger(getClass()).info(
-        "TEST invalid version - " + "M0028634, MSH, TTT , " + authToken);
+    Logger.getLogger(getClass())
+        .info("TEST invalid version - " + "M0028634, MSH, TTT , " + authToken);
     try {
-      contentService.getConcept("M0028634", "MSH", "TTT", authToken);
-      fail("Exception should be thrown when trying to get a concept with invalid version.");
+      contentService.getConcept("M0028634", "MSH", "TTT", null, authToken);
+      fail(
+          "Exception should be thrown when trying to get a concept with invalid version.");
     } catch (Exception e) {
       // do nothing
     }
@@ -142,34 +142,35 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test invalid SNOMEDCT_US descriptor
-    Logger.getLogger(getClass()).info(
-        "TEST invalid SNOMEDCT_US descriptor - " + "-1, SNOMEDCT, 2014_09_01, "
-            + authToken);
+    Logger.getLogger(getClass()).info("TEST invalid SNOMEDCT_US descriptor - "
+        + "-1, SNOMEDCT, 2014_09_01, " + authToken);
     try {
-      contentService.getDescriptor("-1", snomedTerminology, snomedVersion,
+      contentService.getDescriptor("-1", snomedTerminology, snomedVersion, null,
           authToken);
-      fail("Exception should be thrown when trying to get a descriptor with invalid terminologyId.");
+      fail(
+          "Exception should be thrown when trying to get a descriptor with invalid terminologyId.");
     } catch (Exception e) {
       // do nothing
     }
 
     // Test with invalid terminology
-    Logger.getLogger(getClass()).info(
-        "TEST invalid termionlogy - " + "M0028634, TTT, 2015_2014_09_08, "
-            + authToken);
+    Logger.getLogger(getClass()).info("TEST invalid termionlogy - "
+        + "M0028634, TTT, 2015_2014_09_08, " + authToken);
     try {
-      contentService.getDescriptor("M0028634", "TTT", mshVersion, authToken);
-      fail("Exception should be thrown when trying to get a descriptor with invalid terminology.");
+      contentService.getDescriptor("M0028634", "TTT", mshVersion, null, authToken);
+      fail(
+          "Exception should be thrown when trying to get a descriptor with invalid terminology.");
     } catch (Exception e) {
       // do nothing
     }
 
     // Test with invalid version
-    Logger.getLogger(getClass()).info(
-        "TEST invalid version - " + "M0028634, MSH, TTT , " + authToken);
+    Logger.getLogger(getClass())
+        .info("TEST invalid version - " + "M0028634, MSH, TTT , " + authToken);
     try {
-      contentService.getDescriptor("M0028634", "MSH", "TTT", authToken);
-      fail("Exception should be thrown when trying to get a descriptor with invalid version.");
+      contentService.getDescriptor("M0028634", "MSH", "TTT", null, authToken);
+      fail(
+          "Exception should be thrown when trying to get a descriptor with invalid version.");
     } catch (Exception e) {
       // do nothing
     }
@@ -189,40 +190,44 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info(
         "TEST invalid MSH code - " + "ABC, MSH, 2015_2014_09_08, " + authToken);
     try {
-      contentService.getCode("ABC", mshTerminology, mshVersion, authToken);
-      fail("Exception should be thrown when trying to get a code with null terminologyId.");
+      contentService.getCode("ABC", mshTerminology, mshVersion, null,
+          authToken);
+      fail(
+          "Exception should be thrown when trying to get a code with null terminologyId.");
     } catch (Exception e) {
       // do nothing
     }
 
     // Test invalid SNOMEDCT_US code
-    Logger.getLogger(getClass()).info(
-        "TEST invalid SNOMEDCT_US code - " + "ABC, SNOMEDCT, 2014_09_01, "
-            + authToken);
+    Logger.getLogger(getClass()).info("TEST invalid SNOMEDCT_US code - "
+        + "ABC, SNOMEDCT, 2014_09_01, " + authToken);
     try {
-      contentService
-          .getCode("ABC", snomedTerminology, snomedVersion, authToken);
-      fail("Exception should be thrown when trying to get a code with invalid terminologyId.");
+      contentService.getCode("ABC", snomedTerminology, snomedVersion, null,
+          authToken);
+      fail(
+          "Exception should be thrown when trying to get a code with invalid terminologyId.");
     } catch (Exception e) {
       // do nothing
     }
 
     // Test invalid UMLS code
-    Logger.getLogger(getClass()).info(
-        "TEST invalid UMLS code - " + "ABC, UMLS, latest, " + authToken);
+    Logger.getLogger(getClass())
+        .info("TEST invalid UMLS code - " + "ABC, UMLS, latest, " + authToken);
     try {
-      contentService.getCode("ABC", umlsTerminology, umlsVersion, authToken);
-      fail("Exception should be thrown when trying to get a code with empty string terminologyId.");
+      contentService.getCode("ABC", umlsTerminology, umlsVersion, null, authToken);
+      fail(
+          "Exception should be thrown when trying to get a code with empty string terminologyId.");
     } catch (Exception e) {
       // do nothing
     }
 
     // Test with invalid version
-    Logger.getLogger(getClass()).info(
-        "TEST invalid version - " + "M0028634, MSH, TTT , " + authToken);
+    Logger.getLogger(getClass())
+        .info("TEST invalid version - " + "M0028634, MSH, TTT , " + authToken);
     try {
-      contentService.getCode("M0028634", "MSH", "TTT", authToken);
-      fail("Exception should be thrown when trying to get a code with invalid version.");
+      contentService.getCode("M0028634", "MSH", "TTT", null, authToken);
+      fail(
+          "Exception should be thrown when trying to get a code with invalid version.");
     } catch (Exception e) {
       // do nothing
     }
@@ -256,22 +261,20 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test terminology is invalid - empty results
-    Logger.getLogger(getClass()).info(
-        "TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
-    assertEquals(0,
-        contentService.getAtomSubsets("TTT", snomedVersion, authToken)
-            .getObjects().size());
+    Logger.getLogger(getClass())
+        .info("TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
+    assertEquals(0, contentService
+        .getAtomSubsets("TTT", snomedVersion, authToken).getObjects().size());
 
     // Test version is invalid - empty results
-    Logger.getLogger(getClass()).info(
-        "TEST invalid version - " + "SNOMEDCT_US, TTT, " + authToken);
+    Logger.getLogger(getClass())
+        .info("TEST invalid version - " + "SNOMEDCT_US, TTT, " + authToken);
     assertEquals(0,
         contentService.getAtomSubsets(snomedTerminology, "TTT", authToken)
             .getObjects().size());
 
-    SubsetList list =
-        contentService.getAtomSubsets(snomedTerminology, snomedVersion,
-            authToken);
+    SubsetList list = contentService.getAtomSubsets(snomedTerminology,
+        snomedVersion, authToken);
 
     // Test negative start index - indicates not to use paging
     Logger.getLogger(getClass()).info("TEST negative PFS start index");
@@ -282,7 +285,8 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
       contentService.findAtomSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, snomedVersion, null, pfs, authToken);
     } catch (Exception e) {
-      fail("Exception should NOT be thrown when trying to find atom subset members with negative pfs start index.");
+      fail(
+          "Exception should NOT be thrown when trying to find atom subset members with negative pfs start index.");
     }
 
     // Test invalid pfs max results - indicates not to use paging
@@ -294,7 +298,8 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
       contentService.findAtomSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, snomedVersion, null, pfs, authToken);
     } catch (Exception e) {
-      fail("Exception should NOT be thrown when trying to find atom subset members with negative pfs max results.");
+      fail(
+          "Exception should NOT be thrown when trying to find atom subset members with negative pfs max results.");
     }
 
     // Test invalid pfs sort field
@@ -306,7 +311,8 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     try {
       contentService.findAtomSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, snomedVersion, null, pfs, authToken);
-      fail("Exception should be thrown when trying to find atom subset members with empty string sort field.");
+      fail(
+          "Exception should be thrown when trying to find atom subset members with empty string sort field.");
     } catch (Exception e) {
       // do nothing
     }
@@ -321,29 +327,28 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     try {
       contentService.findAtomSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, snomedVersion, null, pfs, authToken);
-      fail("Exception should be thrown when trying to find atom subset members with invalid query restriction.");
+      fail(
+          "Exception should be thrown when trying to find atom subset members with invalid query restriction.");
     } catch (Exception e) { // do nothing
     }
 
     // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
-    assertEquals(
-        0,
+    Logger.getLogger(getClass())
+        .info("TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
+    assertEquals(0,
         contentService
             .findAtomSubsetMembers(subset.getTerminologyId(), "TTT",
                 snomedVersion, null, new PfsParameterJpa(), authToken)
             .getObjects().size());
 
     // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST invalid version- " + "SNOMEDCT_US, TTT, " + authToken);
-    assertEquals(
-        0,
+    Logger.getLogger(getClass())
+        .info("TEST invalid version- " + "SNOMEDCT_US, TTT, " + authToken);
+    assertEquals(0,
         contentService
-            .findAtomSubsetMembers(subset.getTerminologyId(),
-                snomedTerminology, "TTT", null, new PfsParameterJpa(),
-                authToken).getObjects().size());
+            .findAtomSubsetMembers(subset.getTerminologyId(), snomedTerminology,
+                "TTT", null, new PfsParameterJpa(), authToken)
+            .getObjects().size());
 
   }
 
@@ -357,22 +362,21 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
+    Logger.getLogger(getClass())
+        .info("TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
     assertEquals(0,
         contentService.getConceptSubsets("TTT", snomedVersion, authToken)
             .getObjects().size());
 
     // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST invalid version - " + "SNOMEDCT_US, TTT, " + authToken);
+    Logger.getLogger(getClass())
+        .info("TEST invalid version - " + "SNOMEDCT_US, TTT, " + authToken);
     assertEquals(0,
         contentService.getConceptSubsets(snomedTerminology, "TTT", authToken)
             .getObjects().size());
 
-    SubsetList list =
-        contentService.getConceptSubsets(snomedTerminology, snomedVersion,
-            authToken);
+    SubsetList list = contentService.getConceptSubsets(snomedTerminology,
+        snomedVersion, authToken);
 
     // Test negative start index - indicates not to use paging
     Logger.getLogger(getClass()).info("TEST negative PFS start index");
@@ -383,7 +387,8 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
       contentService.findConceptSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, snomedVersion, null, pfs, authToken);
     } catch (Exception e) {
-      fail("Exception should NOT be thrown when trying to find concept subset members with negative pfs start index.");
+      fail(
+          "Exception should NOT be thrown when trying to find concept subset members with negative pfs start index.");
     }
 
     // Test invalid pfs max results - indicates not to use paging
@@ -395,7 +400,8 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
       contentService.findConceptSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, snomedVersion, null, pfs, authToken);
     } catch (Exception e) {
-      fail("Exception should NOT be thrown when trying to find concept subset members with negative pfs max results.");
+      fail(
+          "Exception should NOT be thrown when trying to find concept subset members with negative pfs max results.");
     }
 
     // Test invalid pfs sort field
@@ -407,7 +413,8 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     try {
       contentService.findConceptSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, snomedVersion, null, pfs, authToken);
-      fail("Exception should be thrown when trying to find concept subset members with empty string sort field.");
+      fail(
+          "Exception should be thrown when trying to find concept subset members with empty string sort field.");
     } catch (Exception e) {
       // do nothing
     }
@@ -421,29 +428,27 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     try {
       contentService.findConceptSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, snomedVersion, null, pfs, authToken);
-      fail("Exception should be thrown when trying to find concept subset members with invalid query restriction.");
+      fail(
+          "Exception should be thrown when trying to find concept subset members with invalid query restriction.");
     } catch (Exception e) { // do nothing
     }
 
     // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
-    assertEquals(
-        0,
+    Logger.getLogger(getClass())
+        .info("TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
+    assertEquals(0,
         contentService
             .findConceptSubsetMembers(subset.getTerminologyId(), "TTT",
                 snomedVersion, null, new PfsParameterJpa(), authToken)
             .getObjects().size());
 
     // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST invalid version - " + "SNOMEDCT_US, TTT, " + authToken);
-    assertEquals(
-        0,
-        contentService
-            .findConceptSubsetMembers(subset.getTerminologyId(),
-                snomedTerminology, "TTT", null, new PfsParameterJpa(),
-                authToken).getObjects().size());
+    Logger.getLogger(getClass())
+        .info("TEST invalid version - " + "SNOMEDCT_US, TTT, " + authToken);
+    assertEquals(0,
+        contentService.findConceptSubsetMembers(subset.getTerminologyId(),
+            snomedTerminology, "TTT", null, new PfsParameterJpa(), authToken)
+        .getObjects().size());
 
   }
 
@@ -457,35 +462,25 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid termionlogy - ");
-    assertEquals(
-        0,
-        contentService
-            .findConceptsForQuery("TTT", snomedVersion, "care",
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0, contentService.findConceptsForQuery("TTT", snomedVersion,
+        "care", new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid version - ");
-    assertEquals(
-        0,
-        contentService
-            .findConceptsForQuery(snomedTerminology, "TTT", "care",
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0, contentService.findConceptsForQuery(snomedTerminology,
+        "TTT", "care", new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is null - empty results
     Logger.getLogger(getClass()).info("TEST null query - ");
-    assertEquals(
-        0,
-        contentService
-            .findConceptsForQuery(snomedTerminology, snomedVersion, null,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+            null, new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is empty string - empty results
     Logger.getLogger(getClass()).info("TEST empty query - ");
-    assertEquals(
-        0,
-        contentService
-            .findConceptsForQuery(snomedTerminology, snomedVersion, "",
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+            "", new PfsParameterJpa(), authToken).getObjects().size());
 
   }
 
@@ -499,35 +494,25 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescriptorsForQuery("TTT", snomedVersion, "care",
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0, contentService.findDescriptorsForQuery("TTT", snomedVersion,
+        "care", new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty results
     Logger.getLogger(getClass()).info("TEST invalid version - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescriptorsForQuery(snomedTerminology, "TTT", "care",
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0, contentService.findDescriptorsForQuery(snomedTerminology,
+        "TTT", "care", new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is null - empty results
     Logger.getLogger(getClass()).info("TEST null query - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescriptorsForQuery(snomedTerminology, snomedVersion, null,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findDescriptorsForQuery(snomedTerminology, snomedVersion,
+            null, new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is empty string - empty results
     Logger.getLogger(getClass()).info("TEST empty query - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescriptorsForQuery(snomedTerminology, snomedVersion, "",
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findDescriptorsForQuery(snomedTerminology, snomedVersion,
+            "", new PfsParameterJpa(), authToken).getObjects().size());
   }
 
   /**
@@ -540,35 +525,25 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
     // Test terminology is invalid - empty results
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
-    assertEquals(
-        0,
-        contentService
-            .findCodesForQuery("TTT", snomedVersion, "care",
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0, contentService.findCodesForQuery("TTT", snomedVersion,
+        "care", new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid version - ");
-    assertEquals(
-        0,
-        contentService
-            .findCodesForQuery(snomedTerminology, "TTT", "care",
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0, contentService.findCodesForQuery(snomedTerminology, "TTT",
+        "care", new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is null - no results
     Logger.getLogger(getClass()).info("TEST null query - ");
-    assertEquals(
-        0,
-        contentService
-            .findCodesForQuery(snomedTerminology, snomedVersion, null,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findCodesForQuery(snomedTerminology, snomedVersion, null,
+            new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test query is empty string - empty result
     Logger.getLogger(getClass()).info("TEST empty query - ");
-    assertEquals(
-        0,
-        contentService
-            .findCodesForQuery(snomedTerminology, snomedVersion, "",
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findCodesForQuery(snomedTerminology, snomedVersion, "",
+            new PfsParameterJpa(), authToken).getObjects().size());
 
   }
 
@@ -582,35 +557,29 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescendantConcepts("105590001", "TTT", snomedVersion, false,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findDescendantConcepts("105590001", "TTT", snomedVersion,
+            false, new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid version - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescendantConcepts("105590001", snomedTerminology, "TTT",
-                false, new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findDescendantConcepts("105590001", snomedTerminology,
+            "TTT", false, new PfsParameterJpa(), authToken).getObjects()
+        .size());
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
-    assertEquals(
-        0,
-        contentService
-            .findAncestorConcepts("105590001", "TTT", snomedVersion, false,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findAncestorConcepts("105590001", "TTT", snomedVersion,
+            false, new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid version - ");
-    assertEquals(
-        0,
-        contentService
-            .findAncestorConcepts("105590001", snomedTerminology, "TTT", false,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findAncestorConcepts("105590001", snomedTerminology,
+            "TTT", false, new PfsParameterJpa(), authToken).getObjects()
+        .size());
 
   }
 
@@ -624,35 +593,28 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescendantDescriptors("D000005", "TTT", mshVersion, false,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findDescendantDescriptors("D000005", "TTT", mshVersion,
+            false, new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid version - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescendantDescriptors("D000005", mshTerminology, "TTT", false,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findDescendantDescriptors("D000005", mshTerminology,
+            "TTT", false, new PfsParameterJpa(), authToken).getObjects()
+        .size());
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
-    assertEquals(
-        0,
-        contentService
-            .findAncestorDescriptors("D000005", "TTT", mshVersion, false,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findAncestorDescriptors("D000005", "TTT", mshVersion,
+            false, new PfsParameterJpa(), authToken).getObjects().size());
 
     // Test version is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid version - ");
-    assertEquals(
-        0,
-        contentService
-            .findAncestorDescriptors("D000005", mshTerminology, "TTT", false,
-                new PfsParameterJpa(), authToken).getObjects().size());
+    assertEquals(0,
+        contentService.findAncestorDescriptors("D000005", mshTerminology, "TTT",
+            false, new PfsParameterJpa(), authToken).getObjects().size());
   }
 
   /**
@@ -676,11 +638,10 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
     // Test invalid concept id - empty list
     Logger.getLogger(getClass()).info("  Test get subset members for concept");
-    SubsetMemberList list =
-        contentService.getSubsetMembersForConcept("-1", snomedTerminology,
-            snomedVersion, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + list.getTotalCount());
+    SubsetMemberList list = contentService.getSubsetMembersForConcept("-1",
+        snomedTerminology, snomedVersion, authToken);
+    Logger.getLogger(getClass())
+        .info("    totalCount = " + list.getTotalCount());
     assertEquals(0, list.getTotalCount());
     assertEquals(0, list.getCount());
 
@@ -689,50 +650,40 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     // Test with invalid terminologyId
 
     Logger.getLogger(getClass()).info("TEST invalid terminologyId ");
-    list =
-        contentService.getSubsetMembersForAtom("-1", snomedTerminology,
-            snomedVersion, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + list.getTotalCount());
+    list = contentService.getSubsetMembersForAtom("-1", snomedTerminology,
+        snomedVersion, authToken);
+    Logger.getLogger(getClass())
+        .info("    totalCount = " + list.getTotalCount());
     assertEquals(0, list.getTotalCount());
     assertEquals(0, list.getCount());
 
     // Test with invalid terminology - empty results
     Logger.getLogger(getClass()).info("TEST invalid terminology ");
-    assertEquals(
-        0,
-        contentService
-            .getSubsetMembersForAtom("166113012", "TTT", snomedVersion,
-                authToken).getObjects().size());
+    assertEquals(0, contentService
+        .getSubsetMembersForAtom("166113012", "TTT", snomedVersion, authToken)
+        .getObjects().size());
 
     // Test with invalid version - empty result
     Logger.getLogger(getClass()).info("TEST invalid version");
-    assertEquals(
-        0,
+    assertEquals(0,
         contentService
             .getSubsetMembersForAtom("166113012", "MSH", "TTT", authToken)
             .getObjects().size());
 
     // Test with invalid terminologyId - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminologyId ");
-    assertEquals(
-        0,
-        contentService
-            .getSubsetMembersForConcept("-1", snomedTerminology, snomedVersion,
-                authToken).getObjects().size());
+    assertEquals(0, contentService.getSubsetMembersForConcept("-1",
+        snomedTerminology, snomedVersion, authToken).getObjects().size());
 
     // Test with invalid terminology - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminology ");
-    assertEquals(
-        0,
-        contentService
-            .getSubsetMembersForConcept("10123006", "TTT", snomedVersion,
-                authToken).getObjects().size());
+    assertEquals(0, contentService
+        .getSubsetMembersForConcept("10123006", "TTT", snomedVersion, authToken)
+        .getObjects().size());
 
     // Test with invalid version - empty result
     Logger.getLogger(getClass()).info("TEST invalid version");
-    assertEquals(
-        0,
+    assertEquals(0,
         contentService
             .getSubsetMembersForConcept("10123006", "MSH", "TTT", authToken)
             .getObjects().size());
@@ -749,11 +700,8 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
     // Test with invalid searchTerm - empty results
     Logger.getLogger(getClass()).info("TEST invalid searchTerm ");
-    assertEquals(
-        0,
-        contentService
-            .autocompleteConcepts(snomedTerminology, snomedVersion, "qrs",
-                authToken).getObjects().size());
+    assertEquals(0, contentService.autocompleteConcepts(snomedTerminology,
+        snomedVersion, "qrs", authToken).getObjects().size());
   }
 
   /**

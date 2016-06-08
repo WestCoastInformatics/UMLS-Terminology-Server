@@ -78,7 +78,7 @@ public class MetaEditingServiceRestNormalUseTest
     // get the concept
     Concept c = null;
    
-      c = contentService.getConcept("C0000005", umlsTerminology, umlsVersion,
+      c = contentService.getConcept("C0000005", umlsTerminology, umlsVersion, null,
           authToken);
    
     assertNotNull(c);
@@ -103,7 +103,7 @@ public class MetaEditingServiceRestNormalUseTest
         sty.getId(), authToken);
     
     // retrieve the concept and check semantic types
-    c = contentService.getConcept("C0000005", umlsTerminology, umlsVersion,
+    c = contentService.getConcept("C0000005", umlsTerminology, umlsVersion, null,
         authToken);
     assertTrue(!c.getSemanticTypes().contains(sty));
 

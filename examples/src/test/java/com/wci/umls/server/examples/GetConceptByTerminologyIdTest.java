@@ -54,7 +54,7 @@ public class GetConceptByTerminologyIdTest extends ExampleSupport {
     // contentClient is defined and initialized in the superclass
     Concept concept =
         contentClient
-            .getConcept(terminologyId, terminology, version, authToken);
+            .getConcept(terminologyId, terminology, version, null, authToken);
 
     // Output the concept as XML
     Logger.getLogger(getClass()).info(
@@ -85,7 +85,7 @@ public class GetConceptByTerminologyIdTest extends ExampleSupport {
     // contentClient is defined and initialized in the superclass
     Concept concept =
         contentClient
-            .getConcept(terminologyId, terminology, version, authToken);
+            .getConcept(terminologyId, terminology, version, null, authToken);
 
     // Output the concept as XML
     Logger.getLogger(getClass()).info(

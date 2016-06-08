@@ -55,7 +55,7 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
     // contentClient is defined and initialized in the superclass
     Concept concept =
         contentClient
-            .getConcept(terminologyId, terminology, version, authToken);
+            .getConcept(terminologyId, terminology, version, null, authToken);
 
     // The concept has no relationships at this point
     // because we use a graph resolver that does not pre-load

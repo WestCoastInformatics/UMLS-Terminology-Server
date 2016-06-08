@@ -84,7 +84,7 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // get the concept
     Concept c = contentService.getConcept("C0000005", umlsTerminology,
-        umlsVersion, adminToken);
+        umlsVersion,  null,adminToken);
     assertNotNull(c);
 
     // check against project
@@ -100,7 +100,7 @@ public class MetaEditingServiceRestDegenerateUseTest
     // get a concept with different semantic type (for testing add)
     // NOTE: Testing addition of already present sty done elsewhere
     Concept c2 = contentService.getConcept("C0000039", umlsTerminology,
-        umlsVersion, adminToken);
+        umlsVersion, null, adminToken);
     assertNotNull(c2);
     SemanticTypeComponentJpa sty2 = (SemanticTypeComponentJpa) c2.getSemanticTypes().get(0);
     assertNotNull(sty2);
