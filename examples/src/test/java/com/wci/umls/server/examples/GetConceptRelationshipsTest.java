@@ -66,7 +66,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
             version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -80,7 +80,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
             version, "", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -116,7 +116,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
             version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -130,7 +130,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
             version, "", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 

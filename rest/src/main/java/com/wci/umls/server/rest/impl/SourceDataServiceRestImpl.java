@@ -473,11 +473,11 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "get source datas",
           UserRole.USER);
 
-      SourceDataList list =
+      final SourceDataList list =
           service.findSourceDatasForQuery(query, pfsParameter);
 
       // lazy initialize source data files
-      for (SourceData sd : list.getObjects()) {
+      for (final SourceData sd : list.getObjects()) {
         sd.getSourceDataFiles().size();
       }
       return list;
@@ -774,10 +774,10 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
       final List<LogEntry> entries =
           projectService.findLogEntriesForQuery(query, pfs);
 
-      StringBuilder log = new StringBuilder();
+      final StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {
         final LogEntry entry = entries.get(i);
-        StringBuilder message = new StringBuilder();
+        final StringBuilder message = new StringBuilder();
         message.append("[").append(
             ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
         message.append("] ");

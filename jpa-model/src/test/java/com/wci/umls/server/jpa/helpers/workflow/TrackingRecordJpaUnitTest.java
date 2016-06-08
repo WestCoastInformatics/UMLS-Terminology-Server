@@ -13,14 +13,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.UserPreferencesJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -118,12 +116,8 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
 
     Concept concept = new ConceptJpa();
     concept.setId(1L);
-    Project project = new ProjectJpa();
-    project.setId(1L);
-    UserPreferences prefs = new UserPreferencesJpa();
-    prefs.setId(1L);
+    concept.setName("1");
     tester.proxy(Concept.class, 1, concept);
-    tester.proxy(Project.class, 1, project);
     assertTrue(tester.testXmlSerialization());
   }
 

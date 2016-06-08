@@ -185,7 +185,11 @@ public interface Project extends HasId {
   public void setValidCategories(List<String> validCategories);
 
   /**
-   * Gets the semantic type category map.
+   * Gets the semantic type category map.  This is used primarily to
+   * identify "chem" and "nonchem" by semantic type value.  There may be
+   * other categories desired or needed by the workflow environment
+   * for repartitioning.  For UMLS editing, the "chem" semantic
+   * types will be "Chemical" and all of its descenants.
    *
    * @return the semantic type category map
    */

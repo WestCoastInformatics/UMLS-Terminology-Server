@@ -93,8 +93,9 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
 
     // Check that there is a planned release info entry that has not yet been
     // started
-    HistoryService service = new HistoryServiceJpa();
-    ReleaseInfo info = service.getReleaseInfo(terminology, releaseVersion);
+    final HistoryService service = new HistoryServiceJpa();
+    ReleaseInfo info =
+        service.getReleaseInfo(terminology, releaseVersion);
     if (info != null) {
       throw new Exception("Editing cycle already started for " + releaseVersion);
     }

@@ -21,8 +21,8 @@ public class MapIdBridge implements StringBridge {
     if (value != null) {
       StringBuilder buf = new StringBuilder();
 
-      Map<HasId, ?> map = (Map<HasId, ?>) value;
-      for (HasId item : map.keySet()) {
+      final Map<HasId, ?> map = (Map<HasId, ?>) value;
+      for (final HasId item : map.keySet()) {
         buf.append(item.getId()).append(" ");
       }
       return buf.toString();

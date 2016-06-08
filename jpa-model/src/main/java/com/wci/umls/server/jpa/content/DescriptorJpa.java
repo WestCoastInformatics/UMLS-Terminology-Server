@@ -77,10 +77,10 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     }
 
     if (deepCopy) {
-      for (Definition definition : descriptor.getDefinitions()) {
+      for (final Definition definition : descriptor.getDefinitions()) {
         getDefinitions().add(new DefinitionJpa(definition, deepCopy));
       }
-      for (DescriptorRelationship relationship : descriptor.getRelationships()) {
+      for (final DescriptorRelationship relationship : descriptor.getRelationships()) {
         getRelationships().add(
             new DescriptorRelationshipJpa(relationship, deepCopy));
       }

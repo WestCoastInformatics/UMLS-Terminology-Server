@@ -164,13 +164,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     workflowStatus = atom.getWorkflowStatus();
 
     if (deepCopy) {
-      for (Definition definition : atom.getDefinitions()) {
+      for (final Definition definition : atom.getDefinitions()) {
         getDefinitions().add(new DefinitionJpa(definition, deepCopy));
       }
-      for (AtomRelationship relationship : atom.getRelationships()) {
+      for (final AtomRelationship relationship : atom.getRelationships()) {
         getRelationships().add(new AtomRelationshipJpa(relationship, deepCopy));
       }
-      for (AtomSubsetMember member : atom.getMembers()) {
+      for (final AtomSubsetMember member : atom.getMembers()) {
         getMembers().add(new AtomSubsetMemberJpa(member, deepCopy));
       }
     }

@@ -14,7 +14,6 @@ import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
-import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -52,12 +51,13 @@ public class SnomedctGraphResolutionHandler extends
       MetadataService service = new MetadataServiceJpa();
       GeneralMetadataEntryList list =
           service.getGeneralMetadataEntries(terminology, version);
-      for (GeneralMetadataEntry entry : list.getObjects()) {
+      for (final GeneralMetadataEntry entry : list.getObjects()) {
         prop.setProperty(entry.getAbbreviation(), entry.getExpandedForm());
       }
     }
   }
 
+  /* see superclass */
   @Override
   public void resolve(Concept concept) throws Exception {
     cacheProperties();
@@ -68,24 +68,24 @@ public class SnomedctGraphResolutionHandler extends
       concept.getLabels().size();
 
       // subset members
-      for (ConceptSubsetMember member : concept.getMembers()) {
+      for (final ConceptSubsetMember member : concept.getMembers()) {
         member.getTerminology();
         resolveAttributes(member, nullId);
       }
 
       // Attributes
       resolveAttributes(concept, nullId);
-      
+
       // Component History
       resolveComponentHistory(concept, nullId);
-      
+
       // Definitions
-      for (Definition def : concept.getDefinitions()) {
+      for (final Definition def : concept.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
       // Semantic type components
-      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         if (nullId) {
           sty.setId(null);
         }
@@ -94,7 +94,7 @@ public class SnomedctGraphResolutionHandler extends
       }
 
       // Atoms
-      for (Atom atom : concept.getAtoms()) {
+      for (final Atom atom : concept.getAtoms()) {
         // if the concept is "new", then the atom must be too
         if (nullId) {
           atom.setId(null);
@@ -105,7 +105,7 @@ public class SnomedctGraphResolutionHandler extends
       // Relationships
       // Default behavior -- do not return relationships, require paging calls
       concept.setRelationships(new ArrayList<ConceptRelationship>());
-      
+
       // lazy initialization of user annotations
       concept.getNotes().size();
 
@@ -114,6 +114,7 @@ public class SnomedctGraphResolutionHandler extends
     }
   }
 
+  /* see superclass */
   @Override
   public void resolve(Atom atom) throws Exception {
     cacheProperties();
@@ -122,7 +123,7 @@ public class SnomedctGraphResolutionHandler extends
       boolean nullId = atom.getId() == null;
 
       // subset members
-      for (AtomSubsetMember member : atom.getMembers()) {
+      for (final AtomSubsetMember member : atom.getMembers()) {
         member.getTerminology();
         resolveAttributes(member, nullId);
       }
@@ -136,12 +137,12 @@ public class SnomedctGraphResolutionHandler extends
 
       // Attributes
       resolveAttributes(atom, nullId);
-      
+
       // Component History
       resolveComponentHistory(atom, nullId);
 
       // Definitions
-      for (Definition def : atom.getDefinitions()) {
+      for (final Definition def : atom.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
@@ -154,6 +155,7 @@ public class SnomedctGraphResolutionHandler extends
 
   }
 
+  /* see superclass */
   @Override
   public void resolve(
     Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
@@ -189,7 +191,7 @@ public class SnomedctGraphResolutionHandler extends
   @Override
   protected void resolveAttributes(ComponentHasAttributes component,
     boolean nullId) {
-    for (Attribute att : component.getAttributes()) {
+    for (final Attribute att : component.getAttributes()) {
       att.getName();
       att.getAlternateTerminologyIds().keySet();
       if (nullId) {
@@ -198,26 +200,6 @@ public class SnomedctGraphResolutionHandler extends
       if (prop.getProperty(att.getValue()) != null) {
         att.setValue(prop.getProperty(att.getValue()) + " (" + att.getValue()
             + ")");
-      }
-    }
-  }
-  
-  protected void resolveComponentHistory(Atom component,
-    boolean nullId) {
-    for (ComponentHistory history : component.getComponentHistory()) {
-      history.getReferencedConcept().getTerminologyId();
-      if (nullId) {
-        history.setId(null);
-      }
-    }
-  }
-  
-  protected void resolveComponentHistory(Concept component,
-    boolean nullId) {
-    for (ComponentHistory history : component.getComponentHistory()) {
-      history.getReferencedConcept().getTerminologyId();
-      if (nullId) {
-        history.setId(null);
       }
     }
   }

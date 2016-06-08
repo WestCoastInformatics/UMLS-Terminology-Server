@@ -151,19 +151,19 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
       }
 
       // get the starting properties
-      Properties properties = new Properties();
+      final       Properties properties = new Properties();
       properties.load(in);
 
       // directly replace parameters by key
-      for (String key : parameters.keySet()) {
+      for (final String key : parameters.keySet()) {
         if (properties.containsKey(key)) {
           properties.setProperty(key, parameters.get(key));
         }
       }
 
       // replace config file property values based on replacement pattern ${...}
-      for (Object key : new HashSet<>(properties.keySet())) {
-        for (String param : parameters.keySet()) {
+      for (final Object key : new HashSet<>(properties.keySet())) {
+        for (final String param : parameters.keySet()) {
 
           if (properties.getProperty(key.toString()).contains(
               "${" + param + "}")) {
@@ -321,9 +321,9 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
       // Delete all uploaded files using SourceDataServiceRet
       // NOTE: REST service used for file deletion
       //
-      SourceDataServiceRest sourceDataServiceRest =
+      final       SourceDataServiceRest sourceDataServiceRest =
           new SourceDataServiceRestImpl();
-      for (SourceData sd : sourceDatas) {
+      for (final SourceData sd : sourceDatas) {
         sourceDataServiceRest.removeSourceData(sd.getId(), authToken);
       }
 

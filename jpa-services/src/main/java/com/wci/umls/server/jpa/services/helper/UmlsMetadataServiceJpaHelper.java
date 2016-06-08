@@ -196,22 +196,23 @@ public class UmlsMetadataServiceJpaHelper extends
     try {
       // Assume there is only one default precedence list (because this is from
       // a UMLS loader)
-      javax.persistence.Query query =
+      final javax.persistence.Query query =
           manager.createQuery("SELECT p from PrecedenceListJpa p"
               + " where defaultList = 1 " + " and terminology = :terminology "
               + "   and version = :version");
       query.setParameter("terminology", umlsTerminology);
       query.setParameter("version", umlsVersion);
 
-      PrecedenceList defaultList = (PrecedenceList) query.getSingleResult();
+      final PrecedenceList defaultList =
+          (PrecedenceList) query.getSingleResult();
       // copy and prune to this terminology/version
-      PrecedenceList list = new PrecedenceListJpa(defaultList);
+      final PrecedenceList list = new PrecedenceListJpa(defaultList);
       list.setId(null);
 
       // Restrict default list to just those ttys matching this terminology
-      KeyValuePairList defaultKvpl = list.getPrecedence();
-      KeyValuePairList kvpl = new KeyValuePairList();
-      for (KeyValuePair pair : defaultKvpl.getKeyValuePairs()) {
+      final KeyValuePairList defaultKvpl = list.getPrecedence();
+      final KeyValuePairList kvpl = new KeyValuePairList();
+      for (final KeyValuePair pair : defaultKvpl.getKeyValuePairs()) {
         if (pair.getKey().equals(terminology)) {
           kvpl.addKeyValuePair(pair);
         }
@@ -293,14 +294,14 @@ public class UmlsMetadataServiceJpaHelper extends
   })
   void cacheRelationshipTypes() {
     if (relationshipTypesMap.isEmpty()) {
-      EntityManager manager = factory.createEntityManager();
+      final EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =
           manager.createQuery("select distinct a.terminology, "
               + "a.version, a.relationshipType, "
               + "a.additionalRelationshipType "
               + "from ConceptRelationshipJpa a");
       List<Object[]> results = query.getResultList();
-      for (Object[] result : results) {
+      for (final Object[] result : results) {
         if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
           relationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
@@ -321,7 +322,7 @@ public class UmlsMetadataServiceJpaHelper extends
               + "a.additionalRelationshipType "
               + "from DescriptorRelationshipJpa a");
       results = query.getResultList();
-      for (Object[] result : results) {
+      for (final Object[] result : results) {
         if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
           relationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
@@ -341,7 +342,7 @@ public class UmlsMetadataServiceJpaHelper extends
               + "a.version, a.relationshipType, "
               + "a.additionalRelationshipType from CodeRelationshipJpa a");
       results = query.getResultList();
-      for (Object[] result : results) {
+      for (final Object[] result : results) {
         if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
           relationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
@@ -373,8 +374,8 @@ public class UmlsMetadataServiceJpaHelper extends
       javax.persistence.Query query =
           manager.createQuery("select distinct a.terminology, a.version, "
               + "a.name from AttributeJpa a");
-      List<Object[]> results = query.getResultList();
-      for (Object[] result : results) {
+      final List<Object[]> results = query.getResultList();
+      for (final Object[] result : results) {
         if (!attributeNamesMap.containsKey(result[0].toString() + result[1])) {
           attributeNamesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
@@ -398,8 +399,8 @@ public class UmlsMetadataServiceJpaHelper extends
       javax.persistence.Query query =
           manager.createQuery("select distinct a.terminology, a.version, "
               + "a.termType, a.language from AtomJpa a");
-      List<Object[]> results = query.getResultList();
-      for (Object[] result : results) {
+      final List<Object[]> results = query.getResultList();
+      for (final Object[] result : results) {
         if (!termTypesMap.containsKey(result[0].toString() + result[1])) {
           termTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());

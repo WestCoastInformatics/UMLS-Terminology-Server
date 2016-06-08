@@ -66,7 +66,7 @@ public class PfsParameterForComponentTest {
 
     List<Object> components = new ArrayList<>();
 
-    for (Object result : results.getObjects()) {
+    for (final Object result : results.getObjects()) {
       Object obj = null;
       SearchResult sr = (SearchResult) result;
       if (LexicalClassJpa.class.isAssignableFrom(sortClass)) {
@@ -136,7 +136,7 @@ public class PfsParameterForComponentTest {
         return false;
     }
 
-    for (Object c : components) {
+    for (final Object c : components) {
 
       thisValue = field.get(c);
 

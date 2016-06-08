@@ -112,7 +112,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The prefix. */
   private String prefix = "MR";
 
-  /** An SAB used in a Metathesaurus that really should belong to getTerminology() */
+  /**
+   * An SAB used in a Metathesaurus that really should belong to
+   * getTerminology()
+   */
   /** e.g. MTH is really UMLS */
   // TODO: should be configurable
   private String proxySab = "MTH";
@@ -395,46 +398,28 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Commit
     commitClearBegin();
 
-    // Add release info for individual terminology
-    for (final Terminology terminology : getTerminologyLatestVersions()
-        .getObjects()) {
-      final String version = terminology.getVersion();
-      ReleaseInfo info = getReleaseInfo(terminology.getTerminology(), version);
-      if (info == null) {
-        info = new ReleaseInfoJpa();
-        info.setName(version);
-        info.setDescription(terminology.getTerminology() + " " + version
-            + " release");
-        info.setPlanned(false);
-        info.setPublished(true);
-        info.setReleaseBeginDate(null);
-        info.setReleaseFinishDate(releaseVersionDate);
-        info.setTerminology(terminology.getTerminology());
-        info.setVersion(version);
-        info.setLastModified(releaseVersionDate);
-        info.setLastModifiedBy(loader);
-        addReleaseInfo(info);
-      }
-    }
-
-    //
-    // Create ReleaseInfo for this release if it does not already exist
-    //
-    ReleaseInfo info = getReleaseInfo(getTerminology(), getReleaseVersion());
+    // Add release info for this load
+    final Terminology terminology =
+        getTerminologyLatestVersion(getTerminology());
+    ReleaseInfo info =
+        getReleaseInfo(terminology.getTerminology(), this.getReleaseVersion());
     if (info == null) {
       info = new ReleaseInfoJpa();
       info.setName(getReleaseVersion());
-      info.setDescription(getTerminology() + " " + getReleaseVersion()
-          + " release");
+      info.setDescription(terminology.getTerminology() + " "
+          + getReleaseVersion() + " release");
       info.setPlanned(false);
       info.setPublished(true);
       info.setReleaseBeginDate(null);
       info.setReleaseFinishDate(releaseVersionDate);
-      info.setTerminology(getTerminology());
-      info.setVersion(getVersion());
+      info.setTerminology(terminology.getTerminology());
+      info.setVersion(getReleaseVersion());
       info.setLastModified(releaseVersionDate);
       info.setLastModifiedBy(loader);
       addReleaseInfo(info);
+    } else {
+      throw new Exception("Release info unexpectedly already exists for "
+          + getReleaseVersion());
     }
 
     // Clear concept cache
@@ -515,11 +500,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         sty.setTypeId(fields[1]);
         sty.setUsageNote(fields[6]);
         sty.setValue(fields[2]);
-        
+
         if (fields[2].equals("Chemical Viewed Structurally"))
           structuralChemicalTreeNumber = fields[3];
         if (fields[2].equals("Chemical Viewed Functionally"))
-          functionalChemicalTreeNumber = fields[3];        
+          functionalChemicalTreeNumber = fields[3];
 
         sty.setTimestamp(releaseVersionDate);
         sty.setLastModified(releaseVersionDate);
@@ -533,16 +518,18 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
     commitClearBegin();
-    
-    SemanticTypeList structuralDescendants = 
-        getSemanticTypeDescendants(getTerminology(), getVersion(), structuralChemicalTreeNumber, true);
-    for (SemanticType sty : structuralDescendants.getObjects()) {
+
+    SemanticTypeList structuralDescendants =
+        getSemanticTypeDescendants(getTerminology(), getVersion(),
+            structuralChemicalTreeNumber, true);
+    for (final SemanticType sty : structuralDescendants.getObjects()) {
       sty.setStructuralChemical(true);
       updateSemanticType(sty);
     }
-    SemanticTypeList functionalDescendants = 
-        getSemanticTypeDescendants(getTerminology(), getVersion(), functionalChemicalTreeNumber, true);
-    for (SemanticType sty : functionalDescendants.getObjects()) {
+    SemanticTypeList functionalDescendants =
+        getSemanticTypeDescendants(getTerminology(), getVersion(),
+            functionalChemicalTreeNumber, true);
+    for (final SemanticType sty : functionalDescendants.getObjects()) {
       sty.setFunctionalChemical(true);
       updateSemanticType(sty);
     }
@@ -1341,7 +1328,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     } // end while loop
 
     // add all of the mapsets
-    for (MapSet mapSet : mapSetMap.values()) {
+    for (final MapSet mapSet : mapSetMap.values()) {
       if (mapSet.getName() == null) {
         logWarn("Mapset has no name set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a name set.");
@@ -1548,31 +1535,39 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         mapping.getAttributes().add(makeAttribute(mapping, "MAPID", fields[4]));
       }
       if (fields[5] != null && !fields[5].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "MAPSID", fields[5]));
+        mapping.getAttributes()
+            .add(makeAttribute(mapping, "MAPSID", fields[5]));
       }
       if (fields[6] != null && !fields[6].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "FROMID", fields[6]));
+        mapping.getAttributes()
+            .add(makeAttribute(mapping, "FROMID", fields[6]));
       }
       if (fields[7] != null && !fields[7].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "FROMSID", fields[7]));
+        mapping.getAttributes().add(
+            makeAttribute(mapping, "FROMSID", fields[7]));
       }
       if (fields[10] != null && !fields[10].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "FROMRULE", fields[10]));
+        mapping.getAttributes().add(
+            makeAttribute(mapping, "FROMRULE", fields[10]));
       }
       if (fields[11] != null && !fields[11].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "FROMRES", fields[11]));
+        mapping.getAttributes().add(
+            makeAttribute(mapping, "FROMRES", fields[11]));
       }
       if (fields[14] != null && !fields[14].equals("")) {
         mapping.getAttributes().add(makeAttribute(mapping, "TOID", fields[14]));
       }
       if (fields[15] != null && !fields[15].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "TOSID", fields[15]));
+        mapping.getAttributes()
+            .add(makeAttribute(mapping, "TOSID", fields[15]));
       }
       if (fields[18] != null && !fields[18].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "TORULE", fields[18]));
+        mapping.getAttributes().add(
+            makeAttribute(mapping, "TORULE", fields[18]));
       }
       if (fields[19] != null && !fields[19].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "TORES", fields[19]));
+        mapping.getAttributes()
+            .add(makeAttribute(mapping, "TORES", fields[19]));
       }
 
       // mapSet.addMapping(mapping);
@@ -2176,61 +2171,67 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       } else {
         String stype1 = fields[2];
         String stype2 = fields[6];
-        
+
         final ComponentInfoRelationship componentInfoRel =
             new ComponentInfoRelationshipJpa();
 
         ComponentInfo from = null;
-        if (stype2.equals("CODE")) { 
-          Long fromId = codeIdMap.get(atomTerminologyMap.get(fields[5])
-              + atomCodeIdMap.get(fields[5]));
+        if (stype2.equals("CODE")) {
+          Long fromId =
+              codeIdMap.get(atomTerminologyMap.get(fields[5])
+                  + atomCodeIdMap.get(fields[5]));
           Code code = getCode(fromId);
-          from = new ComponentInfoJpa(code); 
+          from = new ComponentInfoJpa(code);
 
         } else if (stype2.equals("SCUI")) {
-          Long fromId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
-              + atomConceptIdMap.get(fields[5]));
+          Long fromId =
+              conceptIdMap.get(atomTerminologyMap.get(fields[5])
+                  + atomConceptIdMap.get(fields[5]));
           Concept concept = getConcept(fromId);
-          from = new ComponentInfoJpa(concept); 
+          from = new ComponentInfoJpa(concept);
 
         } else if (stype2.equals("SDUI")) {
-          Long fromId = descriptorIdMap.get(atomTerminologyMap.get(fields[5])
-              + atomDescriptorIdMap.get(fields[5]));
+          Long fromId =
+              descriptorIdMap.get(atomTerminologyMap.get(fields[5])
+                  + atomDescriptorIdMap.get(fields[5]));
           Descriptor descriptor = getDescriptor(fromId);
           from = new ComponentInfoJpa(descriptor);
-          
+
         } else if (stype2.equals("AUI")) {
           Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
-          from = new ComponentInfoJpa(); 
-          from.setTerminologyId(fromAtom.getTerminologyId()); 
-          from.setType(IdType.ATOM);        
+          from = new ComponentInfoJpa();
+          from.setTerminologyId(fromAtom.getTerminologyId());
+          from.setType(IdType.ATOM);
         }
-        
+
         ComponentInfo to = null;
-        if (stype1.equals("CODE")) { 
-          Long toId = codeIdMap.get(atomTerminologyMap.get(fields[1])
-              + atomCodeIdMap.get(fields[1]));
+        if (stype1.equals("CODE")) {
+          Long toId =
+              codeIdMap.get(atomTerminologyMap.get(fields[1])
+                  + atomCodeIdMap.get(fields[1]));
           Code code = getCode(toId);
-          to = new ComponentInfoJpa(code); 
+          to = new ComponentInfoJpa(code);
 
         } else if (stype1.equals("SCUI")) {
-          Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
-              + atomConceptIdMap.get(fields[1]));
+          Long toId =
+              conceptIdMap.get(atomTerminologyMap.get(fields[1])
+                  + atomConceptIdMap.get(fields[1]));
           Concept concept = getConcept(toId);
-          to = new ComponentInfoJpa(concept); 
+          to = new ComponentInfoJpa(concept);
 
         } else if (stype1.equals("SDUI")) {
-          Long toId = descriptorIdMap.get(atomTerminologyMap.get(fields[1])
-              + atomDescriptorIdMap.get(fields[1]));
+          Long toId =
+              descriptorIdMap.get(atomTerminologyMap.get(fields[1])
+                  + atomDescriptorIdMap.get(fields[1]));
           Descriptor descriptor = getDescriptor(toId);
           to = new ComponentInfoJpa(descriptor);
-          
+
         } else if (stype1.equals("AUI")) {
           Atom toAtom = getAtom(atomIdMap.get(fields[1]));
-          to = new ComponentInfoJpa(); 
-          to.setTerminologyId(toAtom.getTerminologyId()); 
-          to.setType(IdType.ATOM); 
-        
+          to = new ComponentInfoJpa();
+          to.setTerminologyId(toAtom.getTerminologyId());
+          to.setType(IdType.ATOM);
+
         }
         if (from == null || to == null) {
           // Referential integrity error
@@ -3055,8 +3056,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // invoke superclass cancel
     super.cancel();
   }
+
   @Override
   public void computeExpressionIndexes() throws Exception {
-   // do nothing
+    // do nothing
   }
 }

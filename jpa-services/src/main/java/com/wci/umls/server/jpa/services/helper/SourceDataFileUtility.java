@@ -80,7 +80,7 @@ public class SourceDataFileUtility {
     String dest = destinationFolder.replace("\\", "/");
 
     String cumPath = "";
-    for (String destPart : dest.split("/")) {
+    for (final String destPart : dest.split("/")) {
       cumPath += destPart + "/";
       File f = new File(cumPath);
       if (f.exists() && !f.isDirectory()) {
@@ -167,8 +167,8 @@ public class SourceDataFileUtility {
         // if not a valid directory, delete previously added files and throw
         // exception
         /*
-         * else { for (File f : files) { f.delete(); } throw new LocalException(
-         * "Compressed file " + fileName +
+         * else { for (final File f : files) { f.delete(); } throw new
+         * LocalException( "Compressed file " + fileName +
          * " contains subdirectories. Upload aborted"); }
          */
         zipIn.closeEntry();
@@ -224,10 +224,10 @@ public class SourceDataFileUtility {
    * @return true, if successful
    */
   private static boolean fileExists(String folderPath, String fileName) {
-    File dir = new File(folderPath);
-    File[] files = dir.listFiles();
+    final File dir = new File(folderPath);
+    final File[] files = dir.listFiles();
     if (files != null) {
-      for (File f : files) {
+      for (final File f : files) {
         if (f.getName().equals(fileName)) {
           return true;
         }

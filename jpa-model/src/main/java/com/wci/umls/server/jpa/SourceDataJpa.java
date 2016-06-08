@@ -131,7 +131,7 @@ public class SourceDataJpa implements SourceData {
     this.status = sourceData.getStatus();
     this.statusText = sourceData.getStatusText();
     this.timestamp = sourceData.getTimestamp();
-    for (SourceDataFile s : sourceData.getSourceDataFiles()) {
+    for (final SourceDataFile s : sourceData.getSourceDataFiles()) {
       this.sourceDataFiles.add(new SourceDataFileJpa(s, deepCopy));
     }
   }

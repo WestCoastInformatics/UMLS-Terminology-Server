@@ -113,13 +113,13 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
       String[] objects = indexedObjects.replaceAll(" ", "").split(",");
 
       // add each value to the set
-      for (String object : objects)
+      for (final String object : objects)
         objectsToReindex.add(object);
 
     }
 
     Logger.getLogger(getClass()).info("Starting reindexing for:");
-    for (String objectToReindex : objectsToReindex) {
+    for (final String objectToReindex : objectsToReindex) {
       Logger.getLogger(getClass()).info("  " + objectToReindex);
     }
 

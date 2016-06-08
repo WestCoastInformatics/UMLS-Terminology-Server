@@ -131,7 +131,7 @@ public class Rf2EqualityUtility {
     }
     boolean flag = true;
     // verify all attribute names from the list have equal values
-    for (String atn : attributeNames) {
+    for (final String atn : attributeNames) {
       final Attribute a1 = c1.getAttributeByName(atn);
       final Attribute a2 = c2.getAttributeByName(atn);
       if (a1 == null && a2 == null) {

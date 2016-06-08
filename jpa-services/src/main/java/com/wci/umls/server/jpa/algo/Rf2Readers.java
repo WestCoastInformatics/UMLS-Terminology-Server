@@ -119,7 +119,7 @@ public class Rf2Readers {
    * @throws Exception the exception
    */
   public void closeReaders() throws Exception {
-    for (BufferedReader reader : readers.values()) {
+    for (final BufferedReader reader : readers.values()) {
       try {
         reader.close();
       } catch (Exception e) {

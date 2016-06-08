@@ -897,7 +897,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
           // Add definitions
           if (definitionMap.containsKey(concept.getTerminologyId())) {
-            for (Long id : definitionMap.get(concept.getTerminologyId())) {
+            for (final Long id : definitionMap.get(concept.getTerminologyId())) {
               concept.getDefinitions().add(getDefinition(id));
             }
           }
@@ -1754,8 +1754,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
   private void loadMetadata() throws Exception {
 
     // Term types - each description type
-    for (String tty : termTypes) {
-      TermType termType = new TermTypeJpa();
+    for (final String tty : termTypes) {
+      final TermType termType = new TermTypeJpa();
       termType.setTerminology(getTerminology());
       termType.setVersion(getVersion());
       termType.setAbbreviation(tty);
@@ -1776,8 +1776,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
     // Languages - each language value
     Language rootLanguage = null;
-    for (String lat : languages) {
-      Language language = new LanguageJpa();
+    for (final String lat : languages) {
+      final Language language = new LanguageJpa();
       language.setTerminology(getTerminology());
       language.setVersion(getVersion());
       language.setTimestamp(releaseVersionDate);
@@ -1796,8 +1796,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
     }
 
     // attribute name
-    for (String atn : attributeNames) {
-      AttributeName name = new AttributeNameJpa();
+    for (final String atn : attributeNames) {
+      final AttributeName name = new AttributeNameJpa();
       name.setTerminology(getTerminology());
       name.setVersion(getVersion());
       name.setLastModified(releaseVersionDate);
@@ -1816,8 +1816,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
     RelationshipType chd = null;
     RelationshipType par = null;
     RelationshipType ro = null;
-    for (String rel : relTypes) {
-      RelationshipType type = new RelationshipTypeJpa();
+    for (final String rel : relTypes) {
+      final       RelationshipType type = new RelationshipTypeJpa();
       type.setTerminology(getTerminology());
       type.setVersion(getVersion());
       type.setLastModified(releaseVersionDate);
@@ -1852,9 +1852,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
     AdditionalRelationshipType hasActiveIngredient = null;
     Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
         new HashMap<>();
-    for (String rela : additionalRelTypes) {
-
-      AdditionalRelationshipType type = new AdditionalRelationshipTypeJpa();
+    for (final String rela : additionalRelTypes) {
+      final       AdditionalRelationshipType type = new AdditionalRelationshipTypeJpa();
       type.setTerminology(getTerminology());
       type.setVersion(getVersion());
       type.setLastModified(releaseVersionDate);
@@ -1889,8 +1888,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
       addAdditionalRelationshipType(inverseType);
     }
     // handle inverses
-    for (AdditionalRelationshipType type : inverses.keySet()) {
-      AdditionalRelationshipType inverseType = inverses.get(type);
+    for (final AdditionalRelationshipType type : inverses.keySet()) {
+      final AdditionalRelationshipType inverseType = inverses.get(type);
       type.setInverse(inverseType);
       inverseType.setInverse(type);
       updateAdditionalRelationshipType(type);
@@ -1954,14 +1953,14 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
     // Add general metadata entries for all the attribute values
     // that are concept ids.
-    for (String conceptId : generalEntryValues) {
+    for (final String conceptId : generalEntryValues) {
       // Skip if there is no concept for this thing
       if (!conceptIdMap.containsKey(conceptId)) {
         logInfo("  Skipping Genral Metadata Entry = " + conceptId);
         continue;
       }
-      String name = getConcept(conceptIdMap.get(conceptId)).getName();
-      GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+      final   String name = getConcept(conceptIdMap.get(conceptId)).getName();
+      final GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
       entry.setTerminology(getTerminology());
       entry.setVersion(getVersion());
       entry.setLastModified(releaseVersionDate);
@@ -1986,8 +1985,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
             "Retired", "Retired"
         };
     int i = 0;
-    for (String label : labels) {
-      GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+    for (final String label : labels) {
+      final GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
       entry.setTerminology(getTerminology());
       entry.setVersion(getVersion());
       entry.setLastModified(releaseVersionDate);
@@ -2013,10 +2012,10 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
     // for each non core module, create a Subset object
     List<ConceptSubset> subsets = new ArrayList<>();
-    for (String moduleId : moduleIds) {
+    for (final String moduleId : moduleIds) {
       logInfo("  Create subset for module = " + moduleId);
-      Concept concept = getConcept(conceptIdMap.get(moduleId));
-      ConceptSubset subset = new ConceptSubsetJpa();
+      final   Concept concept = getConcept(conceptIdMap.get(moduleId));
+      final ConceptSubset subset = new ConceptSubsetJpa();
       subset.setName(concept.getName());
       subset.setDescription("Represents the members of module " + moduleId);
       subset.setDisjointSubset(false);
@@ -2038,10 +2037,10 @@ public class Rf2SnapshotLoaderAlgorithm extends
       // Create members
       int objectCt = 0;
       logInfo("  Add subset members");
-      for (String conceptId : moduleConceptIdMap.get(moduleId)) {
+      for (final String conceptId : moduleConceptIdMap.get(moduleId)) {
         final Concept memberConcept = getConcept(conceptIdMap.get(conceptId));
 
-        ConceptSubsetMember member = new ConceptSubsetMemberJpa();
+        final         ConceptSubsetMember member = new ConceptSubsetMemberJpa();
         member.setLastModified(releaseVersionDate);
         member.setTimestamp(releaseVersionDate);
         member.setLastModifiedBy(loader);

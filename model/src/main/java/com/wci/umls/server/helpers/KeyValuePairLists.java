@@ -89,7 +89,7 @@ public class KeyValuePairLists {
    * Sort the elements.
    */
   public void sort() {
-    for (KeyValuePairList list : getKeyValuePairLists()) {
+    for (final KeyValuePairList list : getKeyValuePairLists()) {
       Collections.sort(list.getKeyValuePairs());
     }
     Collections.sort(getKeyValuePairLists(),

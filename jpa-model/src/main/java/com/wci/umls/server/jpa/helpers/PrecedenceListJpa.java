@@ -32,11 +32,11 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
 
 /**
- * JPA and JAXB enabled implementation of {@link PrecedenceList}. This is a list of TTYs
- * used for a particular context. Individual editors can have their own TTY
- * perspectives, projects can have their own TTY perspectives, and the release
- * can have its own TTY perspective. This mechanism is used to determine which
- * atoms represent preferred names.
+ * JPA and JAXB enabled implementation of {@link PrecedenceList}. This is a list
+ * of TTYs used for a particular context. Individual editors can have their own
+ * TTY perspectives, projects can have their own TTY perspectives, and the
+ * release can have its own TTY perspective. This mechanism is used to determine
+ * which atoms represent preferred names.
  */
 @Entity
 @Audited
@@ -198,7 +198,7 @@ public class PrecedenceListJpa implements PrecedenceList {
     if (precedence == null) {
       return;
     }
-    for (KeyValuePair pair : precedence.getKeyValuePairs()) {
+    for (final KeyValuePair pair : precedence.getKeyValuePairs()) {
       terminologies.add(pair.getKey());
       termTypes.add(pair.getValue());
     }
@@ -207,7 +207,7 @@ public class PrecedenceListJpa implements PrecedenceList {
   /* see superclass */
   @Override
   public KeyValuePairList getPrecedence() {
-    KeyValuePairList precedence = new KeyValuePairList();
+    final KeyValuePairList precedence = new KeyValuePairList();
     for (int i = 0; i < termTypes.size(); i++) {
       final KeyValuePair pair = new KeyValuePair();
       pair.setKey(terminologies.get(i));
@@ -345,8 +345,8 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Override
   public Map<String, String> getTermTypeRankMap() {
     // Otherwise, build the TTY map
-    Map<String, String> ttyRankMap = new HashMap<>();
-    List<KeyValuePair> list2 = getPrecedence().getKeyValuePairs();
+    final Map<String, String> ttyRankMap = new HashMap<>();
+    final List<KeyValuePair> list2 = getPrecedence().getKeyValuePairs();
     int ct = 1;
     for (int i = list2.size() - 1; i >= 0; i--) {
       String padded = "0000" + ct++;

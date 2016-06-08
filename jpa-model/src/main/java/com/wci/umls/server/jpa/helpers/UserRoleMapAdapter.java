@@ -22,9 +22,9 @@ public class UserRoleMapAdapter extends
   @Override
   public Map<User, UserRole> unmarshal(HashMap<String, String> v)
     throws Exception {
-    HashMap<User, UserRole> map = new HashMap<User, UserRole>();
+    final HashMap<User, UserRole> map = new HashMap<User, UserRole>();
 
-    for (Map.Entry<String, String> entry : v.entrySet()) {
+    for (final Map.Entry<String, String> entry : v.entrySet()) {
       User user = new UserJpa();
       user.setUserName(entry.getKey());
       map.put(user, UserRole.valueOf(entry.getValue()));
@@ -36,9 +36,9 @@ public class UserRoleMapAdapter extends
   @Override
   public HashMap<String, String> marshal(Map<User, UserRole> v)
     throws Exception {
-    HashMap<String, String> map = new HashMap<String, String>();
+    final HashMap<String, String> map = new HashMap<String, String>();
 
-    for (Map.Entry<User, UserRole> entry : v.entrySet()) {
+    for (final Map.Entry<User, UserRole> entry : v.entrySet()) {
       map.put(entry.getKey().getUserName(), entry.getValue().toString());
     }
     return map;

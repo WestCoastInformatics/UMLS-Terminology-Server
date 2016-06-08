@@ -21,8 +21,8 @@ public class UserMapUserNameBridge implements StringBridge {
     if (value != null) {
       StringBuilder buf = new StringBuilder();
 
-      Map<User, ?> map = (Map<User, ?>) value;
-      for (User item : map.keySet()) {
+      final Map<User, ?> map = (Map<User, ?>) value;
+      for (final User item : map.keySet()) {
         buf.append(item.getUserName()).append(" ");
       }
       return buf.toString();

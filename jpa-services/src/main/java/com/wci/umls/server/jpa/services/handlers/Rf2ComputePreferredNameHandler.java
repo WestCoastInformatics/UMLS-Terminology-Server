@@ -79,7 +79,7 @@ public class Rf2ComputePreferredNameHandler extends
     int langPreferred = 0;
     int syOrFn = atom.getTermType().indexOf(dpnTypeId) != -1 ? 1 : 0;
 
-    for (AtomSubsetMember member : atom.getMembers()) {
+    for (final AtomSubsetMember member : atom.getMembers()) {
       // Check if this language refset and description form the
       // defaultPreferredName. Need to use "index of" because the
       // SNOMED graph resolver replaces the values with values + names

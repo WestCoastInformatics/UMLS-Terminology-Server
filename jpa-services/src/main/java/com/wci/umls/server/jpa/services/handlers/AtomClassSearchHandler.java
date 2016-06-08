@@ -61,7 +61,7 @@ public class AtomClassSearchHandler implements SearchHandler {
 
     // Initialize acronyms map
     if (p.containsKey("acronymsFile")) {
-      BufferedReader in =
+      final BufferedReader in =
           new BufferedReader(new FileReader(new File(
               p.getProperty("acronymsFile"))));
       String line;
@@ -80,11 +80,11 @@ public class AtomClassSearchHandler implements SearchHandler {
     // Initialize spell checker
     if (p.containsKey("spellingFile") && p.containsKey("spellingIndex")) {
       // expect properties to have "spellingFile" and "spellingIndex"
-      File dir = new File(p.getProperty("spellingIndex"));
-      Directory directory = FSDirectory.open(dir);
+      final File dir = new File(p.getProperty("spellingIndex"));
+      final Directory directory = FSDirectory.open(dir);
       spellChecker =
           new SpellChecker(directory, new LuceneLevenshteinDistance());
-      IndexWriterConfig indexWriterConfig =
+      final IndexWriterConfig indexWriterConfig =
           new IndexWriterConfig(Version.LATEST, new WhitespaceAnalyzer());
       spellChecker.indexDictionary(
           new PlainTextDictionary(new File(p.getProperty("spellingFile"))),
@@ -145,16 +145,16 @@ public class AtomClassSearchHandler implements SearchHandler {
 
       // split original query on white space and quoted material
       // NOTE: Preserve the original quotation marks for use in name search
-      List<String> tokens = new ArrayList<String>();
-      Pattern regex = Pattern.compile("[^\\s\"]+|\"[^\"]*\"");
-      Matcher regexMatcher = regex.matcher(fixedQuery);
+      final List<String> tokens = new ArrayList<String>();
+      final Pattern regex = Pattern.compile("[^\\s\"]+|\"[^\"]*\"");
+      final Matcher regexMatcher = regex.matcher(fixedQuery);
       while (regexMatcher.find()) {
         tokens.add(regexMatcher.group());
       }
 
       // add each term (in quotes) to the name field
       if (tokens.size() > 0) {
-        for (String token : tokens) {
+        for (final String token : tokens) {
           parsedQuery += " OR atoms.name:" + token;
         }
       }
@@ -182,7 +182,7 @@ public class AtomClassSearchHandler implements SearchHandler {
 
       // check for exact acronym expansion
       if (acronymExpansionMap.containsKey(fixedQuery)) {
-        for (String expansion : acronymExpansionMap.get(fixedQuery)) {
+        for (final String expansion : acronymExpansionMap.get(fixedQuery)) {
           if (normalizedField != null) {
             parsedQuery +=
                 " OR " + normalizedField + ":\""
@@ -198,7 +198,7 @@ public class AtomClassSearchHandler implements SearchHandler {
       if (!fixedQuery.contains(":") && !fixedQuery.isEmpty()) {
         boolean flag = false;
         StringBuilder correctedQuery = new StringBuilder();
-        for (String token : FieldedStringTokenizer.split(fixedQuery,
+        for (final String token : FieldedStringTokenizer.split(fixedQuery,
             " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^")) {
           if (token.length() == 0) {
             continue;
@@ -317,7 +317,7 @@ public class AtomClassSearchHandler implements SearchHandler {
                 " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         boolean found = false;
-        for (String token : tokens) {
+        for (final String token : tokens) {
           if (newQuery.length() != 0) {
             newQuery.append(" ");
           }
@@ -351,7 +351,7 @@ public class AtomClassSearchHandler implements SearchHandler {
         StringBuilder newQuery = new StringBuilder();
         newQuery.append("(");
         boolean found = false;
-        for (String token : tokens) {
+        for (final String token : tokens) {
           if (newQuery.length() != 0) {
             newQuery.append(" ");
           }
@@ -385,7 +385,7 @@ public class AtomClassSearchHandler implements SearchHandler {
                 " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         newQuery.append("(");
-        for (String token : tokens) {
+        for (final String token : tokens) {
           if (newQuery.length() != 1) {
             newQuery.append(" OR ");
           }
@@ -412,9 +412,9 @@ public class AtomClassSearchHandler implements SearchHandler {
     @SuppressWarnings("unchecked")
     final List<Object[]> results = fullTextQuery.getResultList();
     for (final Object[] result : results) {
-      Object score = result[0];
+      final Object score = result[0];
       @SuppressWarnings("unchecked")
-      T t = (T) result[1];
+      final T t = (T) result[1];
       classes.add(t);
 
       // cap the score to a maximum of 1.0

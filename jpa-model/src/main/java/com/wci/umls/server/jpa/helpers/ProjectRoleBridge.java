@@ -22,8 +22,8 @@ public class ProjectRoleBridge implements StringBridge {
     if (value != null) {
       StringBuilder buf = new StringBuilder();
 
-      Map<Project, UserRole> map = (Map<Project, UserRole>) value;
-      for (Map.Entry<Project, UserRole> entry : map.entrySet()) {
+      final       Map<Project, UserRole> map = (Map<Project, UserRole>) value;
+      for (final Map.Entry<Project, UserRole> entry : map.entrySet()) {
         buf.append(entry.getKey().getId()).append(entry.getValue().toString())
             .append(",");
       }

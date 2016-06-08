@@ -89,7 +89,7 @@ public class TreeJpa implements Tree {
 
     // deep-copy children
     children = new ArrayList<>();
-    for (Tree child : tree.getChildren()) {
+    for (final Tree child : tree.getChildren()) {
       children.add(new TreeJpa(child));
     }
   }
@@ -133,12 +133,12 @@ public class TreeJpa implements Tree {
     }
 
     // assemble a map of this tree's children
-    Map<Long, Tree> childMap = new HashMap<>();
-    for (Tree t : this.getChildren()) {
+    final Map<Long, Tree> childMap = new HashMap<>();
+    for (final Tree t : this.getChildren()) {
       childMap.put(t.getId(), t);
     }
 
-    for (Tree child : tree.getChildren()) {
+    for (final Tree child : tree.getChildren()) {
       if (!childMap.containsKey(child.getId())) {
         children.add(child);
       } else {
@@ -378,7 +378,7 @@ public class TreeJpa implements Tree {
     if (tree.getChildren().size() == 0) {
       leafNodes.add(tree);
     } else {
-      for (Tree chd : tree.getChildren()) {
+      for (final Tree chd : tree.getChildren()) {
         getLeafNodesHelper(chd, leafNodes);
       }
     }

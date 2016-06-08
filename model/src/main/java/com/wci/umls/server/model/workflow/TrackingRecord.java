@@ -130,5 +130,5 @@ public interface TrackingRecord extends HasLastModified {
    * @param revision the review origin revision
    */
   public void setReviewOriginRevision(Integer revision);
-
+  
 }

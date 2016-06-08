@@ -112,7 +112,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
     fromVersion = mapSet.getFromVersion();
     toVersion = mapSet.getToVersion();
     if (deepCopy) {
-      for (Mapping mapping : mapSet.getMappings()) {
+      for (final Mapping mapping : mapSet.getMappings()) {
         getMappings().add(new MappingJpa(mapping, deepCopy));
       }
     }

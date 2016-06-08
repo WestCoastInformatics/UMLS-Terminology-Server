@@ -44,12 +44,12 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
       Properties config = ConfigUtility.getConfigProperties();
       if (config == null)
         config = ConfigUtility.getConfigProperties();
-      String handlerNames =
+      final String handlerNames =
           ConfigUtility.getConfigProperties()
               .getProperty("source.data.handler");
 
-      for (String handlerName : handlerNames.split(",")) {
-        String handlerClassName =
+      for (final String handlerName : handlerNames.split(",")) {
+        final String handlerClassName =
             ConfigUtility.getConfigProperties().getProperty(
                 "source.data.handler." + handlerName + ".class");
         if (handlerClassName == null) {
@@ -190,6 +190,7 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
     updateHasLastModified(sourceDataFile);
 
   }
+
   /* see superclass */
   @Override
   public void removeSourceDataFile(Long sourceDataFileId) throws Exception {
@@ -235,8 +236,8 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
       return null;
     }
 
-    for (String s : sourceDataHandlers.keySet()) {
-      KeyValuePair keyValuePair = new KeyValuePair();
+    for (final String s : sourceDataHandlers.keySet()) {
+      final KeyValuePair keyValuePair = new KeyValuePair();
       keyValuePair.setKey(s);
       keyValuePair.setValue(sourceDataHandlers.get(s));
       keyValuePairList.addKeyValuePair(keyValuePair);
@@ -278,12 +279,12 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
     try {
 
       @SuppressWarnings("unchecked")
-      List<SourceData> sds = query.getResultList();
+      final List<SourceData> sds = query.getResultList();
       // lazy initialization
-      for (SourceData sd : sds) {
+      for (final SourceData sd : sds) {
         sd.getSourceDataFiles().size();
       }
-      SourceDataListJpa sourceDataList = new SourceDataListJpa();
+      final SourceDataListJpa sourceDataList = new SourceDataListJpa();
       sourceDataList.setObjects(sds);
       sourceDataList.setTotalCount(sds.size());
       return sourceDataList;

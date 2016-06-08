@@ -48,8 +48,8 @@ public class UuidHashIdentifierAssignmentHandler implements
   public String getTerminologyId(Concept concept) throws Exception {
     // Based on the concept name and the terminology ids
     // of the active stated isa relationships
-    StringBuilder hashKey = new StringBuilder().append(concept.getName());
-    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : concept
+    final StringBuilder hashKey = new StringBuilder().append(concept.getName());
+    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : concept
         .getRelationships()) {
       if (rel.isHierarchical() && !rel.isObsolete() && !rel.isSuppressible()
           && rel.isStated()) {
@@ -64,8 +64,9 @@ public class UuidHashIdentifierAssignmentHandler implements
   public String getTerminologyId(Descriptor descriptor) throws Exception {
     // Based on the descriptor name and the terminology ids
     // of the active stated isa relationships
-    StringBuilder hashKey = new StringBuilder().append(descriptor.getName());
-    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : descriptor
+    final StringBuilder hashKey =
+        new StringBuilder().append(descriptor.getName());
+    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : descriptor
         .getRelationships()) {
       if (rel.isHierarchical() && !rel.isObsolete() && !rel.isSuppressible()
           && rel.isStated()) {
@@ -80,8 +81,8 @@ public class UuidHashIdentifierAssignmentHandler implements
   public String getTerminologyId(Code code) throws Exception {
     // Based on the code name and the terminology ids
     // of the active stated isa relationships
-    StringBuilder hashKey = new StringBuilder().append(code.getName());
-    for (Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : code
+    final StringBuilder hashKey = new StringBuilder().append(code.getName());
+    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : code
         .getRelationships()) {
       if (rel.isHierarchical() && !rel.isObsolete() && !rel.isSuppressible()
           && rel.isStated()) {

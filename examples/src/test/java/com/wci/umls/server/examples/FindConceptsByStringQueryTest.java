@@ -55,7 +55,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     SearchResultList list =
         contentClient.findConceptsForQuery(terminology, version, "aspirin",
             null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -65,7 +65,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     list =
         contentClient.findConceptsForQuery(terminology, version,
             "gestational diabetes", null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -81,7 +81,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -97,7 +97,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -119,7 +119,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     SearchResultList list =
         contentClient.findConceptsForQuery(terminology, version, "aspirin",
             null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -129,7 +129,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     list =
         contentClient.findConceptsForQuery(terminology, version,
             "gestational diabetes", null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -145,7 +145,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -161,7 +161,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -181,7 +181,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
         "  Total results = " + list.getTotalCount());
     Logger.getLogger(getClass()).info(
         "  NOTE large number of results, but top pick is the expected one.");
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -196,7 +196,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
             authToken);
     Logger.getLogger(getClass()).info(
         "  NOTE this time there is only one result");
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
   }

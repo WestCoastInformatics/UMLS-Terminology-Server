@@ -112,27 +112,6 @@ public class UserPreferencesJpa implements UserPreferences {
   }
 
   /**
-   * Returns the object id. Needed for JAXB id
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return id == null ? "" : id.toString();
-  }
-
-  /**
-   * Sets the object id.
-   *
-   * @param id the object id
-   */
-  public void setObjectId(String id) {
-    if (id != null && !id.equals("")) {
-      this.id = Long.parseLong(id);
-    }
-  }
-
-  /**
    * Returns the user.
    *
    * @return the user

@@ -5,6 +5,8 @@ package com.wci.umls.server.helpers;
 
 import java.util.Date;
 
+import com.wci.umls.server.model.workflow.Worklist;
+
 /**
  * Represents a thing that has last modified tracking.
  */
@@ -51,5 +53,7 @@ public interface HasLastModified extends HasId {
    * @param lastModifiedBy the last modified by
    */
   public void setLastModifiedBy(String lastModifiedBy);
+
+
 
 }

@@ -62,7 +62,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     disjointSubset = subset.isDisjointSubset();
     labelSubset = subset.isLabelSubset();
     if (deepCopy) {
-      for (ConceptSubsetMember member : subset.getMembers()) {
+      for (final ConceptSubsetMember member : subset.getMembers()) {
         getMembers().add(new ConceptSubsetMemberJpa(member, deepCopy));
       }
     }

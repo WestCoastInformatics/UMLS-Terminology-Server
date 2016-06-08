@@ -95,9 +95,9 @@ public class SecurityServiceJpa extends RootServiceJpa implements
       return null;
 
     // check if authenticated user matches one of our users
-    UserList userList = getUsers();
+    final UserList userList = getUsers();
     User userFound = null;
-    for (User user : userList.getObjects()) {
+    for (final User user : userList.getObjects()) {
       if (user.getUserName().equals(authUser.getUserName())) {
         userFound = user;
         break;

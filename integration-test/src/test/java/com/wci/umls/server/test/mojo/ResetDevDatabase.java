@@ -61,6 +61,9 @@ public class ResetDevDatabase {
   @Test
   public void test() throws Exception {
 
+    // Load the new RF2 full
+    // Run "generate sample data" - 
+    
     // Load RF2 full
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));

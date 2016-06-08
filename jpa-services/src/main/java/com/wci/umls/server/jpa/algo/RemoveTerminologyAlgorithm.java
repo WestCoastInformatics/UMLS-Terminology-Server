@@ -146,7 +146,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
 
     // remove root terminology if all versions removed
     logInfo("  Remove root terminology");
-    for (RootTerminology root : getRootTerminologies().getObjects()) {
+    for (final RootTerminology root : getRootTerminologies().getObjects()) {
       if (root.getTerminology().equals(terminology)) {
         Logger.getLogger(getClass()).info(
             "  remove root terminology = " + root.getTerminology());
@@ -167,7 +167,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (PropertyChain chain : (List<PropertyChain>) query.getResultList()) {
+    for (final PropertyChain chain : (List<PropertyChain>) query.getResultList()) {
       logInfo("  remove property chain = " + chain);
       removePropertyChain(chain.getId());
 
@@ -182,7 +182,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (AttributeName name : (List<AttributeName>) query.getResultList()) {
+    for (final AttributeName name : (List<AttributeName>) query.getResultList()) {
       logInfo("  remove attribute name = " + name);
       removeAttributeName(name.getId());
     }
@@ -196,7 +196,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (AdditionalRelationshipType rela : (List<AdditionalRelationshipType>) query
+    for (final AdditionalRelationshipType rela : (List<AdditionalRelationshipType>) query
         .getResultList()) {
       logInfo("  set inverse to null = " + rela);
       rela.setInverse(null);
@@ -209,7 +209,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (AdditionalRelationshipType rela : (List<AdditionalRelationshipType>) query
+    for (final AdditionalRelationshipType rela : (List<AdditionalRelationshipType>) query
         .getResultList()) {
       Logger.getLogger(getClass()).info(
           "  remove additional relationship type = " + rela);
@@ -225,7 +225,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (GeneralMetadataEntry entry : (List<GeneralMetadataEntry>) query
+    for (final GeneralMetadataEntry entry : (List<GeneralMetadataEntry>) query
         .getResultList()) {
       Logger.getLogger(getClass()).info(
           "  remove general metadata entry = " + entry);
@@ -241,7 +241,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (SemanticType sty : (List<SemanticType>) query.getResultList()) {
+    for (final SemanticType sty : (List<SemanticType>) query.getResultList()) {
       removeSemanticType(sty.getId());
     }
     commitClearBegin();
@@ -254,7 +254,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (TermType tty : (List<TermType>) query.getResultList()) {
+    for (final TermType tty : (List<TermType>) query.getResultList()) {
       logInfo("  remove term types = " + tty);
       removeTermType(tty.getId());
     }
@@ -268,7 +268,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (RelationshipType rel : (List<RelationshipType>) query.getResultList()) {
+    for (final RelationshipType rel : (List<RelationshipType>) query.getResultList()) {
       logInfo("  set inverse to null = " + rel);
       rel.setInverse(null);
       updateRelationshipType(rel);
@@ -280,7 +280,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (RelationshipType rel : (List<RelationshipType>) query.getResultList()) {
+    for (final RelationshipType rel : (List<RelationshipType>) query.getResultList()) {
       logInfo("  remove relationship type = " + rel);
       removeRelationshipType(rel.getId());
     }
@@ -294,7 +294,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (Language lat : (List<Language>) query.getResultList()) {
+    for (final Language lat : (List<Language>) query.getResultList()) {
       logInfo("  remove languages = " + lat);
       removeLanguage(lat.getId());
     }
@@ -309,7 +309,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     int ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeSubsetMember(id, ConceptSubsetMemberJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -324,7 +324,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeSubset(id, ConceptSubsetJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -339,7 +339,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeSubsetMember(id, AtomSubsetMemberJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -354,7 +354,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeSubset(id, AtomSubsetJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -369,7 +369,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeRelationship(id, ConceptRelationshipJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -385,7 +385,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       Concept c = getConcept(id);
       c.setDefinitions(new ArrayList<Definition>());
       updateConcept(c);
@@ -403,7 +403,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeTransitiveRelationship(id, ConceptTransitiveRelationshipJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -418,7 +418,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeTreePosition(id, ConceptTreePositionJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -433,7 +433,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeConcept(id);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -454,10 +454,10 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
        */
       query = manager.createQuery("SELECT a.id FROM ConceptJpa a");
       ct = 0;
-      for (Long id : (List<Long>) query.getResultList()) {
+      for (final Long id : (List<Long>) query.getResultList()) {
         Concept concept = getConcept(id);
         List<Atom> keepAtoms = new ArrayList<Atom>();
-        for (Atom atom : concept.getAtoms()) {
+        for (final Atom atom : concept.getAtoms()) {
           if (!atom.getTerminology().equals(terminology)
               || !atom.getVersion().equals(version)) {
             keepAtoms.add(atom);
@@ -478,7 +478,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       Atom a = getAtom(id);
       a.setDefinitions(new ArrayList<Definition>());
       updateAtom(a);
@@ -495,7 +495,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeRelationship(id, AtomRelationshipJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -510,7 +510,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeRelationship(id, DescriptorRelationshipJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -526,7 +526,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeTransitiveRelationship(id,
           DescriptorTransitiveRelationshipJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
@@ -542,7 +542,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeTreePosition(id, DescriptorTreePositionJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -557,7 +557,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeDescriptor(id);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -572,7 +572,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeRelationship(id, CodeRelationshipJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -587,7 +587,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeTransitiveRelationship(id, CodeTransitiveRelationshipJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -602,7 +602,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeTreePosition(id, CodeTreePositionJpa.class);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -617,7 +617,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeCode(id);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -632,7 +632,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeAtom(id);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -647,7 +647,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeSemanticTypeComponent(id);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -662,7 +662,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeDefinition(id);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -677,7 +677,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeMapping(id);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -692,7 +692,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeMapSet(id);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
@@ -707,7 +707,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
+    for (final Long id : (List<Long>) query.getResultList()) {
       removeAttribute(id);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }

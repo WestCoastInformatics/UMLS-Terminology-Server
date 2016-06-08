@@ -88,8 +88,8 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     try {
       if (config == null)
         config = ConfigUtility.getConfigProperties();
-      String key = "workflow.listener.handler";
-      for (String handlerName : config.getProperty(key).split(",")) {
+      final String key = "workflow.listener.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
         if (handlerName.isEmpty())
           continue;
         // Add handlers to map
@@ -112,8 +112,8 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     Properties config;
     try {
       config = ConfigUtility.getConfigProperties();
-      String key = "metadata.service.handler";
-      for (String handlerName : config.getProperty(key).split(",")) {
+      final String key = "metadata.service.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
 
         // Add handlers to map
         MetadataService handlerService =
@@ -139,8 +139,8 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     try {
       if (config == null)
         config = ConfigUtility.getConfigProperties();
-      String key = "graph.resolution.handler";
-      for (String handlerName : config.getProperty(key).split(",")) {
+      final String key = "graph.resolution.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
         if (handlerName.isEmpty())
           continue;
         // Add handlers to map
@@ -277,7 +277,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     if (list == null) {
       return null;
     }
-    for (Abbreviation abbr : list) {
+    for (final Abbreviation abbr : list) {
       result.put(abbr.getAbbreviation(), abbr.getExpandedForm());
     }
     return result;
@@ -421,9 +421,9 @@ public class MetadataServiceJpa extends RootServiceJpa implements
                 "SELECT t.terminology, max(t.version) from TerminologyJpa t group by t.terminology",
                 Object[].class);
 
-    List<Object[]> resultList = query.getResultList();
-    List<Terminology> results = new ArrayList<>();
-    for (Object[] result : resultList) {
+    final List<Object[]> resultList = query.getResultList();
+    final List<Terminology> results = new ArrayList<>();
+    for (final Object[] result : resultList) {
       results.add(getTerminology((String) result[0], (String) result[1]));
 
     }
@@ -673,7 +673,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -689,7 +689,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -703,7 +703,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, SemanticTypeJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -717,7 +717,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, PropertyChainJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -736,7 +736,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -753,7 +753,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -767,7 +767,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, AttributeNameJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -784,7 +784,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -800,7 +800,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -814,7 +814,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, LabelSetJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -831,7 +831,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -847,7 +847,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -861,7 +861,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, LanguageJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -881,7 +881,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -899,7 +899,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -913,7 +913,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, AdditionalRelationshipTypeJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -932,7 +932,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -949,7 +949,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -968,7 +968,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -986,7 +986,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1000,7 +1000,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, RelationshipTypeJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1017,7 +1017,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1033,7 +1033,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1047,7 +1047,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, TermTypeJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1066,7 +1066,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1084,7 +1084,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1098,7 +1098,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, GeneralMetadataEntryJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1116,7 +1116,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1134,7 +1134,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1148,7 +1148,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, TerminologyJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1167,7 +1167,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1185,7 +1185,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1199,7 +1199,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Remove the component
     removeMetadata(id, RootTerminologyJpa.class);
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1216,7 +1216,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1236,7 +1236,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Inform listeners
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1251,7 +1251,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     removeMetadata(id, PrecedenceListJpa.class);
 
     if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
+      for (final WorkflowListener listener : listeners) {
         listener.metadataChanged();
       }
     }
@@ -1380,7 +1380,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public void refreshCaches() throws Exception {
-    for (MetadataService service : helperMap.values()) {
+    for (final MetadataService service : helperMap.values()) {
       service.refreshCaches();
     }
   }
@@ -1405,13 +1405,15 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   @Override
   public SemanticTypeList getSemanticTypeDescendants(String terminology,
     String version, String treeNumber, boolean includeSelf) throws Exception {
-    Logger.getLogger(getClass()).info("Metadata service - get semantic type descendants "
-        + terminology + ", " + version + ", " + treeNumber + ", " + includeSelf);
+    Logger.getLogger(getClass()).info(
+        "Metadata service - get semantic type descendants " + terminology
+            + ", " + version + ", " + treeNumber + ", " + includeSelf);
     if (helperMap.containsKey(terminology)) {
-      return helperMap.get(terminology).getSemanticTypeDescendants(terminology, version, treeNumber, includeSelf);
-    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).getSemanticTypeDescendants(terminology,
+      return helperMap.get(terminology).getSemanticTypeDescendants(terminology,
           version, treeNumber, includeSelf);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getSemanticTypeDescendants(
+          terminology, version, treeNumber, includeSelf);
     } else {
       // return an empty map
       return new SemanticTypeListJpa();

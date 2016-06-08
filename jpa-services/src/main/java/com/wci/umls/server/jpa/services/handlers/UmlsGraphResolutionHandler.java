@@ -32,12 +32,12 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       resolveAttributes(concept, nullId);
 
       // Definitions
-      for (Definition def : concept.getDefinitions()) {
+      for (final Definition def : concept.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
       // Semantic type components
-      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         if (nullId) {
           sty.setId(null);
         }
@@ -46,7 +46,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       }
 
       // Atoms
-      for (Atom atom : concept.getAtoms()) {
+      for (final Atom atom : concept.getAtoms()) {
         // if the concept is "new", then the atom must be too
         if (nullId) {
           atom.setId(null);
@@ -83,7 +83,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       resolveAttributes(atom, nullId);
 
       // Definitions
-      for (Definition def : atom.getDefinitions()) {
+      for (final Definition def : atom.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 

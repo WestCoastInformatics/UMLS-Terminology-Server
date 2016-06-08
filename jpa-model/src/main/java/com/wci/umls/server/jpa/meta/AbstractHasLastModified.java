@@ -79,27 +79,6 @@ public abstract class AbstractHasLastModified implements HasLastModified {
     this.id = id;
   }
 
-  /**
-   * Returns the object id. Needed for JAXB id
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return id == null ? "" : id.toString();
-  }
-
-  /**
-   * Sets the object id.
-   *
-   * @param id the object id
-   */
-  public void setObjectId(String id) {
-    if (id != null) {
-      this.id = Long.parseLong(id);
-    }
-  }
-
   /* see superclass */
   @Override
   public Date getTimestamp() {

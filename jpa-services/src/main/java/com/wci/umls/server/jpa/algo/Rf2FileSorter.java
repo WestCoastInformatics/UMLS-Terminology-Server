@@ -114,10 +114,10 @@ public class Rf2FileSorter implements Algorithm {
 
     String fileVersion = null;
 
-    for (String dirName : dirMap.values()) {
-      File file = new File(inputDir + dirName);
+    for (final String dirName : dirMap.values()) {
+      final       File file = new File(inputDir + dirName);
       if (file != null && file.exists()) {
-        for (String fileName : file.list()) {
+        for (final String fileName : file.list()) {
           // match last _dddddd
           try {
             Matcher matcher =
@@ -204,7 +204,7 @@ public class Rf2FileSorter implements Algorithm {
 
     // Sort files
     int[] fields = null;
-    for (String key : dirMap.keySet()) {
+    for (final String key : dirMap.keySet()) {
 
       if (requestCancel) {
         throw new CancelException("Cancel requested");
@@ -275,7 +275,7 @@ public class Rf2FileSorter implements Algorithm {
   public File findFile(File dir, String prefix) throws Exception {
     File file = null;
     // file
-    for (File f : dir.listFiles()) {
+    for (final File f : dir.listFiles()) {
       if (f.getName().contains(prefix)) {
         if (file != null)
           throw new Exception("Multiple " + prefix + " files");

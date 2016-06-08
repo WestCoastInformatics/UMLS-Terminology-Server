@@ -47,15 +47,15 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
   public void findSnomedCodesByStringQueryTest() throws Exception {
 
     // Terminology/version
-    String terminology = "SNOMEDCT_US";
-    String version = "2014_09_01";
+    final String terminology = "SNOMEDCT_US";
+    final String version = "2014_09_01";
 
     // Find codes using a simple query
     Logger.getLogger(getClass()).info("Find codes for 'aspirin'");
     SearchResultList list =
         contentClient.findCodesForQuery(terminology, version, "aspirin", null,
             authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -64,7 +64,7 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
     list =
         contentClient.findCodesForQuery(terminology, version,
             "gestational diabetes", null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -80,7 +80,7 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -96,7 +96,7 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -119,7 +119,7 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
     SearchResultList list =
         contentClient.findCodesForQuery(terminology, version, "aspirin", null,
             authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -128,7 +128,7 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
     list =
         contentClient.findCodesForQuery(terminology, version,
             "gestational diabetes", null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -144,7 +144,7 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -160,7 +160,7 @@ public class FindCodesByStringQueryTest extends ExampleSupport {
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 

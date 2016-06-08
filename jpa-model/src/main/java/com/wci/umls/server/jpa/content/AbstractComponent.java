@@ -13,7 +13,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlID;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -84,8 +83,6 @@ public abstract class AbstractComponent implements Component {
   /** The branch set to include empty branch. */
   @Column(nullable = true)
   private String branch = Branch.ROOT;
-  
-
 
   /**
    * Instantiates an empty {@link AbstractComponent}.
@@ -124,27 +121,6 @@ public abstract class AbstractComponent implements Component {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /**
-   * Returns the object id. Needed for JAXB id
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return id == null ? "" : id.toString();
-  }
-
-  /**
-   * Sets the object id.
-   *
-   * @param id the object id
-   */
-  public void setObjectId(String id) {
-    if (id != null) {
-      this.id = Long.parseLong(id);
-    }
   }
 
   /* see superclass */
@@ -308,7 +284,7 @@ public abstract class AbstractComponent implements Component {
   public void setTerminologyId(String terminologyId) {
     this.terminologyId = terminologyId;
   }
-  
+
   /**
    * CUSTOM equals: uses .toString() on the concept terminology ids map.
    *
