@@ -48,7 +48,7 @@ import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
-import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
@@ -82,7 +82,7 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.content.WorkflowEpoch;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.Subset;
@@ -1486,7 +1486,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Deletion>|BOOLEAN_EXPRESSION_STR|||||ATX||||
       // C1306694|MTH|||AT28308078||C0796279||C0796279|CUI|||RU||2112||<Cryptorchidism>|BOOLEAN_EXPRESSION_STR|||||ATX||||
 
-      final Mapping mapping = new MappingJpa();
+      final WorkflowEpoch mapping = new MappingJpa();
 
       // look up mapSet from MAPSETCUI
       MapSet mapSet = mapSetMap.get(fields[0]);
@@ -1588,7 +1588,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @return the attribute
    * @throws Exception the exception
    */
-  private Attribute makeAttribute(Mapping mapping, String name, String value)
+  private Attribute makeAttribute(WorkflowEpoch mapping, String name, String value)
     throws Exception {
     Attribute att = new AttributeJpa();
     att.setName(name);
@@ -1621,7 +1621,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String satui = fields[7];
     MapSet mapSet;
     if (!mapSetMap.containsKey(cui)) {
-      mapSet = new MapSetJpa();
+      mapSet = new WorkflowEpochJpa();
       mapSetMap.put(cui, mapSet);
       // Set map set name to preferred name of the cui
       mapSet.setName(getConcept(conceptIdMap.get(getTerminology() + cui))

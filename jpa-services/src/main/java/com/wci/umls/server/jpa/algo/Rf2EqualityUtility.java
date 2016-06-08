@@ -8,7 +8,7 @@ import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.content.WorkflowEpoch;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.Subset;
 
@@ -75,7 +75,7 @@ public class Rf2EqualityUtility {
    * @param m2 the comparison mapping
    * @return true, if successful
    */
-  public static boolean equals(Mapping m1, Mapping m2) {
+  public static boolean equals(WorkflowEpoch m1, WorkflowEpoch m2) {
     if (m1.equals(m2)) {
       return compareAttributes(m1, m2, new String[] {
         "moduleId"

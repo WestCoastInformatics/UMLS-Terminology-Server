@@ -46,7 +46,7 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.GeneralConceptAxiom;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.content.WorkflowEpoch;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -1564,7 +1564,7 @@ public interface ContentService extends MetadataService {
    * @return the mapping
    * @throws Exception the exception
    */
-  public Mapping addMapping(Mapping mapping) throws Exception;
+  public WorkflowEpoch addMapping(WorkflowEpoch mapping) throws Exception;
 
   /**
    * Update mapping.
@@ -1572,7 +1572,7 @@ public interface ContentService extends MetadataService {
    * @param mapping the mapping
    * @throws Exception the exception
    */
-  public void updateMapping(Mapping mapping) throws Exception;
+  public void updateMapping(WorkflowEpoch mapping) throws Exception;
 
   /**
    * Remove mapping.
@@ -1589,7 +1589,7 @@ public interface ContentService extends MetadataService {
    * @return the mapping
    * @throws Exception the exception
    */
-  public Mapping getMapping(Long id) throws Exception;
+  public WorkflowEpoch getMapping(Long id) throws Exception;
 
   /**
    * Gets the mapping.
@@ -1601,7 +1601,7 @@ public interface ContentService extends MetadataService {
    * @return the mapping
    * @throws Exception the exception
    */
-  public Mapping getMapping(String terminologyId, String terminology,
+  public WorkflowEpoch getMapping(String terminologyId, String terminology,
     String version, String branch) throws Exception;
 
   /**

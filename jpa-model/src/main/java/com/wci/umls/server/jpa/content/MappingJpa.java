@@ -26,11 +26,11 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.content.WorkflowEpoch;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * JPA and JAXB enabled implementation of {@link Mapping}.
+ * JPA and JAXB enabled implementation of {@link WorkflowEpoch}.
  */
 @Entity
 @Table(name = "mappings", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -40,10 +40,10 @@ import com.wci.umls.server.model.meta.IdType;
 @Indexed
 @XmlRootElement(name = "mapping")
 public class MappingJpa extends AbstractComponentHasAttributes implements
-    Mapping {
+    WorkflowEpoch {
 
   /** The map set. */
-  @ManyToOne(targetEntity = MapSetJpa.class, optional = false)
+  @ManyToOne(targetEntity = WorkflowEpochJpa.class, optional = false)
   @JoinColumn(nullable = false, name = "mapSet_id")
   private MapSet mapSet;
 
@@ -110,7 +110,7 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
    * @param mapping the mapping
    * @param deepCopy the deep copy
    */
-  public MappingJpa(Mapping mapping, boolean deepCopy) {
+  public MappingJpa(WorkflowEpoch mapping, boolean deepCopy) {
     super(mapping, deepCopy);
     mapSet = mapping.getMapSet();
     fromTerminologyId = mapping.getFromTerminologyId();
@@ -384,7 +384,7 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
    */
   public void setMapSetId(Long id) {
     if (mapSet == null) {
-      mapSet = new MapSetJpa();
+      mapSet = new WorkflowEpochJpa();
     }
     mapSet.setId(id);
   }
@@ -396,7 +396,7 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
    */
   public void setMapSetTerminologyId(String id) {
     if (mapSet == null) {
-      mapSet = new MapSetJpa();
+      mapSet = new WorkflowEpochJpa();
     }
     mapSet.setTerminologyId(id);
   }

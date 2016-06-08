@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.Column;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -22,6 +24,7 @@ import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.ComponentHistory;
+import com.wci.umls.server.model.content.Concept;
 
 /**
  * Unit testing for {@link ComponentHistoryJpa}.
@@ -86,9 +89,11 @@ public class ComponentHistoryJpaUnitTest {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-    tester.include("alternateTerminologyIds");
     tester.include("name");
     tester.include("value");
+
+    tester.include("associatedRelease");
+    tester.include("referencedConcept");
 
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
@@ -149,8 +154,9 @@ public class ComponentHistoryJpaUnitTest {
     tester.include("version");
     tester.include("name");
     tester.include("value");
+    tester.include("associatedRelease");
+    tester.include("referencedConcept");
 
-    assertTrue(tester.testNotNullFields());
   }
 
   /**

@@ -18,13 +18,12 @@ import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.content.AttributeJpa;
-import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
 
 /**
  * Unit testing for {@link MapSetJpa}.

@@ -32,7 +32,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
-import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
@@ -54,7 +54,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.content.WorkflowEpoch;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
@@ -1311,7 +1311,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         }
 
         // Configure mapping
-        final Mapping mapping = new MappingJpa();
+        final WorkflowEpoch mapping = new MappingJpa();
 
         // configure mapping and create map set if needed
         mapSetHelper(mapping, fields);
@@ -1341,7 +1341,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         }
 
         // Configure mapping
-        final Mapping mapping = new MappingJpa();
+        final WorkflowEpoch mapping = new MappingJpa();
 
         // configure mapping and create map set if needed
         mapSetHelper(mapping, fields);
@@ -1650,7 +1650,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
    * @param fields the fields
    * @throws Exception the exception
    */
-  private void mapSetHelper(Mapping mapping, String[] fields) throws Exception {
+  private void mapSetHelper(WorkflowEpoch mapping, String[] fields) throws Exception {
 
     // Verify that referencedComponentId exists
     if (conceptIdMap.get(fields[5]) != null) {
@@ -1691,7 +1691,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
     } else if (!mapSetMap.containsKey(fields[4])) {
 
-      final MapSet mapSet = new MapSetJpa();
+      final MapSet mapSet = new WorkflowEpochJpa();
       setCommonFields(mapSet, date);
       mapSet.setTerminologyId(fields[4].intern());
       final Concept concept = getConcept(conceptIdMap.get(fields[4]));

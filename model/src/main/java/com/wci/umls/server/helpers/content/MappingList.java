@@ -4,11 +4,11 @@
 package com.wci.umls.server.helpers.content;
 
 import com.wci.umls.server.helpers.ResultList;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.content.WorkflowEpoch;
 
 /**
- * Represents a sortable list of {@link Mapping}
+ * Represents a sortable list of {@link WorkflowEpoch}
  */
-public interface MappingList extends ResultList<Mapping> {
+public interface MappingList extends ResultList<WorkflowEpoch> {
   // nothing extra, a simple wrapper for easy serialization
 }

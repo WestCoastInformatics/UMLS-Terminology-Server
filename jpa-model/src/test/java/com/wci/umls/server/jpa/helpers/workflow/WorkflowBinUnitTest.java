@@ -17,18 +17,17 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
-import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
 /**
- * Unit testing for {@link MapSetJpa}.
+ * Unit testing for {@link WorkflowEpochJpa}.
  */
 public class WorkflowBinUnitTest {
 
@@ -157,9 +156,9 @@ public class WorkflowBinUnitTest {
     tester.proxy(TrackingRecord.class, 1, a1);
     tester.proxy(TrackingRecord.class, 2, a2);
     
-    WorkflowEpoch we1 = new WorkflowEpochJpa();
+    WorkflowEpoch we1 = (WorkflowEpoch) new WorkflowEpochJpa();
     we1.setId(1L);
-    WorkflowEpoch we2 = new WorkflowEpochJpa();
+    WorkflowEpoch we2 = (WorkflowEpoch) new WorkflowEpochJpa();
     we2.setId(2L);
 
     tester.proxy(WorkflowEpoch.class, 1, we1);
@@ -193,7 +192,6 @@ public class WorkflowBinUnitTest {
     tester.include("rank");
     tester.include("editable");
     tester.include("workflowClusterTypes");
-    tester.include("workflowEpoch");
 
     assertTrue(tester.testNotNullFields());
   }

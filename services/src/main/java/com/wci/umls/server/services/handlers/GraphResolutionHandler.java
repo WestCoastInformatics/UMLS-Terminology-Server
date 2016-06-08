@@ -13,7 +13,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.content.WorkflowEpoch;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -179,6 +179,6 @@ public interface GraphResolutionHandler extends Configurable {
    * @param mapping the mapping
    * @throws Exception the exception
    */
-  public void resolve(Mapping mapping) throws Exception;
+  public void resolve(WorkflowEpoch mapping) throws Exception;
 
 }

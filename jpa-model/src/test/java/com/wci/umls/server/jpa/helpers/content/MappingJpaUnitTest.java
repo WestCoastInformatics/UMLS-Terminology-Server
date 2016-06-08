@@ -18,7 +18,7 @@ import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.content.AttributeJpa;
-import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -26,7 +26,7 @@ import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.content.WorkflowEpoch;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipType;
 
@@ -36,7 +36,7 @@ import com.wci.umls.server.model.meta.RelationshipType;
 public class MappingJpaUnitTest {
 
   /** The model object to test. */
-  private Mapping object;
+  private WorkflowEpoch object;
 
   /** The a1. */
   private Attribute a1;
@@ -82,9 +82,9 @@ public class MappingJpaUnitTest {
     a1 = (AttributeJpa) tester.createObject(1);
     a2 = (AttributeJpa) tester.createObject(2);
 
-    ms1 = new MapSetJpa();
+    ms1 = new WorkflowEpochJpa();
     ms1.setId(1L);
-    ms2 = new MapSetJpa();
+    ms2 = new WorkflowEpochJpa();
     ms2.setId(2L);
 
     ProxyTester tester2 = new ProxyTester(new RelationshipTypeJpa());
@@ -174,7 +174,7 @@ public class MappingJpaUnitTest {
     tester.proxy(AdditionalRelationshipType.class, 2, art2);
     tester.proxy(MapSet.class, 1, ms1);
     tester.proxy(MapSet.class, 2, ms2);
-    assertTrue(tester.testCopyConstructorDeep(Mapping.class));
+    assertTrue(tester.testCopyConstructorDeep(WorkflowEpoch.class));
   }
 
   /**

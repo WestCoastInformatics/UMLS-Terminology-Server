@@ -12,7 +12,7 @@ import java.util.List;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
- * Represents a group of {@link Mapping}s between one {@link Terminology} and
+ * Represents a group of {@link WorkflowEpoch}s between one {@link Terminology} and
  * another.
  */
 public interface MapSet extends ComponentHasAttributes {
@@ -120,14 +120,14 @@ public interface MapSet extends ComponentHasAttributes {
    * 
    * @return the mappings
    */
-  public List<Mapping> getMappings();
+  public List<WorkflowEpoch> getMappings();
 
   /**
    * Sets the mappings.
    * 
    * @param mappings the mappings
    */
-  public void setMappings(List<Mapping> mappings);
+  public void setMappings(List<WorkflowEpoch> mappings);
 
 
   /**

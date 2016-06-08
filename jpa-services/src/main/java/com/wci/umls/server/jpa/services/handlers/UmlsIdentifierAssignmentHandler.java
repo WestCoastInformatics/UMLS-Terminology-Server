@@ -19,7 +19,7 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.content.WorkflowEpoch;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -184,7 +184,7 @@ public class UmlsIdentifierAssignmentHandler
   }
 
   @Override
-  public String getTerminologyId(Mapping mapping) throws Exception {
+  public String getTerminologyId(WorkflowEpoch mapping) throws Exception {
     return mapping.getTerminologyId();
   }
 
