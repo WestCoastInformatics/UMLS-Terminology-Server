@@ -82,8 +82,12 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.returnDate = worklist.getReturnDate();
     this.stampDate = worklist.getStampDate();
     this.editor = worklist.getEditor();
-    this.worklistGroup = worklist.getGroup();
+    this.worklistGroup = worklist.getWorklistGroup();
     this.stampedBy = worklist.getStampedBy();
+    this.setWorkflowBin(worklist.getWorkflowBin());
+    if (deepCopy) {
+      this.setTrackingRecords(worklist.getTrackingRecords());
+    }
   }
 
 
@@ -103,13 +107,13 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-  public String getGroup() {
+  public String getWorklistGroup() {
     return worklistGroup;
   }
 
   /* see superclass */
   @Override
-  public void setGroup(String group) {
+  public void setWorklistGroup(String group) {
     this.worklistGroup = group;
   }
 

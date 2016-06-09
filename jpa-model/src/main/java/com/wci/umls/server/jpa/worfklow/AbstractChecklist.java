@@ -14,7 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -144,7 +144,7 @@ public abstract class AbstractChecklist implements Checklist {
   }
 
   /* see superclass */
-  @XmlElement(type = TrackingRecordJpa.class)
+  @XmlTransient
   @Override
   public List<TrackingRecord> getTrackingRecords() {
     if (trackingRecords == null) {

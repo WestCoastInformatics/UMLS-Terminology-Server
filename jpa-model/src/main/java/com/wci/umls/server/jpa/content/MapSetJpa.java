@@ -25,6 +25,8 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 
+
+
 /**
  * JPA and JAXB enabled implementation of a {@link MapSet}.
  */
@@ -113,7 +115,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
     toVersion = mapSet.getToVersion();
     if (deepCopy) {
       for (final Mapping mapping : mapSet.getMappings()) {
-        getMappings().add(new MappingJpa(mapping, deepCopy));
+        getMappings().add((Mapping) new MappingJpa(mapping, deepCopy));
       }
     }
 

@@ -91,16 +91,16 @@ public class ComponentInfoRelationshipJpaUnitTest {
   public void testModelGetSet012() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet012");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("fromId");
-    tester.exclude("fromTerminology");
-    tester.exclude("fromVersion");
-    tester.exclude("fromTerminologyId");
-    tester.exclude("fromName");
-    tester.exclude("toId");
-    tester.exclude("toTerminology");
-    tester.exclude("toVersion");
-    tester.exclude("toTerminologyId");
-    tester.exclude("toName");
+    tester.include("fromId");
+    tester.include("fromTerminology");
+    tester.include("fromVersion");
+    tester.include("fromTerminologyId");
+    tester.include("fromName");
+    tester.include("toId");
+    tester.include("toTerminology");
+    tester.include("toVersion");
+    tester.include("toTerminologyId");
+    tester.include("toName");
     tester.test();
   }
 
@@ -130,13 +130,13 @@ public class ComponentInfoRelationshipJpaUnitTest {
     tester.include("hierarchical");
     tester.include("to");
     tester.include("from");
-    tester.exclude("toTerminologyId");
-    tester.exclude("fromTerminologyId");
+    tester.include("toTerminologyId");
+    tester.include("fromTerminologyId");
 
     tester.proxy(ComponentInfo.class, 1, new ComponentInfoJpa(componentInfo1));
     tester.proxy(ComponentInfo.class, 2, new ComponentInfoJpa(componentInfo2));
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
+    /*tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);*/
 
     assertTrue(tester.testIdentityFieldEquals());
     tester.proxy(ComponentInfo.class, 1, new ComponentInfoJpa(componentInfo1));
@@ -242,9 +242,9 @@ public class ComponentInfoRelationshipJpaUnitTest {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient012");
 
     String xml = ConfigUtility.getStringForGraph(object);
-    assertTrue(xml.contains("<fromId>"));
+    assertTrue(xml.contains("<fromTerminologyId>"));
     assertTrue(xml.contains("<fromName>"));
-    assertTrue(xml.contains("<toId>"));
+    assertTrue(xml.contains("<toTerminologyId>"));
     assertTrue(xml.contains("<toName>"));
     assertFalse(xml.contains("<from>"));
     assertFalse(xml.contains("<to>"));
@@ -274,8 +274,6 @@ public class ComponentInfoRelationshipJpaUnitTest {
     tester.include("inferred");
     tester.include("stated");
     tester.include("hierarchical");
-    tester.include("from");
-    tester.include("to");
     assertTrue(tester.testNotNullFields());
   }
 
