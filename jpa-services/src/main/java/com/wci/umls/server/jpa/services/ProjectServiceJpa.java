@@ -6,8 +6,11 @@ package com.wci.umls.server.jpa.services;
 import java.lang.reflect.Field;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Map.Entry;
 
 import javax.persistence.NoResultException;
 
@@ -16,18 +19,54 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.services.ProjectService;
+import com.wci.umls.server.services.handlers.ValidationCheck;
 
 /**
  * JPA and JAXB enabled implementation of {@link ProjectService}.
  */
 public class ProjectServiceJpa extends RootServiceJpa implements ProjectService {
+  
+  /** The config properties. */
+  protected static Properties config = null;
 
+  /** The validation handlers. */
+  protected static Map<String, ValidationCheck> validationHandlersMap = null;
+  static {
+    validationHandlersMap = new HashMap<>();
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      final String key = "validation.service.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        // Add handlers to map
+        final ValidationCheck handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, ValidationCheck.class);
+        validationHandlersMap.put(handlerName, handlerService);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      validationHandlersMap = null;
+    }
+  }
+  
   /**
    * Instantiates an empty {@link ProjectServiceJpa}.
    *
@@ -35,6 +74,11 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
    */
   public ProjectServiceJpa() throws Exception {
     super();
+
+    if (validationHandlersMap == null) {
+      throw new Exception(
+          "Validation handlers did not properly initialize, serious error.");
+    }
   }
 
   /* see superclass */
@@ -341,6 +385,71 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public void refreshCaches() throws Exception {
     // n/a
+  }
+  
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateConcept(Concept concept) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
+      result.merge(validationHandlersMap.get(key).validate(concept));
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateAtom(Atom atom) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
+      result.merge(validationHandlersMap.get(key).validate(atom));
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateDescriptor(Descriptor descriptor) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
+      result.merge(validationHandlersMap.get(key).validate(descriptor));
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateCode(Code code) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
+      result.merge(validationHandlersMap.get(key).validate(code));
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateMerge(Concept concept1, Concept concept2) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : validationHandlersMap.keySet()) {
+      result.merge(validationHandlersMap.get(key).validateMerge(concept1,
+          concept2));
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public KeyValuePairList getValidationCheckNames() {
+    final KeyValuePairList keyValueList = new KeyValuePairList();
+    for (final Entry<String, ValidationCheck> entry : validationHandlersMap
+        .entrySet()) {
+      final KeyValuePair pair =
+          new KeyValuePair(entry.getKey(), entry.getValue().getName());
+      keyValueList.addKeyValuePair(pair);
+    }
+    return keyValueList;
   }
 
 }

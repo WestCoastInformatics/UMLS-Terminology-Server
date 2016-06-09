@@ -26,19 +26,20 @@ import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.jpa.services.ValidationServiceJpa;
+import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.ValidationServiceRest;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
-import com.wci.umls.server.services.ValidationService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
 /**
- * REST implementation for {@link ValidationServiceRest}.
+ * REST implementation for {@link ProjectServiceRest}.
  */
 @Path("/validation")
 @Api(value = "/validation", description = "Operations providing terminology validation")
@@ -55,7 +56,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   private SecurityService securityService;
 
   /**
-   * Instantiates an empty {@link ValidationServiceRestImpl}.
+   * Instantiates an empty {@link ProjectServiceRestImpl}.
    *
    * @throws Exception the exception
    */
@@ -79,7 +80,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Validation): /validate/concept/merge/" + terminology + "/"
             + version + "/" + cui1 + "/" + cui2);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     ContentService contentService = new ContentServiceJpa();
     try {
       securityService.getUsernameForToken(authToken);
@@ -97,7 +98,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
           contentService.getConcept(cui2, terminology, version, Branch.ROOT);
 
       ValidationResult result =
-          validationService.validateMerge(concept1, concept2);
+          projectService.validateMerge(concept1, concept2);
 
       return result;
 
@@ -106,7 +107,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to validate the concept merge");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
   }
@@ -122,17 +123,17 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call PUT (Project): /dui " + descriptor);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "validate descriptor",
           UserRole.VIEWER);
 
-      return validationService.validateDescriptor(descriptor);
+      return projectService.validateDescriptor(descriptor);
     } catch (Exception e) {
       handleException(e, "trying to validate descriptor");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
 
@@ -149,16 +150,16 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call PUT (Project): /aui " + atom);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "validate atom", UserRole.VIEWER);
 
-      return validationService.validateAtom(atom);
+      return projectService.validateAtom(atom);
     } catch (Exception e) {
       handleException(e, "trying to validate atom");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
 
@@ -175,16 +176,16 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call PUT (Project): /code " + code);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "validate code", UserRole.VIEWER);
 
-      return validationService.validateCode(code);
+      return projectService.validateCode(code);
     } catch (Exception e) {
       handleException(e, "trying to validate code");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
 
@@ -201,17 +202,17 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call PUT (Project): /concept " + concept);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "validate concept",
           UserRole.VIEWER);
 
-      return validationService.validateConcept(concept);
+      return projectService.validateConcept(concept);
     } catch (Exception e) {
       handleException(e, "trying to validate concept");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
 
@@ -228,18 +229,18 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call POST (Validation): /checks ");
 
-    final ValidationService validationService = new ValidationServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "get validation checks",
           UserRole.VIEWER);
 
-      final KeyValuePairList list = validationService.getValidationCheckNames();
+      final KeyValuePairList list = projectService.getValidationCheckNames();
       return list;
     } catch (Exception e) {
       handleException(e, "trying to validate all concept");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
   }

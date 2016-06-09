@@ -8,9 +8,15 @@ package com.wci.umls.server.services;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
 
 /**
  * Represents a service for accessing {@link Project} information.
@@ -87,6 +93,54 @@ public interface ProjectService extends RootService {
   public ProjectList findProjectsForQuery(String query, PfsParameter pfs)
     throws Exception;
 
+
+  /**
+   * Validate concept.
+   *
+   * @param concept the concept
+   * @return the validation result
+   */
+  public ValidationResult validateConcept(Concept concept);
   
+  /**
+   * Validate atom.
+   *
+   * @param atom the atom
+   * @return the validation result
+   */
+  public ValidationResult validateAtom(Atom atom);
+  
+  /**
+   * Validate descriptor.
+   *
+   * @param descriptor the descriptor
+   * @return the validation result
+   */
+  public ValidationResult validateDescriptor(Descriptor descriptor);
+  
+  /**
+   * Validate code.
+   *
+   * @param code the code
+   * @return the validation result
+   */
+  public ValidationResult validateCode(Code code);
+  
+  /**
+   * Validate merge.
+   *
+   * @param concept1 the concept1
+   * @param concept2 the concept2
+   * @return the validation result
+   */
+  public ValidationResult validateMerge(Concept concept1, Concept concept2);
+
+  /**
+   * Gets the validation check names.
+   *
+   * @return the validation check names
+   */
+  public KeyValuePairList getValidationCheckNames();
+
   
 }

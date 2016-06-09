@@ -8,8 +8,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Column;
-
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -24,7 +22,6 @@ import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.ComponentHistory;
-import com.wci.umls.server.model.content.Concept;
 
 /**
  * Unit testing for {@link ComponentHistoryJpa}.

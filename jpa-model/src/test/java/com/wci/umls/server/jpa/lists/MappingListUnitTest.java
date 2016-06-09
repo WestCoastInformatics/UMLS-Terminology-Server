@@ -12,7 +12,6 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
-import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.helpers.content.MappingListJpa;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;

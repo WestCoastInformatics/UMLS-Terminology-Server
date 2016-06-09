@@ -23,9 +23,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.hibernate.envers.Audited;
@@ -38,14 +36,13 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 
-import com.wci.umls.server.jpa.helpers.MapIdBridge;
-import com.wci.umls.server.jpa.helpers.ProjectRoleBridge;
-import com.wci.umls.server.jpa.helpers.ProjectRoleMapAdapter;
-
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.jpa.helpers.MapIdBridge;
+import com.wci.umls.server.jpa.helpers.ProjectRoleBridge;
+import com.wci.umls.server.jpa.helpers.ProjectRoleMapAdapter;
 
 /**
  * JPA and JAXB enabled implementation of {@link User}.

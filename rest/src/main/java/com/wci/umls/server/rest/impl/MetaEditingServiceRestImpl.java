@@ -103,7 +103,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
         // TODO Need to handle precedence lists here?
         contentService.getGraphResolutionHandler(concept.getTerminology()).resolve(concept);
       
-        // TODO Validate the concept via ValidationServiceJpa
+        // NOTE: NO validation required for addSemanticType
+        
         return concept;
 
       } catch (Exception e) {
@@ -162,6 +163,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
             "Semantic type could not be removed from concept, not present");
       }
       concept.getSemanticTypes().remove(semanticTypeComponent);
+      
+      // NOTE: NO validation checks required for removeSemanticType
+      
       contentService.updateConcept(concept);
     
 
