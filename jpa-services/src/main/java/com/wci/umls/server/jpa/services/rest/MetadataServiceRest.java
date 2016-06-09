@@ -96,5 +96,16 @@ public interface MetadataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removePrecedenceList(Long id, String authToken) throws Exception;;
+  public void removePrecedenceList(Long id, String authToken) throws Exception;
+
+  /**
+   * Gets the precedence list.
+   *
+   * @param precedenceListId the precedence list id
+   * @param authToken the auth token
+   * @return the precedence list
+   * @throws Exception the exception
+   */
+  public PrecedenceList getPrecedenceList(Long precedenceListId, String authToken)
+    throws Exception;;
 }

@@ -1204,6 +1204,17 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
       }
     }
   }
+  
+  @Override
+  public PrecedenceList getPrecedenceList(Long precedenceListId) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - get precedence list" + precedenceListId);
+
+    PrecedenceList newPrecedenceList = this.getObject(precedenceListId, PrecedenceListJpa.class);
+
+    return newPrecedenceList;
+  }
+  
 
   /* see superclass */
   @Override

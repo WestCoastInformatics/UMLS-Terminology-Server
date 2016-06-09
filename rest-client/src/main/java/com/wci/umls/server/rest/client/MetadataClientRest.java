@@ -175,6 +175,30 @@ public class MetadataClientRest extends RootClientRest
   }
 
   @Override
+  public PrecedenceList getPrecedenceList(Long precedenceListId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - get precedence list " + precedenceListId);
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/precedence/" + precedenceListId);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    PrecedenceList result =
+        ConfigUtility.getGraphForString(resultString, PrecedenceListJpa.class);
+    return result;
+  }
+
+  @Override
   public PrecedenceList addPrecedenceList(PrecedenceListJpa precedenceList,
     String authToken) throws Exception {
     Logger.getLogger(getClass())

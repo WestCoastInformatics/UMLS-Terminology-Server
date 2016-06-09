@@ -317,6 +317,33 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
   }
 
   @Override
+  @GET
+  @Path("/precedence/{id}")
+  @ApiOperation(value = "Gets a precedence list", notes = "Gets a precedence list", response = PrecedenceListJpa.class)
+  public PrecedenceList getPrecedenceList(
+    @ApiParam(value = "Precedence list id, e.g. 1", required = true) @PathParam("id") Long precedenceListId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /precedence/" + precedenceListId);
+
+    MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get precedence list",
+          UserRole.USER);
+
+      return metadataService.getPrecedenceList(precedenceListId);
+    } catch (Exception e) {
+      handleException(e, "trying to get precedence list");
+      return null;
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
   @POST
   @Path("/precedence/add")
   @ApiOperation(value = "Add a precedence list", notes = "Add a precedence list", response = PrecedenceListJpa.class)

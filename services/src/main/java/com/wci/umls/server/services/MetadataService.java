@@ -635,4 +635,13 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public SemanticTypeList getSemanticTypeDescendants(String terminology, String version, String treeNumber, boolean includeSelf) throws Exception;
+
+  /**
+   * Gets the precedence list.
+   *
+   * @param precedenceListId the precedence list id
+   * @return the precedence list
+   * @throws Exception the exception
+   */
+  public PrecedenceList getPrecedenceList(Long precedenceListId) throws Exception;
 }

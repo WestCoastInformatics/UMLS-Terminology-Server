@@ -373,6 +373,12 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   public void removeGeneralMetadataEntry(Long id) throws Exception {
     // n/a
   }
+  
+  @Override
+  public PrecedenceList getPrecedenceList(Long id) throws Exception {
+    // n/a
+    return null;
+  }
 
   /* see superclass */
   @Override
