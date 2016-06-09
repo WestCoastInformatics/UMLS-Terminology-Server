@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
@@ -50,7 +51,6 @@ public class MetaEditingServiceRestEdgeCasesTest
   @Before
   public void setup() throws Exception {
 
-
     // authenticate the viewer user
     authToken =
         securityService.authenticate(adminUser, adminPassword).getAuthToken();
@@ -59,7 +59,7 @@ public class MetaEditingServiceRestEdgeCasesTest
     ProjectList projects = projectService.getProjects(authToken);
     assertTrue(projects.getCount() > 0);
     project = projects.getObjects().get(0);
-    
+
     // verify terminology and branch are expected values
     assertTrue(project.getTerminology().equals(umlsTerminology));
     assertTrue(project.getBranch().equals(Branch.ROOT));
@@ -76,6 +76,8 @@ public class MetaEditingServiceRestEdgeCasesTest
 
     Logger.getLogger(getClass()).info(
         "TEST - Degenerate use tests for add/remove semantic type to concept");
+
+    ValidationResult result;
 
     // get the concept
     Concept c = contentService.getConcept("C0000005", umlsTerminology,
@@ -97,41 +99,27 @@ public class MetaEditingServiceRestEdgeCasesTest
     Concept c2 = contentService.getConcept("C0000039", umlsTerminology,
         umlsVersion, null, authToken);
     assertNotNull(c2);
-    SemanticTypeComponentJpa sty2 = (SemanticTypeComponentJpa) c2.getSemanticTypes().get(0);
+    SemanticTypeComponentJpa sty2 =
+        (SemanticTypeComponentJpa) c2.getSemanticTypes().get(0);
     assertNotNull(sty2);
-    
+
     //
     // Test calls where terminologies do not match
     //
     project.setTerminology("testTerminology");
     projectService.updateProject((ProjectJpa) project, authToken);
-    
-    try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(), sty2,
-          authToken);
-      fail();
-    } catch (Exception e) {
-      // do nothing
-    }
 
-    // verify addition did not succeed (concept does not contain sty2)
-    assertTrue(!c.getSemanticTypes().contains(sty2));
+    result = metaEditingService.addSemanticType(project.getId(), c.getId(),
+        sty2, authToken);
+    assertTrue(!result.isValid());
 
-    try {
-      metaEditingService.removeSemanticType(project.getId(), c.getId(),
-          sty.getId(), authToken);
-      fail();
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    // verify removal did not succeed (concept still contains original sty)
-    assertTrue(c.getSemanticTypes().contains(sty));
+    metaEditingService.removeSemanticType(project.getId(), c.getId(),
+        sty.getId(), authToken);
+    assertTrue(!result.isValid());
 
     // reset the terminology
     project.setTerminology(umlsTerminology);
     projectService.updateProject((ProjectJpa) project, authToken);
-
 
     //
     // Test calls where branches do not match
@@ -140,29 +128,17 @@ public class MetaEditingServiceRestEdgeCasesTest
     projectService.updateProject((ProjectJpa) project, authToken);
 
     //
-    // Test add where already exists, remove where does not exist
+    // Test add and remove
     //
-    try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(), sty2,
-          authToken);
-      fail();
-    } catch (Exception e) {
-      // do nothing
-    }
 
-    // verify addition did not succeed (concept does not contain sty2)
-    assertTrue(!c.getSemanticTypes().contains(sty2));
+    result = metaEditingService.addSemanticType(project.getId(), c.getId(), sty2,
+        authToken);
+    assertTrue(!result.isValid());
 
-    try {
-      metaEditingService.removeSemanticType(project.getId(), c.getId(),
-          sty.getId(), authToken);
-      fail();
-    } catch (Exception e) {
-      // do nothing
-    }
+    result = metaEditingService.removeSemanticType(project.getId(), c.getId(),
+        sty.getId(), authToken);
+    assertTrue(!result.isValid());
 
-    // verify removal did not succeed (concept still contains original sty)
-    assertTrue(c.getSemanticTypes().contains(sty));
 
     // reset the branch
     project.setBranch(Branch.ROOT);
@@ -179,6 +155,10 @@ public class MetaEditingServiceRestEdgeCasesTest
   @After
   public void teardown() throws Exception {
 
+    // ensure branch and terminology are set correctly
+    project.setBranch(Branch.ROOT);
+    project.setTerminology(umlsTerminology);
+    projectService.updateProject((ProjectJpa) project, authToken);
     // logout
     securityService.logout(authToken);
 

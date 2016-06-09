@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
@@ -30,8 +31,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
   /** The auth tokens. */
   private static String viewerToken;
-  
-  /**  The admin token. */
+
+  /** The admin token. */
   private static String adminToken;
 
   /** The project. */
@@ -64,7 +65,7 @@ public class MetaEditingServiceRestDegenerateUseTest
     ProjectList projects = projectService.getProjects(adminToken);
     assertTrue(projects.getCount() > 0);
     project = projects.getObjects().get(0);
-    
+
     // verify terminology and branch are expected values
     assertTrue(project.getTerminology().equals(umlsTerminology));
     assertTrue(project.getBranch().equals(Branch.ROOT));
@@ -84,7 +85,7 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // get the concept
     Concept c = contentService.getConcept("C0000005", umlsTerminology,
-        umlsVersion,  null,adminToken);
+        umlsVersion, null, adminToken);
     assertNotNull(c);
 
     // check against project
@@ -94,7 +95,8 @@ public class MetaEditingServiceRestDegenerateUseTest
     assertTrue(c.getSemanticTypes().size() > 0);
 
     // get the first semantic type
-    SemanticTypeComponentJpa sty = (SemanticTypeComponentJpa) c.getSemanticTypes().get(0);
+    SemanticTypeComponentJpa sty =
+        (SemanticTypeComponentJpa) c.getSemanticTypes().get(0);
     assertNotNull(sty);
 
     // get a concept with different semantic type (for testing add)
@@ -102,16 +104,19 @@ public class MetaEditingServiceRestDegenerateUseTest
     Concept c2 = contentService.getConcept("C0000039", umlsTerminology,
         umlsVersion, null, adminToken);
     assertNotNull(c2);
-    SemanticTypeComponentJpa sty2 = (SemanticTypeComponentJpa) c2.getSemanticTypes().get(0);
+    SemanticTypeComponentJpa sty2 =
+        (SemanticTypeComponentJpa) c2.getSemanticTypes().get(0);
     assertNotNull(sty2);
 
     //
     // Null parameters
+    // NOTE: Null parameters should throw exceptions (required arguments)
     //
 
     // check null project id
     try {
       metaEditingService.addSemanticType(null, c.getId(), sty2, adminToken);
+      fail();
     } catch (Exception e) {
       // do nothing
     }
@@ -181,25 +186,21 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     //
     // Test add where already exists, remove where does not exist
+    // NOTE: These return validation result errors
     //
-    try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(), sty,
-          adminToken);
-      fail();
-    } catch (Exception e) {
-      // do nothing
-    }
+    ValidationResult result;
 
-    try {
-      metaEditingService.removeSemanticType(project.getId(), c.getId(),
-          sty2.getId(), adminToken);
-      fail();
-    } catch (Exception e) {
-      // do nothing
-    }
+    result = metaEditingService.addSemanticType(project.getId(), c.getId(), sty,
+        adminToken);
+    assertTrue(!result.isValid());
+
+    result = metaEditingService.removeSemanticType(project.getId(), c.getId(),
+        sty2.getId(), adminToken);
+    assertTrue(!result.isValid());
 
     //
     // Check authorization
+    // NOTE: These should throw exceptions
     //
 
     try {
