@@ -71,7 +71,7 @@ import com.wci.umls.server.services.handlers.WorkflowListener;
  * Implementation of {@link MetadataService} that redirects to
  * terminology-specific implemlentations.
  */
-public class MetadataServiceJpa extends RootServiceJpa implements
+public class MetadataServiceJpa extends ProjectServiceJpa implements
     MetadataService {
 
   /** The config properties. */
