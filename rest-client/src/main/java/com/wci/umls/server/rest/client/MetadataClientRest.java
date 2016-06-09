@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -26,8 +27,8 @@ import com.wci.umls.server.model.meta.Terminology;
 /**
  * A client for connecting to a metadata REST service.
  */
-public class MetadataClientRest extends RootClientRest implements
-    MetadataServiceRest {
+public class MetadataClientRest extends RootClientRest
+    implements MetadataServiceRest {
 
   /** The config. */
   private Properties config = null;
@@ -51,12 +52,10 @@ public class MetadataClientRest extends RootClientRest implements
     validateNotEmpty(version, "version");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/metadata/all/terminology/" + terminology + "/" + version);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/all/terminology/" + terminology + "/" + version);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -75,15 +74,13 @@ public class MetadataClientRest extends RootClientRest implements
   @Override
   public TerminologyList getAllTerminologiesLatestVersions(String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Client - get all terminologies latest versions");
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - get all terminologies latest versions");
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/metadata/terminology/terminologies/latest");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/terminology/terminologies/latest");
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -101,15 +98,13 @@ public class MetadataClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public TerminologyList getTerminologies(String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Client - get all terminologyies versions");
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - get all terminologyies versions");
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/metadata/terminology/terminologies");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/metadata/terminology/terminologies");
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -134,12 +129,10 @@ public class MetadataClientRest extends RootClientRest implements
     validateNotEmpty(version, "version");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/metadata/terminology/"
-            + terminology + "/" + version);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/terminology/" + terminology + "/" + version);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -157,19 +150,17 @@ public class MetadataClientRest extends RootClientRest implements
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Client - get default precedence list " + terminology + ", "
-            + version);
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - get default precedence list " + terminology
+            + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/metadata/precedence/"
-            + terminology + "/" + version);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/precedence/" + terminology + "/" + version);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -181,5 +172,67 @@ public class MetadataClientRest extends RootClientRest implements
     PrecedenceList result =
         ConfigUtility.getGraphForString(resultString, PrecedenceListJpa.class);
     return result;
+  }
+
+  @Override
+  public PrecedenceList addPrecedenceList(PrecedenceListJpa precedenceList,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - add precedence list ");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/metadata/precedence/add");
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(precedenceList));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    PrecedenceList result =
+        ConfigUtility.getGraphForString(resultString, PrecedenceListJpa.class);
+    return result;
+  }
+
+  @Override
+  public void updatePrecedenceList(PrecedenceListJpa precedenceList,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - update precedence list ");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/metadata/precedence/update");
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(precedenceList));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+  }
+
+  @Override
+  public void removePrecedenceList(Long id, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - remove precedence list ");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/precedence/" + id + "/remove");
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
   }
 }
