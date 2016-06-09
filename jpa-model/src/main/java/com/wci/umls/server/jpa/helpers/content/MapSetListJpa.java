@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.content.MapSetList;
-import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.model.content.MapSet;
 
 /**
@@ -22,7 +22,7 @@ public class MapSetListJpa extends AbstractResultList<MapSet> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = WorkflowEpochJpa.class, name = "mapSet")
+  @XmlElement(type = MapSetJpa.class, name = "mapSet")
   public List<MapSet> getObjects() {
     return super.getObjectsTransient();
   }

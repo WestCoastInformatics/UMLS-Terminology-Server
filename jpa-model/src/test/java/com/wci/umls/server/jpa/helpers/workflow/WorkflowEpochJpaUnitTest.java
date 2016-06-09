@@ -1,7 +1,7 @@
 /*
  *    Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.content;
+package com.wci.umls.server.jpa.helpers.workflow;
 
 import static org.junit.Assert.assertTrue;
 
@@ -17,34 +17,26 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.content.AttributeJpa;
-import com.wci.umls.server.jpa.content.MappingJpa;
-import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.model.content.Attribute;
-import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
+import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
 /**
- * Unit testing for {@link MapSetJpa}.
+ * Unit testing for {@link WorkflowEpochJpa}.
  */
-public class MapSetJpaUnitTest {
+public class WorkflowEpochJpaUnitTest {
 
   /** The model object to test. */
-  private MapSetJpa object;
-
-  /** The a1. */
-  private Attribute a1;
-
-  /** The a2. */
-  private Attribute a2;
+  private WorkflowEpochJpa object;
 
   /** The m1. */
-  private Mapping m1;
+  private WorkflowBin m1;
 
   /** The m2. */
-  private Mapping m2;
+  private WorkflowBin m2;
 
   /**
    * Setup class.
@@ -61,13 +53,10 @@ public class MapSetJpaUnitTest {
    */
   @Before
   public void setup() throws Exception {
-    object = new MapSetJpa();
-    ProxyTester tester = new ProxyTester(new AttributeJpa());
-    a1 = (AttributeJpa) tester.createObject(1);
-    a2 = (AttributeJpa) tester.createObject(2);
-    ProxyTester tester2 = new ProxyTester(new MappingJpa());
-    m1 = (MappingJpa) tester2.createObject(1);
-    m2 = (MappingJpa) tester2.createObject(2);
+    object = new WorkflowEpochJpa();
+    ProxyTester tester2 = new ProxyTester(new WorkflowBinJpa());
+    m1 = (WorkflowBinJpa) tester2.createObject(1);
+    m2 = (WorkflowBinJpa) tester2.createObject(2);
   }
 
   /**
@@ -111,10 +100,8 @@ public class MapSetJpaUnitTest {
     tester.include("fromVersion");
     tester.include("toVersion");
 
-    tester.proxy(Attribute.class, 1, a1);
-    tester.proxy(Attribute.class, 2, a2);
-    tester.proxy(Mapping.class, 1, m1);
-    tester.proxy(Mapping.class, 2, m2);
+    tester.proxy(WorkflowEpoch.class, 1, m1);
+    tester.proxy(WorkflowEpoch.class, 2, m2);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -134,11 +121,9 @@ public class MapSetJpaUnitTest {
     Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(Attribute.class, 1, a1);
-    tester.proxy(Attribute.class, 2, a2);
-    tester.proxy(Mapping.class, 1, m1);
-    tester.proxy(Mapping.class, 2, m2);
-    assertTrue(tester.testCopyConstructorDeep(MapSet.class));
+    tester.proxy(WorkflowEpoch.class, 1, m1);
+    tester.proxy(WorkflowEpoch.class, 2, m2);
+    assertTrue(tester.testCopyConstructorDeep(WorkflowEpoch.class));
 
   }
 
@@ -173,16 +158,6 @@ public class MapSetJpaUnitTest {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("name");
-    // tester.include("fromComplexity");
-    // tester.include("complexity");
-    // tester.include("toComplexity");
-    // tester.include("fromExhaustive");
-    // tester.include("toExhaustive");
-    // tester.include("type");
-    tester.include("fromTerminology");
-    // tester.include("toTerminology");
-    // tester.include("fromVersion");
-    // tester.include("toVersion");
 
     assertTrue(tester.testNotNullFields());
   }

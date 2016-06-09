@@ -33,7 +33,7 @@ import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
-import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
@@ -1743,8 +1743,8 @@ public class ContentClientRest extends RootClientRest
     }
 
     // converting to object
-    WorkflowEpochJpa concept =
-        ConfigUtility.getGraphForString(resultString, WorkflowEpochJpa.class);
+    MapSetJpa concept =
+        ConfigUtility.getGraphForString(resultString, MapSetJpa.class);
     return concept;
   }
 

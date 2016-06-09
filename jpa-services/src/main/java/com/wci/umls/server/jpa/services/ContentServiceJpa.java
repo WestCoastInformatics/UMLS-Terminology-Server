@@ -90,7 +90,7 @@ import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.GeneralConceptAxiomJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
-import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -133,7 +133,7 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.GeneralConceptAxiom;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.WorkflowEpoch;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -4643,7 +4643,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         MappingJpa.class, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
-    for (final WorkflowEpoch mapping : results.getObjects()) {
+    for (final Mapping mapping : results.getObjects()) {
       getGraphResolutionHandler(terminology).resolve(mapping);
     }
     return results;
@@ -5352,7 +5352,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   @Override
-  public WorkflowEpoch addMapping(WorkflowEpoch mapping) throws Exception {
+  public Mapping addMapping(Mapping mapping) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - add mapping " + mapping);
     // Assign id
@@ -5368,7 +5368,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final WorkflowEpoch newMapping = addComponent(mapping);
+    final Mapping newMapping = addComponent(mapping);
 
     // Inform listeners
     if (listenersEnabled) {
@@ -5387,7 +5387,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   @Override
-  public void updateMapping(WorkflowEpoch mapping) throws Exception {
+  public void updateMapping(Mapping mapping) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - update mapping " + mapping);
 
@@ -5396,7 +5396,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         getIdentifierAssignmentHandler(mapping.getTerminology());
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
-        WorkflowEpoch mapping2 = getMapping(mapping.getId());
+        Mapping mapping2 = getMapping(mapping.getId());
         if (!idHandler.getTerminologyId(mapping).equals(
             idHandler.getTerminologyId(mapping2))) {
           throw new Exception(
@@ -5430,7 +5430,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass())
         .debug("Content Service - remove mapping " + id);
     // Remove the component
-    final WorkflowEpoch mapping = removeComponent(id, MappingJpa.class);
+    final Mapping mapping = removeComponent(id, MappingJpa.class);
 
     if (listenersEnabled) {
       for (final WorkflowListener listener : listeners) {
@@ -5450,7 +5450,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public MapSet getMapSet(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get mapSet " + id);
-    return getComponent(id, WorkflowEpochJpa.class);
+    return getComponent(id, MapSetJpa.class);
   }
 
   /* see superclass */
@@ -5471,7 +5471,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get mapset " + terminologyId + "/" + terminology
             + "/" + version + "/" + branch);
     return getComponent(terminologyId, terminology, version, branch,
-        WorkflowEpochJpa.class);
+        MapSetJpa.class);
   }
 
   /* see superclass */
@@ -5519,7 +5519,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   @Override
-  public WorkflowEpoch getMapping(Long id) throws Exception {
+  public Mapping getMapping(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get mapping " + id);
     return getComponent(id, MappingJpa.class);
   }
@@ -5536,7 +5536,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   @Override
-  public WorkflowEpoch getMapping(String terminologyId, String terminology,
+  public Mapping getMapping(String terminologyId, String terminology,
     String version, String branch) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get mapping " + terminologyId + "/" + terminology
@@ -5575,8 +5575,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     int[] totalCt = new int[1];
-    final List<WorkflowEpoch> list =
-        (List<WorkflowEpoch>) getQueryResults(sb.toString(), MappingJpa.class,
+    final List<Mapping> list =
+        (List<Mapping>) getQueryResults(sb.toString(), MappingJpa.class,
             MappingJpa.class, pfs, totalCt);
     final MappingList result = new MappingListJpa();
     result.setTotalCount(totalCt[0]);
@@ -5745,7 +5745,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public void removeMapSet(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove mapSet " + id);
     // Remove the component
-    final MapSet mapSet = removeComponent(id, WorkflowEpochJpa.class);
+    final MapSet mapSet = removeComponent(id, MapSetJpa.class);
 
     if (listenersEnabled) {
       for (final WorkflowListener listener : listeners) {

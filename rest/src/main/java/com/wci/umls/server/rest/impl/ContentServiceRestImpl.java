@@ -66,7 +66,7 @@ import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorNoteJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
-import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
@@ -95,7 +95,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.WorkflowEpoch;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
@@ -796,7 +796,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/mapset/{terminology}/{version}/{terminologyId}")
-  @ApiOperation(value = "Get mapset by id, terminology, and version", notes = "Get the root branch mapset matching the specified parameters", response = WorkflowEpochJpa.class)
+  @ApiOperation(value = "Get mapset by id, terminology, and version", notes = "Get the root branch mapset matching the specified parameters", response = MapSetJpa.class)
   public MapSet getMapSet(
     @ApiParam(value = "mapSet terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "mapSet terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
@@ -2846,7 +2846,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.getMapSet(mapSetId, terminology, version, Branch.ROOT);
       final MappingList mappingList =
           contentService.findMappingsForMapSet(mapSet.getId(), query, pfs);
-      for (final WorkflowEpoch member : mappingList.getObjects()) {
+      for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
       return mappingList;
@@ -2885,7 +2885,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       final MappingList mappingList =
           contentService.findMappingsForConcept(terminologyId, terminology,
               version, Branch.ROOT, query, pfs);
-      for (final WorkflowEpoch member : mappingList.getObjects()) {
+      for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
       return mappingList;
@@ -2924,7 +2924,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       final MappingList mappingList =
           contentService.findMappingsForCode(terminologyId, terminology,
               version, Branch.ROOT, query, pfs);
-      for (final WorkflowEpoch member : mappingList.getObjects()) {
+      for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
       return mappingList;
@@ -2963,7 +2963,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       final MappingList mappingList =
           contentService.findMappingsForDescriptor(terminologyId, terminology,
               version, Branch.ROOT, query, pfs);
-      for (final WorkflowEpoch member : mappingList.getObjects()) {
+      for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
       return mappingList;

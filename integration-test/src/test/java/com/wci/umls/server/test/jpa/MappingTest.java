@@ -14,12 +14,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultComputePreferredNameHandler;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.WorkflowEpoch;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
 
@@ -55,7 +55,7 @@ public class MappingTest {
 
     // Add MapSet and Mapping
     ContentService contentService = new ContentServiceJpa();
-    MapSet mapSet = new WorkflowEpochJpa();
+    MapSet mapSet = new MapSetJpa();
     mapSet.setName("Test MapSet");
     mapSet.setType("CONCEPT");
     mapSet.setFromComplexity("fcomp");
@@ -76,7 +76,7 @@ public class MappingTest {
     mapSet = contentService.addMapSet(mapSet);
     Logger.getLogger(getClass()).info(mapSet);
     assertEquals(mapSet.getName(), "Test MapSet");
-    WorkflowEpoch mapping = new MappingJpa();
+    Mapping mapping = new MappingJpa();
     mapping.setAdvice("advice");
     mapping.setFromIdType(IdType.getIdType("CUI"));
     mapping.setToIdType(IdType.getIdType("CUI"));

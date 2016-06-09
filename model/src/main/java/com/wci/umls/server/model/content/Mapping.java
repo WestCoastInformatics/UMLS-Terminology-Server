@@ -8,7 +8,7 @@ import com.wci.umls.server.model.meta.IdType;
 /**
  * Represents a mapping between a from object and a to object.
  */
-public interface WorkflowEpoch extends ComponentHasAttributes {
+public interface Mapping extends ComponentHasAttributes {
 
   /**
    * Gets the from id type.

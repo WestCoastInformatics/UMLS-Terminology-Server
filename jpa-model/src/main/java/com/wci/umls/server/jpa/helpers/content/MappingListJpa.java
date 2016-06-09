@@ -11,19 +11,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.jpa.content.MappingJpa;
-import com.wci.umls.server.model.content.WorkflowEpoch;
+import com.wci.umls.server.model.content.Mapping;
 
 /**
  * JAXB enabled implementation of {@link MappingList}.
  */
 @XmlRootElement(name = "mappingList")
-public class MappingListJpa extends AbstractResultList<WorkflowEpoch> implements
+public class MappingListJpa extends AbstractResultList<Mapping> implements
     MappingList {
 
   /* see superclass */
   @Override
   @XmlElement(type = MappingJpa.class, name = "mapping")
-  public List<WorkflowEpoch> getObjects() {
+  public List<Mapping> getObjects() {
     return super.getObjectsTransient();
   }
 

@@ -23,7 +23,9 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.WorkflowEpoch;
+import com.wci.umls.server.model.content.Mapping;
+
+
 
 /**
  * JPA and JAXB enabled implementation of a {@link MapSet}.
@@ -35,11 +37,11 @@ import com.wci.umls.server.model.content.WorkflowEpoch;
 @Audited
 @Indexed
 @XmlRootElement(name = "mapSet")
-public class WorkflowEpochJpa extends AbstractComponentHasAttributes implements MapSet {
+public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet {
 
   /** The mappings. */
   @OneToMany(mappedBy = "mapSet", targetEntity = MappingJpa.class)
-  private List<WorkflowEpoch> mappings = null;
+  private List<Mapping> mappings = null;
 
   /** The name. */
   @Column(nullable = false)
@@ -86,19 +88,19 @@ public class WorkflowEpochJpa extends AbstractComponentHasAttributes implements 
   private String toVersion;
 
   /**
-   * Instantiates an empty {@link WorkflowEpochJpa}.
+   * Instantiates an empty {@link MapSetJpa}.
    */
-  public WorkflowEpochJpa() {
+  public MapSetJpa() {
     // do nothing
   }
 
   /**
-   * Instantiates a {@link WorkflowEpochJpa} from the specified parameters.
+   * Instantiates a {@link MapSetJpa} from the specified parameters.
    *
    * @param mapSet the map set
    * @param deepCopy the deep copy
    */
-  public WorkflowEpochJpa(MapSet mapSet, boolean deepCopy) {
+  public MapSetJpa(MapSet mapSet, boolean deepCopy) {
     super(mapSet, deepCopy);
     name = mapSet.getName();
     fromComplexity = mapSet.getFromComplexity();
@@ -112,8 +114,8 @@ public class WorkflowEpochJpa extends AbstractComponentHasAttributes implements 
     fromVersion = mapSet.getFromVersion();
     toVersion = mapSet.getToVersion();
     if (deepCopy) {
-      for (final WorkflowEpoch mapping : mapSet.getMappings()) {
-        getMappings().add(new MappingJpa(mapping, deepCopy));
+      for (final Mapping mapping : mapSet.getMappings()) {
+        getMappings().add((Mapping) new MappingJpa(mapping, deepCopy));
       }
     }
 
@@ -198,7 +200,7 @@ public class WorkflowEpochJpa extends AbstractComponentHasAttributes implements 
   /* see superclass */
   @XmlElement(type = MappingJpa.class)
   @Override
-  public List<WorkflowEpoch> getMappings() {
+  public List<Mapping> getMappings() {
     if (mappings == null) {
       return new ArrayList<>();
     }
@@ -207,7 +209,7 @@ public class WorkflowEpochJpa extends AbstractComponentHasAttributes implements 
 
   /* see superclass */
   @Override
-  public void setMappings(List<WorkflowEpoch> mappings) {
+  public void setMappings(List<Mapping> mappings) {
     this.mappings = mappings;
   }
 
@@ -321,7 +323,7 @@ public class WorkflowEpochJpa extends AbstractComponentHasAttributes implements 
       return false;
     if (getClass() != obj.getClass())
       return false;
-    WorkflowEpochJpa other = (WorkflowEpochJpa) obj;
+    MapSetJpa other = (MapSetJpa) obj;
     if (complexity == null) {
       if (other.complexity != null)
         return false;

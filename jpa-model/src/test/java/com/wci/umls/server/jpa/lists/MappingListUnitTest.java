@@ -10,16 +10,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.content.MappingList;
-import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.helpers.content.MappingListJpa;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.WorkflowEpoch;
+import com.wci.umls.server.model.content.Mapping;
 
 /**
  * Unit testing for {@link MappingList}.
  */
-public class MappingListUnitTest extends AbstractListUnit<WorkflowEpoch> {
+public class MappingListUnitTest extends AbstractListUnit<Mapping> {
 
   /** The list test fixture . */
   private MappingList list;
@@ -28,10 +29,10 @@ public class MappingListUnitTest extends AbstractListUnit<WorkflowEpoch> {
   private MappingList list2;
 
   /** The test fixture s1. */
-  private WorkflowEpoch m1;
+  private Mapping m1;
 
   /** The test fixture s2. */
-  private WorkflowEpoch m2;
+  private Mapping m2;
 
   /**
    * Setup class.
@@ -48,10 +49,10 @@ public class MappingListUnitTest extends AbstractListUnit<WorkflowEpoch> {
   public void setup() {
     list = new MappingListJpa();
     list2 = new MappingListJpa();
-    MapSet ms1 = new WorkflowEpochJpa();
+    MapSet ms1 = new MapSetJpa();
     ms1.setId(1L);
     ms1.setTerminologyId("1");
-    MapSet ms2 = new WorkflowEpochJpa();
+    MapSet ms2 = new MapSetJpa();
     ms2.setId(2L);
     ms2.setTerminologyId("2");
 

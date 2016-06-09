@@ -32,7 +32,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
-import com.wci.umls.server.jpa.content.WorkflowEpochJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
@@ -52,7 +52,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.WorkflowEpoch;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
@@ -1507,13 +1507,13 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // Retrieve mapping if it exists
-        WorkflowEpoch mapping = null;
+        Mapping mapping = null;
         if (idMap.containsKey(fields[0])) {
           mapping = getMapping(idMap.get(fields[0]));
         }
 
         // Setup delta mapping (either new or based on existing one)
-        WorkflowEpoch mapping2 = null;
+        Mapping mapping2 = null;
         if (mapping == null) {
           mapping2 = new MappingJpa();
         } else {
@@ -2949,7 +2949,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
    * @param fields the fields
    * @throws Exception the exception
    */
-  public void mappingHelper(WorkflowEpoch mapping, String[] fields) throws Exception {
+  public void mappingHelper(Mapping mapping, String[] fields) throws Exception {
 
     // Verify that referencedComponentId exists
     if (idMap.get(fields[5]) != null) {
@@ -3023,7 +3023,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
    * @param date the date
    * @throws Exception the exception
    */
-  public void manageMapSet(WorkflowEpoch mapping, String[] fields, Date date)
+  public void manageMapSet(Mapping mapping, String[] fields, Date date)
     throws Exception {
 
     // If map set already exists, update it if needed
@@ -3072,7 +3072,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     // Otherwise, add a new one
     else if (!mapSetMap.containsKey(fields[4])) {
 
-      final MapSet mapSet = new WorkflowEpochJpa();
+      final MapSet mapSet = new MapSetJpa();
       setCommonFields(mapSet, date);
       mapSet.setTerminologyId(fields[4].intern());
       final Concept concept = getConcept(idMap.get(fields[4]));

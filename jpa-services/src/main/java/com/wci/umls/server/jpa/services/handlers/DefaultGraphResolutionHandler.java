@@ -26,7 +26,7 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.WorkflowEpoch;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -375,7 +375,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   /* see superclass */
   @Override
-  public void resolve(WorkflowEpoch mapping) throws Exception {
+  public void resolve(Mapping mapping) throws Exception {
     if (mapping != null) {
       boolean nullId = mapping.getId() == null;
       // Attributes
