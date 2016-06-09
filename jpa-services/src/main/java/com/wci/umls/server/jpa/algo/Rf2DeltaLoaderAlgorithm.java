@@ -65,6 +65,7 @@ import com.wci.umls.server.model.meta.NameVariantType;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
@@ -127,9 +128,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   /** The init pref name. */
   private final String initPrefName =
       "Default prefered name could not be determined";
-
-  /** The published. */
-  private final String published = "PUBLISHED";
 
   /** The tree pos algorithm. */
   private final TreePositionAlgorithm treePosAlgorithm =
@@ -573,7 +571,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         concept2.setLastModified(releaseVersionDate);
         concept2.setPublished(true);
         concept2.setPublishable(true);
-        concept2.setWorkflowStatus(published);
+        concept2.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         concept2.setUsesRelationshipUnion(true);
 
         // Attributes
@@ -742,7 +740,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           atom2.setVersion(getVersion());
           atom2.setPublished(true);
           atom2.setPublishable(true);
-          atom2.setWorkflowStatus(published);
+          atom2.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
           // Attributes
           Attribute attribute = null;
@@ -916,7 +914,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           def2.setLastModifiedBy(loader);
           def2.setLastModified(releaseVersionDate);
           def2.setPublished(true);
-          def2.setWorkflowStatus(published);
+          def2.setWorkflowStatus(WorkflowStatus.PUBLISHED);
           def2.setDescriptorId("");
           def2.setCodeId("");
           def2.setLexicalClassId("");

@@ -64,9 +64,6 @@ public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;  
 
-  /** The name. */
-  @Column(nullable = false)
-  private String name;
 
   private WorkflowBinType type;
   
@@ -160,6 +157,7 @@ public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
   }
 
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public WorkflowBinType getType() {
     return type;
   }
@@ -200,7 +198,6 @@ public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
     result = prime * result
         + ((lastPartitionTime == null) ? 0 : lastPartitionTime.hashCode());
     result = prime * result + (mutuallyExclusive ? 1231 : 1237);
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((workflowBinDefinitions == null) ? 0
@@ -234,11 +231,7 @@ public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
       return false;
     if (mutuallyExclusive != other.mutuallyExclusive)
       return false;
-    if (name == null) {
-      if (other.name != null)
-        return false;
-    } else if (!name.equals(other.name))
-      return false;
+
     if (timestamp == null) {
       if (other.timestamp != null)
         return false;
@@ -258,7 +251,7 @@ public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
   public String toString() {
     return "WorkflowBinDefinitionsJpa [id=" + id + ", lastModified="
         + lastModified + ", lastModifiedBy=" + lastModifiedBy + ", timestamp="
-        + timestamp + ", name=" + name + ", type=" + type
+        + timestamp + ", type=" + type
         + ", mutuallyExclusive=" + mutuallyExclusive + ", lastPartitionTime="
         + lastPartitionTime + ", workflowBinDefinitions="
         + workflowBinDefinitions + "]";

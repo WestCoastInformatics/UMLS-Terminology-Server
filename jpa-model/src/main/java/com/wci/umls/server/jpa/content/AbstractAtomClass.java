@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlElement;
@@ -37,6 +39,7 @@ import org.hibernate.search.annotations.TokenizerDef;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Abstract JPA and JAXB enabled implementation of {@link AtomClass}.
@@ -101,9 +104,10 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   private String branchedTo;
 
   /** The workflow status. */
-  @Column(nullable = true)
-  private String workflowStatus;
-
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private WorkflowStatus workflowStatus;
+  
   /**
    * Instantiates an empty {@link AbstractAtomClass}.
    */
@@ -164,13 +168,13 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getWorkflowStatus() {
+  public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;
   }
 
   /* see superclass */
   @Override
-  public void setWorkflowStatus(String workflowStatus) {
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
     this.workflowStatus = workflowStatus;
 
   }

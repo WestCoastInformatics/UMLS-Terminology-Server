@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.jpa.algo;
 
-import gnu.trove.strategy.HashingStrategy;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,8 +99,11 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.PushBackReader;
+
+import gnu.trove.strategy.HashingStrategy;
 
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
@@ -2454,7 +2455,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       atom.setTerminologyId(fields[8]);
       atom.setTermType(fields[12].intern());
-      atom.setWorkflowStatus(published);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
       atom.setCodeId(fields[13]);
       atom.setDescriptorId(fields[10]);
@@ -2554,7 +2555,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           cui.setTerminology(getTerminology());
           cui.setTerminologyId(fields[0]);
           cui.setVersion(getVersion());
-          cui.setWorkflowStatus(published);
+          cui.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         }
         cui.getAtoms().add(atom);
         prevCui = fields[0];
@@ -2636,7 +2637,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         cui.setTerminology(atom.getTerminology());
         cui.setTerminologyId(atom.getConceptId());
         cui.setVersion(atom.getVersion());
-        cui.setWorkflowStatus(published);
+        cui.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       }
       cui.getAtoms().add(atom);
       prevCui = atom.getConceptId();
@@ -2686,7 +2687,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         dui.setTerminology(atom.getTerminology());
         dui.setTerminologyId(atom.getDescriptorId());
         dui.setVersion(atom.getVersion());
-        dui.setWorkflowStatus(published);
+        dui.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       }
       dui.getAtoms().add(atom);
       prevDui = atom.getDescriptorId();
@@ -2752,7 +2753,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           code.setTerminology(atom.getTerminology());
           code.setTerminologyId(atom.getCodeId());
           code.setVersion(atom.getVersion());
-          code.setWorkflowStatus(published);
+          code.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         }
         code.getAtoms().add(atom);
         prevCode = atom.getCodeId();
