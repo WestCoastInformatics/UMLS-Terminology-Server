@@ -166,6 +166,7 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getDescription() {
     return description;
   }
