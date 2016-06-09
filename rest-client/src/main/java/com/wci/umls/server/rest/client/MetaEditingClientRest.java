@@ -86,7 +86,6 @@ public class MetaEditingClientRest extends RootClientRest
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
 
-    String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {

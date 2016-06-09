@@ -97,50 +97,56 @@ public interface ProjectService extends RootService {
   /**
    * Validate concept.
    *
+   * @param project the project
    * @param concept the concept
    * @return the validation result
    */
-  public ValidationResult validateConcept(Concept concept);
+  public ValidationResult validateConcept(Project project, Concept concept);
   
   /**
    * Validate atom.
    *
+   * @param project the project
    * @param atom the atom
    * @return the validation result
    */
-  public ValidationResult validateAtom(Atom atom);
+  public ValidationResult validateAtom(Project project, Atom atom);
   
   /**
    * Validate descriptor.
    *
+   * @param project the project
    * @param descriptor the descriptor
    * @return the validation result
    */
-  public ValidationResult validateDescriptor(Descriptor descriptor);
+  public ValidationResult validateDescriptor(Project project, Descriptor descriptor);
   
   /**
    * Validate code.
    *
+   * @param project the project
    * @param code the code
    * @return the validation result
    */
-  public ValidationResult validateCode(Code code);
+  public ValidationResult validateCode(Project project, Code code);
   
   /**
    * Validate merge.
    *
+   * @param project the project
    * @param concept1 the concept1
    * @param concept2 the concept2
    * @return the validation result
    */
-  public ValidationResult validateMerge(Concept concept1, Concept concept2);
+  public ValidationResult validateMerge(Project project, Concept concept1, Concept concept2);
 
   /**
    * Gets the validation check names.
    *
+   * @param project the project
    * @return the validation check names
    */
-  public KeyValuePairList getValidationCheckNames();
+  public KeyValuePairList getValidationCheckNames(Project project);
 
   
 }

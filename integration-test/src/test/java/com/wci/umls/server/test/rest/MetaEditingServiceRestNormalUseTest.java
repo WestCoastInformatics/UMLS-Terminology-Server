@@ -108,7 +108,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(!c.getSemanticTypes().contains(sty));
 
     // validate the concept
-    validationService.validateConcept((ConceptJpa) c, authToken);
+    validationService.validateConcept(project.getId(), (ConceptJpa) c, authToken);
 
     // add the semantic type to the concept
     c = metaEditingService.addSemanticType(project.getId(), c.getId(), sty,
@@ -116,7 +116,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(c.getSemanticTypes().contains(sty));
 
     // validate the concept
-    validationService.validateConcept((ConceptJpa) c, authToken);
+    validationService.validateConcept(project.getId(), (ConceptJpa) c, authToken);
 
   }
 

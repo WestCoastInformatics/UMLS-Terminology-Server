@@ -39,13 +39,15 @@ import com.wci.umls.server.services.handlers.ValidationCheck;
 /**
  * JPA and JAXB enabled implementation of {@link ProjectService}.
  */
-public class ProjectServiceJpa extends RootServiceJpa implements ProjectService {
-  
+public class ProjectServiceJpa extends RootServiceJpa
+    implements ProjectService {
+
   /** The config properties. */
   protected static Properties config = null;
 
   /** The validation handlers. */
   protected static Map<String, ValidationCheck> validationHandlersMap = null;
+
   static {
     validationHandlersMap = new HashMap<>();
     try {
@@ -66,7 +68,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
       validationHandlersMap = null;
     }
   }
-  
+
   /**
    * Instantiates an empty {@link ProjectServiceJpa}.
    *
@@ -85,8 +87,8 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public ConceptList findConceptsInScope(Project project, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Project Service - get project scope - " + project);
+    Logger.getLogger(getClass())
+        .info("Project Service - get project scope - " + project);
 
     return null;
   }
@@ -124,9 +126,9 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public UserRole getUserRoleForProject(String username, Long projectId)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Service - get user role for project - " + username + ", "
-            + projectId);
+    Logger.getLogger(getClass())
+        .debug("Project Service - get user role for project - " + username
+            + ", " + projectId);
     final Project project = getProject(projectId);
     if (project == null) {
       throw new Exception("No project found for " + projectId);
@@ -183,8 +185,8 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   /* see superclass */
   @Override
   public Project addProject(Project project) {
-    Logger.getLogger(getClass()).debug(
-        "Project Service - add project - " + project);
+    Logger.getLogger(getClass())
+        .debug("Project Service - add project - " + project);
     try {
       // Set last modified date
       project.setLastModified(new Date());
@@ -210,8 +212,8 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   /* see superclass */
   @Override
   public void updateProject(Project project) {
-    Logger.getLogger(getClass()).debug(
-        "Project Service - update project - " + project);
+    Logger.getLogger(getClass())
+        .debug("Project Service - update project - " + project);
 
     try {
       // Set modification date
@@ -318,12 +320,12 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
             try {
               // handle dates explicitly
               if (o2 instanceof Date) {
-                return ((Date) sortField.get(o1)).compareTo((Date) sortField
-                    .get(o2));
+                return ((Date) sortField.get(o1))
+                    .compareTo((Date) sortField.get(o2));
               } else {
                 // otherwise, sort based on conversion to string
-                return (sortField.get(o1).toString()).compareTo(sortField.get(
-                    o2).toString());
+                return (sortField.get(o1).toString())
+                    .compareTo(sortField.get(o2).toString());
               }
             } catch (IllegalAccessException e) {
               // on exception, return equality
@@ -339,12 +341,12 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
             try {
               // handle dates explicitly
               if (o2 instanceof Date) {
-                return ((Date) sortField.get(o1)).compareTo((Date) sortField
-                    .get(o2));
+                return ((Date) sortField.get(o1))
+                    .compareTo((Date) sortField.get(o2));
               } else {
                 // otherwise, sort based on conversion to string
-                return (sortField.get(o1).toString()).compareTo(sortField.get(
-                    o2).toString());
+                return (sortField.get(o1).toString())
+                    .compareTo(sortField.get(o2).toString());
               }
             } catch (IllegalAccessException e) {
               // on exception, return equality
@@ -364,14 +366,13 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public ProjectList findProjectsForQuery(String query, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Project Service - find projects " + "/" + query);
+    Logger.getLogger(getClass())
+        .info("Project Service - find projects " + "/" + query);
 
     int[] totalCt = new int[1];
-    List<Project> list =
-        (List<Project>) getQueryResults(query == null || query.isEmpty()
-            ? "id:[* TO *]" : query, ProjectJpa.class, ProjectJpa.class, pfs,
-            totalCt);
+    List<Project> list = (List<Project>) getQueryResults(
+        query == null || query.isEmpty() ? "id:[* TO *]" : query,
+        ProjectJpa.class, ProjectJpa.class, pfs, totalCt);
     final ProjectList result = new ProjectListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
@@ -386,68 +387,81 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   public void refreshCaches() throws Exception {
     // n/a
   }
-  
 
   /* see superclass */
   @Override
-  public ValidationResult validateConcept(Concept concept) {
+  public ValidationResult validateConcept(Project project, Concept concept) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : validationHandlersMap.keySet()) {
-      result.merge(validationHandlersMap.get(key).validate(concept));
+      if (project.getValidationChecks().contains(key)) {
+        result.merge(validationHandlersMap.get(key).validate(concept));
+      }
     }
     return result;
   }
 
   /* see superclass */
   @Override
-  public ValidationResult validateAtom(Atom atom) {
+  public ValidationResult validateAtom(Project project, Atom atom) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : validationHandlersMap.keySet()) {
-      result.merge(validationHandlersMap.get(key).validate(atom));
+      if (project.getValidationChecks().contains(key)) {
+        result.merge(validationHandlersMap.get(key).validate(atom));
+      }
     }
     return result;
   }
 
   /* see superclass */
   @Override
-  public ValidationResult validateDescriptor(Descriptor descriptor) {
+  public ValidationResult validateDescriptor(Project project,
+    Descriptor descriptor) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : validationHandlersMap.keySet()) {
-      result.merge(validationHandlersMap.get(key).validate(descriptor));
+      if (project.getValidationChecks().contains(key)) {
+        result.merge(validationHandlersMap.get(key).validate(descriptor));
+      }
     }
     return result;
   }
 
   /* see superclass */
   @Override
-  public ValidationResult validateCode(Code code) {
+  public ValidationResult validateCode(Project project, Code code) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : validationHandlersMap.keySet()) {
-      result.merge(validationHandlersMap.get(key).validate(code));
+      if (project.getValidationChecks().contains(key)) {
+        result.merge(validationHandlersMap.get(key).validate(code));
+      }
     }
     return result;
   }
 
   /* see superclass */
   @Override
-  public ValidationResult validateMerge(Concept concept1, Concept concept2) {
+  public ValidationResult validateMerge(Project project, Concept concept1,
+    Concept concept2) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : validationHandlersMap.keySet()) {
-      result.merge(validationHandlersMap.get(key).validateMerge(concept1,
-          concept2));
+      if (project.getValidationChecks().contains(key)) {
+        result.merge(
+            validationHandlersMap.get(key).validateMerge(concept1, concept2));
+      }
     }
     return result;
   }
 
   /* see superclass */
   @Override
-  public KeyValuePairList getValidationCheckNames() {
+  public KeyValuePairList getValidationCheckNames(Project project) {
     final KeyValuePairList keyValueList = new KeyValuePairList();
     for (final Entry<String, ValidationCheck> entry : validationHandlersMap
         .entrySet()) {
-      final KeyValuePair pair =
-          new KeyValuePair(entry.getKey(), entry.getValue().getName());
-      keyValueList.addKeyValuePair(pair);
+      if (project == null || project.getValidationChecks().contains(entry.getKey())) {
+        final KeyValuePair pair =
+            new KeyValuePair(entry.getKey(), entry.getValue().getName());
+        keyValueList.addKeyValuePair(pair);
+      }
     }
     return keyValueList;
   }

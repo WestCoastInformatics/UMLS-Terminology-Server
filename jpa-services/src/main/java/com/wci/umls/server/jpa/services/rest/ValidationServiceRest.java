@@ -19,50 +19,55 @@ public interface ValidationServiceRest {
    * Validates the specified concept. Checks are defined the "run.config.umls"
    * setting for the deployed server.
    *
+   * @param projectId the project id
    * @param concept the concept
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateConcept(ConceptJpa concept, String authToken)
+  public ValidationResult validateConcept(Long projectId, ConceptJpa concept, String authToken)
     throws Exception;
 
   /**
    * Validate atom.
    *
+   * @param projectId the project id
    * @param atom the atom
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateAtom(AtomJpa atom, String authToken)
+  public ValidationResult validateAtom(Long projectId, AtomJpa atom, String authToken)
     throws Exception;
 
   /**
    * Validate descriptor.
    *
+   * @param projectId the project id
    * @param descriptor the descriptor
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateDescriptor(DescriptorJpa descriptor,
+  public ValidationResult validateDescriptor(Long projectId, DescriptorJpa descriptor,
     String authToken) throws Exception;
 
   /**
    * Validate code.
    *
+   * @param projectId the project id
    * @param code the code
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateCode(CodeJpa code, String authToken)
+  public ValidationResult validateCode(Long projectId, CodeJpa code, String authToken)
     throws Exception;
 
   /**
    * Validate merge.
    *
+   * @param projectId the project id
    * @param terminology the terminology
    * @param version the version
    * @param cui1 the cui1
@@ -71,16 +76,18 @@ public interface ValidationServiceRest {
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateMerge(String terminology, String version,
+  public ValidationResult validateMerge(Long projectId, String terminology, String version,
     String cui1, String cui2, String authToken) throws Exception;
 
   /**
    * Gets the validation checks.
    *
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the validation checks
    * @throws Exception the exception
    */
-  public KeyValuePairList getValidationChecks(String authToken)
+  public KeyValuePairList getValidationChecks(Long projectId, String authToken)
     throws Exception;
+
 }

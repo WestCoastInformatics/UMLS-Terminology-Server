@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -60,11 +61,13 @@ public class ValidationServiceRestNormalUseTest extends
   public void testNormalUseRestValidation001() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
+    Project p = projectService.getProjects(authToken).getObjects().get(0);
+    
     ConceptJpa c =
         (ConceptJpa) contentService.getConcept("M0028634", mshTerminology,
             mshVersion, authToken);
 
-    ValidationResult result = validationService.validateConcept(c, authToken);
+    ValidationResult result = validationService.validateConcept(p.getId(), c, authToken);
 
     assertTrue(result.getErrors().size() == 0);
     assertTrue(result.getWarnings().size() == 0);
@@ -78,12 +81,15 @@ public class ValidationServiceRestNormalUseTest extends
   @Test
   public void testNormalUseRestValidation002() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
+    
+
+    Project p = projectService.getProjects(authToken).getObjects().get(0);
 
     AtomJpa c =
         (AtomJpa) contentService.getAtom("412904012", snomedTerminology,
             snomedVersion, authToken);
 
-    ValidationResult result = validationService.validateAtom(c, authToken);
+    ValidationResult result = validationService.validateAtom(p.getId(), c, authToken);
 
     assertTrue(result.getErrors().size() == 0);
     assertTrue(result.getWarnings().size() == 0);
@@ -98,12 +104,15 @@ public class ValidationServiceRestNormalUseTest extends
   public void testNormalUseRestValidation003() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
+
+    Project p = projectService.getProjects(authToken).getObjects().get(0);
+    
     DescriptorJpa c =
         (DescriptorJpa) contentService.getDescriptor("C013093", mshTerminology,
             mshVersion, authToken);
 
     ValidationResult result =
-        validationService.validateDescriptor(c, authToken);
+        validationService.validateDescriptor(p.getId(), c, authToken);
 
     assertTrue(result.getErrors().size() == 0);
     assertTrue(result.getWarnings().size() == 0);
@@ -117,12 +126,14 @@ public class ValidationServiceRestNormalUseTest extends
   @Test
   public void testNormalUseRestValidation004() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
+    
+    Project p = projectService.getProjects(authToken).getObjects().get(0);
 
     CodeJpa c =
         (CodeJpa) contentService.getCode("C013093", mshTerminology, mshVersion,
             authToken);
 
-    ValidationResult result = validationService.validateCode(c, authToken);
+    ValidationResult result = validationService.validateCode(p.getId(), c, authToken);
 
     assertTrue(result.getErrors().size() == 0);
     assertTrue(result.getWarnings().size() == 0);
