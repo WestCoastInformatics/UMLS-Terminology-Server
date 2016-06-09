@@ -1,15 +1,10 @@
 package com.wci.umls.server.jpa.worfklow;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
 
 import com.wci.umls.server.model.workflow.Checklist;
@@ -19,12 +14,11 @@ import com.wci.umls.server.model.workflow.Checklist;
  */
 @Entity
 @Table(name = "checklists", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "id"
+  "id"
 }))
 @Indexed
 @XmlRootElement(name = "checklist")
-public class ChecklistJpa extends AbstractChecklist implements Checklist {
-
+public class ChecklistJpa extends AbstractChecklist {
 
   /**
    * Instantiates an empty {@link ChecklistJpa}.
@@ -42,7 +36,5 @@ public class ChecklistJpa extends AbstractChecklist implements Checklist {
   public ChecklistJpa(Checklist checklist, boolean deepCopy) {
     super(checklist, deepCopy);
   }
-
-
 
 }

@@ -115,20 +115,6 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   /* see superclass */
   @Override
-  public void enableListeners() {
-    // n/a
-
-  }
-
-  /* see superclass */
-  @Override
-  public void disableListeners() {
-    // n/a
-
-  }
-
-  /* see superclass */
-  @Override
   public boolean isLastModifiedFlag() {
     // n/a
     return false;

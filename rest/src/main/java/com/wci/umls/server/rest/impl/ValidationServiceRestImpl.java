@@ -8,29 +8,21 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.KeyValuePairList;
-import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.ValidationServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ValidationServiceRest;
-import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.ValidationService;
 import com.wordnik.swagger.annotations.Api;
@@ -43,7 +35,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Path("/validation")
 @Api(value = "/validation", description = "Operations providing terminology validation")
 @Consumes({
-  MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
@@ -63,54 +55,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     securityService = new SecurityServiceJpa();
   }
 
-  @Override
-  @GET
-  @Path("/validate/concept/merge/{terminology}/{version}/{cui1}/{cui2}")
-  @ApiOperation(value = "Validate merge", notes = "Validates the merge of two concepts", response = ValidationResultJpa.class)
-  public ValidationResult validateMerge(
-    @ApiParam(value = "Terminology", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Version", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Cui for first concept", required = true) @PathParam("cui1") String cui1,
-    @ApiParam(value = "Cui for second concept", required = true) @PathParam("cui2") String cui2,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Validation): /validate/concept/merge/" + terminology + "/"
-            + version + "/" + cui1 + "/" + cui2);
-
-    ValidationService validationService = new ValidationServiceJpa();
-    ContentService contentService = new ContentServiceJpa();
-    try {
-      securityService.getUsernameForToken(authToken);
-
-      // authorize call
-      UserRole role = securityService.getApplicationRoleForToken(authToken);
-      if (!role.hasPrivilegesOf(UserRole.VIEWER))
-        throw new WebApplicationException(Response.status(401)
-            .entity("User does not have permissions to retrieve the metadata")
-            .build());
-
-      Concept concept1 =
-          contentService.getConcept(cui1, terminology, version, Branch.ROOT);
-      Concept concept2 =
-          contentService.getConcept(cui2, terminology, version, Branch.ROOT);
-
-      ValidationResult result =
-          validationService.validateMerge(concept1, concept2);
-
-      return result;
-
-    } catch (Exception e) {
-
-      handleException(e, "trying to validate the concept merge");
-      return null;
-    } finally {
-      validationService.close();
-      securityService.close();
-    }
-  }
-
+  /* see superclass */
   @Override
   @PUT
   @Path("/dui")
@@ -138,6 +83,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  /* see superclass */
   @Override
   @PUT
   @Path("/aui")
@@ -164,6 +110,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  /* see superclass */
   @Override
   @PUT
   @Path("/code")
@@ -190,6 +137,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  /* see superclass */
   @Override
   @PUT
   @Path("/concept")

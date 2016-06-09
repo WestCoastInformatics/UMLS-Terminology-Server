@@ -8,7 +8,7 @@ import java.util.List;
 import com.wci.umls.server.helpers.HasLabelSets;
 
 /**
- * The Interface AtomClass.
+ * Generically represents a classification of atoms.
  */
 public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets {
 

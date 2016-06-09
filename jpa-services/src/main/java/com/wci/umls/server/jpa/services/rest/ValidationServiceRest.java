@@ -61,20 +61,6 @@ public interface ValidationServiceRest {
     throws Exception;
 
   /**
-   * Validate merge.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param cui1 the cui1
-   * @param cui2 the cui2
-   * @param authToken the auth token
-   * @return the validation result
-   * @throws Exception the exception
-   */
-  public ValidationResult validateMerge(String terminology, String version,
-    String cui1, String cui2, String authToken) throws Exception;
-
-  /**
    * Gets the validation checks.
    *
    * @param authToken the auth token

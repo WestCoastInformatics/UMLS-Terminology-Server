@@ -160,34 +160,6 @@ public class ValidationClientRest implements ValidationServiceRest {
     return result;
   }
 
-  /* see superclass */
-  @Override
-  public ValidationResult validateMerge(String terminology, String version,
-    String cui1, String cui2, String authToken) throws Exception {
-
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/validate/concept/merge/"
-            + terminology + "/" + version + "/" + cui1 + "/" + cui2);
-
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
-
-    String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
-    } else {
-      throw new Exception(resultString);
-    }
-
-    // converting to object
-    ValidationResult result =
-        ConfigUtility
-            .getGraphForString(resultString, ValidationResultJpa.class);
-    return result;
-  }
-
   @Override
   public KeyValuePairList getValidationChecks(String authToken)
     throws Exception {

@@ -13,7 +13,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlID;
 
 import org.hibernate.envers.Audited;
 
