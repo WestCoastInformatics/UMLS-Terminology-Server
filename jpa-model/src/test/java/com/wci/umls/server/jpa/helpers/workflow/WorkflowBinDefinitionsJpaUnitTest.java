@@ -23,7 +23,6 @@ import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionsJpa;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinitions;
-import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
 /**
  * Unit testing for {@link WorkflowBinDefinitionsJpa}.
