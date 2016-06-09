@@ -70,6 +70,7 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
@@ -167,8 +168,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
   /** The id. */
   private final String id = "id";
 
-  /** The published. */
-  private final String published = "PUBLISHED";
 
   /** The tree pos algorithm. */
   private final TreePositionAlgorithm treePosAlgorithm =
@@ -541,7 +540,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         concept.setPublished(true);
         concept.setPublishable(true);
         concept.setUsesRelationshipUnion(true);
-        concept.setWorkflowStatus(published);
+        concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
         // Attributes
         final Attribute attribute = new AttributeJpa();
@@ -729,7 +728,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         atom.setVersion(getVersion());
         atom.setPublished(true);
         atom.setPublishable(true);
-        atom.setWorkflowStatus(published);
+        atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
         // Attributes
         final Attribute attribute = new AttributeJpa();
@@ -813,7 +812,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         def.setVersion(getVersion());
         def.setPublished(true);
         def.setPublishable(true);
-        def.setWorkflowStatus(published);
+        def.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
         // Attributes
         final Attribute attribute = new AttributeJpa();

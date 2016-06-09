@@ -41,4 +41,5 @@ public enum WorkflowStatus {
   /** The demotion. */
   DEMOTION;
 
+
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 import com.wci.umls.server.helpers.HasComponentHistory;
 import com.wci.umls.server.helpers.HasMembers;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Represents a single atomic unit of meaning. It's a name from a vocabulary
@@ -149,13 +150,13 @@ public interface Atom extends ComponentHasAttributesAndName,
    *
    * @return the workflow status
    */
-  public String getWorkflowStatus();
+  public WorkflowStatus getWorkflowStatus();
 
   /**
    * Sets the workflow status.
    *
    * @param workflowStatus the workflow status
    */
-  public void setWorkflowStatus(String workflowStatus);
+  public void setWorkflowStatus(WorkflowStatus workflowStatus);
 
 }
