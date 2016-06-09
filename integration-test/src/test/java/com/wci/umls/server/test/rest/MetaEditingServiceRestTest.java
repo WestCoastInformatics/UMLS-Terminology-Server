@@ -9,7 +9,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.rest.client.ContentClientRest;
@@ -110,16 +109,6 @@ public class MetaEditingServiceRestTest {
 
   }
   
-  /**
-   * Test.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void test() throws Exception {
-    // n/a
-  }
-
   /**
    * Teardown.
    *

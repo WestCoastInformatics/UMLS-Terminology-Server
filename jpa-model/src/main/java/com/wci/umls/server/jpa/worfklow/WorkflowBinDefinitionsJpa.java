@@ -86,7 +86,7 @@ public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
   /**
    * Instantiates a new workflow bin definition jpa.
    *
-   * @param workflowBinDefinition the workflow bin definitions
+   * @param workflowBinDefinitions the workflow bin definitions
    */
   public WorkflowBinDefinitionsJpa(WorkflowBinDefinitions workflowBinDefinitions) {
     super();

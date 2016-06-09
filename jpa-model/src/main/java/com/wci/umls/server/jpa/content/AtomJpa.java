@@ -536,6 +536,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   }
 
   @Override
+  @XmlElement(type=ComponentHistoryJpa.class)
   public List<ComponentHistory> getComponentHistory() {
     return componentHistories;
   }

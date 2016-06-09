@@ -6,8 +6,8 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
  * The Interface ContentServiceRest.
@@ -24,7 +24,7 @@ public interface MetaEditingServiceRest {
    * @return the concept
    * @throws Exception the exception
    */
-  public Concept addSemanticType(Long projectId, Long conceptId, SemanticTypeComponent semanticTypeComponent, String authToken) throws Exception;
+  public Concept addSemanticType(Long projectId, Long conceptId, SemanticTypeComponentJpa semanticTypeComponent, String authToken) throws Exception;
 
   /**
    * Remove semantic type.
@@ -33,10 +33,9 @@ public interface MetaEditingServiceRest {
    * @param conceptId the concept id
    * @param semanticTypeComponentId the semantic type component id
    * @param authToken the auth token
-   * @return the concept
    * @throws Exception the exception
    */
-  public Concept removeSemanticType(Long projectId, Long conceptId, Long semanticTypeComponentId, String authToken) throws Exception;
+  public void removeSemanticType(Long projectId, Long conceptId, Long semanticTypeComponentId, String authToken) throws Exception;
 
 
 }

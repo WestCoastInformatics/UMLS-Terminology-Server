@@ -10,12 +10,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
@@ -26,36 +26,37 @@ import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.jpa.services.ValidationServiceJpa;
+import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.ValidationServiceRest;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
-import com.wci.umls.server.services.ValidationService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
 /**
- * REST implementation for {@link ValidationServiceRest}.
+ * REST implementation for {@link ProjectServiceRest}.
  */
 @Path("/validation")
 @Api(value = "/validation", description = "Operations providing terminology validation")
 @Consumes({
-  MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class ValidationServiceRestImpl extends RootServiceRestImpl implements
-    ValidationServiceRest {
+public class ValidationServiceRestImpl extends RootServiceRestImpl
+    implements ValidationServiceRest {
 
   /** The security service. */
   private SecurityService securityService;
 
   /**
-   * Instantiates an empty {@link ValidationServiceRestImpl}.
+   * Instantiates an empty {@link ProjectServiceRestImpl}.
    *
    * @throws Exception the exception
    */
@@ -68,28 +69,26 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Path("/validate/concept/merge/{terminology}/{version}/{cui1}/{cui2}")
   @ApiOperation(value = "Validate merge", notes = "Validates the merge of two concepts", response = ValidationResultJpa.class)
   public ValidationResult validateMerge(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Terminology", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Version", required = true) @PathParam("version") String version,
     @ApiParam(value = "Cui for first concept", required = true) @PathParam("cui1") String cui1,
     @ApiParam(value = "Cui for second concept", required = true) @PathParam("cui2") String cui2,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
+      throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Validation): /validate/concept/merge/" + terminology + "/"
-            + version + "/" + cui1 + "/" + cui2);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Validation): /validate/concept/merge/"
+            + terminology + "/" + version + "/" + cui1 + "/" + cui2);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     ContentService contentService = new ContentServiceJpa();
     try {
-      securityService.getUsernameForToken(authToken);
 
       // authorize call
-      UserRole role = securityService.getApplicationRoleForToken(authToken);
-      if (!role.hasPrivilegesOf(UserRole.VIEWER))
-        throw new WebApplicationException(Response.status(401)
-            .entity("User does not have permissions to retrieve the metadata")
-            .build());
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "merge concepts", UserRole.USER);
+      Project project = projectService.getProject(projectId);
 
       Concept concept1 =
           contentService.getConcept(cui1, terminology, version, Branch.ROOT);
@@ -97,7 +96,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
           contentService.getConcept(cui2, terminology, version, Branch.ROOT);
 
       ValidationResult result =
-          validationService.validateMerge(concept1, concept2);
+          projectService.validateMerge(project, concept1, concept2);
 
       return result;
 
@@ -106,7 +105,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to validate the concept merge");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
   }
@@ -116,23 +115,24 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Path("/dui")
   @ApiOperation(value = "Validate Descriptor", notes = "Validates a descriptor", response = ValidationResult.class)
   public ValidationResult validateDescriptor(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Descriptor", required = true) DescriptorJpa descriptor,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /dui " + descriptor);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (Project): /dui " + descriptor);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "validate descriptor",
-          UserRole.VIEWER);
-
-      return validationService.validateDescriptor(descriptor);
+      Project project = projectService.getProject(projectId);
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "validate descriptor", UserRole.USER);
+      return projectService.validateDescriptor(project, descriptor);
     } catch (Exception e) {
       handleException(e, "trying to validate descriptor");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
 
@@ -143,22 +143,24 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Path("/aui")
   @ApiOperation(value = "Validate Atom", notes = "Validates a atom", response = ValidationResult.class)
   public ValidationResult validateAtom(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Atom", required = true) AtomJpa atom,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /aui " + atom);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (Project): /aui " + atom);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "validate atom", UserRole.VIEWER);
-
-      return validationService.validateAtom(atom);
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "validate atom", UserRole.USER);
+      Project project = projectService.getProject(projectId);
+      return projectService.validateAtom(project, atom);
     } catch (Exception e) {
       handleException(e, "trying to validate atom");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
 
@@ -169,22 +171,23 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Path("/code")
   @ApiOperation(value = "Validate Code", notes = "Validates a code", response = ValidationResult.class)
   public ValidationResult validateCode(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Code", required = true) CodeJpa code,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /code " + code);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (Project): /code " + code);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "validate code", UserRole.VIEWER);
-
-      return validationService.validateCode(code);
+      authorizeProject(projectService, projectId, securityService, authToken, "validate code", UserRole.USER);
+      Project project = projectService.getProject(projectId);
+      return projectService.validateCode(project, code);
     } catch (Exception e) {
       handleException(e, "trying to validate code");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
 
@@ -195,23 +198,24 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Path("/concept")
   @ApiOperation(value = "Validate Concept", notes = "Validates a concept", response = ValidationResult.class)
   public ValidationResult validateConcept(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept", required = true) ConceptJpa concept,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /concept " + concept);
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (Project): /concept " + concept);
 
-    ValidationService validationService = new ValidationServiceJpa();
+    ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "validate concept",
-          UserRole.VIEWER);
-
-      return validationService.validateConcept(concept);
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "validate conceptm", UserRole.USER);
+      Project project = projectService.getProject(projectId);
+      return projectService.validateConcept(project, concept);
     } catch (Exception e) {
       handleException(e, "trying to validate concept");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
 
@@ -221,25 +225,28 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/checks")
-  @ApiOperation(value = "Gets all validation checks", notes = "Gets all validation checks", response = KeyValuePairList.class)
+  @ApiOperation(value = "Gets all validation checks for a project", notes = "Gets all validation checks for a project", response = KeyValuePairList.class)
   public KeyValuePairList getValidationChecks(
+    @ApiParam(value = "The project id , e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call POST (Validation): /checks ");
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call POST (Validation): /checks ");
 
-    final ValidationService validationService = new ValidationServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "get validation checks",
           UserRole.VIEWER);
 
-      final KeyValuePairList list = validationService.getValidationCheckNames();
+      Project project = projectService.getProject(projectId);
+      final KeyValuePairList list =
+          projectService.getValidationCheckNames(project);
       return list;
     } catch (Exception e) {
       handleException(e, "trying to validate all concept");
       return null;
     } finally {
-      validationService.close();
+      projectService.close();
       securityService.close();
     }
   }

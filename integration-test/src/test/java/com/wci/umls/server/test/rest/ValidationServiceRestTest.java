@@ -13,6 +13,7 @@ import org.junit.Ignore;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
 import com.wci.umls.server.rest.client.ValidationClientRest;
 import com.wci.umls.server.services.ContentService;
@@ -31,6 +32,9 @@ public class ValidationServiceRestTest {
 
   /** The content service. */
   protected static ContentService contentService;
+  
+  /** The project service. */
+  protected static ProjectClientRest projectService;
 
   /** The properties. */
   protected static Properties properties;
@@ -53,6 +57,7 @@ public class ValidationServiceRestTest {
     properties = ConfigUtility.getConfigProperties();
 
     // instantiate required services
+    projectService = new ProjectClientRest(properties);
     validationService = new ValidationClientRest(properties);
     securityService = new SecurityClientRest(properties);
 

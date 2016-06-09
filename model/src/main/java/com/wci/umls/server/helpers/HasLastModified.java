@@ -5,8 +5,6 @@ package com.wci.umls.server.helpers;
 
 import java.util.Date;
 
-import com.wci.umls.server.model.workflow.Worklist;
-
 /**
  * Represents a thing that has last modified tracking.
  */

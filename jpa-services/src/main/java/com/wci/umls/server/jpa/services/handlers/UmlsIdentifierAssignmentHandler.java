@@ -6,8 +6,6 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.HasTerminologyId;
-import com.wci.umls.server.jpa.helpers.meta.AttributeIdentityJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -27,8 +25,6 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
-import com.wci.umls.server.model.meta.AttributeIdentity;
-import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
@@ -136,33 +132,7 @@ public class UmlsIdentifierAssignmentHandler
   @Override
   public String getTerminologyId(SemanticTypeComponent semanticTypeComponent,
     Concept concept) throws Exception {
-
-    // TODO need to construct the hash... somehow
-    String hashCode = ""; // getHashCode(semanticTypeComponent)
-    ContentService contentService = new ContentServiceJpa();
-    try {
-
-      AttributeIdentity a = contentService.getAttributeIdentity(hashCode);
-      if (a == null) {
-        a = new AttributeIdentityJpa();
-        a.setHashCode(hashCode);
-        a.setName(semanticTypeComponent.getSemanticType());
-        a.setOwnerId(concept.getTerminologyId());
-        a.setTerminology(semanticTypeComponent.getTerminology());
-        a.setTerminologyId(""); // TODO Generate this
-        a.setOwnerQualifier(""); // TODO Put what here?
-
-        a = contentService.addAttributeIdentity(a);
-
-        return a.getTerminologyId();
-      } else {
-        return a.getTerminologyId();
-      }
-    } catch (Exception e) {
-      throw e;
-    } finally {
-      contentService.close();
-    }
+    return semanticTypeComponent.getTerminologyId();
   }
 
   /* see superclass */

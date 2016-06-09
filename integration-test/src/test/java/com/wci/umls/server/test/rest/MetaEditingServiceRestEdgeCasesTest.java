@@ -19,6 +19,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 
@@ -78,7 +79,7 @@ public class MetaEditingServiceRestEdgeCasesTest
 
     // get the concept
     Concept c = contentService.getConcept("C0000005", umlsTerminology,
-        umlsVersion, authToken);
+        umlsVersion, null, authToken);
     assertNotNull(c);
 
     // check against project
@@ -94,9 +95,9 @@ public class MetaEditingServiceRestEdgeCasesTest
     // get a concept with different semantic type (for testing add)
     // NOTE: Testing addition of already present sty done elsewhere
     Concept c2 = contentService.getConcept("C0000039", umlsTerminology,
-        umlsVersion, authToken);
+        umlsVersion, null, authToken);
     assertNotNull(c2);
-    SemanticTypeComponent sty2 = c2.getSemanticTypes().get(0);
+    SemanticTypeComponentJpa sty2 = (SemanticTypeComponentJpa) c2.getSemanticTypes().get(0);
     assertNotNull(sty2);
     
     //

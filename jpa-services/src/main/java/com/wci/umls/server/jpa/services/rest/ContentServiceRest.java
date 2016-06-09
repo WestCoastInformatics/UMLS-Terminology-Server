@@ -37,12 +37,13 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the concept
    * @throws Exception the exception
    */
   public Concept getConcept(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+    String version, Long projectId, String authToken) throws Exception;
 
   /**
    * Find concepts for query.
@@ -123,12 +124,13 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the descriptor
    * @throws Exception the exception
    */
   public Descriptor getDescriptor(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+    String version, Long projectId, String authToken) throws Exception;
 
   /**
    * Gets the subset members for atom.
@@ -315,11 +317,12 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the code
    * @throws Exception the exception
    */
-  public Code getCode(String terminologyId, String terminology, String version,
+  public Code getCode(String terminologyId, String terminology, String version, Long projectId,
     String authToken) throws Exception;
 
   /**
@@ -400,12 +403,13 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the lexical class
    * @throws Exception the exception
    */
   public LexicalClass getLexicalClass(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+    String version, Long projectId, String authToken) throws Exception;
 
   /**
    * Gets the string class.
@@ -413,12 +417,13 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the string class
    * @throws Exception the exception
    */
   public StringClass getStringClass(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+    String version, Long projectId, String authToken) throws Exception;
 
   /**
    * Lucene reindex.

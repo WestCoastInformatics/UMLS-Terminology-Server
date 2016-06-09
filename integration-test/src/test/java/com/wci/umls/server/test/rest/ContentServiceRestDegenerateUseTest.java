@@ -81,7 +81,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // get test concept
     concept =
-        contentService.getConcept(testId, testTerminology, testVersion,
+        contentService.getConcept(testId, testTerminology, testVersion, null,
             authToken);
 
   }
@@ -100,7 +100,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
         "TEST null terminologyId - " + "null, MSH, 2015_2014_09_08, "
             + authToken);
     try {
-      contentService.getConcept(null, mshTerminology, mshVersion, authToken);
+      contentService.getConcept(null, mshTerminology, mshVersion, null, authToken);
       fail("Exception should be thrown when trying to get a concept with null terminologyId.");
     } catch (Exception e) {
       // do nothing
@@ -110,7 +110,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST empty terminologyId - " + ", UMLS, latest, " + authToken);
     try {
-      contentService.getConcept("", umlsTerminology, umlsVersion, authToken);
+      contentService.getConcept("", umlsTerminology, umlsVersion, null, authToken);
       fail("Exception should be thrown when trying to get a concept with empty string terminologyId.");
     } catch (Exception e) {
       // do nothing
@@ -121,7 +121,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
         "TEST null terminology - " + "M0028634, null, 2015_2014_09_08, "
             + authToken);
     try {
-      contentService.getConcept("M0028634", null, mshVersion, authToken);
+      contentService.getConcept("M0028634", null, mshVersion, null, authToken);
       fail("Exception should be thrown when trying to get a concept with null terminology.");
     } catch (Exception e) {
       // do nothing
@@ -132,7 +132,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
         "TEST empty terminology - " + "M0028634, , 2015_2014_09_08, "
             + authToken);
     try {
-      contentService.getConcept("M0028634", "", mshVersion, authToken);
+      contentService.getConcept("M0028634", "", mshVersion, null, authToken);
       fail("Exception should be thrown when trying to get a concept with emtpy string terminology.");
     } catch (Exception e) {
       // do nothing
@@ -142,7 +142,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST null version - " + "M0028634, MSH, null, " + authToken);
     try {
-      contentService.getConcept("M0028634", mshTerminology, null, authToken);
+      contentService.getConcept("M0028634", mshTerminology, null, null, authToken);
       fail("Exception should be thrown when trying to get a concept with null version.");
     } catch (Exception e) {
       // do nothing
@@ -152,7 +152,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST empty version - " + "M0028634, MSH, , " + authToken);
     try {
-      contentService.getConcept("M0028634", "MSH", "", authToken);
+      contentService.getConcept("M0028634", "MSH", "", null, authToken);
       fail("Exception should be thrown when trying to get a concept with empty string version.");
     } catch (Exception e) {
       // do nothing
@@ -162,7 +162,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST null authToken - " + "M0028634, MSH, 2015_2014_09_08, ");
     try {
-      contentService.getConcept("M0028634", "MSH", "2015_2014_09_08", null);
+      contentService.getConcept("M0028634", "MSH", "2015_2014_09_08", null, null);
       fail("Exception should be thrown when trying to get a concept with null authToken.");
     } catch (Exception e) {
       // do nothing
@@ -172,7 +172,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST invalid authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
-      contentService.getConcept("M0028634", "MSH", "2015_2014_09_08", "TTT");
+      contentService.getConcept("M0028634", "MSH", "2015_2014_09_08", null, "TTT");
       fail("Exception should be thrown when trying to get a concept with invalid authToken.");
     } catch (Exception e) {
       // do nothing
@@ -182,7 +182,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST empty authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
-      contentService.getConcept("M0028634", "MSH", "2015_2014_09_08", "");
+      contentService.getConcept("M0028634", "MSH", "2015_2014_09_08", null,  "");
       fail("Exception should be thrown when trying to get a concept with empty string authToken.");
     } catch (Exception e) {
       // do nothing
@@ -203,7 +203,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
         "TEST null terminologyId - " + "null, MSH, 2015_2014_09_08, "
             + authToken);
     try {
-      contentService.getDescriptor(null, mshTerminology, mshVersion, authToken);
+      contentService.getDescriptor(null, mshTerminology, mshVersion, null, authToken);
       fail("Exception should be thrown when trying to get a descriptor with null terminologyId.");
     } catch (Exception e) {
       // do nothing
@@ -214,7 +214,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
         "TEST null terminology - " + "M0028634, null, 2015_2014_09_08, "
             + authToken);
     try {
-      contentService.getDescriptor("M0028634", null, mshVersion, authToken);
+      contentService.getDescriptor("M0028634", null, mshVersion, null, authToken);
       fail("Exception should be thrown when trying to get a descriptor with null terminology.");
     } catch (Exception e) {
       // do nothing
@@ -225,7 +225,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
         "TEST empty terminology - " + "M0028634, , 2015_2014_09_08, "
             + authToken);
     try {
-      contentService.getDescriptor("M0028634", "", mshVersion, authToken);
+      contentService.getDescriptor("M0028634", "", mshVersion, null, authToken);
       fail("Exception should be thrown when trying to get a descriptor with emtpy string terminology.");
     } catch (Exception e) {
       // do nothing
@@ -235,7 +235,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST null version - " + "M0028634, MSH, null, " + authToken);
     try {
-      contentService.getDescriptor("M0028634", mshTerminology, null, authToken);
+      contentService.getDescriptor("M0028634", mshTerminology, null,  null,authToken);
       fail("Exception should be thrown when trying to get a descriptor with null version.");
     } catch (Exception e) {
       // do nothing
@@ -245,7 +245,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST empty version - " + "M0028634, MSH, , " + authToken);
     try {
-      contentService.getDescriptor("M0028634", "MSH", "", authToken);
+      contentService.getDescriptor("M0028634", "MSH", "", null, authToken);
       fail("Exception should be thrown when trying to get a descriptor with empty string version.");
     } catch (Exception e) {
       // do nothing
@@ -255,7 +255,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST null authToken - " + "M0028634, MSH, 2015_2014_09_08, ");
     try {
-      contentService.getDescriptor("M0028634", "MSH", "2015_2014_09_08", null);
+      contentService.getDescriptor("M0028634", "MSH", "2015_2014_09_08", null, null);
       fail("Exception should be thrown when trying to get a descriptor with null authToken.");
     } catch (Exception e) {
       // do nothing
@@ -265,7 +265,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST invalid authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
-      contentService.getDescriptor("M0028634", "MSH", "2015_2014_09_08", "TTT");
+      contentService.getDescriptor("M0028634", "MSH", "2015_2014_09_08", null, "TTT");
       fail("Exception should be thrown when trying to get a descriptor with invalid authToken.");
     } catch (Exception e) {
       // do nothing
@@ -275,7 +275,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST empty authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
-      contentService.getDescriptor("M0028634", "MSH", "2015_2014_09_08", "");
+      contentService.getDescriptor("M0028634", "MSH", "2015_2014_09_08", null, "");
       fail("Exception should be thrown when trying to get a descriptor with empty string authToken.");
     } catch (Exception e) {
       // do nothing
@@ -296,7 +296,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
         "TEST null terminologyId - " + "null, MSH, 2015_2014_09_08, "
             + authToken);
     try {
-      contentService.getCode(null, mshTerminology, mshVersion, authToken);
+      contentService.getCode(null, mshTerminology, mshVersion, null, authToken);
       fail("Exception should be thrown when trying to get a code with null terminologyId.");
     } catch (Exception e) {
       // do nothing
@@ -307,7 +307,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
         "TEST null terminology - " + "M0028634, null, 2015_2014_09_08, "
             + authToken);
     try {
-      contentService.getCode("M0028634", null, mshVersion, authToken);
+      contentService.getCode("M0028634", null, mshVersion, null, authToken);
       fail("Exception should be thrown when trying to get a code with null terminology.");
     } catch (Exception e) {
       // do nothing
@@ -318,7 +318,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
         "TEST empty terminology - " + "M0028634, , 2015_2014_09_08, "
             + authToken);
     try {
-      contentService.getCode("M0028634", "", mshVersion, authToken);
+      contentService.getCode("M0028634", "", mshVersion, null, authToken);
       fail("Exception should be thrown when trying to get a code with emtpy string terminology.");
     } catch (Exception e) {
       // do nothing
@@ -328,7 +328,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST null version - " + "M0028634, MSH, null, " + authToken);
     try {
-      contentService.getCode("M0028634", mshTerminology, null, authToken);
+      contentService.getCode("M0028634", mshTerminology, null, null, authToken);
       fail("Exception should be thrown when trying to get a code with null version.");
     } catch (Exception e) {
       // do nothing
@@ -338,7 +338,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST empty version - " + "M0028634, MSH, , " + authToken);
     try {
-      contentService.getCode("M0028634", "MSH", "", authToken);
+      contentService.getCode("M0028634", "MSH", "", null,  authToken);
       fail("Exception should be thrown when trying to get a code with empty string version.");
     } catch (Exception e) {
       // do nothing
@@ -348,7 +348,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST null authToken - " + "M0028634, MSH, 2015_2014_09_08, ");
     try {
-      contentService.getCode("M0028634", "MSH", "2015_2014_09_08", null);
+      contentService.getCode("M0028634", "MSH", "2015_2014_09_08", null, null);
       fail("Exception should be thrown when trying to get a code with null authToken.");
     } catch (Exception e) {
       // do nothing
@@ -358,7 +358,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST invalid authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
-      contentService.getCode("M0028634", "MSH", "2015_2014_09_08", "TTT");
+      contentService.getCode("M0028634", "MSH", "2015_2014_09_08", null, "TTT");
       fail("Exception should be thrown when trying to get a code with invalid authToken.");
     } catch (Exception e) {
       // do nothing
@@ -368,7 +368,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info(
         "TEST empty authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
-      contentService.getCode("M0028634", "MSH", "2015_2014_09_08", "");
+      contentService.getCode("M0028634", "MSH", "2015_2014_09_08", null, "");
       fail("Exception should be thrown when trying to get a code with empty string authToken.");
     } catch (Exception e) {
       // do nothing

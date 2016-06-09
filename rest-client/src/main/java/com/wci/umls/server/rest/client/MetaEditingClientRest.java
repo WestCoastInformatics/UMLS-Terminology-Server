@@ -17,9 +17,9 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
  * A client for connecting to a content REST service.
@@ -42,9 +42,9 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public Concept addSemanticType(Long projectId, Long conceptId,
-    SemanticTypeComponent semanticTypeComponent, String authToken)
+    SemanticTypeComponentJpa semanticTypeComponent, String authToken)
       throws Exception {
-    Logger.getLogger(getClass()).debug("MetaEditing Client - add semantic type "
+    Logger.getLogger(getClass()).debug("MetaEditing Client - add semantic type to concept"
         + projectId + ", " + conceptId + ", " + semanticTypeComponent.toString() + ", " + authToken);
 
     validateNotEmpty( projectId, "projectId");
@@ -52,7 +52,7 @@ public class MetaEditingClientRest extends RootClientRest
     
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(
-        config.getProperty("base.url") + "/metaediting/sty/" + projectId + "/" + conceptId + "/add");
+        config.getProperty("base.url") + "/meta/sty/add?projectId=" + projectId + "&conceptId=" + conceptId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(semanticTypeComponent));
@@ -71,9 +71,9 @@ public class MetaEditingClientRest extends RootClientRest
   }
 
   @Override
-  public Concept removeSemanticType(Long projectId, Long conceptId,
+  public void removeSemanticType(Long projectId, Long conceptId,
     Long semanticTypeComponentId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug("MetaEditing Client - add semantic type "
+    Logger.getLogger(getClass()).debug("MetaEditing Client - remove semantic type from concept "
         + projectId + ", " + conceptId + ", " + semanticTypeComponentId + ", " + authToken);
 
     validateNotEmpty( projectId, "projectId");
@@ -81,22 +81,16 @@ public class MetaEditingClientRest extends RootClientRest
     
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(
-        config.getProperty("base.url") + "/metaediting/sty/" + projectId + "/" + conceptId + "/remove");
+        config.getProperty("base.url") + "/meta/sty/remove/" + semanticTypeComponentId + "?projectId=" + projectId + "&conceptId=" + conceptId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
 
-    String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
-
-    // converting to object
-    Concept c = ConfigUtility.getGraphForString(resultString,
-        ConceptJpa.class);
-    return c;
   }
 
 }

@@ -98,7 +98,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info(
         "TEST - " + "M0028634, MSH, 2015_2014_09_08, " + authToken);
     Concept c =
-        contentService.getConcept("M0028634", mshTerminology, mshVersion,
+        contentService.getConcept("M0028634", mshTerminology, mshVersion, null,
             authToken);
     // Validate the concept returned
     assertNotNull(c);
@@ -127,7 +127,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info(
         "TEST - " + "40667002, SNOMEDCT, 2014_09_01, " + authToken);
     c =
-        contentService.getConcept("40667002", snomedTerminology, snomedVersion,
+        contentService.getConcept("40667002", snomedTerminology, snomedVersion, null,
             authToken);
     // Validate the concept returned
     assertNotNull(c);
@@ -157,7 +157,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info(
         "TEST - " + "C0018787, UMLS, latest, " + authToken);
     c =
-        contentService.getConcept("C0018787", umlsTerminology, umlsVersion,
+        contentService.getConcept("C0018787", umlsTerminology, umlsVersion, null,
             authToken);
     // Validate the concept returned
     assertNotNull(c);
@@ -197,7 +197,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info(
         "TEST - " + "D019226, MSH, 2015_2014_09_08, " + authToken);
     Descriptor d =
-        contentService.getDescriptor("D019226", mshTerminology, mshVersion,
+        contentService.getDescriptor("D019226", mshTerminology, mshVersion, null,
             authToken);
 
     // Validate the concept returned
@@ -233,7 +233,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         "TEST - " + "D019226, MSH, 2015_2014_09_08, " + authToken);
     Code c =
         contentService
-            .getCode("D019226", mshTerminology, mshVersion, authToken);
+            .getCode("D019226", mshTerminology, mshVersion, null, authToken);
 
     // Validate the concept returned
     assertNull(c);
@@ -242,7 +242,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info(
         "TEST - " + "40667002, SNOMEDCT, 2014_09_01, " + authToken);
     c =
-        contentService.getCode("40667002", snomedTerminology, snomedVersion,
+        contentService.getCode("40667002", snomedTerminology, snomedVersion, null,
             authToken);
     // Validate the concept returned
     assertNull(c);
