@@ -20,17 +20,17 @@ import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
-import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionsJpa;
+import com.wci.umls.server.jpa.worfklow.ProjectWorkflowConfigJpa;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-import com.wci.umls.server.model.workflow.WorkflowBinDefinitions;
+import com.wci.umls.server.model.workflow.ProjectWorkflowConfig;
 
 /**
- * Unit testing for {@link WorkflowBinDefinitionsJpa}.
+ * Unit testing for {@link ProjectWorkflowConfigJpa}.
  */
-public class WorkflowBinDefinitionsJpaUnitTest {
+public class ProjectWorkflowConfigJpaUnitTest {
 
   /** The model object to test. */
-  private WorkflowBinDefinitions object;
+  private ProjectWorkflowConfig object;
 
   /** The m1. */
   private WorkflowBinDefinition m1;
@@ -53,7 +53,7 @@ public class WorkflowBinDefinitionsJpaUnitTest {
    */
   @Before
   public void setup() throws Exception {
-    object = new WorkflowBinDefinitionsJpa();
+    object = new ProjectWorkflowConfigJpa();
     ProxyTester tester2 = new ProxyTester(new WorkflowBinDefinitionJpa());
     m1 = (WorkflowBinDefinition) tester2.createObject(1);
     m2 = (WorkflowBinDefinition) tester2.createObject(2);
@@ -87,6 +87,7 @@ public class WorkflowBinDefinitionsJpaUnitTest {
     tester.include("type");
     tester.include("mutuallyExclusive");
     tester.include("lastPartitionTime");
+    tester.include("project");
 
     tester.proxy(WorkflowBinDefinition.class, 1, m1);
     tester.proxy(WorkflowBinDefinition.class, 2, m2);
@@ -111,7 +112,7 @@ public class WorkflowBinDefinitionsJpaUnitTest {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(WorkflowBinDefinition.class, 1, m1);
     tester.proxy(WorkflowBinDefinition.class, 2, m2);
-    assertTrue(tester.testCopyConstructorDeep(WorkflowBinDefinitions.class));
+    assertTrue(tester.testCopyConstructorDeep(ProjectWorkflowConfig.class));
 
   }
 
@@ -140,6 +141,8 @@ public class WorkflowBinDefinitionsJpaUnitTest {
     tester.include("lastModifiedBy");
     tester.include("mutuallyExclusive");
     tester.include("lastPartitionTime");
+    tester.include("project");
+    tester.include("type");
 
     assertTrue(tester.testNotNullFields());
   }
