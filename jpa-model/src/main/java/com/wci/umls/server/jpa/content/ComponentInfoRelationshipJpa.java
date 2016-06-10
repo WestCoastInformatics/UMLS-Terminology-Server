@@ -42,7 +42,8 @@ import com.wci.umls.server.model.meta.IdType;
 @Indexed
 @XmlRootElement(name = "componentInfoRelationship")
 public class ComponentInfoRelationshipJpa extends
-    AbstractRelationship<ComponentInfo, ComponentInfo> implements ComponentInfoRelationship {
+    AbstractRelationship<ComponentInfo, ComponentInfo> implements
+    ComponentInfoRelationship {
 
   /** The from terminology id. */
   private String fromTerminologyId;
@@ -78,8 +79,7 @@ public class ComponentInfoRelationshipJpa extends
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds; // index
-  
-  
+
   /**
    * Instantiates an empty {@link ComponentInfoRelationshipJpa}.
    */
@@ -133,8 +133,6 @@ public class ComponentInfoRelationshipJpa extends
     fromTerminologyId = component.getTerminologyId();
     fromName = component.getName();
   }
-
-
 
   /**
    * Returns the from terminology.
@@ -238,8 +236,6 @@ public class ComponentInfoRelationshipJpa extends
     toTerminologyId = component.getTerminologyId();
   }
 
-
-
   /**
    * Returns the to terminology id.
    *
@@ -319,7 +315,6 @@ public class ComponentInfoRelationshipJpa extends
     toName = term;
   }
 
-
   /* see superclass */
   @Override
   @FieldBridge(impl = MapValueToCsvBridge.class)
@@ -357,25 +352,28 @@ public class ComponentInfoRelationshipJpa extends
 
   }
 
-
   /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((fromName == null) ? 0 : fromName.hashCode());
-    result = prime * result
-        + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
-    result = prime * result
-        + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
+    result =
+        prime * result
+            + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
+    result =
+        prime * result
+            + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
     result = prime * result + ((fromType == null) ? 0 : fromType.hashCode());
     result =
         prime * result + ((fromVersion == null) ? 0 : fromVersion.hashCode());
     result = prime * result + ((toName == null) ? 0 : toName.hashCode());
-    result = prime * result
-        + ((toTerminology == null) ? 0 : toTerminology.hashCode());
-    result = prime * result
-        + ((toTerminologyId == null) ? 0 : toTerminologyId.hashCode());
+    result =
+        prime * result
+            + ((toTerminology == null) ? 0 : toTerminology.hashCode());
+    result =
+        prime * result
+            + ((toTerminologyId == null) ? 0 : toTerminologyId.hashCode());
     result = prime * result + ((toType == null) ? 0 : toType.hashCode());
     result = prime * result + ((toVersion == null) ? 0 : toVersion.hashCode());
     return result;
@@ -441,15 +439,14 @@ public class ComponentInfoRelationshipJpa extends
   /* see superclass */
   @Override
   public String toString() {
-    return "ComponentInfoRelationshipJpa ["       
-        + "getFrom()=" + getFrom()
+    return "ComponentInfoRelationshipJpa [" + "getFrom()=" + getFrom()
         + ", getFromTerminology()=" + getFromTerminology()
         + ", getFromVersion()=" + getFromVersion()
         + ", getFromTerminologyId()=" + getFromTerminologyId()
         + ", getFromName()=" + getFromName() + ", getTo()=" + getTo()
-        + ", getToTerminologyId()="
-        + getToTerminologyId() + ", getToTerminology()=" + getToTerminology()
-        + ", getToVersion()=" + getToVersion() + ", getToName()=" + getToName()
+        + ", getToTerminologyId()=" + getToTerminologyId()
+        + ", getToTerminology()=" + getToTerminology() + ", getToVersion()="
+        + getToVersion() + ", getToName()=" + getToName()
         + ", getAlternateTerminologyIds()=" + getAlternateTerminologyIds()
         + ", hashCode()=" + hashCode() + ", getRelationshipType()="
         + getRelationshipType() + ", getAdditionalRelationshipType()="
@@ -458,9 +455,8 @@ public class ComponentInfoRelationshipJpa extends
         + ", isHierarchical()=" + isHierarchical() + ", isAssertedDirection()="
         + isAssertedDirection() + ", toString()=" + super.toString()
         + ", getAttributes()=" + getAttributes() + ", getId()=" + getId()
-        + ", getTimestamp()="
-        + getTimestamp() + ", getLastModified()=" + getLastModified()
-        + ", getLastModifiedBy()=" + getLastModifiedBy()
+        + ", getTimestamp()=" + getTimestamp() + ", getLastModified()="
+        + getLastModified() + ", getLastModifiedBy()=" + getLastModifiedBy()
         + ", isSuppressible()=" + isSuppressible() + ", isObsolete()="
         + isObsolete() + ", isPublished()=" + isPublished()
         + ", isPublishable()=" + isPublishable() + ", getBranch()="

@@ -160,7 +160,6 @@ public class ValidationClientRest implements ValidationServiceRest {
     return result;
   }
 
-  /* see superclass */
   @Override
   public ValidationResult validateMerge(Long projectId, String terminology, String version,
     String cui1, String cui2, String authToken) throws Exception {

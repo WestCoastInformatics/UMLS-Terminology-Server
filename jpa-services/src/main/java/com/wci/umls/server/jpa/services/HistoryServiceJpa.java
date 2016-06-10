@@ -21,7 +21,6 @@ import com.wci.umls.server.jpa.helpers.content.ComponentHistoryListJpa;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.HistoryService;
-import com.wci.umls.server.services.handlers.WorkflowListener;
 
 /**
  * JPA and JAXB enabled implementation of {@link ContentService}.
@@ -226,40 +225,34 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
 
   /* see superclass */
   @Override
-  public ComponentHistory addComponentHistory(ComponentHistory componentHistory) throws Exception {
+  public ComponentHistory addComponentHistory(ComponentHistory componentHistory)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - add componentHistory " + componentHistory);
 
-
     // Add component
-    final ComponentHistory newComponentHistory = addComponent(componentHistory);
-
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.componentHistoryChanged(newComponentHistory, WorkflowListener.Action.ADD);
-      }
-    }
-    return newComponentHistory;
+    return addComponent(componentHistory);
   }
-  
+
   /* see superclass */
   @Override
   public ComponentHistory getComponentHistory(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get componentHistory " + id);
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get componentHistory " + id);
     return getComponent(id, ComponentHistoryJpa.class);
   }
 
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public ComponentHistoryList getComponentHistory(String terminologyId, String terminology,
-    String version) throws Exception {
+  public ComponentHistoryList getComponentHistory(String terminologyId,
+    String terminology, String version) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get componentHistorys " + terminologyId + "/" + terminology
-            + "/" + version);
+        "Content Service - get componentHistorys " + terminologyId + "/"
+            + terminology + "/" + version);
     final List<ComponentHistory> componentHistories =
-        getComponents(terminologyId, terminology, version, ComponentHistoryJpa.class);
+        getComponents(terminologyId, terminology, version,
+            ComponentHistoryJpa.class);
     if (componentHistories == null) {
       return null;
     }
@@ -271,30 +264,25 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
 
   /* see superclass */
   @Override
-  public ComponentHistory getComponentHistory(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
+  public ComponentHistory getComponentHistory(String terminologyId,
+    String terminology, String version, String branch) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get componentHistory " + terminologyId + "/" + terminology
-            + "/" + version + "/" + branch);
+        "Content Service - get componentHistory " + terminologyId + "/"
+            + terminology + "/" + version + "/" + branch);
     return getComponent(terminologyId, terminology, version, branch,
         ComponentHistoryJpa.class);
   }
-  
+
   /* see superclass */
   @Override
-  public void updateComponentHistory(ComponentHistory componentHistory) throws Exception {
+  public void updateComponentHistory(ComponentHistory componentHistory)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - update componentHistory " + componentHistory);
 
     // update component
-    this.updateComponent(componentHistory);
+    updateComponent(componentHistory);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.componentHistoryChanged(componentHistory, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -303,12 +291,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - remove componentHistory " + id);
     // Remove the component
-    final ComponentHistory componentHistory = removeComponent(id, ComponentHistoryJpa.class);
+    removeComponent(id, ComponentHistoryJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.componentHistoryChanged(componentHistory, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 }

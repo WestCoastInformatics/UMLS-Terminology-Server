@@ -61,16 +61,6 @@ public interface MetadataService extends RootService, Configurable {
   }
 
   /**
-   * Enable listeners.
-   */
-  public void enableListeners();
-
-  /**
-   * Disable listeners.
-   */
-  public void disableListeners();
-
-  /**
    * Returns the terminologies.
    * 
    * @return the terminologies
@@ -634,7 +624,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the semantic type descendants
    * @throws Exception the exception
    */
-  public SemanticTypeList getSemanticTypeDescendants(String terminology, String version, String treeNumber, boolean includeSelf) throws Exception;
+  public SemanticTypeList getSemanticTypeDescendants(String terminology,
+    String version, String treeNumber, boolean includeSelf) throws Exception;
 
   /**
    * Gets the precedence list.

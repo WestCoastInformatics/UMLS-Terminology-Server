@@ -14,12 +14,11 @@ import com.wci.umls.server.model.workflow.Checklist;
  */
 @Entity
 @Table(name = "checklists", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "id"
+  "id"
 }))
 @Indexed
 @XmlRootElement(name = "checklist")
-public class ChecklistJpa extends AbstractChecklist implements Checklist {
-
+public class ChecklistJpa extends AbstractChecklist {
 
   /**
    * Instantiates an empty {@link ChecklistJpa}.
@@ -37,7 +36,5 @@ public class ChecklistJpa extends AbstractChecklist implements Checklist {
   public ChecklistJpa(Checklist checklist, boolean deepCopy) {
     super(checklist, deepCopy);
   }
-
-
 
 }
