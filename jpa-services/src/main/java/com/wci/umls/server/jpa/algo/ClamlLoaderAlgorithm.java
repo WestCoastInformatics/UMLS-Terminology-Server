@@ -72,6 +72,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
 
 /**
@@ -1581,7 +1582,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setPublished(true);
       atom.setTermType(rubricKind);
       termTypes.add(rubricKind);
-      atom.setWorkflowStatus("PUBLISHED");
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       if (rubricKind.equals("preferred")) {
         preferredRubricMap.put(conceptId, atom.getTerminologyId());
       }

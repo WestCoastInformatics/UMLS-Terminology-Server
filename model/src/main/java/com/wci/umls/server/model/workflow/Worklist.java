@@ -32,14 +32,14 @@ public interface Worklist extends Checklist {
    *
    * @return the group
    */
-  public String getGroup();
+  public String getWorklistGroup();
   
   /**
    * Sets the group.
    *
    * @param group the new group
    */
-  public void setGroup(String group);
+  public void setWorklistGroup(String group);
   
   /**
    * Gets the assign date.

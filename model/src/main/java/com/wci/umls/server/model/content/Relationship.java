@@ -5,6 +5,7 @@ package com.wci.umls.server.model.content;
 
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Represents a relationship between two {@link ComponentHasAttributes}s.
@@ -144,4 +145,17 @@ public interface Relationship<S extends HasTerminologyId, T extends HasTerminolo
    */
   public void setHierarchical(boolean hierarchical);
 
+  /**
+   * Returns the workflow status.
+   *
+   * @return the workflow status
+   */
+  public WorkflowStatus getWorkflowStatus();
+
+  /**
+   * Sets the workflow status.
+   *
+   * @param workflowStatus the workflow status
+   */
+  public void setWorkflowStatus(WorkflowStatus workflowStatus);
 }

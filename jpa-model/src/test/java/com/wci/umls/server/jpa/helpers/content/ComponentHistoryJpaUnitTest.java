@@ -86,9 +86,11 @@ public class ComponentHistoryJpaUnitTest {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-    tester.include("alternateTerminologyIds");
     tester.include("name");
     tester.include("value");
+
+    tester.include("associatedRelease");
+    tester.include("referencedConcept");
 
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
@@ -149,8 +151,9 @@ public class ComponentHistoryJpaUnitTest {
     tester.include("version");
     tester.include("name");
     tester.include("value");
+    tester.include("associatedRelease");
+    tester.include("referencedConcept");
 
-    assertTrue(tester.testNotNullFields());
   }
 
   /**

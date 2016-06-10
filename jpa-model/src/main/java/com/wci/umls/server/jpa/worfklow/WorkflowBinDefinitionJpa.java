@@ -1,44 +1,49 @@
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.worfklow;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.model.workflow.Checklist;
-import com.wci.umls.server.model.workflow.TrackingRecord;
-import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+
+
 
 /**
- * Abstract JPA-enabled implementation of a {@link Checklist}.
+ * JPA and JAXB enabled implementation of a {@link WorkflowBinDefinition}.
  */
-@Audited
-@MappedSuperclass
-public abstract class AbstractChecklist implements Checklist {
+@Entity
+@Table(name = "workflow_bin_definition", uniqueConstraints = @UniqueConstraint(columnNames = {
+     "id"
+}))
+@Indexed
+@XmlRootElement(name = "workflowBinDefinition")
+public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
-
+  
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -47,11 +52,11 @@ public abstract class AbstractChecklist implements Checklist {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-
-  /** the timestamp. */
+  
+  /** The timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;
+  private Date timestamp = null;  
 
   /** The name. */
   @Column(nullable = false)
@@ -60,38 +65,41 @@ public abstract class AbstractChecklist implements Checklist {
   /** The description. */
   @Column(nullable = false)
   private String description;
-
-  /** The tracking records. */
-  @OneToMany(targetEntity = TrackingRecordJpa.class)
-  private List<TrackingRecord> trackingRecords = new ArrayList<>();
-
-  /** The workflow bin. */
-  @ManyToOne(targetEntity = WorkflowBinJpa.class)
-  private WorkflowBin workflowBin;
-
+  
+  /** The query. */
+  @Column(nullable = false)
+  private String query;
+  
+  /** The query type. */
+  @Column(nullable = false)
+  private String queryType;
+  
+  /** The editable. */
+  @Column(nullable = false)
+  private boolean editable;
+  
   /**
-   * Instantiates an empty {@link AbstractChecklist}.
+   * Instantiates a new workflow bin definition jpa.
    */
-  public AbstractChecklist() {
+  public WorkflowBinDefinitionJpa() {
     // do nothing
   }
-
+  
   /**
-   * Instantiates a {@link AbstractChecklist} from the specified parameters.
+   * Instantiates a new workflow bin definition jpa.
    *
-   * @param checklist the checklist
-   * @param deepCopy the deep copy
+   * @param workflowBinDefinition the workflow bin definition
    */
-  public AbstractChecklist(Checklist checklist, boolean deepCopy) {
-    this.lastModified = checklist.getLastModified();
-    this.lastModifiedBy = checklist.getLastModifiedBy();
-    this.timestamp = checklist.getTimestamp();
-    this.name = checklist.getName();
-    this.description = checklist.getDescription();
-    this.workflowBin = checklist.getWorkflowBin();
-    if (deepCopy) {
-      this.trackingRecords = checklist.getTrackingRecords();
-    }
+  public WorkflowBinDefinitionJpa(WorkflowBinDefinition workflowBinDefinition) {
+    super();
+    this.lastModified = workflowBinDefinition.getLastModified();
+    this.lastModifiedBy = workflowBinDefinition.getLastModifiedBy();
+    this.timestamp = workflowBinDefinition.getTimestamp();
+    this.name = workflowBinDefinition.getName();
+    this.description = workflowBinDefinition.getDescription();
+    this.query = workflowBinDefinition.getQuery();
+    this.queryType = workflowBinDefinition.getQuery();
+    this.editable = workflowBinDefinition.isEditable();
   }
 
   /* see superclass */
@@ -144,22 +152,6 @@ public abstract class AbstractChecklist implements Checklist {
   }
 
   /* see superclass */
-  @XmlTransient
-  @Override
-  public List<TrackingRecord> getTrackingRecords() {
-    if (trackingRecords == null) {
-      return new ArrayList<>();
-    }
-    return trackingRecords;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTrackingRecords(List<TrackingRecord> records) {
-    this.trackingRecords = records;
-  }
-
-  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getName() {
@@ -185,37 +177,64 @@ public abstract class AbstractChecklist implements Checklist {
     this.description = description;
   }
 
+  /* see superclass */
   @Override
-  public WorkflowBin getWorkflowBin() {
-    return workflowBin;
+  public boolean isEditable() {
+    return editable;
   }
 
+  /* see superclass */
   @Override
-  public void setWorkflowBin(WorkflowBin workflowBin) {
-    this.workflowBin = workflowBin;
+  public void setEditable(boolean editable) {
+    this.editable = editable;
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public String getQuery() {
+    return query;
+  }
+
+  /* see superclass */
+  @Override
+  public void setQuery(String query) {
+    this.query = query;
+  }
+
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getQueryType() {
+    return queryType;
+  }
+
+  /* see superclass */
+  @Override
+  public void setQueryType(String queryType) {
+    this.queryType = queryType;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + (editable ? 1231 : 1237);
     result =
         prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result =
-        prime * result
-            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result = prime * result
+        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((query == null) ? 0 : query.hashCode());
+    result = prime * result + ((queryType == null) ? 0 : queryType.hashCode());
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-    result =
-        prime * result
-            + ((trackingRecords == null) ? 0 : trackingRecords.hashCode());
-    result =
-        prime * result + ((workflowBin == null) ? 0 : workflowBin.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -224,11 +243,13 @@ public abstract class AbstractChecklist implements Checklist {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    AbstractChecklist other = (AbstractChecklist) obj;
+    WorkflowBinDefinitionJpa other = (WorkflowBinDefinitionJpa) obj;
     if (description == null) {
       if (other.description != null)
         return false;
     } else if (!description.equals(other.description))
+      return false;
+    if (editable != other.editable)
       return false;
     if (lastModified == null) {
       if (other.lastModified != null)
@@ -245,31 +266,32 @@ public abstract class AbstractChecklist implements Checklist {
         return false;
     } else if (!name.equals(other.name))
       return false;
+    if (query == null) {
+      if (other.query != null)
+        return false;
+    } else if (!query.equals(other.query))
+      return false;
+    if (queryType == null) {
+      if (other.queryType != null)
+        return false;
+    } else if (!queryType.equals(other.queryType))
+      return false;
     if (timestamp == null) {
       if (other.timestamp != null)
         return false;
     } else if (!timestamp.equals(other.timestamp))
       return false;
-    if (trackingRecords == null) {
-      if (other.trackingRecords != null)
-        return false;
-    } else if (!trackingRecords.equals(other.trackingRecords))
-      return false;
-    if (workflowBin == null) {
-      if (other.workflowBin != null)
-        return false;
-    } else if (!workflowBin.equals(other.workflowBin))
-      return false;
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
-    return "AbstractChecklist [id=" + id + ", lastModified=" + lastModified
+    return "WorkflowBinDefinitionJpa [lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description
-        + ", trackingRecords=" + trackingRecords + ", workflowBin="
-        + workflowBin + "]";
+        + ", name=" + name + ", description=" + description + ", query=" + query
+        + ", queryType=" + queryType + ", editable=" + editable + "]";
   }
+
 
 }

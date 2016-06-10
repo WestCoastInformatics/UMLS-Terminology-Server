@@ -103,6 +103,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Implementation of an algorithm to import Owl data.
@@ -1029,7 +1030,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       generalEntryValues.add(atom.getTermType());
       termTypes.add(atom.getTermType());
       atom.setName(getValue(annotation));
-      atom.setWorkflowStatus(published);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       atoms.add(atom);
 
     }
@@ -1145,7 +1146,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     topConcept.setFullyDefined(false);
     topConcept.setUsesRelationshipIntersection(true);
     topConcept.setName(getRootTerminologyPreferredName(ontology));
-    topConcept.setWorkflowStatus(published);
+    topConcept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     Atom atom = new AtomJpa();
     setCommonFields(atom);
     atom.setName(getRootTerminologyPreferredName(ontology));
@@ -1157,7 +1158,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     atom.setTerminologyId("");
     atom.setLanguage("");
     atom.setTermType(label);
-    atom.setWorkflowStatus(published);
+    atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     addAtom(atom);
     topConcept.getAtoms().add(atom);
     addConcept(topConcept);
@@ -1923,7 +1924,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Standard settings
     setCommonFields(concept);
-    concept.setWorkflowStatus(published);
+    concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
     // owl classes always use conjunction
     concept.setUsesRelationshipUnion(false);

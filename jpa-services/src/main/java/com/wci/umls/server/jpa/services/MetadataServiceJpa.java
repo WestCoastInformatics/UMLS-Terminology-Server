@@ -70,7 +70,7 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  * Implementation of {@link MetadataService} that redirects to
  * terminology-specific implemlentations.
  */
-public class MetadataServiceJpa extends RootServiceJpa implements
+public class MetadataServiceJpa extends ProjectServiceJpa implements
     MetadataService {
 
   /** The config properties. */
@@ -969,6 +969,17 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     removeMetadata(id, RootTerminologyJpa.class);
 
   }
+  
+  @Override
+  public PrecedenceList getPrecedenceList(Long precedenceListId) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - get precedence list" + precedenceListId);
+
+    PrecedenceList newPrecedenceList = this.getObject(precedenceListId, PrecedenceListJpa.class);
+
+    return newPrecedenceList;
+  }
+  
 
   /* see superclass */
   @Override

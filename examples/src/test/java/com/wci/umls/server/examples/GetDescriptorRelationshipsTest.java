@@ -51,7 +51,7 @@ public class GetDescriptorRelationshipsTest extends ExampleSupport {
 
     // contentClient is defined and initialized in the superclass
     Descriptor descriptor =
-        contentClient.getDescriptor(terminologyId, terminology, version,
+        contentClient.getDescriptor(terminologyId, terminology, version, null,
             authToken);
 
     // The descriptor has no relationships at this point

@@ -53,7 +53,7 @@ public class GetDescriptorByTerminologyIdTest extends ExampleSupport {
 
     // contentClient is defined and initialized in the superclass
     Descriptor descriptor =
-        contentClient.getDescriptor(terminologyId, terminology, version,
+        contentClient.getDescriptor(terminologyId, terminology, version, null,
             authToken);
 
     // Output the descriptor as XML

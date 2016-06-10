@@ -44,11 +44,11 @@ public class ValidationClientRest implements ValidationServiceRest {
 
   /* see superclass */
   @Override
-  public ValidationResult validateConcept(ConceptJpa c, String authToken)
+  public ValidationResult validateConcept(Long projectId, ConceptJpa c, String authToken)
     throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/concept");
+        client.target(config.getProperty("base.url") + "/validation/concept?projectId = " + projectId);
 
     String conceptString =
         (c != null ? ConfigUtility.getStringForGraph(c) : null);
@@ -73,11 +73,11 @@ public class ValidationClientRest implements ValidationServiceRest {
 
   /* see superclass */
   @Override
-  public ValidationResult validateAtom(AtomJpa atom, String authToken)
+  public ValidationResult validateAtom(Long projectId, AtomJpa atom, String authToken)
     throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/aui");
+        client.target(config.getProperty("base.url") + "/validation/aui?projectId=" + projectId);
 
     String atomString =
         (atom != null ? ConfigUtility.getStringForGraph(atom) : null);
@@ -102,11 +102,11 @@ public class ValidationClientRest implements ValidationServiceRest {
 
   /* see superclass */
   @Override
-  public ValidationResult validateDescriptor(DescriptorJpa descriptor,
+  public ValidationResult validateDescriptor(Long projectId, DescriptorJpa descriptor,
     String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/descriptor");
+        client.target(config.getProperty("base.url") + "/validation/descriptor?projectId=" + projectId);
 
     String descriptorString =
         (descriptor != null ? ConfigUtility.getStringForGraph(descriptor)
@@ -133,11 +133,11 @@ public class ValidationClientRest implements ValidationServiceRest {
 
   /* see superclass */
   @Override
-  public ValidationResult validateCode(CodeJpa code, String authToken)
+  public ValidationResult validateCode(Long projectId, CodeJpa code, String authToken)
     throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/code");
+        client.target(config.getProperty("base.url") + "/validation/code?projectId=" + projectId);
 
     String codeString =
         (code != null ? ConfigUtility.getStringForGraph(code) : null);
@@ -161,11 +161,38 @@ public class ValidationClientRest implements ValidationServiceRest {
   }
 
   @Override
-  public KeyValuePairList getValidationChecks(String authToken)
+  public ValidationResult validateMerge(Long projectId, String terminology, String version,
+    String cui1, String cui2, String authToken) throws Exception {
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/validate/concept/merge/"
+            + terminology + "/" + version + "/" + cui1 + "/" + cui2+ "?projectId=" + projectId);
+
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    ValidationResult result =
+        ConfigUtility
+            .getGraphForString(resultString, ValidationResultJpa.class);
+    return result;
+  }
+
+  @Override
+  public KeyValuePairList getValidationChecks(Long projectId, String authToken)
     throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/checks");
+        client.target(config.getProperty("base.url") + "/checks?projectId=" + projectId);
 
     Response response =
         target.request(MediaType.APPLICATION_XML)

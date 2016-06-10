@@ -124,6 +124,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     concept = new ConceptJpa(record.getConcept(), false);
     originRevision = record.getOriginRevision();
     reviewOriginRevision = record.getReviewOriginRevision();
+    timestamp = record.getTimestamp();
   }
 
   /* see superclass */

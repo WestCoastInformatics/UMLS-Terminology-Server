@@ -6,6 +6,7 @@ package com.wci.umls.server.model.content;
 import java.util.List;
 
 import com.wci.umls.server.helpers.HasLabelSets;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Generically represents a classification of atoms.
@@ -31,14 +32,14 @@ public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets {
    *
    * @return the workflow status
    */
-  public String getWorkflowStatus();
+  public WorkflowStatus getWorkflowStatus();
 
   /**
    * Sets the workflow status.
    *
    * @param workflowStatus the new workflow status
    */
-  public void setWorkflowStatus(String workflowStatus);
+  public void setWorkflowStatus(WorkflowStatus workflowStatus);
 
   /**
    * Gets the branched to.

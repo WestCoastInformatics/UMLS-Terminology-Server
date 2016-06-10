@@ -53,7 +53,7 @@ public class GetCodeByTerminologyIdTest extends ExampleSupport {
 
     // contentClient is defined and initialized in the superclass
     Code code =
-        contentClient.getCode(terminologyId, terminology, version, authToken);
+        contentClient.getCode(terminologyId, terminology, version, null, authToken);
 
     // Output the code as XML
     Logger.getLogger(getClass()).info(
@@ -83,7 +83,7 @@ public class GetCodeByTerminologyIdTest extends ExampleSupport {
 
     // contentClient is defined and initialized in the superclass
     Code code =
-        contentClient.getCode(terminologyId, terminology, version, authToken);
+        contentClient.getCode(terminologyId, terminology, version,  null,authToken);
 
     // Output the code as XML
     Logger.getLogger(getClass()).info(

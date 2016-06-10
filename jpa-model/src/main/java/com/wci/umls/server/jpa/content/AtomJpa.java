@@ -11,6 +11,8 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -36,6 +38,7 @@ import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * JPA and JAXB enabled implementation of {@link Atom}.
@@ -124,8 +127,9 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private String termType;
 
   /** The workflow status. */
-  @Column(nullable = true)
-  private String workflowStatus;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private WorkflowStatus workflowStatus;
 
   /**
    * Instantiates an empty {@link AtomJpa}.
@@ -366,13 +370,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getWorkflowStatus() {
+  public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;
   }
 
   /* see superclass */
   @Override
-  public void setWorkflowStatus(String workflowStatus) {
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
     this.workflowStatus = workflowStatus;
 
   }
@@ -457,6 +461,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
             + ((stringClassId == null) ? 0 : stringClassId.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
+    result = prime * result + ((workflowStatus == null) ? 0 : workflowStatus.hashCode());
     return result;
   }
 
@@ -468,8 +473,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
-      return false;
+      return false;  
     AtomJpa other = (AtomJpa) obj;
+    if (getWorkflowStatus() != other.getWorkflowStatus())
+      return false;
     if (codeId == null) {
       if (other.codeId != null)
         return false;
@@ -536,6 +543,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   }
 
   @Override
+  @XmlElement(type=ComponentHistoryJpa.class)
   public List<ComponentHistory> getComponentHistory() {
     return componentHistories;
   }

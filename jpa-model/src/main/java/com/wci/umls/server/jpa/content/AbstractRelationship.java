@@ -4,6 +4,8 @@
 package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -15,6 +17,7 @@ import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Abstract JPA and JAXB enabled implementation of {@link Relationship}.
@@ -60,6 +63,11 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
   @Column(nullable = false)
   private boolean assertedDirection;
 
+  /** The workflow status. */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private WorkflowStatus workflowStatus;
+  
   /**
    * Instantiates an empty {@link AbstractRelationship}.
    */
@@ -82,6 +90,7 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
     stated = relationship.isStated();
     hierarchical = relationship.isHierarchical();
     assertedDirection = relationship.isAssertedDirection();
+    workflowStatus = relationship.getWorkflowStatus();
   }
 
   /* see superclass */
@@ -175,27 +184,37 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
     this.assertedDirection = assertedDirection;
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public WorkflowStatus getWorkflowStatus() {
+    return workflowStatus;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
+    this.workflowStatus = workflowStatus;
+
+  }
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((additionalRelationshipType == null) ? 0
-                : additionalRelationshipType.hashCode());
+    result = prime * result + ((additionalRelationshipType == null) ? 0
+        : additionalRelationshipType.hashCode());
     result = prime * result + (assertedDirection ? 1231 : 1237);
     result = prime * result + ((group == null) ? 0 : group.hashCode());
     result = prime * result + (hierarchical ? 1231 : 1237);
     result = prime * result + (inferred ? 1231 : 1237);
-    result =
-        prime * result
-            + ((relationshipType == null) ? 0 : relationshipType.hashCode());
-    result = prime * result + (stated ? 1237 : 1231);
+    result = prime * result
+        + ((relationshipType == null) ? 0 : relationshipType.hashCode());
+    result = prime * result + (stated ? 1231 : 1237);
+    result = prime * result
+        + ((workflowStatus == null) ? 0 : workflowStatus.hashCode());
     return result;
   }
 
-  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -229,6 +248,8 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
       return false;
     if (stated != other.stated)
       return false;
+    if (workflowStatus != other.workflowStatus)
+      return false;
     return true;
   }
 
@@ -240,6 +261,7 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
         + relationshipType + ", additionalRelationshipType="
         + additionalRelationshipType + ", group=" + group + ", inferred="
         + inferred + ", stated=" + stated + ", assertedDirection="
-        + assertedDirection + ", hierarchcial=" + hierarchical + "]";
+        + assertedDirection + ", hierarchcial=" + hierarchical 
+        + ", workflowStatus=" + workflowStatus + "]";
   }
 }

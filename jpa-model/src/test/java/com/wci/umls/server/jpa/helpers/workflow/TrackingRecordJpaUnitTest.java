@@ -12,13 +12,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
-import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -40,11 +38,6 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
   /** the test fixture c2 */
   private Concept c2;
 
-  /** the test fixture p1 */
-  private Project p1;
-
-  /** the test fixture p2 */
-  private Project p2;
 
   /**
    * Setup class.
@@ -66,9 +59,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     c1 = (ConceptJpa) tester.createObject(1);
     c2 = (ConceptJpa) tester.createObject(2);
 
-    tester = new ProxyTester(new ProjectJpa());
-    p1 = (ProjectJpa) tester.createObject(1);
-    p2 = (ProjectJpa) tester.createObject(2);
+
 
   }
 
@@ -98,8 +89,6 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
-    tester.proxy(Project.class, 1, p1);
-    tester.proxy(Project.class, 2, p2);
 
     assertTrue(tester.testCopyConstructor(TrackingRecord.class));
   }
