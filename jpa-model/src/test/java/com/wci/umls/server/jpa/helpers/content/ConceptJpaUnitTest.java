@@ -139,6 +139,7 @@ public class ConceptJpaUnitTest {
     tester.include("anonymous");
     tester.include("usesRelationshipIntersection");
     tester.include("usesRelationshipUnion");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());
   }

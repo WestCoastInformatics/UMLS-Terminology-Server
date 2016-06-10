@@ -82,7 +82,7 @@ public class MetaEditingServiceRestNormalUseTest
     // get the concept
     Concept c = null;
    
-      c = contentService.getConcept("359791000", umlsTerminology, umlsVersion, null,
+      c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion, null,
           authToken);
    
     assertNotNull(c);
@@ -103,7 +103,7 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // remove the semantic type from the concept
-    ValidationResult v = metaEditingService.removeSemanticType(project.getId(), c.getId(), c.getTimestamp(),
+    ValidationResult v = metaEditingService.removeSemanticType(project.getId(), c.getId(), c.getTimestamp().getTime(),
         sty.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
     
@@ -117,7 +117,7 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // add the semantic type to the concept
-    v = metaEditingService.addSemanticType(project.getId(), c.getId(), c.getTimestamp(), sty,
+    v = metaEditingService.addSemanticType(project.getId(), c.getId(), c.getTimestamp().getTime(), sty,
         false, authToken);
     assertTrue(v.getErrors().isEmpty());
     

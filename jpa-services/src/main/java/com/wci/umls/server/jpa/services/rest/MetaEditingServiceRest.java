@@ -6,8 +6,6 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import java.util.Date;
-
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 
@@ -29,7 +27,7 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
-    Date timestamp, SemanticTypeComponentJpa semanticTypeComponent, boolean overrideWarnings,
+    Long timestamp, SemanticTypeComponentJpa semanticTypeComponent, boolean overrideWarnings,
     String authToken) throws Exception;
 
   /**
@@ -45,7 +43,7 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult removeSemanticType(Long projectId, Long conceptId,
-    Date timestamp, Long semanticTypeComponentId, boolean overrideWarnings, String authToken)
+    Long timestamp, Long semanticTypeComponentId, boolean overrideWarnings, String authToken)
       throws Exception;
 
 }

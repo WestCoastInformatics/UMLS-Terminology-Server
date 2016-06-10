@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.rest.client;
 
-import java.util.Date;
 import java.util.Properties;
 
 import javax.ws.rs.client.Client;
@@ -42,7 +41,7 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
-    Date timestamp, SemanticTypeComponentJpa semanticTypeComponent,
+    Long timestamp, SemanticTypeComponentJpa semanticTypeComponent,
     boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add semantic type to concept" + projectId
@@ -55,7 +54,7 @@ public class MetaEditingClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client
         .target(config.getProperty("base.url") + "/meta/sty/add?projectId="
-            + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp.toString()
+            + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
@@ -77,7 +76,7 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult removeSemanticType(Long projectId, Long conceptId,
-    Date timestamp, Long semanticTypeComponentId, boolean overrideWarnings,
+    Long timestamp, Long semanticTypeComponentId, boolean overrideWarnings,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - remove semantic type from concept "
@@ -90,7 +89,7 @@ public class MetaEditingClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/sty/remove/" + semanticTypeComponentId + "?projectId="
-        + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp.toString()
+        + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)

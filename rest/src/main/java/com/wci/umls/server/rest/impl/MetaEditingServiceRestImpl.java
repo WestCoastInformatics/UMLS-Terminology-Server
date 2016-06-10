@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.rest.impl;
 
-import java.util.Date;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -52,8 +50,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   /** The security service. */
   private SecurityService securityService;
 
-  /** The lock object. */
-  private final static String lockObject = "LOCK";
 
   /**
    * Instantiates an empty {@link MetaEditingServiceRestImpl}.
@@ -74,7 +70,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult addSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
-    @ApiParam(value = "Concept timestamp, as date", required = true) @QueryParam("timestamp") Date timestamp,
+    @ApiParam(value = "Concept timestamp, as date", required = true) @QueryParam("timestamp") Long timestamp,
     @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponentJpa semanticTypeComponent,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
@@ -132,7 +128,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             validationResult);
 
         // check for stale-state
-        if (concept.getTimestamp().compareTo(timestamp) < 0) {
+        if (concept.getTimestamp().getTime() < timestamp) {
           validationResult.getErrors()
               .add("Stale state detected: concept modified after retrieval");
         }
@@ -191,7 +187,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult removeSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
-    @ApiParam(value = "Concept timestamp, in ms ", required = true) @QueryParam("timestamp") Date timestamp,
+    @ApiParam(value = "Concept timestamp, in ms ", required = true) @QueryParam("timestamp") Long timestamp,
     @ApiParam(value = "Semantic type id, e.g. 3", required = true) @PathParam("id") Long semanticTypeComponentId,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
@@ -203,7 +199,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             + semanticTypeComponentId);
 
     String action = "trying to add semantic type to concept";
-
+    
     ValidationResult validationResult = new ValidationResultJpa();
 
     ContentService contentService = new ContentServiceJpa();
@@ -248,7 +244,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           validationResult);
 
       // check for stale-state
-      if (concept.getTimestamp().compareTo(timestamp) < 0) {
+      if (concept.getTimestamp().getTime() < timestamp) {
         validationResult.getErrors()
             .add("Stale state detected: concept modified after retrieval");
       }

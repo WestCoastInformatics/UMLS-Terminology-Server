@@ -109,11 +109,11 @@ public class MetaEditingServiceRestEdgeCasesTest
     projectService.updateProject((ProjectJpa) project, authToken);
 
     result = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        c.getTimestamp(), sty2, false, authToken);
+        c.getTimestamp().getTime(), sty2, false, authToken);
     assertTrue(!result.isValid());
 
     metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getTimestamp(), sty.getId(), false, authToken);
+        c.getTimestamp().getTime(), sty.getId(), false, authToken);
     assertTrue(!result.isValid());
 
     // reset the terminology
@@ -131,11 +131,11 @@ public class MetaEditingServiceRestEdgeCasesTest
     //
 
     result = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        c.getTimestamp(), sty2, false, authToken);
+        c.getTimestamp().getTime(), sty2, false, authToken);
     assertTrue(!result.isValid());
 
     result = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getTimestamp(), sty.getId(), false, authToken);
+        c.getTimestamp().getTime(), sty.getId(), false, authToken);
     assertTrue(!result.isValid());
 
     // reset the branch
@@ -166,13 +166,13 @@ public class MetaEditingServiceRestEdgeCasesTest
 
     // remove the semantic type twice
     result1 = metaEditingService.removeSemanticType(project.getId(), c1.getId(),
-        c1.getTimestamp(), sty1.getId(), false, authToken);
+        c1.getTimestamp().getTime(), sty1.getId(), false, authToken);
     result2 = metaEditingService.removeSemanticType(project.getId(), c1.getId(),
-        c1.getTimestamp(), sty1.getId(), false, authToken);
+        c1.getTimestamp().getTime(), sty1.getId(), false, authToken);
 
     // re-add the semantic type
     metaEditingService.addSemanticType(project.getId(), c1.getId(),
-        c1.getTimestamp(), sty1, false, authToken);
+        c1.getTimestamp().getTime(), sty1, false, authToken);
 
     // expect one result to succeed, one result to fail
     assertTrue(result1.isValid() && !result2.isValid()
