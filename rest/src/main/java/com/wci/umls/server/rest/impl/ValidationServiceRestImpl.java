@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import javax.websocket.server.PathParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -17,15 +18,20 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.ValidationServiceRest;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
@@ -43,8 +49,8 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class ValidationServiceRestImpl extends RootServiceRestImpl
-    implements ValidationServiceRest {
+public class ValidationServiceRestImpl extends RootServiceRestImpl implements
+    ValidationServiceRest {
 
   /** The security service. */
   private SecurityService securityService;
@@ -70,11 +76,11 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Cui for first concept", required = true) @PathParam("cui1") String cui1,
     @ApiParam(value = "Cui for second concept", required = true) @PathParam("cui2") String cui2,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful call (Validation): /validate/concept/merge/"
-            + terminology + "/" + version + "/" + cui1 + "/" + cui2);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Validation): /validate/concept/merge/" + terminology
+            + "/" + version + "/" + cui1 + "/" + cui2);
 
     ProjectService projectService = new ProjectServiceJpa();
     ContentService contentService = new ContentServiceJpa();
@@ -114,8 +120,8 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Descriptor", required = true) DescriptorJpa descriptor,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /dui " + descriptor);
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (Project): /dui " + descriptor);
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -143,8 +149,8 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Atom", required = true) AtomJpa atom,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /aui " + atom);
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (Project): /aui " + atom);
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -172,12 +178,13 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Code", required = true) CodeJpa code,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /code " + code);
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (Project): /code " + code);
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeProject(projectService, projectId, securityService, authToken, "validate code", UserRole.USER);
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "validate code", UserRole.USER);
       Project project = projectService.getProject(projectId);
       return projectService.validateCode(project, code);
     } catch (Exception e) {
@@ -200,8 +207,8 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept", required = true) ConceptJpa concept,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /concept " + concept);
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (Project): /concept " + concept);
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -228,8 +235,8 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The project id , e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call POST (Validation): /checks ");
+    Logger.getLogger(getClass()).info(
+        "RESTful call POST (Validation): /checks ");
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
