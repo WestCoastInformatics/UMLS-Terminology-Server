@@ -22,6 +22,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.meta.CitationJpa;
 import com.wci.umls.server.jpa.meta.ContactInfoJpa;
@@ -37,7 +38,7 @@ import com.wci.umls.server.model.meta.Terminology;
 /**
  * Unit testing for {@link TerminologyJpa}.
  */
-public class TerminologyJpaUnitTest {
+public class TerminologyJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private TerminologyJpa object;
@@ -113,8 +114,8 @@ public class TerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet040() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet040");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
 
     tester.proxy(RootTerminology.class, 1, rootTerminologyProxy);
@@ -137,8 +138,8 @@ public class TerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode040() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode040");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("assertsRelDirection");
     tester.include("citation");
@@ -179,8 +180,8 @@ public class TerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy040() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy040");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
     tester.proxy(RootTerminology.class, 1, rootTerminologyProxy);
@@ -203,8 +204,8 @@ public class TerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization040() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization040");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
 
     tester.proxy(RootTerminology.class, 1, rootTerminologyProxy);
@@ -227,8 +228,8 @@ public class TerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField040() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField040");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -253,8 +254,8 @@ public class TerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlTransient040() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient040");
+  public void testModelXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     ProxyTester tester = new ProxyTester(new TerminologyJpa());
     tester.proxy(RootTerminology.class, 1, rootTerminologyProxy);
     tester.proxy(RootTerminology.class, 2, rootTerminologyProxy2);

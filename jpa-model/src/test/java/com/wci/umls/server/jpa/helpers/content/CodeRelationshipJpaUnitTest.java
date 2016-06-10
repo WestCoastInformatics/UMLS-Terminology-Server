@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
@@ -34,7 +35,7 @@ import com.wci.umls.server.model.content.CodeRelationship;
 /**
  * Unit testing for {@link CodeRelationshipJpa}.
  */
-public class CodeRelationshipJpaUnitTest {
+public class CodeRelationshipJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private CodeRelationshipJpa object;
@@ -88,8 +89,8 @@ public class CodeRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet021");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("fromId");
     tester.exclude("fromTerminology");
@@ -110,8 +111,8 @@ public class CodeRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode021");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -163,8 +164,8 @@ public class CodeRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy021");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
@@ -179,8 +180,8 @@ public class CodeRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy021");
+  public void testModelDeepCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CodeRelationship rel = new CodeRelationshipJpa();
     ProxyTester tester = new ProxyTester(rel);
@@ -215,8 +216,8 @@ public class CodeRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization021");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // The proxy codes can have only "id" and "term" set due to xml transient
     Code code1 = new CodeJpa();
@@ -239,9 +240,8 @@ public class CodeRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient021");
-
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<fromId>"));
     assertTrue(xml.contains("<fromName>"));
@@ -258,7 +258,8 @@ public class CodeRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField021() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

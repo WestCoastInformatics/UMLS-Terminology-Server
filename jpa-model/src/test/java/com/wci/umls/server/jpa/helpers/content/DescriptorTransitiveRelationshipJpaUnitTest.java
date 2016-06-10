@@ -19,6 +19,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -28,7 +29,8 @@ import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 /**
  * Unit testing for {@link DescriptorTransitiveRelationshipJpa}.
  */
-public class DescriptorTransitiveRelationshipJpaUnitTest {
+public class DescriptorTransitiveRelationshipJpaUnitTest extends
+    ModelUnitSupport {
 
   /** The model object to test. */
   private DescriptorTransitiveRelationshipJpa object;
@@ -69,8 +71,8 @@ public class DescriptorTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet017() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet017");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("superTypeId");
     tester.exclude("superTypeTerminologyId");
@@ -91,8 +93,8 @@ public class DescriptorTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode017() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode017");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -130,8 +132,8 @@ public class DescriptorTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy017() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy017");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Descriptor.class, 1, descriptor1);
     tester.proxy(Descriptor.class, 2, descriptor2);
@@ -145,8 +147,9 @@ public class DescriptorTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization017() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization017");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization");
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // The proxy descriptors can have only "id" and "term" set due to xml
     // transient
@@ -168,8 +171,8 @@ public class DescriptorTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient017() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient017");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subTypeId>"));
@@ -193,7 +196,8 @@ public class DescriptorTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField017() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

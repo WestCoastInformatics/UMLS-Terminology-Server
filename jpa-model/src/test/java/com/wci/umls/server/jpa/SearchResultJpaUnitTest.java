@@ -1,7 +1,7 @@
 /*
  * Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.content;
+package com.wci.umls.server.jpa;
 
 import static org.junit.Assert.assertTrue;
 
@@ -23,7 +23,7 @@ import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 /**
  * Unit testing for {@link SearchResultJpa}.
  */
-public class SearchResultJpaUnitTest {
+public class SearchResultJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private SearchResultJpa object;
@@ -50,8 +50,8 @@ public class SearchResultJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet023() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet023");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -62,8 +62,8 @@ public class SearchResultJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode023() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode023");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("terminology");
     tester.include("terminologyId");
@@ -73,7 +73,7 @@ public class SearchResultJpaUnitTest {
     tester.include("score");
     tester.include("type");
     tester.include("property");
-    
+
     KeyValuePair kvp = new KeyValuePair();
     kvp.setKey("1");
     kvp.setValue("1");
@@ -93,10 +93,10 @@ public class SearchResultJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy023() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy023");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    
+
     KeyValuePair kvp = new KeyValuePair();
     kvp.setKey("1");
     kvp.setValue("1");
@@ -110,27 +110,17 @@ public class SearchResultJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization023() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient023");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    
+
     KeyValuePair kvp = new KeyValuePair();
 
     kvp.setKey("1");
     kvp.setValue("1");
     tester.proxy(KeyValuePair.class, 1, kvp);
-    
-    assertTrue(tester.testXmlSerialization());
-  }
 
-  /**
-   * Test not null fields.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelNotNullField023() throws Exception {
-    // n/a
+    assertTrue(tester.testXmlSerialization());
   }
 
   /**

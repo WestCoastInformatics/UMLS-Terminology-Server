@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
@@ -34,7 +35,7 @@ import com.wci.umls.server.model.content.Attribute;
 /**
  * Unit testing for {@link AtomRelationshipJpa}.
  */
-public class AtomRelationshipJpaUnitTest {
+public class AtomRelationshipJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private AtomRelationshipJpa object;
@@ -88,8 +89,8 @@ public class AtomRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet008() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet008");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("fromId");
     tester.exclude("fromTerminologyId");
@@ -106,8 +107,8 @@ public class AtomRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode008() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode008");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -156,8 +157,8 @@ public class AtomRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy008() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy008");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Atom.class, 1, atom1);
     tester.proxy(Atom.class, 2, atom2);
@@ -172,8 +173,8 @@ public class AtomRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy008() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy008");
+  public void testModelDeepCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     AtomRelationship rel = new AtomRelationshipJpa();
     ProxyTester tester = new ProxyTester(rel);
@@ -208,8 +209,8 @@ public class AtomRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization008() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization008");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // The proxy atoms can have only "id" and "term" set due to xml transient
     Atom atom1 = new AtomJpa();
@@ -232,8 +233,8 @@ public class AtomRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient008() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient008");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<fromId>"));
@@ -251,7 +252,8 @@ public class AtomRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField008() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

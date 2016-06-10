@@ -109,6 +109,8 @@ public class ComponentInfoRelationshipJpa extends
     toName = relationship.getTo().getName();
     toType = relationship.getTo().getType();
 
+    alternateTerminologyIds =
+        new HashMap<>(relationship.getAlternateTerminologyIds());
   }
 
   /* see superclass */
@@ -164,12 +166,31 @@ public class ComponentInfoRelationshipJpa extends
   }
 
   /**
-   * Sets the from terminology id.
+   * Sets the from version.
    *
-   * @param version the from terminology id
+   * @param version the from version
    */
   public void setFromVersion(String version) {
     fromVersion = version;
+  }
+
+  /**
+   * Returns the from type.
+   *
+   * @return the from type
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public IdType getFromType() {
+    return fromType;
+  }
+
+  /**
+   * Sets the from type.
+   *
+   * @param type the from type
+   */
+  public void setFromType(IdType type) {
+    fromType = type;
   }
 
   /**
@@ -192,9 +213,9 @@ public class ComponentInfoRelationshipJpa extends
   }
 
   /**
-   * Returns the from term. For JAXB.
+   * Returns the from name.
    *
-   * @return the from term
+   * @return the from name
    */
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
@@ -205,9 +226,9 @@ public class ComponentInfoRelationshipJpa extends
   }
 
   /**
-   * Sets the from term.
+   * Sets the from name.
    *
-   * @param term the from term
+   * @param term the from name
    */
   public void setFromName(String term) {
     fromName = term;
@@ -294,9 +315,28 @@ public class ComponentInfoRelationshipJpa extends
   }
 
   /**
-   * Returns the to term. For JAXB.
+   * Returns the to type.
    *
-   * @return the to term
+   * @return the to type
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public IdType getToType() {
+    return toType;
+  }
+
+  /**
+   * Sets the to type.
+   *
+   * @param type the to type
+   */
+  public void setToType(IdType type) {
+    toType = type;
+  }
+
+  /**
+   * Returns the to name.
+   *
+   * @return the to name
    */
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
@@ -307,9 +347,9 @@ public class ComponentInfoRelationshipJpa extends
   }
 
   /**
-   * Sets the to term.
+   * Sets the to name.
    *
-   * @param term the to term
+   * @param term the to name
    */
   public void setToName(String term) {
     toName = term;
@@ -357,7 +397,11 @@ public class ComponentInfoRelationshipJpa extends
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((fromName == null) ? 0 : fromName.hashCode());
+    result =
+        prime
+            * result
+            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
+                .hashCode());
     result =
         prime * result
             + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
@@ -367,7 +411,6 @@ public class ComponentInfoRelationshipJpa extends
     result = prime * result + ((fromType == null) ? 0 : fromType.hashCode());
     result =
         prime * result + ((fromVersion == null) ? 0 : fromVersion.hashCode());
-    result = prime * result + ((toName == null) ? 0 : toName.hashCode());
     result =
         prime * result
             + ((toTerminology == null) ? 0 : toTerminology.hashCode());
@@ -389,10 +432,10 @@ public class ComponentInfoRelationshipJpa extends
     if (getClass() != obj.getClass())
       return false;
     ComponentInfoRelationshipJpa other = (ComponentInfoRelationshipJpa) obj;
-    if (fromName == null) {
-      if (other.fromName != null)
+    if (alternateTerminologyIds == null) {
+      if (other.alternateTerminologyIds != null)
         return false;
-    } else if (!fromName.equals(other.fromName))
+    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
       return false;
     if (fromTerminology == null) {
       if (other.fromTerminology != null)
@@ -410,11 +453,6 @@ public class ComponentInfoRelationshipJpa extends
       if (other.fromVersion != null)
         return false;
     } else if (!fromVersion.equals(other.fromVersion))
-      return false;
-    if (toName == null) {
-      if (other.toName != null)
-        return false;
-    } else if (!toName.equals(other.toName))
       return false;
     if (toTerminology == null) {
       if (other.toTerminology != null)

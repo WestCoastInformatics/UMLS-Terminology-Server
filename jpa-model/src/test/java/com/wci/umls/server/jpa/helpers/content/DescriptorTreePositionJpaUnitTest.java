@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -27,7 +28,7 @@ import com.wci.umls.server.model.content.DescriptorTreePosition;
 /**
  * Unit testing for {@link DescriptorTreePositionJpa}.
  */
-public class DescriptorTreePositionJpaUnitTest {
+public class DescriptorTreePositionJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private DescriptorTreePositionJpa object;
@@ -73,8 +74,8 @@ public class DescriptorTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet047() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet047");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("nodeId");
     tester.exclude("nodeTerminologyId");
@@ -90,8 +91,8 @@ public class DescriptorTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode047() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode047");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -132,8 +133,8 @@ public class DescriptorTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy047() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy047");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Descriptor.class, 1, descriptor1);
     tester.proxy(Descriptor.class, 2, descriptor2);
@@ -146,8 +147,8 @@ public class DescriptorTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization047() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization047");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // The proxy descriptors can have only "id" and "name" set due to xml
     // transient
@@ -163,8 +164,8 @@ public class DescriptorTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient047() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient047");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     object.setNode(descriptor1);
     String xml = ConfigUtility.getStringForGraph(object);
@@ -182,7 +183,8 @@ public class DescriptorTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField047() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

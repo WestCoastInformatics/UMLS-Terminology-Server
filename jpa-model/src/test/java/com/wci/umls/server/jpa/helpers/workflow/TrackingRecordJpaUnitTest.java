@@ -5,6 +5,10 @@ package com.wci.umls.server.jpa.helpers.workflow;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -13,8 +17,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.CopyConstructorTester;
+import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -32,12 +36,11 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
   /** The model object to test. */
   private TrackingRecordJpa object;
 
-  /** the test fixture c1 */
-  private Concept c1;
+  /** The fixture l1. */
+  private List<String> l1;
 
-  /** the test fixture c2 */
-  private Concept c2;
-
+  /** The fixture l2. */
+  private List<String> l2;
 
   /**
    * Setup class.
@@ -49,18 +52,20 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
 
   /**
    * Setup.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   @Before
   public void setup() throws Exception {
     object = new TrackingRecordJpa();
 
-    ProxyTester tester = new ProxyTester(new ConceptJpa());
-    c1 = (ConceptJpa) tester.createObject(1);
-    c2 = (ConceptJpa) tester.createObject(2);
+    l1 = new ArrayList<>();
+    l1.add("1");
+    l2 = new ArrayList<>();
+    l2.add("2");
 
-
-
+    // for xml serialization
+    object.setTerminologyIds(l1);
   }
 
   /**
@@ -69,14 +74,37 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet041() throws Exception {
+  public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("conceptId");
     tester.test();
   }
 
+  /**
+   * Test equals and hascode methods.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+    EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
+    tester.include("clusterId");
+    tester.include("terminology");
+    tester.include("terminologyIds");
+    tester.include("version");
 
+    tester.proxy(List.class, 1, l1);
+    tester.proxy(List.class, 2, l2);
+
+    assertTrue(tester.testIdentityFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
+    assertTrue(tester.testIdentityFieldNotEquals());
+    assertTrue(tester.testIdentityFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
+    assertTrue(tester.testIdentityFieldDifferentHashcode());
+  }
 
   /**
    * Test copy constructor.
@@ -84,12 +112,11 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy041() throws Exception {
+  public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(Concept.class, 1, c1);
-    tester.proxy(Concept.class, 2, c2);
-
+    tester.proxy(List.class, 1, l1);
+    tester.proxy(List.class, 2, l2);
     assertTrue(tester.testCopyConstructor(TrackingRecord.class));
   }
 
@@ -99,14 +126,9 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization041() throws Exception {
+  public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
-
-    Concept concept = new ConceptJpa();
-    concept.setId(1L);
-    concept.setName("1");
-    tester.proxy(Concept.class, 1, concept);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -116,15 +138,15 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField041() throws Exception {
+  public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("forAuthoring");
-    tester.include("forReview");
-    tester.include("revision");
     tester.include("timestamp");
+    tester.include("clusterId");
+    tester.include("terminology");
+    tester.include("version");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -134,30 +156,23 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields041() throws Exception {
+  public void testModelIndexedFields() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("authors");
-    tester.include("reviewers");
-    tester.include("conceptName");
+    tester.include("terminologyIds");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("forReview");
-    tester.include("revision");
-    tester.include("forAuthoring");
-    tester.include("conceptId");
-    tester.include("conceptTerminologyId");
-    tester.include("conceptNameSort");
-    tester.include("workflowStatus");
+    tester.include("clusterId");
+    tester.include("terminology");
+    tester.include("version");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
-    
   }
 
   /**

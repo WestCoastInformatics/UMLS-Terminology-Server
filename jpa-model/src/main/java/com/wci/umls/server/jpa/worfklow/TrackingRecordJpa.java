@@ -14,27 +14,22 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 
 /**
@@ -62,42 +57,27 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Column(nullable = false)
   private String lastModifiedBy;
 
-  /** The for editing. */
-  @Column(nullable = false)
-  private boolean forAuthoring = false;
-
-  /** The for review. */
-  @Column(nullable = false)
-  private boolean forReview = false;
-
-  /** The revision. */
-  @Column(nullable = false)
-  private boolean revision = false;
-
   /** the timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
 
-  /** The authors. */
+  /** The terminology ids . */
   @ElementCollection
-  @CollectionTable(name = "tracking_record_authors")
-  private List<String> authors = new ArrayList<>();
+  @CollectionTable(name = "terminology_ids")
+  private List<String> terminologyIds = new ArrayList<>();
 
-  /** The reviewers. */
-  @ElementCollection
-  @CollectionTable(name = "tracking_record_reviewers")
-  private List<String> reviewers = new ArrayList<>();
+  /** The cluster id. */
+  @Column(nullable = false)
+  private Long clusterId;
 
-  /** The concept. */
-  @OneToOne(targetEntity = ConceptJpa.class)
-  private Concept concept = null;
+  /** The terminology. */
+  @Column(nullable = false)
+  private String terminology;
 
-  /** The origin revision. */
-  private Integer originRevision = null;
-
-  /** The review origin revision. */
-  private Integer reviewOriginRevision = null;
+  /** The version. */
+  @Column(nullable = false)
+  private String version;
 
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
@@ -116,15 +96,11 @@ public class TrackingRecordJpa implements TrackingRecord {
     id = record.getId();
     lastModified = record.getLastModified();
     lastModifiedBy = record.getLastModifiedBy();
-    forAuthoring = record.isForAuthoring();
-    forReview = record.isForReview();
-    revision = record.isRevision();
-    authors = new ArrayList<>(record.getAuthors());
-    reviewers = new ArrayList<>(record.getReviewers());
-    concept = new ConceptJpa(record.getConcept(), false);
-    originRevision = record.getOriginRevision();
-    reviewOriginRevision = record.getReviewOriginRevision();
     timestamp = record.getTimestamp();
+    clusterId = record.getClusterId();
+    terminology = record.getTerminology();
+    version = record.getVersion();
+    terminologyIds = new ArrayList<>(record.getTerminologyIds());
   }
 
   /* see superclass */
@@ -168,171 +144,31 @@ public class TrackingRecordJpa implements TrackingRecord {
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
-  public List<String> getAuthors() {
-    if (authors == null) {
-      authors = new ArrayList<>();
+  public List<String> getTerminologyIds() {
+    if (terminologyIds == null) {
+      terminologyIds = new ArrayList<>();
     }
-    return authors;
+    return terminologyIds;
   }
 
   /* see superclass */
   @Override
-  public void setAuthors(List<String> authors) {
-    this.authors = authors;
-  }
-
-  /* see superclass */
-  @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-  @Override
-  public List<String> getReviewers() {
-    if (reviewers == null) {
-      reviewers = new ArrayList<>();
-    }
-    return reviewers;
+  public void setTerminologyIds(List<String> terminologyIds) {
+    this.terminologyIds = terminologyIds;
   }
 
   /* see superclass */
   @Override
-  public void setReviewers(List<String> reviewers) {
-    this.reviewers = reviewers;
-  }
-
-  /* see superclass */
-  @XmlTransient
-  @Override
-  public Concept getConcept() {
-    return concept;
-  }
-
-  /* see superclass */
-  @Override
-  public void setConcept(Concept concept) {
-    this.concept = concept;
-  }
-
-  /**
-   * Returns the concept id. For Indexing.
-   *
-   * @return the concept id
-   */
-  @XmlTransient
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public Long getConceptId() {
-    return concept == null ? null : concept.getId();
-  }
-
-  /**
-   * Returns the concept terminology id. For indexing.
-   *
-   * @return the concept terminology id
-   */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getConceptTerminologyId() {
-    return concept == null ? null : concept.getTerminologyId();
-  }
-
-  /**
-   * Sets the concept terminology id.
-   *
-   * @param terminologyId the new concept terminology id
-   */
-  public void setConceptTerminologyId(String terminologyId) {
-    if (concept == null) {
-      concept = new ConceptJpa();
-    }
-    concept.setTerminologyId(terminologyId);
-  }
-
-  /**
-   * Returns the concept name. For indexing.
-   *
-   * @return the concept name
-   */
-  @XmlTransient
-  @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-      @Field(name = "conceptNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })
-  public String getConceptName() {
-    return concept == null ? "" : concept.getName();
-  }
-
-  /**
-   * Returns the workflow status. For indexing.
-   *
-   * @return the workflow status
-   */
-  @XmlTransient
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getWorkflowStatus() {
-    if (concept != null) {
-      return concept.getWorkflowStatus().toString();
-    }
-    return "";
+  public Long getClusterId() {
+    return clusterId == null ? null : clusterId;
   }
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public boolean isForReview() {
-    return forReview;
-  }
-
-  /* see superclass */
-  @Override
-  public void setForReview(boolean forReview) {
-    this.forReview = forReview;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public boolean isRevision() {
-    return revision;
-  }
-
-  /* see superclass */
-  @Override
-  public void setRevision(boolean revision) {
-    this.revision = revision;
-  }
-
-  /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @Override
-  public boolean isForAuthoring() {
-    return forAuthoring;
-  }
-
-  /* see superclass */
-  @Override
-  public void setForAuthoring(boolean forAuthoring) {
-    this.forAuthoring = forAuthoring;
-  }
-
-  /* see superclass */
-  @Override
-  public Integer getOriginRevision() {
-    return originRevision;
-  }
-
-  /* see superclass */
-  @Override
-  public void setOriginRevision(Integer revision) {
-    originRevision = revision;
-  }
-
-  /* see superclass */
-  @Override
-  public Integer getReviewOriginRevision() {
-    return reviewOriginRevision;
-  }
-
-  /* see superclass */
-  @Override
-  public void setReviewOriginRevision(Integer revision) {
-    reviewOriginRevision = revision;
+  public void setClusterId(Long clusterId) {
+    this.clusterId = clusterId;
   }
 
   /* see superclass */
@@ -349,29 +185,42 @@ public class TrackingRecordJpa implements TrackingRecord {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getTerminology() {
+    return terminology;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTerminology(String terminology) {
+    this.terminology = terminology;
+  }
+
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getVersion() {
+    return version;
+  }
+
+  /* see superclass */
+  @Override
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((authors == null) ? 0 : authors.hashCode());
-    result = prime * result + ((concept == null) ? 0 : concept.hashCode());
-    result = prime * result + (forAuthoring ? 1231 : 1237);
-    result = prime * result + (forReview ? 1231 : 1237);
+    result = prime * result + ((clusterId == null) ? 0 : clusterId.hashCode());
     result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
+        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
         prime * result
-            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
-    result =
-        prime * result
-            + ((originRevision == null) ? 0 : originRevision.hashCode());
-    result =
-        prime
-            * result
-            + ((reviewOriginRevision == null) ? 0 : reviewOriginRevision
-                .hashCode());
-    result = prime * result + ((reviewers == null) ? 0 : reviewers.hashCode());
-    result = prime * result + (revision ? 1231 : 1237);
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+            + ((terminologyIds == null) ? 0 : terminologyIds.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
@@ -385,51 +234,25 @@ public class TrackingRecordJpa implements TrackingRecord {
     if (getClass() != obj.getClass())
       return false;
     TrackingRecordJpa other = (TrackingRecordJpa) obj;
-    if (authors == null) {
-      if (other.authors != null)
+    if (clusterId == null) {
+      if (other.clusterId != null)
         return false;
-    } else if (!authors.equals(other.authors))
+    } else if (!clusterId.equals(other.clusterId))
       return false;
-    if (concept == null) {
-      if (other.concept != null)
+    if (terminology == null) {
+      if (other.terminology != null)
         return false;
-    } else if (!concept.equals(other.concept))
+    } else if (!terminology.equals(other.terminology))
       return false;
-    if (forAuthoring != other.forAuthoring)
-      return false;
-    if (forReview != other.forReview)
-      return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
+    if (terminologyIds == null) {
+      if (other.terminologyIds != null)
         return false;
-    } else if (!lastModified.equals(other.lastModified))
+    } else if (!terminologyIds.equals(other.terminologyIds))
       return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
+    if (version == null) {
+      if (other.version != null)
         return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
-    if (originRevision == null) {
-      if (other.originRevision != null)
-        return false;
-    } else if (!originRevision.equals(other.originRevision))
-      return false;
-    if (reviewOriginRevision == null) {
-      if (other.reviewOriginRevision != null)
-        return false;
-    } else if (!reviewOriginRevision.equals(other.reviewOriginRevision))
-      return false;
-    if (reviewers == null) {
-      if (other.reviewers != null)
-        return false;
-    } else if (!reviewers.equals(other.reviewers))
-      return false;
-    if (revision != other.revision)
-      return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
-        return false;
-    } else if (!timestamp.equals(other.timestamp))
+    } else if (!version.equals(other.version))
       return false;
     return true;
   }
@@ -438,13 +261,8 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Override
   public String toString() {
     return "TrackingRecordJpa [id=" + id + ", lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", forAuthoring="
-        + forAuthoring + ", forReview=" + forReview + ", revision=" + revision
-        + ", timestamp=" + timestamp + ", authors=" + authors + ", reviewers="
-        + reviewers + ", concept=" + concept + ", originRevision="
-        + originRevision + ", reviewOriginRevision=" + reviewOriginRevision
-        + "]";
-
+        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
+        + ", terminologyIds=" + terminologyIds + ", clusterId=" + clusterId
+        + ", terminology=" + terminology + ", version=" + version + "]";
   }
-
 }

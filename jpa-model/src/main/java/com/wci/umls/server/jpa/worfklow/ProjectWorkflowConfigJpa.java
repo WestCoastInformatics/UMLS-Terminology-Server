@@ -29,30 +29,29 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.ProjectWorkflowConfig;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
-
 
 /**
  * JPA and JAXB enabled implementation of a {@link ProjectWorkflowConfig}.
  */
 @Entity
 @Table(name = "project_workflow_configs", uniqueConstraints = @UniqueConstraint(columnNames = {
-     "id"
+  "id"
 }))
 @Indexed
 @XmlRootElement(name = "projectWorkflowConfig")
-public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
+public class ProjectWorkflowConfigJpa implements ProjectWorkflowConfig {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
-  
+
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -61,46 +60,49 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-  
+
   /** The timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;  
+  private Date timestamp = null;
 
   /** The type. */
   @Column(nullable = false)
   private WorkflowBinType type;
-  
+
   /** The mutually exclusive. */
   @Column(nullable = false)
   private boolean mutuallyExclusive;
-  
+
+  /** The last partition time. */
   /** The last partition time. */
   @Column(nullable = false, unique = false)
   private Long lastPartitionTime;
-  
+
   /** The workflow bin definitions. */
   @OneToMany(mappedBy = "name", targetEntity = WorkflowBinDefinitionJpa.class)
-  private List<WorkflowBinDefinition> workflowBinDefinitions = new ArrayList<>();
-  
+  private List<WorkflowBinDefinition> workflowBinDefinitions =
+      new ArrayList<>();
+
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
-  
+
   /**
    * Instantiates a new workflow bin definitions jpa.
    */
   public ProjectWorkflowConfigJpa() {
     // do nothing
   }
-  
+
   /**
    * Instantiates a new project workflow config jpa.
    *
    * @param projectWorkflowConfig the project workflow configuration
    * @param deepCopy the deep copy
    */
-  public ProjectWorkflowConfigJpa(ProjectWorkflowConfig projectWorkflowConfig, boolean deepCopy) {
+  public ProjectWorkflowConfigJpa(ProjectWorkflowConfig projectWorkflowConfig,
+      boolean deepCopy) {
     super();
     this.lastModified = projectWorkflowConfig.getLastModified();
     this.lastModifiedBy = projectWorkflowConfig.getLastModifiedBy();
@@ -110,7 +112,8 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
     this.type = projectWorkflowConfig.getType();
     this.lastPartitionTime = projectWorkflowConfig.getLastPartitionTime();
     if (deepCopy) {
-      this.workflowBinDefinitions = projectWorkflowConfig.getWorkflowBinDefinitions();
+      this.workflowBinDefinitions =
+          projectWorkflowConfig.getWorkflowBinDefinitions();
     }
   }
 
@@ -172,8 +175,7 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
 
   /* see superclass */
   @Override
-  public void setWorkflowBinDefinitions(
-    List<WorkflowBinDefinition> definitions) {
+  public void setWorkflowBinDefinitions(List<WorkflowBinDefinition> definitions) {
     this.workflowBinDefinitions = definitions;
   }
 
@@ -214,6 +216,7 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
     this.lastPartitionTime = lastPartitionTime;
   }
 
+  /* see superclass */
   @Override
   @XmlTransient
   public Project getProject() {
@@ -224,7 +227,7 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
   public void setProject(Project project) {
     this.project = project;
   }
-  
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -232,16 +235,21 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
     int result = 1;
     result =
         prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
-    result = prime * result
-        + ((lastPartitionTime == null) ? 0 : lastPartitionTime.hashCode());
+    result =
+        prime * result
+            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result =
+        prime * result
+            + ((lastPartitionTime == null) ? 0 : lastPartitionTime.hashCode());
     result = prime * result + (mutuallyExclusive ? 1231 : 1237);
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((project == null) ? 0 : project.hashCode());
-    result = prime * result + ((workflowBinDefinitions == null) ? 0
-        : workflowBinDefinitions.hashCode());
+    result =
+        prime
+            * result
+            + ((workflowBinDefinitions == null) ? 0 : workflowBinDefinitions
+                .hashCode());
     return result;
   }
 
@@ -302,9 +310,5 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
         + lastPartitionTime + ", workflowBinDefinitions="
         + workflowBinDefinitions + "]";
   }
-
-
-
-
 
 }

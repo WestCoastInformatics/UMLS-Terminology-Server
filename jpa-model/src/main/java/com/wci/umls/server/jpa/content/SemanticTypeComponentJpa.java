@@ -62,7 +62,6 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
     workflowStatus = semanticType.getWorkflowStatus();
   }
 
-
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -96,8 +95,6 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
     int result = super.hashCode();
     result =
         prime * result + ((semanticType == null) ? 0 : semanticType.hashCode());
-    result = prime * result
-        + ((workflowStatus == null) ? 0 : workflowStatus.hashCode());
     return result;
   }
 
@@ -114,8 +111,6 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
       if (other.semanticType != null)
         return false;
     } else if (!semanticType.equals(other.semanticType))
-      return false;
-    if (workflowStatus != other.workflowStatus)
       return false;
     return true;
   }

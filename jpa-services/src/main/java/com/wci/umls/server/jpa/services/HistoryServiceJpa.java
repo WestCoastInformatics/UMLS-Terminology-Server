@@ -142,7 +142,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
   public ReleaseInfo addReleaseInfo(ReleaseInfo releaseInfo) throws Exception {
     Logger.getLogger(getClass()).debug(
         "History Service - add release info " + releaseInfo.getName());
-    if (lastModifiedFlag) {
+    if (isLastModifiedFlag()) {
       releaseInfo.setLastModified(new Date());
     }
     try {
@@ -169,7 +169,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
   public void updateReleaseInfo(ReleaseInfo releaseInfo) throws Exception {
     Logger.getLogger(getClass()).debug(
         "History Service - update release info " + releaseInfo.getName());
-    if (lastModifiedFlag) {
+    if (isLastModifiedFlag()) {
       releaseInfo.setLastModified(new Date());
     }
     try {

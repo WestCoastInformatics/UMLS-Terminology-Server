@@ -17,9 +17,10 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AttributeJpa;
-import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.Attribute;
@@ -29,7 +30,7 @@ import com.wci.umls.server.model.content.Mapping;
 /**
  * Unit testing for {@link MapSetJpa}.
  */
-public class MapSetJpaUnitTest {
+public class MapSetJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private MapSetJpa object;
@@ -76,8 +77,8 @@ public class MapSetJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet041");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -88,8 +89,8 @@ public class MapSetJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -130,8 +131,8 @@ public class MapSetJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
+  public void testModelDeepCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Attribute.class, 1, a1);
@@ -148,8 +149,8 @@ public class MapSetJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -160,7 +161,8 @@ public class MapSetJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField041() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -193,8 +195,8 @@ public class MapSetJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);

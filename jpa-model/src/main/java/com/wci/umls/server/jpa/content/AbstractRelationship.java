@@ -67,7 +67,7 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private WorkflowStatus workflowStatus;
-  
+
   /**
    * Instantiates an empty {@link AbstractRelationship}.
    */
@@ -197,24 +197,29 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
     this.workflowStatus = workflowStatus;
 
   }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((additionalRelationshipType == null) ? 0
-        : additionalRelationshipType.hashCode());
+    result =
+        prime
+            * result
+            + ((additionalRelationshipType == null) ? 0
+                : additionalRelationshipType.hashCode());
     result = prime * result + (assertedDirection ? 1231 : 1237);
     result = prime * result + ((group == null) ? 0 : group.hashCode());
     result = prime * result + (hierarchical ? 1231 : 1237);
     result = prime * result + (inferred ? 1231 : 1237);
-    result = prime * result
-        + ((relationshipType == null) ? 0 : relationshipType.hashCode());
+    result =
+        prime * result
+            + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result = prime * result + (stated ? 1231 : 1237);
-    result = prime * result
-        + ((workflowStatus == null) ? 0 : workflowStatus.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -223,7 +228,7 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
       return false;
     if (getClass() != obj.getClass())
       return false;
-    AbstractRelationship other = (AbstractRelationship) obj;
+    AbstractRelationship<?, ?> other = (AbstractRelationship<?, ?>) obj;
     if (additionalRelationshipType == null) {
       if (other.additionalRelationshipType != null)
         return false;
@@ -248,8 +253,6 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
       return false;
     if (stated != other.stated)
       return false;
-    if (workflowStatus != other.workflowStatus)
-      return false;
     return true;
   }
 
@@ -261,7 +264,7 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
         + relationshipType + ", additionalRelationshipType="
         + additionalRelationshipType + ", group=" + group + ", inferred="
         + inferred + ", stated=" + stated + ", assertedDirection="
-        + assertedDirection + ", hierarchcial=" + hierarchical 
+        + assertedDirection + ", hierarchcial=" + hierarchical
         + ", workflowStatus=" + workflowStatus + "]";
   }
 }

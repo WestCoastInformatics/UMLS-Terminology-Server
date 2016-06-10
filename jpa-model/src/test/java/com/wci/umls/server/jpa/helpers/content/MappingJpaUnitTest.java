@@ -17,6 +17,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
@@ -33,7 +34,7 @@ import com.wci.umls.server.model.meta.RelationshipType;
 /**
  * Unit testing for {@link MappingJpa}.
  */
-public class MappingJpaUnitTest {
+public class MappingJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private Mapping object;
@@ -103,8 +104,8 @@ public class MappingJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet043");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("mapSetId");
     tester.exclude("mapSetTerminologyId");
@@ -118,8 +119,8 @@ public class MappingJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode043");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -163,8 +164,8 @@ public class MappingJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy043");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Attribute.class, 1, a1);
     tester.proxy(Attribute.class, 2, a2);
@@ -183,8 +184,8 @@ public class MappingJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization043");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     tester.proxy(Attribute.class, 1, a1);
     tester.proxy(Attribute.class, 2, a2);
@@ -203,7 +204,8 @@ public class MappingJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField043() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -232,7 +234,7 @@ public class MappingJpaUnitTest {
    */
   @Test
   public void testModelIndexedFields041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields043");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);

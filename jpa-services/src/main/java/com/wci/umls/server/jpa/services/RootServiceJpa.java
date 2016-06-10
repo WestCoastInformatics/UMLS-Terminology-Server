@@ -44,7 +44,10 @@ import com.wci.umls.server.services.RootService;
 public abstract class RootServiceJpa implements RootService {
 
   /** The last modified flag. */
-  protected boolean lastModifiedFlag = true;
+  private boolean lastModifiedFlag = true;
+
+  /** The last modified by. */
+  private String lastModifiedBy = null;
 
   /** The user map. */
   protected static Map<String, User> userMap = new HashMap<>();
@@ -623,6 +626,15 @@ public abstract class RootServiceJpa implements RootService {
     this.lastModifiedFlag = lastModifiedFlag;
   }
 
+  /**
+   * Indicates whether or not last modified flag is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isLastModifiedFlag() {
+    return lastModifiedFlag;
+  }
+
   /* see superclass */
   @Override
   public void commitClearBegin() throws Exception {
@@ -696,9 +708,17 @@ public abstract class RootServiceJpa implements RootService {
   protected <T extends HasLastModified> T addHasLastModified(
     final T hasLastModified) throws Exception {
     // Set last modified date
-    if (lastModifiedFlag) {
+    // TODO: PG to repackage this and add to update/remove
+    // TODO: also see the superclass "
+    if (isLastModifiedFlag()) {
+      if (getLastModifiedBy() == null) {
+        throw new Exception("...");
+      } else {
+        hasLastModified.setLastModifiedBy(getLastModifiedBy());
+      }
       hasLastModified.setLastModified(new Date());
     }
+
     return addObject(hasLastModified);
 
   }
@@ -1020,6 +1040,24 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public boolean isObjectLocked(Object object) throws Exception {
     return manager.getLockMode(object).equals(LockModeType.PESSIMISTIC_WRITE);
+  }
+
+  /**
+   * Returns the last modified by.
+   *
+   * @return the last modified by
+   */
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
+  }
+
+  /**
+   * Sets the last modified by.
+   *
+   * @param lastModifiedBy the last modified by
+   */
+  public void setLastModifiedBy(String lastModifiedBy) {
+    this.lastModifiedBy = lastModifiedBy;
   }
 
 }

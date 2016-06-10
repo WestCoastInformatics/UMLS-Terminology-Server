@@ -969,17 +969,18 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     removeMetadata(id, RootTerminologyJpa.class);
 
   }
-  
+
   @Override
-  public PrecedenceList getPrecedenceList(Long precedenceListId) throws Exception {
+  public PrecedenceList getPrecedenceList(Long precedenceListId)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Metadata Service - get precedence list" + precedenceListId);
 
-    PrecedenceList newPrecedenceList = this.getObject(precedenceListId, PrecedenceListJpa.class);
+    PrecedenceList newPrecedenceList =
+        this.getObject(precedenceListId, PrecedenceListJpa.class);
 
     return newPrecedenceList;
   }
-  
 
   /* see superclass */
   @Override
@@ -1025,7 +1026,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     throws Exception {
     try {
       // Set last modified date
-      if (lastModifiedFlag) {
+      if (isLastModifiedFlag()) {
         abbreviation.setLastModified(new Date());
       }
 
@@ -1058,7 +1059,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     throws Exception {
     try {
       // Set modification date
-      if (lastModifiedFlag) {
+      if (isLastModifiedFlag()) {
         abbreviation.setLastModified(new Date());
       }
 
@@ -1097,7 +1098,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
       T abbreviation = manager.find(clazz, id);
 
       // Set modification date
-      if (lastModifiedFlag) {
+      if (isLastModifiedFlag()) {
         abbreviation.setLastModified(new Date());
       }
 
@@ -1130,7 +1131,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public boolean isLastModifiedFlag() {
-    return lastModifiedFlag;
+    return isLastModifiedFlag();
   }
 
   /* see superclass */

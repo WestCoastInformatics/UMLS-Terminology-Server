@@ -32,10 +32,7 @@ import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
-import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.Note;
@@ -61,7 +58,6 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
-import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.content.AbstractAtomClass;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -94,7 +90,6 @@ import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
-import com.wci.umls.server.jpa.helpers.ComponentInfoListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
@@ -158,7 +153,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     ContentService {
 
   /** The assign identifiers flag. */
-  protected boolean assignIdentifiersFlag = true;
+  protected boolean assignIdentifiersFlag = false;
 
   /** The id assignment handler . */
   static Map<String, IdentifierAssignmentHandler> idHandlerMap =
@@ -234,8 +229,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   static {
     try {
-      
-      
+
       config = ConfigUtility.getConfigProperties();
       final String key = "normalized.string.handler";
       final String handlerName = config.getProperty(key);
@@ -3737,28 +3731,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   /**
-   * Indicates whether or not last modified flag is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  @Override
-  public boolean isLastModifiedFlag() {
-    return lastModifiedFlag;
-  }
-
-  /* see superclass */
-  /**
-   * Sets the last modified flag.
-   *
-   * @param lastModifiedFlag the last modified flag
-   */
-  @Override
-  public void setLastModifiedFlag(boolean lastModifiedFlag) {
-    this.lastModifiedFlag = lastModifiedFlag;
-  }
-
-  /* see superclass */
-  /**
    * Sets the assign identifiers flag.
    *
    * @param assignIdentifiersFlag the assign identifiers flag
@@ -3870,28 +3842,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   protected <T extends Component> T addComponent(T component) throws Exception {
-    try {
-      // Set last modified date
-      if (lastModifiedFlag) {
-        component.setLastModified(new Date());
-      }
 
-      // add
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.persist(component);
-        tx.commit();
-      } else {
-        manager.persist(component);
-      }
-      return component;
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    // TODO: PG apply this approach to removeComponent/updateComponent as well
+    
+    // Component-specific handling
+    
+    // handle as a normal "has last modified"
+    return addHasLastModified(component);
+
   }
 
   /**
@@ -3905,7 +3863,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     throws Exception {
     try {
       // Set modification date
-      if (lastModifiedFlag) {
+      if (isLastModifiedFlag()) {
         component.setLastModified(new Date());
       }
 
@@ -4000,7 +3958,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       T component = manager.find(clazz, id);
 
       // Set modification date
-      if (lastModifiedFlag) {
+      if (isLastModifiedFlag()) {
         component.setLastModified(new Date());
       }
 
@@ -4060,32 +4018,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /* see superclass */
   @Override
   public RelationshipList findRelationshipsForComponentInfo(
-    String componentInfoId, String terminology, String version, String branch,
-    String query, boolean inverseFlag, PfsParameter pfs) throws Exception {
+    String componentInfoId, String terminology, String version, IdType type,
+    String branch, String query, boolean inverseFlag, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for component info "
             + componentInfoId + "/" + terminology + "/" + version + "/"
             + branch + "/" + query + "/" + inverseFlag);
 
     return findRelationshipsForComponentHelper(componentInfoId, terminology,
-        version, branch, query, inverseFlag, pfs,
+        version, branch, ConfigUtility.isEmpty(query) ? "fromType:" + type
+            : query + " AND fromType:" + type, inverseFlag, pfs,
         ComponentInfoRelationshipJpa.class);
   }
 
   /* see superclass */
-  /**
-   * Find deep relationships for concept.
-   *
-   * @param conceptId the concept id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param filter the filter
-   * @param inverseFlag the inverse flag
-   * @param pfs the pfs
-   * @return the relationship list
-   * @throws Exception the exception
-   */
   @SuppressWarnings({
     "unchecked"
   })
@@ -5575,86 +5522,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Remove the note
     removeHasLastModified(id, type);
 
-  }
-
-  /* see superclass */
-  @Override
-  public ComponentInfoList findComponentInfosForQuery(String userName,
-    String terminology, String version, String queryStr, PfsParameter pfs)
-    throws Exception {
-    ComponentInfoList favorites = new ComponentInfoListJpa();
-
-    try {
-      UserPreferences preferences = getUser(userName).getUserPreferences();
-
-      javax.persistence.Query query =
-          manager
-              .createQuery(" select u from ComponentInfoJpa u where terminology=:terminology and version=:version and userName=:userName and preferences_id = :preferencesId");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      query.setParameter("userName", userName);
-      query.setParameter("preferencesId", preferences.getId());
-      @SuppressWarnings("unchecked")
-      List<ComponentInfo> userFavorites = query.getResultList();
-      favorites.setObjects(userFavorites);
-      favorites.setTotalCount(userFavorites.size());
-
-    } catch (NoResultException e) {
-      // n/a - just remove empty list
-    }
-    return favorites;
-  }
-
-  /* see superclass */
-  /**
-   * Adds the component info.
-   *
-   * @param userFavorite the user favorite
-   * @return the component info
-   * @throws Exception the exception
-   */
-  @Override
-  public ComponentInfo addComponentInfo(ComponentInfo userFavorite)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - add userFavorite " + userFavorite);
-
-    // Add component
-    ComponentInfo newComponentInfo = addHasLastModified(userFavorite);
-
-    return newComponentInfo;
-  }
-
-  /* see superclass */
-  /**
-   * Update component info.
-   *
-   * @param userFavorite the user favorite
-   * @throws Exception the exception
-   */
-  @Override
-  public void updateComponentInfo(ComponentInfo userFavorite) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - update userFavorite " + userFavorite);
-
-    // update component
-    updateHasLastModified(userFavorite);
-
-  }
-
-  /* see superclass */
-  /**
-   * Removes the component info.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
-  @Override
-  public void removeComponentInfo(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - remove userFavorite " + id);
-    // Remove the component
-    removeHasLastModified(id, ComponentInfoJpa.class);
   }
 
   /**

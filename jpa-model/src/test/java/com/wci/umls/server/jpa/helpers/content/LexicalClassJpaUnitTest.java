@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 West Coast Informatics, LLC
+ * Copyright 2 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers.content;
 
@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
@@ -23,9 +24,9 @@ import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.LexicalClass;
 
 /**
- * Unit testing for {@link AtomJpa}.
+ * Unit testing for {@link StringClassJpa}.
  */
-public class LexicalClassJpaUnitTest {
+public class LexicalClassJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private LexicalClassJpa object;
@@ -54,8 +55,8 @@ public class LexicalClassJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet018() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet018");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -66,8 +67,8 @@ public class LexicalClassJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode018() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode018");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -94,8 +95,8 @@ public class LexicalClassJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy018() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy018");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructorDeep(LexicalClass.class));
   }
@@ -106,8 +107,8 @@ public class LexicalClassJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization018() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization018");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -118,7 +119,8 @@ public class LexicalClassJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField018() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -142,9 +144,8 @@ public class LexicalClassJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields018() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields018");
-
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("name");

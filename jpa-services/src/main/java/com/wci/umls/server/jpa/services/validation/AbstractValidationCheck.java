@@ -72,6 +72,7 @@ public abstract class AbstractValidationCheck implements ValidationCheck {
    * @param atoms the atoms
    * @return the validation result
    */
+  @Override
   public ValidationResult validateSplit(Concept concept, List<Atom> atoms) {
     ValidationResult result = new ValidationResultJpa();
     // no checks
@@ -86,6 +87,7 @@ public abstract class AbstractValidationCheck implements ValidationCheck {
    * @param atoms the atoms
    * @return the validation result
    */
+  @Override
   public ValidationResult validateMove(Concept concept1, Concept concept2,
     List<Atom> atoms) {
     ValidationResult result = new ValidationResultJpa();
@@ -99,6 +101,7 @@ public abstract class AbstractValidationCheck implements ValidationCheck {
    * @param concept the concept
    * @return the validation result
    */
+  @Override
   public ValidationResult validateApprove(Concept concept) {
     ValidationResult result = new ValidationResultJpa();
     // no checks

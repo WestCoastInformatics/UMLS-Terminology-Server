@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.helpers.content;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -25,25 +24,24 @@ import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
-import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 
 /**
  * Unit testing for {@link ComponentInfoRelationshipJpa}.
  */
-public class ComponentInfoRelationshipJpaUnitTest {
+public class ComponentInfoRelationshipJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private ComponentInfoRelationshipJpa object;
 
-  /** test fixture */
-  private ComponentInfo componentInfo1;
+  /** test fixture c1 */
+  private ComponentInfo c1;
 
-  /** test fixture */
-  private ComponentInfo componentInfo2;
+  /** test fixture c2 */
+  private ComponentInfo c2;
 
   /** The map fixture 1. */
   private Map<String, String> map1;
@@ -67,19 +65,19 @@ public class ComponentInfoRelationshipJpaUnitTest {
   public void setup() throws Exception {
     object = new ComponentInfoRelationshipJpa();
 
+    // for alt termionlogy ids
     map1 = new HashMap<>();
-    map1.put("1", "1");
+    map1.put("1", "a");
     map2 = new HashMap<>();
-    map2.put("2", "2");
+    map2.put("2", "bb");
 
     ProxyTester tester = new ProxyTester(new ComponentInfoJpa());
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
-    componentInfo1 = (ComponentInfoJpa) tester.createObject(1);
-    componentInfo2 = (ComponentInfoJpa) tester.createObject(2);
+    c1 = (ComponentInfoJpa) tester.createObject(1);
+    c2 = (ComponentInfoJpa) tester.createObject(2);
 
-    object.setFrom(componentInfo1);
-    object.setTo(componentInfo2);
+    // For XML serialization
+    object.setFrom(c1);
+    object.setTo(c2);
   }
 
   /**
@@ -88,8 +86,8 @@ public class ComponentInfoRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet012");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.include("fromId");
     tester.include("fromTerminology");
@@ -110,8 +108,8 @@ public class ComponentInfoRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode012");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -128,32 +126,28 @@ public class ComponentInfoRelationshipJpaUnitTest {
     tester.include("relationshipType");
     tester.include("stated");
     tester.include("hierarchical");
+
+    tester.include("fromTerminologyId");
+    tester.include("fromTerminology");
+    tester.include("fromVersion");
+    tester.include("fromType");
+    tester.include("toTerminologyId");
+    tester.include("toTerminology");
+    tester.include("toVersion");
+    tester.include("toType");
+
     tester.include("to");
     tester.include("from");
-    tester.include("toTerminologyId");
-    tester.include("fromTerminologyId");
     tester.include("workflowStatus");
 
-    tester.proxy(ComponentInfo.class, 1, new ComponentInfoJpa(componentInfo1));
-    tester.proxy(ComponentInfo.class, 2, new ComponentInfoJpa(componentInfo2));
-    /*tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);*/
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
 
     assertTrue(tester.testIdentityFieldEquals());
-    tester.proxy(ComponentInfo.class, 1, new ComponentInfoJpa(componentInfo1));
-    tester.proxy(ComponentInfo.class, 2, new ComponentInfoJpa(componentInfo2));
     assertTrue(tester.testNonIdentityFieldEquals());
-    tester.proxy(ComponentInfo.class, 1, new ComponentInfoJpa(componentInfo1));
-    tester.proxy(ComponentInfo.class, 2, new ComponentInfoJpa(componentInfo2));
     assertTrue(tester.testIdentityFieldNotEquals());
-    tester.proxy(ComponentInfo.class, 1, new ComponentInfoJpa(componentInfo1));
-    tester.proxy(ComponentInfo.class, 2, new ComponentInfoJpa(componentInfo2));
     assertTrue(tester.testIdentityFieldHashcode());
-    tester.proxy(ComponentInfo.class, 1, new ComponentInfoJpa(componentInfo1));
-    tester.proxy(ComponentInfo.class, 2, new ComponentInfoJpa(componentInfo2));
     assertTrue(tester.testNonIdentityFieldHashcode());
-    tester.proxy(ComponentInfo.class, 1, new ComponentInfoJpa(componentInfo1));
-    tester.proxy(ComponentInfo.class, 2, new ComponentInfoJpa(componentInfo2));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 
@@ -163,50 +157,12 @@ public class ComponentInfoRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy012");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(ComponentInfo.class, 1, componentInfo1);
-    tester.proxy(ComponentInfo.class, 2, componentInfo2);
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
+    tester.proxy(ComponentInfo.class, 1, c1);
+    tester.proxy(ComponentInfo.class, 2, c2);
     assertTrue(tester.testCopyConstructorDeep(ComponentInfoRelationship.class));
-  }
-
-  /**
-   * Test deep copy constructor.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelDeepCopy012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy012");
-
-    ComponentInfoRelationship rel = new ComponentInfoRelationshipJpa();
-    ProxyTester tester = new ProxyTester(rel);
-    tester.proxy(Map.class, 1, map1);
-    rel = (ComponentInfoRelationship) tester.createObject(1);
-
-    ProxyTester tester2 = new ProxyTester(new ComponentInfoJpa());
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
-    ComponentInfo fromComponentInfo = (ComponentInfo) tester2.createObject(1);
-    ComponentInfo toComponentInfo = (ComponentInfo) tester2.createObject(2);
-
-    ProxyTester tester3 = new ProxyTester(new AttributeJpa());
-    Attribute att = (Attribute) tester3.createObject(1);
-
-    rel.setFrom(fromComponentInfo);
-    rel.setTo(toComponentInfo);
-    rel.getAttributes().add(att);
-
-    ComponentInfoRelationship rel2 = new ComponentInfoRelationshipJpa(rel, false);
-    assertEquals(0, rel2.getAttributes().size());
-
-    ComponentInfoRelationship rel3 = new ComponentInfoRelationshipJpa(rel, true);
-    assertEquals(1, rel3.getAttributes().size());
-    assertEquals(att, rel3.getAttributes().iterator().next());
-
   }
 
   /**
@@ -215,21 +171,16 @@ public class ComponentInfoRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization012");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    // The proxy componentInfos can have only "id" and "term" set due to xml transient
+    // The proxy componentInfos can have only "id" and "term" set due to xml
+    // transient
     ComponentInfo componentInfo1 = new ComponentInfoJpa();
     componentInfo1.setId(1L);
     componentInfo1.setName("1");
-    ComponentInfo componentInfo2 = new ComponentInfoJpa();
-    componentInfo2.setId(2L);
-    componentInfo2.setName("2");
-
     tester.proxy(ComponentInfo.class, 1, componentInfo1);
-    tester.proxy(ComponentInfo.class, 2, componentInfo2);
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
+
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -239,8 +190,8 @@ public class ComponentInfoRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient012");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<fromTerminologyId>"));
@@ -258,7 +209,8 @@ public class ComponentInfoRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField012() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -277,6 +229,30 @@ public class ComponentInfoRelationshipJpaUnitTest {
     tester.include("hierarchical");
     tester.include("workflowStatus");
     assertTrue(tester.testNotNullFields());
+  }
+
+  /**
+   * Test xml transient fields
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testXmlTransient012() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    String xml = ConfigUtility.getStringForGraph(object);
+    System.out.println("XML=" + xml);
+    assertTrue(xml.contains("<fromTerminologyId>"));
+    assertTrue(xml.contains("<fromTerminology>"));
+    assertTrue(xml.contains("<fromVersion>"));
+    assertTrue(xml.contains("<fromName>"));
+    assertTrue(xml.contains("<toTerminologyId>"));
+    assertTrue(xml.contains("<toTerminology>"));
+    assertTrue(xml.contains("<toVersion>"));
+    assertTrue(xml.contains("<toName>"));
+    assertFalse(xml.contains("<from>"));
+    assertFalse(xml.contains("<to>"));
+
   }
 
   /**

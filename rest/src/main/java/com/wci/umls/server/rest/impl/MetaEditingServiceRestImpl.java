@@ -338,8 +338,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    *
    * @param project the project
    * @param concept the concept
+   * @param validationResult the validation result
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   private void checkPrerequisitesForProjectAndConcept(Project project,
     Concept concept, ValidationResult validationResult) throws Exception {
 

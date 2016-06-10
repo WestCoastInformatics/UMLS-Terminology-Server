@@ -25,6 +25,7 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
  * Represents a service for managing content.
@@ -228,6 +229,7 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param type the type
    * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
@@ -235,7 +237,7 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public RelationshipList findRelationshipsForComponentInfo(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
+    String terminology, String version, IdType type, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
   
   /**

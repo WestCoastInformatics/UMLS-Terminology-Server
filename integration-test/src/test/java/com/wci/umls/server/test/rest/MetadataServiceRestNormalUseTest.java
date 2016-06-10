@@ -3,7 +3,12 @@
  */
 package com.wci.umls.server.test.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -149,16 +154,16 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     Logger.getLogger(getClass()).debug("Start test");
 
     // test UMLS metadata
-    assertTrue(testUmlsMetadata(
-        metadataService.getAllMetadata("UMLS", "latest", authToken)));
+    assertTrue(testUmlsMetadata(metadataService.getAllMetadata("UMLS",
+        "latest", authToken)));
 
     // test SNOMED metadata
     assertTrue(testSnomedMetadata(metadataService.getAllMetadata("SNOMEDCT_US",
         "2014_09_01", authToken)));
 
     // test MSH metadata
-    assertTrue(testMshMetadata(
-        metadataService.getAllMetadata("MSH", "2015_2014_09_08", authToken)));
+    assertTrue(testMshMetadata(metadataService.getAllMetadata("MSH",
+        "2015_2014_09_08", authToken)));
   }
 
   /**
@@ -267,29 +272,30 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertEquals("loader", precedence.getLastModifiedBy());
     assertEquals("UMLS", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
-    assertEquals("MTH",
-        precedence.getPrecedence().getKeyValuePairs().get(0).getKey());
-    assertEquals("PN",
-        precedence.getPrecedence().getKeyValuePairs().get(0).getValue());
-    assertEquals("MSH",
-        precedence.getPrecedence().getKeyValuePairs().get(1).getKey());
-    assertEquals("MH",
-        precedence.getPrecedence().getKeyValuePairs().get(1).getValue());
+    assertEquals("MTH", precedence.getPrecedence().getKeyValuePairs().get(0)
+        .getKey());
+    assertEquals("PN", precedence.getPrecedence().getKeyValuePairs().get(0)
+        .getValue());
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(1)
+        .getKey());
+    assertEquals("MH", precedence.getPrecedence().getKeyValuePairs().get(1)
+        .getValue());
     assertEquals("DEFAULT", precedence.getName());
 
-    precedence = metadataService.getDefaultPrecedenceList("MSH",
-        "2015_2014_09_08", authToken);
+    precedence =
+        metadataService.getDefaultPrecedenceList("MSH", "2015_2014_09_08",
+            authToken);
     // assertEquals("loader", precedence.getLastModifiedBy());
     assertEquals("UMLS", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
-    assertEquals("MSH",
-        precedence.getPrecedence().getKeyValuePairs().get(0).getKey());
-    assertEquals("MH",
-        precedence.getPrecedence().getKeyValuePairs().get(0).getValue());
-    assertEquals("MSH",
-        precedence.getPrecedence().getKeyValuePairs().get(1).getKey());
-    assertEquals("TQ",
-        precedence.getPrecedence().getKeyValuePairs().get(1).getValue());
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(0)
+        .getKey());
+    assertEquals("MH", precedence.getPrecedence().getKeyValuePairs().get(0)
+        .getValue());
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(1)
+        .getKey());
+    assertEquals("TQ", precedence.getPrecedence().getKeyValuePairs().get(1)
+        .getValue());
 
     assertEquals("DEFAULT", precedence.getName());
 
@@ -318,8 +324,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
   private boolean testUmlsMetadata(KeyValuePairLists keyValuePairLists)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("Testing UMLS metadata retrieval, " + keyValuePairLists.getCount()
+    Logger.getLogger(getClass()).info(
+        "Testing UMLS metadata retrieval, " + keyValuePairLists.getCount()
             + " pair lists found (" + MetadataKeys.values().length
             + " expected)");
     Logger.getLogger(getClass()).info(keyValuePairLists);
@@ -334,8 +340,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedSizes2.put(MetadataKeys.Relationship_Types, 9);
     expectedIds.put(MetadataKeys.Relationship_Types, "PAR");
     expectedNames.put(MetadataKeys.Relationship_Types, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Relationship_Types)
-        .add("has parent relationship in a Metathesaurus source vocabulary");
+    expectedNames.get(MetadataKeys.Relationship_Types).add(
+        "has parent relationship in a Metathesaurus source vocabulary");
 
     // Additional relationship types
     expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 82);
@@ -373,8 +379,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.put(MetadataKeys.Languages, new HashSet<String>());
     expectedNames.get(MetadataKeys.Languages).add("English");
 
-    boolean result = testHelper(keyValuePairLists, expectedSizes,
-        expectedSizes2, expectedIds, expectedNames);
+    boolean result =
+        testHelper(keyValuePairLists, expectedSizes, expectedSizes2,
+            expectedIds, expectedNames);
 
     return result;
   }
@@ -388,8 +395,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   private boolean testSnomedMetadata(KeyValuePairLists keyValuePairLists)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("Testing SNOMEDCT_US metadata retrieval, "
+    Logger.getLogger(getClass()).info(
+        "Testing SNOMEDCT_US metadata retrieval, "
             + keyValuePairLists.getCount() + " pair lists found ("
             + MetadataKeys.values().length + " expected)");
 
@@ -403,8 +410,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedSizes2.put(MetadataKeys.Relationship_Types, 6);
     expectedIds.put(MetadataKeys.Relationship_Types, "PAR");
     expectedNames.put(MetadataKeys.Relationship_Types, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Relationship_Types)
-        .add("has parent relationship in a Metathesaurus source vocabulary");
+    expectedNames.get(MetadataKeys.Relationship_Types).add(
+        "has parent relationship in a Metathesaurus source vocabulary");
 
     // Additional relationship types
     expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 61);
@@ -413,8 +420,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
         "has_temporal_context");
     expectedNames.put(MetadataKeys.Additional_Relationship_Types,
         new HashSet<String>());
-    expectedNames.get(MetadataKeys.Additional_Relationship_Types)
-        .add("Has temporal context");
+    expectedNames.get(MetadataKeys.Additional_Relationship_Types).add(
+        "Has temporal context");
 
     // Attribute names
     expectedSizes.put(MetadataKeys.Attribute_Names, 43);
@@ -444,8 +451,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.put(MetadataKeys.Languages, new HashSet<String>());
     expectedNames.get(MetadataKeys.Languages).add("English");
 
-    boolean result = testHelper(keyValuePairLists, expectedSizes,
-        expectedSizes2, expectedIds, expectedNames);
+    boolean result =
+        testHelper(keyValuePairLists, expectedSizes, expectedSizes2,
+            expectedIds, expectedNames);
 
     return result;
   }
@@ -459,8 +467,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   private boolean testMshMetadata(KeyValuePairLists keyValuePairLists)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("Testing MSH metadata retrieval, " + keyValuePairLists.getCount()
+    Logger.getLogger(getClass()).info(
+        "Testing MSH metadata retrieval, " + keyValuePairLists.getCount()
             + " pair lists found (" + MetadataKeys.values().length
             + " expected)");
 
@@ -474,8 +482,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedSizes2.put(MetadataKeys.Relationship_Types, 7);
     expectedIds.put(MetadataKeys.Relationship_Types, "PAR");
     expectedNames.put(MetadataKeys.Relationship_Types, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Relationship_Types)
-        .add("has parent relationship in a Metathesaurus source vocabulary");
+    expectedNames.get(MetadataKeys.Relationship_Types).add(
+        "has parent relationship in a Metathesaurus source vocabulary");
 
     // Additional relationship types
     expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 7);
@@ -490,8 +498,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedSizes2.put(MetadataKeys.Attribute_Names, 27);
     expectedIds.put(MetadataKeys.Attribute_Names, "TERMUI");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Attribute_Names)
-        .add("Term unique identifier");
+    expectedNames.get(MetadataKeys.Attribute_Names).add(
+        "Term unique identifier");
 
     // Semantic types
     expectedSizes.put(MetadataKeys.Semantic_Types, 0);
@@ -514,8 +522,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.put(MetadataKeys.Languages, new HashSet<String>());
     expectedNames.get(MetadataKeys.Languages).add("English");
 
-    boolean result = testHelper(keyValuePairLists, expectedSizes,
-        expectedSizes2, expectedIds, expectedNames);
+    boolean result =
+        testHelper(keyValuePairLists, expectedSizes, expectedSizes2,
+            expectedIds, expectedNames);
 
     return result;
   }
@@ -544,8 +553,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     for (KeyValuePairList keyValuePairList : keyValuePairLists
         .getKeyValuePairLists()) {
 
-      Logger.getLogger(getClass())
-          .info("Checking " + keyValuePairList.getKeyValuePairs().size() + " "
+      Logger.getLogger(getClass()).info(
+          "Checking " + keyValuePairList.getKeyValuePairs().size() + " "
               + keyValuePairList.getName());
 
       int expectedSize =
@@ -554,8 +563,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
           expectedSizes2.get(MetadataKeys.valueOf(keyValuePairList.getName()));
       String expectedId =
           expectedIds.get(MetadataKeys.valueOf(keyValuePairList.getName()));
-      Set<String> expectedNames = expectedNameSets
-          .get(MetadataKeys.valueOf(keyValuePairList.getName()));
+      Set<String> expectedNames =
+          expectedNameSets
+              .get(MetadataKeys.valueOf(keyValuePairList.getName()));
       List<KeyValuePair> pairs = keyValuePairList.getKeyValuePairs();
 
       KeyValuePair testCase = null;
@@ -573,8 +583,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
         }
 
         if (expectedSize != pairs.size() && expectedSize2 != pairs.size()) {
-          Logger.getLogger(getClass())
-              .warn("  Expected size " + expectedSize + ", " + expectedSize2
+          Logger.getLogger(getClass()).warn(
+              "  Expected size " + expectedSize + ", " + expectedSize2
                   + " did not match actual size " + pairs.size());
           Logger.getLogger(getClass()).info("  Retrieved pairs were: ");
           for (KeyValuePair pair : pairs) {
@@ -583,8 +593,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
         }
 
         else if (testCase == null) {
-          Logger.getLogger(getClass()).warn("  Could not find pair for id = "
-              + expectedId + ", names " + expectedNames.toString());
+          Logger.getLogger(getClass()).warn(
+              "  Could not find pair for id = " + expectedId + ", names "
+                  + expectedNames.toString());
           Logger.getLogger(getClass()).info("  Available pairs were: ");
           for (KeyValuePair pair : pairs) {
             Logger.getLogger(getClass()).info("    " + pair.toString());
@@ -595,16 +606,17 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
       }
     }
 
-    Logger.getLogger(getClass()).info("Metadata Categories Validated:  "
-        + categorySuccessCt + " out of " + MetadataKeys.values().length);
+    Logger.getLogger(getClass()).info(
+        "Metadata Categories Validated:  " + categorySuccessCt + " out of "
+            + MetadataKeys.values().length);
 
     return categorySuccessCt == MetadataKeys.values().length;
   }
 
   /**
-   * Test addition, update, and removal of precedence lists
-   * @throws Exception
+   * Test addition, update, and removal of precedence lists.
    */
+  @SuppressWarnings("static-method")
   @Test
   public void testNormalUseRestMetadata006() {
 
@@ -626,7 +638,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
       e.printStackTrace();
       fail("Failed to add precedence list");
     }
-    
+
     // test get
     try {
       p = metadataService.getPrecedenceList(p.getId(), authToken);
@@ -636,7 +648,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
       e1.printStackTrace();
       fail("Failed to get precedence list");
     }
-    
+
     // test update
     p.setTerminology("newTerminology");
     try {
@@ -647,7 +659,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
       e.printStackTrace();
       fail("Failed to update precedence list");
     }
-    
+
     // test remove
     try {
       metadataService.removePrecedenceList(p.getId(), authToken);

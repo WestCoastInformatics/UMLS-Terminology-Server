@@ -17,6 +17,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.GeneralConceptAxiomJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -26,7 +27,7 @@ import com.wci.umls.server.model.content.GeneralConceptAxiom;
 /**
  * Unit testing for {@link GeneralConceptAxiomJpa}.
  */
-public class GeneralConceptAxiomJpaUnitTest {
+public class GeneralConceptAxiomJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private GeneralConceptAxiomJpa object;
@@ -66,8 +67,8 @@ public class GeneralConceptAxiomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet052() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet052");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -78,8 +79,8 @@ public class GeneralConceptAxiomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode052() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode052");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -119,8 +120,8 @@ public class GeneralConceptAxiomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy052() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy052");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
@@ -133,8 +134,8 @@ public class GeneralConceptAxiomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization052() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization052");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
@@ -147,7 +148,8 @@ public class GeneralConceptAxiomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField052() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

@@ -61,7 +61,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet030() throws Exception {
+  public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("userName");
@@ -76,7 +76,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode030() throws Exception {
+  public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("user");
@@ -115,7 +115,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy030() throws Exception {
+  public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
@@ -132,7 +132,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization030() throws Exception {
+  public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
 
@@ -141,7 +141,6 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
     u.setId(1L);
     u.setUserName("1");
     tester.proxy(User.class, 1, u);
-
 
     assertTrue(tester.testXmlSerialization());
   }
@@ -152,11 +151,8 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField030() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    // NullableFieldTester tester = new NullableFieldTester(object);
-    // no not nullable fields
-    // assertTrue(tester.testNotNullFields());
+  public void testModelNotNullField() throws Exception {
+    // n/a
   }
 
   /**

@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
@@ -25,7 +26,7 @@ import com.wci.umls.server.model.content.Descriptor;
 /**
  * Unit testing for {@link AtomJpa}.
  */
-public class DescriptorJpaUnitTest {
+public class DescriptorJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private DescriptorJpa object;
@@ -54,8 +55,8 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet015");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("type");
     tester.test();
@@ -67,8 +68,8 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode015");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -94,8 +95,8 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy015");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructorDeep(Descriptor.class));
   }
@@ -106,8 +107,8 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization015");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -118,7 +119,8 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField015() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -142,8 +144,8 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields015");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);

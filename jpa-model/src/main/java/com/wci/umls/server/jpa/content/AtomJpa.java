@@ -77,7 +77,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /** The relationships. */
   @OneToMany(mappedBy = "from", targetEntity = AtomRelationshipJpa.class)
   private List<AtomRelationship> relationships = null;
-  
+
   /** The component histories. */
   @OneToMany(mappedBy = "referencedConcept", targetEntity = ComponentHistoryJpa.class)
   private List<ComponentHistory> componentHistories = null;
@@ -461,7 +461,6 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
             + ((stringClassId == null) ? 0 : stringClassId.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
-    result = prime * result + ((workflowStatus == null) ? 0 : workflowStatus.hashCode());
     return result;
   }
 
@@ -473,10 +472,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
-      return false;  
-    AtomJpa other = (AtomJpa) obj;
-    if (getWorkflowStatus() != other.getWorkflowStatus())
       return false;
+    AtomJpa other = (AtomJpa) obj;
     if (codeId == null) {
       if (other.codeId != null)
         return false;
@@ -543,7 +540,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   }
 
   @Override
-  @XmlElement(type=ComponentHistoryJpa.class)
+  @XmlElement(type = ComponentHistoryJpa.class)
   public List<ComponentHistory> getComponentHistory() {
     return componentHistories;
   }
