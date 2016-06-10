@@ -29,12 +29,11 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.ProjectWorkflowConfig;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
-
 
 /**
  * JPA and JAXB enabled implementation of a {@link ProjectWorkflowConfig}.
@@ -45,7 +44,7 @@ import com.wci.umls.server.model.workflow.WorkflowBinType;
 }))
 @Indexed
 @XmlRootElement(name = "projectWorkflowConfig")
-public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
+public class ProjectWorkflowConfigJpa implements ProjectWorkflowConfig {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
@@ -69,7 +68,8 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
 
   /** The type. */
   @Column(nullable = false)
-  /** The mutually exclusive. */
+  private WorkflowBinType type;
+
   /** The mutually exclusive. */
   @Column(nullable = false)
   private boolean mutuallyExclusive;
@@ -80,7 +80,6 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
   private Long lastPartitionTime;
 
   /** The workflow bin definitions. */
-  /** The workflow bin definitions. */
   @OneToMany(mappedBy = "name", targetEntity = WorkflowBinDefinitionJpa.class)
   private List<WorkflowBinDefinition> workflowBinDefinitions =
       new ArrayList<>();
@@ -88,7 +87,7 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
-  
+
   /**
    * Instantiates a new workflow bin definitions jpa.
    */
@@ -101,7 +100,8 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
    *
    * @param projectWorkflowConfig the project workflow configuration
    */
-  public ProjectWorkflowConfigJpa(ProjectWorkflowConfig projectWorkflowConfig, boolean deepCopy) {
+  public ProjectWorkflowConfigJpa(ProjectWorkflowConfig projectWorkflowConfig,
+      boolean deepCopy) {
     super();
     this.lastModified = projectWorkflowConfig.getLastModified();
     this.lastModifiedBy = projectWorkflowConfig.getLastModifiedBy();
@@ -111,8 +111,9 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
     this.type = projectWorkflowConfig.getType();
     this.lastPartitionTime = projectWorkflowConfig.getLastPartitionTime();
     if (deepCopy) {
-      this.workflowBinDefinitions = projectWorkflowConfig.getWorkflowBinDefinitions();
-  }
+      this.workflowBinDefinitions =
+          projectWorkflowConfig.getWorkflowBinDefinitions();
+    }
   }
 
   /* see superclass */
@@ -225,7 +226,7 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
   public void setProject(Project project) {
     this.project = project;
   }
-  
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -243,8 +244,11 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((project == null) ? 0 : project.hashCode());
-    result = prime * result + ((workflowBinDefinitions == null) ? 0
-        : workflowBinDefinitions.hashCode());
+    result =
+        prime
+            * result
+            + ((workflowBinDefinitions == null) ? 0 : workflowBinDefinitions
+                .hashCode());
     return result;
   }
 
@@ -305,7 +309,5 @@ public class ProjectWorkflowConfigJpa  implements ProjectWorkflowConfig {
         + lastPartitionTime + ", workflowBinDefinitions="
         + workflowBinDefinitions + "]";
   }
-
-
 
 }
