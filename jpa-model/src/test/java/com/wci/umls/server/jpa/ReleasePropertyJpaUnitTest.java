@@ -49,7 +49,7 @@ public class ReleasePropertyJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet031() throws Exception {
+  public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
@@ -61,7 +61,7 @@ public class ReleasePropertyJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode031() throws Exception {
+  public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("name");
@@ -80,7 +80,7 @@ public class ReleasePropertyJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy031() throws Exception {
+  public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructor(ReleaseProperty.class));
@@ -92,7 +92,7 @@ public class ReleasePropertyJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization031() throws Exception {
+  public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
@@ -104,7 +104,7 @@ public class ReleasePropertyJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField031() throws Exception {
+  public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("name");

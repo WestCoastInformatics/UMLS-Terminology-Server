@@ -19,6 +19,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -28,7 +29,7 @@ import com.wci.umls.server.model.content.AtomTransitiveRelationship;
 /**
  * Unit testing for {@link AtomTransitiveRelationshipJpa}.
  */
-public class AtomTransitiveRelationshipJpaUnitTest {
+public class AtomTransitiveRelationshipJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private AtomTransitiveRelationshipJpa object;
@@ -69,8 +70,8 @@ public class AtomTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet012");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("superTypeId");
     tester.exclude("superTypeTerminologyId");
@@ -91,8 +92,8 @@ public class AtomTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode012");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -130,13 +131,12 @@ public class AtomTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy012");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Atom.class, 1, atom1);
     tester.proxy(Atom.class, 2, atom2);
-    assertTrue(tester
-        .testCopyConstructorDeep(AtomTransitiveRelationship.class));
+    assertTrue(tester.testCopyConstructorDeep(AtomTransitiveRelationship.class));
   }
 
   /**
@@ -145,8 +145,8 @@ public class AtomTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization012");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // The proxy atoms can have only "id" and "term" set due to xml transient
     Atom atom1 = new AtomJpa();
@@ -167,8 +167,8 @@ public class AtomTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient012");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subTypeId>"));
@@ -192,7 +192,8 @@ public class AtomTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField012() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

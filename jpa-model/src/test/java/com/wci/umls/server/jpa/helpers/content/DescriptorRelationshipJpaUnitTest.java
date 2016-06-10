@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ * Copyright 2 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers.content;
 
@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
@@ -34,7 +35,7 @@ import com.wci.umls.server.model.content.DescriptorRelationship;
 /**
  * Unit testing for {@link DescriptorRelationshipJpa}.
  */
-public class DescriptorRelationshipJpaUnitTest {
+public class DescriptorRelationshipJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private DescriptorRelationshipJpa object;
@@ -88,8 +89,8 @@ public class DescriptorRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet016() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet016");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("fromId");
     tester.exclude("fromTerminology");
@@ -110,8 +111,8 @@ public class DescriptorRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode016() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode016");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -162,8 +163,8 @@ public class DescriptorRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy016() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy016");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Descriptor.class, 1, descriptor1);
     tester.proxy(Descriptor.class, 2, descriptor2);
@@ -178,8 +179,8 @@ public class DescriptorRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy016() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy016");
+  public void testModelDeepCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     DescriptorRelationship rel = new DescriptorRelationshipJpa();
     ProxyTester tester = new ProxyTester(rel);
@@ -214,8 +215,8 @@ public class DescriptorRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization016() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization016");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // The proxy descriptors can have only "id" and "term" set due to xml
     // transient
@@ -239,8 +240,8 @@ public class DescriptorRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient016() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient016");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<fromId>"));
@@ -258,7 +259,8 @@ public class DescriptorRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField016() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -277,6 +279,7 @@ public class DescriptorRelationshipJpaUnitTest {
     tester.include("hierarchical");
     tester.include("from");
     tester.include("to");
+    tester.include("workflowStatus");
     assertTrue(tester.testNotNullFields());
   }
 

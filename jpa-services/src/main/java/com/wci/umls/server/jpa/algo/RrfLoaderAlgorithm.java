@@ -136,9 +136,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The loader. */
   private final String loader = "loader";
 
-  /** The published. */
-  private final String published = "PUBLISHED";
-
   /** The loaded terminologies. */
   private Map<String, Terminology> loadedTerminologies = new HashMap<>();
 

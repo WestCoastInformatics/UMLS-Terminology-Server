@@ -31,25 +31,23 @@ import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinitions;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 
-
-
 /**
  * JPA and JAXB enabled implementation of a {@link WorkflowBinDefinitions}.
  */
 @Entity
 @Table(name = "workflow_bin_definitions", uniqueConstraints = @UniqueConstraint(columnNames = {
-     "id"
+  "id"
 }))
 @Indexed
 @XmlRootElement(name = "workflowBinDefinitions")
-public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
+public class WorkflowBinDefinitionsJpa implements WorkflowBinDefinitions {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
-  
+
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -58,31 +56,35 @@ public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-  
+
   /** The timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;  
+  private Date timestamp = null;
 
-
+  /** The type. */
   private WorkflowBinType type;
-  
+
+  /** The mutually exclusive. */
   @Column(nullable = false)
   private boolean mutuallyExclusive;
-  
+
+  /** The last partition time. */
   @Column(nullable = false, unique = false)
   private Long lastPartitionTime;
-  
+
+  /** The workflow bin definitions. */
   @OneToMany(mappedBy = "name", targetEntity = WorkflowBinDefinitionJpa.class)
-  private List<WorkflowBinDefinition> workflowBinDefinitions = new ArrayList<>();
-  
+  private List<WorkflowBinDefinition> workflowBinDefinitions =
+      new ArrayList<>();
+
   /**
    * Instantiates a new workflow bin definitions jpa.
    */
   public WorkflowBinDefinitionsJpa() {
     // do nothing
   }
-  
+
   /**
    * Instantiates a new workflow bin definition jpa.
    *
@@ -144,67 +146,81 @@ public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
     this.id = id;
   }
 
+  /* see superclass */
   @Override
   @XmlElement(type = WorkflowBinDefinitionJpa.class)
   public List<WorkflowBinDefinition> getWorkflowBinDefinitions() {
     return workflowBinDefinitions;
   }
 
+  /* see superclass */
   @Override
-  public void setWorkflowBinDefinitions(
-    List<WorkflowBinDefinition> definitions) {
+  public void setWorkflowBinDefinitions(List<WorkflowBinDefinition> definitions) {
     this.workflowBinDefinitions = definitions;
   }
 
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public WorkflowBinType getType() {
     return type;
   }
 
+  /* see superclass */
   @Override
   public void setType(WorkflowBinType type) {
     this.type = type;
   }
 
+  /* see superclass */
   @Override
   public boolean getMutuallyExclusive() {
     return mutuallyExclusive;
   }
 
+  /* see superclass */
   @Override
   public void setMutuallyExclusive(boolean mutuallyExclusive) {
     this.mutuallyExclusive = mutuallyExclusive;
   }
 
+  /* see superclass */
   @Override
   public Long getLastPartitionTime() {
     return lastPartitionTime;
   }
 
+  /* see superclass */
   @Override
   public void setLastPartitionTime(Long lastPartitionTime) {
     this.lastPartitionTime = lastPartitionTime;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result =
         prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
-    result = prime * result
-        + ((lastPartitionTime == null) ? 0 : lastPartitionTime.hashCode());
+    result =
+        prime * result
+            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result =
+        prime * result
+            + ((lastPartitionTime == null) ? 0 : lastPartitionTime.hashCode());
     result = prime * result + (mutuallyExclusive ? 1231 : 1237);
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
-    result = prime * result + ((workflowBinDefinitions == null) ? 0
-        : workflowBinDefinitions.hashCode());
+    result =
+        prime
+            * result
+            + ((workflowBinDefinitions == null) ? 0 : workflowBinDefinitions
+                .hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -247,16 +263,14 @@ public class WorkflowBinDefinitionsJpa  implements WorkflowBinDefinitions {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "WorkflowBinDefinitionsJpa [id=" + id + ", lastModified="
         + lastModified + ", lastModifiedBy=" + lastModifiedBy + ", timestamp="
-        + timestamp + ", type=" + type
-        + ", mutuallyExclusive=" + mutuallyExclusive + ", lastPartitionTime="
-        + lastPartitionTime + ", workflowBinDefinitions="
-        + workflowBinDefinitions + "]";
+        + timestamp + ", type=" + type + ", mutuallyExclusive="
+        + mutuallyExclusive + ", lastPartitionTime=" + lastPartitionTime
+        + ", workflowBinDefinitions=" + workflowBinDefinitions + "]";
   }
-
-
 
 }

@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.meta.CitationJpa;
 import com.wci.umls.server.jpa.meta.ContactInfoJpa;
@@ -38,7 +39,7 @@ import com.wci.umls.server.model.meta.Terminology;
 /**
  * Unit testing for {@link RootTerminologyJpa}.
  */
-public class RootTerminologyJpaUnitTest {
+public class RootTerminologyJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private RootTerminologyJpa object;
@@ -118,8 +119,8 @@ public class RootTerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet033() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet033");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.proxy(ContactInfo.class, 1, contactInfoProxy);
     tester.proxy(ContactInfo.class, 2, contactInfoProxy2);
@@ -140,8 +141,8 @@ public class RootTerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode033() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode033");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("acquisitionContact");
     tester.include("contentContact");
@@ -181,8 +182,8 @@ public class RootTerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy033() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy033");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
     tester.proxy(ContactInfo.class, 1, contactInfoProxy);
@@ -205,8 +206,8 @@ public class RootTerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization033() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization033");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
 
     tester.proxy(RootTerminology.class, 1, object);
@@ -231,8 +232,8 @@ public class RootTerminologyJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField033() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField033");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

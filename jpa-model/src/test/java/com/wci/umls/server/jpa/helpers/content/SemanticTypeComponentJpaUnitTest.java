@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -24,7 +25,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 /**
  * Unit testing for {@link SemanticTypeComponentJpa}.
  */
-public class SemanticTypeComponentJpaUnitTest {
+public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private SemanticTypeComponentJpa object;
@@ -51,8 +52,8 @@ public class SemanticTypeComponentJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet019() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet019");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelGetSet");
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -63,8 +64,8 @@ public class SemanticTypeComponentJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode019() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode019");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -89,8 +90,8 @@ public class SemanticTypeComponentJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy019() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy019");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelCopy");
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructor(SemanticTypeComponent.class));
   }
@@ -101,8 +102,8 @@ public class SemanticTypeComponentJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization019() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization019");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization");
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -113,7 +114,7 @@ public class SemanticTypeComponentJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField019() throws Exception {
+  public void testModelNotNullField() throws Exception {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -126,6 +127,7 @@ public class SemanticTypeComponentJpaUnitTest {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("semanticType");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -136,8 +138,8 @@ public class SemanticTypeComponentJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields019() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields019");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields");
 
     // Test analyzed fields
     // n/a
@@ -156,6 +158,7 @@ public class SemanticTypeComponentJpaUnitTest {
     tester.include("version");
     tester.include("semanticType");
     tester.include("branch");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
 

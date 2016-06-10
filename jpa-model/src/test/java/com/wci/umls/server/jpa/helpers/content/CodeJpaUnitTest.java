@@ -16,16 +16,16 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.Code;
 
 /**
- * Unit testing for {@link AtomJpa}.
+ * Unit testing for {@link CodeJpa}.
  */
-public class CodeJpaUnitTest {
+public class CodeJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private CodeJpa object;
@@ -54,8 +54,8 @@ public class CodeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet010() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet010");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("type");
     tester.test();
@@ -67,8 +67,8 @@ public class CodeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode010() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode010");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -94,8 +94,8 @@ public class CodeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy010() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy010");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructorDeep(Code.class));
   }
@@ -106,8 +106,8 @@ public class CodeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization010() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization010");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -118,7 +118,8 @@ public class CodeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField010() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -131,6 +132,7 @@ public class CodeJpaUnitTest {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("name");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -141,8 +143,8 @@ public class CodeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields010() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields010");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);

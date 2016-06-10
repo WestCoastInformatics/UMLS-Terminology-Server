@@ -25,7 +25,7 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 /**
  * Unit testing for {@link ValidationResultJpa}.
  */
-public class ValidationResultJpaUnitTest {
+public class ValidationResultJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private ValidationResultJpa object;
@@ -62,8 +62,8 @@ public class ValidationResultJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet004() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet004");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("valid");
     tester.test();
@@ -75,8 +75,8 @@ public class ValidationResultJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode004() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode004");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("errors");
     tester.include("warnings");
@@ -100,8 +100,8 @@ public class ValidationResultJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy004() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy004");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
     // Set up objects
@@ -117,8 +117,8 @@ public class ValidationResultJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization004() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient004");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // Set up objects
     tester.proxy(Set.class, 1, s1);
@@ -131,7 +131,7 @@ public class ValidationResultJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField004() throws Exception {
+  public void testModelNotNullField() throws Exception {
     // n/a
   }
 

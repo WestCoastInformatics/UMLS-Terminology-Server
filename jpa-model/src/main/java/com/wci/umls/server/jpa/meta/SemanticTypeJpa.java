@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
@@ -59,11 +60,11 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
   /** The structural chemical. */
   @Column(nullable = false)
   private boolean structuralChemical;
-  
+
   /** The functional chemical. */
   @Column(nullable = false)
   private boolean functionalChemical;
- 
+
   /**
    * Instantiates an empty {@link SemanticTypeJpa}.
    */
@@ -175,6 +176,37 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
   }
 
   /* see superclass */
+  @XmlTransient
+  @Override
+  public boolean isChemical() {
+    return isStructuralChemical() || isFunctionalChemical();
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isStructuralChemical() {
+    return structuralChemical;
+  }
+
+  /* see superclass */
+  @Override
+  public void setStructuralChemical(boolean structuralChemical) {
+    this.structuralChemical = structuralChemical;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isFunctionalChemical() {
+    return functionalChemical;
+  }
+
+  /* see superclass */
+  @Override
+  public void setFunctionalChemical(boolean functionalChemical) {
+    this.functionalChemical = functionalChemical;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -183,8 +215,6 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
         prime * result + ((definition == null) ? 0 : definition.hashCode());
     result = prime * result + ((example == null) ? 0 : example.hashCode());
     result = prime * result + (nonHuman ? 1231 : 1237);
-    result = prime * result + (structuralChemical ? 1231 : 1237);
-    result = prime * result + (functionalChemical ? 1231 : 1237);
     result =
         prime * result + ((treeNumber == null) ? 0 : treeNumber.hashCode());
     result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
@@ -215,10 +245,7 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
       return false;
     if (nonHuman != other.nonHuman)
       return false;
-    if (structuralChemical != other.structuralChemical)
-      return false;
-    if (functionalChemical != other.functionalChemical)
-      return false;
+
     if (treeNumber == null) {
       if (other.treeNumber != null)
         return false;
@@ -248,31 +275,8 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     return "SemanticTypeJpa [value=" + value + ", definition=" + definition
         + ", example=" + example + ", typeId=" + typeId + ", nonHuman="
         + nonHuman + ", treeNumber=" + treeNumber + ", usageNote=" + usageNote
-        + ", structuralChemical=" + structuralChemical + ", functionalChemical=" + functionalChemical + "]";
+        + ", structuralChemical=" + structuralChemical
+        + ", functionalChemical=" + functionalChemical + "]";
   }
 
-  @Override
-  public boolean isChemical() {
-    return isStructuralChemical() || isFunctionalChemical();
-  }
-
-  @Override
-  public boolean isStructuralChemical() {
-    return structuralChemical;
-  }
-
-  @Override
-  public void setStructuralChemical(boolean structuralChemical) {
-    this.structuralChemical = structuralChemical;
-  }
-
-  @Override
-  public boolean isFunctionalChemical() {
-    return functionalChemical;
-  }
-
-  @Override
-  public void setFunctionalChemical(boolean functionalChemical) {
-    this.functionalChemical = functionalChemical;
-  }
 }

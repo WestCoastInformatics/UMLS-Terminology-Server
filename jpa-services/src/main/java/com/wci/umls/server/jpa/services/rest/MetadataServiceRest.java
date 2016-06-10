@@ -69,7 +69,7 @@ public interface MetadataServiceRest {
    */
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version, String authToken) throws Exception;
-  
+
   /**
    * Add precedence list.
    *
@@ -78,8 +78,9 @@ public interface MetadataServiceRest {
    * @return the precedence list
    * @throws Exception the exception
    */
-  public PrecedenceList addPrecedenceList(PrecedenceListJpa precedenceList, String authToken) throws Exception;;
-  
+  public PrecedenceList addPrecedenceList(PrecedenceListJpa precedenceList,
+    String authToken) throws Exception;
+
   /**
    * Update precedence list.
    *
@@ -87,8 +88,9 @@ public interface MetadataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updatePrecedenceList(PrecedenceListJpa precedenceList, String authToken) throws Exception;;
-  
+  public void updatePrecedenceList(PrecedenceListJpa precedenceList,
+    String authToken) throws Exception;
+
   /**
    * Remove precedence list.
    *
@@ -106,6 +108,6 @@ public interface MetadataServiceRest {
    * @return the precedence list
    * @throws Exception the exception
    */
-  public PrecedenceList getPrecedenceList(Long precedenceListId, String authToken)
-    throws Exception;;
+  public PrecedenceList getPrecedenceList(Long precedenceListId,
+    String authToken) throws Exception;
 }

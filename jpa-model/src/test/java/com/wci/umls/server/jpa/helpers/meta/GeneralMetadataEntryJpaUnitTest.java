@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
@@ -23,7 +24,7 @@ import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 /**
  * Unit testing for {@link GeneralMetadataEntryJpa}.
  */
-public class GeneralMetadataEntryJpaUnitTest {
+public class GeneralMetadataEntryJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private GeneralMetadataEntryJpa object;
@@ -50,8 +51,8 @@ public class GeneralMetadataEntryJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet029() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet029");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -62,8 +63,8 @@ public class GeneralMetadataEntryJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode029() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode029");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
@@ -88,8 +89,8 @@ public class GeneralMetadataEntryJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy029() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy029");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructor(GeneralMetadataEntry.class));
   }
@@ -100,8 +101,8 @@ public class GeneralMetadataEntryJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization029() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization029");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -112,8 +113,8 @@ public class GeneralMetadataEntryJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField029() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField029");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");

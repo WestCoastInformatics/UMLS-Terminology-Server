@@ -2,72 +2,36 @@ package com.wci.umls.server.jpa;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * JPA and JAXB enabled implementation of {@link ComponentInfo}.
+ * JAXB enabled implementation of {@link ComponentInfo}.
  */
-@Entity
-@Table(name = "component_infos", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminology", "version", "terminologyId", "id"
-}))
-@Audited
 @XmlRootElement(name = "componentInfo")
 public class ComponentInfoJpa implements ComponentInfo {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
-  @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
 
   /** The timestamp. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
 
-  /** The last modified. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date lastModified = null;
-
-  /** The last modified by. */
-  @Column(nullable = false)
-  private String lastModifiedBy;
-
   /** The terminology. */
-  @Column(nullable = false)
   private String terminology;
 
   /** The terminology id. */
-  @Column(nullable = false)
   private String terminologyId;
 
   /** The version. */
-  @Column(nullable = false)
   private String version;
 
   /** The name. */
-  @Column(nullable = false)
   private String name;
 
   /** The type. */
-  @Column(nullable = false)
   private IdType type;
 
   /**
@@ -105,9 +69,7 @@ public class ComponentInfoJpa implements ComponentInfo {
    */
   public ComponentInfoJpa(ComponentInfo componentInfo) {
     super();
-    this.timestamp = componentInfo.getTimestamp();
-    this.lastModified = componentInfo.getLastModified();
-    this.lastModifiedBy = componentInfo.getLastModifiedBy();
+
     this.terminology = componentInfo.getTerminology();
     this.terminologyId = componentInfo.getTerminologyId();
     this.version = componentInfo.getVersion();
@@ -137,30 +99,6 @@ public class ComponentInfoJpa implements ComponentInfo {
   @Override
   public void setTimestamp(Date timestamp) {
     this.timestamp = timestamp;
-  }
-
-  /* see superclass */
-  @Override
-  public Date getLastModified() {
-    return lastModified;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModified(Date lastModified) {
-    this.lastModified = lastModified;
-  }
-
-  /* see superclass */
-  @Override
-  public String getLastModifiedBy() {
-    return lastModifiedBy;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModifiedBy(String lastModifiedBy) {
-    this.lastModifiedBy = lastModifiedBy;
   }
 
   /* see superclass */
@@ -211,15 +149,20 @@ public class ComponentInfoJpa implements ComponentInfo {
     this.name = name;
   }
 
+  /* see superclass */
   @Override
-  public String toString() {
-    return "ComponentInfoJpa [id=" + id + ", timestamp=" + timestamp
-        + ", lastModified=" + lastModified + ", lastModifiedBy="
-        + lastModifiedBy + ", terminology=" + terminology + ", terminologyId="
-        + terminologyId + ", version=" + version + ", name=" + name + ", type="
-        + type + "]";
+  public void setType(IdType type) {
+    this.type = type;
+
   }
 
+  /* see superclass */
+  @Override
+  public IdType getType() {
+    return this.type;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -235,6 +178,7 @@ public class ComponentInfoJpa implements ComponentInfo {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -271,15 +215,10 @@ public class ComponentInfoJpa implements ComponentInfo {
 
   /* see superclass */
   @Override
-  public void setType(IdType type) {
-    this.type = type;
-
-  }
-
-  /* see superclass */
-  @Override
-  public IdType getType() {
-    return this.type;
+  public String toString() {
+    return "ComponentInfoJpa [id=" + id + ", timestamp=" + timestamp
+        + ", terminology=" + terminology + ", terminologyId=" + terminologyId
+        + ", version=" + version + ", name=" + name + ", type=" + type + "]";
   }
 
 }

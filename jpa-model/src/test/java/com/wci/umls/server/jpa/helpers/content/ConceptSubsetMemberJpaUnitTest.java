@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
@@ -29,7 +30,7 @@ import com.wci.umls.server.model.content.ConceptSubsetMember;
 /**
  * Unit testing for {@link ConceptSubsetMemberJpa}.
  */
-public class ConceptSubsetMemberJpaUnitTest {
+public class ConceptSubsetMemberJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private ConceptSubsetMemberJpa object;
@@ -94,8 +95,8 @@ public class ConceptSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet044() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet044");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("memberId");
     tester.exclude("memberTerminologyId");
@@ -116,8 +117,8 @@ public class ConceptSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode044() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode044");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -167,8 +168,8 @@ public class ConceptSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy044() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy044");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);
@@ -183,8 +184,8 @@ public class ConceptSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient044() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient044");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     object.setMember(concept1);
     object.setSubset(subset1);
@@ -210,8 +211,8 @@ public class ConceptSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization044() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization044");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);
@@ -226,7 +227,8 @@ public class ConceptSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField044() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

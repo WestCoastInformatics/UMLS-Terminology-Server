@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.meta.ContactInfoJpa;
 import com.wci.umls.server.model.meta.ContactInfo;
@@ -23,7 +24,7 @@ import com.wci.umls.server.model.meta.ContactInfo;
 /**
  * Unit testing for {@link ContactInfoJpa}.
  */
-public class ContactInfoJpaUnitTest {
+public class ContactInfoJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private ContactInfoJpa object;
@@ -50,8 +51,8 @@ public class ContactInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet027() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet027");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -62,8 +63,8 @@ public class ContactInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode027() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode027");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("address1");
     tester.include("address2");
@@ -94,8 +95,8 @@ public class ContactInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy027() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy027");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructor(ContactInfo.class));
   }
@@ -106,8 +107,8 @@ public class ContactInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization027() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization027");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -118,8 +119,8 @@ public class ContactInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField027() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField027");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     assertTrue(tester.testNotNullFields());
   }

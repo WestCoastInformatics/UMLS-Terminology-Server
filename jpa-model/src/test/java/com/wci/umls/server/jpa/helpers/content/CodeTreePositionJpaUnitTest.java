@@ -3,7 +3,8 @@
  */
 package com.wci.umls.server.jpa.helpers.content;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -17,6 +18,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -26,7 +28,7 @@ import com.wci.umls.server.model.content.CodeTreePosition;
 /**
  * Unit testing for {@link CodeTreePositionJpa}.
  */
-public class CodeTreePositionJpaUnitTest {
+public class CodeTreePositionJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private CodeTreePositionJpa object;
@@ -72,8 +74,8 @@ public class CodeTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet048() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet048");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("nodeId");
     tester.exclude("nodeTerminologyId");
@@ -89,8 +91,8 @@ public class CodeTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode048() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode048");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -131,8 +133,8 @@ public class CodeTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy048() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy048");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
@@ -145,8 +147,8 @@ public class CodeTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization048() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization048");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // The proxy codes can have only "id" and "name" set due to xml
     // transient
@@ -162,8 +164,8 @@ public class CodeTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient048() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient048");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     object.setNode(code1);
     String xml = ConfigUtility.getStringForGraph(object);
@@ -181,7 +183,8 @@ public class CodeTreePositionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField048() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

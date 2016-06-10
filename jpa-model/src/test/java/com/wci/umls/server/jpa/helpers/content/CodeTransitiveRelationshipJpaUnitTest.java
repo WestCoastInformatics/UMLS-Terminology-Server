@@ -19,6 +19,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -28,7 +29,7 @@ import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 /**
  * Unit testing for {@link CodeTransitiveRelationshipJpa}.
  */
-public class CodeTransitiveRelationshipJpaUnitTest {
+public class CodeTransitiveRelationshipJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private CodeTransitiveRelationshipJpa object;
@@ -69,8 +70,8 @@ public class CodeTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet045() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet045");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("superTypeId");
     tester.exclude("superTypeTerminologyId");
@@ -91,8 +92,8 @@ public class CodeTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode045() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode045");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -130,8 +131,8 @@ public class CodeTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy045() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy045");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
@@ -144,8 +145,8 @@ public class CodeTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization045() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization045");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // The proxy codes can have only "id" and "term" set due to xml
     // transient
@@ -167,9 +168,8 @@ public class CodeTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient045() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient045");
-
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subTypeId>"));
     assertTrue(xml.contains("<subTypeTerminologyId>"));
@@ -192,7 +192,8 @@ public class CodeTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField045() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

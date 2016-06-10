@@ -977,4 +977,13 @@ public class ConfigUtility {
         "hibernate.search.max.clause.count"));
   }
 
+  /**
+   * Indicates whether or not a string is empty.
+   *
+   * @param str the str
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public static boolean isEmpty(String str) {
+    return str == null || str.isEmpty();
+  }
 }

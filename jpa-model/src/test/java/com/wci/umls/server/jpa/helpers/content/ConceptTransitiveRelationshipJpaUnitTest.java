@@ -19,6 +19,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
@@ -28,7 +29,7 @@ import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
 /**
  * Unit testing for {@link ConceptTransitiveRelationshipJpa}.
  */
-public class ConceptTransitiveRelationshipJpaUnitTest {
+public class ConceptTransitiveRelationshipJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private ConceptTransitiveRelationshipJpa object;
@@ -69,8 +70,8 @@ public class ConceptTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet012");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("superTypeId");
     tester.exclude("superTypeTerminologyId");
@@ -91,8 +92,8 @@ public class ConceptTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode012");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -130,8 +131,8 @@ public class ConceptTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy012");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);
@@ -145,8 +146,8 @@ public class ConceptTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization012");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // The proxy concepts can have only "id" and "term" set due to xml transient
     Concept concept1 = new ConceptJpa();
@@ -167,8 +168,8 @@ public class ConceptTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient012() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient012");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subTypeId>"));
@@ -192,7 +193,8 @@ public class ConceptTransitiveRelationshipJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField012() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

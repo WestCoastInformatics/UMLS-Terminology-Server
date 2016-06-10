@@ -25,22 +25,18 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
-  
-  /** The name. */
-  @Column(nullable = false, length = 4000)
+
+  /** The attribute name. */
+  @Column(nullable = false)
   private String name;
 
   /** The terminology id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String terminologyId;
 
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
-
-  /** The version. */
-  @Column(nullable = false)
-  private String version;
 
   /** The owner id. */
   @Column(nullable = false)
@@ -54,7 +50,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   @Column(nullable = true)
   private String ownerQualifier;
 
-  /** The hash code. */
+  /** The attribute value hash code. */
   @Column(nullable = false)
   private String hashCode;
 
@@ -68,16 +64,17 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   /**
    * Copy constructor.
    *
-   * @param a the a
+   * @param identity the a
    */
-  public AttributeIdentityJpa(AttributeIdentity a) {
+  public AttributeIdentityJpa(AttributeIdentity identity) {
     super();
-    this.terminologyId = a.getTerminologyId();
-    this.terminology = a.getTerminology();
-    this.ownerId = a.getOwnerId();
-    this.ownerType = a.getOwnerType();
-    this.ownerQualifier = a.getOwnerQualifier();
-    this.hashCode = a.getHashCode();
+    this.name = identity.getName();
+    this.terminologyId = identity.getTerminologyId();
+    this.terminology = identity.getTerminology();
+    this.ownerId = identity.getOwnerId();
+    this.ownerType = identity.getOwnerType();
+    this.ownerQualifier = identity.getOwnerQualifier();
+    this.hashCode = identity.getHashCode();
   }
 
   /* see superclass */
@@ -157,7 +154,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   public String getHashCode() {
     return hashCode;
   }
-  
+
   /* see superclass */
   @Override
   public void setHashCode(String hashCode) {
@@ -171,7 +168,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   @Override
   public void setName(String name) {
-   this.name = name;
+    this.name = name;
   }
 
   @Override
@@ -179,15 +176,17 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((hashCode == null) ? 0 : hashCode.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((ownerId == null) ? 0 : ownerId.hashCode());
-    result = prime * result
-        + ((ownerQualifier == null) ? 0 : ownerQualifier.hashCode());
+    result =
+        prime * result
+            + ((ownerQualifier == null) ? 0 : ownerQualifier.hashCode());
     result = prime * result + ((ownerType == null) ? 0 : ownerType.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     return result;
   }
 
@@ -204,6 +203,11 @@ public class AttributeIdentityJpa implements AttributeIdentity {
       if (other.hashCode != null)
         return false;
     } else if (!hashCode.equals(other.hashCode))
+      return false;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
       return false;
     if (ownerId == null) {
       if (other.ownerId != null)
@@ -227,11 +231,6 @@ public class AttributeIdentityJpa implements AttributeIdentity {
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
       return false;
-    if (version == null) {
-      if (other.version != null)
-        return false;
-    } else if (!version.equals(other.version))
-      return false;
     return true;
   }
 
@@ -239,9 +238,8 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   public String toString() {
     return "AttributeIdentityJpa [id=" + id + ", name=" + name
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
-        + ", version=" + version + ", ownerId=" + ownerId + ", ownerType="
-        + ownerType + ", ownerQualifier=" + ownerQualifier + ", hashCode="
-        + hashCode + "]";
+        + ", ownerId=" + ownerId + ", ownerType=" + ownerType
+        + ", ownerQualifier=" + ownerQualifier + ", hashCode=" + hashCode + "]";
   }
 
 }

@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
@@ -25,7 +26,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 /**
  * Unit testing for {@link AdditionalRelationshipTypeJpa}.
  */
-public class AdditionalRelationshipTypeJpaUnitTest {
+public class AdditionalRelationshipTypeJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private AdditionalRelationshipTypeJpa object;
@@ -72,8 +73,8 @@ public class AdditionalRelationshipTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet025() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet025");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("inverseAbbreviation");
     tester.exclude("inverseId");
@@ -90,8 +91,8 @@ public class AdditionalRelationshipTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode025() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode025");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
@@ -128,8 +129,8 @@ public class AdditionalRelationshipTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy025() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy025");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(AdditionalRelationshipType.class, 1, rela);
     tester.proxy(AdditionalRelationshipType.class, 2, rela2);
@@ -142,8 +143,8 @@ public class AdditionalRelationshipTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization025() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization025");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     tester.proxy(AdditionalRelationshipType.class, 1, rela);
     tester.proxy(AdditionalRelationshipType.class, 2, rela2);
@@ -156,8 +157,8 @@ public class AdditionalRelationshipTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField025() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField025");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
@@ -189,8 +190,8 @@ public class AdditionalRelationshipTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlTransient025() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient025");
+  public void testModelXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     String xml = ConfigUtility.getStringForGraph(rela);
     assertTrue(xml.contains("<inverseId>"));
     assertTrue(xml.contains("<inverseAbbreviation>"));

@@ -8,7 +8,6 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.apache.log4j.Logger;
 import org.junit.After;

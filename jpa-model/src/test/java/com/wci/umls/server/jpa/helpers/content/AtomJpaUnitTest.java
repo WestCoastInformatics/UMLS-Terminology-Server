@@ -21,6 +21,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
@@ -35,7 +36,7 @@ import com.wci.umls.server.model.content.Definition;
 /**
  * Unit testing for {@link AtomJpa}.
  */
-public class AtomJpaUnitTest {
+public class AtomJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private AtomJpa object;
@@ -72,8 +73,8 @@ public class AtomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet007() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet007");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -84,8 +85,8 @@ public class AtomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode007() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode007");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -94,11 +95,12 @@ public class AtomJpaUnitTest {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-    tester.include("alternateTerminologyIds");
+
     tester.include("codeId");
-    tester.include("descriptorId");
     tester.include("conceptId");
     tester.include("conceptTerminologyIds");
+    tester.include("alternateTerminologyIds");
+    tester.include("descriptorId");
     tester.include("language");
     tester.include("lexicalClassId");
     tester.include("stringClassId");
@@ -107,6 +109,7 @@ public class AtomJpaUnitTest {
 
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
+    
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -121,8 +124,8 @@ public class AtomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy007() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy007");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
@@ -135,8 +138,8 @@ public class AtomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy007() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy007");
+  public void testModelDeepCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Atom atom = new AtomJpa();
     ProxyTester tester = new ProxyTester(atom);
@@ -180,8 +183,8 @@ public class AtomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization007() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization007");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
@@ -194,7 +197,8 @@ public class AtomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField007() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -215,6 +219,7 @@ public class AtomJpaUnitTest {
     tester.include("stringClassId");
     tester.include("name");
     tester.include("termType");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -225,8 +230,8 @@ public class AtomJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields007() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields007");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);

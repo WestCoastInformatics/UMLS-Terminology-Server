@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.model.meta.TermType;
@@ -23,7 +24,7 @@ import com.wci.umls.server.model.meta.TermType;
 /**
  * Unit testing for {@link TermTypeJpa}.
  */
-public class TermTypeJpaUnitTest {
+public class TermTypeJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private TermTypeJpa object;
@@ -53,8 +54,8 @@ public class TermTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet039");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -65,8 +66,8 @@ public class TermTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode039");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
@@ -96,8 +97,8 @@ public class TermTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy039");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
     assertTrue(tester.testCopyConstructor(TermType.class));
@@ -109,8 +110,8 @@ public class TermTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization039");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -121,8 +122,8 @@ public class TermTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField039");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");

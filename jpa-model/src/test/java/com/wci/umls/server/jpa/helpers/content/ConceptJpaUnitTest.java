@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 West Coast Informatics, LLC
+ * Copyright 2 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers.content;
 
@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
@@ -25,7 +26,7 @@ import com.wci.umls.server.model.content.Concept;
 /**
  * Unit testing for {@link AtomJpa}.
  */
-public class ConceptJpaUnitTest {
+public class ConceptJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private ConceptJpa object;
@@ -54,8 +55,8 @@ public class ConceptJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet011() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet011");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("type");
     tester.test();
@@ -67,8 +68,8 @@ public class ConceptJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode011() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode011");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -98,8 +99,8 @@ public class ConceptJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy011() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy011");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructorDeep(Concept.class));
   }
@@ -110,8 +111,8 @@ public class ConceptJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization011() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization011");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -122,7 +123,8 @@ public class ConceptJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField011() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -139,6 +141,7 @@ public class ConceptJpaUnitTest {
     tester.include("anonymous");
     tester.include("usesRelationshipIntersection");
     tester.include("usesRelationshipUnion");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -149,8 +152,8 @@ public class ConceptJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields011() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields011");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);

@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
@@ -29,7 +30,7 @@ import com.wci.umls.server.model.content.AtomSubsetMember;
 /**
  * Unit testing for {@link AtomSubsetMemberJpa}.
  */
-public class AtomSubsetMemberJpaUnitTest {
+public class AtomSubsetMemberJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private AtomSubsetMemberJpa object;
@@ -94,8 +95,8 @@ public class AtomSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet043");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("memberId");
     tester.exclude("memberTerminologyId");
@@ -116,8 +117,8 @@ public class AtomSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode043");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -167,8 +168,8 @@ public class AtomSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy043");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Atom.class, 1, atom1);
     tester.proxy(Atom.class, 2, atom2);
@@ -183,8 +184,8 @@ public class AtomSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient043");
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     object.setMember(atom1);
     object.setSubset(subset1);
@@ -210,8 +211,8 @@ public class AtomSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization043");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     tester.proxy(Atom.class, 1, atom1);
     tester.proxy(Atom.class, 2, atom2);
@@ -226,7 +227,8 @@ public class AtomSubsetMemberJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField043() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");

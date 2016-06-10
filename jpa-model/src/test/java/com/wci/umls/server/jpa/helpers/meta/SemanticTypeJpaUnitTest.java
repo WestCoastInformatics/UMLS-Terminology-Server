@@ -3,7 +3,7 @@
  */
 package com.wci.umls.server.jpa.helpers.meta;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.model.meta.SemanticType;
@@ -23,7 +24,7 @@ import com.wci.umls.server.model.meta.SemanticType;
 /**
  * Unit testing for {@link SemanticTypeJpa}.
  */
-public class SemanticTypeJpaUnitTest {
+public class SemanticTypeJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private SemanticTypeJpa object;
@@ -53,8 +54,8 @@ public class SemanticTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet036() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet036");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -65,8 +66,8 @@ public class SemanticTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode036() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode036");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
@@ -96,8 +97,8 @@ public class SemanticTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy036() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy036");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructor(SemanticType.class));
   }
@@ -108,8 +109,8 @@ public class SemanticTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization036() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization036");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -120,8 +121,8 @@ public class SemanticTypeJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField036() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField036");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
@@ -136,7 +137,8 @@ public class SemanticTypeJpaUnitTest {
     tester.include("definition");
     tester.include("typeId");
     tester.include("nonHuman");
-
+    tester.include("functionalChemical");
+    tester.include("structuralChemical");
     assertTrue(tester.testNotNullFields());
   }
 

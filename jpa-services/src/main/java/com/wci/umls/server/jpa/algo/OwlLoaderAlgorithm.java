@@ -176,9 +176,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The loader. */
   private final String loader = "loader";
 
-  /** The published. */
-  private final String published = "PUBLISHED";
-
   /** The current date. */
   private final Date currentDate = new Date();
 

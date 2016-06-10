@@ -21,7 +21,7 @@ import com.wci.umls.server.helpers.UserImpl;
 /**
  * Unit testing for {@link UserImpl}.
  */
-public class UserImplUnitTest {
+public class UserImplUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private UserImpl object;
@@ -48,8 +48,8 @@ public class UserImplUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet022() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet022");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("moduleId");
     tester.test();
@@ -61,8 +61,8 @@ public class UserImplUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode022() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode022");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("applicationRole");
     tester.include("email");
@@ -83,8 +83,8 @@ public class UserImplUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy022() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy022");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructor(User.class));
   }
@@ -95,7 +95,7 @@ public class UserImplUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField022() throws Exception {
+  public void testModelNotNullField() throws Exception {
     // n/a
   }
 
