@@ -8,7 +8,6 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -66,12 +65,12 @@ public class MetaEditingServiceRestEdgeCasesTest
   }
 
   /**
-   * Test semanticType degenerate cases
+   * Test terminology and branch mismatches between project and concept
    *
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUseRestContent001() throws Exception {
+  public void testEdgeCaseRestContent001() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
     Logger.getLogger(getClass()).info(
@@ -131,19 +130,54 @@ public class MetaEditingServiceRestEdgeCasesTest
     // Test add and remove
     //
 
-    result = metaEditingService.addSemanticType(project.getId(), c.getId(), sty2,
-        authToken);
+    result = metaEditingService.addSemanticType(project.getId(), c.getId(),
+        sty2, authToken);
     assertTrue(!result.isValid());
 
     result = metaEditingService.removeSemanticType(project.getId(), c.getId(),
         sty.getId(), authToken);
     assertTrue(!result.isValid());
 
-
     // reset the branch
     project.setBranch(Branch.ROOT);
     projectService.updateProject((ProjectJpa) project, authToken);
 
+  }
+
+  /**
+   * Check simultaneous editing
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testEdgeCaseRestContent002() throws Exception {
+    Logger.getLogger(getClass()).info(
+        "TEST - Degenerate use tests for add/remove semantic type to concept");
+
+    ValidationResult result1, result2;
+
+    // get the concept
+    Concept c1 = contentService.getConcept("C0000530", umlsTerminology,
+        umlsVersion, null, authToken);
+    assertNotNull(c1);
+    SemanticTypeComponentJpa sty1 =
+        (SemanticTypeComponentJpa) c1.getSemanticTypes().get(0);
+    assertNotNull(sty1);
+    
+    // remove the semantic type twice
+    result1 = metaEditingService.removeSemanticType(project.getId(), c1.getId(), sty1.getId(), authToken);
+    result2 = metaEditingService.removeSemanticType(project.getId(), c1.getId(), sty1.getId(), authToken);
+    
+    // re-add the semantic type
+    metaEditingService.addSemanticType(project.getId(), c1.getId(), sty1, authToken);
+    
+    // expect one result to succeed, one result to fail
+    assertTrue(result1.isValid() && !result2.isValid() || !result1.isValid() && result2.isValid());
+ 
+    // check that the semantic type was successfully re-added
+    c1 = contentService.getConcept("C0000530", umlsTerminology,
+        umlsVersion, null, authToken);
+    assertTrue(c1.getSemanticTypes().contains(sty1));
   }
 
   /**

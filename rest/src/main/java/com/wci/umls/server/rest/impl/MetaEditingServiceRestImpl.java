@@ -63,6 +63,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+  // TODO Add timestamp as QueryParam
+  // TODO Add overrideWarnings as QueryParam
   @Override
   @POST
   @Path("/sty/add")
@@ -70,6 +72,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult addSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept timestamp, in ms ", required = true) @QueryParam("timestamp") Long timestamp,
     @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponentJpa semanticTypeComponent,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
@@ -88,26 +91,56 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       ProjectService projectService = new ProjectServiceJpa();
 
       try {
-        authorizeProject(projectService, projectId, securityService, authToken,
+        
+        // authorize and get user name from the token
+        String userName = authorizeProject(projectService, projectId, securityService, authToken,
             action, UserRole.AUTHOR);
+        
+        Concept concept;
+       
+        // prepare the transaction
+        contentService.setTransactionPerOperation(false);
+        contentService.beginTransaction();
+
+        
+        //
+        // Synchronized retrieval and locking based on conceptId
+        //
+        synchronized (conceptId.toString().intern()) {
+          
+          // retrieve the concept
+          concept = contentService.getConcept(conceptId);
+
+          // lock the concept
+          contentService.lockObject(concept);
+        }
 
         // retrieve the project
         Project project = projectService.getProject(projectId);
-
-        // retrieve the concept
-        Concept concept = contentService.getConcept(conceptId);
-        
+   
         //
         // Check prerequisites
         //
+        
+        // perform action-specific validation
+        // NOTE: No validation required for addSemanticType
+        
+        // check project and concept compatibility
         checkPrerequisitesForProjectAndConcept(project, concept,
             validationResult);
+        
+        // check for stale-state
+        if (concept.getTimestamp().getTime() > timestamp) {
+          validationResult.getErrors().add("Stale state detected: concept modified after retrieval");
+        }
 
+        // check if semantic type already exists
         if (concept.getSemanticTypes().contains(semanticTypeComponent)) {
           validationResult.getErrors()
               .add("Concept already contains semantic type");
         }
-        
+
+
         // if prerequisites fail, return validation result
         if (!validationResult.getErrors().isEmpty()) {
           return validationResult;
@@ -116,44 +149,24 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         //
         // Perform the synchronized action
         //
-        synchronized (lockObject) {
 
-          // prepare the lock
-          contentService.setTransactionPerOperation(false);
-          contentService.beginTransaction();
+        // add the semantic type component itself and set the last modified
+        semanticTypeComponent.setLastModifiedBy(authToken);
+        contentService.addSemanticTypeComponent(semanticTypeComponent, concept);
 
-          // re-retrieve the concept
-          Concept lockedConcept = contentService.getConcept(conceptId);
+        // add the semantic type and set the last modified by
+        concept.getSemanticTypes().add(semanticTypeComponent);
+        concept.setLastModifiedBy(userName);
 
-          // verify that the last modified matches
-          if (!lockedConcept.getLastModified()
-              .equals(concept.getLastModified())) {
-            validationResult.getErrors()
-                .add("Stale concept, aborted operation");
-          } else {
+        // update the concept
+        contentService.updateConcept(concept);
 
-            // add the semantic type and set the last modified by
-            concept.getSemanticTypes().add(semanticTypeComponent);
-            concept.setLastModifiedBy(authToken);
+        // commit and release the lock
+        contentService.commit();
 
-            // update the concept
-            contentService.updateConcept(concept);
+        // TODO Add Action and LogEntry objects here once NE-25 complete
 
-            // validate the concept
-            validationResult
-                .merge(projectService.validateConcept(project, concept));
-          }
-
-          // rollback or commit based on errors
-          if (!validationResult.getErrors().isEmpty()) {
-            contentService.rollback();
-          } else {
-            contentService.commit();
-            
-            // TODO Add Action and LogEntry objects here once NE-25 complete
-          }
-          return validationResult;
-        }
+        return validationResult;
 
       } catch (Exception e) {
         handleException(e, action);
@@ -164,6 +177,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         securityService.close();
       }
     }
+
   }
 
   @Override
@@ -173,6 +187,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult removeSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept timestamp, in ms ", required = true) @QueryParam("timestamp") Long timestamp,
     @ApiParam(value = "Semantic type id, e.g. 3", required = true) @PathParam("id") Long semanticTypeComponentId,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
@@ -202,9 +217,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
       // Check prerequisites
       //
+      
+      // check concept and project compatibility
       checkPrerequisitesForProjectAndConcept(project, concept,
           validationResult);
 
+      // check that semantic type component exists on concept
       SemanticTypeComponent semanticTypeComponent = null;
       for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         if (sty.getId().equals(semanticTypeComponentId)) {
@@ -215,12 +233,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         validationResult.getErrors().add(
             "Semantic type could not be removed from concept, not present");
       }
-      
+
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
-  
+
       //
       // Perform the synchronized action
       //
@@ -236,8 +254,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         // verify that the last modified matches
         if (!lockedConcept.getLastModified()
             .equals(concept.getLastModified())) {
-          validationResult.getErrors()
-              .add("Stale concept, aborted operation");
+          validationResult.getErrors().add("Stale concept, aborted operation");
         } else {
 
           // add the semantic type and set the last modified by
@@ -257,7 +274,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           contentService.rollback();
         } else {
           contentService.commit();
-          
+
           // TODO Add Action and LogEntry objects here once NE-25 complete
         }
         return validationResult;
@@ -282,14 +299,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    */
   private void checkPrerequisitesForProjectAndConcept(Project project,
     Concept concept, ValidationResult validationResult) throws Exception {
-
-    // throw exception on null retrieval
-    if (project == null) {
-      validationResult.getErrors().add("Invalid project id");
-    }
-    if (concept == null) {
-      validationResult.getErrors().add("Invalid project id");
-    }
 
     // throw exception on terminology mismatch
     if (!concept.getTerminology().equals(project.getTerminology())) {

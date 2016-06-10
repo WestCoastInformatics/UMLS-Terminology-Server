@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
 
@@ -6093,5 +6094,5 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     AttributeIdentity identity = this.getAttributeIdentity(attributeIdentityId);
     removeObject(identity, AttributeIdentity.class);
   }
-
+  
 }

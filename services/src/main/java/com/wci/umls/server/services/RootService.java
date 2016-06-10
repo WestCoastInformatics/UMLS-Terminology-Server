@@ -203,5 +203,20 @@ public interface RootService {
    */
   public LogEntry addLogEntry(String userName, Long projectId, Long objectId,
     String message) throws Exception;
+
+  /**
+   * Lock Hibernate object.
+   *
+   * @param object the object
+   * @throws Exception the exception
+   */
+  public void lockObject(Object object) throws Exception;
+
+  /**
+   * Unlock Hibernate object.
+   *
+   * @param object the object
+   */
+  public void unlockObject(Object object);
   
 }

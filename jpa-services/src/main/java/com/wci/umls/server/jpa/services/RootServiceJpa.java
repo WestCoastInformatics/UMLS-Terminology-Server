@@ -17,6 +17,7 @@ import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
@@ -1003,6 +1004,16 @@ public abstract class RootServiceJpa implements RootService {
     // Add component
     return addLogEntry(entry);
 
+  }
+  
+  @Override
+  public void lockObject(Object object) throws Exception {
+    manager.lock(object, LockModeType.PESSIMISTIC_WRITE);
+  }
+  
+  @Override
+  public void unlockObject(Object object) {
+    manager.lock(object, LockModeType.NONE);
   }
 
 }
