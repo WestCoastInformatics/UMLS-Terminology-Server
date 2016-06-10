@@ -1,7 +1,7 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.content;
+package com.wci.umls.server.jpa.helpers.actions;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,20 +15,30 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
+import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.ModelUnitSupport;
-import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.actions.AtomicActionJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.MolecularAction;
 
 /**
- * Unit testing for {@link SemanticTypeComponentJpa}.
+ * Unit testing for {@link MolecularActionJpa}.
  */
-public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
+public class MolecularActionJpaUnitTest {
 
   /** The model object to test. */
-  private SemanticTypeComponentJpa object;
+  private MolecularActionJpa object;
+
+  /** The a1. */
+  private AtomicAction a1;
+
+  /** The a2. */
+  private AtomicAction a2;
+  
+
 
   /**
    * Setup class.
@@ -40,10 +50,16 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
 
   /**
    * Setup.
+   *
+   * @throws Exception the exception
    */
   @Before
-  public void setup() {
-    object = new SemanticTypeComponentJpa();
+  public void setup() throws Exception {
+    object = new MolecularActionJpa();
+    ProxyTester tester = new ProxyTester(new AtomicActionJpa());
+    a1 = (AtomicActionJpa) tester.createObject(1);
+    a2 = (AtomicActionJpa) tester.createObject(2);
+    
   }
 
   /**
@@ -52,8 +68,8 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet");
+  public void testModelGetSet041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelGetSet041");
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -64,19 +80,24 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode");
+  public void testModelEqualsHashcode041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("publishable");
-    tester.include("published");
+
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-    tester.include("semanticType");
-    tester.include("workflowStatus");
 
+
+    tester.include("type");
+    tester.include("timestamp");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("macroAction");
+
+    tester.proxy(AtomicAction.class, 1, a1);
+    tester.proxy(AtomicAction.class, 2, a2);
+      
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -86,15 +107,19 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
   }
 
   /**
-   * Test copy constructor.
+   * Test deep copy constructor.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy");
+  public void testModelDeepCopy041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
+
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructor(SemanticTypeComponent.class));
+    tester.proxy(AtomicAction.class, 1, a1);
+    tester.proxy(AtomicAction.class, 2, a2);
+    assertTrue(tester.testCopyConstructorDeep(MolecularAction.class));
+
   }
 
   /**
@@ -103,9 +128,20 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization");
+  public void testModelXmlSerialization041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
     XmlSerializationTester tester = new XmlSerializationTester(object);
+    // The proxy concepts can have only "id" and "term" set due to xml transient
+    AtomicAction tr1 = new AtomicActionJpa();
+    tr1.setId(1L);
+    AtomicAction tr2 = new AtomicActionJpa();
+    tr2.setId(2L);
+
+    tester.proxy(AtomicAction.class, 1, tr1);
+    tester.proxy(AtomicAction.class, 2, tr2);
+    tester.proxy(AtomicAction.class, 1, a1);
+    tester.proxy(AtomicAction.class, 2, a2);
+    
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -115,20 +151,18 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField() throws Exception {
+  public void testModelNotNullField041() throws Exception {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
+    
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-    tester.include("semanticType");
-    tester.include("workflowStatus");
+
+    tester.include("type");
+    tester.include("macroAction");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -139,30 +173,22 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields");
+  public void testModelIndexedFields041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
 
     // Test analyzed fields
-    // n/a
+    IndexedFieldTester tester = new IndexedFieldTester(object);
+    //assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
-    IndexedFieldTester tester = new IndexedFieldTester(object);
     tester = new IndexedFieldTester(object);
-    tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
     tester.include("terminologyId");
     tester.include("terminology");
     tester.include("version");
-    tester.include("semanticType");
-    tester.include("branch");
-    tester.include("workflowStatus");
+    tester.include("type");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
-
   }
 
   /**
@@ -182,3 +208,4 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
   }
 
 }
+//

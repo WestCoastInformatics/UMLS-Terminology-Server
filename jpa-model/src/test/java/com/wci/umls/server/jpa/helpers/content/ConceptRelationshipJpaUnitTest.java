@@ -134,6 +134,7 @@ public class ConceptRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("from");
     tester.exclude("toTerminologyId");
     tester.exclude("fromTerminologyId");
+    tester.include("workflowStatus");
 
     tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
     tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));

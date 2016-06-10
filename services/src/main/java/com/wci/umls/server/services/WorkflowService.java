@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.services;
 
+import java.util.List;
 import java.util.Set;
 
 import com.wci.umls.server.User;
@@ -10,9 +11,17 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.workflow.Checklist;
+import com.wci.umls.server.model.workflow.ChecklistList;
+import com.wci.umls.server.model.workflow.ProjectWorkflowConfig;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.TrackingRecordList;
 import com.wci.umls.server.model.workflow.WorkflowAction;
+import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowEpoch;
+import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.model.workflow.WorklistList;
 import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 
 
@@ -31,18 +40,6 @@ public interface WorkflowService {
    */
   public TrackingRecord getTrackingRecord(Long id) throws Exception;
 
-
-  /**
-   * Returns the tracking records for refset. The refset is assigned to at most
-   * one person at a time.
-   *
-   * @param refsetId the refset id
-   * @param userId the user id
-   * @return the tracking records for refset
-   * @throws Exception the exception
-   */
-  public TrackingRecord getTrackingRecordsForRefset(Long refsetId, Long userId)
-    throws Exception;
 
   /**
    * Adds the tracking record.
@@ -142,4 +139,105 @@ public interface WorkflowService {
    * @param record the record
    */
   public void handleLazyInit(TrackingRecord record);
+  
+
+  public WorkflowEpoch addWorkflowEpoch(WorkflowEpoch workflowEpoch) throws Exception;
+
+
+  public void updateWorkflowEpoch(WorkflowEpoch workflowEpoch) throws Exception;
+  
+
+  public void removeWorkflowEpoch(Long id) throws Exception;
+
+ 
+  public List<WorkflowEpoch> getWorkflowEpochs() throws Exception;
+  
+
+  public WorkflowEpoch getWorkflowEpoch(Long id) throws Exception;
+  
+
+  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query) throws Exception;
+  
+
+  public ProjectWorkflowConfig addProjectWorkflowConfig(ProjectWorkflowConfig projectWorkflowConfig) throws Exception;
+
+
+  public void updateProjectWorkflowConfig(ProjectWorkflowConfig projectWorkflowConfig) throws Exception;
+  
+
+  public void removeProjectWorkflowConfig(Long id) throws Exception;
+
+ 
+  public List<ProjectWorkflowConfig> getProjectWorkflowConfigs() throws Exception;
+  
+
+  public ProjectWorkflowConfig getProjectWorkflowConfig(Long id) throws Exception;
+  
+
+  public List<ProjectWorkflowConfig> findProjectWorkflowConfigsForQuery(String query) throws Exception;
+  
+
+  public WorkflowBinDefinition addWorkflowBinDefinition(WorkflowBinDefinition workflowBinDefinition) throws Exception;
+
+
+  public void updateWorkflowBinDefinition(WorkflowBinDefinition workflowBinDefinition) throws Exception;
+  
+
+  public void removeWorkflowBinDefinition(Long id) throws Exception;
+
+ 
+  public List<WorkflowBinDefinition> getWorkflowBinDefinitions() throws Exception;
+  
+
+  public WorkflowBinDefinition getWorkflowBinDefinition(Long id) throws Exception;
+  
+
+  public List<WorkflowBinDefinition> findWorkflowBinDefinitionsForQuery(String query) throws Exception;
+  
+  
+  public WorkflowBin addWorkflowBin(WorkflowBin workflowBin) throws Exception;
+
+
+  public void updateWorkflowBin(WorkflowBin workflowBin) throws Exception;
+  
+
+  public void removeWorkflowBin(Long id) throws Exception;
+
+ 
+  public List<WorkflowBin> getWorkflowBins() throws Exception;
+  
+
+  public WorkflowBin getWorkflowBin(Long id) throws Exception;
+  
+
+  public List<WorkflowBin> findWorkflowBinsForQuery(String query) throws Exception;
+  
+  public Worklist addWorklist(Worklist worklist) throws Exception;
+
+
+  public void updateWorklist(Worklist worklist) throws Exception;
+  
+
+  public void removeWorklist(Long id) throws Exception;
+  
+
+  public Worklist getWorklist(Long id) throws Exception;
+  
+
+  public WorklistList findWorklistsForQuery(String query, PfsParameter pfs) throws Exception; 
+  
+  public Checklist addChecklist(Checklist worklist) throws Exception;
+
+
+  public void updateChecklist(Checklist worklist) throws Exception;
+  
+
+  public void removeChecklist(Long id) throws Exception;
+  
+
+  public Checklist getChecklist(Long id) throws Exception;
+  
+
+  public ChecklistList findChecklistsForQuery(String query, PfsParameter pfs) throws Exception; 
+  
 }

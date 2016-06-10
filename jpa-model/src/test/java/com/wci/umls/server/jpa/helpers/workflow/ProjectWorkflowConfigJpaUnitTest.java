@@ -1,7 +1,7 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.content;
+package com.wci.umls.server.jpa.helpers.workflow;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,20 +15,28 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
+import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.ModelUnitSupport;
-import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
+import com.wci.umls.server.jpa.worfklow.ProjectWorkflowConfigJpa;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.ProjectWorkflowConfig;
 
 /**
- * Unit testing for {@link SemanticTypeComponentJpa}.
+ * Unit testing for {@link ProjectWorkflowConfigJpa}.
  */
-public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
+public class ProjectWorkflowConfigJpaUnitTest {
 
   /** The model object to test. */
-  private SemanticTypeComponentJpa object;
+  private ProjectWorkflowConfig object;
+
+  /** The m1. */
+  private WorkflowBinDefinition m1;
+
+  /** The m2. */
+  private WorkflowBinDefinition m2;
 
   /**
    * Setup class.
@@ -40,10 +48,15 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
 
   /**
    * Setup.
+   *
+   * @throws Exception the exception
    */
   @Before
-  public void setup() {
-    object = new SemanticTypeComponentJpa();
+  public void setup() throws Exception {
+    object = new ProjectWorkflowConfigJpa();
+    ProxyTester tester2 = new ProxyTester(new WorkflowBinDefinitionJpa());
+    m1 = (WorkflowBinDefinition) tester2.createObject(1);
+    m2 = (WorkflowBinDefinition) tester2.createObject(2);
   }
 
   /**
@@ -52,8 +65,8 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet");
+  public void testModelGetSet041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelGetSet041");
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -64,18 +77,20 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode");
+  public void testModelEqualsHashcode041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("publishable");
-    tester.include("published");
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-    tester.include("semanticType");
-    tester.include("workflowStatus");
+
+    tester.include("timestamp");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("type");
+    tester.include("mutuallyExclusive");
+    tester.include("lastPartitionTime");
+    tester.include("project");
+
+    tester.proxy(WorkflowBinDefinition.class, 1, m1);
+    tester.proxy(WorkflowBinDefinition.class, 2, m2);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -86,15 +101,19 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
   }
 
   /**
-   * Test copy constructor.
+   * Test deep copy constructor.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy");
+  public void testModelDeepCopy041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
+
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructor(SemanticTypeComponent.class));
+    tester.proxy(WorkflowBinDefinition.class, 1, m1);
+    tester.proxy(WorkflowBinDefinition.class, 2, m2);
+    assertTrue(tester.testCopyConstructorDeep(ProjectWorkflowConfig.class));
+
   }
 
   /**
@@ -103,8 +122,8 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization");
+  public void testModelXmlSerialization041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -115,20 +134,15 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField() throws Exception {
+  public void testModelNotNullField041() throws Exception {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-    tester.include("semanticType");
-    tester.include("workflowStatus");
+    tester.include("mutuallyExclusive");
+    tester.include("lastPartitionTime");
+    tester.include("project");
+    tester.include("type");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -139,30 +153,19 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields");
+  public void testModelIndexedFields041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
 
     // Test analyzed fields
-    // n/a
+    IndexedFieldTester tester = new IndexedFieldTester(object);
+    //assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
-    IndexedFieldTester tester = new IndexedFieldTester(object);
     tester = new IndexedFieldTester(object);
-    tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
-    tester.include("terminologyId");
-    tester.include("terminology");
-    tester.include("version");
-    tester.include("semanticType");
-    tester.include("branch");
-    tester.include("workflowStatus");
+    tester.include("type");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
-
   }
 
   /**
@@ -182,3 +185,4 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
   }
 
 }
+//
