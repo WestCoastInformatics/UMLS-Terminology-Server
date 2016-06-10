@@ -115,7 +115,7 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null project id
     try {
-      metaEditingService.addSemanticType(null, c.getId(), sty2, adminToken);
+      metaEditingService.addSemanticType(null, c.getId(), c.getTimestamp(), sty2, false, adminToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -123,7 +123,16 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null concept id
     try {
-      metaEditingService.addSemanticType(project.getId(), null, sty2,
+      metaEditingService.addSemanticType(project.getId(), null, c.getTimestamp(), sty2, false,
+          adminToken);
+      fail();
+    } catch (Exception e) {
+      // do nothing
+    }
+    
+    // check null timestamp
+    try {
+      metaEditingService.addSemanticType(project.getId(), c.getId(), null, sty2, false,
           adminToken);
       fail();
     } catch (Exception e) {
@@ -132,7 +141,7 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null sty id
     try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(), null,
+      metaEditingService.addSemanticType(project.getId(), c.getId(), c.getTimestamp(), null, false,
           adminToken);
       fail();
     } catch (Exception e) {
@@ -141,7 +150,7 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null auth token
     try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(), sty2,
+      metaEditingService.addSemanticType(project.getId(), c.getId(), c.getTimestamp(), sty2, false,
           null);
       fail();
     } catch (Exception e) {
@@ -150,7 +159,7 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null project id
     try {
-      metaEditingService.removeSemanticType(null, c.getId(), sty.getId(),
+      metaEditingService.removeSemanticType(null, c.getId(), c.getTimestamp(), sty.getId(), false,
           adminToken);
       fail();
     } catch (Exception e) {
@@ -159,7 +168,16 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null concept id
     try {
-      metaEditingService.removeSemanticType(project.getId(), null, sty.getId(),
+      metaEditingService.removeSemanticType(project.getId(), null, c.getTimestamp(), sty.getId(), false,
+          adminToken);
+      fail();
+    } catch (Exception e) {
+      // do nothing
+    }
+    
+    // check null timestamp
+    try {
+      metaEditingService.removeSemanticType(project.getId(), c.getId(), null, sty.getId(), false,
           adminToken);
       fail();
     } catch (Exception e) {
@@ -168,7 +186,7 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null sty id
     try {
-      metaEditingService.removeSemanticType(project.getId(), c.getId(), null,
+      metaEditingService.removeSemanticType(project.getId(), c.getId(), c.getTimestamp(), null, false,
           adminToken);
       fail();
     } catch (Exception e) {
@@ -177,8 +195,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null auth token
     try {
-      metaEditingService.removeSemanticType(project.getId(), c.getId(),
-          sty.getId(), null);
+      metaEditingService.removeSemanticType(project.getId(), c.getId(), c.getTimestamp(),
+          sty.getId(), false, null);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -190,12 +208,12 @@ public class MetaEditingServiceRestDegenerateUseTest
     //
     ValidationResult result;
 
-    result = metaEditingService.addSemanticType(project.getId(), c.getId(), sty,
+    result = metaEditingService.addSemanticType(project.getId(), c.getId(), c.getTimestamp(), sty, false,
         adminToken);
     assertTrue(!result.isValid());
 
-    result = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        sty2.getId(), adminToken);
+    result = metaEditingService.removeSemanticType(project.getId(), c.getId(), c.getTimestamp(),
+        sty2.getId(), false, adminToken);
     assertTrue(!result.isValid());
 
     //
@@ -204,8 +222,8 @@ public class MetaEditingServiceRestDegenerateUseTest
     //
 
     try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(), sty2,
-          viewerToken);
+      metaEditingService.addSemanticType(project.getId(), c.getId(), c.getTimestamp(), sty2,
+          false, viewerToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -215,8 +233,8 @@ public class MetaEditingServiceRestDegenerateUseTest
     assertTrue(!c.getSemanticTypes().contains(sty2));
 
     try {
-      metaEditingService.removeSemanticType(project.getId(), c.getId(),
-          sty.getId(), viewerToken);
+      metaEditingService.removeSemanticType(project.getId(), c.getId(), c.getTimestamp(),
+          sty.getId(), false, viewerToken);
       fail();
     } catch (Exception e) {
       // do nothing

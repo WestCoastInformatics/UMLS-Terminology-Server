@@ -109,11 +109,11 @@ public class MetaEditingServiceRestEdgeCasesTest
     projectService.updateProject((ProjectJpa) project, authToken);
 
     result = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        sty2, authToken);
+        c.getTimestamp(), sty2, false, authToken);
     assertTrue(!result.isValid());
 
     metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        sty.getId(), authToken);
+        c.getTimestamp(), sty.getId(), false, authToken);
     assertTrue(!result.isValid());
 
     // reset the terminology
@@ -131,11 +131,11 @@ public class MetaEditingServiceRestEdgeCasesTest
     //
 
     result = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        sty2, authToken);
+        c.getTimestamp(), sty2, false, authToken);
     assertTrue(!result.isValid());
 
     result = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        sty.getId(), authToken);
+        c.getTimestamp(), sty.getId(), false, authToken);
     assertTrue(!result.isValid());
 
     // reset the branch
@@ -163,20 +163,24 @@ public class MetaEditingServiceRestEdgeCasesTest
     SemanticTypeComponentJpa sty1 =
         (SemanticTypeComponentJpa) c1.getSemanticTypes().get(0);
     assertNotNull(sty1);
-    
+
     // remove the semantic type twice
-    result1 = metaEditingService.removeSemanticType(project.getId(), c1.getId(), sty1.getId(), authToken);
-    result2 = metaEditingService.removeSemanticType(project.getId(), c1.getId(), sty1.getId(), authToken);
-    
+    result1 = metaEditingService.removeSemanticType(project.getId(), c1.getId(),
+        c1.getTimestamp(), sty1.getId(), false, authToken);
+    result2 = metaEditingService.removeSemanticType(project.getId(), c1.getId(),
+        c1.getTimestamp(), sty1.getId(), false, authToken);
+
     // re-add the semantic type
-    metaEditingService.addSemanticType(project.getId(), c1.getId(), sty1, authToken);
-    
+    metaEditingService.addSemanticType(project.getId(), c1.getId(),
+        c1.getTimestamp(), sty1, false, authToken);
+
     // expect one result to succeed, one result to fail
-    assertTrue(result1.isValid() && !result2.isValid() || !result1.isValid() && result2.isValid());
- 
+    assertTrue(result1.isValid() && !result2.isValid()
+        || !result1.isValid() && result2.isValid());
+
     // check that the semantic type was successfully re-added
-    c1 = contentService.getConcept("C0000530", umlsTerminology,
-        umlsVersion, null, authToken);
+    c1 = contentService.getConcept("C0000530", umlsTerminology, umlsVersion,
+        null, authToken);
     assertTrue(c1.getSemanticTypes().contains(sty1));
   }
 

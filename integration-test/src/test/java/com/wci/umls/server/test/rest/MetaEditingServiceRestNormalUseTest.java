@@ -103,8 +103,8 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // remove the semantic type from the concept
-    ValidationResult v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        sty.getId(), authToken);
+    ValidationResult v = metaEditingService.removeSemanticType(project.getId(), c.getId(), c.getTimestamp(),
+        sty.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
     
     // retrieve the concept and check semantic types
@@ -117,8 +117,8 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // add the semantic type to the concept
-    v = metaEditingService.addSemanticType(project.getId(), c.getId(), sty,
-        authToken);
+    v = metaEditingService.addSemanticType(project.getId(), c.getId(), c.getTimestamp(), sty,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
     
     // retrieve the concept and check semantic types

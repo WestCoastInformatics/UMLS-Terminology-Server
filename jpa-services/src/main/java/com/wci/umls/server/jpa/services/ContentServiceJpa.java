@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
 
