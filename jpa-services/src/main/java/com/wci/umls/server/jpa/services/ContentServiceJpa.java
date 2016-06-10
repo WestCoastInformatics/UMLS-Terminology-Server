@@ -153,7 +153,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     ContentService {
 
   /** The assign identifiers flag. */
-  protected boolean assignIdentifiersFlag = true;
+  protected boolean assignIdentifiersFlag = false;
 
   /** The id assignment handler . */
   static Map<String, IdentifierAssignmentHandler> idHandlerMap =
@@ -3731,28 +3731,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   /**
-   * Indicates whether or not last modified flag is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  @Override
-  public boolean isLastModifiedFlag() {
-    return lastModifiedFlag;
-  }
-
-  /* see superclass */
-  /**
-   * Sets the last modified flag.
-   *
-   * @param lastModifiedFlag the last modified flag
-   */
-  @Override
-  public void setLastModifiedFlag(boolean lastModifiedFlag) {
-    this.lastModifiedFlag = lastModifiedFlag;
-  }
-
-  /* see superclass */
-  /**
    * Sets the assign identifiers flag.
    *
    * @param assignIdentifiersFlag the assign identifiers flag
@@ -3864,28 +3842,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   protected <T extends Component> T addComponent(T component) throws Exception {
-    try {
-      // Set last modified date
-      if (lastModifiedFlag) {
-        component.setLastModified(new Date());
-      }
 
-      // add
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.persist(component);
-        tx.commit();
-      } else {
-        manager.persist(component);
-      }
-      return component;
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    // TODO: PG apply this approach to removeComponent/updateComponent as well
+    
+    // Component-specific handling
+    
+    // handle as a normal "has last modified"
+    return addHasLastModified(component);
+
   }
 
   /**
@@ -3899,7 +3863,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     throws Exception {
     try {
       // Set modification date
-      if (lastModifiedFlag) {
+      if (isLastModifiedFlag()) {
         component.setLastModified(new Date());
       }
 
@@ -3994,7 +3958,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       T component = manager.find(clazz, id);
 
       // Set modification date
-      if (lastModifiedFlag) {
+      if (isLastModifiedFlag()) {
         component.setLastModified(new Date());
       }
 
