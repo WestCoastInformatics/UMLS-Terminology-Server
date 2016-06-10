@@ -9,6 +9,8 @@ package com.wci.umls.server.test.rest;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
@@ -20,6 +22,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
  * Implementation of the "MetaEditing Service REST Normal Use" Test Cases.
@@ -78,24 +81,42 @@ public class MetaEditingServiceRestNormalUseTest
     //
     // Prepare the test and check prerequisites
     //
-    
+
     // get the concept
-    Concept c = null;
-   
-      c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion, null,
-          authToken);
-   
+    Concept c = contentService.getConcept("C0002520", umlsTerminology,
+        umlsVersion, null, authToken);
     assertNotNull(c);
 
     // check against project
     assertTrue(c.getBranch().equals(project.getBranch()));
 
-    // check that concept has semantic types
-    assertTrue(c.getSemanticTypes().size() > 0);
+    // construct a semantic type not present on concept (here, Lipid)
+    SemanticTypeComponentJpa sty = new SemanticTypeComponentJpa();
+    sty.setBranch(c.getBranch());
+    sty.setLastModifiedBy(authToken);
+    sty.setSemanticType("Lipid");
+    sty.setTerminologyId("TestId");
+    sty.setTerminology(umlsTerminology);
+    sty.setVersion(umlsVersion);
+    sty.setTimestamp(new Date());
+    //
+    // Test addition
+    //
 
-    // get the first semantic type
-    SemanticTypeComponentJpa sty =
-        (SemanticTypeComponentJpa) c.getSemanticTypes().get(0);
+    // add the semantic type to the concept
+    ValidationResult v = metaEditingService.addSemanticType(project.getId(),
+        c.getId(), c.getTimestamp().getTime(), sty, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    // retrieve the concept and check semantic types
+    c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion,
+        null, authToken);
+    sty = null;
+    for (SemanticTypeComponent s : c.getSemanticTypes()) {
+      if (s.getSemanticType().equals("Lipid")) {
+        sty = (SemanticTypeComponentJpa) s;
+      }
+    }
     assertNotNull(sty);
 
     //
@@ -103,28 +124,20 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // remove the semantic type from the concept
-    ValidationResult v = metaEditingService.removeSemanticType(project.getId(), c.getId(), c.getTimestamp().getTime(),
-        sty.getId(), false, authToken);
+    v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
+        c.getTimestamp().getTime(), sty.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
-    
-    // retrieve the concept and check semantic types
-    c = contentService.getConcept("C0000005", umlsTerminology, umlsVersion, null,
-        authToken);
-    assertTrue(!c.getSemanticTypes().contains(sty));
-    
-    //
-    // Test addition
-    //
 
-    // add the semantic type to the concept
-    v = metaEditingService.addSemanticType(project.getId(), c.getId(), c.getTimestamp().getTime(), sty,
-        false, authToken);
-    assertTrue(v.getErrors().isEmpty());
-    
     // retrieve the concept and check semantic types
-    c = contentService.getConcept("C0000005", umlsTerminology, umlsVersion, null,
-        authToken);
-    assertTrue(c.getSemanticTypes().contains(sty));
+    c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion,
+        null, authToken);
+    boolean styPresent = false;
+    for (SemanticTypeComponent s : c.getSemanticTypes()) {
+      if (s.getSemanticType().equals("Lipid")) {
+        styPresent = true;
+      }
+    }
+    assertTrue(!styPresent);
 
   }
 

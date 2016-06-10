@@ -158,7 +158,7 @@ public class StandardMetadataServiceJpaHelper extends
     labelSets.setTotalCount(labelSets.getObjects().size());
     return labelSets;
   }
-
+  
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override

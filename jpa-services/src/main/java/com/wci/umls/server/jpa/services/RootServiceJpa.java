@@ -1012,8 +1012,14 @@ public abstract class RootServiceJpa implements RootService {
   }
   
   @Override
+  // TODO: This apparently fails to release database lock, only does hibernate lock
   public void unlockObject(Object object) {
     manager.lock(object, LockModeType.NONE);
+  }
+  
+  @Override
+  public boolean isObjectLocked(Object object) throws Exception {
+    return manager.getLockMode(object).equals(LockModeType.PESSIMISTIC_WRITE);
   }
 
 }

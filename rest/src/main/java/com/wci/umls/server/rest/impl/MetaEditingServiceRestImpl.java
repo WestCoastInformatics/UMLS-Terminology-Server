@@ -26,6 +26,8 @@ import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.meta.SemanticType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
@@ -50,7 +52,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   /** The security service. */
   private SecurityService securityService;
 
-
   /**
    * Instantiates an empty {@link MetaEditingServiceRestImpl}.
    *
@@ -61,8 +62,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  // TODO Add timestamp as QueryParam
-  // TODO Add overrideWarnings as QueryParam
   @Override
   @POST
   @Path("/sty/add")
@@ -103,13 +102,19 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         //
         // Synchronized retrieval and locking based on conceptId
+        // Intended for use to prevent access by other MetaEditing calls
         //
+        // TODO Make sure to test different concept ids (should not block)
         synchronized (conceptId.toString().intern()) {
 
           // retrieve the concept
           concept = contentService.getConcept(conceptId);
 
-          // lock the concept
+          // lock the concept via Hibernate, secondary protection
+          if (contentService.isObjectLocked(concept)) {
+            throw new Exception(
+                "Fatal error: Attempted to access locked object in synchronization block");
+          }
           contentService.lockObject(concept);
         }
 
@@ -128,20 +133,42 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             validationResult);
 
         // check for stale-state
-        if (concept.getTimestamp().getTime() < timestamp) {
+        if (concept.getTimestamp().getTime() != timestamp) {
           validationResult.getErrors()
               .add("Stale state detected: concept modified after retrieval");
         }
 
-        // check if semantic type already exists
-        if (concept.getSemanticTypes().contains(semanticTypeComponent)) {
+        // check that semantic type is valid
+        // TODO This will be replaced by metadata handler methods (i.e. getSemanticType(terminology, version, expandedForm)
+        boolean semanticTypeValid = false;
+        for (SemanticType s : contentService
+            .getSemanticTypes(concept.getTerminology(), concept.getVersion())
+            .getObjects()) {
+          if (s.getExpandedForm().equals(semanticTypeComponent.getSemanticType())) {
+            semanticTypeValid = true;
+            break;
+          }
+        }
+        if (!semanticTypeValid) {
           validationResult.getErrors()
-              .add("Concept already contains semantic type");
+              .add("Invalid semantic type: semantic type does not exist");
+        }
+
+        // check if semantic type already exists
+        for (SemanticTypeComponent s : concept.getSemanticTypes()) {
+          if (s.getSemanticType()
+              .equals(semanticTypeComponent.getSemanticType())) {
+            validationResult.getErrors()
+                .add("Concept already contains semantic type");
+          }
         }
 
         // if prerequisites fail, return validation result
-        if (!validationResult.getErrors().isEmpty()) {
-          contentService.unlockObject(concept);
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty()
+                && !overrideWarnings)) {
+          // rollback -- unlocks the concept and closes transaction
+          contentService.rollback();
           return validationResult;
         }
 
@@ -150,23 +177,28 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         //
 
         // add the semantic type component itself and set the last modified
-        semanticTypeComponent.setLastModifiedBy(authToken);
-        contentService.addSemanticTypeComponent(semanticTypeComponent, concept);
+        semanticTypeComponent.setLastModifiedBy(userName);
+        semanticTypeComponent.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        semanticTypeComponent = (SemanticTypeComponentJpa) contentService
+            .addSemanticTypeComponent(semanticTypeComponent, concept);
 
         // add the semantic type and set the last modified by
         concept.getSemanticTypes().add(semanticTypeComponent);
         concept.setLastModifiedBy(userName);
+        concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
         // update the concept
         contentService.updateConcept(concept);
 
-        // commit and release the lock
+        // commit (also removes the lock)
         contentService.commit();
 
         // TODO Add Action and LogEntry objects here once action CRUD servics
         // available
 
         return validationResult;
+
+        // end synchronization block
 
       } catch (Exception e) {
         handleException(e, action);
@@ -199,7 +231,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             + semanticTypeComponentId);
 
     String action = "trying to add semantic type to concept";
-    
+
     ValidationResult validationResult = new ValidationResultJpa();
 
     ContentService contentService = new ContentServiceJpa();
@@ -219,14 +251,19 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       //
       // Synchronized retrieval and locking based on conceptId
+      // Intended for use to prevent access by other MetaEditing calls
       //
       synchronized (conceptId.toString().intern()) {
 
         // retrieve the concept
         concept = contentService.getConcept(conceptId);
 
-        // lock the concept
+        // lock the concept via Hibernate, secondary protection
+        if (contentService.isObjectLocked(concept)) {
+          throw new Exception("Fatal error: concept is locked");
+        }
         contentService.lockObject(concept);
+
       }
 
       // retrieve the project
@@ -262,7 +299,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       }
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()) {
-        contentService.unlockObject(concept);
+        contentService.rollback();
         return validationResult;
       }
 
@@ -270,15 +307,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       //
 
-      // remove the semantic type component
-      contentService.removeSemanticTypeComponent(semanticTypeComponent.getId());
+      // remove the semantic type component from the concept and update
+      concept.getSemanticTypes().remove(semanticTypeComponent);
       concept.setLastModifiedBy(userName);
       contentService.updateConcept(concept);
 
-      // remove the semantic type component from the concept and update
-      concept.getSemanticTypes().remove(semanticTypeComponent);
+      // remove the semantic type component
+      contentService.removeSemanticTypeComponent(semanticTypeComponent.getId());
 
-      // commit and release the lock
+      // commit (also removes the lock)
       contentService.commit();
 
       // TODO Add Action and LogEntry objects here once action CRUD services

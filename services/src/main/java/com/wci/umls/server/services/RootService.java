@@ -218,5 +218,14 @@ public interface RootService {
    * @param object the object
    */
   public void unlockObject(Object object);
+
+  /**
+   * Is object locked.
+   *
+   * @param object the object
+   * @return true, if is object locked
+   * @throws Exception the exception
+   */
+  public boolean isObjectLocked(Object object) throws Exception;
   
 }
