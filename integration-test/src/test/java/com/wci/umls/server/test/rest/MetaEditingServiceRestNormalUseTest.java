@@ -82,7 +82,7 @@ public class MetaEditingServiceRestNormalUseTest
     // get the concept
     Concept c = null;
    
-      c = contentService.getConcept("C0000005", umlsTerminology, umlsVersion, null,
+      c = contentService.getConcept("359791000", umlsTerminology, umlsVersion, null,
           authToken);
    
     assertNotNull(c);
