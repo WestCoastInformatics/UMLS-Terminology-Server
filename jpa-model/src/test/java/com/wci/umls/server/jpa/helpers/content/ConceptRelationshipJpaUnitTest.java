@@ -132,6 +132,7 @@ public class ConceptRelationshipJpaUnitTest {
     tester.include("from");
     tester.exclude("toTerminologyId");
     tester.exclude("fromTerminologyId");
+    tester.include("workflowStatus");
 
     tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
     tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
@@ -276,6 +277,7 @@ public class ConceptRelationshipJpaUnitTest {
     tester.include("hierarchical");
     tester.include("from");
     tester.include("to");
+    tester.include("workflowStatus");
     assertTrue(tester.testNotNullFields());
   }
 

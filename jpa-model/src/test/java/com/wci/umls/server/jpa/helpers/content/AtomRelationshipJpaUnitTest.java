@@ -126,6 +126,7 @@ public class AtomRelationshipJpaUnitTest {
     tester.include("hierarchical");
     tester.include("to");
     tester.include("from");
+    tester.include("workflowStatus");
 
     tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
     tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
@@ -269,6 +270,7 @@ public class AtomRelationshipJpaUnitTest {
     tester.include("hierarchical");
     tester.include("from");
     tester.include("to");
+    tester.include("workflowStatus");
     assertTrue(tester.testNotNullFields());
   }
 
