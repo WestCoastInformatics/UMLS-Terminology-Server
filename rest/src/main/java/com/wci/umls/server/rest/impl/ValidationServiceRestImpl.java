@@ -64,6 +64,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     securityService = new SecurityServiceJpa();
   }
 
+  /* see superclass */
   @Override
   @GET
   @Path("/validate/concept/merge/{terminology}/{version}/{cui1}/{cui2}")
@@ -118,7 +119,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Descriptor", required = true) DescriptorJpa descriptor,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call PUT (Project): /dui " + descriptor);
 
@@ -138,6 +139,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
   @Override
   @PUT
   @Path("/aui")
@@ -146,7 +148,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Atom", required = true) AtomJpa atom,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call PUT (Project): /aui " + atom);
 
@@ -166,6 +168,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
   @Override
   @PUT
   @Path("/code")
@@ -174,7 +177,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Code", required = true) CodeJpa code,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call PUT (Project): /code " + code);
 
@@ -193,6 +196,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
   @Override
   @PUT
   @Path("/concept")
@@ -201,7 +205,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept", required = true) ConceptJpa concept,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call PUT (Project): /concept " + concept);
 
@@ -229,7 +233,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl
   public KeyValuePairList getValidationChecks(
     @ApiParam(value = "The project id , e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call POST (Validation): /checks ");
 

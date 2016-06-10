@@ -132,6 +132,7 @@ public class CodeRelationshipJpaUnitTest {
     tester.include("from");
     tester.exclude("toTerminologyId");
     tester.exclude("fromTerminologyId");
+    tester.include("workflowStatus");
 
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
     tester.proxy(Code.class, 2, new CodeJpa(code2, false));
@@ -276,6 +277,7 @@ public class CodeRelationshipJpaUnitTest {
     tester.include("hierarchical");
     tester.include("from");
     tester.include("to");
+    tester.include("workflowStatus");
     assertTrue(tester.testNotNullFields());
   }
 

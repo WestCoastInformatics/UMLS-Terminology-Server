@@ -9,7 +9,7 @@ import com.wci.umls.server.helpers.HasLabelSets;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
- * The Interface AtomClass.
+ * Generically represents a classification of atoms.
  */
 public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets {
 

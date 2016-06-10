@@ -1,7 +1,7 @@
 /*
  *    Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.workflow;
+package com.wci.umls.server.jpa.helpers.actions;
 
 import static org.junit.Assert.assertTrue;
 
@@ -17,26 +17,28 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.actions.AtomicActionJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
-import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionsJpa;
-import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-import com.wci.umls.server.model.workflow.WorkflowBinDefinitions;
+import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.MolecularAction;
 
 /**
- * Unit testing for {@link WorkflowBinDefinitionsJpa}.
+ * Unit testing for {@link AtomicActionJpa}.
  */
-public class WorkflowBinDefinitionsJpaUnitTest {
+public class AtomicActionJpaUnitTest {
 
   /** The model object to test. */
-  private WorkflowBinDefinitions object;
+  private AtomicActionJpa object;
 
-  /** The m1. */
-  private WorkflowBinDefinition m1;
+  /** The a1. */
+  private MolecularAction a1;
 
-  /** The m2. */
-  private WorkflowBinDefinition m2;
+  /** The a2. */
+  private MolecularAction a2;
+  
+
 
   /**
    * Setup class.
@@ -53,10 +55,11 @@ public class WorkflowBinDefinitionsJpaUnitTest {
    */
   @Before
   public void setup() throws Exception {
-    object = new WorkflowBinDefinitionsJpa();
-    ProxyTester tester2 = new ProxyTester(new WorkflowBinDefinitionJpa());
-    m1 = (WorkflowBinDefinition) tester2.createObject(1);
-    m2 = (WorkflowBinDefinition) tester2.createObject(2);
+    object = new AtomicActionJpa();
+    ProxyTester tester = new ProxyTester(new MolecularActionJpa());
+    a1 = (MolecularActionJpa) tester.createObject(1);
+    a2 = (MolecularActionJpa) tester.createObject(2);
+    
   }
 
   /**
@@ -81,16 +84,19 @@ public class WorkflowBinDefinitionsJpaUnitTest {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
-    tester.include("timestamp");
-    tester.include("lastModified");
-    tester.include("lastModifiedBy");
-    tester.include("type");
-    tester.include("mutuallyExclusive");
-    tester.include("lastPartitionTime");
+    tester.include("terminology");
+    tester.include("terminologyId");
+    tester.include("version");
 
-    tester.proxy(WorkflowBinDefinition.class, 1, m1);
-    tester.proxy(WorkflowBinDefinition.class, 2, m2);
 
+    tester.include("idtype");
+    tester.include("oldValue");
+    tester.include("newValue");
+    tester.include("field");
+
+    tester.proxy(MolecularAction.class, 1, a1);
+    tester.proxy(MolecularAction.class, 2, a2);
+      
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -100,19 +106,18 @@ public class WorkflowBinDefinitionsJpaUnitTest {
   }
 
   /**
-   * Test deep copy constructor.
+   * Test copy constructor.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy041() throws Exception {
+  public void testModelCopy041() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(WorkflowBinDefinition.class, 1, m1);
-    tester.proxy(WorkflowBinDefinition.class, 2, m2);
-    assertTrue(tester.testCopyConstructorDeep(WorkflowBinDefinitions.class));
-
+    tester.proxy(MolecularAction.class, 1, a1);
+    tester.proxy(MolecularAction.class, 2, a2);
+    assertTrue(tester.testCopyConstructor(AtomicAction.class));
   }
 
   /**
@@ -124,6 +129,17 @@ public class WorkflowBinDefinitionsJpaUnitTest {
   public void testModelXmlSerialization041() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
     XmlSerializationTester tester = new XmlSerializationTester(object);
+    // The proxy concepts can have only "id" and "term" set due to xml transient
+    MolecularAction tr1 = new MolecularActionJpa();
+    tr1.setId(1L);
+    MolecularAction tr2 = new MolecularActionJpa();
+    tr2.setId(2L);
+
+    tester.proxy(MolecularAction.class, 1, tr1);
+    tester.proxy(MolecularAction.class, 2, tr2);
+    tester.proxy(MolecularAction.class, 1, a1);
+    tester.proxy(MolecularAction.class, 2, a2);
+    
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -135,12 +151,14 @@ public class WorkflowBinDefinitionsJpaUnitTest {
   @Test
   public void testModelNotNullField041() throws Exception {
     NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("timestamp");
-    tester.include("lastModified");
-    tester.include("lastModifiedBy");
-    tester.include("mutuallyExclusive");
-    tester.include("lastPartitionTime");
+   
+    tester.include("terminology");
+    tester.include("terminologyId");
+    tester.include("version");
 
+
+    tester.include("field");
+    tester.include("type");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -155,12 +173,18 @@ public class WorkflowBinDefinitionsJpaUnitTest {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    //assertTrue(tester.testAnalyzedIndexedFields());
+    tester.include("oldValue");
+    tester.include("newValue");
+    assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
-    tester.include("lastModifiedBy");
-    tester.include("type");
+    tester.include("terminologyId");
+    tester.include("terminology");
+    tester.include("version");
+    tester.include("idtype");
+
+    tester.include("field");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

@@ -10,8 +10,13 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
@@ -62,6 +67,7 @@ public class AtomicActionJpa implements AtomicAction {
   private String field;
   
   /** The type. */
+  @Column(nullable = false)
   private IdType type;
   
   /** The molecular action. */
@@ -90,6 +96,7 @@ public class AtomicActionJpa implements AtomicAction {
     this.newValue = atomicAction.getNewValue();
     this.field = atomicAction.getField();
     this.type = atomicAction.getIdType();
+    this.molecularAction = atomicAction.getMolecularAction();
   }
   
   /* see superclass */
@@ -106,6 +113,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminologyId() {
     return terminologyId;
   }
@@ -118,6 +126,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminology() {
     return terminology;
   }
@@ -130,6 +139,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getVersion() {
     return version;
   }
@@ -142,6 +152,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @XmlTransient
   public MolecularAction getMolecularAction() {
     return molecularAction;
   }
@@ -154,6 +165,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getIdType() {
     return type;
   }
@@ -166,6 +178,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getField() {
     return field;
   }
@@ -178,6 +191,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getOldValue() {
     return oldValue;
   }
@@ -190,6 +204,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getNewValue() {
     return newValue;
   }

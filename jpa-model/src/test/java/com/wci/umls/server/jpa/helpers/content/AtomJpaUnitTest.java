@@ -104,6 +104,7 @@ public class AtomJpaUnitTest {
     tester.include("stringClassId");
     tester.include("name");
     tester.include("termType");
+    tester.include("workflowStatus");
 
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
@@ -215,6 +216,7 @@ public class AtomJpaUnitTest {
     tester.include("stringClassId");
     tester.include("name");
     tester.include("termType");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());
   }

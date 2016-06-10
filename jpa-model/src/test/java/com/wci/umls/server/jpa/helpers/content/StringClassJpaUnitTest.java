@@ -130,6 +130,7 @@ public class StringClassJpaUnitTest {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("name");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());
   }

@@ -151,7 +151,6 @@ import com.wci.umls.server.services.handlers.ExpressionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
-import com.wci.umls.server.services.handlers.WorkflowListener;
 
 /**
  * JPA and JAXB enabled implementation of {@link ContentService}.
@@ -289,11 +288,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public ContentServiceJpa() throws Exception {
     super();
 
-    if (listeners == null) {
-      throw new Exception(
-          "Listeners did not properly initialize, serious error.");
-    }
-
     if (idHandlerMap == null) {
       throw new Exception(
           "Identifier assignment handler did not properly initialize, serious error.");
@@ -403,15 +397,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final Concept newConcept = addComponent(concept);
+    return addComponent(concept);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.conceptChanged(newConcept, WorkflowListener.Action.ADD);
-      }
-    }
-    return newConcept;
   }
 
   /* see superclass */
@@ -443,14 +430,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(concept);
+    updateComponent(concept);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.conceptChanged(concept, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -465,13 +446,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass())
         .debug("Content Service - remove concept " + id);
     // Remove the component
-    final Concept concept = removeComponent(id, ConceptJpa.class);
+    removeComponent(id, ConceptJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.conceptChanged(concept, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -909,15 +885,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final Definition newDefinition = addComponent(definition);
+    return addComponent(definition);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.definitionChanged(newDefinition, WorkflowListener.Action.ADD);
-      }
-    }
-    return newDefinition;
   }
 
   /* see superclass */
@@ -953,14 +922,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(definition);
+    updateComponent(definition);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.definitionChanged(definition, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -975,13 +938,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - remove definition " + id);
     // Remove the component
-    final Definition definition = removeComponent(id, DefinitionJpa.class);
+    removeComponent(id, DefinitionJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.definitionChanged(definition, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1013,17 +971,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final SemanticTypeComponent newSemanticTypeComponent =
-        addComponent(semanticTypeComponent);
+    return addComponent(semanticTypeComponent);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.semanticTypeChanged(newSemanticTypeComponent,
-            WorkflowListener.Action.ADD);
-      }
-    }
-    return newSemanticTypeComponent;
   }
 
   /* see superclass */
@@ -1062,15 +1011,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(semanticTypeComponent);
+    updateComponent(semanticTypeComponent);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.semanticTypeChanged(semanticTypeComponent,
-            WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1085,15 +1027,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - remove semanticTypeComponent " + id);
     // Remove the component
-    final SemanticTypeComponent semanticTypeComponent =
-        removeComponent(id, SemanticTypeComponentJpa.class);
+    removeComponent(id, SemanticTypeComponentJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.semanticTypeChanged(semanticTypeComponent,
-            WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1185,15 +1120,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    Descriptor newDescriptor = addComponent(descriptor);
+    return addComponent(descriptor);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.descriptorChanged(newDescriptor, WorkflowListener.Action.ADD);
-      }
-    }
-    return newDescriptor;
   }
 
   /* see superclass */
@@ -1225,14 +1153,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(descriptor);
+    updateComponent(descriptor);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.descriptorChanged(descriptor, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1247,13 +1169,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - remove descriptor " + id);
     // Remove the component
-    final Descriptor descriptor = removeComponent(id, DescriptorJpa.class);
+    removeComponent(id, DescriptorJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.descriptorChanged(descriptor, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1344,15 +1261,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final Code newCode = addComponent(code);
+    return addComponent(code);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.codeChanged(newCode, WorkflowListener.Action.ADD);
-      }
-    }
-    return newCode;
   }
 
   /* see superclass */
@@ -1383,14 +1293,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(code);
+    updateComponent(code);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.codeChanged(code, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1404,13 +1308,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public void removeCode(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove code " + id);
     // Remove the component
-    final Code code = removeComponent(id, CodeJpa.class);
+    removeComponent(id, CodeJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.codeChanged(code, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1505,16 +1404,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final LexicalClass newLexicalClass = addComponent(lexicalClass);
+    return addComponent(lexicalClass);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.lexicalClassChanged(newLexicalClass,
-            WorkflowListener.Action.ADD);
-      }
-    }
-    return newLexicalClass;
   }
 
   /* see superclass */
@@ -1546,15 +1437,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(lexicalClass);
+    updateComponent(lexicalClass);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.lexicalClassChanged(lexicalClass,
-            WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1569,15 +1453,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - remove lexical class " + id);
     // Remove the component
-    final LexicalClass lexicalClass =
-        removeComponent(id, LexicalClassJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.lexicalClassChanged(lexicalClass,
-            WorkflowListener.Action.REMOVE);
-      }
-    }
+    removeComponent(id, LexicalClassJpa.class);
+
   }
 
   /* see superclass */
@@ -1669,16 +1547,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final StringClass newStringClass = addComponent(stringClass);
+    return addComponent(stringClass);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener
-            .stringClassChanged(newStringClass, WorkflowListener.Action.ADD);
-      }
-    }
-    return newStringClass;
   }
 
   /* see superclass */
@@ -1710,15 +1580,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(stringClass);
+    updateComponent(stringClass);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener
-            .stringClassChanged(stringClass, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1733,14 +1596,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - remove string class " + id);
     // Remove the component
-    final StringClass stringClass = removeComponent(id, StringClassJpa.class);
+    removeComponent(id, StringClassJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener
-            .stringClassChanged(stringClass, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -1766,7 +1623,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     final long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     final List<Concept> descendants =
-        this.findDescendantsHelper(terminologyId, terminology, version,
+        findDescendantsHelper(terminologyId, terminology, version,
             childrenOnly, branch, pfs, ConceptJpa.class, totalCt);
     final ConceptList list = new ConceptListJpa();
     list.setObjects(descendants);
@@ -1797,8 +1654,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     final long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     final List<Concept> ancestors =
-        this.findAncestorsHelper(terminologyId, terminology, version,
-            parentsOnly, branch, pfs, ConceptJpa.class, totalCt);
+        findAncestorsHelper(terminologyId, terminology, version, parentsOnly,
+            branch, pfs, ConceptJpa.class, totalCt);
     final ConceptList list = new ConceptListJpa();
     list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
@@ -1948,7 +1805,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     final List<Descriptor> descendants =
-        this.findDescendantsHelper(terminologyId, terminology, version,
+        findDescendantsHelper(terminologyId, terminology, version,
             childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
     final DescriptorList list = new DescriptorListJpa();
     list.setObjects(descendants);
@@ -1979,8 +1836,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     final List<Descriptor> ancestors =
-        this.findAncestorsHelper(terminologyId, terminology, version,
-            childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
+        findAncestorsHelper(terminologyId, terminology, version, childrenOnly,
+            branch, pfs, DescriptorJpa.class, totalCt);
     final DescriptorList list = new DescriptorListJpa();
     list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
@@ -2010,7 +1867,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     final List<Code> descendants =
-        this.findDescendantsHelper(terminologyId, terminology, version,
+        findDescendantsHelper(terminologyId, terminology, version,
             childrenOnly, branch, pfs, CodeJpa.class, totalCt);
     final CodeList list = new CodeListJpa();
     list.setObjects(descendants);
@@ -2041,8 +1898,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     final List<Code> descendants =
-        this.findAncestorsHelper(terminologyId, terminology, version,
-            parentsOnly, branch, pfs, CodeJpa.class, totalCt);
+        findAncestorsHelper(terminologyId, terminology, version, parentsOnly,
+            branch, pfs, CodeJpa.class, totalCt);
     final CodeList list = new CodeListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
@@ -2139,15 +1996,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final Atom newAtom = addComponent(atom);
+    return addComponent(atom);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.atomChanged(newAtom, WorkflowListener.Action.ADD);
-      }
-    }
-    return newAtom;
   }
 
   /* see superclass */
@@ -2172,14 +2022,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // update component
-    this.updateComponent(atom);
+    updateComponent(atom);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.atomChanged(atom, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -2193,13 +2037,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public void removeAtom(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove atom " + id);
     // Remove the component
-    final Atom atom = removeComponent(id, AtomJpa.class);
+    removeComponent(id, AtomJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.atomChanged(atom, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -2366,16 +2205,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> newRel =
-        addComponent(rel);
+    return addComponent(rel);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.relationshipChanged(newRel, WorkflowListener.Action.ADD);
-      }
-    }
-    return newRel;
   }
 
   /* see superclass */
@@ -2411,14 +2242,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(rel);
+    updateComponent(rel);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.relationshipChanged(rel, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -2446,11 +2271,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       rel = getRelationship(id, relationshipClass);
       rel = removeComponent(id, rel.getClass());
     }
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.relationshipChanged(rel, WorkflowListener.Action.REMOVE);
-      }
-    }
+
   }
 
   /* see superclass */
@@ -2550,7 +2371,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(rel);
+    updateComponent(rel);
 
   }
 
@@ -2671,7 +2492,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(treepos);
+    updateComponent(treepos);
 
   }
 
@@ -2722,15 +2543,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final Subset newSubset = addComponent(subset);
+    return addComponent(subset);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.subsetChanged(newSubset, WorkflowListener.Action.ADD);
-      }
-    }
-    return newSubset;
   }
 
   /* see superclass */
@@ -2756,14 +2570,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // update component
-    this.updateComponent(subset);
+    updateComponent(subset);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.subsetChanged(subset, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -2787,11 +2595,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       removeComponent(id, subset.getClass());
     }
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.subsetChanged(subset, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -2941,17 +2744,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> newSubsetMember =
-        addComponent(subsetMember);
+    return addComponent(subsetMember);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.subsetMemberChanged(newSubsetMember,
-            WorkflowListener.Action.ADD);
-      }
-    }
-    return newSubsetMember;
   }
 
   /* see superclass */
@@ -2981,15 +2775,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // update component
-    this.updateComponent(subsetMember);
+    updateComponent(subsetMember);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.subsetMemberChanged(subsetMember,
-            WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -3012,11 +2799,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         getComponent(id, memberClass);
     removeComponent(id, member.getClass());
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.subsetMemberChanged(member, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -3109,15 +2891,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final Attribute newAttribute = addComponent(attribute);
+    return addComponent(attribute);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.attributeChanged(newAttribute, WorkflowListener.Action.ADD);
-      }
-    }
-    return newAttribute;
   }
 
   /* see superclass */
@@ -3152,14 +2927,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(attribute);
+    updateComponent(attribute);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.attributeChanged(attribute, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -3174,13 +2943,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - remove attribute " + id);
     // Remove the component
-    final Attribute attribute = removeComponent(id, AttributeJpa.class);
+    removeComponent(id, AttributeJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.attributeChanged(attribute, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -4469,8 +4233,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       final int[] totalCt = new int[1];
       conceptRelList =
-          this.applyPfsToList(conceptRelList, ConceptRelationship.class,
-              totalCt, pfsLocal);
+          applyPfsToList(conceptRelList, ConceptRelationship.class, totalCt,
+              pfsLocal);
 
       RelationshipList list = new RelationshipListJpa();
       list.setTotalCount(totalCt[0]);
@@ -4998,8 +4762,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find concept tree positions " + terminology + "/"
             + version + "/" + query);
-    return this.findTreePositionsHelper(null, terminology, version, branch,
-        query, pfs, ConceptTreePositionJpa.class);
+    return findTreePositionsHelper(null, terminology, version, branch, query,
+        pfs, ConceptTreePositionJpa.class);
   }
 
   /* see superclass */
@@ -5021,8 +4785,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find descriptor tree positions " + terminology + "/"
             + version + "/" + query);
-    return this.findTreePositionsHelper(null, terminology, version, branch,
-        query, pfs, DescriptorTreePositionJpa.class);
+    return findTreePositionsHelper(null, terminology, version, branch, query,
+        pfs, DescriptorTreePositionJpa.class);
   }
 
   /* see superclass */
@@ -5044,8 +4808,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find code tree positions " + terminology + "/"
             + version + "/" + query);
-    return this.findTreePositionsHelper(null, terminology, version, branch,
-        query, pfs, CodeTreePositionJpa.class);
+    return findTreePositionsHelper(null, terminology, version, branch, query,
+        pfs, CodeTreePositionJpa.class);
   }
 
   /* see superclass */
@@ -5216,18 +4980,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug("Content Service - add axiom " + axiom);
     // No need to worry about assigning ids.
 
-    final GeneralConceptAxiom newAxiom = addComponent(axiom);
+    return addComponent(axiom);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.conceptChanged(newAxiom.getLeftHandSide(),
-            WorkflowListener.Action.ADD);
-        listener.conceptChanged(newAxiom.getRightHandSide(),
-            WorkflowListener.Action.ADD);
-      }
-    }
-    return newAxiom;
   }
 
   /* see superclass */
@@ -5243,17 +4997,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - update axiom " + axiom);
     // update component
-    this.updateComponent(axiom);
-
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.conceptChanged(axiom.getLeftHandSide(),
-            WorkflowListener.Action.ADD);
-        listener.conceptChanged(axiom.getRightHandSide(),
-            WorkflowListener.Action.ADD);
-      }
-    }
+    updateComponent(axiom);
 
   }
 
@@ -5371,15 +5115,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final Mapping newMapping = addComponent(mapping);
+    return addComponent(mapping);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.mappingChanged(newMapping, WorkflowListener.Action.ADD);
-      }
-    }
-    return newMapping;
   }
 
   /* see superclass */
@@ -5411,14 +5148,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(mapping);
+    updateComponent(mapping);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.mappingChanged(mapping, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -5433,13 +5164,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass())
         .debug("Content Service - remove mapping " + id);
     // Remove the component
-    final Mapping mapping = removeComponent(id, MappingJpa.class);
+    removeComponent(id, MappingJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.mappingChanged(mapping, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -5687,15 +5413,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    final MapSet newMapSet = addComponent(mapSet);
-
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.mapSetChanged(newMapSet, WorkflowListener.Action.ADD);
-      }
-    }
-    return newMapSet;
+    return addComponent(mapSet);
   }
 
   /* see superclass */
@@ -5727,14 +5445,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // update component
-    this.updateComponent(mapSet);
+    updateComponent(mapSet);
 
-    // Inform listeners
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.mapSetChanged(mapSet, WorkflowListener.Action.UPDATE);
-      }
-    }
   }
 
   /* see superclass */
@@ -5748,13 +5460,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public void removeMapSet(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove mapSet " + id);
     // Remove the component
-    final MapSet mapSet = removeComponent(id, MapSetJpa.class);
+    removeComponent(id, MapSetJpa.class);
 
-    if (listenersEnabled) {
-      for (final WorkflowListener listener : listeners) {
-        listener.mapSetChanged(mapSet, WorkflowListener.Action.REMOVE);
-      }
-    }
   }
 
   /* see superclass */
@@ -5879,7 +5586,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     ComponentInfoList favorites = new ComponentInfoListJpa();
 
     try {
-      UserPreferences preferences = this.getUser(userName).getUserPreferences();
+      UserPreferences preferences = getUser(userName).getUserPreferences();
 
       javax.persistence.Query query =
           manager
@@ -5964,7 +5671,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public NoteList findConceptNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
     final NoteList results = new NoteListJpa();
-    final SearchHandler searchHandler = this.getSearchHandler(null);
+    final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<ConceptNoteJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
@@ -5981,7 +5688,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public NoteList findDescriptorNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
     final NoteList results = new NoteListJpa();
-    final SearchHandler searchHandler = this.getSearchHandler(null);
+    final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<DescriptorNoteJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
@@ -5999,7 +5706,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public NoteList findCodeNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
     final NoteList results = new NoteListJpa();
-    final SearchHandler searchHandler = this.getSearchHandler(null);
+    final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<CodeNoteJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
@@ -6017,7 +5724,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public AttributeIdentity getAttributeIdentity(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get attribute identity " + id);
-    return this.getObject(id, AttributeIdentity.class);
+    return getObject(id, AttributeIdentity.class);
   }
 
   /* see superclass */
@@ -6091,7 +5798,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - remove attribute identity " + attributeIdentityId);
 
-    AttributeIdentity identity = this.getAttributeIdentity(attributeIdentityId);
+    AttributeIdentity identity = getAttributeIdentity(attributeIdentityId);
     removeObject(identity, AttributeIdentity.class);
   }
   

@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.helpers;
 import java.util.Map;
 
 import org.hibernate.search.bridge.StringBridge;
+
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 

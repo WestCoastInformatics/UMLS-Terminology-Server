@@ -132,6 +132,7 @@ public class DescriptorRelationshipJpaUnitTest {
     tester.include("from");
     tester.exclude("toTerminologyId");
     tester.exclude("fromTerminologyId");
+    tester.include("workflowStatus");
 
     tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
     tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
@@ -277,6 +278,7 @@ public class DescriptorRelationshipJpaUnitTest {
     tester.include("hierarchical");
     tester.include("from");
     tester.include("to");
+    tester.include("workflowStatus");
     assertTrue(tester.testNotNullFields());
   }
 

@@ -2015,7 +2015,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRREL);
     final String fields[] = new String[16];
     while ((line = reader.readLine()) != null) {
-
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 16, fields);
 
@@ -2178,28 +2177,28 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         ComponentInfo from = null;
         if (stype2.equals("CODE")) {
-          Long fromId =
+          final Long fromId =
               codeIdMap.get(atomTerminologyMap.get(fields[5])
                   + atomCodeIdMap.get(fields[5]));
-          Code code = getCode(fromId);
+          final Code code = getCode(fromId);
           from = new ComponentInfoJpa(code);
 
         } else if (stype2.equals("SCUI")) {
-          Long fromId =
+          final Long fromId =
               conceptIdMap.get(atomTerminologyMap.get(fields[5])
                   + atomConceptIdMap.get(fields[5]));
-          Concept concept = getConcept(fromId);
+          final Concept concept = getConcept(fromId);
           from = new ComponentInfoJpa(concept);
 
         } else if (stype2.equals("SDUI")) {
-          Long fromId =
+          final Long fromId =
               descriptorIdMap.get(atomTerminologyMap.get(fields[5])
                   + atomDescriptorIdMap.get(fields[5]));
-          Descriptor descriptor = getDescriptor(fromId);
+          final Descriptor descriptor = getDescriptor(fromId);
           from = new ComponentInfoJpa(descriptor);
 
         } else if (stype2.equals("AUI")) {
-          Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
+          final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
           from = new ComponentInfoJpa();
           from.setTerminologyId(fromAtom.getTerminologyId());
           from.setType(IdType.ATOM);
@@ -2207,28 +2206,28 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         ComponentInfo to = null;
         if (stype1.equals("CODE")) {
-          Long toId =
+          final Long toId =
               codeIdMap.get(atomTerminologyMap.get(fields[1])
                   + atomCodeIdMap.get(fields[1]));
-          Code code = getCode(toId);
+          final Code code = getCode(toId);
           to = new ComponentInfoJpa(code);
 
         } else if (stype1.equals("SCUI")) {
-          Long toId =
+          final Long toId =
               conceptIdMap.get(atomTerminologyMap.get(fields[1])
                   + atomConceptIdMap.get(fields[1]));
-          Concept concept = getConcept(toId);
+          final Concept concept = getConcept(toId);
           to = new ComponentInfoJpa(concept);
 
         } else if (stype1.equals("SDUI")) {
-          Long toId =
+          final Long toId =
               descriptorIdMap.get(atomTerminologyMap.get(fields[1])
                   + atomDescriptorIdMap.get(fields[1]));
-          Descriptor descriptor = getDescriptor(toId);
+          final Descriptor descriptor = getDescriptor(toId);
           to = new ComponentInfoJpa(descriptor);
 
         } else if (stype1.equals("AUI")) {
-          Atom toAtom = getAtom(atomIdMap.get(fields[1]));
+          final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
           to = new ComponentInfoJpa();
           to.setTerminologyId(toAtom.getTerminologyId());
           to.setType(IdType.ATOM);
@@ -2723,17 +2722,17 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           continue;
         }
 
-        // TODO: there is a LNC exception here -for now
-        if (!atom.getTerminology().equals("LNC")) {
-          // skip where code == concept
-          if (atom.getCodeId().equals(atom.getConceptId())) {
-            continue;
-          }
-          // skip where code == descriptor
-          if (atom.getCodeId().equals(atom.getDescriptorId())) {
-            continue;
-          }
-        }
+        // UMLS still connects a lot of things to codes, so keep them
+        // if (!atom.getTerminology().equals("LNC")) {
+        // // skip where code == concept
+        // if (atom.getCodeId().equals(atom.getConceptId())) {
+        // continue;
+        // }
+        // // skip where code == descriptor
+        // if (atom.getCodeId().equals(atom.getDescriptorId())) {
+        // continue;
+        // }
+        // }
 
         if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
           if (code != null) {

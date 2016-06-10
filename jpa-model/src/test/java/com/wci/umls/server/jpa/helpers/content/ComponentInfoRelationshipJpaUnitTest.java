@@ -132,6 +132,7 @@ public class ComponentInfoRelationshipJpaUnitTest {
     tester.include("from");
     tester.include("toTerminologyId");
     tester.include("fromTerminologyId");
+    tester.include("workflowStatus");
 
     tester.proxy(ComponentInfo.class, 1, new ComponentInfoJpa(componentInfo1));
     tester.proxy(ComponentInfo.class, 2, new ComponentInfoJpa(componentInfo2));
@@ -274,6 +275,7 @@ public class ComponentInfoRelationshipJpaUnitTest {
     tester.include("inferred");
     tester.include("stated");
     tester.include("hierarchical");
+    tester.include("workflowStatus");
     assertTrue(tester.testNotNullFields());
   }
 

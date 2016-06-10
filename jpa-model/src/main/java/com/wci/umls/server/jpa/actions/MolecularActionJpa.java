@@ -16,6 +16,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -56,6 +57,7 @@ public class MolecularActionJpa implements MolecularAction {
   private String terminology;
   
   /** The type. */
+  @Column(nullable = false)
   private String type;
   
   /** The last modified. */
@@ -115,6 +117,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminologyId() {
     return terminologyId;
   }
@@ -127,6 +130,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminology() {
     return terminology;
   }
@@ -139,6 +143,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getVersion() {
     return version;
   }
@@ -189,6 +194,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getType() {
     return type;
   }
@@ -203,6 +209,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @XmlTransient
   public List<AtomicAction> getAtomicActions() {
     return atomicActions;
   }

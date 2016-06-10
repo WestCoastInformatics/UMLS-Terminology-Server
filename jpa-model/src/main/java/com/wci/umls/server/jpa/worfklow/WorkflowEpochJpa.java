@@ -89,7 +89,9 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
     this.timestamp = workflowEpoch.getTimestamp();
     this.name = workflowEpoch.getName();
     this.active = workflowEpoch.isActive();
-    this.workflowBins = workflowEpoch.getWorkflowBins();
+    if (deepCopy) {
+      this.workflowBins = workflowEpoch.getWorkflowBins();
+    }
   }
 
   /* see superclass */

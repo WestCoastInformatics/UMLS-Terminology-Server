@@ -1,7 +1,7 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.content;
+package com.wci.umls.server.jpa.helpers.actions;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,20 +15,30 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
+import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.actions.AtomicActionJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.MolecularAction;
 
 /**
- * Unit testing for {@link AtomJpa}.
+ * Unit testing for {@link MolecularActionJpa}.
  */
-public class DescriptorJpaUnitTest {
+public class MolecularActionJpaUnitTest {
 
   /** The model object to test. */
-  private DescriptorJpa object;
+  private MolecularActionJpa object;
+
+  /** The a1. */
+  private AtomicAction a1;
+
+  /** The a2. */
+  private AtomicAction a2;
+  
+
 
   /**
    * Setup class.
@@ -40,12 +50,16 @@ public class DescriptorJpaUnitTest {
 
   /**
    * Setup.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   @Before
   public void setup() throws Exception {
-    object = new DescriptorJpa();
-
+    object = new MolecularActionJpa();
+    ProxyTester tester = new ProxyTester(new AtomicActionJpa());
+    a1 = (AtomicActionJpa) tester.createObject(1);
+    a2 = (AtomicActionJpa) tester.createObject(2);
+    
   }
 
   /**
@@ -54,32 +68,36 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet015");
+  public void testModelGetSet041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelGetSet041");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("type");
     tester.test();
   }
 
   /**
-   * Test equals and hashcode methods.
+   * Test equals and hascode methods.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode015");
+  public void testModelEqualsHashcode041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("publishable");
-    tester.include("published");
+
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
 
-    tester.include("name");
 
+    tester.include("type");
+    tester.include("timestamp");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("macroAction");
+
+    tester.proxy(AtomicAction.class, 1, a1);
+    tester.proxy(AtomicAction.class, 2, a2);
+      
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -89,15 +107,19 @@ public class DescriptorJpaUnitTest {
   }
 
   /**
-   * Test copy constructor.
+   * Test deep copy constructor.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy015");
+  public void testModelDeepCopy041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
+
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructorDeep(Descriptor.class));
+    tester.proxy(AtomicAction.class, 1, a1);
+    tester.proxy(AtomicAction.class, 2, a2);
+    assertTrue(tester.testCopyConstructorDeep(MolecularAction.class));
+
   }
 
   /**
@@ -106,9 +128,20 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization015");
+  public void testModelXmlSerialization041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
     XmlSerializationTester tester = new XmlSerializationTester(object);
+    // The proxy concepts can have only "id" and "term" set due to xml transient
+    AtomicAction tr1 = new AtomicActionJpa();
+    tr1.setId(1L);
+    AtomicAction tr2 = new AtomicActionJpa();
+    tr2.setId(2L);
+
+    tester.proxy(AtomicAction.class, 1, tr1);
+    tester.proxy(AtomicAction.class, 2, tr2);
+    tester.proxy(AtomicAction.class, 1, a1);
+    tester.proxy(AtomicAction.class, 2, a2);
+    
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -118,20 +151,18 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField015() throws Exception {
+  public void testModelNotNullField041() throws Exception {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
+    
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-    tester.include("name");
-    tester.include("workflowStatus");
+
+    tester.include("type");
+    tester.include("macroAction");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -142,33 +173,22 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields015");
+  public void testModelIndexedFields041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("name");
-    assertTrue(tester.testAnalyzedIndexedFields());
+    //assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
-    assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
-    tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
     tester.include("terminologyId");
     tester.include("terminology");
     tester.include("version");
-    tester.include("nameSort");
-    tester.include("workflowStatus");
-    tester.include("branch");
-    tester.include("branchedTo");
+    tester.include("type");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
-
   }
 
   /**
@@ -188,3 +208,4 @@ public class DescriptorJpaUnitTest {
   }
 
 }
+//

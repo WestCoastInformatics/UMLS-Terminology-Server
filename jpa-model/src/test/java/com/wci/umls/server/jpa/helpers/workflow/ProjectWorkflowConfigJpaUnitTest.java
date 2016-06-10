@@ -1,7 +1,7 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.content;
+package com.wci.umls.server.jpa.helpers.workflow;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,20 +15,28 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
+import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
+import com.wci.umls.server.jpa.worfklow.ProjectWorkflowConfigJpa;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.ProjectWorkflowConfig;
 
 /**
- * Unit testing for {@link AtomJpa}.
+ * Unit testing for {@link ProjectWorkflowConfigJpa}.
  */
-public class DescriptorJpaUnitTest {
+public class ProjectWorkflowConfigJpaUnitTest {
 
   /** The model object to test. */
-  private DescriptorJpa object;
+  private ProjectWorkflowConfig object;
+
+  /** The m1. */
+  private WorkflowBinDefinition m1;
+
+  /** The m2. */
+  private WorkflowBinDefinition m2;
 
   /**
    * Setup class.
@@ -40,12 +48,15 @@ public class DescriptorJpaUnitTest {
 
   /**
    * Setup.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   @Before
   public void setup() throws Exception {
-    object = new DescriptorJpa();
-
+    object = new ProjectWorkflowConfigJpa();
+    ProxyTester tester2 = new ProxyTester(new WorkflowBinDefinitionJpa());
+    m1 = (WorkflowBinDefinition) tester2.createObject(1);
+    m2 = (WorkflowBinDefinition) tester2.createObject(2);
   }
 
   /**
@@ -54,31 +65,32 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet015");
+  public void testModelGetSet041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelGetSet041");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("type");
     tester.test();
   }
 
   /**
-   * Test equals and hashcode methods.
+   * Test equals and hascode methods.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode015");
+  public void testModelEqualsHashcode041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("publishable");
-    tester.include("published");
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
 
-    tester.include("name");
+    tester.include("timestamp");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("type");
+    tester.include("mutuallyExclusive");
+    tester.include("lastPartitionTime");
+    tester.include("project");
+
+    tester.proxy(WorkflowBinDefinition.class, 1, m1);
+    tester.proxy(WorkflowBinDefinition.class, 2, m2);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -89,15 +101,19 @@ public class DescriptorJpaUnitTest {
   }
 
   /**
-   * Test copy constructor.
+   * Test deep copy constructor.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy015");
+  public void testModelDeepCopy041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
+
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructorDeep(Descriptor.class));
+    tester.proxy(WorkflowBinDefinition.class, 1, m1);
+    tester.proxy(WorkflowBinDefinition.class, 2, m2);
+    assertTrue(tester.testCopyConstructorDeep(ProjectWorkflowConfig.class));
+
   }
 
   /**
@@ -106,8 +122,8 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization015");
+  public void testModelXmlSerialization041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -118,20 +134,15 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField015() throws Exception {
+  public void testModelNotNullField041() throws Exception {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-    tester.include("name");
-    tester.include("workflowStatus");
+    tester.include("mutuallyExclusive");
+    tester.include("lastPartitionTime");
+    tester.include("project");
+    tester.include("type");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -142,33 +153,19 @@ public class DescriptorJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields015() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields015");
+  public void testModelIndexedFields041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("name");
-    assertTrue(tester.testAnalyzedIndexedFields());
+    //assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
-    assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
-    tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
-    tester.include("terminologyId");
-    tester.include("terminology");
-    tester.include("version");
-    tester.include("nameSort");
-    tester.include("workflowStatus");
-    tester.include("branch");
-    tester.include("branchedTo");
+    tester.include("type");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
-
   }
 
   /**
@@ -188,3 +185,4 @@ public class DescriptorJpaUnitTest {
   }
 
 }
+//
