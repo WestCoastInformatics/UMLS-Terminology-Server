@@ -203,10 +203,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
               "Add semantic type to concept", existingConcept, concept);
 
           // verify the action
-          // DO NOTHING
+          // TODO This is really just playing around/brainstorming
+          if (!actionService.hasChangedField(molecularAction,
+              "semanticTypes")) {
+            throw new Exception(
+                "Fatal error: failed to produce expected action");
+          }
 
-          // add the action
-          actionService.addMolecularAction(molecularAction);
         }
 
         // on error adding molecular action, throw exception (performs unlock)
@@ -359,12 +362,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         // resolve the action
         MolecularAction molecularAction = actionService.resolveAction(
             "Remove semantic type from concept", existingConcept, concept);
-
-        // verify the action
-        // TODO This is really just playing around/brainstorming
-        if (!actionService.hasChangedField(molecularAction, "semanticTypes")) {
-          throw new Exception("Fatal error: failed to produce expected action");
-        }
 
         // add the action
         actionService.addMolecularAction(molecularAction);

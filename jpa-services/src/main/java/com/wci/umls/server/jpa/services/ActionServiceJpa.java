@@ -166,6 +166,7 @@ public class ActionServiceJpa extends HistoryServiceJpa
   }
 
   @Override
+//TODO Add boolean cascade flag
   public MolecularAction addMolecularAction(MolecularAction action)
     throws Exception {
     Logger.getLogger(getClass())
@@ -174,18 +175,12 @@ public class ActionServiceJpa extends HistoryServiceJpa
   }
 
   @Override
-  public void updateMolecularAction(MolecularAction action) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Action Service - update molecular action " + action);
-    updateObject(action);
-  }
-
-  @Override
+  // TODO Add boolean cascade flag
   public void removeMolecularAction(Long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Action Service - remove molecular action " + id);
     MolecularActionJpa action = getObject(id, MolecularActionJpa.class);
-    this.removeObject(action, MolecularActionJpa.class);
+    removeObject(action, MolecularActionJpa.class);
   }
 
   @Override
@@ -215,7 +210,7 @@ public class ActionServiceJpa extends HistoryServiceJpa
     Logger.getLogger(getClass())
         .debug("Action Service - remove atomic action " + id);
     AtomicActionJpa action = getObject(id, AtomicActionJpa.class);
-    this.removeObject(action, AtomicActionJpa.class);
+    removeObject(action, AtomicActionJpa.class);
   }
 
   @Override
@@ -235,11 +230,11 @@ public class ActionServiceJpa extends HistoryServiceJpa
           "Cannot compute atomic actions: two null concepts passed in");
     }
     if (oldConcept != null && newConcept != null) {
-      if (oldConcept.getTerminology().equals(newConcept.getTerminology())) {
+      if (!oldConcept.getTerminology().equals(newConcept.getTerminology())) {
         throw new Exception(
             "Cannot compute atomic actions: concepts have different terminologies");
       }
-      if (oldConcept.getTerminologyId().equals(newConcept.getTerminologyId())) {
+      if (!oldConcept.getTerminologyId().equals(newConcept.getTerminologyId())) {
         throw new Exception(
             "Cannot compute atomic actions: concepts have different terminology ids");
       }
@@ -264,19 +259,26 @@ public class ActionServiceJpa extends HistoryServiceJpa
 
     // cycle over getter fields
     for (Method m : ConceptJpa.class.getMethods()) {
-      if (m.getName().startsWith("get")) {
+      
+      // only use get/is methods with no arguments to determine changes
+      // NOTE: Motivated by Concept.getLabelForName
+      if (m.getName().startsWith("get") && m.getParameterCount() == 0
+          || m.getName().startsWith("is") && m.getParameterCount() == 0) {
         Object oldValue = oldConcept == null ? null : m.invoke(oldConcept);
         Object newValue = newConcept == null ? null : m.invoke(newConcept);
 
         // if change from null or change in value
         if (oldValue == null && newValue != null
-            || !oldValue.equals(newValue)) {
+            || oldValue != null && !oldValue.equals(newValue)) {
 
           AtomicAction action = new AtomicActionJpa();
           action.setIdType(IdType.CONCEPT);
           action.setTerminology(terminology);
           action.setVersion(version);
-          action.setField(m.getName().substring(3,4).toLowerCase() + m.getName().substring(4));
+          
+          // retrieve and set the field name (based on is vs. get)
+          int fromIndex = m.getName().startsWith("get") ? 3 : 2;
+          action.setField(m.getName().substring(fromIndex,fromIndex+1).toLowerCase() + m.getName().substring(fromIndex));
 
           // TODO This is obviously very clumsy, and we'll need to deal with
           // collections and the like

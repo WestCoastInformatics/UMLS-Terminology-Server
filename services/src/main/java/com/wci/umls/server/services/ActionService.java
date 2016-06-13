@@ -150,14 +150,6 @@ public interface ActionService extends RootService {
     throws Exception;
 
   /**
-   * Update molecular action.
-   *
-   * @param action the action
-   * @throws Exception the exception
-   */
-  public void updateMolecularAction(MolecularAction action) throws Exception;
-
-  /**
    * Remove molecular action.
    *
    * @param id the id

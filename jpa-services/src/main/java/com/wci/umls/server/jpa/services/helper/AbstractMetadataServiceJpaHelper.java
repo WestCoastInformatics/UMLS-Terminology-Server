@@ -116,19 +116,6 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     return null;
   }
 
-  /* see superclass */
-  @Override
-  public boolean isLastModifiedFlag() {
-    // n/a
-    return false;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModifiedFlag(boolean lastModifiedFlag) {
-    // n/a
-
-  }
 
   /* see superclass */
   @Override
