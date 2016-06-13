@@ -175,6 +175,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         //
         // Perform the action
         //
+        
+       // MolecularAction = .action..
+        
+       // actionService.resolveAction(Concept oldConcept, Concept newConcept, String userName;
 
         // add the semantic type component itself and set the last modified
         semanticTypeComponent.setLastModifiedBy(userName);
@@ -338,10 +342,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    *
    * @param project the project
    * @param concept the concept
-   * @param validationResult the validation result
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   private void checkPrerequisitesForProjectAndConcept(Project project,
     Concept concept, ValidationResult validationResult) throws Exception {
 

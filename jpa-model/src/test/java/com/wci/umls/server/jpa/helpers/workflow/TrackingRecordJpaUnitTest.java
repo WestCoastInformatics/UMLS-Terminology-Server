@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -21,11 +20,9 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 
 /**
