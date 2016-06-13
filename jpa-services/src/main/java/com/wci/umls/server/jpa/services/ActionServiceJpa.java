@@ -23,8 +23,8 @@ import com.wci.umls.server.services.handlers.WorkflowListener;
 /**
  * Implementation of {@link ActionService}.
  */
-public class ActionServiceJpa extends HistoryServiceJpa implements
-    ActionService {
+public class ActionServiceJpa extends HistoryServiceJpa
+    implements ActionService {
 
   /** The config properties. */
   protected static Properties config = null;
@@ -147,7 +147,8 @@ public class ActionServiceJpa extends HistoryServiceJpa implements
   }
 
   @Override
-  public void addNewInferredRelationships(String sessionToken) throws Exception {
+  public void addNewInferredRelationships(String sessionToken)
+    throws Exception {
     // TODO Auto-generated method stub
 
   }
@@ -158,44 +159,64 @@ public class ActionServiceJpa extends HistoryServiceJpa implements
     // TODO Auto-generated method stub
 
   }
-  
+
   @Override
-  public MolecularAction addMolecularAction(MolecularAction action) throws Exception {
-    Logger.getLogger(getClass()).debug("Action Service - add molecular action " + action);
+  public MolecularAction addMolecularAction(MolecularAction action)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - add molecular action " + action);
     return addObject(action);
   }
 
   @Override
   public void updateMolecularAction(MolecularAction action) throws Exception {
-    Logger.getLogger(getClass()).debug("Action Service - update molecular action " + action);
+    Logger.getLogger(getClass())
+        .debug("Action Service - update molecular action " + action);
     updateObject(action);
   }
 
   @Override
   public void removeMolecularAction(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Action Service - remove molecular action " + id);
+    Logger.getLogger(getClass())
+        .debug("Action Service - remove molecular action " + id);
     MolecularActionJpa action = getObject(id, MolecularActionJpa.class);
     this.removeObject(action, MolecularActionJpa.class);
   }
   
+  @Override
+  public MolecularAction getMolecularAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - get molecular action " + id);
+
+    return getObject(id, MolecularActionJpa.class);
+  }
 
   @Override
   public AtomicAction addAtomicAction(AtomicAction action) throws Exception {
-    Logger.getLogger(getClass()).debug("Action Service - add atomic action " + action);
+    Logger.getLogger(getClass())
+        .debug("Action Service - add atomic action " + action);
     return addObject(action);
   }
 
   @Override
   public void updateAtomicAction(AtomicAction action) throws Exception {
-    Logger.getLogger(getClass()).debug("Action Service - update atomic action " + action);
+    Logger.getLogger(getClass())
+        .debug("Action Service - update atomic action " + action);
     updateObject(action);
   }
 
   @Override
   public void removeAtomicAction(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Action Service - remove atomic action " + id);
+    Logger.getLogger(getClass())
+        .debug("Action Service - remove atomic action " + id);
     AtomicActionJpa action = getObject(id, AtomicActionJpa.class);
     this.removeObject(action, AtomicActionJpa.class);
   }
 
+  @Override
+  public AtomicAction getAtomicAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - get atomic action " + id);
+    return getObject(id, AtomicActionJpa.class);
+  }
 }

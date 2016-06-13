@@ -137,7 +137,7 @@ public interface ActionService extends RootService {
    */
   public void retireOldInferredRelationships(String sessionToken)
     throws Exception;
-  
+
   /**
    * Add molecular action.
    *
@@ -145,8 +145,9 @@ public interface ActionService extends RootService {
    * @return the molecular action
    * @throws Exception the exception
    */
-  public MolecularAction addMolecularAction(MolecularAction action) throws Exception;
-  
+  public MolecularAction addMolecularAction(MolecularAction action)
+    throws Exception;
+
   /**
    * Update molecular action.
    *
@@ -154,7 +155,7 @@ public interface ActionService extends RootService {
    * @throws Exception the exception
    */
   public void updateMolecularAction(MolecularAction action) throws Exception;
-  
+
   /**
    * Remove molecular action.
    *
@@ -162,7 +163,16 @@ public interface ActionService extends RootService {
    * @throws Exception the exception
    */
   public void removeMolecularAction(Long id) throws Exception;
-  
+
+  /**
+   * Gets the molecular action.
+   *
+   * @param id the id
+   * @return the molecular action
+   * @throws Exception the exception
+   */
+  public MolecularAction getMolecularAction(Long id) throws Exception;
+
   /**
    * Add atomic action.
    *
@@ -171,7 +181,7 @@ public interface ActionService extends RootService {
    * @throws Exception the exception
    */
   public AtomicAction addAtomicAction(AtomicAction action) throws Exception;
-  
+
   /**
    * Update atomic action.
    *
@@ -179,7 +189,7 @@ public interface ActionService extends RootService {
    * @throws Exception the exception
    */
   public void updateAtomicAction(AtomicAction action) throws Exception;
-  
+
   /**
    * Remove atomic action.
    *
@@ -187,5 +197,14 @@ public interface ActionService extends RootService {
    * @throws Exception the exception
    */
   public void removeAtomicAction(Long id) throws Exception;
+
+  /**
+   * Gets the atomic action.
+   *
+   * @param id the id
+   * @return the atomic action
+   * @throws Exception the exception
+   */
+  public AtomicAction getAtomicAction(Long id) throws Exception;
 
 }
