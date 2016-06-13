@@ -635,4 +635,76 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public PrecedenceList getPrecedenceList(Long precedenceListId) throws Exception;
+
+  /**
+   * Gets the semantic type for a terminology.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the semantic type
+   * @throws Exception the exception
+   */
+  public SemanticType getSemanticType(String type, String terminology, String version)
+    throws Exception;
+
+  /**
+   * Gets the attribute name.
+   *
+   * @param name the name
+   * @param terminology the terminology
+   * @param version the version
+   * @return the attribute name
+   * @throws Exception the exception
+   */
+  public AttributeName getAttributeName(String name, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Gets the term type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the term type
+   * @throws Exception the exception
+   */
+  public TermType getTermType(String type, String terminology, String version)
+    throws Exception;
+
+  /**
+   * Gets the relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the relationship type
+   * @throws Exception the exception
+   */
+  public RelationshipType getRelationshipType(String type, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Gets the additional relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the additional relationship type
+   * @throws Exception the exception
+   */
+  public AdditionalRelationshipType getAdditionalRelationshipType(String type,
+    String terminology, String version) throws Exception;
+
+  /**
+   * Gets the language.
+   *
+   * @param language the language
+   * @param terminology the terminology
+   * @param version the version
+   * @return the language
+   * @throws Exception the exception
+   */
+  public Language getLanguage(String language, String terminology, String version)
+    throws Exception;
 }

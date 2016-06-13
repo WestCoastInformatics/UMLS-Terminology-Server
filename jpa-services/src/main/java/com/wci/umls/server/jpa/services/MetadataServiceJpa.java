@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
+import javax.persistence.NoResultException;
+
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -70,8 +72,8 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  * Implementation of {@link MetadataService} that redirects to
  * terminology-specific implemlentations.
  */
-public class MetadataServiceJpa extends ProjectServiceJpa implements
-    MetadataService {
+public class MetadataServiceJpa extends ProjectServiceJpa
+    implements MetadataService {
 
   /** The config properties. */
   protected static Properties config = null;
@@ -140,7 +142,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     super();
 
     if (helperMap == null) {
-      throw new Exception("Helper map not properly initialized, serious error.");
+      throw new Exception(
+          "Helper map not properly initialized, serious error.");
     }
 
     if (graphResolverMap == null) {
@@ -165,23 +168,21 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
 
     Map<String, Map<String, String>> abbrMapList = new TreeMap<>();
 
-    Map<String, String> additionalRelTypeMap =
-        getAbbreviationMap(getAdditionalRelationshipTypes(terminology, version)
-            .getObjects());
+    Map<String, String> additionalRelTypeMap = getAbbreviationMap(
+        getAdditionalRelationshipTypes(terminology, version).getObjects());
     if (additionalRelTypeMap != null) {
       abbrMapList.put(MetadataKeys.Additional_Relationship_Types.toString(),
           additionalRelTypeMap);
     }
 
-    Map<String, String> relTypeMap =
-        getAbbreviationMap(getRelationshipTypes(terminology, version)
-            .getObjects());
+    Map<String, String> relTypeMap = getAbbreviationMap(
+        getRelationshipTypes(terminology, version).getObjects());
     if (relTypeMap != null) {
       abbrMapList.put(MetadataKeys.Relationship_Types.toString(), relTypeMap);
     }
 
-    Map<String, String> attNameMap =
-        getAbbreviationMap(getAttributeNames(terminology, version).getObjects());
+    Map<String, String> attNameMap = getAbbreviationMap(
+        getAttributeNames(terminology, version).getObjects());
     if (attNameMap != null) {
       abbrMapList.put(MetadataKeys.Attribute_Names.toString(), attNameMap);
     }
@@ -212,9 +213,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
       abbrMapList.put(MetadataKeys.Languages.toString(), latMap);
     }
 
-    Map<String, String> gmeMap =
-        getAbbreviationMap(getGeneralMetadataEntries(terminology, version)
-            .getObjects());
+    Map<String, String> gmeMap = getAbbreviationMap(
+        getGeneralMetadataEntries(terminology, version).getObjects());
     if (gmeMap != null && !gmeMap.isEmpty()) {
       abbrMapList.put(MetadataKeys.General_Metadata_Entries.toString(), gmeMap);
     }
@@ -244,15 +244,15 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public GeneralMetadataEntryList getGeneralMetadataEntries(String terminology,
     String version) {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get general metadata entries " + terminology + ", "
-            + version);
+    Logger.getLogger(getClass())
+        .info("Metadata service - get general metadata entries " + terminology
+            + ", " + version);
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getGeneralMetadataEntries(terminology,
           version);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).getGeneralMetadataEntries(
-          terminology, version);
+      return helperMap.get(ConfigUtility.DEFAULT)
+          .getGeneralMetadataEntries(terminology, version);
     } else {
       // return an empty map
       return new GeneralMetadataEntryListJpa();
@@ -263,17 +263,17 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get default precedence list " + terminology + ", "
-            + version);
+    Logger.getLogger(getClass())
+        .info("Metadata service - get default precedence list " + terminology
+            + ", " + version);
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getDefaultPrecedenceList(terminology,
           version);
     }
     // ASSUMPTION: there is a configured "DEFAULT" metadata handler
     else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).getDefaultPrecedenceList(
-          terminology, version);
+      return helperMap.get(ConfigUtility.DEFAULT)
+          .getDefaultPrecedenceList(terminology, version);
     } else {
       return null;
     }
@@ -283,8 +283,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @SuppressWarnings("unchecked")
   @Override
   public RootTerminologyList getRootTerminologies() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get root terminologies");
+    Logger.getLogger(getClass())
+        .info("Metadata service - get root terminologies");
     javax.persistence.Query query =
         manager.createQuery("SELECT distinct t from RootTerminologyJpa t");
     RootTerminologyList terminologies = new RootTerminologyListJpa();
@@ -297,8 +297,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public RootTerminology getRootTerminology(String terminology)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get root terminology " + terminology);
+    Logger.getLogger(getClass())
+        .info("Metadata service - get root terminology " + terminology);
     try {
       javax.persistence.Query query =
           manager.createQuery("SELECT t FROM RootTerminologyJpa t "
@@ -336,11 +336,10 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @SuppressWarnings("unchecked")
   @Override
   public TerminologyList getVersions(String terminology) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get versions " + terminology);
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT distinct t from TerminologyJpa t where terminology = :terminology");
+    Logger.getLogger(getClass())
+        .info("Metadata service - get versions " + terminology);
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT distinct t from TerminologyJpa t where terminology = :terminology");
     query.setParameter("terminology", terminology);
     TerminologyList versions = new TerminologyListJpa();
     versions.setObjects(query.getResultList());
@@ -352,11 +351,10 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public String getLatestVersion(String terminology) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get latest version " + terminology);
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT max(t.version) from TerminologyJpa t where terminology = :terminology");
+    Logger.getLogger(getClass())
+        .info("Metadata service - get latest version " + terminology);
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT max(t.version) from TerminologyJpa t where terminology = :terminology");
 
     query.setParameter("terminology", terminology);
     Object o = query.getSingleResult();
@@ -370,13 +368,11 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public TerminologyList getTerminologyLatestVersions() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get latest terminology versions");
-    javax.persistence.TypedQuery<Object[]> query =
-        manager
-            .createQuery(
-                "SELECT t.terminology, max(t.version) from TerminologyJpa t group by t.terminology",
-                Object[].class);
+    Logger.getLogger(getClass())
+        .info("Metadata service - get latest terminology versions");
+    javax.persistence.TypedQuery<Object[]> query = manager.createQuery(
+        "SELECT t.terminology, max(t.version) from TerminologyJpa t group by t.terminology",
+        Object[].class);
 
     final List<Object[]> resultList = query.getResultList();
     final List<Terminology> results = new ArrayList<>();
@@ -425,15 +421,15 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public RelationshipTypeList getRelationshipTypes(String terminology,
     String version) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get relationship types " + terminology + ", "
+    Logger.getLogger(getClass())
+        .info("Metadata service - get relationship types " + terminology + ", "
             + version);
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getRelationshipTypes(terminology,
           version);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).getRelationshipTypes(
-          terminology, version);
+      return helperMap.get(ConfigUtility.DEFAULT)
+          .getRelationshipTypes(terminology, version);
     } else {
       // return an empty map
       return new RelationshipTypeListJpa();
@@ -461,14 +457,13 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public PropertyChainList getPropertyChains(String terminology, String version)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get property chains " + terminology + ", "
-            + version);
+    Logger.getLogger(getClass()).info("Metadata service - get property chains "
+        + terminology + ", " + version);
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getPropertyChains(terminology, version);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).getPropertyChains(
-          terminology, version);
+      return helperMap.get(ConfigUtility.DEFAULT).getPropertyChains(terminology,
+          version);
     } else {
       // return an empty map
       return new PropertyChainListJpa();
@@ -479,13 +474,13 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public AdditionalRelationshipTypeList getAdditionalRelationshipTypes(
     String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get additional relationship types " + terminology
-            + ", " + version);
+    Logger.getLogger(getClass())
+        .info("Metadata service - get additional relationship types "
+            + terminology + ", " + version);
 
     if (helperMap.containsKey(terminology)) {
-      return helperMap.get(terminology).getAdditionalRelationshipTypes(
-          terminology, version);
+      return helperMap.get(terminology)
+          .getAdditionalRelationshipTypes(terminology, version);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
       return helperMap.get(ConfigUtility.DEFAULT)
           .getAdditionalRelationshipTypes(terminology, version);
@@ -500,14 +495,13 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public AttributeNameList getAttributeNames(String terminology, String version)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get attribute names " + terminology + ", "
-            + version);
+    Logger.getLogger(getClass()).info("Metadata service - get attribute names "
+        + terminology + ", " + version);
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getAttributeNames(terminology, version);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).getAttributeNames(
-          terminology, version);
+      return helperMap.get(ConfigUtility.DEFAULT).getAttributeNames(terminology,
+          version);
     } else {
       // return an empty map
       return new AttributeNameListJpa();
@@ -535,10 +529,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public SemanticTypeList getSemanticTypes(String terminology, String version)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info(
-            "Metadata service - get semantic types " + terminology + ", "
-                + version);
+    Logger.getLogger(getClass()).info("Metadata service - get semantic types "
+        + terminology + ", " + version);
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getSemanticTypes(terminology, version);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
@@ -571,13 +563,13 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public boolean isStatedRelationship(Relationship<?, ?> relationship) {
     if (helperMap.containsKey(relationship.getTerminology())) {
-      Logger.getLogger(getClass()).info(
-          "Metadata service - is stated relationship " + relationship);
-      return helperMap.get(relationship.getTerminology()).isStatedRelationship(
-          relationship);
+      Logger.getLogger(getClass())
+          .info("Metadata service - is stated relationship " + relationship);
+      return helperMap.get(relationship.getTerminology())
+          .isStatedRelationship(relationship);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).isStatedRelationship(
-          relationship);
+      return helperMap.get(ConfigUtility.DEFAULT)
+          .isStatedRelationship(relationship);
     } else {
       return false;
     }
@@ -587,13 +579,13 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public boolean isInferredRelationship(Relationship<?, ?> relationship) {
     if (helperMap.containsKey(relationship.getTerminology())) {
-      Logger.getLogger(getClass()).info(
-          "Metadata service - is inferred relationship " + relationship);
+      Logger.getLogger(getClass())
+          .info("Metadata service - is inferred relationship " + relationship);
       return helperMap.get(relationship.getTerminology())
           .isInferredRelationship(relationship);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).isInferredRelationship(
-          relationship);
+      return helperMap.get(ConfigUtility.DEFAULT)
+          .isInferredRelationship(relationship);
     } else {
       return false;
     }
@@ -603,12 +595,12 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public RelationshipTypeList getNonGroupingRelationshipTypes(
     String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get non grouping relationship types " + terminology
-            + ", " + version);
+    Logger.getLogger(getClass())
+        .info("Metadata service - get non grouping relationship types "
+            + terminology + ", " + version);
     if (helperMap.containsKey(terminology)) {
-      return helperMap.get(terminology).getNonGroupingRelationshipTypes(
-          terminology, version);
+      return helperMap.get(terminology)
+          .getNonGroupingRelationshipTypes(terminology, version);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
       return helperMap.get(ConfigUtility.DEFAULT)
           .getNonGroupingRelationshipTypes(terminology, version);
@@ -629,6 +621,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     return addMetadata(semanticType);
   }
 
+
   /* see superclass */
   @Override
   public void updateSemanticType(SemanticType semanticType) throws Exception {
@@ -641,8 +634,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeSemanticType(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove semantic type " + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove semantic type " + id);
     // Remove the component
     removeMetadata(id, SemanticTypeJpa.class);
   }
@@ -650,8 +643,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removePropertyChain(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove property chain " + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove property chain " + id);
     // Remove the component
     removeMetadata(id, PropertyChainJpa.class);
 
@@ -661,9 +654,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public AttributeName addAttributeName(AttributeName attributeName)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add attributeName "
-            + attributeName.getAbbreviation());
+    Logger.getLogger(getClass()).debug("Metadata Service - add attributeName "
+        + attributeName.getAbbreviation());
 
     // Add component
     return addMetadata(attributeName);
@@ -671,9 +663,10 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
 
   /* see superclass */
   @Override
-  public void updateAttributeName(AttributeName attributeName) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - update attributeName "
+  public void updateAttributeName(AttributeName attributeName)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - update attributeName "
             + attributeName.getAbbreviation());
     updateMetadata(attributeName);
 
@@ -682,8 +675,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeAttributeName(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove attributeName " + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove attributeName " + id);
     // Remove the component
     removeMetadata(id, AttributeNameJpa.class);
 
@@ -692,8 +685,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public LabelSet addLabelSet(LabelSet labelSet) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add labelSet " + labelSet.getAbbreviation());
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - add labelSet " + labelSet.getAbbreviation());
 
     // Add component
     return addMetadata(labelSet);
@@ -712,8 +705,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeLabelSet(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove labelSet " + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove labelSet " + id);
     // Remove the component
     removeMetadata(id, LabelSetJpa.class);
 
@@ -722,8 +715,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public Language addLanguage(Language language) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add language " + language.getAbbreviation());
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - add language " + language.getAbbreviation());
 
     // Add component
     return addMetadata(language);
@@ -742,8 +735,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeLanguage(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove language" + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove language" + id);
     // Remove the component
     removeMetadata(id, LanguageJpa.class);
 
@@ -753,8 +746,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public AdditionalRelationshipType addAdditionalRelationshipType(
     AdditionalRelationshipType additionalRelationshipType) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add additional relationship type "
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - add additional relationship type "
             + additionalRelationshipType.getAbbreviation());
 
     // Add component
@@ -766,8 +759,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public void updateAdditionalRelationshipType(
     AdditionalRelationshipType additionalRelationshipType) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - update additional relationship type "
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - update additional relationship type "
             + additionalRelationshipType.getAbbreviation());
     updateMetadata(additionalRelationshipType);
 
@@ -776,8 +769,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeAdditionalRelationshipType(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove additional relationship type" + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove additional relationship type" + id);
     // Remove the component
     removeMetadata(id, AdditionalRelationshipTypeJpa.class);
 
@@ -787,9 +780,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public PropertyChain addPropertyChain(PropertyChain propertyChain)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add property chain "
-            + propertyChain.getAbbreviation());
+    Logger.getLogger(getClass()).debug("Metadata Service - add property chain "
+        + propertyChain.getAbbreviation());
 
     // Add component
     return addMetadata(propertyChain);
@@ -798,9 +790,10 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
 
   /* see superclass */
   @Override
-  public void updatePropertyChain(PropertyChain propertyChain) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - update property chain "
+  public void updatePropertyChain(PropertyChain propertyChain)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - update property chain "
             + propertyChain.getAbbreviation());
     updateMetadata(propertyChain);
 
@@ -810,8 +803,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public RelationshipType addRelationshipType(RelationshipType relationshipType)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add relationship type "
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - add relationship type "
             + relationshipType.getAbbreviation());
 
     // Add component
@@ -822,8 +815,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public void updateRelationshipType(RelationshipType relationshipType)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - update relationship type "
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - update relationship type "
             + relationshipType.getAbbreviation());
     updateMetadata(relationshipType);
 
@@ -832,8 +825,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeRelationshipType(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove relationship type" + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove relationship type" + id);
     // Remove the component
     removeMetadata(id, RelationshipTypeJpa.class);
 
@@ -862,8 +855,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeTermType(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove term type " + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove term type " + id);
     // Remove the component
     removeMetadata(id, TermTypeJpa.class);
 
@@ -871,10 +864,10 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
 
   /* see superclass */
   @Override
-  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add general metadata entry "
+  public GeneralMetadataEntry addGeneralMetadataEntry(
+    GeneralMetadataEntry entry) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - add general metadata entry "
             + entry.getAbbreviation());
 
     // Add component
@@ -886,8 +879,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public void updateGeneralMetadataEntry(GeneralMetadataEntry entry)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - update general metadata entry "
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - update general metadata entry "
             + entry.getAbbreviation());
     updateMetadata(entry);
 
@@ -896,8 +889,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeGeneralMetadataEntry(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove general metadata entry " + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove general metadata entry " + id);
     // Remove the component
     removeMetadata(id, GeneralMetadataEntryJpa.class);
 
@@ -906,9 +899,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public Terminology addTerminology(Terminology terminology) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add terminology " + terminology.getTerminology()
-            + " " + terminology.getVersion());
+    Logger.getLogger(getClass()).debug("Metadata Service - add terminology "
+        + terminology.getTerminology() + " " + terminology.getVersion());
 
     // Add component
     return addMetadata(terminology);
@@ -918,10 +910,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void updateTerminology(Terminology terminology) throws Exception {
-    Logger.getLogger(getClass())
-        .debug(
-            "Metadata Service - update terminology "
-                + terminology.getTerminology());
+    Logger.getLogger(getClass()).debug("Metadata Service - update terminology "
+        + terminology.getTerminology());
     updateMetadata(terminology);
 
   }
@@ -929,8 +919,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeTerminology(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove terminology" + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove terminology" + id);
     // Remove the component
     removeMetadata(id, TerminologyJpa.class);
 
@@ -940,9 +930,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public RootTerminology addRootTerminology(RootTerminology rootTerminology)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add rootTerminology "
-            + rootTerminology.getTerminology());
+    Logger.getLogger(getClass()).debug("Metadata Service - add rootTerminology "
+        + rootTerminology.getTerminology());
 
     // Add component
     return addMetadata(rootTerminology);
@@ -953,8 +942,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public void updateRootTerminology(RootTerminology rootTerminology)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - update rootTerminology "
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - update rootTerminology "
             + rootTerminology.getTerminology());
     updateMetadata(rootTerminology);
 
@@ -963,8 +952,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removeRootTerminology(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove rootTerminology" + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove rootTerminology" + id);
     // Remove the component
     removeMetadata(id, RootTerminologyJpa.class);
 
@@ -973,8 +962,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public PrecedenceList getPrecedenceList(Long precedenceListId)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - get precedence list" + precedenceListId);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - get precedence list" + precedenceListId);
 
     PrecedenceList newPrecedenceList =
         this.getObject(precedenceListId, PrecedenceListJpa.class);
@@ -997,9 +986,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   public void updatePrecedenceList(PrecedenceList precedenceList)
     throws Exception {
     Logger.getLogger(getClass())
-        .debug(
-            "Metadata Service - update precedence list "
-                + precedenceList.getName());
+        .debug("Metadata Service - update precedence list "
+            + precedenceList.getName());
 
     updateMetadata(precedenceList);
   }
@@ -1007,8 +995,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   /* see superclass */
   @Override
   public void removePrecedenceList(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove precedence list " + id);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - remove precedence list " + id);
 
     removeMetadata(id, PrecedenceListJpa.class);
 
@@ -1162,8 +1150,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public SemanticTypeList getSemanticTypeDescendants(String terminology,
     String version, String treeNumber, boolean includeSelf) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get semantic type descendants " + terminology
+    Logger.getLogger(getClass())
+        .info("Metadata service - get semantic type descendants " + terminology
             + ", " + version + ", " + treeNumber + ", " + includeSelf);
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getSemanticTypeDescendants(terminology,
@@ -1174,6 +1162,139 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     } else {
       // return an empty map
       return new SemanticTypeListJpa();
+    }
+  }
+  
+  //
+  // Single object metadata retrieval by abbreviation or expanded form
+  //  
+
+  @Override
+  public SemanticType getSemanticType(String type, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Service - get semanticType "
+        + type + "," + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT s from SemanticTypeJpa s where terminology = :terminology and version = :version and expandedForm = :type");
+    query.setParameter("type", type);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    SemanticType result = null;
+    try {
+      result = (SemanticType) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public AttributeName getAttributeName(String name, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Service - get attributeName "
+        + name + "," + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT a from AttributeNameJpa a where terminology = :terminology and version = :version and abbreviation = :name");
+    query.setParameter("name", name);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    AttributeName result = null;
+    try {
+      result = (AttributeName) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public TermType getTermType(String type, String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Service - get termType " + type
+        + "," + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT t from TermTypeJpa t where terminology = :terminology and version = :version and abbreviation = :type");
+    query.setParameter("type", type);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    TermType result = null;
+    try {
+      result = (TermType) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public RelationshipType getRelationshipType(String type, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - get relationshipType " + type + ","
+            + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from RelationshipTypeJpa r where terminology = :terminology and version = :version and abbreviation = :type");
+    query.setParameter("type", type);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    RelationshipType result = null;
+    try {
+      result = (RelationshipType) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+
+  }
+
+  @Override
+  public AdditionalRelationshipType getAdditionalRelationshipType(String type,
+    String terminology, String version) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - get additionalRelationshipType " + type + ","
+            + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from AdditionalRelationshipTypeJpa r where terminology = :terminology and version = :version and abbreviation = :type");
+    query.setParameter("type", type);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    AdditionalRelationshipType result = null;
+    try {
+      result = (AdditionalRelationshipType) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public Language getLanguage(String language, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Service - get language " + language
+        + "," + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT l from Language l where terminology = :terminology and version = :version and abbreviation = :language");
+    query.setParameter("language", language);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    Language result = null;
+    try {
+      result = (Language) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
     }
   }
 
