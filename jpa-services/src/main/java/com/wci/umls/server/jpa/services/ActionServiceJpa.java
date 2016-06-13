@@ -3,22 +3,33 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+
+import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuesMap;
 import com.wci.umls.server.helpers.content.RelationshipList;
+import com.wci.umls.server.jpa.actions.AtomicActionJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ActionService;
 import com.wci.umls.server.services.handlers.WorkflowListener;
 
 /**
  * Implementation of {@link ActionService}.
  */
-public class ActionServiceJpa extends HistoryServiceJpa implements
-    ActionService {
+public class ActionServiceJpa extends HistoryServiceJpa
+    implements ActionService {
 
   /** The config properties. */
   protected static Properties config = null;
@@ -141,7 +152,8 @@ public class ActionServiceJpa extends HistoryServiceJpa implements
   }
 
   @Override
-  public void addNewInferredRelationships(String sessionToken) throws Exception {
+  public void addNewInferredRelationships(String sessionToken)
+    throws Exception {
     // TODO Auto-generated method stub
 
   }
@@ -153,4 +165,141 @@ public class ActionServiceJpa extends HistoryServiceJpa implements
 
   }
 
+  @Override
+//TODO Add boolean cascade flag
+  public MolecularAction addMolecularAction(MolecularAction action)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - add molecular action " + action);
+    return addObject(action);
+  }
+
+  @Override
+  // TODO Add boolean cascade flag
+  public void removeMolecularAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - remove molecular action " + id);
+    MolecularActionJpa action = getObject(id, MolecularActionJpa.class);
+    removeObject(action, MolecularActionJpa.class);
+  }
+
+  @Override
+  public MolecularAction getMolecularAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - get molecular action " + id);
+
+    return getObject(id, MolecularActionJpa.class);
+  }
+
+  @Override
+  public AtomicAction addAtomicAction(AtomicAction action) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - add atomic action " + action);
+    return addObject(action);
+  }
+
+  @Override
+  public void updateAtomicAction(AtomicAction action) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - update atomic action " + action);
+    updateObject(action);
+  }
+
+  @Override
+  public void removeAtomicAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - remove atomic action " + id);
+    AtomicActionJpa action = getObject(id, AtomicActionJpa.class);
+    removeObject(action, AtomicActionJpa.class);
+  }
+
+  @Override
+  public AtomicAction getAtomicAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - get atomic action " + id);
+    return getObject(id, AtomicActionJpa.class);
+  }
+
+  @Override
+  public MolecularAction resolveAction(String actionType, Concept oldConcept,
+    Concept newConcept) throws Exception {
+
+    // check pre-requisites
+    if (oldConcept == null && newConcept == null) {
+      throw new Exception(
+          "Cannot compute atomic actions: two null concepts passed in");
+    }
+    if (oldConcept != null && newConcept != null) {
+      if (!oldConcept.getTerminology().equals(newConcept.getTerminology())) {
+        throw new Exception(
+            "Cannot compute atomic actions: concepts have different terminologies");
+      }
+      if (!oldConcept.getTerminologyId().equals(newConcept.getTerminologyId())) {
+        throw new Exception(
+            "Cannot compute atomic actions: concepts have different terminology ids");
+      }
+    }
+
+    // extract the basic fields
+    String terminology = oldConcept == null ? newConcept.getTerminology()
+        : oldConcept.getTerminology();
+    String version =
+        oldConcept == null ? newConcept.getVersion() : oldConcept.getVersion();
+    String terminologyId = oldConcept == null ? newConcept.getTerminologyId()
+        : oldConcept.getTerminologyId();
+
+    MolecularAction molecularAction = new MolecularActionJpa();
+    molecularAction.setTerminology(terminology);
+    molecularAction.setVersion(version);
+    molecularAction.setTerminologyId(terminologyId);
+    molecularAction.setLastModified(new Date());
+    molecularAction.setLastModifiedBy(getLastModifiedBy());
+    molecularAction.setTimestamp(new Date());
+    molecularAction.setType(actionType);
+
+    // cycle over getter fields
+    for (Method m : ConceptJpa.class.getMethods()) {
+      
+      // only use get/is methods with no arguments to determine changes
+      // NOTE: Motivated by Concept.getLabelForName
+      if (m.getName().startsWith("get") && m.getParameterCount() == 0
+          || m.getName().startsWith("is") && m.getParameterCount() == 0) {
+        Object oldValue = oldConcept == null ? null : m.invoke(oldConcept);
+        Object newValue = newConcept == null ? null : m.invoke(newConcept);
+
+        // if change from null or change in value
+        if (oldValue == null && newValue != null
+            || oldValue != null && !oldValue.equals(newValue)) {
+
+          AtomicAction action = new AtomicActionJpa();
+          action.setIdType(IdType.CONCEPT);
+          action.setTerminology(terminology);
+          action.setVersion(version);
+          
+          // retrieve and set the field name (based on is vs. get)
+          int fromIndex = m.getName().startsWith("get") ? 3 : 2;
+          action.setField(m.getName().substring(fromIndex,fromIndex+1).toLowerCase() + m.getName().substring(fromIndex));
+
+          // TODO This is obviously very clumsy, and we'll need to deal with
+          // collections and the like
+          // Putting this in as a placeholder for now
+          action.setNewValue(newValue == null ? null : newValue.toString());
+          action.setOldValue(oldValue == null ? null : oldValue.toString());
+
+          molecularAction.getAtomicActions().add(action);
+        }
+      }
+    }
+    return molecularAction;
+  }
+  
+  @Override
+  public boolean hasChangedField(MolecularAction action, String fieldName) {
+    for (AtomicAction a : action.getAtomicActions()) {
+      if (a.getField().equals(fieldName)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

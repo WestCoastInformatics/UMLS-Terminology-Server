@@ -39,8 +39,16 @@ import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.SearchHandler;
 import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 
+/**
+ * Workflow Service JPA implementation
+ */
 public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowService {
 
+  /**
+   * Instantiates a new workflow service.
+   *
+   * @throws Exception the exception
+   */
   public WorkflowServiceJpa() throws Exception {
     super();
     

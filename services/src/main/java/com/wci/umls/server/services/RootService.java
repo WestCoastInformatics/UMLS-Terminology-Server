@@ -131,6 +131,20 @@ public interface RootService {
    * @param lastModifiedFlag the last modified flag
    */
   public void setLastModifiedFlag(boolean lastModifiedFlag);
+  
+  /**
+   * Gets the last modified by.
+   *
+   * @return the last modified by
+   */
+  public String getLastModifiedBy();
+
+  /**
+   * Sets the last modified by.
+   *
+   * @param lastModifiedBy the new last modified by
+   */
+  public void setLastModifiedBy(String lastModifiedBy);
 
   /**
    * Find log entries for query.
@@ -203,5 +217,31 @@ public interface RootService {
    */
   public LogEntry addLogEntry(String userName, Long projectId, Long objectId,
     String message) throws Exception;
+
+  /**
+   * Lock Hibernate object.
+   *
+   * @param object the object
+   * @throws Exception the exception
+   */
+  public void lockObject(Object object) throws Exception;
+
+  /**
+   * Unlock Hibernate object.
+   *
+   * @param object the object
+   */
+  public void unlockObject(Object object);
+
+  /**
+   * Is object locked.
+   *
+   * @param object the object
+   * @return true, if is object locked
+   * @throws Exception the exception
+   */
+  public boolean isObjectLocked(Object object) throws Exception;
+
+
   
 }

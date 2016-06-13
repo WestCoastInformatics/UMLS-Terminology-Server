@@ -9,6 +9,8 @@ package com.wci.umls.server.test.rest;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +21,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -65,12 +68,12 @@ public class MetaEditingServiceRestEdgeCasesTest
   }
 
   /**
-   * Test semanticType degenerate cases
+   * Test terminology and branch mismatches between project and concept
    *
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUseRestContent001() throws Exception {
+  public void testEdgeCaseRestContent001() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
     Logger.getLogger(getClass()).info(
@@ -109,11 +112,11 @@ public class MetaEditingServiceRestEdgeCasesTest
     projectService.updateProject((ProjectJpa) project, authToken);
 
     result = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        sty2, authToken);
+        c.getTimestamp().getTime(), sty2, false, authToken);
     assertTrue(!result.isValid());
 
     metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        sty.getId(), authToken);
+        c.getTimestamp().getTime(), sty.getId(), false, authToken);
     assertTrue(!result.isValid());
 
     // reset the terminology
@@ -130,18 +133,103 @@ public class MetaEditingServiceRestEdgeCasesTest
     // Test add and remove
     //
 
-    result = metaEditingService.addSemanticType(project.getId(), c.getId(), sty2,
-        authToken);
+    result = metaEditingService.addSemanticType(project.getId(), c.getId(),
+        c.getTimestamp().getTime(), sty2, false, authToken);
     assertTrue(!result.isValid());
 
     result = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        sty.getId(), authToken);
+        c.getTimestamp().getTime(), sty.getId(), false, authToken);
     assertTrue(!result.isValid());
-
 
     // reset the branch
     project.setBranch(Branch.ROOT);
     projectService.updateProject((ProjectJpa) project, authToken);
+
+  }
+
+  /**
+   * Check simultaneous editing
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testEdgeCaseRestContent002() throws Exception {
+    Logger.getLogger(getClass())
+        .info("TEST - Edge casetests for add/remove semantic type to concept");
+
+    ValidationResult result = new ValidationResultJpa();
+
+    // get the concept
+    Concept c1 = contentService.getConcept("C0000530", umlsTerminology,
+        umlsVersion, null, authToken);
+
+    // construct a semantic type not present on concept (here, Lipid)
+    SemanticTypeComponentJpa sty = new SemanticTypeComponentJpa();
+    sty.setBranch(c1.getBranch());
+    sty.setLastModifiedBy(authToken);
+    sty.setSemanticType("Lipid");
+    sty.setTerminologyId("TestId");
+    sty.setTerminology(umlsTerminology);
+    sty.setVersion(umlsVersion);
+    sty.setTimestamp(new Date());
+
+    // add the sty
+    result = metaEditingService.addSemanticType(project.getId(), c1.getId(),
+        c1.getTimestamp().getTime(), sty, false, authToken);
+    System.out.println(result.getErrors());
+    assertTrue(result.isValid());
+
+    // get the concept
+    c1 = contentService.getConcept("C0000530", umlsTerminology, umlsVersion,
+        null, authToken);
+
+    sty = null;
+    for (SemanticTypeComponent s : c1.getSemanticTypes()) {
+      if (s.getSemanticType().equals("Lipid")) {
+        sty = (SemanticTypeComponentJpa) s;
+      }
+    }
+    assertNotNull(sty);
+
+    final Long cId = c1.getId();
+    final Long cDate = c1.getTimestamp().getTime();
+    final Long styId = sty.getId();
+
+    final ValidationResult[] v = {
+        new ValidationResultJpa(), new ValidationResultJpa()
+    };
+
+    // make duplicate remove calls
+    Thread t0 = new Thread(new Runnable() {
+      public void run() {
+        try {
+          v[0] = metaEditingService.removeSemanticType(project.getId(), cId,
+              cDate, styId, false, authToken);
+        } catch (Exception e) {
+          v[0].getErrors().add("Exception: " + e.getMessage());
+        }
+      }
+    });
+    Thread t1 = new Thread(new Runnable() {
+      public void run() {
+        try {
+          v[1] = metaEditingService.removeSemanticType(project.getId(), cId,
+              cDate, styId, false, authToken);
+        } catch (Exception e) {
+          v[1].getErrors().add("Exception: " + e.getMessage());
+        }
+      }
+    });
+
+    System.out.println("Starting threads");
+
+    t0.run();
+    t1.run();
+
+    System.out.println("Threads complete");
+
+    System.out.println("v0:" + v[0].getErrors().toString());
+    System.out.println("v1:" + v[1].getErrors().toString());
 
   }
 

@@ -99,6 +99,7 @@ public class ProjectWorkflowConfigJpa implements ProjectWorkflowConfig {
    * Instantiates a new project workflow config jpa.
    *
    * @param projectWorkflowConfig the project workflow configuration
+   * @param deepCopy the deep copy
    */
   public ProjectWorkflowConfigJpa(ProjectWorkflowConfig projectWorkflowConfig,
       boolean deepCopy) {

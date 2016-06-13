@@ -114,7 +114,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/dui")
-  @ApiOperation(value = "Validate Descriptor", notes = "Validates a descriptor", response = ValidationResult.class)
+  @ApiOperation(value = "Validate Descriptor", notes = "Validates a descriptor", response = ValidationResultJpa.class)
   public ValidationResult validateDescriptor(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Descriptor", required = true) DescriptorJpa descriptor,
@@ -143,7 +143,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/aui")
-  @ApiOperation(value = "Validate Atom", notes = "Validates a atom", response = ValidationResult.class)
+  @ApiOperation(value = "Validate Atom", notes = "Validates a atom", response = ValidationResultJpa.class)
   public ValidationResult validateAtom(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Atom", required = true) AtomJpa atom,
@@ -172,7 +172,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/code")
-  @ApiOperation(value = "Validate Code", notes = "Validates a code", response = ValidationResult.class)
+  @ApiOperation(value = "Validate Code", notes = "Validates a code", response = ValidationResultJpa.class)
   public ValidationResult validateCode(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Code", required = true) CodeJpa code,
@@ -201,7 +201,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/concept")
-  @ApiOperation(value = "Validate Concept", notes = "Validates a concept", response = ValidationResult.class)
+  @ApiOperation(value = "Validate Concept", notes = "Validates a concept", response = ValidationResultJpa.class)
   public ValidationResult validateConcept(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept", required = true) ConceptJpa concept,

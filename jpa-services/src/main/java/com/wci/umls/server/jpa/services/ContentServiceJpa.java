@@ -5667,5 +5667,5 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     AttributeIdentity identity = getAttributeIdentity(attributeIdentityId);
     removeObject(identity, AttributeIdentity.class);
   }
-
+  
 }

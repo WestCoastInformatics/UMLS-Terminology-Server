@@ -6,6 +6,9 @@ package com.wci.umls.server.services;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.KeyValuesMap;
 import com.wci.umls.server.helpers.content.RelationshipList;
+import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.content.Concept;
 
 /**
  * Represents a service for performing maintenance actions.
@@ -135,5 +138,87 @@ public interface ActionService extends RootService {
    */
   public void retireOldInferredRelationships(String sessionToken)
     throws Exception;
+
+  /**
+   * Add molecular action.
+   *
+   * @param action the action
+   * @return the molecular action
+   * @throws Exception the exception
+   */
+  public MolecularAction addMolecularAction(MolecularAction action)
+    throws Exception;
+
+  /**
+   * Remove molecular action.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeMolecularAction(Long id) throws Exception;
+
+  /**
+   * Gets the molecular action.
+   *
+   * @param id the id
+   * @return the molecular action
+   * @throws Exception the exception
+   */
+  public MolecularAction getMolecularAction(Long id) throws Exception;
+
+  /**
+   * Add atomic action.
+   *
+   * @param action the action
+   * @return the atomic action
+   * @throws Exception the exception
+   */
+  public AtomicAction addAtomicAction(AtomicAction action) throws Exception;
+
+  /**
+   * Update atomic action.
+   *
+   * @param action the action
+   * @throws Exception the exception
+   */
+  public void updateAtomicAction(AtomicAction action) throws Exception;
+
+  /**
+   * Remove atomic action.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeAtomicAction(Long id) throws Exception;
+
+  /**
+   * Gets the atomic action.
+   *
+   * @param id the id
+   * @return the atomic action
+   * @throws Exception the exception
+   */
+  public AtomicAction getAtomicAction(Long id) throws Exception;
+
+  /**
+   * Compute the molecular action representing changes in a concept.
+   *
+   * @param actionType the action type
+   * @param oldConcept the old concept
+   * @param newConcept the new concept
+   * @return the molecular action
+   * @throws Exception the exception
+   */
+  public MolecularAction resolveAction(String actionType,
+    Concept oldConcept, Concept newConcept) throws Exception;
+
+  /**
+   * Has changed field.
+   *
+   * @param action the action
+   * @param fieldName the field name
+   * @return true, if successful
+   */
+  public boolean hasChangedField(MolecularAction action, String fieldName);
 
 }

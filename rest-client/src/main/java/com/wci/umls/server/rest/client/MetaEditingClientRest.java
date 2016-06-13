@@ -41,19 +41,21 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
-    SemanticTypeComponentJpa semanticTypeComponent, String authToken)
-      throws Exception {
+    Long timestamp, SemanticTypeComponentJpa semanticTypeComponent,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add semantic type to concept" + projectId
             + ", " + conceptId + ", " + semanticTypeComponent.toString() + ", "
-            + authToken);
+            + timestamp + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/meta/sty/add?projectId=" + projectId + "&conceptId=" + conceptId);
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/meta/sty/add?projectId="
+            + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
+            + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
@@ -74,11 +76,12 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult removeSemanticType(Long projectId, Long conceptId,
-    Long semanticTypeComponentId, String authToken) throws Exception {
+    Long timestamp, Long semanticTypeComponentId, boolean overrideWarnings,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - remove semantic type from concept "
             + projectId + ", " + conceptId + ", " + semanticTypeComponentId
-            + ", " + authToken);
+            + ", " + timestamp + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
@@ -86,7 +89,8 @@ public class MetaEditingClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/sty/remove/" + semanticTypeComponentId + "?projectId="
-        + projectId + "&conceptId=" + conceptId);
+        + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
