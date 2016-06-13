@@ -220,4 +220,13 @@ public interface ActionService extends RootService {
   public MolecularAction resolveAction(String actionType,
     Concept oldConcept, Concept newConcept) throws Exception;
 
+  /**
+   * Has changed field.
+   *
+   * @param action the action
+   * @param fieldName the field name
+   * @return true, if successful
+   */
+  public boolean hasChangedField(MolecularAction action, String fieldName);
+
 }

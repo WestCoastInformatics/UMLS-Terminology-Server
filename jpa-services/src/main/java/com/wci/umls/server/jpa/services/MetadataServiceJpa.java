@@ -1115,12 +1115,6 @@ public class MetadataServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public boolean isLastModifiedFlag() {
-    return isLastModifiedFlag();
-  }
-
-  /* see superclass */
-  @Override
   public void refreshCaches() throws Exception {
     for (final MetadataService service : helperMap.values()) {
       service.refreshCaches();

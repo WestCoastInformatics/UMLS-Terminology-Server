@@ -276,7 +276,7 @@ public class ActionServiceJpa extends HistoryServiceJpa
           action.setIdType(IdType.CONCEPT);
           action.setTerminology(terminology);
           action.setVersion(version);
-          action.setField(m.getName().substring(3));
+          action.setField(m.getName().substring(3,4).toLowerCase() + m.getName().substring(4));
 
           // TODO This is obviously very clumsy, and we'll need to deal with
           // collections and the like
@@ -289,5 +289,15 @@ public class ActionServiceJpa extends HistoryServiceJpa
       }
     }
     return molecularAction;
+  }
+  
+  @Override
+  public boolean hasChangedField(MolecularAction action, String fieldName) {
+    for (AtomicAction a : action.getAtomicActions()) {
+      if (a.getField().equals(fieldName)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

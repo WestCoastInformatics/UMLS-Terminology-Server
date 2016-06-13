@@ -207,8 +207,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
           // add the action
           actionService.addMolecularAction(molecularAction);
-        } 
-        
+        }
+
         // on error adding molecular action, throw exception (performs unlock)
         catch (Exception e) {
           e.printStackTrace();
@@ -224,6 +224,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         return validationResult;
 
       } catch (Exception e) {
+
+        // rollback any changes (releases the lock)
+        if (contentService != null) {
+          try {
+            contentService.rollback();
+          } catch (IllegalStateException ise) {
+            // do nothing -- if no transaction, no lock exists
+          }
+        }
         handleException(e, action);
         return null;
       } finally {
@@ -268,7 +277,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // authorize and get user name from the token
       String userName = authorizeProject(projectService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
-      
+
       // set the last modified by for content and action services
       contentService.setLastModifiedBy(userName);
       actionService.setLastModifiedBy(userName);
@@ -345,24 +354,26 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // remove the semantic type component
       contentService.removeSemanticTypeComponent(semanticTypeComponent.getId());
-      
+
       try {
         // resolve the action
         MolecularAction molecularAction = actionService.resolveAction(
             "Remove semantic type from concept", existingConcept, concept);
 
         // verify the action
-        // DO NOTHING
+        // TODO This is really just playing around/brainstorming
+        if (!actionService.hasChangedField(molecularAction, "semanticTypes")) {
+          throw new Exception("Fatal error: failed to produce expected action");
+        }
 
         // add the action
         actionService.addMolecularAction(molecularAction);
-      } 
-      
+      }
+
       // on error adding molecular action, throw exception (performs unlock)
       catch (Exception e) {
         e.printStackTrace();
-        throw new Exception(
-            "Fatal error:  Could not compute molecular action");
+        throw new Exception("Fatal error:  Could not compute molecular action");
       }
 
       // commit (also removes the lock)
@@ -372,6 +383,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
+
+      // rollback any changes (releases the lock)
+      if (contentService != null) {
+        try {
+          contentService.rollback();
+        } catch (IllegalStateException ise) {
+          // do nothing -- if no transaction, no lock exists
+        }
+      }
+
       handleException(e, action);
       return null;
     } finally {
