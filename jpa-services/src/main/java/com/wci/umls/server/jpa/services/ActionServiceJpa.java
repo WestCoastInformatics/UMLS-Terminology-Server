@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,8 +17,11 @@ import com.wci.umls.server.helpers.KeyValuesMap;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ActionService;
 import com.wci.umls.server.services.handlers.WorkflowListener;
 
@@ -182,7 +187,7 @@ public class ActionServiceJpa extends HistoryServiceJpa
     MolecularActionJpa action = getObject(id, MolecularActionJpa.class);
     this.removeObject(action, MolecularActionJpa.class);
   }
-  
+
   @Override
   public MolecularAction getMolecularAction(Long id) throws Exception {
     Logger.getLogger(getClass())
@@ -218,5 +223,71 @@ public class ActionServiceJpa extends HistoryServiceJpa
     Logger.getLogger(getClass())
         .debug("Action Service - get atomic action " + id);
     return getObject(id, AtomicActionJpa.class);
+  }
+
+  @Override
+  public MolecularAction resolveAction(String actionType, Concept oldConcept,
+    Concept newConcept) throws Exception {
+
+    // check pre-requisites
+    if (oldConcept == null && newConcept == null) {
+      throw new Exception(
+          "Cannot compute atomic actions: two null concepts passed in");
+    }
+    if (oldConcept != null && newConcept != null) {
+      if (oldConcept.getTerminology().equals(newConcept.getTerminology())) {
+        throw new Exception(
+            "Cannot compute atomic actions: concepts have different terminologies");
+      }
+      if (oldConcept.getTerminologyId().equals(newConcept.getTerminologyId())) {
+        throw new Exception(
+            "Cannot compute atomic actions: concepts have different terminology ids");
+      }
+    }
+
+    // extract the basic fields
+    String terminology = oldConcept == null ? newConcept.getTerminology()
+        : oldConcept.getTerminology();
+    String version =
+        oldConcept == null ? newConcept.getVersion() : oldConcept.getVersion();
+    String terminologyId = oldConcept == null ? newConcept.getTerminologyId()
+        : oldConcept.getTerminologyId();
+
+    MolecularAction molecularAction = new MolecularActionJpa();
+    molecularAction.setTerminology(terminology);
+    molecularAction.setVersion(version);
+    molecularAction.setTerminologyId(terminologyId);
+    molecularAction.setLastModified(new Date());
+    molecularAction.setLastModifiedBy(getLastModifiedBy());
+    molecularAction.setTimestamp(new Date());
+    molecularAction.setType(actionType);
+
+    // cycle over getter fields
+    for (Method m : ConceptJpa.class.getMethods()) {
+      if (m.getName().startsWith("get")) {
+        Object oldValue = oldConcept == null ? null : m.invoke(oldConcept);
+        Object newValue = newConcept == null ? null : m.invoke(newConcept);
+
+        // if change from null or change in value
+        if (oldValue == null && newValue != null
+            || !oldValue.equals(newValue)) {
+
+          AtomicAction action = new AtomicActionJpa();
+          action.setIdType(IdType.CONCEPT);
+          action.setTerminology(terminology);
+          action.setVersion(version);
+          action.setField(m.getName().substring(3));
+
+          // TODO This is obviously very clumsy, and we'll need to deal with
+          // collections and the like
+          // Putting this in as a placeholder for now
+          action.setNewValue(newValue == null ? null : newValue.toString());
+          action.setOldValue(oldValue == null ? null : oldValue.toString());
+
+          molecularAction.getAtomicActions().add(action);
+        }
+      }
+    }
+    return molecularAction;
   }
 }

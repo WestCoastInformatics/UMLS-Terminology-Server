@@ -8,6 +8,7 @@ import com.wci.umls.server.helpers.KeyValuesMap;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.content.Concept;
 
 /**
  * Represents a service for performing maintenance actions.
@@ -206,5 +207,17 @@ public interface ActionService extends RootService {
    * @throws Exception the exception
    */
   public AtomicAction getAtomicAction(Long id) throws Exception;
+
+  /**
+   * Compute the molecular action representing changes in a concept.
+   *
+   * @param actionType the action type
+   * @param oldConcept the old concept
+   * @param newConcept the new concept
+   * @return the molecular action
+   * @throws Exception the exception
+   */
+  public MolecularAction resolveAction(String actionType,
+    Concept oldConcept, Concept newConcept) throws Exception;
 
 }

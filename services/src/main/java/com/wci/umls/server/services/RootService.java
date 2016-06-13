@@ -131,6 +131,20 @@ public interface RootService {
    * @param lastModifiedFlag the last modified flag
    */
   public void setLastModifiedFlag(boolean lastModifiedFlag);
+  
+  /**
+   * Gets the last modified by.
+   *
+   * @return the last modified by
+   */
+  public String getLastModifiedBy();
+
+  /**
+   * Sets the last modified by.
+   *
+   * @param lastModifiedBy the new last modified by
+   */
+  public void setLastModifiedBy(String lastModifiedBy);
 
   /**
    * Find log entries for query.
@@ -227,5 +241,7 @@ public interface RootService {
    * @throws Exception the exception
    */
   public boolean isObjectLocked(Object object) throws Exception;
+
+
   
 }

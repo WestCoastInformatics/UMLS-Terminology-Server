@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import javax.persistence.NoResultException;
-
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
