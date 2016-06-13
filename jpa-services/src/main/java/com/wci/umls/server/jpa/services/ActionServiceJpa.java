@@ -7,10 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuesMap;
 import com.wci.umls.server.helpers.content.RelationshipList;
+import com.wci.umls.server.jpa.actions.AtomicActionJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionJpa;
+import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.services.ActionService;
 import com.wci.umls.server.services.handlers.WorkflowListener;
 
@@ -151,6 +157,45 @@ public class ActionServiceJpa extends HistoryServiceJpa implements
     throws Exception {
     // TODO Auto-generated method stub
 
+  }
+  
+  @Override
+  public MolecularAction addMolecularAction(MolecularAction action) throws Exception {
+    Logger.getLogger(getClass()).debug("Action Service - add molecular action " + action);
+    return addObject(action);
+  }
+
+  @Override
+  public void updateMolecularAction(MolecularAction action) throws Exception {
+    Logger.getLogger(getClass()).debug("Action Service - update molecular action " + action);
+    updateObject(action);
+  }
+
+  @Override
+  public void removeMolecularAction(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug("Action Service - remove molecular action " + id);
+    MolecularActionJpa action = getObject(id, MolecularActionJpa.class);
+    this.removeObject(action, MolecularActionJpa.class);
+  }
+  
+
+  @Override
+  public AtomicAction addAtomicAction(AtomicAction action) throws Exception {
+    Logger.getLogger(getClass()).debug("Action Service - add atomic action " + action);
+    return addObject(action);
+  }
+
+  @Override
+  public void updateAtomicAction(AtomicAction action) throws Exception {
+    Logger.getLogger(getClass()).debug("Action Service - update atomic action " + action);
+    updateObject(action);
+  }
+
+  @Override
+  public void removeAtomicAction(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug("Action Service - remove atomic action " + id);
+    AtomicActionJpa action = getObject(id, AtomicActionJpa.class);
+    this.removeObject(action, AtomicActionJpa.class);
   }
 
 }
