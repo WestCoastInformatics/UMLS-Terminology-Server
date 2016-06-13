@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.persistence.NoResultException;
 
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
@@ -28,7 +30,12 @@ import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.AttributeName;
+import com.wci.umls.server.model.meta.Language;
+import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.SemanticType;
+import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.services.MetadataService;
 
 /**
@@ -288,5 +295,140 @@ public class StandardMetadataServiceJpaHelper extends
     descendantList.setTotalCount(descendants.size());
     return descendantList;
   }
+  
 
+  //
+  // Single object metadata retrieval by abbreviation or expanded form
+  //  
+
+  @Override
+  public SemanticType getSemanticType(String type, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Service - get semanticType "
+        + type + "," + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT s from SemanticTypeJpa s where terminology = :terminology and version = :version and expandedForm = :type");
+    query.setParameter("type", type);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    SemanticType result = null;
+    try {
+      result = (SemanticType) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public AttributeName getAttributeName(String name, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Service - get attributeName "
+        + name + "," + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT a from AttributeNameJpa a where terminology = :terminology and version = :version and abbreviation = :name");
+    query.setParameter("name", name);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    AttributeName result = null;
+    try {
+      result = (AttributeName) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public TermType getTermType(String type, String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Service - get termType " + type
+        + "," + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT t from TermTypeJpa t where terminology = :terminology and version = :version and abbreviation = :type");
+    query.setParameter("type", type);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    TermType result = null;
+    try {
+      result = (TermType) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public RelationshipType getRelationshipType(String type, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - get relationshipType " + type + ","
+            + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from RelationshipTypeJpa r where terminology = :terminology and version = :version and abbreviation = :type");
+    query.setParameter("type", type);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    RelationshipType result = null;
+    try {
+      result = (RelationshipType) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+
+  }
+
+  @Override
+  public AdditionalRelationshipType getAdditionalRelationshipType(String type,
+    String terminology, String version) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - get additionalRelationshipType " + type + ","
+            + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from AdditionalRelationshipTypeJpa r where terminology = :terminology and version = :version and abbreviation = :type");
+    query.setParameter("type", type);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    AdditionalRelationshipType result = null;
+    try {
+      result = (AdditionalRelationshipType) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public Language getLanguage(String language, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Service - get language " + language
+        + "," + terminology + "," + version);
+
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT l from Language l where terminology = :terminology and version = :version and abbreviation = :language");
+    query.setParameter("language", language);
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+
+    Language result = null;
+    try {
+      result = (Language) query.getSingleResult();
+      return result;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  
 }

@@ -43,6 +43,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   // Not needed for sub-handler
 
   /* see superclass */
+  /* see superclass */
   @Override
   public RootTerminologyList getRootTerminologies() throws Exception {
     // n/a
@@ -65,6 +66,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     return null;
   }
 
+  /* see superclass */
   @Override
   public TerminologyList getVersions(String terminology) throws Exception {
     // n/a
@@ -93,6 +95,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     return null;
   }
 
+  /* see superclass */
   @Override
   public TerminologyList getTerminologies() throws Exception {
     // n/a
@@ -360,6 +363,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a
   }
   
+  /* see superclass */
   @Override
   public PrecedenceList getPrecedenceList(Long id) throws Exception {
     // n/a
@@ -392,5 +396,95 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a
     return null;
   }
+  
+
+  /**
+   * Gets the semantic type for a terminology.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the semantic type
+   * @throws Exception the exception
+   */
+  @Override
+  public SemanticType getSemanticType(String type, String terminology, String version)
+    throws Exception {
+    // do nothing
+    return null;
+  }
+
+  /**
+   * Gets the attribute name.
+   *
+   * @param name the name
+   * @param terminology the terminology
+   * @param version the version
+   * @return the attribute name
+   * @throws Exception the exception
+   */
+  @Override
+  public AttributeName getAttributeName(String name, String terminology,
+    String version) throws Exception {
+    // do nothing
+    return null;
+  }
+
+  /**
+   * Gets the term type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the term type
+   * @throws Exception the exception
+   */
+  @Override
+  public TermType getTermType(String type, String terminology, String version)
+    throws Exception {
+    // do nothing
+    return null;
+  }
+
+  /**
+   * Gets the relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the relationship type
+   * @throws Exception the exception
+   */
+  @Override
+  public RelationshipType getRelationshipType(String type, String terminology,
+    String version) throws Exception {
+    // do nothing
+    return null;
+  }
+
+  /**
+   * Gets the additional relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the additional relationship type
+   * @throws Exception the exception
+   */
+  @Override
+  public AdditionalRelationshipType getAdditionalRelationshipType(String type,
+    String terminology, String version) throws Exception {
+    // do nothing
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  public Language getLanguage(String language, String terminology, String version)
+    throws Exception {
+    // do nothing
+    return null;
+  }
+
 
 }
