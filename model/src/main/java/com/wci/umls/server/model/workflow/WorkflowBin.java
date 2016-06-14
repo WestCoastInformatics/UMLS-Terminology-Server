@@ -6,6 +6,7 @@ package com.wci.umls.server.model.workflow;
 import java.util.Date;
 import java.util.List;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
 
 
@@ -112,34 +113,7 @@ public interface WorkflowBin extends HasLastModified {
    */
   public void setTerminologyId(String terminologyId);
   
-  /**
-   * Gets the cluster id.
-   *
-   * @return the cluster id
-   */
-  public String getClusterId();
-  
-  /**
-   * Sets the cluster id.
-   *
-   * @param clusterId the new cluster id
-   */
-  public void setClusterId(String clusterId);
-  
-  /**
-   * Gets the workflow cluster types.
-   *
-   * @return the workflow cluster types
-   */
-  public List<String> getWorkflowClusterTypes();
-  
-  /**
-   * Sets the workflow cluster types.
-   *
-   * @param clusterTypes the new workflow cluster types
-   */
-  public void setWorkflowClusterTypes(List<String> clusterTypes);
-  
+
   /**
    * Gets the creation time.
    *
@@ -182,5 +156,17 @@ public interface WorkflowBin extends HasLastModified {
    */
   public String getVersion();
   
+  /**
+   * Returns the project.
+   *
+   * @return the project
+   */
+  public Project getProject();
 
+  /**
+   * Sets the project.
+   *
+   * @param project the project
+   */
+  public void setProject(Project project);
 }

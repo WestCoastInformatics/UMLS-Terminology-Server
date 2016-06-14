@@ -10,7 +10,6 @@ import com.wci.umls.server.helpers.HasLastModified;
  */
 public interface WorkflowBinDefinition extends HasLastModified {
 
-
   /**
    * Gets the name. e.g. "demotions"
    *
@@ -24,14 +23,14 @@ public interface WorkflowBinDefinition extends HasLastModified {
    * @param name the new name
    */
   public void setName(String name);
-  
+
   /**
    * Gets the description.
    *
    * @return the description
    */
   public String getDescription();
-  
+
   /**
    * Sets the description.
    *
@@ -45,41 +44,54 @@ public interface WorkflowBinDefinition extends HasLastModified {
    * @return true, if is editable
    */
   public boolean isEditable();
-  
+
   /**
    * Sets the editable.
    *
    * @param editable the new editable
    */
   public void setEditable(boolean editable);
-  
+
   /**
    * Gets the query.
    *
    * @return the query
    */
   public String getQuery();
-   
+
   /**
    * Sets the query.
    *
    * @param query the new query
    */
   public void setQuery(String query);
-  
+
   /**
    * Gets the query type. e.g. "HQL"
    *
    * @return the query type
    */
   public String getQueryType();
-  
+
   /**
    * Sets the query type.
    *
    * @param queryType the new query type
    */
   public void setQueryType(String queryType);
-  
+
+  /**
+   * Returns the workflow config.
+   *
+   * @return the workflow config
+   */
+  public WorkflowConfig getWorkflowConfig();
+
+  /**
+   * Sets the workflow config.
+   *
+   * @param workflowConfig the workflow config
+   */
+  public void setWorkflowConfig(WorkflowConfig workflowConfig);
 
 }

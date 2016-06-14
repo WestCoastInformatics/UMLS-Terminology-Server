@@ -56,8 +56,8 @@ public abstract class RootServiceJpa implements RootService {
   protected static EntityManagerFactory factory = null;
 
   static {
-    Logger.getLogger(RootServiceJpa.class)
-        .info("Setting root service entity manager factory.");
+    Logger.getLogger(RootServiceJpa.class).info(
+        "Setting root service entity manager factory.");
     Properties config;
     try {
       config = ConfigUtility.getConfigProperties();
@@ -88,8 +88,8 @@ public abstract class RootServiceJpa implements RootService {
       throw new Exception("Factory is null, serious problem.");
     }
     if (!factory.isOpen()) {
-      Logger.getLogger(getClass())
-          .info("Setting root service entity manager factory.");
+      Logger.getLogger(getClass()).info(
+          "Setting root service entity manager factory.");
       final Properties config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     }
@@ -111,8 +111,8 @@ public abstract class RootServiceJpa implements RootService {
       throw new Exception("Factory is null, serious problem.");
     }
     if (!factory.isOpen()) {
-      Logger.getLogger(getClass())
-          .info("Setting root service entity manager factory.");
+      Logger.getLogger(getClass()).info(
+          "Setting root service entity manager factory.");
       final Properties config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     }
@@ -283,8 +283,10 @@ public abstract class RootServiceJpa implements RootService {
     Object finalObject = o;
 
     while (i < splitFields.length) {
-      finalMethod = finalObject.getClass().getMethod(
-          "get" + ConfigUtility.capitalize(splitFields[i]), new Class<?>[] {});
+      finalMethod =
+          finalObject.getClass().getMethod(
+              "get" + ConfigUtility.capitalize(splitFields[i]),
+              new Class<?>[] {});
       finalMethod.setAccessible(true);
       finalObject = finalMethod.invoke(finalObject, new Object[] {});
       i++;
@@ -322,8 +324,10 @@ public abstract class RootServiceJpa implements RootService {
     Object finalObject = o;
 
     while (i < splitFields.length) {
-      finalMethod = finalObject.getClass().getMethod(
-          "get" + ConfigUtility.capitalize(splitFields[i]), new Class<?>[] {});
+      finalMethod =
+          finalObject.getClass().getMethod(
+              "get" + ConfigUtility.capitalize(splitFields[i]),
+              new Class<?>[] {});
       finalMethod.setAccessible(true);
       finalObject = finalMethod.invoke(finalObject, new Object[] {});
       i++;
@@ -479,8 +483,7 @@ public abstract class RootServiceJpa implements RootService {
                     if (s2 == null && s1 != null) {
                       return -1;
                     }
-                    if (s2 != null
-                        && ((String) s2).compareTo((String) s1) != 0) {
+                    if (s2 != null && ((String) s2).compareTo((String) s1) != 0) {
                       return ((String) s2).compareTo((String) s1);
                     } else {
                       return 0;
@@ -550,12 +553,12 @@ public abstract class RootServiceJpa implements RootService {
             try {
               // handle dates explicitly
               if (o2 instanceof Date) {
-                return ((Date) sortField.get(o1))
-                    .compareTo((Date) sortField.get(o2));
+                return ((Date) sortField.get(o1)).compareTo((Date) sortField
+                    .get(o2));
               } else {
                 // otherwise, sort based on conversion to string
-                return (sortField.get(o1).toString())
-                    .compareTo(sortField.get(o2).toString());
+                return (sortField.get(o1).toString()).compareTo(sortField.get(
+                    o2).toString());
               }
             } catch (IllegalAccessException e) {
               // on exception, return equality
@@ -572,12 +575,12 @@ public abstract class RootServiceJpa implements RootService {
             try {
               // handle dates explicitly
               if (o2 instanceof Date) {
-                return ((Date) sortField.get(o1))
-                    .compareTo((Date) sortField.get(o2));
+                return ((Date) sortField.get(o1)).compareTo((Date) sortField
+                    .get(o2));
               } else {
                 // otherwise, sort based on conversion to string
-                return (sortField.get(o1).toString())
-                    .compareTo(sortField.get(o2).toString());
+                return (sortField.get(o1).toString()).compareTo(sortField.get(
+                    o2).toString());
               }
             } catch (IllegalAccessException e) {
               // on exception, return equality
@@ -604,8 +607,9 @@ public abstract class RootServiceJpa implements RootService {
     if (userMap.containsKey(userName)) {
       return userMap.get(userName);
     }
-    final javax.persistence.Query query = manager
-        .createQuery("select u from UserJpa u where userName = :userName");
+    final javax.persistence.Query query =
+        manager
+            .createQuery("select u from UserJpa u where userName = :userName");
     query.setParameter("userName", userName);
     try {
       final User user = (User) query.getSingleResult();
@@ -674,16 +678,18 @@ public abstract class RootServiceJpa implements RootService {
 
     FullTextQuery fullTextQuery = null;
     try {
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          query, pfs, manager);
+      fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, query, pfs,
+              manager);
     } catch (ParseException e) {
       // If parse exception, try a literal query
       final StringBuilder escapedQuery = new StringBuilder();
       if (query != null && !query.isEmpty()) {
         escapedQuery.append(QueryParserBase.escape(query));
       }
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          escapedQuery.toString(), pfs, manager);
+      fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+              escapedQuery.toString(), pfs, manager);
     }
 
     totalCt[0] = fullTextQuery.getResultSize();
@@ -939,9 +945,11 @@ public abstract class RootServiceJpa implements RootService {
     final String terminologyId, final String terminology, final String version,
     final Class<T> clazz) {
     try {
-      final javax.persistence.Query query = manager.createQuery("select a from "
-          + clazz.getName()
-          + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
+      final javax.persistence.Query query =
+          manager
+              .createQuery("select a from "
+                  + clazz.getName()
+                  + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
       query.setParameter("terminologyId", terminologyId);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -963,8 +971,9 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     final int[] totalCt = new int[1];
-    final List<LogEntry> list = (List<LogEntry>) getQueryResults(sb.toString(),
-        LogEntryJpa.class, LogEntryJpa.class, pfs, totalCt);
+    final List<LogEntry> list =
+        (List<LogEntry>) getQueryResults(sb.toString(), LogEntryJpa.class,
+            LogEntryJpa.class, pfs, totalCt);
 
     return list;
   }
@@ -984,7 +993,7 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   public void removeLogEntry(final Long id) throws Exception {
-    removeHasLastModified(id, LogEntry.class);
+    removeHasLastModified(id, LogEntryJpa.class);
   }
 
   /* see superclass */
@@ -1016,7 +1025,7 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public LogEntry addLogEntry(final String userName, final String terminology,
     final String version, final LogActivity activity, final String message)
-      throws Exception {
+    throws Exception {
     LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setTerminology(terminology);

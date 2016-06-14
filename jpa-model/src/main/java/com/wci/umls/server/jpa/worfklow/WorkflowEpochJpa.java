@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -16,13 +17,19 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.BooleanBridge;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
@@ -31,7 +38,7 @@ import com.wci.umls.server.model.workflow.WorkflowEpoch;
  */
 @Entity
 @Table(name = "workflow_epochs", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "name", "id"
+    "name", "project_id"
 }))
 @Indexed
 @XmlRootElement(name = "workflowEpoch")
@@ -42,7 +49,7 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
-  
+
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -51,25 +58,28 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-  
+
   /** The timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;  
+  private Date timestamp = null;
 
   /** The name. */
   @Column(nullable = false)
   private String name;
 
-  
   /** The active. */
   @Column(nullable = false)
   private boolean active;
-  
+
   /** The workflow bins. */
   @OneToMany(targetEntity = WorkflowBinJpa.class)
   private List<WorkflowBin> workflowBins = null;
-  
+
+  /** The project. */
+  @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
+  private Project project;
+
   /**
    * Instantiates an empty {@link WorkflowEpochJpa}.
    */
@@ -80,17 +90,19 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
   /**
    * Instantiates a {@link WorkflowEpochJpa} from the specified parameters.
    *
-   * @param workflowEpoch the workflow epoch
+   * @param epoch the workflow epoch
    * @param deepCopy the deep copy
    */
-  public WorkflowEpochJpa(WorkflowEpoch workflowEpoch, boolean deepCopy) {
-    this.lastModified = workflowEpoch.getLastModified();
-    this.lastModifiedBy = workflowEpoch.getLastModifiedBy();
-    this.timestamp = workflowEpoch.getTimestamp();
-    this.name = workflowEpoch.getName();
-    this.active = workflowEpoch.isActive();
+  public WorkflowEpochJpa(WorkflowEpoch epoch, boolean deepCopy) {
+    id = epoch.getId();
+    lastModified = epoch.getLastModified();
+    lastModifiedBy = epoch.getLastModifiedBy();
+    timestamp = epoch.getTimestamp();
+    name = epoch.getName();
+    active = epoch.isActive();
+    project = epoch.getProject();
     if (deepCopy) {
-      this.workflowBins = workflowEpoch.getWorkflowBins();
+      workflowBins = new ArrayList<>(epoch.getWorkflowBins());
     }
   }
 
@@ -156,8 +168,9 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
     this.name = name;
   }
 
-
   /* see superclass */
+  @FieldBridge(impl = BooleanBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public boolean isActive() {
     return active;
@@ -169,17 +182,50 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
     this.active = active;
   }
 
+  /* see superclass */
+  @Override
+  @XmlTransient
+  public Project getProject() {
+    return project;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProject(Project project) {
+    this.project = project;
+  }
+
+  /**
+   * Returns the project id.
+   *
+   * @return the project id
+   */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getProjectId() {
+    return project == null ? 0L : project.getId();
+  }
+
+  /**
+   * Sets the project id.
+   *
+   * @param projectId the project id
+   */
+  public void setProjectId(Long projectId) {
+    if (project == null) {
+      project = new ProjectJpa();
+    }
+    project.setId(projectId);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + (active ? 1231 : 1237);
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+    result =
+        prime * result + ((workflowBins == null) ? 0 : workflowBins.hashCode());
     return result;
   }
 
@@ -194,25 +240,15 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
     WorkflowEpochJpa other = (WorkflowEpochJpa) obj;
     if (active != other.active)
       return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
       return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
+    if (workflowBins == null) {
+      if (other.workflowBins != null)
         return false;
-    } else if (!timestamp.equals(other.timestamp))
+    } else if (!workflowBins.equals(other.workflowBins))
       return false;
     return true;
   }

@@ -44,4 +44,45 @@ public interface TrackingRecord extends HasLastModified, HasTerminology {
    */
   public void setClusterId(Long clusterId);
 
+  /**
+   * Returns the cluster type.
+   *
+   * @return the cluster type
+   */
+  public String getClusterType();
+
+  /**
+   * Sets the cluster type.
+   *
+   * @param clusterType the cluster type
+   */
+  public void setClusterType(String clusterType);
+
+  /**
+   * Returns the workflow bin.
+   *
+   * @return the workflow bin
+   */
+  public WorkflowBin getWorkflowBin();
+
+  /**
+   * Sets the workflow bin.
+   *
+   * @param workflowBin the workflow bin
+   */
+  public void setWorkflowBin(WorkflowBin workflowBin);
+
+  /**
+   * Returns the worklist.
+   *
+   * @return the worklist
+   */
+  public Worklist getWorklist();
+
+  /**
+   * Sets the worklist.
+   *
+   * @param worklist the worklist
+   */
+  public void setWorklist(Worklist worklist);
 }

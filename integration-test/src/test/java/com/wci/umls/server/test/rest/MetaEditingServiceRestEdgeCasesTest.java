@@ -33,10 +33,10 @@ public class MetaEditingServiceRestEdgeCasesTest
     extends MetaEditingServiceRestTest {
 
   /** The auth tokens. */
-  private static String authToken;
+  static String authToken;
 
   /** The project. */
-  private static Project project;
+  static Project project;
 
   /** The umls terminology. */
   private String umlsTerminology = "UMLS";
@@ -201,6 +201,7 @@ public class MetaEditingServiceRestEdgeCasesTest
 
     // make duplicate remove calls
     Thread t0 = new Thread(new Runnable() {
+      @Override
       public void run() {
         try {
           v[0] = metaEditingService.removeSemanticType(project.getId(), cId,
@@ -211,6 +212,7 @@ public class MetaEditingServiceRestEdgeCasesTest
       }
     });
     Thread t1 = new Thread(new Runnable() {
+      @Override
       public void run() {
         try {
           v[1] = metaEditingService.removeSemanticType(project.getId(), cId,

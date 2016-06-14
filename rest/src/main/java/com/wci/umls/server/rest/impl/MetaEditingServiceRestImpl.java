@@ -160,7 +160,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           validationResult.getErrors()
               .add("Cannot add semantic type: Invalid semantic type");
         }
-        ;
+        
 
         // check if semantic type already exists on this concept
         for (SemanticTypeComponent s : concept.getSemanticTypes()) {

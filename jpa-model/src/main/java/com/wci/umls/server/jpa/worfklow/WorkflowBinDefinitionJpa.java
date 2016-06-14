@@ -10,40 +10,43 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.BooleanBridge;
 
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-
-
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 
 /**
  * JPA and JAXB enabled implementation of a {@link WorkflowBinDefinition}.
  */
 @Entity
-@Table(name = "workflow_bin_definition", uniqueConstraints = @UniqueConstraint(columnNames = {
-     "id"
+@Table(name = "workflow_bin_definitions", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "name", "workflowConfig_id"
 }))
 @Indexed
 @XmlRootElement(name = "workflowBinDefinition")
-public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
+public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
-  
+
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -52,11 +55,11 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-  
+
   /** The timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;  
+  private Date timestamp = null;
 
   /** The name. */
   @Column(nullable = false)
@@ -65,41 +68,46 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
   /** The description. */
   @Column(nullable = false)
   private String description;
-  
+
   /** The query. */
   @Column(nullable = false)
   private String query;
-  
+
   /** The query type. */
   @Column(nullable = false)
   private String queryType;
-  
+
   /** The editable. */
   @Column(nullable = false)
   private boolean editable;
-  
+
+  /** The workflow config. */
+  @ManyToOne(targetEntity = WorkflowConfigJpa.class, optional = false)
+  private WorkflowConfig workflowConfig;
+
   /**
    * Instantiates a new workflow bin definition jpa.
    */
   public WorkflowBinDefinitionJpa() {
     // do nothing
   }
-  
+
   /**
    * Instantiates a new workflow bin definition jpa.
    *
-   * @param workflowBinDefinition the workflow bin definition
+   * @param def the workflow bin definition
    */
-  public WorkflowBinDefinitionJpa(WorkflowBinDefinition workflowBinDefinition) {
-    super();
-    this.lastModified = workflowBinDefinition.getLastModified();
-    this.lastModifiedBy = workflowBinDefinition.getLastModifiedBy();
-    this.timestamp = workflowBinDefinition.getTimestamp();
-    this.name = workflowBinDefinition.getName();
-    this.description = workflowBinDefinition.getDescription();
-    this.query = workflowBinDefinition.getQuery();
-    this.queryType = workflowBinDefinition.getQuery();
-    this.editable = workflowBinDefinition.isEditable();
+  public WorkflowBinDefinitionJpa(WorkflowBinDefinition def) {
+    id = def.getId();
+    lastModified = def.getLastModified();
+    lastModifiedBy = def.getLastModifiedBy();
+    timestamp = def.getTimestamp();
+    name = def.getName();
+    description = def.getDescription();
+    query = def.getQuery();
+    queryType = def.getQuery();
+    editable = def.isEditable();
+    workflowConfig = def.getWorkflowConfig();
   }
 
   /* see superclass */
@@ -153,7 +161,7 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getName() {
     return name;
   }
@@ -166,7 +174,6 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getDescription() {
     return description;
   }
@@ -179,6 +186,8 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = BooleanBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isEditable() {
     return editable;
   }
@@ -191,7 +200,6 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getQuery() {
     return query;
   }
@@ -216,6 +224,19 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
   }
 
   /* see superclass */
+  @XmlTransient
+  @Override
+  public WorkflowConfig getWorkflowConfig() {
+    return workflowConfig;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowConfig(WorkflowConfig workflowConfig) {
+    this.workflowConfig = workflowConfig;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -223,14 +244,9 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (editable ? 1231 : 1237);
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((query == null) ? 0 : query.hashCode());
     result = prime * result + ((queryType == null) ? 0 : queryType.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     return result;
   }
 
@@ -251,16 +267,6 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
       return false;
     if (editable != other.editable)
       return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
@@ -276,22 +282,17 @@ public class WorkflowBinDefinitionJpa  implements WorkflowBinDefinition {
         return false;
     } else if (!queryType.equals(other.queryType))
       return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
-        return false;
-    } else if (!timestamp.equals(other.timestamp))
-      return false;
     return true;
   }
 
   /* see superclass */
   @Override
   public String toString() {
-    return "WorkflowBinDefinitionJpa [lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description + ", query=" + query
-        + ", queryType=" + queryType + ", editable=" + editable + "]";
+    return "WorkflowBinDefinitionJpa [id=" + id + ", lastModified="
+        + lastModified + ", lastModifiedBy=" + lastModifiedBy + ", timestamp="
+        + timestamp + ", name=" + name + ", description=" + description
+        + ", query=" + query + ", queryType=" + queryType + ", editable="
+        + editable + "]";
   }
-
 
 }
