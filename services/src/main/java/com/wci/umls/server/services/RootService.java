@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.meta.LogActivity;
 
 /**
@@ -122,8 +124,15 @@ public interface RootService {
    * @return the list
    * @throws Exception the exception
    */
-  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
-    int[] totalCt, PfsParameter pfs) throws Exception;
+  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz, int[] totalCt,
+    PfsParameter pfs) throws Exception;
+
+  /**
+   * Checks if is last modified flag.
+   *
+   * @return true, if is last modified flag
+   */
+  public boolean isLastModifiedFlag();
 
   /**
    * Sets the last modified flag.
@@ -131,7 +140,7 @@ public interface RootService {
    * @param lastModifiedFlag the last modified flag
    */
   public void setLastModifiedFlag(boolean lastModifiedFlag);
-  
+
   /**
    * Gets the last modified by.
    *
@@ -145,6 +154,35 @@ public interface RootService {
    * @param lastModifiedBy the new last modified by
    */
   public void setLastModifiedBy(String lastModifiedBy);
+
+  /**
+   * Checks if is molecular action flag.
+   *
+   * @return true, if is molecular action flag
+   */
+  public boolean isMolecularActionFlag();
+
+  /**
+   * Sets the molecular action flag.
+   *
+   * @param molecularActionFlag the new molecular action flag
+   */
+  public void setMolecularActionFlag(boolean molecularActionFlag);
+  
+  /**
+   * Gets the molecular action.
+   *
+   * @return the molecular action
+   * @throws Exception 
+   */
+  public MolecularAction getMolecularAction() throws Exception;
+  
+  /**
+   * Sets the molecular action.
+   *
+   * @param molecularAction the new molecular action
+   */
+  public void setMolecularAction(MolecularAction molecularAction);
 
   /**
    * Find log entries for query.
@@ -242,6 +280,74 @@ public interface RootService {
    */
   public boolean isObjectLocked(Object object) throws Exception;
 
+  /**
+   * Add molecular action.
+   *
+   * @param action the action
+   * @param cascadeFlag whether to cascade the operation
+   * @return the molecular action
+   * @throws Exception the exception
+   */
+  public MolecularAction addMolecularAction(MolecularAction action,
+    boolean cascadeFlag) throws Exception;
 
-  
+  /**
+   * Remove molecular action.
+   *
+   * @param id the id
+   * @param cascadeFla whether to cascade the operation
+   * @throws Exception the exception
+   */
+  public void removeMolecularAction(Long id, boolean cascadeFla)
+    throws Exception;
+
+  /**
+   * Gets the molecular action.
+   *
+   * @param id the id
+   * @return the molecular action
+   * @throws Exception the exception
+   */
+  public MolecularAction getMolecularAction(Long id) throws Exception;
+
+  /**
+   * Add atomic action.
+   *
+   * @param action the action
+   * @return the atomic action
+   * @throws Exception the exception
+   */
+  public AtomicAction addAtomicAction(AtomicAction action) throws Exception;
+
+  /**
+   * Remove atomic action.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeAtomicAction(Long id) throws Exception;
+
+  /**
+   * Gets the atomic action.
+   *
+   * @param id the id
+   * @return the atomic action
+   * @throws Exception the exception
+   */
+  public AtomicAction getAtomicAction(Long id) throws Exception;
+
+  /**
+   * Find molecular actions.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @return the list
+   * @throws Exception 
+   */
+  public List<MolecularAction> findMolecularActions(String terminologyId,
+    String terminology, String version, String query, PfsParameter pfs) throws Exception;
+
 }

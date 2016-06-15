@@ -10,9 +10,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -28,20 +30,38 @@ import org.apache.lucene.search.BooleanQuery;
 import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.jpa.actions.AtomicActionJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
+import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * The root service for managing the entity manager factory and hibernate search
  * field names.
  */
 public abstract class RootServiceJpa implements RootService {
+
+  /** The config properties. */
+  protected static Properties config = null;
+
+  /** The search handlers. */
+  protected static Map<String, SearchHandler> searchHandlers = new HashMap<>();
+
+  /** The molecular action flag. */
+  private boolean molecularActionFlag = true;
+
+  /** The molecular action. */
+  private MolecularAction molecularAction = null;
 
   /** The last modified flag. */
   private boolean lastModifiedFlag = true;
@@ -65,6 +85,32 @@ public abstract class RootServiceJpa implements RootService {
     } catch (Exception e) {
       e.printStackTrace();
       factory = null;
+    }
+  }
+
+  /** The search. */
+  protected static Set<String> searchHandlerNames = null;
+
+  static {
+    searchHandlerNames = new HashSet<>();
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      final String key = "search.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        searchHandlerNames.add(handlerName);
+
+      }
+      if (!searchHandlerNames.contains(ConfigUtility.DEFAULT)) {
+        throw new Exception("search.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      searchHandlerNames = null;
     }
   }
 
@@ -92,6 +138,11 @@ public abstract class RootServiceJpa implements RootService {
           .info("Setting root service entity manager factory.");
       final Properties config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
+    }
+
+    if (searchHandlerNames == null) {
+      throw new Exception(
+          "Search handler names did not properly initialize, serious error.");
     }
 
     // created on each instantiation
@@ -149,6 +200,7 @@ public abstract class RootServiceJpa implements RootService {
       throw new IllegalStateException(
           "Error attempting to begin a transaction when there "
               + "is already an active transaction");
+   
     tx = manager.getTransaction();
     tx.begin();
   }
@@ -622,13 +674,36 @@ public abstract class RootServiceJpa implements RootService {
     this.lastModifiedFlag = lastModifiedFlag;
   }
 
-  /**
-   * Indicates whether or not last modified flag is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  @Override
   public boolean isLastModifiedFlag() {
     return lastModifiedFlag;
+  }
+
+  @Override
+  public boolean isMolecularActionFlag() {
+    return molecularActionFlag;
+  }
+
+  @Override
+  public void setMolecularActionFlag(boolean molecularActionFlag) {
+    this.molecularActionFlag = molecularActionFlag;
+  }
+
+  @Override
+  public MolecularAction getMolecularAction() throws Exception {
+    if (isMolecularActionFlag() && molecularAction == null) {
+      throw new Exception("Molecular action flag is set but molecular action is null");
+    }
+    // If desired, can remove this to allow molecular action logging of single transaction per operation mode
+    if (isMolecularActionFlag() && getTransactionPerOperation()) {
+      throw new Exception("Molecular action flag is set, but transaction per operation set to true");
+    }
+    return molecularAction;
+  }
+
+  @Override
+  public void setMolecularAction(MolecularAction molecularAction) {
+    this.molecularAction = molecularAction;
   }
 
   /* see superclass */
@@ -664,6 +739,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the query results
    * @throws Exception the exception
    */
+  // TODO This should no longer exist, use search handlers from RootServiceJpa
   public <T> List<?> getQueryResults(final String query,
     final Class<?> fieldNamesKey, final Class<T> clazz, final PfsParameter pfs,
     int[] totalCt) throws Exception {
@@ -1063,6 +1139,87 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public void setLastModifiedBy(String lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
+  }
+
+  @Override
+  public MolecularAction addMolecularAction(MolecularAction action,
+    boolean cascadeFlag) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - add molecular action " + action);
+    if (cascadeFlag) {
+      for (AtomicAction a : action.getAtomicActions()) {
+        addObject(a);
+      }
+    }
+    return addObject(action);
+  }
+
+  @Override
+  public void removeMolecularAction(Long id, boolean cascadeFlag)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - remove molecular action " + id);
+    MolecularActionJpa action = getObject(id, MolecularActionJpa.class);
+    if (cascadeFlag) {
+      action.getAtomicActions().clear();
+      for (AtomicAction a : action.getAtomicActions()) {
+        removeObject((AtomicActionJpa) a, AtomicActionJpa.class);
+      }
+    }
+    removeObject(action, MolecularActionJpa.class);
+  }
+
+  @Override
+  public MolecularAction getMolecularAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - get molecular action " + id);
+
+    return getObject(id, MolecularActionJpa.class);
+  }
+
+  @Override
+  // TODO Make list object and add unit tests
+  public List<MolecularAction> findMolecularActions(String terminologyId,
+    String terminology, String version, String query, PfsParameter pfs)
+      throws Exception {
+
+    final SearchHandler searchHandler =
+        ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+            "search.handler", ConfigUtility.DEFAULT, SearchHandler.class);
+
+    int totalCt[] = new int[1];
+    searchHandler.setProperties(config);
+    List<MolecularAction> results = new ArrayList<>();
+    for (MolecularActionJpa ma : searchHandler.getQueryResults(terminology, version, Branch.ROOT, query,
+        null, MolecularActionJpa.class, MolecularActionJpa.class, pfs, totalCt,
+        manager)) {
+      results.add(ma);
+    }
+    
+    return results;
+
+  }
+
+  @Override
+  public AtomicAction addAtomicAction(AtomicAction action) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - add atomic action " + action);
+    return addObject(action);
+  }
+
+  @Override
+  public void removeAtomicAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - remove atomic action " + id);
+    AtomicActionJpa action = getObject(id, AtomicActionJpa.class);
+    removeObject(action, AtomicActionJpa.class);
+  }
+
+  @Override
+  public AtomicAction getAtomicAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - get atomic action " + id);
+    return getObject(id, AtomicActionJpa.class);
   }
 
 }

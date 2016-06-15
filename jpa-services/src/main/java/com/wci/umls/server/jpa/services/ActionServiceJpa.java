@@ -9,8 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuesMap;
@@ -166,61 +164,7 @@ public class ActionServiceJpa extends HistoryServiceJpa
   }
 
   @Override
-//TODO Add boolean cascade flag
-  public MolecularAction addMolecularAction(MolecularAction action)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Action Service - add molecular action " + action);
-    return addObject(action);
-  }
-
-  @Override
-  // TODO Add boolean cascade flag
-  public void removeMolecularAction(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Action Service - remove molecular action " + id);
-    MolecularActionJpa action = getObject(id, MolecularActionJpa.class);
-    removeObject(action, MolecularActionJpa.class);
-  }
-
-  @Override
-  public MolecularAction getMolecularAction(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Action Service - get molecular action " + id);
-
-    return getObject(id, MolecularActionJpa.class);
-  }
-
-  @Override
-  public AtomicAction addAtomicAction(AtomicAction action) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Action Service - add atomic action " + action);
-    return addObject(action);
-  }
-
-  @Override
-  public void updateAtomicAction(AtomicAction action) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Action Service - update atomic action " + action);
-    updateObject(action);
-  }
-
-  @Override
-  public void removeAtomicAction(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Action Service - remove atomic action " + id);
-    AtomicActionJpa action = getObject(id, AtomicActionJpa.class);
-    removeObject(action, AtomicActionJpa.class);
-  }
-
-  @Override
-  public AtomicAction getAtomicAction(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Action Service - get atomic action " + id);
-    return getObject(id, AtomicActionJpa.class);
-  }
-
-  @Override
+  // TODO Half-written code, left as placeholder
   public MolecularAction resolveAction(String actionType, Concept oldConcept,
     Concept newConcept) throws Exception {
 

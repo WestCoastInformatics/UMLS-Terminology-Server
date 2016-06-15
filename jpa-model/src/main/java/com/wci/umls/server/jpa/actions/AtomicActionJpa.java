@@ -42,17 +42,8 @@ public class AtomicActionJpa implements AtomicAction {
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
   
-  /** The version. */
   @Column(nullable = false)
-  private String version;
-  
-  /** The terminology id. */
-  @Column(nullable = false)
-  private String terminologyId;
-
-  /** The terminology. */
-  @Column(nullable = false)
-  private String terminology;
+  private Long objectId;
 
   /** The old value. */
   @Column(nullable = true)

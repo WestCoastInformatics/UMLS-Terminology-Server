@@ -32,10 +32,13 @@ import com.wci.umls.server.model.actions.MolecularAction;
  */
 @Entity
 @Table(name = "molecular_actions", uniqueConstraints = @UniqueConstraint(columnNames = {
-     "id"
-}))
+    "id"
+}) )
 @Indexed
 @XmlRootElement(name = "molecularActions")
+// TODO Add a second terminology id field (of some awesome name) for the second
+// concept involved in e.g. a relationship change, a merge change, a split
+// change, etc. Don't use source/target.
 public class MolecularActionJpa implements MolecularAction {
 
   /** The id. */
@@ -43,11 +46,11 @@ public class MolecularActionJpa implements MolecularAction {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
-  
+
   /** The version. */
   @Column(nullable = false)
   private String version;
-  
+
   /** The terminology id. */
   @Column(nullable = false)
   private String terminologyId;
@@ -55,11 +58,11 @@ public class MolecularActionJpa implements MolecularAction {
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
-  
+
   /** The type. */
   @Column(nullable = false)
   private String type;
-  
+
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -68,27 +71,26 @@ public class MolecularActionJpa implements MolecularAction {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-  
+
   /** The timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
-  
+
   /** The macro action. */
   @Column(nullable = false)
   private boolean macroAction;
-  
+
   /** The molecular action. */
   @OneToMany(targetEntity = AtomicActionJpa.class)
   private List<AtomicAction> atomicActions = new ArrayList<>();
-  
+
   /**
    * Instantiates a new atomic action jpa.
    */
   public MolecularActionJpa() {
     // do nothing
   }
-  
 
   /**
    * Instantiates a new atomic action jpa.
@@ -102,7 +104,7 @@ public class MolecularActionJpa implements MolecularAction {
     this.terminology = molecularAction.getTerminology();
     this.type = molecularAction.getType();
   }
-  
+
   /* see superclass */
   @Override
   public Long getId() {
@@ -154,7 +156,6 @@ public class MolecularActionJpa implements MolecularAction {
     this.version = version;
   }
 
-
   /* see superclass */
   @Override
   public Date getTimestamp() {
@@ -199,13 +200,11 @@ public class MolecularActionJpa implements MolecularAction {
     return type;
   }
 
-
   /* see superclass */
   @Override
   public void setType(String type) {
     this.type = type;
   }
-
 
   /* see superclass */
   @Override
@@ -214,13 +213,11 @@ public class MolecularActionJpa implements MolecularAction {
     return atomicActions;
   }
 
-
   /* see superclass */
   @Override
   public void setAtomicActions(List<AtomicAction> atomicActions) {
     this.atomicActions = atomicActions;
   }
-
 
   /* see superclass */
   @Override
@@ -228,13 +225,11 @@ public class MolecularActionJpa implements MolecularAction {
     return macroAction;
   }
 
-
   /* see superclass */
   @Override
   public void setMacroAction(boolean macroAction) {
     this.macroAction = macroAction;
   }
-
 
   /* see superclass */
   @Override
@@ -257,7 +252,6 @@ public class MolecularActionJpa implements MolecularAction {
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
-
 
   /* see superclass */
   @Override
@@ -314,7 +308,6 @@ public class MolecularActionJpa implements MolecularAction {
     return true;
   }
 
-
   /* see superclass */
   @Override
   public String toString() {
@@ -324,7 +317,5 @@ public class MolecularActionJpa implements MolecularAction {
         + lastModifiedBy + ", timestamp=" + timestamp + ", macroAction="
         + macroAction + ", atomicActions=" + atomicActions + "]";
   }
-
-
 
 }

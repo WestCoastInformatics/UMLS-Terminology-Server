@@ -73,8 +73,6 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 public class MetadataServiceJpa extends ProjectServiceJpa
     implements MetadataService {
 
-  /** The config properties. */
-  protected static Properties config = null;
 
   /** The helper map. */
   private static Map<String, MetadataService> helperMap = null;
