@@ -201,20 +201,20 @@ public interface WorkflowService {
   /**
    * Add project workflow config.
    *
-   * @param projectWorkflowConfig the project workflow config
+   * @param WorkflowConfig the project workflow config
    * @return the project workflow config
    * @throws Exception the exception
    */
-  public WorkflowConfig addProjectWorkflowConfig(WorkflowConfig projectWorkflowConfig) throws Exception;
+  public WorkflowConfig addWorkflowConfig(WorkflowConfig WorkflowConfig) throws Exception;
 
 
   /**
    * Update project workflow config.
    *
-   * @param projectWorkflowConfig the project workflow config
+   * @param WorkflowConfig the project workflow config
    * @throws Exception the exception
    */
-  public void updateProjectWorkflowConfig(WorkflowConfig projectWorkflowConfig) throws Exception;
+  public void updateWorkflowConfig(WorkflowConfig WorkflowConfig) throws Exception;
   
 
   /**
@@ -223,7 +223,7 @@ public interface WorkflowService {
    * @param id the id
    * @throws Exception the exception
    */
-  public void removeProjectWorkflowConfig(Long id) throws Exception;
+  public void removeWorkflowConfig(Long id) throws Exception;
 
  
   /**
@@ -232,7 +232,7 @@ public interface WorkflowService {
    * @return the project workflow configs
    * @throws Exception the exception
    */
-  public List<WorkflowConfig> getProjectWorkflowConfigs() throws Exception;
+  public List<WorkflowConfig> getWorkflowConfigs() throws Exception;
   
 
   /**
@@ -242,7 +242,7 @@ public interface WorkflowService {
    * @return the project workflow config
    * @throws Exception the exception
    */
-  public WorkflowConfig getProjectWorkflowConfig(Long id) throws Exception;
+  public WorkflowConfig getWorkflowConfig(Long id) throws Exception;
   
 
   /**
@@ -252,7 +252,7 @@ public interface WorkflowService {
    * @return the list
    * @throws Exception the exception
    */
-  public List<WorkflowConfig> findProjectWorkflowConfigsForQuery(String query) throws Exception;
+  public List<WorkflowConfig> findWorkflowConfigsForQuery(String query) throws Exception;
   
 
   /**

@@ -184,6 +184,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
     // Keep this below the read query above
     setLastModifiedBy("admin");
     setLastModifiedFlag(true);
+    setMolecularActionFlag(false);
     setTransactionPerOperation(false);
     beginTransaction();
 

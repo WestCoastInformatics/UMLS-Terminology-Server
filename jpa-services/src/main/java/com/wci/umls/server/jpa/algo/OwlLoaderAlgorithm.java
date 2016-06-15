@@ -269,9 +269,15 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       throw new Exception("Specified input file does not exist");
     }
 
-    setAssignIdentifiersFlag(false);
-    setLastModifiedFlag(false);
+    // control transaction scope
     setTransactionPerOperation(false);
+    // Turn of ID computation when loading a terminology
+    setAssignIdentifiersFlag(false);
+    // Let loader set last modified flags.
+    setLastModifiedFlag(false);
+    // Turn off action handling
+    setMolecularActionFlag(false);
+
     beginTransaction();
 
     //

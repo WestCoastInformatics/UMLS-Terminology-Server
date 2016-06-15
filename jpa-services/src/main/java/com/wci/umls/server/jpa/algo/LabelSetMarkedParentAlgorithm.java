@@ -52,6 +52,7 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
 
     setLastModifiedBy("admin");
     setLastModifiedFlag(true);
+    setMolecularActionFlag(false);
     setTransactionPerOperation(false);
     beginTransaction();
 

@@ -224,11 +224,13 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
       // control transaction scope
       setTransactionPerOperation(false);
-      // Turn of ID computation when loading a getTerminology()
+      // Turn of ID computation when loading a terminology
       setAssignIdentifiersFlag(false);
       // Let loader set last modified flags.
       setLastModifiedFlag(false);
-
+      // Turn off action handling
+      setMolecularActionFlag(false);
+      
       // faster performance.
       beginTransaction();
 

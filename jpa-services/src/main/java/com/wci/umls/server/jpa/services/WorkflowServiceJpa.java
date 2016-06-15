@@ -221,31 +221,31 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public WorkflowConfig addProjectWorkflowConfig(
-    WorkflowConfig projectWorkflowConfig) throws Exception {
+  public WorkflowConfig addWorkflowConfig(
+    WorkflowConfig WorkflowConfig) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - add project workflow config " + projectWorkflowConfig.toString());
+        "Workflow Service - add project workflow config " + WorkflowConfig.toString());
 
     // Add component
-    WorkflowConfig config = addHasLastModified(projectWorkflowConfig);
+    WorkflowConfig config = addHasLastModified(WorkflowConfig);
 
     // do not inform listeners
     return config;
   }
 
   @Override
-  public void updateProjectWorkflowConfig(
-    WorkflowConfig projectWorkflowConfig) throws Exception {
+  public void updateWorkflowConfig(
+    WorkflowConfig WorkflowConfig) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - update project workflow config " + projectWorkflowConfig);
+        "Workflow Service - update project workflow config " + WorkflowConfig);
 
     // update component
-    updateHasLastModified(projectWorkflowConfig);
+    updateHasLastModified(WorkflowConfig);
 
   }
 
   @Override
-  public void removeProjectWorkflowConfig(Long id) throws Exception {
+  public void removeWorkflowConfig(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - remove project workflow config " + id);
     // Remove the component
@@ -253,12 +253,12 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public List<WorkflowConfig> getProjectWorkflowConfigs()
+  public List<WorkflowConfig> getWorkflowConfigs()
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - get project workflow configs " );
     final javax.persistence.Query query =
-        manager.createQuery("select a from ProjectWorkflowConfigJpa a");
+        manager.createQuery("select a from WorkflowConfigJpa a");
 
     try {
       @SuppressWarnings("unchecked")
@@ -271,14 +271,14 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public WorkflowConfig getProjectWorkflowConfig(Long id)
+  public WorkflowConfig getWorkflowConfig(Long id)
     throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Service - get project workflow config " + id);
     return getHasLastModified(id, WorkflowConfigJpa.class);
   }
 
   @Override
-  public List<WorkflowConfig> findProjectWorkflowConfigsForQuery(
+  public List<WorkflowConfig> findWorkflowConfigsForQuery(
     String query) throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Service - find project workflow config for query " + query);
     List<WorkflowConfig> results = new ArrayList<>();
