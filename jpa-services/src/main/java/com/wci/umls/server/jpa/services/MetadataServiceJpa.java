@@ -72,8 +72,6 @@ import com.wci.umls.server.services.handlers.MetadataHandler;
 public class MetadataServiceJpa extends ProjectServiceJpa implements
     MetadataService {
 
-  /** The config properties. */
-  protected static Properties config = null;
 
   /** The helper map. */
   private static Map<String, MetadataHandler> helperMap = null;

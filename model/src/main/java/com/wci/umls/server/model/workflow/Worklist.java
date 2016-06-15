@@ -5,8 +5,6 @@ package com.wci.umls.server.model.workflow;
 
 import java.util.Date;
 
-import com.wci.umls.server.Project;
-
 /**
  * Represents a worklist.
  */

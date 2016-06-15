@@ -35,7 +35,7 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 /**
  * Services to retrieve metadata objects.
  */
-public interface MetadataService extends RootService, Configurable {
+public interface MetadataService extends ProjectService, Configurable {
 
   /**
    * An enum for the keys of the get all metadata call.

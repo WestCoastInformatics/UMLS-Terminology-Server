@@ -22,7 +22,24 @@ public enum IdType {
   ATOM,
 
   /** The other. */
-  OTHER;
+  OTHER,
+  
+  /** The semantic type. */
+  SEMANTIC_TYPE,
+  
+  /** The relationship. */
+  RELATIONSHIP,
+  
+  /** The attribute. */
+  ATTRIBUTE,
+  
+  /** The subset. */
+  SUBSET,
+  
+  /** The definition. */
+  DEFINITION;
+  
+  
 
   /**
    * Gets the id type.

@@ -81,6 +81,7 @@ public class MetaEditingServiceRestNormalUseTest
     //
     // Prepare the test and check prerequisites
     //
+    Date startDate = new Date();
 
     // get the concept
     Concept c = contentService.getConcept("C0002520", umlsTerminology,
@@ -118,6 +119,9 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertNotNull(sty);
+    
+    // verify the molecular action exists
+    
 
     //
     // Test removal

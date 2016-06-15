@@ -1,12 +1,12 @@
 package com.wci.umls.server.model.actions;
 
-import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
  * The Interface AtomicAction.
  */
-public interface AtomicAction extends HasTerminologyId {
+public interface AtomicAction extends HasId {
   
   /**
    * Gets the molecular action.
@@ -91,4 +91,18 @@ public interface AtomicAction extends HasTerminologyId {
    * @param id the new id
    */
   public void setId(Long id);
+  
+  /**
+   * Gets the object id.
+   *
+   * @return the object id
+   */
+  public Long getObjectId();
+  
+  /**
+   * Sets the object id.
+   *
+   * @param id the new object id
+   */
+  public void setObjectId(Long id);
 }

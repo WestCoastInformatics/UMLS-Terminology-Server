@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.Date;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -18,12 +20,9 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
-import com.wci.umls.server.jpa.services.ActionServiceJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
-import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
@@ -31,10 +30,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
-import com.wci.umls.server.services.ActionService;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.MetadataService;
-import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -90,33 +86,24 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       ValidationResult validationResult = new ValidationResultJpa();
 
-      // TODO: Service explosion! Consolidate, possibly expand authorizeProject
-      // call?
+      // instantiate services
       ContentService contentService = new ContentServiceJpa();
-      MetadataService metadataService = new MetadataServiceJpa();
-      ProjectService projectService = new ProjectServiceJpa();
-      ActionService actionService = new ActionServiceJpa();
 
       try {
 
         // authorize and get user name from the token
-        String userName = authorizeProject(projectService, projectId,
+        String userName = authorizeProject( contentService, projectId,
             securityService, authToken, action, UserRole.AUTHOR);
 
-        // set the last modified by in the content and action services
-        contentService.setLastModifiedBy(userName);
-        actionService.setLastModifiedBy(userName);
-
-        // prepare the transaction
-        contentService.setTransactionPerOperation(false);
-        contentService.beginTransaction();
-
+        
+        
+     
         //
         // Synchronized retrieval and locking based on conceptId
         // Intended for use to prevent access by other MetaEditing calls
         //
-        // TODO Make sure to test different concept ids (should not block)
         Concept concept;
+
         synchronized (conceptId.toString().intern()) {
 
           // retrieve the concept
@@ -129,19 +116,44 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           }
           contentService.lockObject(concept);
         }
+        
+        // TODO Wrap the following in helper(service, concept, userName, type)
+        
 
-        // copy the concept for comparison and action logging
-        Concept existingConcept = new ConceptJpa(concept, true);
+        // ensure molecular action flag is set
+        contentService.setMolecularActionFlag(true);
+        
+      
+
+        // prepare the molecular action
+        MolecularAction molecularAction = new MolecularActionJpa();
+        molecularAction.setTerminology(concept.getTerminology());
+        molecularAction.setTerminologyId(concept.getTerminologyId());
+        molecularAction.setVersion(concept.getVersion());
+        molecularAction.setType("ADD_SEMANTIC_TYPE");
+        molecularAction.setTimestamp(new Date());
+      
+        // prepare the transaction
+        contentService.setTransactionPerOperation(false);
+        contentService.beginTransaction();
+
+        // set the last modified by for content service
+        contentService.setLastModifiedBy(userName);
+        contentService.setMolecularAction(molecularAction);
+        // TODO Get rid of cascade flag
+        contentService.addMolecularAction(molecularAction, false);
+        
+        // END TODO
 
         // retrieve the project
-        Project project = projectService.getProject(projectId);
+        final Project project = contentService.getProject(projectId);
 
         //
         // Check prerequisites
         //
 
         // perform action-specific validation
-        // NOTE: No validation required for addSemanticType
+        // NOTE: No action-specific validation required for addSemanticType
 
         // check project and concept compatibility
         checkPrerequisitesForProjectAndConcept(project, concept,
@@ -154,7 +166,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         }
 
         // check that semantic type is valid
-        if (metadataService.getSemanticType(
+        if (contentService.getSemanticType(
             semanticTypeComponent.getSemanticType(), concept.getTerminology(),
             concept.getVersion()) == null) {
           validationResult.getErrors()
@@ -196,33 +208,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         // update the concept
         contentService.updateConcept(concept);
-
-        try {
-          // resolve the action
-          MolecularAction molecularAction = actionService.resolveAction(
-              "Add semantic type to concept", existingConcept, concept);
-
-          // verify the action
-          // TODO This is really just playing around/brainstorming
-          if (!actionService.hasChangedField(molecularAction,
-              "semanticTypes")) {
-            throw new Exception(
-                "Fatal error: failed to produce expected action");
-          }
-
-        }
-
-        // on error adding molecular action, throw exception (performs unlock)
-        catch (Exception e) {
-          e.printStackTrace();
-          throw new Exception(
-              "Fatal error:  Could not compute molecular action");
-        }
+        
+        // log the REST call
+        contentService.addLogEntry(userName, projectId, conceptId,
+            "Add semantic type " + semanticTypeComponent.getSemanticType()
+                + " to concept " + concept.getTerminologyId());
 
         // commit (also removes the lock)
         contentService.commit();
-
-        // TODO LogEntry?
 
         return validationResult;
 
@@ -240,9 +233,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         return null;
       } finally {
         contentService.close();
-        projectService.close();
-        actionService.close();
-        metadataService.close();
         securityService.close();
       }
     }
@@ -267,27 +257,17 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             + conceptId + "/remove for user " + authToken + " with id "
             + semanticTypeComponentId);
 
-    String action = "trying to add semantic type to concept";
+    final String action = "trying to add semantic type to concept";
 
-    ValidationResult validationResult = new ValidationResultJpa();
+    final ValidationResult validationResult = new ValidationResultJpa();
 
-    ContentService contentService = new ContentServiceJpa();
-    ActionService actionService = new ActionServiceJpa();
-    ProjectService projectService = new ProjectServiceJpa();
-
+    final ContentService contentService = new ContentServiceJpa();
+  
     try {
 
       // authorize and get user name from the token
-      String userName = authorizeProject(projectService, projectId,
+      final String userName = authorizeProject(contentService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
-
-      // set the last modified by for content and action services
-      contentService.setLastModifiedBy(userName);
-      actionService.setLastModifiedBy(userName);
-
-      // prepare the transaction
-      contentService.setTransactionPerOperation(false);
-      contentService.beginTransaction();
 
       //
       // Synchronized retrieval and locking based on conceptId
@@ -307,10 +287,32 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       }
 
-      Concept existingConcept = new ConceptJpa(concept, true);
+      // force use of molecular action
+      // TODO Consider whether to do this automatically instead of throwing
+      // exception
+      if (contentService.isMolecularActionFlag()) {
+        throw new Exception(
+            "Fatal error: MetaEditing REST calls must enable logging of molecular actions");
+      }
+
+      // prepare the molecular action
+      MolecularAction molecularAction = new MolecularActionJpa();
+      molecularAction.setTerminology(concept.getTerminology());
+      molecularAction.setTerminologyId(concept.getTerminologyId());
+      molecularAction.setVersion(concept.getVersion());
+      molecularAction.setType("REMOVE_SEMANTIC_TYPE");
+      molecularAction.setTimestamp(new Date());
+
+      // set the last modified by for content service
+      contentService.setLastModifiedBy(userName);
+      contentService.setMolecularAction(molecularAction);
+
+      // prepare the transaction
+      contentService.setTransactionPerOperation(false);
+      contentService.beginTransaction();
 
       // retrieve the project
-      Project project = projectService.getProject(projectId);
+      final Project project = contentService.getProject(projectId);
 
       //
       // Check prerequisites
@@ -358,25 +360,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // remove the semantic type component
       contentService.removeSemanticTypeComponent(semanticTypeComponent.getId());
 
-      try {
-        // resolve the action
-        MolecularAction molecularAction = actionService.resolveAction(
-            "Remove semantic type from concept", existingConcept, concept);
+      // log the REST call
+      contentService.addLogEntry(userName, projectId, conceptId,
+          "Remove semantic type " + semanticTypeComponent.getSemanticType()
+              + " from concept " + concept.getTerminologyId());
 
-        // add the action
-        actionService.addMolecularAction(molecularAction);
-      }
-
-      // on error adding molecular action, throw exception (performs unlock)
-      catch (Exception e) {
-        e.printStackTrace();
-        throw new Exception("Fatal error:  Could not compute molecular action");
-      }
-
-      // commit (also removes the lock)
+      // commit (also adds the molecular action and removes the lock)
       contentService.commit();
 
-      // TODO Log entry?
       return validationResult;
 
     } catch (Exception e) {
@@ -394,7 +385,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return null;
     } finally {
       contentService.close();
-      projectService.close();
       securityService.close();
     }
   }
