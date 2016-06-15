@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.test.workflow;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
@@ -12,11 +13,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
+import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
@@ -28,16 +33,22 @@ import com.wci.umls.server.model.workflow.Worklist;
 /**
  * Unit testing for {@link WorkflowEpochJpa}.
  */
-public class WorklistJpaUnitTest {
+public class WorklistJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private WorklistJpa object;
 
-  /** The m1. */
+  /** The fixture m1. */
   private WorkflowBin m1;
 
-  /** The m2. */
+  /** The fixture m2. */
   private WorkflowBin m2;
+
+  /** The fixture p1. */
+  private Project p1;
+
+  /** The fdixture p2. */
+  private Project p2;
 
   /**
    * Setup class.
@@ -55,9 +66,13 @@ public class WorklistJpaUnitTest {
   @Before
   public void setup() throws Exception {
     object = new WorklistJpa();
-    ProxyTester tester2 = new ProxyTester(new WorkflowBinJpa());
-    m1 = (WorkflowBinJpa) tester2.createObject(1);
-    m2 = (WorkflowBinJpa) tester2.createObject(2);
+    final ProxyTester tester = new ProxyTester(new WorkflowBinJpa());
+    m1 = (WorkflowBinJpa) tester.createObject(1);
+    m2 = (WorkflowBinJpa) tester.createObject(2);
+
+    final ProxyTester tester2 = new ProxyTester(new ProjectJpa());
+    p1 = (ProjectJpa) tester2.createObject(1);
+    p2 = (ProjectJpa) tester2.createObject(2);
   }
 
   /**
@@ -66,9 +81,11 @@ public class WorklistJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet041");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("workflowBinId");
+    tester.exclude("projectId");
     tester.test();
   }
 
@@ -78,25 +95,26 @@ public class WorklistJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("timestamp");
-    tester.include("lastModified");
-    tester.include("lastModifiedBy");
     tester.include("description");
-
     tester.include("name");
+    tester.include("project");
+    tester.include("workflowBin");
+
     tester.include("assignDate");
-    tester.include("returnDate");
-    tester.include("stampDate");
     tester.include("editor");
     tester.include("worklistGroup");
+    tester.include("returnDate");
+    tester.include("stampDate");
     tester.include("stampedBy");
     tester.include("status");
 
     tester.proxy(WorkflowBin.class, 1, m1);
     tester.proxy(WorkflowBin.class, 2, m2);
+    tester.proxy(Project.class, 1, p1);
+    tester.proxy(Project.class, 2, p2);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -112,12 +130,14 @@ public class WorklistJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
+  public void testModelDeepCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(WorkflowBin.class, 1, m1);
     tester.proxy(WorkflowBin.class, 2, m2);
+    tester.proxy(Project.class, 1, p1);
+    tester.proxy(Project.class, 2, p2);
     assertTrue(tester.testCopyConstructorDeep(Worklist.class));
 
   }
@@ -128,9 +148,16 @@ public class WorklistJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
+
+    Project p1 = new ProjectJpa();
+    p1.setId(1L);
+    WorkflowBin b1 = new WorkflowBinJpa();
+    b1.setId(1L);
+    tester.proxy(Project.class, 1, p1);
+    tester.proxy(WorkflowBin.class, 1, b1);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -140,7 +167,8 @@ public class WorklistJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField041() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -148,13 +176,6 @@ public class WorklistJpaUnitTest {
     tester.include("name");
     tester.include("description");
 
-    tester.include("returnDate");
-    tester.include("assignDate");
-    tester.include("stampDate");
-    tester.include("editor");
-    tester.include("worklistGroup");
-    tester.include("stampedBy");
-    tester.include("status");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -164,23 +185,40 @@ public class WorklistJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("name");
-    tester.include("editor");
-    tester.include("worklistGroup");
-    tester.include("description");
+    // NO analyzed fields
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
-    assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
+    tester.include("name");
+    tester.include("projectId");
+    tester.include("workflowBinId");
     tester.include("lastModifiedBy");
+    tester.include("lastModifiedBy");
+    tester.include("editor");
+    tester.include("worklistGroup");
+    tester.include("stampedBy");
+    tester.include("status");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
+  }
+
+  /**
+   * Test XML transient
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+    String xml = ConfigUtility.getStringForGraph(object);
+    assertTrue(xml.contains("<workflowBinId>"));
+    assertFalse(xml.contains("<workflowBin>"));
   }
 
   /**
@@ -198,6 +236,5 @@ public class WorklistJpaUnitTest {
   public static void teardownClass() {
     // do nothing
   }
-
 }
 //

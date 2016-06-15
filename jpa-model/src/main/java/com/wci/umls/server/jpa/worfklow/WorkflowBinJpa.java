@@ -102,7 +102,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   private boolean editable;
 
   /** The tracking records. */
-  @OneToMany(targetEntity = TrackingRecordJpa.class)
+  @OneToMany(mappedBy = "workflowBin", targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /** The creation time. */
@@ -198,7 +198,7 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getName() {
     return name;
   }

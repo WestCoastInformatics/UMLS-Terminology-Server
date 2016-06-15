@@ -111,6 +111,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     lastModifiedBy = record.getLastModifiedBy();
     timestamp = record.getTimestamp();
     clusterId = record.getClusterId();
+    clusterType = record.getClusterType();
     terminology = record.getTerminology();
     version = record.getVersion();
     terminologyIds = new ArrayList<>(record.getTerminologyIds());
@@ -131,7 +132,6 @@ public class TrackingRecordJpa implements TrackingRecord {
   }
 
   /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public Date getLastModified() {
     return lastModified;
@@ -225,6 +225,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   }
 
   /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getClusterType() {
     return clusterType;

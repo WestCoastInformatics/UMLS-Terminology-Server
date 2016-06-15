@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -24,7 +25,7 @@ import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 /**
  * Unit testing for {@link WorkflowBinDefinitionJpa}.
  */
-public class WorkflowBinDefinitionJpaUnitTest {
+public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private WorkflowBinDefinitionJpa object;
@@ -53,8 +54,8 @@ public class WorkflowBinDefinitionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet041");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -65,8 +66,8 @@ public class WorkflowBinDefinitionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("name");
     tester.include("description");
@@ -88,9 +89,8 @@ public class WorkflowBinDefinitionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
-
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructor(WorkflowBinDefinition.class));
 
@@ -102,8 +102,8 @@ public class WorkflowBinDefinitionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -114,7 +114,8 @@ public class WorkflowBinDefinitionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField041() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -134,22 +135,20 @@ public class WorkflowBinDefinitionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("name");
-    tester.include("description");
-    tester.include("query");
+    // No analyzed fields
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
-    assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
     tester.include("lastModifiedBy");
+    tester.include("name");
+    tester.include("editable");
     tester.include("queryType");
-
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
 

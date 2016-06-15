@@ -157,7 +157,7 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getName() {
     return name;
   }
@@ -183,8 +183,8 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
   }
 
   /* see superclass */
-  @Override
   @XmlTransient
+  @Override
   public Project getProject() {
     return project;
   }
@@ -218,17 +218,34 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
     project.setId(projectId);
   }
 
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public List<WorkflowBin> getWorkflowBins() {
+    if (workflowBins == null) {
+      return new ArrayList<>();
+    }
+    return workflowBins;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowBins(List<WorkflowBin> workflowBins) {
+    this.workflowBins = workflowBins;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + (active ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result =
-        prime * result + ((workflowBins == null) ? 0 : workflowBins.hashCode());
+    result = prime * result + ((project == null) ? 0 : project.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -245,32 +262,20 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
         return false;
     } else if (!name.equals(other.name))
       return false;
-    if (workflowBins == null) {
-      if (other.workflowBins != null)
+    if (project == null) {
+      if (other.project != null)
         return false;
-    } else if (!workflowBins.equals(other.workflowBins))
+    } else if (!project.equals(other.project))
       return false;
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "WorkflowEpochJpa [lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", name=" + name + ", active=" + active + "]";
-  }
-
-  @Override
-  public List<WorkflowBin> getWorkflowBins() {
-    if (workflowBins == null) {
-      return new ArrayList<>();
-    }
-    return workflowBins;
-  }
-
-  @Override
-  public void setWorkflowBins(List<WorkflowBin> workflowBins) {
-    this.workflowBins = workflowBins;
   }
 
 }

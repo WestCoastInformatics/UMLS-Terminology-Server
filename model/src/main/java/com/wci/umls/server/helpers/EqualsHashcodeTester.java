@@ -33,7 +33,13 @@ public class EqualsHashcodeTester extends ProxyTester {
         "Test identity field equals - " + clazz.getName());
     Object o1 = createObject(1);
     Object o2 = createObject(1);
-    return o1.equals(o2);
+    if (o1.equals(o2)) {
+      return true;
+    } else {
+      Logger.getLogger(getClass()).info("o1 = " + o1.hashCode() + ", " + o1);
+      Logger.getLogger(getClass()).info("o2 = " + o2.hashCode() + ", " + o2);
+      return false;
+    }
   }
 
   /**

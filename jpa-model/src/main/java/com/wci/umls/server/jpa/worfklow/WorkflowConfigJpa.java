@@ -44,7 +44,7 @@ import com.wci.umls.server.model.workflow.WorkflowConfig;
 @Entity
 @Table(name = "workflow_configs")
 @Indexed
-@XmlRootElement(name = "projectWorkflowConfig")
+@XmlRootElement(name = "workflowConfig")
 public class WorkflowConfigJpa implements WorkflowConfig {
 
   /** The id. */

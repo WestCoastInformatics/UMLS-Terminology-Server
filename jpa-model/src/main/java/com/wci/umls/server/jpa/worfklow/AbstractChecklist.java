@@ -25,6 +25,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.model.workflow.Worklist;
 
 /**
  * Abstract JPA-enabled implementation of a {@link Checklist} or a

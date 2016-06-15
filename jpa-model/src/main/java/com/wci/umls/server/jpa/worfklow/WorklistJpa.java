@@ -17,11 +17,9 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -39,38 +37,38 @@ import com.wci.umls.server.model.workflow.Worklist;
 public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /** The assign date. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date assignDate = new Date();
 
   /** The return date. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date returnDate = new Date();
 
   /** The stamp date. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date stampDate = new Date();
 
   /** The editor. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String editor;
 
   /** The group. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String worklistGroup;
 
   /** The stamped by. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String stampedBy;
 
   /** The status. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String status;
 
   /** The tracking records. */
-  @OneToMany(mappedBy = "worklist_id", targetEntity = TrackingRecordJpa.class)
+  @OneToMany(mappedBy = "worklist", targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /**
@@ -94,7 +92,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     editor = worklist.getEditor();
     worklistGroup = worklist.getWorklistGroup();
     stampedBy = worklist.getStampedBy();
-    setWorkflowBin(worklist.getWorkflowBin());
+    status = worklist.getStatus();
     if (deepCopy) {
       trackingRecords = new ArrayList<>(worklist.getTrackingRecords());
     }
@@ -262,7 +260,10 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
         return false;
     } else if (!stampedBy.equals(other.stampedBy))
       return false;
-    if (status != other.status)
+    if (status == null) {
+      if (other.status != null)
+        return false;
+    } else if (!status.equals(other.status))
       return false;
 
     return true;
@@ -273,7 +274,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     return "WorklistJpa [id=" + getId() + ", assignDate=" + assignDate
         + ", returnDate=" + returnDate + ", stampDate=" + stampDate
         + ", editor=" + editor + ", group=" + worklistGroup + ", stampedBy="
-        + stampedBy + ", status=" + status + "]";
+        + stampedBy + ", status=" + status + "] " + super.toString();
   }
 
 }
