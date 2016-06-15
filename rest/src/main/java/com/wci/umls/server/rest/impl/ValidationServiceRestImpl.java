@@ -68,7 +68,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/validate/concept/merge/{terminology}/{version}/{cui1}/{cui2}")
-  @ApiOperation(value = "Validate merge", notes = "Validates the merge of two concepts", response = ValidationResultJpa.class)
+  @ApiOperation(value = "Validate merge", notes = "Validates the merge of two concepts")
   public ValidationResult validateMerge(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Terminology", required = true) @PathParam("terminology") String terminology,
@@ -114,7 +114,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/dui")
-  @ApiOperation(value = "Validate Descriptor", notes = "Validates a descriptor", response = ValidationResultJpa.class)
+  @ApiOperation(value = "Validate Descriptor", notes = "Validates a descriptor")
   public ValidationResult validateDescriptor(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Descriptor", required = true) DescriptorJpa descriptor,
@@ -143,7 +143,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/aui")
-  @ApiOperation(value = "Validate Atom", notes = "Validates a atom", response = ValidationResultJpa.class)
+  @ApiOperation(value = "Validate Atom", notes = "Validates a atom")
   public ValidationResult validateAtom(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Atom", required = true) AtomJpa atom,
@@ -172,7 +172,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/code")
-  @ApiOperation(value = "Validate Code", notes = "Validates a code", response = ValidationResultJpa.class)
+  @ApiOperation(value = "Validate Code", notes = "Validates a code")
   public ValidationResult validateCode(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Code", required = true) CodeJpa code,
@@ -201,7 +201,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/concept")
-  @ApiOperation(value = "Validate Concept", notes = "Validates a concept", response = ValidationResultJpa.class)
+  @ApiOperation(value = "Validate Concept", notes = "Validates a concept")
   public ValidationResult validateConcept(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept", required = true) ConceptJpa concept,

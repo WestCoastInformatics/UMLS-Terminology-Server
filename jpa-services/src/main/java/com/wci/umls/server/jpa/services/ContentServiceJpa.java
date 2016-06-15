@@ -265,7 +265,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       throw new Exception(
           "Normalized string handler did not properly initialize, serious error.");
     }
-    
+
     if (!searchHandlerNames.contains(ConfigUtility.ATOMCLASS)) {
       throw new Exception("search.handler." + ConfigUtility.ATOMCLASS
           + " expected and does not exist.");
@@ -937,16 +937,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");
       atomicAction.setIdType(IdType.SEMANTIC_TYPE);
-      // TODO Doublecheck that the molecular action is persisted prior to this step
+      // TODO Doublecheck that the molecular action is persisted prior to this
+      // step
       atomicAction.setMolecularAction(molecularAction);
       atomicAction.setOldValue(null);
       atomicAction.setNewValue(component.getId().toString());
       atomicAction.setObjectId(component.getId());
-      
+
       addAtomicAction(atomicAction);
 
       molecularAction.getAtomicActions().add(atomicAction);
-      
+
     }
 
     // Add component
@@ -3783,9 +3784,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
    */
   protected <T extends Component> T addComponent(T component) throws Exception {
 
-    // TODO: PG apply this approach to removeComponent/updateComponent as well
-    // This actually refers to those add/remove/update calls referring to 
-
     // Component-specific handling
 
     // handle as a normal "has last modified"
@@ -3802,27 +3800,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
    */
   protected <T extends Component> void updateComponent(T component)
     throws Exception {
-    try {
-      // Set modification date
-      if (isLastModifiedFlag()) {
-        component.setLastModified(new Date());
-      }
+    // Component-specific handling
 
-      // update
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.merge(component);
-        tx.commit();
-      } else {
-        manager.merge(component);
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    // handle as a normal "has last modified"
+    updateHasLastModified(component);
 
   }
 
@@ -3888,45 +3869,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @param <T> the
    * @param id the id
    * @param clazz the clazz
-   * @return the t
    * @throws Exception the exception
    */
-  protected <T extends Component> T removeComponent(Long id, Class<T> clazz)
+  protected <T extends Component> void removeComponent(Long id, Class<T> clazz)
     throws Exception {
-    try {
-      // Get transaction and object
-      tx = manager.getTransaction();
-      T component = manager.find(clazz, id);
 
-      // Set modification date
-      if (isLastModifiedFlag()) {
-        component.setLastModified(new Date());
-      }
-
-      // Remove
-      if (getTransactionPerOperation()) {
-        // remove refset member
-        tx.begin();
-        if (manager.contains(component)) {
-          manager.remove(component);
-        } else {
-          manager.remove(manager.merge(component));
-        }
-        tx.commit();
-      } else {
-        if (manager.contains(component)) {
-          manager.remove(component);
-        } else {
-          manager.remove(manager.merge(component));
-        }
-      }
-      return component;
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    removeHasLastModified(id, clazz);
   }
 
   /* see superclass */
