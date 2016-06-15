@@ -26,8 +26,8 @@ import com.wci.umls.server.services.handlers.WorkflowListener;
 /**
  * Implementation of {@link ActionService}.
  */
-public class ActionServiceJpa extends HistoryServiceJpa
-    implements ActionService {
+public class ActionServiceJpa extends HistoryServiceJpa implements
+    ActionService {
 
   /** The config properties. */
   protected static Properties config = null;
@@ -150,8 +150,7 @@ public class ActionServiceJpa extends HistoryServiceJpa
   }
 
   @Override
-  public void addNewInferredRelationships(String sessionToken)
-    throws Exception {
+  public void addNewInferredRelationships(String sessionToken) throws Exception {
     // TODO Auto-generated method stub
 
   }
@@ -185,12 +184,14 @@ public class ActionServiceJpa extends HistoryServiceJpa
     }
 
     // extract the basic fields
-    String terminology = oldConcept == null ? newConcept.getTerminology()
-        : oldConcept.getTerminology();
+    String terminology =
+        oldConcept == null ? newConcept.getTerminology() : oldConcept
+            .getTerminology();
     String version =
         oldConcept == null ? newConcept.getVersion() : oldConcept.getVersion();
-    String terminologyId = oldConcept == null ? newConcept.getTerminologyId()
-        : oldConcept.getTerminologyId();
+    String terminologyId =
+        oldConcept == null ? newConcept.getTerminologyId() : oldConcept
+            .getTerminologyId();
 
     MolecularAction molecularAction = new MolecularActionJpa();
     molecularAction.setTerminology(terminology);
@@ -199,11 +200,11 @@ public class ActionServiceJpa extends HistoryServiceJpa
     molecularAction.setLastModified(new Date());
     molecularAction.setLastModifiedBy(getLastModifiedBy());
     molecularAction.setTimestamp(new Date());
-    molecularAction.setType(actionType);
+    molecularAction.setName(actionType);
 
     // cycle over getter fields
     for (Method m : ConceptJpa.class.getMethods()) {
-      
+
       // only use get/is methods with no arguments to determine changes
       // NOTE: Motivated by Concept.getLabelForName
       if (m.getName().startsWith("get") && m.getParameterCount() == 0
@@ -212,15 +213,17 @@ public class ActionServiceJpa extends HistoryServiceJpa
         Object newValue = newConcept == null ? null : m.invoke(newConcept);
 
         // if change from null or change in value
-        if (oldValue == null && newValue != null
-            || oldValue != null && !oldValue.equals(newValue)) {
+        if (oldValue == null && newValue != null || oldValue != null
+            && !oldValue.equals(newValue)) {
 
           AtomicAction action = new AtomicActionJpa();
           action.setIdType(IdType.CONCEPT);
-      
+
           // retrieve and set the field name (based on is vs. get)
           int fromIndex = m.getName().startsWith("get") ? 3 : 2;
-          action.setField(m.getName().substring(fromIndex,fromIndex+1).toLowerCase() + m.getName().substring(fromIndex));
+          action.setField(m.getName().substring(fromIndex, fromIndex + 1)
+              .toLowerCase()
+              + m.getName().substring(fromIndex));
 
           // TODO This is obviously very clumsy, and we'll need to deal with
           // collections and the like
@@ -234,7 +237,7 @@ public class ActionServiceJpa extends HistoryServiceJpa
     }
     return molecularAction;
   }
-  
+
   @Override
   public boolean hasChangedField(MolecularAction action, String fieldName) {
     for (AtomicAction a : action.getAtomicActions()) {

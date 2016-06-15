@@ -258,7 +258,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getWorkflowBinId() {
-    return workflowBin == null ? 0L : workflowBin.getId();
+    return workflowBin == null ? null : workflowBin.getId();
   }
 
   /**
@@ -294,7 +294,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getWorklistId() {
-    return worklist == null ? 0L : worklist.getId();
+    return worklist == null ? null : worklist.getId();
   }
 
   /**
@@ -323,7 +323,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     if (this.workflowBin != null) {
       return workflowBin.getProject().getId();
     }
-    return 0L;
+    return null;
   }
 
   /* see superclass */

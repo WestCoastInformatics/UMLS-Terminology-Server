@@ -12,6 +12,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
@@ -32,6 +33,9 @@ import com.wci.umls.server.model.workflow.Worklist;
  * {@link Worklist}.
  */
 @MappedSuperclass
+@XmlSeeAlso({
+    ChecklistJpa.class, WorklistJpa.class
+})
 public abstract class AbstractChecklist implements Checklist {
 
   /** The id. */
@@ -189,7 +193,7 @@ public abstract class AbstractChecklist implements Checklist {
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getWorkflowBinId() {
-    return workflowBin == null ? 0L : workflowBin.getId();
+    return workflowBin == null ? null : workflowBin.getId();
   }
 
   /**
@@ -226,7 +230,7 @@ public abstract class AbstractChecklist implements Checklist {
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getProjectId() {
-    return project == null ? 0L : project.getId();
+    return project == null ? null : project.getId();
   }
 
   /**

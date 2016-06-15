@@ -47,8 +47,8 @@ import com.wordnik.swagger.annotations.ApiParam;
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Api(value = "/meta", description = "Operations for metathesaurus editing")
-public class MetaEditingServiceRestImpl extends RootServiceRestImpl
-    implements MetaEditingServiceRest {
+public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
+    MetaEditingServiceRest {
 
   /** The security service. */
   private SecurityService securityService;
@@ -74,11 +74,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponentJpa semanticTypeComponent,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     {
 
-      Logger.getLogger(getClass())
-          .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
+      Logger.getLogger(getClass()).info(
+          "RESTful POST call (MetaEditing): /sty/" + projectId + "/"
               + conceptId + "/add for user " + authToken + " with sty value "
               + semanticTypeComponent.getSemanticType());
 
@@ -92,12 +92,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       try {
 
         // authorize and get user name from the token
-        String userName = authorizeProject( contentService, projectId,
-            securityService, authToken, action, UserRole.AUTHOR);
+        String userName =
+            authorizeProject(contentService, projectId, securityService,
+                authToken, action, UserRole.AUTHOR);
 
-        
-        
-     
         //
         // Synchronized retrieval and locking based on conceptId
         // Intended for use to prevent access by other MetaEditing calls
@@ -116,23 +114,20 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           }
           contentService.lockObject(concept);
         }
-        
+
         // TODO Wrap the following in helper(service, concept, userName, type)
-        
 
         // ensure molecular action flag is set
         contentService.setMolecularActionFlag(true);
-        
-      
 
         // prepare the molecular action
         MolecularAction molecularAction = new MolecularActionJpa();
         molecularAction.setTerminology(concept.getTerminology());
         molecularAction.setTerminologyId(concept.getTerminologyId());
         molecularAction.setVersion(concept.getVersion());
-        molecularAction.setType("ADD_SEMANTIC_TYPE");
+        molecularAction.setName("ADD_SEMANTIC_TYPE");
         molecularAction.setTimestamp(new Date());
-      
+
         // prepare the transaction
         contentService.setTransactionPerOperation(false);
         contentService.beginTransaction();
@@ -142,7 +137,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         contentService.setMolecularAction(molecularAction);
         // TODO Get rid of cascade flag
         contentService.addMolecularAction(molecularAction, false);
-        
+
         // END TODO
 
         // retrieve the project
@@ -161,32 +156,34 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         // check for stale-state
         if (concept.getTimestamp().getTime() != timestamp) {
-          validationResult.getErrors().add(
-              "Stale state detected: stored timestamp does not match passed timestamp");
+          validationResult
+              .getErrors()
+              .add(
+                  "Stale state detected: stored timestamp does not match passed timestamp");
         }
 
         // check that semantic type is valid
         if (contentService.getSemanticType(
             semanticTypeComponent.getSemanticType(), concept.getTerminology(),
             concept.getVersion()) == null) {
-          validationResult.getErrors()
-              .add("Cannot add semantic type: Invalid semantic type");
+          validationResult.getErrors().add(
+              "Cannot add semantic type: Invalid semantic type");
         }
-        
 
         // check if semantic type already exists on this concept
         for (SemanticTypeComponent s : concept.getSemanticTypes()) {
-          if (s.getSemanticType()
-              .equals(semanticTypeComponent.getSemanticType())) {
-            validationResult.getErrors().add(
-                "Cannot add semantic type: Concept already contains semantic type");
+          if (s.getSemanticType().equals(
+              semanticTypeComponent.getSemanticType())) {
+            validationResult
+                .getErrors()
+                .add(
+                    "Cannot add semantic type: Concept already contains semantic type");
           }
         }
 
         // if prerequisites fail, return validation result
         if (!validationResult.getErrors().isEmpty()
-            || (!validationResult.getWarnings().isEmpty()
-                && !overrideWarnings)) {
+            || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
           // rollback -- unlocks the concept and closes transaction
           contentService.rollback();
           return validationResult;
@@ -199,8 +196,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         // add the semantic type component itself and set the last modified
         semanticTypeComponent.setLastModifiedBy(userName);
         semanticTypeComponent.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-        semanticTypeComponent = (SemanticTypeComponentJpa) contentService
-            .addSemanticTypeComponent(semanticTypeComponent, concept);
+        semanticTypeComponent =
+            (SemanticTypeComponentJpa) contentService.addSemanticTypeComponent(
+                semanticTypeComponent, concept);
 
         // add the semantic type and set the last modified by
         concept.getSemanticTypes().add(semanticTypeComponent);
@@ -208,7 +206,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         // update the concept
         contentService.updateConcept(concept);
-        
+
         // log the REST call
         contentService.addLogEntry(userName, projectId, conceptId,
             "Add semantic type " + semanticTypeComponent.getSemanticType()
@@ -250,11 +248,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Semantic type id, e.g. 3", required = true) @PathParam("id") Long semanticTypeComponentId,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /sty/" + projectId + "/" + conceptId
+            + "/remove for user " + authToken + " with id "
             + semanticTypeComponentId);
 
     final String action = "trying to add semantic type to concept";
@@ -262,12 +260,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     final ValidationResult validationResult = new ValidationResultJpa();
 
     final ContentService contentService = new ContentServiceJpa();
-  
+
     try {
 
       // authorize and get user name from the token
-      final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, action, UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(contentService, projectId, securityService,
+              authToken, action, UserRole.AUTHOR);
 
       //
       // Synchronized retrieval and locking based on conceptId
@@ -300,7 +299,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       molecularAction.setTerminology(concept.getTerminology());
       molecularAction.setTerminologyId(concept.getTerminologyId());
       molecularAction.setVersion(concept.getVersion());
-      molecularAction.setType("REMOVE_SEMANTIC_TYPE");
+      molecularAction.setName("REMOVE_SEMANTIC_TYPE");
       molecularAction.setTimestamp(new Date());
 
       // set the last modified by for content service
@@ -322,13 +321,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // NOTE: No validation required for addSemanticType
 
       // check project and concept compatibility
-      checkPrerequisitesForProjectAndConcept(project, concept,
-          validationResult);
+      checkPrerequisitesForProjectAndConcept(project, concept, validationResult);
 
       // check for stale-state
       if (concept.getTimestamp().getTime() < timestamp) {
-        validationResult.getErrors()
-            .add("Stale state detected: concept modified after retrieval");
+        validationResult.getErrors().add(
+            "Stale state detected: concept modified after retrieval");
       }
 
       // check that semantic type component exists on concept
@@ -401,14 +399,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
     // throw exception on terminology mismatch
     if (!concept.getTerminology().equals(project.getTerminology())) {
-      validationResult.getErrors()
-          .add("Project and concept terminologies do not match");
+      validationResult.getErrors().add(
+          "Project and concept terminologies do not match");
     }
 
     // throw exception on branch mismatch
     if (!concept.getBranch().equals(project.getBranch())) {
-      validationResult.getErrors()
-          .add("Project and concept branches do not match");
+      validationResult.getErrors().add(
+          "Project and concept branches do not match");
     }
   }
 }

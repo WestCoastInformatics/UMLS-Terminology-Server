@@ -367,32 +367,22 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
 
   }
 
-  /**
-   * CUSTOM to support to/from/alternateTerminologyIds.
-   *
-   * @return the int
-   * @see com.wci.umls.server.jpa.content.AbstractRelationship#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + getFromTerminologyId().hashCode();
-    result = prime * result + getToTerminologyId().hashCode();
     result =
         prime
             * result
             + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .toString().hashCode());
+                .hashCode());
+    result = prime * result + ((from == null) ? 0 : from.hashCode());
+    result = prime * result + ((to == null) ? 0 : to.hashCode());
     return result;
   }
 
-  /**
-   * Custom equals method for to/from.getTerminologyId
-   *
-   * @param obj the obj
-   * @return true, if successful
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -402,17 +392,32 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     if (getClass() != obj.getClass())
       return false;
     CodeRelationshipJpa other = (CodeRelationshipJpa) obj;
-    if (!getFromTerminologyId().equals(other.getFromTerminologyId()))
-      return false;
-    if (!getToTerminologyId().equals(other.getToTerminologyId()))
-      return false;
-
     if (alternateTerminologyIds == null) {
       if (other.alternateTerminologyIds != null)
         return false;
     } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
       return false;
+    if (from == null) {
+      if (other.from != null)
+        return false;
+    } else if (!from.equals(other.from))
+      return false;
+    if (to == null) {
+      if (other.to != null)
+        return false;
+    } else if (!to.equals(other.to))
+      return false;
     return true;
+  }
+
+  /* see superclass */
+  @Override
+  public String toString() {
+    return "CodeRelationshipJpa [from=" + from + ", to=" + to
+        + ", alternateTerminologyIds=" + alternateTerminologyIds
+        + ", getRelationshipType()=" + getRelationshipType()
+        + ", getAdditionalRelationshipType()="
+        + getAdditionalRelationshipType() + ", getId()=" + getId() + "]";
   }
 
 }

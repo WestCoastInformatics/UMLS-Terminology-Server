@@ -71,7 +71,7 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
    *
    * @throws Exception the exception
    */
-  // TODO: @test
+  @Test
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
@@ -83,21 +83,17 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
    *
    * @throws Exception the exception
    */
-  // TODO: @test
+  @Test
   public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
-    tester.include("terminology");
     tester.include("terminologyId");
+    tester.include("terminologyId2");
+    tester.include("terminology");
     tester.include("version");
-
-    tester.include("type");
-    tester.include("timestamp");
-    tester.include("lastModified");
-    tester.include("lastModifiedBy");
+    tester.include("name");
     tester.include("macroAction");
-
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
 
@@ -114,14 +110,14 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
    *
    * @throws Exception the exception
    */
-  // TODO: @test
+  @Test
   public void testModelDeepCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-    assertTrue(tester.testCopyConstructor(MolecularAction.class));
+    assertTrue(tester.testCopyConstructorDeep(MolecularAction.class));
 
   }
 
@@ -130,7 +126,7 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
    *
    * @throws Exception the exception
    */
-  // TODO: @test
+  @Test
   public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
@@ -143,21 +139,18 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
    *
    * @throws Exception the exception
    */
-  // TODO: @test
+  @Test
   public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-
-    tester.include("type");
+    tester.include("name");
     tester.include("macroAction");
-
     assertTrue(tester.testNotNullFields());
   }
 
@@ -166,7 +159,7 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
    *
    * @throws Exception the exception
    */
-  // TODO: @test
+  @Test
   public void testModelIndexedFields() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
@@ -178,9 +171,10 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     tester = new IndexedFieldTester(object);
     tester.include("lastModifiedBy");
     tester.include("terminologyId");
+    tester.include("terminologyId2");
     tester.include("terminology");
     tester.include("version");
-    tester.include("type");
+    tester.include("name");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

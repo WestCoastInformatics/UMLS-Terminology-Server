@@ -52,7 +52,8 @@ public class IndexedFieldTester extends ProxyTester {
       }
     }
     for (final String field : analyzedFieldsMap.keySet()) {
-      if (analyzedFieldsMap.get(field) && !includes.contains(field)) {
+      if (analyzedFieldsMap.get(field)
+          && (includes == null || !includes.contains(field))) {
         Logger.getLogger(getClass()).info(
             "  " + field + " should be in the include list as analyzed");
         return false;

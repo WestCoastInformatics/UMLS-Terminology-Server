@@ -206,25 +206,20 @@ public class SourceDataFileJpa implements SourceDataFile {
     this.directory = directory;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + (directory ? 1231 : 1237);
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result =
-        prime * result
-            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((path == null) ? 0 : path.hashCode());
-    result = prime * result + ((size == null) ? 0 : size.hashCode());
     result =
         prime * result + ((sourceData == null) ? 0 : sourceData.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -236,16 +231,6 @@ public class SourceDataFileJpa implements SourceDataFile {
     SourceDataFileJpa other = (SourceDataFileJpa) obj;
     if (directory != other.directory)
       return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
@@ -256,24 +241,15 @@ public class SourceDataFileJpa implements SourceDataFile {
         return false;
     } else if (!path.equals(other.path))
       return false;
-    if (size == null) {
-      if (other.size != null)
-        return false;
-    } else if (!size.equals(other.size))
-      return false;
     if (sourceData == null) {
       if (other.sourceData != null)
         return false;
     } else if (!sourceData.equals(other.sourceData))
       return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
-        return false;
-    } else if (!timestamp.equals(other.timestamp))
-      return false;
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "SourceDataFileJpa [id=" + id + ", sourceData="
@@ -283,12 +259,14 @@ public class SourceDataFileJpa implements SourceDataFile {
         + ", lastModifiedBy=" + lastModifiedBy + "]";
   }
 
+  /* see superclass */
   @Override
   @XmlTransient
   public SourceData getSourceData() {
     return this.sourceData;
   }
 
+  /* see superclass */
   @Override
   public void setSourceData(SourceData sourceData) {
     this.sourceData = sourceData;

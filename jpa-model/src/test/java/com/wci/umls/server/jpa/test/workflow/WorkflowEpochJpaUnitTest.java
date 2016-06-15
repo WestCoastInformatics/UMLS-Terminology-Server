@@ -78,6 +78,8 @@ public class WorkflowEpochJpaUnitTest extends ModelUnitSupport {
     final ProxyTester tester2 = new ProxyTester(new ProjectJpa());
     p1 = (Project) tester2.createObject(1);
     p2 = (Project) tester2.createObject(2);
+
+    object.setProject(p1);
   }
 
   /**

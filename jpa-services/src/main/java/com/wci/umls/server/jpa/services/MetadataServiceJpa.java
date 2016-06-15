@@ -72,7 +72,6 @@ import com.wci.umls.server.services.handlers.MetadataHandler;
 public class MetadataServiceJpa extends ProjectServiceJpa implements
     MetadataService {
 
-
   /** The helper map. */
   private static Map<String, MetadataHandler> helperMap = null;
 
@@ -619,8 +618,10 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public SemanticType addSemanticType(SemanticType semanticType)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add semanticType " + semanticType.getValue());
+    Logger.getLogger(getClass())
+        .debug(
+            "Metadata Service - add semanticType "
+                + semanticType.getExpandedForm());
 
     // Add component
     return addHasLastModified(semanticType);
@@ -630,7 +631,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   @Override
   public void updateSemanticType(SemanticType semanticType) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - update semantic type " + semanticType.getValue());
+        "Metadata Service - update semantic type "
+            + semanticType.getExpandedForm());
     updateHasLastModified(semanticType);
 
   }
