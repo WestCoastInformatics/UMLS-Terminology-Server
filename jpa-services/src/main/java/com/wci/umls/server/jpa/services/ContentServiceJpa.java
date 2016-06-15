@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -2278,10 +2277,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel =
         null;
     if (relationshipClass != null) {
-      rel = removeComponent(id, relationshipClass);
+      removeComponent(id, relationshipClass);
     } else {
       rel = getRelationship(id, relationshipClass);
-      rel = removeComponent(id, rel.getClass());
+      removeComponent(id, rel.getClass());
     }
 
   }
@@ -2601,7 +2600,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Subset subset = null;
     // Remove the component
     if (subsetClass != null) {
-      subset = removeComponent(id, subsetClass);
+      removeComponent(id, subsetClass);
     } else {
       subset = getSubset(id, subsetClass);
       removeComponent(id, subset.getClass());
@@ -3862,9 +3861,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   protected <T extends Component> T addComponent(T component) throws Exception {
 
-    // TODO: PG apply this approach to removeComponent/updateComponent as well
-    // This actually refers to those add/remove/update calls referring to
-
     // Component-specific handling
 
     // handle as a normal "has last modified"
@@ -3881,27 +3877,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   protected <T extends Component> void updateComponent(T component)
     throws Exception {
-    try {
-      // Set modification date
-      if (isLastModifiedFlag()) {
-        component.setLastModified(new Date());
-      }
+    // Component-specific handling
 
-      // update
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.merge(component);
-        tx.commit();
-      } else {
-        manager.merge(component);
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    // handle as a normal "has last modified"
+    updateHasLastModified(component);
 
   }
 
@@ -3967,46 +3946,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param <T> the
    * @param id the id
    * @param clazz the clazz
-   * @return the t
    * @throws Exception the exception
    */
-  protected <T extends Component> T removeComponent(Long id, Class<T> clazz)
+  protected <T extends Component> void removeComponent(Long id, Class<T> clazz)
     throws Exception {
-    try {
-      // Get transaction and object
-      tx = manager.getTransaction();
-      T component = manager.find(clazz, id);
 
-      // Set modification date
-      if (isLastModifiedFlag()) {
-        component.setLastModified(new Date());
+    removeHasLastModified(id, clazz);
       }
-
-      // Remove
-      if (getTransactionPerOperation()) {
-        // remove refset member
-        tx.begin();
-        if (manager.contains(component)) {
-          manager.remove(component);
-        } else {
-          manager.remove(manager.merge(component));
-        }
-        tx.commit();
-      } else {
-        if (manager.contains(component)) {
-          manager.remove(component);
-        } else {
-          manager.remove(manager.merge(component));
-        }
-      }
-      return component;
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
-  }
 
   /* see superclass */
   /**

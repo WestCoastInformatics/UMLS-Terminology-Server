@@ -88,77 +88,77 @@ public class ActionServiceJpa extends HistoryServiceJpa implements
 
   @Override
   public String configureActionService(Project project) throws Exception {
-    // TODO Auto-generated method stub
+    
     return null;
   }
 
   @Override
   public void clear(String sessionToken) {
-    // TODO Auto-generated method stub
+    
 
   }
 
   @Override
   public float getProgress(String sessionToken) throws Exception {
-    // TODO Auto-generated method stub
+    
     return 0;
   }
 
   @Override
   public void cancel(String sessionToken) throws Exception {
-    // TODO Auto-generated method stub
+    
 
   }
 
   @Override
   public void prepareToClassify(String sessionToken) throws Exception {
-    // TODO Auto-generated method stub
+    
 
   }
 
   @Override
   public void classify(String sessionToken) throws Exception {
-    // TODO Auto-generated method stub
+    
 
   }
 
   @Override
   public void incrementalClassify(String sessionToken) throws Exception {
-    // TODO Auto-generated method stub
+    
 
   }
 
   @Override
   public KeyValuesMap getClassificationEquivalents(String sessionToken)
     throws Exception {
-    // TODO Auto-generated method stub
+    
     return null;
   }
 
   @Override
   public RelationshipList getOldInferredRelationships(String sessionToken)
     throws Exception {
-    // TODO Auto-generated method stub
+    
     return null;
   }
 
   @Override
   public RelationshipList getNewInferredRelationships(String sessionToken)
     throws Exception {
-    // TODO Auto-generated method stub
+    
     return null;
   }
 
   @Override
   public void addNewInferredRelationships(String sessionToken) throws Exception {
-    // TODO Auto-generated method stub
+    
 
   }
 
   @Override
   public void retireOldInferredRelationships(String sessionToken)
     throws Exception {
-    // TODO Auto-generated method stub
+    
 
   }
 
@@ -225,7 +225,7 @@ public class ActionServiceJpa extends HistoryServiceJpa implements
               .toLowerCase()
               + m.getName().substring(fromIndex));
 
-          // TODO This is obviously very clumsy, and we'll need to deal with
+          // This is obviously very clumsy, and we'll need to deal with
           // collections and the like
           // Putting this in as a placeholder for now
           action.setNewValue(newValue == null ? null : newValue.toString());

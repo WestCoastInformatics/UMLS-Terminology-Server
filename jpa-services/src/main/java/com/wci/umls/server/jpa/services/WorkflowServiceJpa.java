@@ -78,7 +78,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   @Override
   public void updateTrackingRecord(TrackingRecord trackingRecord)
     throws Exception {
-    // TODO Auto-generated method stub
+   
 
   }
 
@@ -93,14 +93,14 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public StringList getWorkflowPaths() {
-    // TODO Auto-generated method stub
+   
     return null;
   }
 
   @Override
   public TrackingRecord performWorkflowAction(Long refsetId, User user,
     UserRole projectRole, WorkflowAction action) throws Exception {
-    // TODO Auto-generated method stub
+   
     return null;
   }
 
@@ -108,20 +108,20 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   public TrackingRecord performWorkflowAction(Long translationId, User user,
     UserRole projectRole, WorkflowAction action, Concept concept)
     throws Exception {
-    // TODO Auto-generated method stub
+   
     return null;
   }
 
   @Override
   public WorkflowActionHandler getWorkflowHandlerForPath(String workflowPat)
     throws Exception {
-    // TODO Auto-generated method stub
+   
     return null;
   }
 
   @Override
   public Set<WorkflowActionHandler> getWorkflowHandlers() throws Exception {
-    // TODO Auto-generated method stub
+   
     return null;
   }
 
@@ -144,7 +144,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public void handleLazyInit(TrackingRecord record) {
-    // TODO Auto-generated method stub
+   
 
   }
 

@@ -288,17 +288,15 @@ public interface RootService {
    * @return the molecular action
    * @throws Exception the exception
    */
-  public MolecularAction addMolecularAction(MolecularAction action,
-    boolean cascadeFlag) throws Exception;
+  public MolecularAction addMolecularAction(MolecularAction action) throws Exception;
 
   /**
    * Remove molecular action.
    *
    * @param id the id
-   * @param cascadeFla whether to cascade the operation
    * @throws Exception the exception
    */
-  public void removeMolecularAction(Long id, boolean cascadeFla)
+  public void removeMolecularAction(Long id)
     throws Exception;
 
   /**
