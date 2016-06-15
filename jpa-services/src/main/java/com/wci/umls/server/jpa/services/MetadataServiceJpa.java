@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.services;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
@@ -627,7 +625,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
         "Metadata Service - add semanticType " + semanticType.getValue());
 
     // Add component
-    return addMetadata(semanticType);
+    return addHasLastModified(semanticType);
   }
 
   /* see superclass */
@@ -635,7 +633,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   public void updateSemanticType(SemanticType semanticType) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update semantic type " + semanticType.getValue());
-    updateMetadata(semanticType);
+    updateHasLastModified(semanticType);
 
   }
 
@@ -645,7 +643,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove semantic type " + id);
     // Remove the component
-    removeMetadata(id, SemanticTypeJpa.class);
+    removeHasLastModified(id, SemanticTypeJpa.class);
   }
 
   /* see superclass */
@@ -654,7 +652,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove property chain " + id);
     // Remove the component
-    removeMetadata(id, PropertyChainJpa.class);
+    removeHasLastModified(id, PropertyChainJpa.class);
 
   }
 
@@ -667,7 +665,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
             + attributeName.getAbbreviation());
 
     // Add component
-    return addMetadata(attributeName);
+    return addHasLastModified(attributeName);
   }
 
   /* see superclass */
@@ -676,7 +674,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update attributeName "
             + attributeName.getAbbreviation());
-    updateMetadata(attributeName);
+    updateHasLastModified(attributeName);
 
   }
 
@@ -686,7 +684,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove attributeName " + id);
     // Remove the component
-    removeMetadata(id, AttributeNameJpa.class);
+    removeHasLastModified(id, AttributeNameJpa.class);
 
   }
 
@@ -697,7 +695,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
         "Metadata Service - add labelSet " + labelSet.getAbbreviation());
 
     // Add component
-    return addMetadata(labelSet);
+    return addHasLastModified(labelSet);
 
   }
 
@@ -706,7 +704,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   public void updateLabelSet(LabelSet labelSet) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update labelSet " + labelSet.getAbbreviation());
-    updateMetadata(labelSet);
+    updateHasLastModified(labelSet);
 
   }
 
@@ -716,7 +714,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove labelSet " + id);
     // Remove the component
-    removeMetadata(id, LabelSetJpa.class);
+    removeHasLastModified(id, LabelSetJpa.class);
 
   }
 
@@ -727,7 +725,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
         "Metadata Service - add language " + language.getAbbreviation());
 
     // Add component
-    return addMetadata(language);
+    return addHasLastModified(language);
 
   }
 
@@ -736,7 +734,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   public void updateLanguage(Language language) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update language " + language.getAbbreviation());
-    updateMetadata(language);
+    updateHasLastModified(language);
 
   }
 
@@ -746,7 +744,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove language" + id);
     // Remove the component
-    removeMetadata(id, LanguageJpa.class);
+    removeHasLastModified(id, LanguageJpa.class);
 
   }
 
@@ -759,7 +757,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
             + additionalRelationshipType.getAbbreviation());
 
     // Add component
-    return addMetadata(additionalRelationshipType);
+    return addHasLastModified(additionalRelationshipType);
 
   }
 
@@ -770,7 +768,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update additional relationship type "
             + additionalRelationshipType.getAbbreviation());
-    updateMetadata(additionalRelationshipType);
+    updateHasLastModified(additionalRelationshipType);
 
   }
 
@@ -780,7 +778,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove additional relationship type" + id);
     // Remove the component
-    removeMetadata(id, AdditionalRelationshipTypeJpa.class);
+    removeHasLastModified(id, AdditionalRelationshipTypeJpa.class);
 
   }
 
@@ -793,7 +791,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
             + propertyChain.getAbbreviation());
 
     // Add component
-    return addMetadata(propertyChain);
+    return addHasLastModified(propertyChain);
 
   }
 
@@ -803,7 +801,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update property chain "
             + propertyChain.getAbbreviation());
-    updateMetadata(propertyChain);
+    updateHasLastModified(propertyChain);
 
   }
 
@@ -816,7 +814,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
             + relationshipType.getAbbreviation());
 
     // Add component
-    return addMetadata(relationshipType);
+    return addHasLastModified(relationshipType);
   }
 
   /* see superclass */
@@ -826,7 +824,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update relationship type "
             + relationshipType.getAbbreviation());
-    updateMetadata(relationshipType);
+    updateHasLastModified(relationshipType);
 
   }
 
@@ -836,7 +834,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove relationship type" + id);
     // Remove the component
-    removeMetadata(id, RelationshipTypeJpa.class);
+    removeHasLastModified(id, RelationshipTypeJpa.class);
 
   }
 
@@ -847,7 +845,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
         "Metadata Service - add term type " + termType.getAbbreviation());
 
     // Add component
-    return addMetadata(termType);
+    return addHasLastModified(termType);
 
   }
 
@@ -856,7 +854,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   public void updateTermType(TermType termType) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update term type " + termType.getAbbreviation());
-    updateMetadata(termType);
+    updateHasLastModified(termType);
 
   }
 
@@ -866,7 +864,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove term type " + id);
     // Remove the component
-    removeMetadata(id, TermTypeJpa.class);
+    removeHasLastModified(id, TermTypeJpa.class);
 
   }
 
@@ -879,7 +877,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
             + entry.getAbbreviation());
 
     // Add component
-    return addMetadata(entry);
+    return addHasLastModified(entry);
 
   }
 
@@ -890,7 +888,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update general metadata entry "
             + entry.getAbbreviation());
-    updateMetadata(entry);
+    updateHasLastModified(entry);
 
   }
 
@@ -900,7 +898,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove general metadata entry " + id);
     // Remove the component
-    removeMetadata(id, GeneralMetadataEntryJpa.class);
+    removeHasLastModified(id, GeneralMetadataEntryJpa.class);
 
   }
 
@@ -912,7 +910,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
             + " " + terminology.getVersion());
 
     // Add component
-    return addMetadata(terminology);
+    return addHasLastModified(terminology);
 
   }
 
@@ -923,7 +921,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
         .debug(
             "Metadata Service - update terminology "
                 + terminology.getTerminology());
-    updateMetadata(terminology);
+    updateHasLastModified(terminology);
 
   }
 
@@ -933,7 +931,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove terminology" + id);
     // Remove the component
-    removeMetadata(id, TerminologyJpa.class);
+    removeHasLastModified(id, TerminologyJpa.class);
 
   }
 
@@ -946,7 +944,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
             + rootTerminology.getTerminology());
 
     // Add component
-    return addMetadata(rootTerminology);
+    return addHasLastModified(rootTerminology);
 
   }
 
@@ -957,7 +955,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - update rootTerminology "
             + rootTerminology.getTerminology());
-    updateMetadata(rootTerminology);
+    updateHasLastModified(rootTerminology);
 
   }
 
@@ -967,7 +965,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove rootTerminology" + id);
     // Remove the component
-    removeMetadata(id, RootTerminologyJpa.class);
+    removeHasLastModified(id, RootTerminologyJpa.class);
 
   }
 
@@ -990,7 +988,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - add precedence list" + precedenceList.getName());
 
-    return addMetadata(precedenceList);
+    return addHasLastModified(precedenceList);
   }
 
   /* see superclass */
@@ -1002,7 +1000,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
             "Metadata Service - update precedence list "
                 + precedenceList.getName());
 
-    updateMetadata(precedenceList);
+    updateHasLastModified(precedenceList);
   }
 
   /* see superclass */
@@ -1011,122 +1009,8 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Metadata Service - remove precedence list " + id);
 
-    removeMetadata(id, PrecedenceListJpa.class);
+    removeHasLastModified(id, PrecedenceListJpa.class);
 
-  }
-
-  /**
-   * Adds the abbreviation.
-   *
-   * @param <T> the
-   * @param abbreviation the component
-   * @return the t
-   * @throws Exception the exception
-   */
-  private <T extends HasLastModified> T addMetadata(T abbreviation)
-    throws Exception {
-    try {
-      // Set last modified date
-      if (isLastModifiedFlag()) {
-        abbreviation.setLastModified(new Date());
-      }
-
-      // add
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.persist(abbreviation);
-        tx.commit();
-      } else {
-        manager.persist(abbreviation);
-      }
-      return abbreviation;
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
-  }
-
-  /**
-   * Update abbreviation.
-   *
-   * @param <T> the generic type
-   * @param abbreviation the abbreviation
-   * @throws Exception the exception
-   */
-  private <T extends HasLastModified> void updateMetadata(T abbreviation)
-    throws Exception {
-    try {
-      // Set modification date
-      if (isLastModifiedFlag()) {
-        abbreviation.setLastModified(new Date());
-      }
-
-      // update
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.merge(abbreviation);
-        tx.commit();
-      } else {
-        manager.merge(abbreviation);
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
-
-  }
-
-  /**
-   * Removes the abbreviation.
-   *
-   * @param <T> the generic type
-   * @param id the id
-   * @param clazz the clazz
-   * @return the abbreviation
-   * @throws Exception the exception
-   */
-  private <T extends HasLastModified> T removeMetadata(Long id, Class<T> clazz)
-    throws Exception {
-    try {
-      // Get transaction and object
-      tx = manager.getTransaction();
-      T abbreviation = manager.find(clazz, id);
-
-      // Set modification date
-      if (isLastModifiedFlag()) {
-        abbreviation.setLastModified(new Date());
-      }
-
-      // Remove
-      if (getTransactionPerOperation()) {
-        // remove refset member
-        tx.begin();
-        if (manager.contains(abbreviation)) {
-          manager.remove(abbreviation);
-        } else {
-          manager.remove(manager.merge(abbreviation));
-        }
-        tx.commit();
-      } else {
-        if (manager.contains(abbreviation)) {
-          manager.remove(abbreviation);
-        } else {
-          manager.remove(manager.merge(abbreviation));
-        }
-      }
-      return abbreviation;
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
   }
 
   /* see superclass */

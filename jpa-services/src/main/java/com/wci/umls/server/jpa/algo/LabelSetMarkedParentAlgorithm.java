@@ -51,6 +51,7 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
     fireProgressEvent(0, "Starting...");
 
     setLastModifiedBy("admin");
+    setLastModifiedFlag(true);
     setTransactionPerOperation(false);
     beginTransaction();
 

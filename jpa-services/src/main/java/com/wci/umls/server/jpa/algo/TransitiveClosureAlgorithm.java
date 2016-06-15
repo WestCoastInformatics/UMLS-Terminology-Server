@@ -183,6 +183,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
     // Disable transaction per operation and start transaction
     // Keep this below the read query above
     setLastModifiedBy("admin");
+    setLastModifiedFlag(true);
     setTransactionPerOperation(false);
     beginTransaction();
 

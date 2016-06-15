@@ -201,6 +201,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
 
     // Keep this after the read query above, in case there are no rels
     setLastModifiedBy("admin");
+    setLastModifiedFlag(true);
+
     setTransactionPerOperation(false);
     beginTransaction();
 
