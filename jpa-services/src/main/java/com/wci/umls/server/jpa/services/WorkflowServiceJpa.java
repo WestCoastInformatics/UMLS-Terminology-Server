@@ -10,31 +10,31 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
+import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
-import com.wci.umls.server.jpa.worfklow.ChecklistListJpa;
-import com.wci.umls.server.jpa.worfklow.ProjectWorkflowConfigJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
-import com.wci.umls.server.jpa.worfklow.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
-import com.wci.umls.server.jpa.worfklow.WorklistListJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.Checklist;
-import com.wci.umls.server.model.workflow.ChecklistList;
-import com.wci.umls.server.model.workflow.ProjectWorkflowConfig;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.TrackingRecord;
-import com.wci.umls.server.model.workflow.TrackingRecordList;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
-import com.wci.umls.server.model.workflow.WorklistList;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.SearchHandler;
 import com.wci.umls.server.services.handlers.WorkflowActionHandler;
@@ -221,13 +221,13 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public ProjectWorkflowConfig addProjectWorkflowConfig(
-    ProjectWorkflowConfig projectWorkflowConfig) throws Exception {
+  public WorkflowConfig addProjectWorkflowConfig(
+    WorkflowConfig projectWorkflowConfig) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - add project workflow config " + projectWorkflowConfig.toString());
 
     // Add component
-    ProjectWorkflowConfig config = addHasLastModified(projectWorkflowConfig);
+    WorkflowConfig config = addHasLastModified(projectWorkflowConfig);
 
     // do not inform listeners
     return config;
@@ -235,7 +235,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public void updateProjectWorkflowConfig(
-    ProjectWorkflowConfig projectWorkflowConfig) throws Exception {
+    WorkflowConfig projectWorkflowConfig) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - update project workflow config " + projectWorkflowConfig);
 
@@ -249,11 +249,11 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
     Logger.getLogger(getClass()).debug(
         "Workflow Service - remove project workflow config " + id);
     // Remove the component
-    removeHasLastModified(id, ProjectWorkflowConfigJpa.class);
+    removeHasLastModified(id, WorkflowConfigJpa.class);
   }
 
   @Override
-  public List<ProjectWorkflowConfig> getProjectWorkflowConfigs()
+  public List<WorkflowConfig> getProjectWorkflowConfigs()
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - get project workflow configs " );
@@ -262,7 +262,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
     try {
       @SuppressWarnings("unchecked")
-      final List<ProjectWorkflowConfig> m = query.getResultList();
+      final List<WorkflowConfig> m = query.getResultList();
       return m;
 
     } catch (NoResultException e) {
@@ -271,23 +271,23 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public ProjectWorkflowConfig getProjectWorkflowConfig(Long id)
+  public WorkflowConfig getProjectWorkflowConfig(Long id)
     throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Service - get project workflow config " + id);
-    return getHasLastModified(id, ProjectWorkflowConfigJpa.class);
+    return getHasLastModified(id, WorkflowConfigJpa.class);
   }
 
   @Override
-  public List<ProjectWorkflowConfig> findProjectWorkflowConfigsForQuery(
+  public List<WorkflowConfig> findProjectWorkflowConfigsForQuery(
     String query) throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Service - find project workflow config for query " + query);
-    List<ProjectWorkflowConfig> results = new ArrayList<>();
+    List<WorkflowConfig> results = new ArrayList<>();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<ProjectWorkflowConfigJpa> luceneResults =
+    final List<WorkflowConfigJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            ProjectWorkflowConfigJpa.class, ProjectWorkflowConfigJpa.class, new PfsParameterJpa(), totalCt, manager);
-    for (final ProjectWorkflowConfig epoch : luceneResults) {
+            WorkflowConfigJpa.class, WorkflowConfigJpa.class, new PfsParameterJpa(), totalCt, manager);
+    for (final WorkflowConfig epoch : luceneResults) {
       results.add(epoch);
     }
     return results;

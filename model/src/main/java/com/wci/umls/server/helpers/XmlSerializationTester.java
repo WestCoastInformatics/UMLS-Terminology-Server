@@ -32,12 +32,12 @@ public class XmlSerializationTester extends ProxyTester {
     Logger.getLogger(getClass()).debug(
         "Test xml serialization - " + clazz.getName());
     Object obj = createObject(1);
-    Logger.getLogger(getClass()).debug(obj);
+    Logger.getLogger(getClass()).info(obj);
     String xml = ConfigUtility.getStringForGraph(obj);
-    Logger.getLogger(getClass()).debug("xml = " + xml);
+    Logger.getLogger(getClass()).info("xml = " + xml);
     Object obj2 = ConfigUtility.getGraphForString(xml, obj.getClass());
     String json = ConfigUtility.getJsonForGraph(obj);
-    Logger.getLogger(getClass()).debug("json = " + json);
+    Logger.getLogger(getClass()).info("json = " + json);
     Object obj3 = ConfigUtility.getGraphForJson(json, obj.getClass());
     Logger.getLogger(getClass()).debug(obj);
     Logger.getLogger(getClass()).debug(obj2);
@@ -61,7 +61,14 @@ public class XmlSerializationTester extends ProxyTester {
     } catch (NoSuchMethodException e) {
       // this is OK
     }
-    return obj.equals(obj2) && obj.equals(obj3);
+    if (obj.equals(obj2) && obj.equals(obj3)) {
+      return true;
+    } else {
+      Logger.getLogger(getClass()).info("obj = " + obj);
+      Logger.getLogger(getClass()).info("obj2 = " + obj2);
+      Logger.getLogger(getClass()).info("obj3 = " + obj3);
+      return false;
+    }
   }
 
 }

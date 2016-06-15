@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.helpers;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -38,7 +39,8 @@ public class IndexedFieldTester extends ProxyTester {
         "Test analyzed indexed fields - " + clazz.getName());
 
     final Map<String, Boolean> analyzedFieldsMap = getAnalyzedFieldsMap(clazz);
-    for (final String field : includes) {
+    for (final String field : includes == null ? new HashSet<String>()
+        : includes) {
       boolean found = false;
       if (analyzedFieldsMap.containsKey(field)) {
         found = analyzedFieldsMap.get(field);

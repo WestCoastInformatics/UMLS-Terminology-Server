@@ -62,7 +62,7 @@ public class AtomListUnitTest extends AbstractListUnit<Atom> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse001() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, a1, a2);
   }
 
@@ -73,7 +73,7 @@ public class AtomListUnitTest extends AbstractListUnit<Atom> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse001() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, a1, a2);
   }
 
@@ -83,7 +83,7 @@ public class AtomListUnitTest extends AbstractListUnit<Atom> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases001() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, a1, a2);
   }
 
@@ -94,7 +94,7 @@ public class AtomListUnitTest extends AbstractListUnit<Atom> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization001() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, a1, a2);
   }
 

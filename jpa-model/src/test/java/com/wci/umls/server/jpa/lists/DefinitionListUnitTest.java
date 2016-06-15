@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ * Copyright 2 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.lists;
 
@@ -60,7 +60,7 @@ public class DefinitionListUnitTest extends AbstractListUnit<Definition> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse016() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, d1, d2);
   }
 
@@ -71,7 +71,7 @@ public class DefinitionListUnitTest extends AbstractListUnit<Definition> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse016() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, d1, d2);
   }
 
@@ -81,7 +81,7 @@ public class DefinitionListUnitTest extends AbstractListUnit<Definition> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases016() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, d1, d2);
   }
 
@@ -92,7 +92,7 @@ public class DefinitionListUnitTest extends AbstractListUnit<Definition> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization016() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, d1, d2);
   }
 

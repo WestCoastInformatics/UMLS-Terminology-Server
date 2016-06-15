@@ -377,16 +377,8 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((from == null || from.getTerminologyId() == null) ? 0 : from
-                .getTerminologyId().hashCode());
-    result =
-        prime
-            * result
-            + ((to == null || to.getTerminologyId() == null) ? 0 : to
-                .getTerminologyId().hashCode());
+    result = prime * result + getFromTerminologyId().hashCode();
+    result = prime * result + getToTerminologyId().hashCode();
     result =
         prime
             * result
@@ -410,21 +402,9 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     if (getClass() != obj.getClass())
       return false;
     CodeRelationshipJpa other = (CodeRelationshipJpa) obj;
-    if (from == null) {
-      if (other.from != null)
-        return false;
-    } else if (from.getTerminologyId() == null) {
-      if (other.from != null && other.from.getTerminologyId() != null)
-        return false;
-    } else if (!from.getTerminologyId().equals(other.from.getTerminologyId()))
+    if (!getFromTerminologyId().equals(other.getFromTerminologyId()))
       return false;
-    if (to == null) {
-      if (other.to != null)
-        return false;
-    } else if (to.getTerminologyId() == null) {
-      if (other.to != null && other.to.getTerminologyId() != null)
-        return false;
-    } else if (!to.getTerminologyId().equals(other.to.getTerminologyId()))
+    if (!getToTerminologyId().equals(other.getToTerminologyId()))
       return false;
 
     if (alternateTerminologyIds == null) {

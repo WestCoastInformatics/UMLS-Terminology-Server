@@ -19,14 +19,10 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
-import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
-import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
@@ -35,8 +31,6 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.MetadataService;
-import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -178,7 +172,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           validationResult.getErrors()
               .add("Cannot add semantic type: Invalid semantic type");
         }
-        ;
+        
 
         // check if semantic type already exists on this concept
         for (SemanticTypeComponent s : concept.getSemanticTypes()) {
@@ -391,7 +385,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return null;
     } finally {
       contentService.close();
-      projectService.close();
       securityService.close();
     }
   }

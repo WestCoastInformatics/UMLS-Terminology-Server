@@ -14,13 +14,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
-import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
@@ -31,21 +32,22 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.model.workflow.Worklist;
 
 /**
  * JPA enabled implementation of {@link TrackingRecord}.
  */
 @Entity
 @Table(name = "tracking_records")
-@Audited
 @Indexed
 @XmlRootElement(name = "trackingRecord")
 public class TrackingRecordJpa implements TrackingRecord {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
+  @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
 
   /** The last modified. */
@@ -71,6 +73,10 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Column(nullable = false)
   private Long clusterId;
 
+  /** The cluster type. */
+  @Column(nullable = false)
+  private String clusterType;
+
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
@@ -78,6 +84,14 @@ public class TrackingRecordJpa implements TrackingRecord {
   /** The version. */
   @Column(nullable = false)
   private String version;
+
+  /** The workflow bin. */
+  @ManyToOne(targetEntity = WorkflowBinJpa.class)
+  private WorkflowBin workflowBin;
+
+  /** The worklist . */
+  @ManyToOne(targetEntity = WorklistJpa.class, optional = true)
+  private Worklist worklist;
 
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
@@ -92,15 +106,17 @@ public class TrackingRecordJpa implements TrackingRecord {
    * @param record the record
    */
   public TrackingRecordJpa(TrackingRecord record) {
-    super();
     id = record.getId();
     lastModified = record.getLastModified();
     lastModifiedBy = record.getLastModifiedBy();
     timestamp = record.getTimestamp();
     clusterId = record.getClusterId();
+    clusterType = record.getClusterType();
     terminology = record.getTerminology();
     version = record.getVersion();
     terminologyIds = new ArrayList<>(record.getTerminologyIds());
+    workflowBin = record.getWorkflowBin();
+    worklist = record.getWorklist();
   }
 
   /* see superclass */
@@ -116,7 +132,6 @@ public class TrackingRecordJpa implements TrackingRecord {
   }
 
   /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public Date getLastModified() {
     return lastModified;
@@ -210,11 +225,115 @@ public class TrackingRecordJpa implements TrackingRecord {
   }
 
   /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Override
+  public String getClusterType() {
+    return clusterType;
+  }
+
+  /* see superclass */
+  @Override
+  public void setClusterType(String clusterType) {
+    this.clusterType = clusterType;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public WorkflowBin getWorkflowBin() {
+    return workflowBin;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowBin(WorkflowBin workflowBin) {
+    this.workflowBin = workflowBin;
+  }
+
+  /**
+   * Returns the workflow bin id.
+   *
+   * @return the workflow bin id
+   */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getWorkflowBinId() {
+    return workflowBin == null ? 0L : workflowBin.getId();
+  }
+
+  /**
+   * Sets the workflow bin id.
+   *
+   * @param workflowBinId the workflow bin id
+   */
+  public void setWorkflowBinId(Long workflowBinId) {
+    if (workflowBin == null) {
+      workflowBin = new WorkflowBinJpa();
+    }
+    workflowBin.setId(workflowBinId);
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public Worklist getWorklist() {
+    return worklist;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorklist(Worklist worklist) {
+    this.worklist = worklist;
+  }
+
+  /**
+   * Returns the worklist id.
+   *
+   * @return the worklist id
+   */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getWorklistId() {
+    return worklist == null ? 0L : worklist.getId();
+  }
+
+  /**
+   * Sets the worklist id.
+   *
+   * @param worklistId the worklist id
+   */
+  public void setWorklistId(Long worklistId) {
+    if (worklist == null) {
+      worklist = new WorklistJpa();
+    }
+    worklist.setId(worklistId);
+  }
+
+  /**
+   * Returns the project id. Just for indexing.
+   *
+   * @return the project id
+   * @XmlElement, though then "set" method becomes complicated and
+   *              nondeterministic for testing.
+   */
+  @XmlTransient
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getProjectId() {
+    if (this.workflowBin != null) {
+      return workflowBin.getProject().getId();
+    }
+    return 0L;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((clusterId == null) ? 0 : clusterId.hashCode());
+    result =
+        prime * result + ((clusterType == null) ? 0 : clusterType.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
@@ -238,6 +357,11 @@ public class TrackingRecordJpa implements TrackingRecord {
       if (other.clusterId != null)
         return false;
     } else if (!clusterId.equals(other.clusterId))
+      return false;
+    if (clusterType == null) {
+      if (other.clusterType != null)
+        return false;
+    } else if (!clusterType.equals(other.clusterType))
       return false;
     if (terminology == null) {
       if (other.terminology != null)
@@ -263,6 +387,8 @@ public class TrackingRecordJpa implements TrackingRecord {
     return "TrackingRecordJpa [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", terminologyIds=" + terminologyIds + ", clusterId=" + clusterId
-        + ", terminology=" + terminology + ", version=" + version + "]";
+        + ", clusterType=" + clusterType + ", terminology=" + terminology
+        + ", version=" + version + "]";
   }
+
 }

@@ -9,12 +9,12 @@ package com.wci.umls.server.model.workflow;
 public enum WorkflowBinType {
 
   /** Mutually exclusive. */
-  ME,
+  MUTUALLY_EXCLUSIVE,
 
   /** Quality assurance. */
-  QA,
+  QUALITY_ASSURANCE,
 
   /** Ad-hoc. */
-  AH;
+  AD_HOC;
 
 }

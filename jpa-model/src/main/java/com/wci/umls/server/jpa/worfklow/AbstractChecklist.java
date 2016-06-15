@@ -1,8 +1,6 @@
 package com.wci.umls.server.jpa.worfklow;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -10,26 +8,29 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.Checklist;
-import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.model.workflow.Worklist;
 
 /**
- * Abstract JPA-enabled implementation of a {@link Checklist}.
+ * Abstract JPA-enabled implementation of a {@link Checklist} or a
+ * {@link Worklist}.
  */
-@Audited
 @MappedSuperclass
 public abstract class AbstractChecklist implements Checklist {
 
@@ -61,13 +62,13 @@ public abstract class AbstractChecklist implements Checklist {
   @Column(nullable = false)
   private String description;
 
-  /** The tracking records. */
-  @OneToMany(targetEntity = TrackingRecordJpa.class)
-  private List<TrackingRecord> trackingRecords = new ArrayList<>();
-
   /** The workflow bin. */
   @ManyToOne(targetEntity = WorkflowBinJpa.class)
   private WorkflowBin workflowBin;
+
+  /** The project. */
+  @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
+  private Project project;
 
   /**
    * Instantiates an empty {@link AbstractChecklist}.
@@ -80,18 +81,16 @@ public abstract class AbstractChecklist implements Checklist {
    * Instantiates a {@link AbstractChecklist} from the specified parameters.
    *
    * @param checklist the checklist
-   * @param deepCopy the deep copy
    */
-  public AbstractChecklist(Checklist checklist, boolean deepCopy) {
-    this.lastModified = checklist.getLastModified();
-    this.lastModifiedBy = checklist.getLastModifiedBy();
-    this.timestamp = checklist.getTimestamp();
-    this.name = checklist.getName();
-    this.description = checklist.getDescription();
-    this.workflowBin = checklist.getWorkflowBin();
-    if (deepCopy) {
-      this.trackingRecords = checklist.getTrackingRecords();
-    }
+  public AbstractChecklist(Checklist checklist) {
+    id = checklist.getId();
+    lastModified = checklist.getLastModified();
+    lastModifiedBy = checklist.getLastModifiedBy();
+    timestamp = checklist.getTimestamp();
+    name = checklist.getName();
+    description = checklist.getDescription();
+    workflowBin = checklist.getWorkflowBin();
+    project = checklist.getProject();
   }
 
   /* see superclass */
@@ -144,24 +143,8 @@ public abstract class AbstractChecklist implements Checklist {
   }
 
   /* see superclass */
-  @XmlTransient
   @Override
-  public List<TrackingRecord> getTrackingRecords() {
-    if (trackingRecords == null) {
-      return new ArrayList<>();
-    }
-    return trackingRecords;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTrackingRecords(List<TrackingRecord> records) {
-    this.trackingRecords = records;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getName() {
     return name;
   }
@@ -174,7 +157,6 @@ public abstract class AbstractChecklist implements Checklist {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getDescription() {
     return description;
   }
@@ -185,37 +167,95 @@ public abstract class AbstractChecklist implements Checklist {
     this.description = description;
   }
 
+  /* see superclass */
   @Override
+  @XmlTransient
   public WorkflowBin getWorkflowBin() {
     return workflowBin;
   }
 
+  /* see superclass */
   @Override
   public void setWorkflowBin(WorkflowBin workflowBin) {
     this.workflowBin = workflowBin;
   }
 
+  /**
+   * Returns the workflow bin id.
+   *
+   * @return the workflow bin id
+   */
+  @XmlElement
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getWorkflowBinId() {
+    return workflowBin == null ? 0L : workflowBin.getId();
+  }
+
+  /**
+   * Sets the workflow bin id.
+   *
+   * @param workflowBinId the workflow bin id
+   */
+  public void setWorkflowBinId(Long workflowBinId) {
+    if (workflowBin == null) {
+      workflowBin = new WorkflowBinJpa();
+    }
+    workflowBin.setId(workflowBinId);
+  }
+
+  /* see superclass */
+  @Override
+  @XmlTransient
+  public Project getProject() {
+    return project;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProject(Project project) {
+    this.project = project;
+  }
+
+  /**
+   * Returns the project id.
+   *
+   * @return the project id
+   */
+  @XmlElement
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getProjectId() {
+    return project == null ? 0L : project.getId();
+  }
+
+  /**
+   * Sets the project id.
+   *
+   * @param projectId the project id
+   */
+  public void setProjectId(Long projectId) {
+    if (project == null) {
+      project = new ProjectJpa();
+    }
+    project.setId(projectId);
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result =
-        prime * result
-            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-    result =
-        prime * result
-            + ((trackingRecords == null) ? 0 : trackingRecords.hashCode());
+    result = prime * result + ((project == null) ? 0 : project.hashCode());
     result =
         prime * result + ((workflowBin == null) ? 0 : workflowBin.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -230,30 +270,15 @@ public abstract class AbstractChecklist implements Checklist {
         return false;
     } else if (!description.equals(other.description))
       return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
       return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
+    if (project == null) {
+      if (other.project != null)
         return false;
-    } else if (!timestamp.equals(other.timestamp))
-      return false;
-    if (trackingRecords == null) {
-      if (other.trackingRecords != null)
-        return false;
-    } else if (!trackingRecords.equals(other.trackingRecords))
+    } else if (!project.equals(other.project))
       return false;
     if (workflowBin == null) {
       if (other.workflowBin != null)
@@ -263,13 +288,13 @@ public abstract class AbstractChecklist implements Checklist {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "AbstractChecklist [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description
-        + ", trackingRecords=" + trackingRecords + ", workflowBin="
-        + workflowBin + "]";
+        + ", name=" + name + ", description=" + description + ", workflowBin="
+        + workflowBin + ", project=" + project + "]";
   }
 
 }

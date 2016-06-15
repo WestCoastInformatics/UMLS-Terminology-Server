@@ -953,6 +953,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Standard "isa" relationship
     ConceptRelationship rel = new ConceptRelationshipJpa();
     setCommonFields(rel);
+    rel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     // blank terminology id
     rel.setFrom(fromConcept);
     rel.setTo(toConcept);
@@ -1014,6 +1015,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       final Atom atom = new AtomJpa();
       setCommonFields(atom);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       // everything after the #
       atom.setConceptId(getTerminologyId(owlClass.getIRI()));
       atom.setDescriptorId("");
@@ -1138,6 +1140,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     topConcept = new ConceptJpa();
 
     setCommonFields(topConcept);
+    topConcept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     topConcept.setTerminologyId("Thing");
     topConcept.setAnonymous(false);
     topConcept.setFullyDefined(false);
@@ -1146,6 +1149,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     topConcept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     Atom atom = new AtomJpa();
     setCommonFields(atom);
+    atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     atom.setName(getRootTerminologyPreferredName(ontology));
     atom.setDescriptorId("");
     atom.setCodeId("");
@@ -2052,6 +2056,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     Concept concept = new ConceptJpa();
     setCommonFields(concept);
+    concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     concept.setAnonymous(true);
     concept.setTerminologyId(uuid);
     concept.setName(expr.toString());
@@ -2140,6 +2145,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     Concept concept = new ConceptJpa();
     setCommonFields(concept);
+    concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     concept.setAnonymous(true);
     concept.setTerminologyId(uuid);
     concept.setName(expr.toString());
@@ -2199,6 +2205,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (concept.isAnonymous() && !idMap.containsKey(concept.getTerminologyId())) {
       Atom atom = new AtomJpa();
       setCommonFields(atom);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       atom.setTerminologyId("");
       atom.setTermType(label);
       atom.setConceptId(concept.getTerminologyId());
@@ -2208,6 +2215,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setStringClassId("");
       atom.setLanguage("en");
       atom.setPublishable(false);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       atom.setPublished(false);
       atom.setName(concept.getName());
       Logger.getLogger(getClass()).debug("  add atom - " + atom);
@@ -2255,6 +2263,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     Concept concept = new ConceptJpa();
     setCommonFields(concept);
+    concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     concept.setAnonymous(true);
     concept.setTerminologyId(uuid);
     concept.setName(expr.toString());
@@ -2278,6 +2287,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     OWLObjectProperty property = (OWLObjectProperty) expr.getProperty();
     ConceptRelationship rel = new ConceptRelationshipJpa();
     setCommonFields(rel);
+    rel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     rel.setRelationshipType("other");
     rel.setAdditionalRelationshipType(relaMap.get(
         getTerminologyId(property.getIRI())).getAbbreviation());

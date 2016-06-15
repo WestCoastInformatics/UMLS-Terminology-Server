@@ -182,6 +182,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
 
     // Disable transaction per operation and start transaction
     // Keep this below the read query above
+    setLastModifiedBy("admin");
     setTransactionPerOperation(false);
     beginTransaction();
 
@@ -234,8 +235,6 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
 
       tr.setObsolete(false);
       tr.setTimestamp(startDate);
-      tr.setLastModified(startDate);
-      tr.setLastModifiedBy("admin");
       tr.setPublishable(true);
       tr.setPublished(false);
       tr.setTerminologyId("");
@@ -324,8 +323,6 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
         }
         tr.setObsolete(false);
         tr.setTimestamp(startDate);
-        tr.setLastModified(startDate);
-        tr.setLastModifiedBy("admin");
         tr.setPublishable(true);
         tr.setPublished(false);
         tr.setTerminologyId("");

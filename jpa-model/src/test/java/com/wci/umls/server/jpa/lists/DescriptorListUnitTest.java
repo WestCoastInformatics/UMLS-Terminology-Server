@@ -60,7 +60,7 @@ public class DescriptorListUnitTest extends AbstractListUnit<Descriptor> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse005() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, d1, d2);
   }
 
@@ -71,7 +71,7 @@ public class DescriptorListUnitTest extends AbstractListUnit<Descriptor> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse005() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, d1, d2);
   }
 
@@ -81,7 +81,7 @@ public class DescriptorListUnitTest extends AbstractListUnit<Descriptor> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases005() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, d1, d2);
   }
 
@@ -92,7 +92,7 @@ public class DescriptorListUnitTest extends AbstractListUnit<Descriptor> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization005() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, d1, d2);
   }
 

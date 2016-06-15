@@ -1,14 +1,18 @@
 package com.wci.umls.server.jpa.worfklow;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -17,6 +21,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.Worklist;
 
 /**
@@ -24,45 +29,48 @@ import com.wci.umls.server.model.workflow.Worklist;
  */
 @Entity
 @Table(name = "worklists", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "assignDate", "id"
+    "name", "description", "workflowBin_id"
 }))
 @Audited
 @Indexed
 @XmlRootElement(name = "worklist")
 public class WorklistJpa extends AbstractChecklist implements Worklist {
 
-  
   /** The assign date. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date assignDate = new Date();
 
   /** The return date. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date returnDate = new Date();
 
   /** The stamp date. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date stampDate = new Date();
 
   /** The editor. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String editor;
-  
+
   /** The group. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String worklistGroup;
-  
+
   /** The stamped by. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String stampedBy;
-   
+
   /** The status. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String status;
-  
+
+  /** The tracking records. */
+  @OneToMany(mappedBy = "worklist", targetEntity = TrackingRecordJpa.class)
+  private List<TrackingRecord> trackingRecords = new ArrayList<>();
+
   /**
    * Instantiates an empty {@link WorklistJpa}.
    */
@@ -77,23 +85,22 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
    * @param deepCopy the deep copy
    */
   public WorklistJpa(Worklist worklist, boolean deepCopy) {
-    super(worklist, deepCopy);
-    this.assignDate = worklist.getAssignDate();
-    this.returnDate = worklist.getReturnDate();
-    this.stampDate = worklist.getStampDate();
-    this.editor = worklist.getEditor();
-    this.worklistGroup = worklist.getWorklistGroup();
-    this.stampedBy = worklist.getStampedBy();
-    this.setWorkflowBin(worklist.getWorkflowBin());
+    super(worklist);
+    assignDate = worklist.getAssignDate();
+    returnDate = worklist.getReturnDate();
+    stampDate = worklist.getStampDate();
+    editor = worklist.getEditor();
+    worklistGroup = worklist.getWorklistGroup();
+    stampedBy = worklist.getStampedBy();
+    status = worklist.getStatus();
     if (deepCopy) {
-      this.setTrackingRecords(worklist.getTrackingRecords());
+      trackingRecords = new ArrayList<>(worklist.getTrackingRecords());
     }
   }
 
-
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getEditor() {
     return editor;
   }
@@ -106,7 +113,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getWorklistGroup() {
     return worklistGroup;
   }
@@ -120,7 +127,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   /* see superclass */
   @Override
   public Date getAssignDate() {
-   return assignDate;
+    return assignDate;
   }
 
   /* see superclass */
@@ -155,6 +162,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getStampedBy() {
     return stampedBy;
   }
@@ -165,8 +173,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.stampedBy = stampedBy;
   }
 
-
   /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getStatus() {
     return status;
@@ -178,6 +186,22 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.status = worklistStatus;
   }
 
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public List<TrackingRecord> getTrackingRecords() {
+    if (trackingRecords == null) {
+      return new ArrayList<>();
+    }
+    return trackingRecords;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTrackingRecords(List<TrackingRecord> records) {
+    this.trackingRecords = records;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -185,7 +209,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     result =
         prime * result + ((assignDate == null) ? 0 : assignDate.hashCode());
     result = prime * result + ((editor == null) ? 0 : editor.hashCode());
-    result = prime * result + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
+    result =
+        prime * result
+            + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
     result =
         prime * result + ((returnDate == null) ? 0 : returnDate.hashCode());
     result = prime * result + ((stampDate == null) ? 0 : stampDate.hashCode());
@@ -234,9 +260,12 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
         return false;
     } else if (!stampedBy.equals(other.stampedBy))
       return false;
-    if (status != other.status)
+    if (status == null) {
+      if (other.status != null)
+        return false;
+    } else if (!status.equals(other.status))
       return false;
-    
+
     return true;
   }
 
@@ -244,8 +273,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   public String toString() {
     return "WorklistJpa [id=" + getId() + ", assignDate=" + assignDate
         + ", returnDate=" + returnDate + ", stampDate=" + stampDate
-        + ", editor=" + editor + ", group=" + worklistGroup + ", stampedBy=" + stampedBy
-        + ", status=" + status + "]";
+        + ", editor=" + editor + ", group=" + worklistGroup + ", stampedBy="
+        + stampedBy + ", status=" + status + "] " + super.toString();
   }
 
 }

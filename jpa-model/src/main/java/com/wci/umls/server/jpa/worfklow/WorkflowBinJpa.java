@@ -4,23 +4,22 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -28,8 +27,12 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.BooleanBridge;
 import org.hibernate.search.bridge.builtin.EnumBridge;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
@@ -50,7 +53,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
-  
+
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -59,66 +62,58 @@ public class WorkflowBinJpa implements WorkflowBin {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-  
+
   /** the timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;  
+  private Date timestamp = null;
 
   /** The name. */
   @Column(nullable = false)
   private String name;
-  
+
   /** The description. */
   @Column(nullable = false)
   private String description;
-  
-  /** The cluster id. */
-  @Column(nullable = false)
-  private String clusterId;
-  
+
   /** The terminology id. */
   @Column(nullable = false)
   private String terminologyId;
-  
+
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
-  
+
   /** The version. */
   @Column(nullable = false)
   private String version;
-  
+
   /** The type. */
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private WorkflowBinType type = WorkflowBinType.ME;
-  
+  private WorkflowBinType type = WorkflowBinType.MUTUALLY_EXCLUSIVE;
+
   /** The rank. */
   @Column(nullable = false)
   private int rank;
-  
+
   /** The editable. */
   @Column(nullable = false)
   private boolean editable;
-  
+
   /** The tracking records. */
-  @OneToMany(targetEntity = TrackingRecordJpa.class)
+  @OneToMany(mappedBy = "workflowBin", targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
-  
-  /** The cluster types. */
-  @ElementCollection
-  @CollectionTable(name = "cluster_types")
-  @Column(nullable = false)
-  private List<String> workflowClusterTypes = new ArrayList<>();
 
   /** The creation time. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date creationTime = null;
-  
 
-  
+  /** The project. */
+  @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
+  private Project project;
+
   /**
    * Instantiates an empty {@link WorkflowBinJpa}.
    */
@@ -129,26 +124,26 @@ public class WorkflowBinJpa implements WorkflowBin {
   /**
    * Instantiates a {@link WorkflowBinJpa} from the specified parameters.
    *
-   * @param workflowBin the workflow bin
+   * @param bin the workflow bin
    * @param deepCopy the deep copy
    */
-  public WorkflowBinJpa(WorkflowBin workflowBin, boolean deepCopy) {
-    this.lastModified = workflowBin.getLastModified();
-    this.lastModifiedBy = workflowBin.getLastModifiedBy();
-    this.timestamp = workflowBin.getTimestamp();
-    this.name = workflowBin.getName();
-    this.description = workflowBin.getDescription();
-    this.clusterId = workflowBin.getClusterId();
-    this.terminologyId = workflowBin.getTerminologyId();
-    this.terminology = workflowBin.getTerminology();
-    this.version = workflowBin.getVersion();
-    this.type = workflowBin.getType();
-    this.rank = workflowBin.getRank();
-    this.editable = workflowBin.isEditable();
-    this.workflowClusterTypes = workflowBin.getWorkflowClusterTypes();
-    this.creationTime = workflowBin.getCreationTime();
+  public WorkflowBinJpa(WorkflowBin bin, boolean deepCopy) {
+    id = bin.getId();
+    lastModified = bin.getLastModified();
+    lastModifiedBy = bin.getLastModifiedBy();
+    timestamp = bin.getTimestamp();
+    name = bin.getName();
+    description = bin.getDescription();
+    terminologyId = bin.getTerminologyId();
+    terminology = bin.getTerminology();
+    version = bin.getVersion();
+    type = bin.getType();
+    rank = bin.getRank();
+    editable = bin.isEditable();
+    creationTime = bin.getCreationTime();
+    project = bin.getProject();
     if (deepCopy) {
-      this.trackingRecords = workflowBin.getTrackingRecords();
+      trackingRecords = new ArrayList<>(bin.getTrackingRecords());
     }
   }
 
@@ -202,24 +197,8 @@ public class WorkflowBinJpa implements WorkflowBin {
   }
 
   /* see superclass */
-  @XmlElement(type = TrackingRecordJpa.class)
   @Override
-  public List<TrackingRecord> getTrackingRecords() {
-    if (trackingRecords == null) {
-      return new ArrayList<>();
-    }
-    return trackingRecords;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTrackingRecords(List<TrackingRecord> records) {
-    this.trackingRecords = records;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getName() {
     return name;
   }
@@ -232,7 +211,6 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getDescription() {
     return description;
   }
@@ -242,7 +220,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   public void setDescription(String description) {
     this.description = description;
   }
-  
+
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = EnumBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
@@ -270,6 +248,8 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = BooleanBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isEditable() {
     return editable;
   }
@@ -291,35 +271,6 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Override
   public void setTerminologyId(String terminologyId) {
     this.terminologyId = terminologyId;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getClusterId() {
-    return clusterId;
-  }
-
-  /* see superclass */
-  @Override
-  public void setClusterId(String clusterId) {
-    this.clusterId = clusterId;
-  }
-
-  /* see superclass */
-  @Override
-  @XmlElement
-  public List<String> getWorkflowClusterTypes() {
-    if (this.workflowClusterTypes == null) {
-      this.workflowClusterTypes = new ArrayList<String>();
-    }
-    return workflowClusterTypes;
-  }
-
-  /* see superclass */
-  @Override
-  public void setWorkflowClusterTypes(List<String> clusterTypes) {
-    this.workflowClusterTypes = clusterTypes;
   }
 
   /* see superclass */
@@ -346,7 +297,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
-  
+
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -360,41 +311,79 @@ public class WorkflowBinJpa implements WorkflowBin {
     this.version = version;
   }
 
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public List<TrackingRecord> getTrackingRecords() {
+    if (trackingRecords == null) {
+      return new ArrayList<>();
+    }
+    return trackingRecords;
+  }
 
+  /* see superclass */
+  @Override
+  public void setTrackingRecords(List<TrackingRecord> records) {
+    this.trackingRecords = records;
+  }
 
+  /* see superclass */
+  @Override
+  @XmlTransient
+  public Project getProject() {
+    return project;
+  }
 
+  /* see superclass */
+  @Override
+  public void setProject(Project project) {
+    this.project = project;
+  }
 
+  /**
+   * Returns the project id.
+   *
+   * @return the project id
+   */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getProjectId() {
+    return project == null ? 0L : project.getId();
+  }
+
+  /**
+   * Sets the project id.
+   *
+   * @param projectId the project id
+   */
+  public void setProjectId(Long projectId) {
+    if (project == null) {
+      project = new ProjectJpa();
+    }
+    project.setId(projectId);
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((clusterId == null) ? 0 : clusterId.hashCode());
-    result =
-        prime * result + ((creationTime == null) ? 0 : creationTime.hashCode());
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (editable ? 1231 : 1237);
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + rank;
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-    result = prime * result
-        + ((trackingRecords == null) ? 0 : trackingRecords.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
-    result = prime * result + ((workflowClusterTypes == null) ? 0
-        : workflowClusterTypes.hashCode());
-
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -404,32 +393,12 @@ public class WorkflowBinJpa implements WorkflowBin {
     if (getClass() != obj.getClass())
       return false;
     WorkflowBinJpa other = (WorkflowBinJpa) obj;
-    if (clusterId == null) {
-      if (other.clusterId != null)
-        return false;
-    } else if (!clusterId.equals(other.clusterId))
-      return false;
-    if (creationTime == null) {
-      if (other.creationTime != null)
-        return false;
-    } else if (!creationTime.equals(other.creationTime))
-      return false;
     if (description == null) {
       if (other.description != null)
         return false;
     } else if (!description.equals(other.description))
       return false;
     if (editable != other.editable)
-      return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
       return false;
     if (name == null) {
       if (other.name != null)
@@ -448,16 +417,6 @@ public class WorkflowBinJpa implements WorkflowBin {
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
       return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
-        return false;
-    } else if (!timestamp.equals(other.timestamp))
-      return false;
-    if (trackingRecords == null) {
-      if (other.trackingRecords != null)
-        return false;
-    } else if (!trackingRecords.equals(other.trackingRecords))
-      return false;
     if (type != other.type)
       return false;
     if (version == null) {
@@ -465,27 +424,18 @@ public class WorkflowBinJpa implements WorkflowBin {
         return false;
     } else if (!version.equals(other.version))
       return false;
-    if (workflowClusterTypes == null) {
-      if (other.workflowClusterTypes != null)
-        return false;
-    } else if (!workflowClusterTypes.equals(other.workflowClusterTypes))
-      return false;
-
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "WorkflowBinJpa [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description + ", clusterId="
-        + clusterId + ", terminologyId=" + terminologyId + ", terminology="
-        + terminology + ", version=" + version + ", type=" + type + ", rank="
-        + rank + ", editable=" + editable + ", trackingRecords="
-        + trackingRecords + ", workflowClusterTypes=" + workflowClusterTypes
-        + ", creationTime=" + creationTime 
-        + "]";
+        + ", name=" + name + ", description=" + description
+        + ", terminologyId=" + terminologyId + ", terminology=" + terminology
+        + ", version=" + version + ", type=" + type + ", rank=" + rank
+        + ", editable=" + editable + ", creationTime=" + creationTime + "]";
   }
-  
-  
+
 }

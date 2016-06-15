@@ -149,7 +149,7 @@ public class RelationshipListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testNormalUse008() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, r1, r2);
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();
@@ -170,7 +170,7 @@ public class RelationshipListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testDegenerateUse008() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, r1, r2);
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();
@@ -193,7 +193,7 @@ public class RelationshipListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testEdgeCases008() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, r1, r2);
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();
@@ -214,7 +214,7 @@ public class RelationshipListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testXmlSerialization008() throws Exception {
+  public void testXmlSerializations() throws Exception {
     testXmllSerialization(list, list2, r1, r2);
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();

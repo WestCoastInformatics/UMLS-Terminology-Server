@@ -73,7 +73,7 @@ public class SubsetListUnitTest extends AbstractListUnit<Subset> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse011() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, s1, s2);
     list = new SubsetListJpa();
     list2 = new SubsetListJpa();
@@ -87,7 +87,7 @@ public class SubsetListUnitTest extends AbstractListUnit<Subset> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse011() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, s1, s2);
     list = new SubsetListJpa();
     list2 = new SubsetListJpa();
@@ -100,7 +100,7 @@ public class SubsetListUnitTest extends AbstractListUnit<Subset> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases011() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, s1, s2);
     list = new SubsetListJpa();
     list2 = new SubsetListJpa();
@@ -115,7 +115,7 @@ public class SubsetListUnitTest extends AbstractListUnit<Subset> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization011() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, s1, s2);
     list = new SubsetListJpa();
     list2 = new SubsetListJpa();

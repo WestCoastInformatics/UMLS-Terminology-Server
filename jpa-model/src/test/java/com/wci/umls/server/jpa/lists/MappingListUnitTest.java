@@ -72,7 +72,7 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse002() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, m1, m2);
   }
 
@@ -83,7 +83,7 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse002() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, m1, m2);
   }
 
@@ -93,7 +93,7 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases002() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, m1, m2);
   }
 
@@ -104,7 +104,7 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization002() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, m1, m2);
   }
 

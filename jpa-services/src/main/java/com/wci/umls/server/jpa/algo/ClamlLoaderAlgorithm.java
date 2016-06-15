@@ -751,6 +751,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             concept.setObsolete(false);
             concept.setSuppressible(false);
             concept.setPublishable(true);
+            concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
             concept.setPublished(true);
             concept.setFullyDefined(false);
             concept.setAnonymous(false);
@@ -1035,6 +1036,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                 relationship.setObsolete(false);
                 relationship.setSuppressible(false);
                 relationship.setPublishable(true);
+                relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
                 relationship.setPublished(true);
                 // fromAtom.addRelationship(relationship);
                 atomRelationshipSet.add(relationship);
@@ -1102,6 +1104,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               relationship.setObsolete(false);
               relationship.setSuppressible(false);
               relationship.setPublishable(true);
+              relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
               relationship.setPublished(true);
               // childConcept.addRelationship(relationship);
               relationshipSet.add(relationship);
@@ -1188,6 +1191,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         concept.setObsolete(false);
         concept.setSuppressible(false);
         concept.setPublishable(true);
+        concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         concept.setPublished(true);
         concept.setFullyDefined(false);
         concept.setAnonymous(false);
@@ -1373,6 +1377,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             placeholderConcept.setObsolete(false);
             placeholderConcept.setSuppressible(false);
             placeholderConcept.setPublishable(true);
+            placeholderConcept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
             placeholderConcept.setPublished(true);
             placeholderConcept.setFullyDefined(false);
             placeholderConcept.setAnonymous(false);
@@ -1505,6 +1510,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       relationship.setObsolete(false);
       relationship.setSuppressible(false);
       relationship.setPublishable(true);
+      relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       relationship.setPublished(true);
       relationship.setTo(parentConcept);
       relationship.setFrom(concept);
@@ -1579,6 +1585,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setObsolete(false);
       atom.setSuppressible(false);
       atom.setPublishable(true);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       atom.setPublished(true);
       atom.setTermType(rubricKind);
       termTypes.add(rubricKind);

@@ -8,20 +8,20 @@ import java.util.Set;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.Checklist;
-import com.wci.umls.server.model.workflow.ChecklistList;
-import com.wci.umls.server.model.workflow.ProjectWorkflowConfig;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.TrackingRecord;
-import com.wci.umls.server.model.workflow.TrackingRecordList;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
-import com.wci.umls.server.model.workflow.WorklistList;
 import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 
 
@@ -205,7 +205,7 @@ public interface WorkflowService {
    * @return the project workflow config
    * @throws Exception the exception
    */
-  public ProjectWorkflowConfig addProjectWorkflowConfig(ProjectWorkflowConfig projectWorkflowConfig) throws Exception;
+  public WorkflowConfig addProjectWorkflowConfig(WorkflowConfig projectWorkflowConfig) throws Exception;
 
 
   /**
@@ -214,7 +214,7 @@ public interface WorkflowService {
    * @param projectWorkflowConfig the project workflow config
    * @throws Exception the exception
    */
-  public void updateProjectWorkflowConfig(ProjectWorkflowConfig projectWorkflowConfig) throws Exception;
+  public void updateProjectWorkflowConfig(WorkflowConfig projectWorkflowConfig) throws Exception;
   
 
   /**
@@ -232,7 +232,7 @@ public interface WorkflowService {
    * @return the project workflow configs
    * @throws Exception the exception
    */
-  public List<ProjectWorkflowConfig> getProjectWorkflowConfigs() throws Exception;
+  public List<WorkflowConfig> getProjectWorkflowConfigs() throws Exception;
   
 
   /**
@@ -242,7 +242,7 @@ public interface WorkflowService {
    * @return the project workflow config
    * @throws Exception the exception
    */
-  public ProjectWorkflowConfig getProjectWorkflowConfig(Long id) throws Exception;
+  public WorkflowConfig getProjectWorkflowConfig(Long id) throws Exception;
   
 
   /**
@@ -252,7 +252,7 @@ public interface WorkflowService {
    * @return the list
    * @throws Exception the exception
    */
-  public List<ProjectWorkflowConfig> findProjectWorkflowConfigsForQuery(String query) throws Exception;
+  public List<WorkflowConfig> findProjectWorkflowConfigsForQuery(String query) throws Exception;
   
 
   /**

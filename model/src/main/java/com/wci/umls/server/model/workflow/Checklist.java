@@ -5,6 +5,7 @@ package com.wci.umls.server.model.workflow;
 
 import java.util.List;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
 
 
@@ -68,4 +69,18 @@ public interface Checklist extends HasLastModified {
    * @param workflowBin the new workflow bin
    */
   public void setWorkflowBin(WorkflowBin workflowBin);
+  
+  /**
+   * Returns the project.
+   *
+   * @return the project
+   */
+  public Project getProject();
+
+  /**
+   * Sets the project.
+   *
+   * @param project the project
+   */
+  public void setProject(Project project);
 }

@@ -110,7 +110,7 @@ public class NoteListUnitTest
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse008() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, n1, n2);
     list = new NoteListJpa();
     list2 = new NoteListJpa();
@@ -128,7 +128,7 @@ public class NoteListUnitTest
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse008() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, n1, n2);
     list = new NoteListJpa();
     list2 = new NoteListJpa();
@@ -144,7 +144,7 @@ public class NoteListUnitTest
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases008() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, n1, n2);
     list = new NoteListJpa();
     list2 = new NoteListJpa();
@@ -162,7 +162,7 @@ public class NoteListUnitTest
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization008() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, n1, n2);
     list = new NoteListJpa();
     list2 = new NoteListJpa();

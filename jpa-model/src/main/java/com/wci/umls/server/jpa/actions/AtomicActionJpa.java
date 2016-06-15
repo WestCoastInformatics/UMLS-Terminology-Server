@@ -30,7 +30,7 @@ import com.wci.umls.server.model.meta.IdType;
  */
 @Entity
 @Table(name = "atomic_actions", uniqueConstraints = @UniqueConstraint(columnNames = {
-     "id"
+  "id"
 }))
 @Indexed
 @XmlRootElement(name = "atomicActions")
@@ -41,7 +41,7 @@ public class AtomicActionJpa implements AtomicAction {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
-  
+
   @Column(nullable = false)
   private Long objectId;
 
@@ -56,22 +56,21 @@ public class AtomicActionJpa implements AtomicAction {
   /** The field. */
   @Column(nullable = false)
   private String field;
-  
+
   /** The type. */
   @Column(nullable = false)
   private IdType type;
-  
+
   /** The molecular action. */
   @ManyToOne(targetEntity = AtomicActionJpa.class, optional = false)
   private MolecularAction molecularAction;
-  
+
   /**
    * Instantiates a new atomic action jpa.
    */
   public AtomicActionJpa() {
     // do nothing
   }
-  
 
   /**
    * Instantiates a new atomic action jpa.
@@ -80,16 +79,13 @@ public class AtomicActionJpa implements AtomicAction {
    */
   public AtomicActionJpa(AtomicAction atomicAction) {
     super();
-    this.version = atomicAction.getVersion();
-    this.terminologyId = atomicAction.getTerminologyId();
-    this.terminology = atomicAction.getTerminology();
     this.oldValue = atomicAction.getOldValue();
     this.newValue = atomicAction.getNewValue();
     this.field = atomicAction.getField();
     this.type = atomicAction.getIdType();
     this.molecularAction = atomicAction.getMolecularAction();
   }
-  
+
   /* see superclass */
   @Override
   public Long getId() {
@@ -100,45 +96,6 @@ public class AtomicActionJpa implements AtomicAction {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getTerminologyId() {
-    return terminologyId;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTerminologyId(String terminologyId) {
-    this.terminologyId = terminologyId;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getTerminology() {
-    return terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getVersion() {
-    return version;
-  }
-
-  /* see superclass */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
   }
 
   /* see superclass */
@@ -165,6 +122,16 @@ public class AtomicActionJpa implements AtomicAction {
   @Override
   public void setIdType(IdType idType) {
     this.type = idType;
+  }
+  
+  
+  @Override
+  public Long getObjectId() {
+    return objectId;
+  }
+  @Override
+  public void setObjectId(Long objectId) {
+    this.objectId = objectId;
   }
 
   /* see superclass */
@@ -206,26 +173,19 @@ public class AtomicActionJpa implements AtomicAction {
     this.newValue = newValue;
   }
 
-
   /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((field == null) ? 0 : field.hashCode());
-    result = prime * result
-        + ((molecularAction == null) ? 0 : molecularAction.hashCode());
+
     result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
     result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
-    result =
-        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+
     result = prime * result + ((type == null) ? 0 : type.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
-
 
   /* see superclass */
   @Override
@@ -242,11 +202,6 @@ public class AtomicActionJpa implements AtomicAction {
         return false;
     } else if (!field.equals(other.field))
       return false;
-    if (molecularAction == null) {
-      if (other.molecularAction != null)
-        return false;
-    } else if (!molecularAction.equals(other.molecularAction))
-      return false;
     if (newValue == null) {
       if (other.newValue != null)
         return false;
@@ -257,34 +212,19 @@ public class AtomicActionJpa implements AtomicAction {
         return false;
     } else if (!oldValue.equals(other.oldValue))
       return false;
-    if (terminology == null) {
-      if (other.terminology != null)
-        return false;
-    } else if (!terminology.equals(other.terminology))
-      return false;
-    if (terminologyId == null) {
-      if (other.terminologyId != null)
-        return false;
-    } else if (!terminologyId.equals(other.terminologyId))
-      return false;
+ 
     if (type != other.type)
       return false;
-    if (version == null) {
-      if (other.version != null)
-        return false;
-    } else if (!version.equals(other.version))
-      return false;
+  
     return true;
   }
 
-
-  /* see superclass */
   @Override
   public String toString() {
-    return "AtomicActionJpa [version=" + version + ", terminologyId="
-        + terminologyId + ", terminology=" + terminology + ", oldValue="
-        + oldValue + ", newValue=" + newValue + ", field=" + field + ", type="
-        + type + ", molecularAction=" + molecularAction + "]";
+    return "AtomicActionJpa [id=" + id + ", objectId=" + objectId
+        + ", oldValue=" + oldValue + ", newValue=" + newValue + ", field="
+        + field + ", type=" + type + ", molecularAction=" + molecularAction
+        + "]";
   }
 
 }

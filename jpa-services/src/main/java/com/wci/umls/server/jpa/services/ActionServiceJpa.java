@@ -217,9 +217,7 @@ public class ActionServiceJpa extends HistoryServiceJpa
 
           AtomicAction action = new AtomicActionJpa();
           action.setIdType(IdType.CONCEPT);
-          action.setTerminology(terminology);
-          action.setVersion(version);
-          
+      
           // retrieve and set the field name (based on is vs. get)
           int fromIndex = m.getName().startsWith("get") ? 3 : 2;
           action.setField(m.getName().substring(fromIndex,fromIndex+1).toLowerCase() + m.getName().substring(fromIndex));
