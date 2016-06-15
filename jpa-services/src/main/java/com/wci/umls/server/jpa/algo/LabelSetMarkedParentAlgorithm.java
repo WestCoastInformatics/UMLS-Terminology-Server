@@ -50,6 +50,7 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
     logInfo("  subset = " + subset);
     fireProgressEvent(0, "Starting...");
 
+    setLastModifiedBy("admin");
     setTransactionPerOperation(false);
     beginTransaction();
 
@@ -81,9 +82,7 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
       ancestorLabelSet.setAbbreviation("LABELFOR:" + subset.getTerminologyId());
       ancestorLabelSet.setDescription("label parent for " + subset.getName());
       ancestorLabelSet.setExpandedForm(subset.getName());
-      ancestorLabelSet.setLastModified(startDate);
       ancestorLabelSet.setTimestamp(startDate);
-      ancestorLabelSet.setLastModifiedBy("loader");
       ancestorLabelSet.setPublishable(false);
       ancestorLabelSet.setPublished(false);
       ancestorLabelSet.setTerminology(subset.getTerminology());
@@ -95,9 +94,7 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
       labelSet.setAbbreviation(subset.getTerminologyId());
       labelSet.setDescription("Concept in " + subset.getName());
       labelSet.setExpandedForm(subset.getName());
-      labelSet.setLastModified(startDate);
       labelSet.setTimestamp(startDate);
-      labelSet.setLastModifiedBy("loader");
       labelSet.setPublishable(false);
       labelSet.setPublished(false);
       labelSet.setTerminology(subset.getTerminology());

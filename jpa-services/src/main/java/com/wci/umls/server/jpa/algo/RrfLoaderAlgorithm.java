@@ -2164,7 +2164,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           addRelationship(codeRel);
           relationshipMap.put(fields[8], codeRel.getId());
         }
-      } else {
+      }
+      // Handle different STYPE1/STYPE2
+      else {
         String stype1 = fields[2];
         String stype2 = fields[6];
 
@@ -2183,6 +2185,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           final Long fromId =
               conceptIdMap.get(atomTerminologyMap.get(fields[5])
                   + atomConceptIdMap.get(fields[5]));
+          final Concept concept = getConcept(fromId);
+          from = new ComponentInfoJpa(concept);
+
+        } else if (stype2.equals("CUI")) {
+          final Long fromId = conceptIdMap.get(getTerminology() + fields[4]);
           final Concept concept = getConcept(fromId);
           from = new ComponentInfoJpa(concept);
 
@@ -2207,6 +2214,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                   + atomCodeIdMap.get(fields[1]));
           final Code code = getCode(toId);
           to = new ComponentInfoJpa(code);
+
+        } else if (stype1.equals("CUI")) {
+          final Long toId = conceptIdMap.get(getTerminology() + fields[0]);
+          final Concept concept = getConcept(toId);
+          to = new ComponentInfoJpa(concept);
 
         } else if (stype1.equals("SCUI")) {
           final Long toId =

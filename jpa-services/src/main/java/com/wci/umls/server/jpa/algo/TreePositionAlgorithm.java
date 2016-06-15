@@ -33,6 +33,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.SemanticType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.RootService;
 
@@ -199,6 +200,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
     chdPar = null;
 
     // Keep this after the read query above, in case there are no rels
+    setLastModifiedBy("admin");
     setTransactionPerOperation(false);
     beginTransaction();
 
@@ -249,15 +251,14 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
             }
             final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
             sty.setTerminologyId("");
-            sty.setLastModifiedBy("admin");
             sty.setObsolete(false);
             sty.setPublishable(false);
             sty.setPublished(false);
+            sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
             sty.setSemanticType(idValueMap.get(styId));
             sty.setTerminology(getTerminology());
             sty.setVersion(getVersion());
             sty.setTimestamp(startDate);
-            sty.setLastModified(startDate);
             addSemanticTypeComponent(sty, concept);
             concept.getSemanticTypes().add(sty);
           }
@@ -313,8 +314,6 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
       sty.setUsageNote("");
       sty.setValue(semanticType);
       sty.setTimestamp(startDate);
-      sty.setLastModified(startDate);
-      sty.setLastModifiedBy("admin");
       sty.setPublished(false);
       sty.setPublishable(false);
       logInfo("    add semantic type - " + sty);
@@ -357,8 +356,9 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
         return descConceptIds;
       } else {
         // add error to validation result
-        validationResult.getErrors().add("Cycle detected for concept " + id
-            + ", ancestor path is " + ancestorPath);
+        validationResult.getErrors().add(
+            "Cycle detected for concept " + id + ", ancestor path is "
+                + ancestorPath);
       }
 
       // return empty set of descendants to truncate calculation on this path
@@ -391,8 +391,6 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
       throw new Exception("Unsupported id type: " + idType);
     }
     tp.setTimestamp(startDate);
-    tp.setLastModified(startDate);
-    tp.setLastModifiedBy("admin");
     tp.setObsolete(false);
     tp.setSuppressible(false);
     tp.setPublishable(true);
@@ -466,7 +464,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
     if (descConceptIds.contains(id)) {
 
       // add error to validation result
-      validationResult.getErrors().add("Concept " + id + " claims itself as a child");
+      validationResult.getErrors().add(
+          "Concept " + id + " claims itself as a child");
 
       // remove this terminology id to prevent infinite loop
       descConceptIds.remove(id);
