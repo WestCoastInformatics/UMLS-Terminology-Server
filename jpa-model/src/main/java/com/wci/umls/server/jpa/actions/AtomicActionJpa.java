@@ -30,7 +30,7 @@ import com.wci.umls.server.model.meta.IdType;
  */
 @Entity
 @Table(name = "atomic_actions", uniqueConstraints = @UniqueConstraint(columnNames = {
-     "id"
+  "id"
 }))
 @Indexed
 @XmlRootElement(name = "atomicActions")
@@ -41,11 +41,11 @@ public class AtomicActionJpa implements AtomicAction {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
-  
+
   /** The version. */
   @Column(nullable = false)
   private String version;
-  
+
   /** The terminology id. */
   @Column(nullable = false)
   private String terminologyId;
@@ -65,22 +65,21 @@ public class AtomicActionJpa implements AtomicAction {
   /** The field. */
   @Column(nullable = false)
   private String field;
-  
+
   /** The type. */
   @Column(nullable = false)
   private IdType type;
-  
+
   /** The molecular action. */
   @ManyToOne(targetEntity = AtomicActionJpa.class, optional = false)
   private MolecularAction molecularAction;
-  
+
   /**
    * Instantiates a new atomic action jpa.
    */
   public AtomicActionJpa() {
     // do nothing
   }
-  
 
   /**
    * Instantiates a new atomic action jpa.
@@ -98,7 +97,7 @@ public class AtomicActionJpa implements AtomicAction {
     this.type = atomicAction.getIdType();
     this.molecularAction = atomicAction.getMolecularAction();
   }
-  
+
   /* see superclass */
   @Override
   public Long getId() {
@@ -215,26 +214,24 @@ public class AtomicActionJpa implements AtomicAction {
     this.newValue = newValue;
   }
 
-
   /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((field == null) ? 0 : field.hashCode());
-    result = prime * result
-        + ((molecularAction == null) ? 0 : molecularAction.hashCode());
+
     result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
     result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
-
 
   /* see superclass */
   @Override
@@ -250,11 +247,6 @@ public class AtomicActionJpa implements AtomicAction {
       if (other.field != null)
         return false;
     } else if (!field.equals(other.field))
-      return false;
-    if (molecularAction == null) {
-      if (other.molecularAction != null)
-        return false;
-    } else if (!molecularAction.equals(other.molecularAction))
       return false;
     if (newValue == null) {
       if (other.newValue != null)
@@ -285,7 +277,6 @@ public class AtomicActionJpa implements AtomicAction {
       return false;
     return true;
   }
-
 
   /* see superclass */
   @Override

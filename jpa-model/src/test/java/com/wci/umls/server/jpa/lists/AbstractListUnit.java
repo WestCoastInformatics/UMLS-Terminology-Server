@@ -12,13 +12,14 @@ import java.util.List;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ResultList;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 
 /**
  * Unit testing for {@link ResultList}s.
  *
  * @param <T> the
  */
-public class AbstractListUnit<T> {
+public class AbstractListUnit<T> extends ModelUnitSupport {
 
   /**
    * Test normal use of a list.

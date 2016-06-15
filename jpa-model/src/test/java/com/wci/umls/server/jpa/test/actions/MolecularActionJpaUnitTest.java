@@ -5,6 +5,9 @@ package com.wci.umls.server.jpa.test.actions;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -17,6 +20,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
@@ -27,18 +31,16 @@ import com.wci.umls.server.model.actions.MolecularAction;
 /**
  * Unit testing for {@link MolecularActionJpa}.
  */
-public class MolecularActionJpaUnitTest {
+public class MolecularActionJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private MolecularActionJpa object;
 
-  /** The a1. */
-  private AtomicAction a1;
+  /** the fixture l1 */
+  List<AtomicAction> l1;
 
-  /** The a2. */
-  private AtomicAction a2;
-  
-
+  /** the fixture l1 */
+  List<AtomicAction> l2;
 
   /**
    * Setup class.
@@ -56,10 +58,12 @@ public class MolecularActionJpaUnitTest {
   @Before
   public void setup() throws Exception {
     object = new MolecularActionJpa();
+    l1 = new ArrayList<>();
+    l2 = new ArrayList<>();
     ProxyTester tester = new ProxyTester(new AtomicActionJpa());
-    a1 = (AtomicActionJpa) tester.createObject(1);
-    a2 = (AtomicActionJpa) tester.createObject(2);
-    
+    l1.add((AtomicActionJpa) tester.createObject(1));
+    l2.add((AtomicActionJpa) tester.createObject(2));
+
   }
 
   /**
@@ -67,9 +71,9 @@ public class MolecularActionJpaUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
-  public void testModelGetSet041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet041");
+  // TODO: @test
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -79,15 +83,14 @@ public class MolecularActionJpaUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
-  public void testModelEqualsHashcode041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
+  // TODO: @test
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-
 
     tester.include("type");
     tester.include("timestamp");
@@ -95,9 +98,9 @@ public class MolecularActionJpaUnitTest {
     tester.include("lastModifiedBy");
     tester.include("macroAction");
 
-    tester.proxy(AtomicAction.class, 1, a1);
-    tester.proxy(AtomicAction.class, 2, a2);
-      
+    tester.proxy(List.class, 1, l1);
+    tester.proxy(List.class, 2, l2);
+
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -111,14 +114,14 @@ public class MolecularActionJpaUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
-  public void testModelDeepCopy041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
+  // TODO: @test
+  public void testModelDeepCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(AtomicAction.class, 1, a1);
-    tester.proxy(AtomicAction.class, 2, a2);
-    assertTrue(tester.testCopyConstructorDeep(MolecularAction.class));
+    tester.proxy(List.class, 1, l1);
+    tester.proxy(List.class, 2, l2);
+    assertTrue(tester.testCopyConstructor(MolecularAction.class));
 
   }
 
@@ -127,21 +130,11 @@ public class MolecularActionJpaUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
-  public void testModelXmlSerialization041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
+  // TODO: @test
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    // The proxy concepts can have only "id" and "term" set due to xml transient
-    AtomicAction tr1 = new AtomicActionJpa();
-    tr1.setId(1L);
-    AtomicAction tr2 = new AtomicActionJpa();
-    tr2.setId(2L);
-
-    tester.proxy(AtomicAction.class, 1, tr1);
-    tester.proxy(AtomicAction.class, 2, tr2);
-    tester.proxy(AtomicAction.class, 1, a1);
-    tester.proxy(AtomicAction.class, 2, a2);
-    
+    tester.proxy(List.class, 1, l1);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -150,13 +143,14 @@ public class MolecularActionJpaUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
-  public void testModelNotNullField041() throws Exception {
+  // TODO: @test
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    
+
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
@@ -172,13 +166,13 @@ public class MolecularActionJpaUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
-  public void testModelIndexedFields041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
+  // TODO: @test
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    //assertTrue(tester.testAnalyzedIndexedFields());
+    // assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);

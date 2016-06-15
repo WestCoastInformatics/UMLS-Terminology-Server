@@ -539,8 +539,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
         concept.setLastModifiedBy(loader);
         concept.setPublished(true);
         concept.setPublishable(true);
-        concept.setUsesRelationshipUnion(true);
         concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+        concept.setUsesRelationshipUnion(true);
 
         // Attributes
         final Attribute attribute = new AttributeJpa();
@@ -627,6 +627,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         relationship.setLastModifiedBy(loader);
         relationship.setPublished(true);
         relationship.setPublishable(true);
+        relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         relationship.setAssertedDirection(true);
 
         // Attributes
@@ -1150,6 +1151,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         relationship.setLastModifiedBy(loader);
         relationship.setPublished(true);
         relationship.setPublishable(true);
+        relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         relationship.setAssertedDirection(true);
 
         // ensure additional relationship type has been added

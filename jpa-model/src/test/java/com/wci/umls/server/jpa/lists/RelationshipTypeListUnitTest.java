@@ -62,7 +62,7 @@ public class RelationshipTypeListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse022() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list1, list2, o1, o2);
   }
 
@@ -73,7 +73,7 @@ public class RelationshipTypeListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse022() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list1, list2, o1, o2);
   }
 
@@ -83,7 +83,7 @@ public class RelationshipTypeListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases022() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list1, list2, o1, o2);
   }
 
@@ -94,7 +94,7 @@ public class RelationshipTypeListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization022() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list1, list2, o1, o2);
   }
 

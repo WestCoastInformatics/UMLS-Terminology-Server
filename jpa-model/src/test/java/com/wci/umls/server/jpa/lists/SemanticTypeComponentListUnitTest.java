@@ -61,7 +61,7 @@ public class SemanticTypeComponentListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse021() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, s1, d2);
   }
 
@@ -72,7 +72,7 @@ public class SemanticTypeComponentListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse021() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, s1, d2);
   }
 
@@ -82,7 +82,7 @@ public class SemanticTypeComponentListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases021() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, s1, d2);
   }
 
@@ -93,7 +93,7 @@ public class SemanticTypeComponentListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization021() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, s1, d2);
   }
 

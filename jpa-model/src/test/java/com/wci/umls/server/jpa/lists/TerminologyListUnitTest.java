@@ -92,7 +92,7 @@ public class TerminologyListUnitTest extends AbstractListUnit<Terminology> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse025() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list1, list2, o1, o2);
   }
 
@@ -103,7 +103,7 @@ public class TerminologyListUnitTest extends AbstractListUnit<Terminology> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse025() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list1, list2, o1, o2);
   }
 
@@ -113,7 +113,7 @@ public class TerminologyListUnitTest extends AbstractListUnit<Terminology> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases025() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list1, list2, o1, o2);
   }
 
@@ -124,7 +124,7 @@ public class TerminologyListUnitTest extends AbstractListUnit<Terminology> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization025() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list1, list2, o1, o2);
   }
 

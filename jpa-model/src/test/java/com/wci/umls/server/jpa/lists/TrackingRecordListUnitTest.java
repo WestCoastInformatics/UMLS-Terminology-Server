@@ -18,7 +18,8 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 /**
  * Unit testing for {@link TrackingRecordList}.
  */
-public class TrackingRecordListUnitTest extends AbstractListUnit<TrackingRecord> {
+public class TrackingRecordListUnitTest extends
+    AbstractListUnit<TrackingRecord> {
 
   /** The list1 test fixture . */
   private TrackingRecordList list1;
@@ -54,6 +55,11 @@ public class TrackingRecordListUnitTest extends AbstractListUnit<TrackingRecord>
     o1 = (TrackingRecord) tester.createObject(1);
     o2 = (TrackingRecord) tester.createObject(2);
 
+    o1.setWorkflowBin(null);
+    o1.setWorklist(null);
+    o2.setWorkflowBin(null);
+    o2.setWorklist(null);
+
   }
 
   /**
@@ -61,7 +67,7 @@ public class TrackingRecordListUnitTest extends AbstractListUnit<TrackingRecord>
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse015() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list1, list2, o1, o2);
   }
 
@@ -72,7 +78,7 @@ public class TrackingRecordListUnitTest extends AbstractListUnit<TrackingRecord>
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse015() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list1, list2, o1, o2);
   }
 
@@ -82,7 +88,7 @@ public class TrackingRecordListUnitTest extends AbstractListUnit<TrackingRecord>
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases015() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list1, list2, o1, o2);
   }
 
@@ -93,7 +99,7 @@ public class TrackingRecordListUnitTest extends AbstractListUnit<TrackingRecord>
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization015() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list1, list2, o1, o2);
   }
 

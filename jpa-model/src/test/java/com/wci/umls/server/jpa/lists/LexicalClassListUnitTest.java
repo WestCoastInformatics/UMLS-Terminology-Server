@@ -60,7 +60,7 @@ public class LexicalClassListUnitTest extends AbstractListUnit<LexicalClass> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse004() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, l1, l2);
   }
 
@@ -71,7 +71,7 @@ public class LexicalClassListUnitTest extends AbstractListUnit<LexicalClass> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse004() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, l1, l2);
   }
 
@@ -81,7 +81,7 @@ public class LexicalClassListUnitTest extends AbstractListUnit<LexicalClass> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases004() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, l1, l2);
   }
 
@@ -92,7 +92,7 @@ public class LexicalClassListUnitTest extends AbstractListUnit<LexicalClass> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization004() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, l1, l2);
   }
 

@@ -32,7 +32,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
  */
 @Entity
 @Table(name = "molecular_actions", uniqueConstraints = @UniqueConstraint(columnNames = {
-     "id"
+  "id"
 }))
 @Indexed
 @XmlRootElement(name = "molecularActions")
@@ -43,11 +43,11 @@ public class MolecularActionJpa implements MolecularAction {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
-  
+
   /** The version. */
   @Column(nullable = false)
   private String version;
-  
+
   /** The terminology id. */
   @Column(nullable = false)
   private String terminologyId;
@@ -55,11 +55,11 @@ public class MolecularActionJpa implements MolecularAction {
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
-  
+
   /** The type. */
   @Column(nullable = false)
   private String type;
-  
+
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -68,41 +68,44 @@ public class MolecularActionJpa implements MolecularAction {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-  
+
   /** The timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
-  
+
   /** The macro action. */
   @Column(nullable = false)
   private boolean macroAction;
-  
+
   /** The molecular action. */
   @OneToMany(targetEntity = AtomicActionJpa.class)
   private List<AtomicAction> atomicActions = new ArrayList<>();
-  
+
   /**
    * Instantiates a new atomic action jpa.
    */
   public MolecularActionJpa() {
     // do nothing
   }
-  
 
   /**
    * Instantiates a new atomic action jpa.
    *
-   * @param molecularAction the atomic action
+   * @param action the atomic action
    */
-  public MolecularActionJpa(MolecularAction molecularAction) {
-    super();
-    this.version = molecularAction.getVersion();
-    this.terminologyId = molecularAction.getTerminologyId();
-    this.terminology = molecularAction.getTerminology();
-    this.type = molecularAction.getType();
+  public MolecularActionJpa(MolecularAction action) {
+    id = action.getId();
+    lastModified = action.getLastModified();
+    lastModifiedBy = action.getLastModifiedBy();
+    version = action.getVersion();
+    version = action.getVersion();
+    terminologyId = action.getTerminologyId();
+    terminology = action.getTerminology();
+    macroAction = action.isMacroAction();
+    type = action.getType();
   }
-  
+
   /* see superclass */
   @Override
   public Long getId() {
@@ -154,7 +157,6 @@ public class MolecularActionJpa implements MolecularAction {
     this.version = version;
   }
 
-
   /* see superclass */
   @Override
   public Date getTimestamp() {
@@ -199,13 +201,11 @@ public class MolecularActionJpa implements MolecularAction {
     return type;
   }
 
-
   /* see superclass */
   @Override
   public void setType(String type) {
     this.type = type;
   }
-
 
   /* see superclass */
   @Override
@@ -214,13 +214,11 @@ public class MolecularActionJpa implements MolecularAction {
     return atomicActions;
   }
 
-
   /* see superclass */
   @Override
   public void setAtomicActions(List<AtomicAction> atomicActions) {
     this.atomicActions = atomicActions;
   }
-
 
   /* see superclass */
   @Override
@@ -228,36 +226,36 @@ public class MolecularActionJpa implements MolecularAction {
     return macroAction;
   }
 
-
   /* see superclass */
   @Override
   public void setMacroAction(boolean macroAction) {
     this.macroAction = macroAction;
   }
 
-
   /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + ((atomicActions == null) ? 0 : atomicActions.hashCode());
+    result =
+        prime * result
+            + ((atomicActions == null) ? 0 : atomicActions.hashCode());
     result =
         prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result =
+        prime * result
+            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + (macroAction ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
-
 
   /* see superclass */
   @Override
@@ -314,17 +312,13 @@ public class MolecularActionJpa implements MolecularAction {
     return true;
   }
 
-
-  /* see superclass */
   @Override
   public String toString() {
-    return "MolecularActionJpa [version=" + version + ", terminologyId="
-        + terminologyId + ", terminology=" + terminology + ", type=" + type
-        + ", lastModified=" + lastModified + ", lastModifiedBy="
-        + lastModifiedBy + ", timestamp=" + timestamp + ", macroAction="
-        + macroAction + ", atomicActions=" + atomicActions + "]";
+    return "MolecularActionJpa [id=" + id + ", version=" + version
+        + ", terminologyId=" + terminologyId + ", terminology=" + terminology
+        + ", type=" + type + ", lastModified=" + lastModified
+        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
+        + ", macroAction=" + macroAction + "]";
   }
-
-
 
 }

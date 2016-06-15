@@ -123,7 +123,7 @@ public class TreePositionListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse026() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list1, list2, ctp1, ctp2);
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
@@ -143,7 +143,7 @@ public class TreePositionListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse026() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list1, list2, ctp1, ctp2);
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
@@ -162,7 +162,7 @@ public class TreePositionListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases026() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list1, list2, ctp1, ctp2);
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
@@ -182,7 +182,7 @@ public class TreePositionListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization026() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list1, list2, ctp1, ctp2);
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();

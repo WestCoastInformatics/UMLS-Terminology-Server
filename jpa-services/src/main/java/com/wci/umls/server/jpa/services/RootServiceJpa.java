@@ -981,19 +981,22 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   public LogEntry addLogEntry(final LogEntry logEntry) throws Exception {
-    return addHasLastModified(logEntry);
+    // Use add object to bypass the last modified checks
+    return addObject(logEntry);
   }
 
   /* see superclass */
   @Override
   public void updateLogEntry(final LogEntry logEntry) throws Exception {
-    updateHasLastModified(logEntry);
+    // Use add object to bypass the last modified checks
+    updateObject(logEntry);
   }
 
   /* see superclass */
   @Override
   public void removeLogEntry(final Long id) throws Exception {
-    removeHasLastModified(id, LogEntryJpa.class);
+    // Use add object to bypass the last modified checks
+    removeObject(getObject(id, LogEntryJpa.class), LogEntryJpa.class);
   }
 
   /* see superclass */

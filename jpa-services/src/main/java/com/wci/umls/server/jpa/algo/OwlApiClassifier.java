@@ -31,6 +31,7 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.GeneralConceptAxiom;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -846,6 +847,7 @@ public class OwlApiClassifier implements Classifier {
     // Standard "isa" relationship
     ConceptRelationship rel = new ConceptRelationshipJpa();
     setCommonFields(rel);
+    rel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     // blank terminology id
     rel.setTerminologyId("");
     rel.setFrom(fromConcept);

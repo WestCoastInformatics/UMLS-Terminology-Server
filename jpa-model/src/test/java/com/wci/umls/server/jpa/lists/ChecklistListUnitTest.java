@@ -53,6 +53,11 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
     ProxyTester tester = new ProxyTester(new ChecklistJpa());
     o1 = (Checklist) tester.createObject(1);
     o2 = (Checklist) tester.createObject(2);
+    
+    o1.setWorkflowBin(null);
+    o1.setProject(null);
+    o2.setWorkflowBin(null);
+    o2.setProject(null);
 
   }
 
@@ -61,7 +66,7 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse015() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list1, list2, o1, o2);
   }
 
@@ -72,7 +77,7 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse015() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list1, list2, o1, o2);
   }
 
@@ -82,7 +87,7 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases015() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list1, list2, o1, o2);
   }
 
@@ -93,7 +98,7 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization015() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list1, list2, o1, o2);
   }
 

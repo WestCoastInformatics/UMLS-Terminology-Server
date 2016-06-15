@@ -60,7 +60,7 @@ public class StringClassListUnitTest extends AbstractListUnit<StringClass> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse007() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, s1, s2);
   }
 
@@ -71,7 +71,7 @@ public class StringClassListUnitTest extends AbstractListUnit<StringClass> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse007() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, s1, s2);
   }
 
@@ -81,7 +81,7 @@ public class StringClassListUnitTest extends AbstractListUnit<StringClass> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases007() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, s1, s2);
   }
 
@@ -92,7 +92,7 @@ public class StringClassListUnitTest extends AbstractListUnit<StringClass> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization007() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, s1, s2);
   }
 

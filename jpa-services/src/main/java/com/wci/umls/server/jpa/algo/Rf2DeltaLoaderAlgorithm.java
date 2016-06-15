@@ -572,6 +572,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         concept2.setPublished(true);
         concept2.setPublishable(true);
         concept2.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+        concept2.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         concept2.setUsesRelationshipUnion(true);
 
         // Attributes
@@ -2328,6 +2329,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         rel2.setLastModifiedBy(loader);
         rel2.setPublished(true);
         rel2.setPublishable(true);
+        rel2.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         rel2.setAssertedDirection(true);
 
         // ensure additional relationship type & general entry has been added
@@ -2530,6 +2532,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         rel2.setLastModifiedBy(loader);
         rel2.setPublished(true);
         rel2.setPublishable(true);
+        rel2.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         rel2.setAssertedDirection(true);
 
         // get concepts from cache, they just need to have ids

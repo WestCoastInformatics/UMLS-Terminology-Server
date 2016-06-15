@@ -131,8 +131,6 @@ public class CodeRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("hierarchical");
     tester.include("to");
     tester.include("from");
-    tester.exclude("toTerminologyId");
-    tester.exclude("fromTerminologyId");
     tester.include("workflowStatus");
 
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
@@ -141,20 +139,10 @@ public class CodeRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.proxy(Map.class, 2, map2);
 
     assertTrue(tester.testIdentityFieldEquals());
-    tester.proxy(Code.class, 1, new CodeJpa(code1, false));
-    tester.proxy(Code.class, 2, new CodeJpa(code2, false));
     assertTrue(tester.testNonIdentityFieldEquals());
-    tester.proxy(Code.class, 1, new CodeJpa(code1, false));
-    tester.proxy(Code.class, 2, new CodeJpa(code2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
-    tester.proxy(Code.class, 1, new CodeJpa(code1, false));
-    tester.proxy(Code.class, 2, new CodeJpa(code2, false));
     assertTrue(tester.testIdentityFieldHashcode());
-    tester.proxy(Code.class, 1, new CodeJpa(code1, false));
-    tester.proxy(Code.class, 2, new CodeJpa(code2, false));
     assertTrue(tester.testNonIdentityFieldHashcode());
-    tester.proxy(Code.class, 1, new CodeJpa(code1, false));
-    tester.proxy(Code.class, 2, new CodeJpa(code2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

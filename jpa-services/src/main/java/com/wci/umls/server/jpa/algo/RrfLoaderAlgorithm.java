@@ -1058,7 +1058,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       def.setSuppressible(!fields[6].equals("N"));
       def.setPublished(true);
       def.setPublishable(true);
-
       if (!singleMode) {
         def.putAlternateTerminologyId(getTerminology(), fields[2]);
       }
@@ -2272,7 +2271,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     relationship.setSuppressible(!fields[14].equals("N"));
     relationship.setPublished(true);
     relationship.setPublishable(true);
-
+    relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     relationship.setRelationshipType(fields[3]);
     relationship.setHierarchical(fields[3].equals("CHD"));
     relationship.setAdditionalRelationshipType(fields[7]);
@@ -2348,6 +2347,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       sty.setSuppressible(false);
       sty.setPublished(true);
       sty.setPublishable(true);
+      sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
       sty.setSemanticType(fields[3]);
       // fields 2 and 1 are already read from SRDEF
@@ -2438,6 +2438,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setSuppressible(!fields[16].equals("N"));
       atom.setPublished(true);
       atom.setPublishable(true);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       atom.setName(fields[14]);
       atom.setTerminology(fields[11].intern());
       if (loadedTerminologies.get(fields[11]) == null) {
@@ -2548,6 +2549,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           cui.setLastModifiedBy(loader);
           cui.setPublished(true);
           cui.setPublishable(true);
+          cui.setWorkflowStatus(WorkflowStatus.PUBLISHED);
           cui.setTerminology(getTerminology());
           cui.setTerminologyId(fields[0]);
           cui.setVersion(getVersion());
@@ -2630,6 +2632,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         cui.setLastModifiedBy(loader);
         cui.setPublished(true);
         cui.setPublishable(true);
+        cui.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         cui.setTerminology(atom.getTerminology());
         cui.setTerminologyId(atom.getConceptId());
         cui.setVersion(atom.getVersion());
@@ -2680,6 +2683,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         dui.setLastModifiedBy(loader);
         dui.setPublished(true);
         dui.setPublishable(true);
+        dui.setWorkflowStatus(WorkflowStatus.PUBLISHED);
         dui.setTerminology(atom.getTerminology());
         dui.setTerminologyId(atom.getDescriptorId());
         dui.setVersion(atom.getVersion());
@@ -2746,6 +2750,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           code.setLastModifiedBy(loader);
           code.setPublished(true);
           code.setPublishable(true);
+          code.setWorkflowStatus(WorkflowStatus.PUBLISHED);
           code.setTerminology(atom.getTerminology());
           code.setTerminologyId(atom.getCodeId());
           code.setVersion(atom.getVersion());
@@ -2798,6 +2803,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // lui.setLastModifiedBy(loader);
     // lui.setPublished(true);
     // lui.setPublishable(true);
+    // lui.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     // lui.setTerminology(terminology);
     // lui.setTerminologyId(atom.getLexicalClassId());
     // lui.setVersion(version);
@@ -2828,6 +2834,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // sui.setLastModifiedBy(loader);
     // sui.setPublished(true);
     // sui.setPublishable(true);
+    // sui.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     // sui.setTerminology(terminology);
     // sui.setTerminologyId(suiFields[0].toString());
     // sui.setVersion(version);
