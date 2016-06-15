@@ -13,7 +13,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
@@ -88,12 +87,9 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-
     tester.include("type");
     tester.include("timestamp");
+    tester.include("objectId");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("macroAction");

@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -2240,10 +2239,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel =
         null;
     if (relationshipClass != null) {
-      rel = removeComponent(id, relationshipClass);
+      removeComponent(id, relationshipClass);
     } else {
       rel = getRelationship(id, relationshipClass);
-      rel = removeComponent(id, rel.getClass());
+      removeComponent(id, rel.getClass());
     }
 
   }
@@ -2562,7 +2561,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Subset subset = null;
     // Remove the component
     if (subsetClass != null) {
-      subset = removeComponent(id, subsetClass);
+      removeComponent(id, subsetClass);
     } else {
       subset = getSubset(id, subsetClass);
       removeComponent(id, subset.getClass());

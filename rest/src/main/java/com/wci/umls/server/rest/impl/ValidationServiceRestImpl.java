@@ -20,7 +20,6 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.KeyValuePairList;
-import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;

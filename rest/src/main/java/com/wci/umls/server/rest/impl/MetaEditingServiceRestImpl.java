@@ -66,7 +66,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/sty/add")
-  @ApiOperation(value = "Add semantic type to concept", notes = "Add semantic type to concept on a project branch")
+  @ApiOperation(value = "Add semantic type to concept", notes = "Add semantic type to concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult addSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
@@ -200,7 +200,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/sty/remove/{id}")
-  @ApiOperation(value = "Remove semantic type from concept", notes = "Remove semantic type from concept on a project branch")
+  @ApiOperation(value = "Remove semantic type from concept", notes = "Remove semantic type from concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult removeSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
