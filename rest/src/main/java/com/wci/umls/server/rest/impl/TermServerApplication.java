@@ -120,8 +120,8 @@ public class TermServerApplication extends Application {
     classes.add(HistoryServiceRestImpl.class);
     classes.add(MetadataServiceRestImpl.class);
     classes.add(ProjectServiceRestImpl.class);
-    // TODO Re-enable this once figure out Injection issue
-    // classes.add(ValidationServiceRestImpl.class);
+   
+    classes.add(ValidationServiceRestImpl.class);
     classes.add(SourceDataServiceRestImpl.class);
     classes.add(ConfigureServiceRestImpl.class);
     classes.add(MetaEditingServiceRestImpl.class);

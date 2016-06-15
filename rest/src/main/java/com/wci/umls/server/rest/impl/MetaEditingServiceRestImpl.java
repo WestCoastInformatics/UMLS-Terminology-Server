@@ -95,55 +95,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         String userName = authorizeProject( contentService, projectId,
             securityService, authToken, action, UserRole.AUTHOR);
 
-        
-        
-     
-        //
-        // Synchronized retrieval and locking based on conceptId
-        // Intended for use to prevent access by other MetaEditing calls
-        //
-        Concept concept;
 
-        synchronized (conceptId.toString().intern()) {
-
-          // retrieve the concept
-          concept = contentService.getConcept(conceptId);
-
-          // lock the concept via Hibernate, secondary protection
-          if (contentService.isObjectLocked(concept)) {
-            throw new Exception(
-                "Fatal error: Attempted to access locked object in synchronization block");
-          }
-          contentService.lockObject(concept);
-        }
-        
-        // TODO Wrap the following in helper(service, concept, userName, type)
-        
-
-        // ensure molecular action flag is set
-        contentService.setMolecularActionFlag(true);
-        
-      
-
-        // prepare the molecular action
-        MolecularAction molecularAction = new MolecularActionJpa();
-        molecularAction.setTerminology(concept.getTerminology());
-        molecularAction.setTerminologyId(concept.getTerminologyId());
-        molecularAction.setVersion(concept.getVersion());
-        molecularAction.setType("ADD_SEMANTIC_TYPE");
-        molecularAction.setTimestamp(new Date());
-      
         // prepare the transaction
         contentService.setTransactionPerOperation(false);
         contentService.beginTransaction();
 
-        // set the last modified by for content service
-        contentService.setLastModifiedBy(userName);
-        contentService.setMolecularAction(molecularAction);
-        // TODO Get rid of cascade flag
-        contentService.addMolecularAction(molecularAction, false);
-        
-        // END TODO
+        // retrieve and lock the concept, initialize service
+        Concept concept = this.prepareConceptAndServiceHelper(contentService, conceptId, userName, "ADD_SEMANTIC_TYPE");
 
         // retrieve the project
         final Project project = contentService.getProject(projectId);
@@ -269,47 +227,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final String userName = authorizeProject(contentService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
 
-      //
-      // Synchronized retrieval and locking based on conceptId
-      // Intended for use to prevent access by other MetaEditing calls
-      //
-      Concept concept;
-      synchronized (conceptId.toString().intern()) {
-
-        // retrieve the concept
-        concept = contentService.getConcept(conceptId);
-
-        // lock the concept via Hibernate, secondary protection
-        if (contentService.isObjectLocked(concept)) {
-          throw new Exception("Fatal error: concept is locked");
-        }
-        contentService.lockObject(concept);
-
-      }
-
-      // force use of molecular action
-      // TODO Consider whether to do this automatically instead of throwing
-      // exception
-      if (contentService.isMolecularActionFlag()) {
-        throw new Exception(
-            "Fatal error: MetaEditing REST calls must enable logging of molecular actions");
-      }
-
-      // prepare the molecular action
-      MolecularAction molecularAction = new MolecularActionJpa();
-      molecularAction.setTerminology(concept.getTerminology());
-      molecularAction.setTerminologyId(concept.getTerminologyId());
-      molecularAction.setVersion(concept.getVersion());
-      molecularAction.setType("REMOVE_SEMANTIC_TYPE");
-      molecularAction.setTimestamp(new Date());
-
-      // set the last modified by for content service
-      contentService.setLastModifiedBy(userName);
-      contentService.setMolecularAction(molecularAction);
-
       // prepare the transaction
       contentService.setTransactionPerOperation(false);
       contentService.beginTransaction();
+
+      // get the concept and prepare the service
+      Concept concept = prepareConceptAndServiceHelper(contentService, conceptId, userName, "REMOVE_SEMANTIC_TYPE");
 
       // retrieve the project
       final Project project = contentService.getProject(projectId);
@@ -319,7 +242,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
 
       // perform action-specific validation
-      // NOTE: No validation required for addSemanticType
+      // NOTE: No validation required for removeSemanticType
 
       // check project and concept compatibility
       checkPrerequisitesForProjectAndConcept(project, concept,
@@ -380,7 +303,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           // do nothing -- if no transaction, no lock exists
         }
       }
-
       handleException(e, action);
       return null;
     } finally {
@@ -410,5 +332,50 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       validationResult.getErrors()
           .add("Project and concept branches do not match");
     }
+  }
+  
+  /**
+   * Prepare concept.
+   *
+   * @param contentService the content service
+   * @param conceptId the concept id
+   * @param userName the user name
+   * @param actionType the action type
+   * @return the concept
+   * @throws Exception the exception
+   */
+  private Concept prepareConceptAndServiceHelper(ContentService contentService, Long conceptId, String userName, String actionType) throws Exception {
+   
+    Concept concept;
+    synchronized (conceptId.toString().intern()) {
+
+      // retrieve the concept
+      concept = contentService.getConcept(conceptId);
+
+      // lock the concept via Hibernate, secondary protection
+      if (contentService.isObjectLocked(concept)) {
+        throw new Exception("Fatal error: concept is locked");
+      }
+      contentService.lockObject(concept);
+
+    }
+
+    contentService.setMolecularActionFlag(true);
+
+    // prepare and add the molecular action
+    final MolecularAction molecularAction = new MolecularActionJpa();
+    molecularAction.setTerminology(concept.getTerminology());
+    molecularAction.setTerminologyId(concept.getTerminologyId());
+    molecularAction.setVersion(concept.getVersion());
+    molecularAction.setType("REMOVE_SEMANTIC_TYPE");
+    molecularAction.setTimestamp(new Date());
+    contentService.addMolecularAction(molecularAction);
+
+    // set the last modified by for content service
+    contentService.setLastModifiedBy(userName);
+    contentService.setMolecularAction(molecularAction);
+
+    
+    return concept;
   }
 }
