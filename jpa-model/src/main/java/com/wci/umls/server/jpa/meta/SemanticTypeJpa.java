@@ -22,7 +22,7 @@ import com.wci.umls.server.model.meta.SemanticType;
  */
 @Entity
 @Table(name = "semantic_types", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "value", "terminology", "version"
+    "value", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "semanticType")

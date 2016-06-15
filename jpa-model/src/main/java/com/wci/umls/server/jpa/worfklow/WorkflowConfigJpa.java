@@ -303,7 +303,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   /* see superclass */
   @Override
   public String toString() {
-    return "ProjectWorkflowConfigJpa [id=" + id + ", lastModified="
+    return "WorkflowConfigJpa [id=" + id + ", lastModified="
         + lastModified + ", lastModifiedBy=" + lastModifiedBy + ", timestamp="
         + timestamp + ", type=" + type + ", mutuallyExclusive="
         + mutuallyExclusive + ", lastPartitionTime=" + lastPartitionTime

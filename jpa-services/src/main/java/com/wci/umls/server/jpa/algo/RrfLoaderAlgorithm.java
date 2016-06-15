@@ -306,6 +306,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     setAssignIdentifiersFlag(false);
     // Let loader set last modified flags.
     setLastModifiedFlag(false);
+    // Turn off action handling
+    setMolecularActionFlag(false);
 
     // Check the input directory
     File inputDirFile = new File(getInputPath());

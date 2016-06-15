@@ -201,9 +201,16 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     InputStream inputStream = null;
     Reader reader = null;
     try {
-      setAssignIdentifiersFlag(false);
-      setLastModifiedFlag(false);
+
+      // control transaction scope
       setTransactionPerOperation(false);
+      // Turn of ID computation when loading a terminology
+      setAssignIdentifiersFlag(false);
+      // Let loader set last modified flags.
+      setLastModifiedFlag(false);
+      // Turn off action handling
+      setMolecularActionFlag(false);
+      
       beginTransaction();
 
       if (!new File(inputFile).exists()) {

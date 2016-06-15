@@ -210,7 +210,9 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     setAssignIdentifiersFlag(false);
     // Let loader set last modified flags.
     setLastModifiedFlag(false);
-
+    // Turn off action handling
+    setMolecularActionFlag(false);
+    
     // faster performance.
     beginTransaction();
 

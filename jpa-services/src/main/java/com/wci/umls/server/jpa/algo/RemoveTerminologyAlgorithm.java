@@ -131,6 +131,8 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
         "Start removing terminology - " + terminology + " " + version);
     fireProgressEvent(0, "Starting...");
 
+    setLastModifiedFlag(false);
+    setMolecularActionFlag(false);
     setTransactionPerOperation(false);
     beginTransaction();
 
@@ -167,7 +169,8 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (final PropertyChain chain : (List<PropertyChain>) query.getResultList()) {
+    for (final PropertyChain chain : (List<PropertyChain>) query
+        .getResultList()) {
       logInfo("  remove property chain = " + chain);
       removePropertyChain(chain.getId());
 
@@ -268,7 +271,8 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (final RelationshipType rel : (List<RelationshipType>) query.getResultList()) {
+    for (final RelationshipType rel : (List<RelationshipType>) query
+        .getResultList()) {
       logInfo("  set inverse to null = " + rel);
       rel.setInverse(null);
       updateRelationshipType(rel);
@@ -280,7 +284,8 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyAlgorithm {
                 + " AND version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    for (final RelationshipType rel : (List<RelationshipType>) query.getResultList()) {
+    for (final RelationshipType rel : (List<RelationshipType>) query
+        .getResultList()) {
       logInfo("  remove relationship type = " + rel);
       removeRelationshipType(rel.getId());
     }
