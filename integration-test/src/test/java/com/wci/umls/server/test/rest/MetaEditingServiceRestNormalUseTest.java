@@ -100,6 +100,7 @@ public class MetaEditingServiceRestNormalUseTest
     sty.setTerminology(umlsTerminology);
     sty.setVersion(umlsVersion);
     sty.setTimestamp(new Date());
+    
     //
     // Test addition
     //

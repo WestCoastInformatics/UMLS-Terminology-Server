@@ -9,6 +9,7 @@ import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.meta.LogActivity;
 
 /**
@@ -345,7 +346,7 @@ public interface RootService {
    * @return the list
    * @throws Exception 
    */
-  public List<MolecularAction> findMolecularActions(String terminologyId,
+  public MolecularActionList findMolecularActions(String terminologyId,
     String terminology, String version, String query, PfsParameter pfs) throws Exception;
 
 }

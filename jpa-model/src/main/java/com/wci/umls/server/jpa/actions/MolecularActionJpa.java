@@ -59,6 +59,10 @@ public class MolecularActionJpa implements MolecularAction {
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
+  
+  /** The project. */
+  @Column(nullable = false)
+  private Long projectId;
 
   /** The type. */
   @Column(nullable = false)

@@ -37,10 +37,12 @@ import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
 import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.SearchHandler;
@@ -1170,8 +1172,7 @@ public abstract class RootServiceJpa implements RootService {
   }
 
   @Override
-  // TODO Make list object and add unit tests
-  public List<MolecularAction> findMolecularActions(String terminologyId,
+  public MolecularActionList findMolecularActions(String terminologyId,
     String terminology, String version, String query, PfsParameter pfs)
       throws Exception {
 
@@ -1181,12 +1182,14 @@ public abstract class RootServiceJpa implements RootService {
 
     int totalCt[] = new int[1];
     searchHandler.setProperties(config);
-    List<MolecularAction> results = new ArrayList<>();
+    MolecularActionList results = new MolecularActionListJpa();
+    
     for (MolecularActionJpa ma : searchHandler.getQueryResults(terminology,
         version, Branch.ROOT, query, null, MolecularActionJpa.class,
         MolecularActionJpa.class, pfs, totalCt, manager)) {
-      results.add(ma);
+      results.getObjects().add(ma);
     }
+    results.setTotalCount(totalCt[0]);
 
     return results;
 
