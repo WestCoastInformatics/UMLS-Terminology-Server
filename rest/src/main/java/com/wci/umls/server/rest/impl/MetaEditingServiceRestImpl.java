@@ -82,26 +82,23 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
               + conceptId + "/add for user " + authToken + " with sty value "
               + semanticTypeComponent.getSemanticType());
 
-      String action = "trying to add semantic type to concept";
+      final String action = "add semantic type to concept";
 
-      ValidationResult validationResult = new ValidationResultJpa();
+      final ValidationResult validationResult = new ValidationResultJpa();
 
       // instantiate services
-      ContentService contentService = new ContentServiceJpa();
+      final ContentService contentService = new ContentServiceJpa();
 
       try {
 
         // authorize and get user name from the token
-        String userName = authorizeProject( contentService, projectId,
+        final String userName = authorizeProject(contentService, projectId,
             securityService, authToken, action, UserRole.AUTHOR);
 
-
-        // prepare the transaction
-        contentService.setTransactionPerOperation(false);
-        contentService.beginTransaction();
-
-        // retrieve and lock the concept, initialize service
-        Concept concept = this.prepareConceptAndServiceHelper(contentService, conceptId, userName, "ADD_SEMANTIC_TYPE");
+        // Initialization: retrieve and lock the concept, create molecular
+        // action and prep services
+        final Concept concept = prepareConceptAndServiceHelper(contentService,
+            conceptId, userName, "ADD_SEMANTIC_TYPE");
 
         // retrieve the project
         final Project project = contentService.getProject(projectId);
@@ -130,7 +127,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           validationResult.getErrors()
               .add("Cannot add semantic type: Invalid semantic type");
         }
-        
 
         // check if semantic type already exists on this concept
         for (SemanticTypeComponent s : concept.getSemanticTypes()) {
@@ -166,7 +162,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         // update the concept
         contentService.updateConcept(concept);
-        
+
         // log the REST call
         contentService.addLogEntry(userName, projectId, conceptId,
             "Add semantic type " + semanticTypeComponent.getSemanticType()
@@ -215,24 +211,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             + conceptId + "/remove for user " + authToken + " with id "
             + semanticTypeComponentId);
 
-    final String action = "trying to add semantic type to concept";
+    final String action = "add semantic type to concept";
 
     final ValidationResult validationResult = new ValidationResultJpa();
 
     final ContentService contentService = new ContentServiceJpa();
-  
+
     try {
 
       // authorize and get user name from the token
       final String userName = authorizeProject(contentService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
 
-      // prepare the transaction
-      contentService.setTransactionPerOperation(false);
-      contentService.beginTransaction();
-
       // get the concept and prepare the service
-      Concept concept = prepareConceptAndServiceHelper(contentService, conceptId, userName, "REMOVE_SEMANTIC_TYPE");
+      final Concept concept = prepareConceptAndServiceHelper(contentService,
+          conceptId, userName, "REMOVE_SEMANTIC_TYPE");
 
       // retrieve the project
       final Project project = contentService.getProject(projectId);
@@ -333,9 +326,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           .add("Project and concept branches do not match");
     }
   }
-  
+
   /**
-   * Prepare concept.
+   * Helper function to (1) retrieve and lock concept, (2) prepare molecular
+   * action, and (3) set required service flags
    *
    * @param contentService the content service
    * @param conceptId the concept id
@@ -344,8 +338,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    * @return the concept
    * @throws Exception the exception
    */
-  private Concept prepareConceptAndServiceHelper(ContentService contentService, Long conceptId, String userName, String actionType) throws Exception {
-   
+  // TODO Feel free to rename this to something less clumsy :)
+  private Concept prepareConceptAndServiceHelper(ContentService contentService,
+    Long conceptId, String userName, String actionType) throws Exception {
+    
+ // prepare the transaction
+  
+    contentService.setTransactionPerOperation(false);
+    contentService.beginTransaction();
+
+
     Concept concept;
     synchronized (conceptId.toString().intern()) {
 
@@ -360,22 +362,23 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
     }
 
-    contentService.setMolecularActionFlag(true);
-
-    // prepare and add the molecular action
+    // construct the molecular action
     final MolecularAction molecularAction = new MolecularActionJpa();
     molecularAction.setTerminology(concept.getTerminology());
     molecularAction.setTerminologyId(concept.getTerminologyId());
     molecularAction.setVersion(concept.getVersion());
-    molecularAction.setType("REMOVE_SEMANTIC_TYPE");
+    molecularAction.setType(actionType);
     molecularAction.setTimestamp(new Date());
+
+    // set the service flags and variables
+    contentService.setMolecularActionFlag(true);
+    contentService.setMolecularAction(molecularAction);
+    contentService.setLastModifiedFlag(true);
+    contentService.setLastModifiedBy(userName);
+
+    // persist the molecular action
     contentService.addMolecularAction(molecularAction);
 
-    // set the last modified by for content service
-    contentService.setLastModifiedBy(userName);
-    contentService.setMolecularAction(molecularAction);
-
-    
     return concept;
   }
 }

@@ -22,6 +22,7 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.actions.AtomicAction;
@@ -82,6 +83,7 @@ public class MolecularActionJpa implements MolecularAction {
   private boolean macroAction;
 
   /** The molecular action. */
+  @IndexedEmbedded(targetElement = AtomicActionJpa.class)
   @OneToMany(targetEntity = AtomicActionJpa.class)
   private List<AtomicAction> atomicActions = new ArrayList<>();
 
@@ -235,32 +237,27 @@ public class MolecularActionJpa implements MolecularAction {
     this.macroAction = macroAction;
   }
 
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result
-            + ((atomicActions == null) ? 0 : atomicActions.hashCode());
+    result = prime * result
+        + ((atomicActions == null) ? 0 : atomicActions.hashCode());
     result =
         prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result =
-        prime * result
-            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result = prime * result
+        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + (macroAction ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -321,7 +318,8 @@ public class MolecularActionJpa implements MolecularAction {
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
         + ", type=" + type + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", macroAction=" + macroAction + "]";
+        + ", macroAction=" + macroAction + ", atomicActions=" + atomicActions
+        + "]";
   }
 
 }

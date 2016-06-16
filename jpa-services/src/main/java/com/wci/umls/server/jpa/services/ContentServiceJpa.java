@@ -936,9 +936,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");
       atomicAction.setIdType(IdType.SEMANTIC_TYPE);
-      // TODO Doublecheck that the molecular action is persisted prior to this
-      // step
-      atomicAction.setMolecularAction(molecularAction);
+      // TODO atomicAction.setMolecularAction(molecularAction);
       atomicAction.setOldValue(null);
       atomicAction.setNewValue(component.getId().toString());
       atomicAction.setObjectId(component.getId());
@@ -1019,10 +1017,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
       AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");
       atomicAction.setIdType(IdType.SEMANTIC_TYPE);
-      atomicAction.setMolecularAction(molecularAction);
+      // TODO atomicAction.setMolecularAction(molecularAction);
       atomicAction.setObjectId(id);
       atomicAction.setOldValue(id.toString());
       atomicAction.setNewValue(null);
+      addAtomicAction(atomicAction);
 
       molecularAction.getAtomicActions().add(atomicAction);
     }
@@ -2228,7 +2227,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
   @Override
   public void removeRelationship(Long id,
     Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
