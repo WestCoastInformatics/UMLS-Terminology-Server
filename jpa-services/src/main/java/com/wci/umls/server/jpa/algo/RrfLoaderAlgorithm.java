@@ -499,7 +499,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         sty.setTreeNumber(fields[3]);
         sty.setTypeId(fields[1]);
         sty.setUsageNote(fields[6]);
-        sty.setValue(fields[2]);
 
         if (fields[2].equals("Chemical Viewed Structurally"))
           structuralChemicalTreeNumber = fields[3];

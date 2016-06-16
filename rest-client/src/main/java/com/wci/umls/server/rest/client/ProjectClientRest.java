@@ -24,7 +24,6 @@ import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -398,14 +397,15 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public String getLog(Long projectId, Long objectId, String terminology,
     String version, String activity, int lines, String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - get log");
- 
+
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/log?"
-            + "projectId=" + projectId + "&terminology=" + terminology + "&version=" + version
-            + "&activity=" + activity + "&objectId=" + objectId + "&lines=" + lines);
+            + "projectId=" + projectId + "&terminology=" + terminology
+            + "&version=" + version + "&activity=" + activity + "&objectId="
+            + objectId + "&lines=" + lines);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();

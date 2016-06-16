@@ -90,6 +90,8 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
 
     // for xml serialization
     object.setTerminologyIds(l1);
+    object.setWorklist(w1);
+    object.setWorkflowBin(b1);
 
   }
 

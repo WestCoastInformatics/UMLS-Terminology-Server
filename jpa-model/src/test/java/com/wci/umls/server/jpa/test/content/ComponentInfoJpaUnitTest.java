@@ -20,7 +20,6 @@ import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ModelUnitSupport;
-import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
@@ -110,27 +109,6 @@ public class ComponentInfoJpaUnitTest extends ModelUnitSupport {
   }
 
   /**
-   * Test not null fields.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelNotNullField() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("name");
-    tester.include("timestamp");
-    tester.include("lastModified");
-    tester.include("lastModifiedBy");
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-    tester.include("type");
-    assertTrue(tester.testNotNullFields());
-  }
-
-  
-  /**
    * Test field indexing.
    *
    * @throws Exception the exception
@@ -148,7 +126,7 @@ public class ComponentInfoJpaUnitTest extends ModelUnitSupport {
     info1.setName("1");
 
     final ComponentInfo info2 = new ComponentInfoJpa("CONCEPT~~1~~1~~1~~1~~1");
-    
+
     assertEquals(info1, info2);
   }
 

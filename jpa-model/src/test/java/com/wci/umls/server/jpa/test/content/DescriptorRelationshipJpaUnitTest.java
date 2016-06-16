@@ -72,6 +72,7 @@ public class DescriptorRelationshipJpaUnitTest extends ModelUnitSupport {
     map1.put("1", "1");
     map2 = new HashMap<>();
     map2.put("2", "2");
+    map2.put("3", "4");
 
     ProxyTester tester = new ProxyTester(new DescriptorJpa());
     tester.proxy(Map.class, 1, map1);
@@ -133,28 +134,17 @@ public class DescriptorRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("from");
     tester.exclude("toTerminologyId");
     tester.exclude("fromTerminologyId");
-    tester.include("workflowStatus");
 
-    tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
-    tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
+    tester.proxy(Descriptor.class, 1, descriptor1);
+    tester.proxy(Descriptor.class, 2, descriptor2);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
 
     assertTrue(tester.testIdentityFieldEquals());
-    tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
-    tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
     assertTrue(tester.testNonIdentityFieldEquals());
-    tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
-    tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
-    tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
-    tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
     assertTrue(tester.testIdentityFieldHashcode());
-    tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
-    tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
     assertTrue(tester.testNonIdentityFieldHashcode());
-    tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
-    tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

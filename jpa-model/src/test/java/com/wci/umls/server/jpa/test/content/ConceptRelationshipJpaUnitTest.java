@@ -72,6 +72,7 @@ public class ConceptRelationshipJpaUnitTest extends ModelUnitSupport {
     map1.put("1", "1");
     map2 = new HashMap<>();
     map2.put("2", "2");
+    map2.put("4", "3");
 
     ProxyTester tester = new ProxyTester(new ConceptJpa());
     tester.proxy(Map.class, 1, map1);
@@ -132,30 +133,18 @@ public class ConceptRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("hierarchical");
     tester.include("to");
     tester.include("from");
-    tester.exclude("toTerminologyId");
-    tester.exclude("fromTerminologyId");
-    tester.include("workflowStatus");
 
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
+
+    tester.proxy(Concept.class, 1, concept1);
+    tester.proxy(Concept.class, 2, concept2);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
 
     assertTrue(tester.testIdentityFieldEquals());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testNonIdentityFieldEquals());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testIdentityFieldHashcode());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testNonIdentityFieldHashcode());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

@@ -37,8 +37,6 @@ public class AtomicActionJpaUnitTest {
 
   /** The a2. */
   private MolecularAction a2;
-  
-
 
   /**
    * Setup class.
@@ -59,7 +57,7 @@ public class AtomicActionJpaUnitTest {
     ProxyTester tester = new ProxyTester(new MolecularActionJpa());
     a1 = (MolecularActionJpa) tester.createObject(1);
     a2 = (MolecularActionJpa) tester.createObject(2);
-    
+
   }
 
   /**
@@ -84,19 +82,15 @@ public class AtomicActionJpaUnitTest {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-
-
-    tester.include("idtype");
+    tester.include("idType");
+    tester.include("objectId");
     tester.include("oldValue");
     tester.include("newValue");
     tester.include("field");
 
     tester.proxy(MolecularAction.class, 1, a1);
     tester.proxy(MolecularAction.class, 2, a2);
-      
+
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -139,7 +133,7 @@ public class AtomicActionJpaUnitTest {
     tester.proxy(MolecularAction.class, 2, tr2);
     tester.proxy(MolecularAction.class, 1, a1);
     tester.proxy(MolecularAction.class, 2, a2);
-    
+
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -151,14 +145,10 @@ public class AtomicActionJpaUnitTest {
   @Test
   public void testModelNotNullField041() throws Exception {
     NullableFieldTester tester = new NullableFieldTester(object);
-   
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
 
-
+    tester.include("idType");
+    tester.include("objectId");
     tester.include("field");
-    tester.include("type");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -173,18 +163,16 @@ public class AtomicActionJpaUnitTest {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("oldValue");
-    tester.include("newValue");
+    // No fields analyzed
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
-    tester.include("terminologyId");
-    tester.include("terminology");
-    tester.include("version");
-    tester.include("idtype");
-
+    tester.include("idType");
+    tester.include("objectId");
     tester.include("field");
+    tester.include("oldValue");
+    tester.include("newValue");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

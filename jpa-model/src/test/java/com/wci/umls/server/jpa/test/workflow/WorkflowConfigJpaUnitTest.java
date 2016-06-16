@@ -72,6 +72,8 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
     ProxyTester tester = new ProxyTester(new ProjectJpa());
     p1 = (Project) tester.createObject(1);
     p2 = (Project) tester.createObject(2);
+    
+    object.setProject(p1);
   }
 
   /**
@@ -199,6 +201,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
   @Test
   public void testModelXmlTransient() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+    
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<projectId>"));
     assertFalse(xml.contains("<project>"));

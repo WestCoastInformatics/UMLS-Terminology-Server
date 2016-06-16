@@ -225,6 +225,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(project1.getId(), reviewer1.getUserName(),
         UserRole.REVIEWER.toString(), admin.getAuthToken());
+    project = new ProjectServiceRestImpl();
     project.assignUserToProject(project1.getId(), reviewer2.getUserName(),
         UserRole.REVIEWER.toString(), admin.getAuthToken());
 

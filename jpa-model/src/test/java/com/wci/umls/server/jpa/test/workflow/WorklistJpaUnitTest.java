@@ -73,6 +73,9 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     final ProxyTester tester2 = new ProxyTester(new ProjectJpa());
     p1 = (ProjectJpa) tester2.createObject(1);
     p2 = (ProjectJpa) tester2.createObject(2);
+
+    object.setProject(p1);
+    object.setWorkflowBin(m1);
   }
 
   /**

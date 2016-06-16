@@ -35,9 +35,9 @@ import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 public class UserPreferencesJpa implements UserPreferences {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
+  @TableGenerator(name = "EntityIdGenUser", table = "table_generator_users", pkColumnValue = "Entity", initialValue = 50)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenUser")
   private Long id;
 
   /** The user name. */
@@ -137,7 +137,7 @@ public class UserPreferencesJpa implements UserPreferences {
    * @return the user id
    */
   public Long getUserId() {
-    return user == null ? 0L : user.getId();
+    return user == null ? null : user.getId();
   }
 
   /**

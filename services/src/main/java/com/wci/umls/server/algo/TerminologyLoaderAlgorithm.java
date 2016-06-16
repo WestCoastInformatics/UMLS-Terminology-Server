@@ -66,4 +66,14 @@ public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology {
    */
   public void setReleaseVersion(String releaseVersion);
 
+  /**
+   * Returns the configurable value.
+   *
+   * @param terminology the terminology
+   * @param key the key
+   * @return the configurable value
+   * @throws Exception the exception
+   */
+  public String getConfigurableValue(String terminology, String key)
+    throws Exception;
 }

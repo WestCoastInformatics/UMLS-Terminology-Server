@@ -62,8 +62,8 @@ public class ResetDevDatabase {
   public void test() throws Exception {
 
     // Load the new RF2 full
-    // Run "generate sample data" - 
-    
+    // Run "generate sample data" -
+
     // Load RF2 full
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
@@ -84,20 +84,14 @@ public class ResetDevDatabase {
       throw result.getExecutionException();
     }
 
-    // Add a UMLS project
+    // Generate Sample Data
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
-    request.setProfiles(Arrays.asList("Project"));
+    request.setProfiles(Arrays.asList("GenerateSampleData"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-    p.setProperty("server", server);
-    p.setProperty("name", "Sample project");
-    p.setProperty("description", "Sample project.");
-    p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "latest");
-    p.setProperty("scope.descendants.flag", "true");
-    p.setProperty("admin.user", "admin");
+    p.setProperty("mode", "update");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -105,24 +99,6 @@ public class ResetDevDatabase {
       throw result.getExecutionException();
     }
 
-    // Start UMLS editing cycle
-    // Add a UMLS project
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/release/pom.xml"));
-    request.setProfiles(Arrays.asList("StartEditingCycle"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-    p.setProperty("server", server);
-    p.setProperty("release.version", "2015AA");
-    p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "latest");
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
 
   }
 

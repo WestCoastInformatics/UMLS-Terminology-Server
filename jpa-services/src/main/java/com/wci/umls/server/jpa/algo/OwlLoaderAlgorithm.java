@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -2454,24 +2453,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     abbreviation.setPublishable(true);
     abbreviation.setPublished(true);
 
-  }
-
-  /**
-   * Returns the configurable value.
-   *
-   * @param terminology the terminology
-   * @param key the key
-   * @return the configurable value
-   * @throws Exception the exception
-   */
-  private String getConfigurableValue(String terminology, String key)
-    throws Exception {
-    Properties p = ConfigUtility.getConfigProperties();
-    String fullKey = getClass().getName() + "." + terminology + "." + key;
-    if (p.containsKey(fullKey)) {
-      return p.getProperty(fullKey);
-    }
-    return null;
   }
 
   /* see superclass */

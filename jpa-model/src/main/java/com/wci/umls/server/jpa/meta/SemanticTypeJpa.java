@@ -22,16 +22,14 @@ import com.wci.umls.server.model.meta.SemanticType;
  */
 @Entity
 @Table(name = "semantic_types", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "value", "terminology", "version", "id"
+    // id was added because in sample load, NDFRT has two
+    // "semantic types" with the same expanded form (case-insensitive)
+    "expandedForm", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "semanticType")
 public class SemanticTypeJpa extends AbstractAbbreviation implements
     SemanticType {
-
-  /** The value. */
-  @Column(nullable = false)
-  private String value;
 
   /** The definition. */
   @Column(nullable = false, length = 4000)
@@ -85,22 +83,9 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     treeNumber = sty.getTreeNumber();
     typeId = sty.getTypeId();
     usageNote = sty.getUsageNote();
-    value = sty.getValue();
     nonHuman = sty.isNonHuman();
     structuralChemical = sty.isStructuralChemical();
     functionalChemical = sty.isFunctionalChemical();
-  }
-
-  /* see superclass */
-  @Override
-  public String getValue() {
-    return value;
-  }
-
-  /* see superclass */
-  @Override
-  public void setValue(String value) {
-    this.value = value;
   }
 
   /* see superclass */
@@ -219,7 +204,6 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
         prime * result + ((treeNumber == null) ? 0 : treeNumber.hashCode());
     result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
     result = prime * result + ((usageNote == null) ? 0 : usageNote.hashCode());
-    result = prime * result + ((value == null) ? 0 : value.hashCode());
     return result;
   }
 
@@ -261,22 +245,18 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
         return false;
     } else if (!usageNote.equals(other.usageNote))
       return false;
-    if (value == null) {
-      if (other.value != null)
-        return false;
-    } else if (!value.equals(other.value))
-      return false;
+
     return true;
   }
 
   /* see superclass */
   @Override
   public String toString() {
-    return "SemanticTypeJpa [value=" + value + ", definition=" + definition
-        + ", example=" + example + ", typeId=" + typeId + ", nonHuman="
-        + nonHuman + ", treeNumber=" + treeNumber + ", usageNote=" + usageNote
-        + ", structuralChemical=" + structuralChemical
-        + ", functionalChemical=" + functionalChemical + "]";
+    return "SemanticTypeJpa [definition=" + definition + ", example=" + example
+        + ", typeId=" + typeId + ", nonHuman=" + nonHuman + ", treeNumber="
+        + treeNumber + ", usageNote=" + usageNote + ", structuralChemical="
+        + structuralChemical + ", functionalChemical=" + functionalChemical
+        + "]";
   }
 
 }
