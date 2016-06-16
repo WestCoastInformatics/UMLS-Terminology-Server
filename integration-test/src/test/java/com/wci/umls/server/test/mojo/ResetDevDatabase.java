@@ -62,8 +62,8 @@ public class ResetDevDatabase {
   public void test() throws Exception {
 
     // Load the new RF2 full
-    // Run "generate sample data" - 
-    
+    // Run "generate sample data" -
+
     // Load RF2 full
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
@@ -98,6 +98,21 @@ public class ResetDevDatabase {
     p.setProperty("version", "latest");
     p.setProperty("scope.descendants.flag", "true");
     p.setProperty("admin.user", "admin");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Generate Sample Data
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/loader/pom.xml"));
+    request.setProfiles(Arrays.asList("GenerateSampleData"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("mode", "update");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
