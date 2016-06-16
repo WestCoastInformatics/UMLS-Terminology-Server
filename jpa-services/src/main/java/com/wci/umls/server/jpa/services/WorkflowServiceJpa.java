@@ -42,7 +42,8 @@ import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 /**
  * Workflow Service JPA implementation
  */
-public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowService {
+public class WorkflowServiceJpa extends ContentServiceJpa implements
+    WorkflowService {
 
   /**
    * Instantiates a new workflow service.
@@ -51,16 +52,15 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
    */
   public WorkflowServiceJpa() throws Exception {
     super();
-    
+
   }
-  
+
   @Override
   public TrackingRecord getTrackingRecord(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - get tracking record " + id);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - get tracking record " + id);
     return getHasLastModified(id, TrackingRecordJpa.class);
   }
-
-
 
   @Override
   public TrackingRecord addTrackingRecord(TrackingRecord trackingRecord)
@@ -78,7 +78,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   @Override
   public void updateTrackingRecord(TrackingRecord trackingRecord)
     throws Exception {
-   
+    // tbd
 
   }
 
@@ -93,14 +93,14 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public StringList getWorkflowPaths() {
-   
+
     return null;
   }
 
   @Override
   public TrackingRecord performWorkflowAction(Long refsetId, User user,
     UserRole projectRole, WorkflowAction action) throws Exception {
-   
+
     return null;
   }
 
@@ -108,33 +108,35 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   public TrackingRecord performWorkflowAction(Long translationId, User user,
     UserRole projectRole, WorkflowAction action, Concept concept)
     throws Exception {
-   
+
     return null;
   }
 
   @Override
   public WorkflowActionHandler getWorkflowHandlerForPath(String workflowPat)
     throws Exception {
-   
+
     return null;
   }
 
   @Override
   public Set<WorkflowActionHandler> getWorkflowHandlers() throws Exception {
-   
+
     return null;
   }
 
   @Override
   public TrackingRecordList findTrackingRecordsForQuery(String query,
     PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - find tracking records for query " + query);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - find tracking records for query " + query);
     TrackingRecordList results = new TrackingRecordListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<TrackingRecordJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            TrackingRecordJpa.class, TrackingRecordJpa.class, new PfsParameterJpa(), totalCt, manager);
+            TrackingRecordJpa.class, TrackingRecordJpa.class,
+            new PfsParameterJpa(), totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final TrackingRecordJpa trackingRecord : luceneResults) {
       results.getObjects().add(trackingRecord);
@@ -144,8 +146,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public void handleLazyInit(TrackingRecord record) {
-   
-
+    // TODO
   }
 
   @Override
@@ -163,8 +164,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public void updateWorkflowEpoch(WorkflowEpoch workflowEpoch)
-    throws Exception {
+  public void updateWorkflowEpoch(WorkflowEpoch workflowEpoch) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - update workflow epoch " + workflowEpoch);
 
@@ -184,7 +184,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   @Override
   public List<WorkflowEpoch> getWorkflowEpochs() throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - get workflow epochs " );
+        "Workflow Service - get workflow epochs ");
     final javax.persistence.Query query =
         manager.createQuery("select a from WorkflowEpochJpa a");
 
@@ -200,20 +200,23 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public WorkflowEpoch getWorkflowEpoch(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - get workflow epoch " + id);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - get workflow epoch " + id);
     return getHasLastModified(id, WorkflowEpochJpa.class);
   }
-  
+
   @Override
   public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - find workflow epochs for query " + query);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - find workflow epochs for query " + query);
     List<WorkflowEpoch> results = new ArrayList<>();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorkflowEpochJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            WorkflowEpochJpa.class, WorkflowEpochJpa.class, new PfsParameterJpa(), totalCt, manager);
+            WorkflowEpochJpa.class, WorkflowEpochJpa.class,
+            new PfsParameterJpa(), totalCt, manager);
     for (final WorkflowEpoch epoch : luceneResults) {
       results.add(epoch);
     }
@@ -221,10 +224,11 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public WorkflowConfig addWorkflowConfig(
-    WorkflowConfig WorkflowConfig) throws Exception {
+  public WorkflowConfig addWorkflowConfig(WorkflowConfig WorkflowConfig)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - add project workflow config " + WorkflowConfig.toString());
+        "Workflow Service - add project workflow config "
+            + WorkflowConfig.toString());
 
     // Add component
     WorkflowConfig config = addHasLastModified(WorkflowConfig);
@@ -234,8 +238,8 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public void updateWorkflowConfig(
-    WorkflowConfig WorkflowConfig) throws Exception {
+  public void updateWorkflowConfig(WorkflowConfig WorkflowConfig)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - update project workflow config " + WorkflowConfig);
 
@@ -253,10 +257,9 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public List<WorkflowConfig> getWorkflowConfigs()
-    throws Exception {
+  public List<WorkflowConfig> getWorkflowConfigs() throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - get project workflow configs " );
+        "Workflow Service - get project workflow configs ");
     final javax.persistence.Query query =
         manager.createQuery("select a from WorkflowConfigJpa a");
 
@@ -271,22 +274,24 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   }
 
   @Override
-  public WorkflowConfig getWorkflowConfig(Long id)
-    throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - get project workflow config " + id);
+  public WorkflowConfig getWorkflowConfig(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - get project workflow config " + id);
     return getHasLastModified(id, WorkflowConfigJpa.class);
   }
 
   @Override
-  public List<WorkflowConfig> findWorkflowConfigsForQuery(
-    String query) throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - find project workflow config for query " + query);
+  public List<WorkflowConfig> findWorkflowConfigsForQuery(String query)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - find project workflow config for query " + query);
     List<WorkflowConfig> results = new ArrayList<>();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorkflowConfigJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            WorkflowConfigJpa.class, WorkflowConfigJpa.class, new PfsParameterJpa(), totalCt, manager);
+            WorkflowConfigJpa.class, WorkflowConfigJpa.class,
+            new PfsParameterJpa(), totalCt, manager);
     for (final WorkflowConfig epoch : luceneResults) {
       results.add(epoch);
     }
@@ -297,7 +302,8 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   public WorkflowBinDefinition addWorkflowBinDefinition(
     WorkflowBinDefinition workflowBinDefinition) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - add workflow bin definition " + workflowBinDefinition.toString());
+        "Workflow Service - add workflow bin definition "
+            + workflowBinDefinition.toString());
 
     // Add component
     WorkflowBinDefinition def = addHasLastModified(workflowBinDefinition);
@@ -310,7 +316,8 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   public void updateWorkflowBinDefinition(
     WorkflowBinDefinition workflowBinDefinition) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - update workflow bin definition " + workflowBinDefinition);
+        "Workflow Service - update workflow bin definition "
+            + workflowBinDefinition);
 
     // update component
     updateHasLastModified(workflowBinDefinition);
@@ -329,7 +336,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   public List<WorkflowBinDefinition> getWorkflowBinDefinitions()
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - get workflow bin definitions " );
+        "Workflow Service - get workflow bin definitions ");
     final javax.persistence.Query query =
         manager.createQuery("select a from WorkflowBinDefinitionJpa a");
 
@@ -346,20 +353,23 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   @Override
   public WorkflowBinDefinition getWorkflowBinDefinition(Long id)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - get workflow bin definition " + id);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - get workflow bin definition " + id);
     return getHasLastModified(id, WorkflowBinDefinitionJpa.class);
   }
 
   @Override
   public List<WorkflowBinDefinition> findWorkflowBinDefinitionsForQuery(
     String query) throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - find workflow bin definitions for query " + query);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - find workflow bin definitions for query " + query);
     List<WorkflowBinDefinition> results = new ArrayList<>();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorkflowBinDefinitionJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            WorkflowBinDefinitionJpa.class, WorkflowBinDefinitionJpa.class, new PfsParameterJpa(), totalCt, manager);
+            WorkflowBinDefinitionJpa.class, WorkflowBinDefinitionJpa.class,
+            new PfsParameterJpa(), totalCt, manager);
     for (final WorkflowBinDefinition def : luceneResults) {
       results.add(def);
     }
@@ -398,8 +408,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public List<WorkflowBin> getWorkflowBins() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - get workflow bins " );
+    Logger.getLogger(getClass()).debug("Workflow Service - get workflow bins ");
     final javax.persistence.Query query =
         manager.createQuery("select a from WorkflowBinJpa a");
 
@@ -415,20 +424,23 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public WorkflowBin getWorkflowBin(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - get workflow bin " + id);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - get workflow bin " + id);
     return getHasLastModified(id, WorkflowBinJpa.class);
   }
 
   @Override
   public List<WorkflowBin> findWorkflowBinsForQuery(String query)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - find workflow bins for query " + query);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - find workflow bins for query " + query);
     List<WorkflowBin> results = new ArrayList<>();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorkflowBinJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            WorkflowBinJpa.class, WorkflowBinJpa.class, new PfsParameterJpa(), totalCt, manager);
+            WorkflowBinJpa.class, WorkflowBinJpa.class, new PfsParameterJpa(),
+            totalCt, manager);
     for (final WorkflowBin bin : luceneResults) {
       results.add(bin);
     }
@@ -474,13 +486,15 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
   @Override
   public WorklistList findWorklistsForQuery(String query, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - find worklists for query " + query);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - find worklists for query " + query);
     WorklistList results = new WorklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorklistJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            WorklistJpa.class, WorklistJpa.class, new PfsParameterJpa(), totalCt, manager);
+            WorklistJpa.class, WorklistJpa.class, new PfsParameterJpa(),
+            totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final WorklistJpa worklist : luceneResults) {
       results.getObjects().add(worklist);
@@ -520,20 +534,23 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public Checklist getChecklist(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - get checklist " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - get checklist " + id);
     return getHasLastModified(id, ChecklistJpa.class);
   }
 
   @Override
   public ChecklistList findChecklistsForQuery(String query, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - find checklists for query " + query);
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - find checklists for query " + query);
     ChecklistList results = new ChecklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<ChecklistJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            ChecklistJpa.class, ChecklistJpa.class, new PfsParameterJpa(), totalCt, manager);
+            ChecklistJpa.class, ChecklistJpa.class, new PfsParameterJpa(),
+            totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final ChecklistJpa checklist : luceneResults) {
       results.getObjects().add(checklist);

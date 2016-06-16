@@ -20,7 +20,6 @@ import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ModelUnitSupport;
-import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.meta.IdType;
 
 /**

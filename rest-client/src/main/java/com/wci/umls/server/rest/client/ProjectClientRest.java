@@ -17,11 +17,17 @@ import javax.ws.rs.core.Response.Status.Family;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
@@ -391,14 +397,15 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public String getLog(Long projectId, Long objectId, String terminology,
     String version, String activity, int lines, String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - get log");
- 
+
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/log?"
-            + "projectId=" + projectId + "&terminology=" + terminology + "&version=" + version
-            + "&activity=" + activity + "&objectId=" + objectId + "&lines=" + lines);
+            + "projectId=" + projectId + "&terminology=" + terminology
+            + "&version=" + version + "&activity=" + activity + "&objectId="
+            + objectId + "&lines=" + lines);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -413,6 +420,49 @@ public class ProjectClientRest extends RootClientRest implements
     // converting to object
     return resultString;
 
+  }
+
+  @Override
+  public ValidationResult validateConcept(Long projectId, ConceptJpa concept,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ValidationResult validateAtom(Long projectId, AtomJpa atom,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ValidationResult validateDescriptor(Long projectId,
+    DescriptorJpa descriptor, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ValidationResult validateCode(Long projectId, CodeJpa code,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ValidationResult validateMerge(Long projectId, String terminology,
+    String version, String cui1, String cui2, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public KeyValuePairList getValidationChecks(Long projectId, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

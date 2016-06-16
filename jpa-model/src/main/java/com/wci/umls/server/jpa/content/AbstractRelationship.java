@@ -228,7 +228,7 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
       return false;
     if (getClass() != obj.getClass())
       return false;
-    AbstractRelationship other = (AbstractRelationship) obj;
+    AbstractRelationship<?, ?> other = (AbstractRelationship<?, ?>) obj;
     if (additionalRelationshipType == null) {
       if (other.additionalRelationshipType != null)
         return false;

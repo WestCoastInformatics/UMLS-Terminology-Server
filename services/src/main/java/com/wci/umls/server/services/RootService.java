@@ -124,8 +124,8 @@ public interface RootService {
    * @return the list
    * @throws Exception the exception
    */
-  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz, int[] totalCt,
-    PfsParameter pfs) throws Exception;
+  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
+    int[] totalCt, PfsParameter pfs) throws Exception;
 
   /**
    * Checks if is last modified flag.
@@ -168,15 +168,15 @@ public interface RootService {
    * @param molecularActionFlag the new molecular action flag
    */
   public void setMolecularActionFlag(boolean molecularActionFlag);
-  
+
   /**
    * Gets the molecular action.
    *
    * @return the molecular action
-   * @throws Exception 
+   * @throws Exception
    */
   public MolecularAction getMolecularAction() throws Exception;
-  
+
   /**
    * Sets the molecular action.
    *
@@ -284,11 +284,11 @@ public interface RootService {
    * Add molecular action.
    *
    * @param action the action
-   * @param cascadeFlag whether to cascade the operation
    * @return the molecular action
    * @throws Exception the exception
    */
-  public MolecularAction addMolecularAction(MolecularAction action) throws Exception;
+  public MolecularAction addMolecularAction(MolecularAction action)
+    throws Exception;
 
   /**
    * Remove molecular action.
@@ -296,8 +296,7 @@ public interface RootService {
    * @param id the id
    * @throws Exception the exception
    */
-  public void removeMolecularAction(Long id)
-    throws Exception;
+  public void removeMolecularAction(Long id) throws Exception;
 
   /**
    * Gets the molecular action.
@@ -343,9 +342,10 @@ public interface RootService {
    * @param query the query
    * @param pfs the pfs
    * @return the list
-   * @throws Exception 
+   * @throws Exception
    */
   public List<MolecularAction> findMolecularActions(String terminologyId,
-    String terminology, String version, String query, PfsParameter pfs) throws Exception;
+    String terminology, String version, String query, PfsParameter pfs)
+    throws Exception;
 
 }

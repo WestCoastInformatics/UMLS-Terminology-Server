@@ -6,8 +6,6 @@ package com.wci.umls.server.services;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.KeyValuesMap;
 import com.wci.umls.server.helpers.content.RelationshipList;
-import com.wci.umls.server.model.actions.MolecularAction;
-import com.wci.umls.server.model.content.Concept;
 
 /**
  * Represents a service for performing maintenance actions.
@@ -137,27 +135,5 @@ public interface ActionService extends RootService {
    */
   public void retireOldInferredRelationships(String sessionToken)
     throws Exception;
-
-
-  /**
-   * Compute the molecular action representing changes in a concept.
-   *
-   * @param actionType the action type
-   * @param oldConcept the old concept
-   * @param newConcept the new concept
-   * @return the molecular action
-   * @throws Exception the exception
-   */
-  public MolecularAction resolveAction(String actionType,
-    Concept oldConcept, Concept newConcept) throws Exception;
-
-  /**
-   * Has changed field.
-   *
-   * @param action the action
-   * @param fieldName the field name
-   * @return true, if successful
-   */
-  public boolean hasChangedField(MolecularAction action, String fieldName);
 
 }
