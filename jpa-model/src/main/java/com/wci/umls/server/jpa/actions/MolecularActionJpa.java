@@ -59,10 +59,6 @@ public class MolecularActionJpa implements MolecularAction {
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
-  
-  /** The project. */
-  @Column(nullable = false)
-  private Long projectId;
 
   /** The type. */
   @Column(nullable = false)
@@ -180,6 +176,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getLastModified() {
     return lastModified;
   }

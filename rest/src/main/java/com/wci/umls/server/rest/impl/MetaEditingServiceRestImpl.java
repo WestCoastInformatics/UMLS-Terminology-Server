@@ -97,7 +97,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         // Initialization: retrieve and lock the concept, create molecular
         // action and prep services
-        final Concept concept = prepareConceptAndServiceHelper(contentService,
+        final Concept concept = prepareAction(contentService,
             conceptId, userName, "ADD_SEMANTIC_TYPE");
 
         // retrieve the project
@@ -224,7 +224,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, action, UserRole.AUTHOR);
 
       // get the concept and prepare the service
-      final Concept concept = prepareConceptAndServiceHelper(contentService,
+      final Concept concept = prepareAction(contentService,
           conceptId, userName, "REMOVE_SEMANTIC_TYPE");
 
       // retrieve the project
@@ -338,8 +338,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    * @return the concept
    * @throws Exception the exception
    */
-  // TODO Feel free to rename this to something less clumsy :)
-  private Concept prepareConceptAndServiceHelper(ContentService contentService,
+  private Concept prepareAction(ContentService contentService,
     Long conceptId, String userName, String actionType) throws Exception {
     
  // prepare the transaction

@@ -6,8 +6,7 @@
  */
 package com.wci.umls.server.test.rest;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Date;
 
@@ -19,10 +18,15 @@ import org.junit.Test;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
  * Implementation of the "MetaEditing Service REST Normal Use" Test Cases.
@@ -100,7 +104,7 @@ public class MetaEditingServiceRestNormalUseTest
     sty.setTerminology(umlsTerminology);
     sty.setVersion(umlsVersion);
     sty.setTimestamp(new Date());
-    
+
     //
     // Test addition
     //
@@ -120,9 +124,27 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertNotNull(sty);
-    
+
     // verify the molecular action exists
-    
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list = contentService
+        .getMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+    assertTrue(list.getCount() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertTrue(ma.getLastModified().compareTo(startDate) > 0);
+    assertNotNull(ma.getAtomicActions());
+    assertTrue(ma.getAtomicActions().size() == 1);
+    assertTrue(
+        ma.getAtomicActions().get(0).getIdType().equals(IdType.SEMANTIC_TYPE));
+    assertNotNull(ma.getAtomicActions().get(0).getNewValue());
+    assertNull(ma.getAtomicActions().get(0).getOldValue());
+
+    // verify the log entry exists
+    // TODO
 
     //
     // Test removal
@@ -144,6 +166,25 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertTrue(!styPresent);
 
+    // verify the molecular action exists
+    pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    list = contentService.getMolecularActionsForConcept(c.getId(), null, pfs,
+        authToken);
+    assertTrue(list.getCount() > 0);
+    ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertTrue(ma.getLastModified().compareTo(startDate) > 0);
+    assertNotNull(ma.getAtomicActions());
+    assertTrue(ma.getAtomicActions().size() == 1);
+    assertTrue(
+        ma.getAtomicActions().get(0).getIdType().equals(IdType.SEMANTIC_TYPE));
+    assertNotNull(ma.getAtomicActions().get(0).getNewValue());
+    assertNull(ma.getAtomicActions().get(0).getOldValue());
+
+    // TODO Verify log entry
   }
 
   /**

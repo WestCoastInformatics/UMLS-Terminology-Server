@@ -3499,13 +3499,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @GET
-  @Path("/actions")
-  @ApiOperation(value = "Find molecular actions for a concept", notes = "Find molecular actions for a concept", response = KeyValuePairList.class)
+  @POST
+  @Path("/concept/actions")
+  @ApiOperation(value = "Get molecular actions for a concept", notes = "Get molecular actions for a concept", response = KeyValuePairList.class)
   public MolecularActionList getMolecularActionsForConcept(
     @ApiParam(value = "The concept id, e.g. 1", required = true) @QueryParam("conceptId") Long conceptId,
     @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
-    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameter pfs,
+    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
     Logger.getLogger(getClass())
@@ -3518,9 +3518,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       Concept concept = contentService.getConcept(conceptId);
 
-      MolecularActionList results =
-          contentService.findMolecularActions(concept.getTerminologyId(),
-              concept.getTerminology(), concept.getVersion(), query, pfs);
+      String localQuery = (query == null || query.isEmpty() ? "" : " AND ")
+          + "terminologyId:" + concept.getTerminologyId();
+
+      MolecularActionList results = contentService.findMolecularActions(
+          concept.getTerminology(), concept.getVersion(), localQuery, pfs);
 
       return results;
     } catch (Exception e) {

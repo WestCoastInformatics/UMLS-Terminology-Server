@@ -1150,7 +1150,8 @@ public abstract class RootServiceJpa implements RootService {
   }
 
   @Override
-  public MolecularAction addMolecularAction(MolecularAction action) throws Exception {
+  public MolecularAction addMolecularAction(MolecularAction action)
+    throws Exception {
     Logger.getLogger(getClass())
         .debug("Action Service - add molecular action " + action);
     return addHasLastModified(action);
@@ -1172,8 +1173,7 @@ public abstract class RootServiceJpa implements RootService {
   }
 
   @Override
-  public MolecularActionList findMolecularActions(String terminologyId,
-    String terminology, String version, String query, PfsParameter pfs)
+  public MolecularActionList findMolecularActions(String terminology, String version, String query, PfsParameter pfs)
       throws Exception {
 
     final SearchHandler searchHandler =
@@ -1183,7 +1183,7 @@ public abstract class RootServiceJpa implements RootService {
     int totalCt[] = new int[1];
     searchHandler.setProperties(config);
     MolecularActionList results = new MolecularActionListJpa();
-    
+
     for (MolecularActionJpa ma : searchHandler.getQueryResults(terminology,
         version, Branch.ROOT, query, null, MolecularActionJpa.class,
         MolecularActionJpa.class, pfs, totalCt, manager)) {
