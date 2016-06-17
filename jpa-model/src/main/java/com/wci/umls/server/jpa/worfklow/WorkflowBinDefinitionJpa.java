@@ -7,6 +7,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,7 +29,9 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.BooleanBridge;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
+import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 
@@ -74,9 +78,9 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   @Column(nullable = false)
   private String query;
 
-  /** The query type. */
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private String queryType;
+  private QueryType queryType;
 
   /** The editable. */
   @Column(nullable = false)
@@ -107,7 +111,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     name = def.getName();
     description = def.getDescription();
     query = def.getQuery();
-    queryType = def.getQuery();
+    queryType = def.getQueryType();
     editable = def.isEditable();
     workflowConfig = def.getWorkflowConfig();
   }
@@ -214,14 +218,14 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getQueryType() {
+  @Field(bridge = @FieldBridge(impl = EnumBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public QueryType getQueryType() {
     return queryType;
   }
 
   /* see superclass */
   @Override
-  public void setQueryType(String queryType) {
+  public void setQueryType(QueryType queryType) {
     this.queryType = queryType;
   }
 

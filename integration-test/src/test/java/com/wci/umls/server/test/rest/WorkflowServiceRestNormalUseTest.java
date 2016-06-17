@@ -19,6 +19,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
@@ -171,7 +172,7 @@ public class WorkflowServiceRestNormalUseTest
     workflowBinDefinition.setEditable(true);
     workflowBinDefinition.setLastModified(startDate);
     workflowBinDefinition.setLastModifiedBy(authToken);
-    workflowBinDefinition.setQueryType("SQL");
+    workflowBinDefinition.setQueryType(QueryType.SQL);
     workflowBinDefinition.setTimestamp(startDate);
     workflowBinDefinition.setWorkflowConfig(addedWorkflowConfig);
     

@@ -71,14 +71,14 @@ public interface WorkflowBinDefinition extends HasLastModified {
    *
    * @return the query type
    */
-  public String getQueryType();
+  public QueryType getQueryType();
 
   /**
    * Sets the query type.
    *
    * @param queryType the new query type
    */
-  public void setQueryType(String queryType);
+  public void setQueryType(QueryType queryType);
 
   /**
    * Returns the workflow config.

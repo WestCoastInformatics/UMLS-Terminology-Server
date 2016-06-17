@@ -3,7 +3,7 @@
  */
 package com.wci.umls.server.model.workflow;
 
-import java.util.List;
+import java.util.Set;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasTerminology;
@@ -21,14 +21,14 @@ public interface TrackingRecord extends HasLastModified, HasTerminology {
    *
    * @return the terminology ids
    */
-  public List<String> getTerminologyIds();
+  public Set<Long> getComponentIds();
 
   /**
    * Sets the terminology ids.
    *
    * @param terminology the terminology ids
    */
-  public void setTerminologyIds(List<String> terminology);
+  public void setComponentIds(Set<Long> terminology);
 
   /**
    * Returns the cluster id.
