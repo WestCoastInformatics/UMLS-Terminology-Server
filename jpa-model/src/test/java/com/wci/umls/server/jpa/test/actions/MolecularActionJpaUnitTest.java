@@ -169,6 +169,7 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
+    tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("terminologyId");
     tester.include("terminologyId2");

@@ -24,6 +24,7 @@ import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -445,9 +446,9 @@ public class ProjectClientRest extends RootClientRest implements
     }
 
     // converting to object
-    ValidationResult result =
+    final ValidationResult result =
         ConfigUtility
-            .getGraphForString(resultString, ValidationResultJpa.class);
+    .getGraphForString(resultString, ValidationResultJpa.class);
     return result;
   }
 

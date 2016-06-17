@@ -14,14 +14,14 @@ public interface AtomicAction extends HasId {
    *
    * @return the molecular action
    */
-  // TODO public MolecularAction getMolecularAction();
+   public MolecularAction getMolecularAction();
 
   /**
    * Sets the molecular action.
    *
    * @param molecularAction the new molecular action
    */
-  // TODO public void setMolecularAction(MolecularAction molecularAction);
+   public void setMolecularAction(MolecularAction molecularAction);
 
   /**
    * Gets the id type.
@@ -92,4 +92,5 @@ public interface AtomicAction extends HasId {
    * @param id the new object id
    */
   public void setObjectId(Long id);
+
 }

@@ -88,7 +88,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /** The molecular action. */
   @IndexedEmbedded(targetElement = AtomicActionJpa.class)
-  @OneToMany(targetEntity = AtomicActionJpa.class)
+  @OneToMany(mappedBy = "id", targetEntity = AtomicActionJpa.class)
   private List<AtomicAction> atomicActions = new ArrayList<>();
 
   /**
@@ -279,9 +279,9 @@ public class MolecularActionJpa implements MolecularAction {
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result
         + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result =
-        prime * result
-            + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
+    result = prime * result
+        + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
+    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
@@ -295,6 +295,21 @@ public class MolecularActionJpa implements MolecularAction {
     if (getClass() != obj.getClass())
       return false;
     MolecularActionJpa other = (MolecularActionJpa) obj;
+    if (atomicActions == null) {
+      if (other.atomicActions != null)
+        return false;
+    } else if (!atomicActions.equals(other.atomicActions))
+      return false;
+    if (lastModified == null) {
+      if (other.lastModified != null)
+        return false;
+    } else if (!lastModified.equals(other.lastModified))
+      return false;
+    if (lastModifiedBy == null) {
+      if (other.lastModifiedBy != null)
+        return false;
+    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
+      return false;
     if (macroAction != other.macroAction)
       return false;
     if (name == null) {
@@ -317,6 +332,11 @@ public class MolecularActionJpa implements MolecularAction {
         return false;
     } else if (!terminologyId2.equals(other.terminologyId2))
       return false;
+    if (timestamp == null) {
+      if (other.timestamp != null)
+        return false;
+    } else if (!timestamp.equals(other.timestamp))
+      return false;
     if (version == null) {
       if (other.version != null)
         return false;
@@ -330,7 +350,7 @@ public class MolecularActionJpa implements MolecularAction {
   public String toString() {
     return "MolecularActionJpa [id=" + id + ", version=" + version
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
-        + ", type=" + type + ", lastModified=" + lastModified
+        + ", name=" + name + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", macroAction=" + macroAction + ", atomicActions=" + atomicActions
         + "]";

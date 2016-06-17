@@ -17,7 +17,6 @@ import javax.ws.rs.core.Response.Status.Family;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -2055,7 +2054,7 @@ public class ContentClientRest extends RootClientRest
   }
 
   @Override
-  public MolecularActionList getMolecularActionsForConcept(Long conceptId,
+  public MolecularActionList findMolecularActionsForConcept(Long conceptId,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass())
@@ -2063,7 +2062,7 @@ public class ContentClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/concept/actions?conceptId=" + conceptId + "&query="
+        + "/content/concept/" + conceptId + "/actions?query="
         + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility

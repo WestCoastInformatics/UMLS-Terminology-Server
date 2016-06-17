@@ -89,6 +89,7 @@ import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
+import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
@@ -3500,33 +3501,38 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/concept/actions")
+  @Path("/concept/{id}/actions")
   @ApiOperation(value = "Get molecular actions for a concept", notes = "Get molecular actions for a concept", response = KeyValuePairList.class)
-  public MolecularActionList getMolecularActionsForConcept(
-    @ApiParam(value = "The concept id, e.g. 1", required = true) @QueryParam("conceptId") Long conceptId,
+  public MolecularActionList findMolecularActionsForConcept(
+    @ApiParam(value = "The concept id, e.g. 1", required = true) @PathParam("id") Long conceptId,
     @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
     @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call POST (Validation): /checks ");
-
+        .info("RESTful call POST (Validation): /concept/" + conceptId + "/actions ");
+    
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "get molecular actions for a concept", UserRole.VIEWER);
+          "find molecular actions for a concept", UserRole.VIEWER);
 
-      Concept concept = contentService.getConcept(conceptId);
+      final Concept concept = contentService.getConcept(conceptId);
 
-      String localQuery = (query == null || query.isEmpty() ? "" : " AND ")
+      final String localQuery = (query == null || query.isEmpty() ? "" : " AND ")
           + "terminologyId:" + concept.getTerminologyId();
 
-      MolecularActionList results = contentService.findMolecularActions(
+      final MolecularActionList results = contentService.findMolecularActions(
           concept.getTerminology(), concept.getVersion(), localQuery, pfs);
+      
+      // resolve the actions (i.e. get the atomic actions)
+      for (MolecularAction action : results.getObjects()) {
+        contentService.getGraphResolutionHandler(null).resolve(action);
+      }
 
       return results;
     } catch (Exception e) {
-      handleException(e, "trying to get molecular actions for a concept");
+      handleException(e, "trying to find molecular actions for a concept");
       return null;
     } finally {
       contentService.close();

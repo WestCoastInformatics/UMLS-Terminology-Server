@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -37,6 +38,7 @@ public class AtomicActionJpa implements AtomicAction {
   @TableGenerator(name = "EntityIdGenAction", table = "table_generator_action", pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenAction")
+  @JoinColumn(nullable = false)
   private Long id;
 
   /** The object id. */
@@ -58,11 +60,11 @@ public class AtomicActionJpa implements AtomicAction {
   /** The type. */
   @Column(nullable = false)
   private IdType idType;
-/*
-  *//** The molecular action. *//*
+
+  /** The molecular action. */
   @ManyToOne(targetEntity = AtomicActionJpa.class, optional = false)
   private MolecularAction molecularAction;
-*/
+
   /**
    * Instantiates a new atomic action jpa.
    */
@@ -97,8 +99,8 @@ public class AtomicActionJpa implements AtomicAction {
   public void setId(Long id) {
     this.id = id;
   }
-/* TODO
-   see superclass 
+/*
+   see superclass */
   @Override
   // Simply transient, no need to refer the id back - never needed for
   // serialization
@@ -106,13 +108,13 @@ public class AtomicActionJpa implements AtomicAction {
   public MolecularAction getMolecularAction() {
     return molecularAction;
   }
-  */
- /*  see superclass 
+  
+ /*  see superclass */
   @Override
   public void setMolecularAction(MolecularAction molecularAction) {
     this.molecularAction = molecularAction;
   }
-*/
+
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -221,17 +223,15 @@ public class AtomicActionJpa implements AtomicAction {
         return false;
     } else if (!oldValue.equals(other.oldValue))
       return false;
-    if (type != other.type)
-      return false;
     return true;
   }
 
-  /* see superclass */
   @Override
   public String toString() {
     return "AtomicActionJpa [id=" + id + ", objectId=" + objectId
         + ", oldValue=" + oldValue + ", newValue=" + newValue + ", field="
-        + field + ", type=" + type + "]";
+        + field + ", idType=" + idType + ", molecularAction=" + molecularAction
+        + "]";
   }
 
 }

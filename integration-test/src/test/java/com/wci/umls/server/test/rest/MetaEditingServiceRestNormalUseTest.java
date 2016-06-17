@@ -6,7 +6,9 @@
  */
 package com.wci.umls.server.test.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 
@@ -18,7 +20,6 @@ import org.junit.Test;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -77,6 +78,13 @@ public class MetaEditingServiceRestNormalUseTest
   @Test
   public void testNormalUseRestContent001() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
+    PfsParameterJpa pfs2 = new PfsParameterJpa();
+    pfs2.setSortField("lastModified");
+    pfs2.setAscending(false);
+    MolecularActionList list2 = contentService
+        .findMolecularActionsForConcept(2126L, null, pfs2, authToken);
+    
+    assertTrue(false);
 
     Logger.getLogger(getClass())
         .info("TEST - Add and remove semantic type to/from " + "C0000005,"
@@ -130,7 +138,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list = contentService
-        .getMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+        .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -170,7 +178,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = contentService.getMolecularActionsForConcept(c.getId(), null, pfs,
+    list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
         authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);

@@ -990,7 +990,7 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Gets the molecular actions for concept.
+   * Finds molecular actions for concept and query.
    *
    * @param conceptId the concept id
    * @param query the query
@@ -999,8 +999,9 @@ public interface ContentServiceRest {
    * @return the molecular actions for concept
    * @throws Exception the exception
    */
-  public MolecularActionList getMolecularActionsForConcept(Long conceptId,
+  public MolecularActionList findMolecularActionsForConcept(Long conceptId,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
+
 
 
 }

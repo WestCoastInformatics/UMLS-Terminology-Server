@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -491,6 +492,14 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public String getName() {
     return "Default Graph Resolver";
+  }
+  
+  @Override
+  public void resolve(MolecularAction molecularAction) {
+    if (molecularAction != null) {
+      molecularAction.getAtomicActions().size();
+    
+    }
   }
 
 }

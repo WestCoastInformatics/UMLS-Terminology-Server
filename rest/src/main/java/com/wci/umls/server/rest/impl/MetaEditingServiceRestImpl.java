@@ -97,8 +97,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         // Initialization: retrieve and lock the concept, create molecular
         // action and prep services
-        final Concept concept = prepareAction(contentService,
-            conceptId, userName, "ADD_SEMANTIC_TYPE");
+        final Concept concept = prepareAction(contentService, conceptId,
+            userName, "ADD_SEMANTIC_TYPE");
 
         // retrieve the project
         final Project project = contentService.getProject(projectId);
@@ -153,11 +153,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         // add the semantic type component itself and set the last modified
         semanticTypeComponent.setLastModifiedBy(userName);
         semanticTypeComponent.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-        semanticTypeComponent = (SemanticTypeComponentJpa) contentService
-            .addSemanticTypeComponent(semanticTypeComponent, concept);
+        SemanticTypeComponent newSemanticTypeComponent =
+            (SemanticTypeComponentJpa) contentService
+                .addSemanticTypeComponent(semanticTypeComponent, concept);
 
         // add the semantic type and set the last modified by
-        concept.getSemanticTypes().add(semanticTypeComponent);
+        concept.getSemanticTypes().add(newSemanticTypeComponent);
         concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
         // update the concept
@@ -165,7 +166,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         // log the REST call
         contentService.addLogEntry(userName, projectId, conceptId,
-            "Add semantic type " + semanticTypeComponent.getSemanticType()
+            "Add semantic type " + newSemanticTypeComponent.getSemanticType()
                 + " to concept " + concept.getTerminologyId());
 
         // commit (also removes the lock)
@@ -224,8 +225,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, action, UserRole.AUTHOR);
 
       // get the concept and prepare the service
-      final Concept concept = prepareAction(contentService,
-          conceptId, userName, "REMOVE_SEMANTIC_TYPE");
+      final Concept concept = prepareAction(contentService, conceptId, userName,
+          "REMOVE_SEMANTIC_TYPE");
 
       // retrieve the project
       final Project project = contentService.getProject(projectId);
@@ -338,14 +339,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    * @return the concept
    * @throws Exception the exception
    */
-  private Concept prepareAction(ContentService contentService,
-    Long conceptId, String userName, String actionType) throws Exception {
-    
- // prepare the transaction
-  
+  private Concept prepareAction(ContentService contentService, Long conceptId,
+    String userName, String actionType) throws Exception {
+
+    // prepare the transaction
+
     contentService.setTransactionPerOperation(false);
     contentService.beginTransaction();
-
 
     Concept concept;
     synchronized (conceptId.toString().intern()) {
@@ -366,18 +366,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     molecularAction.setTerminology(concept.getTerminology());
     molecularAction.setTerminologyId(concept.getTerminologyId());
     molecularAction.setVersion(concept.getVersion());
-    molecularAction.setType(actionType);
+    molecularAction.setName(actionType);
     molecularAction.setTimestamp(new Date());
 
     // set the service flags and variables
     contentService.setMolecularActionFlag(true);
-    contentService.setMolecularAction(molecularAction);
     contentService.setLastModifiedFlag(true);
     contentService.setLastModifiedBy(userName);
 
-    // persist the molecular action
-    contentService.addMolecularAction(molecularAction);
-
+    // persist and set the service's molecular action
+    final MolecularAction newMolecularAction =
+        contentService.addMolecularAction(molecularAction);
+    contentService.setMolecularAction(newMolecularAction);
     return concept;
   }
 }
