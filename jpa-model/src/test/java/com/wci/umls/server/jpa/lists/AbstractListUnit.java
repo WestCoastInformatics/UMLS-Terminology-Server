@@ -206,6 +206,9 @@ public class AbstractListUnit<T> extends ModelUnitSupport {
     xml = ConfigUtility.getStringForGraph(list);
 
     ResultList<T> list3 = ConfigUtility.getGraphForString(xml, list.getClass());
+    // System.out.println("xml =" + xml);
+    // System.out.println("list =" + list);
+    // System.out.println("list3=" + list3);
     assertTrue(list.equals(list3));
 
     // Add 2 contents

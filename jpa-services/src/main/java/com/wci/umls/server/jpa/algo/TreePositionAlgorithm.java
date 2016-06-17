@@ -294,7 +294,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
     // Add STYs already existing
     for (final SemanticType sty : getSemanticTypes(getTerminology(),
         getVersion()).getObjects()) {
-      seen.add(sty.getValue());
+      seen.add(sty.getExpandedForm());
     }
     for (final Map.Entry<Long, String> entry : idValueMap.entrySet()) {
       final String semanticType = entry.getValue();
@@ -314,7 +314,6 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
       sty.setTreeNumber("");
       sty.setTypeId("");
       sty.setUsageNote("");
-      sty.setValue(semanticType);
       sty.setTimestamp(startDate);
       sty.setPublished(false);
       sty.setPublishable(false);

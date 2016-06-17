@@ -81,7 +81,6 @@ public class SemanticTypeJpaUnitTest extends ModelUnitSupport {
     tester.include("treeNumber");
     tester.include("typeId");
     tester.include("usageNote");
-    tester.include("value");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -133,7 +132,6 @@ public class SemanticTypeJpaUnitTest extends ModelUnitSupport {
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("value");
     tester.include("definition");
     tester.include("typeId");
     tester.include("nonHuman");

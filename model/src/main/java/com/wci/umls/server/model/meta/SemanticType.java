@@ -9,20 +9,6 @@ package com.wci.umls.server.model.meta;
 public interface SemanticType extends Abbreviation {
 
   /**
-   * Returns the value.
-   * 
-   * @return the value
-   */
-  public String getValue();
-
-  /**
-   * Sets the value.
-   * 
-   * @param value the value
-   */
-  public void setValue(String value);
-
-  /**
    * Returns the definition.
    * 
    * @return the definition
@@ -105,35 +91,35 @@ public interface SemanticType extends Abbreviation {
    * @param usageNote the usage note
    */
   public void setUsageNote(String usageNote);
-  
+
   /**
    * Checks if is chemical.
    *
    * @return true, if is chemical
    */
   public boolean isChemical();
-  
+
   /**
    * Checks if is structural chemical.
    *
    * @return true, if is structural chemical
    */
   public boolean isStructuralChemical();
-  
+
   /**
    * Sets the structural chemical.
    *
    * @param structuralChemical the new structural chemical
    */
   public void setStructuralChemical(boolean structuralChemical);
-  
+
   /**
    * Checks if is functional chemical.
    *
    * @return true, if is functional chemical
    */
   public boolean isFunctionalChemical();
-  
+
   /**
    * Sets the functional chemical.
    *

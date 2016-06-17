@@ -65,6 +65,7 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     map1.put("1", "1");
     map2 = new HashMap<>();
     map2.put("2", "2");
+    map2.put("3", "4");
   }
 
   /**
@@ -106,11 +107,10 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     tester.include("stringClassId");
     tester.include("name");
     tester.include("termType");
-    tester.include("workflowStatus");
 
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
-    
+
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());

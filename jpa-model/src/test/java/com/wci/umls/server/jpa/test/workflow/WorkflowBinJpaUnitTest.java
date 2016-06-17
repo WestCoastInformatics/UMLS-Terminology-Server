@@ -47,6 +47,12 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
   /** The fixture l2. */
   private List<TrackingRecord> l2;
 
+  /** The fixture p1. */
+  private Project p1;
+
+  /** The fdixture p2. */
+  private Project p2;
+
   /**
    * Setup class.
    */
@@ -70,6 +76,11 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     l1.add((TrackingRecord) tester.createObject(1));
     l1.add((TrackingRecord) tester.createObject(2));
 
+    final ProxyTester tester2 = new ProxyTester(new ProjectJpa());
+    p1 = (ProjectJpa) tester2.createObject(1);
+    p2 = (ProjectJpa) tester2.createObject(2);
+
+    object.setProject(p1);
   }
 
   /**
@@ -104,6 +115,10 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     tester.include("terminologyId");
     tester.include("version");
 
+    tester.proxy(List.class, 1, l1);
+    tester.proxy(List.class, 2, l2);
+    tester.proxy(Project.class, 1, p1);
+    tester.proxy(Project.class, 2, p2);
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -124,7 +139,8 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-
+    tester.proxy(Project.class, 1, p1);
+    tester.proxy(Project.class, 2, p2);
     assertTrue(tester.testCopyConstructorDeep(WorkflowBin.class));
 
   }

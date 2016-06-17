@@ -24,10 +24,10 @@ import com.wci.umls.server.model.content.TreePosition;
 @MappedSuperclass
 @XmlSeeAlso({
     CodeTreePositionJpa.class, ConceptTreePositionJpa.class,
-    DescriptorTreePositionJpa.class
+    DescriptorTreePositionJpa.class, AtomTreePositionJpa.class
 })
-public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndName> extends
-    AbstractComponentHasAttributes implements TreePosition<T> {
+public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndName>
+    extends AbstractComponentHasAttributes implements TreePosition<T> {
 
   /** The additional relationship type. */
   @Column(nullable = true)

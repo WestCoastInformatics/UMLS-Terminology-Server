@@ -72,6 +72,7 @@ public class CodeRelationshipJpaUnitTest extends ModelUnitSupport {
     map1.put("1", "1");
     map2 = new HashMap<>();
     map2.put("2", "2");
+    map2.put("3", "4");
 
     ProxyTester tester = new ProxyTester(new CodeJpa());
     tester.proxy(Map.class, 1, map1);
@@ -131,10 +132,9 @@ public class CodeRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("hierarchical");
     tester.include("to");
     tester.include("from");
-    tester.include("workflowStatus");
 
-    tester.proxy(Code.class, 1, new CodeJpa(code1, false));
-    tester.proxy(Code.class, 2, new CodeJpa(code2, false));
+    tester.proxy(Code.class, 1, code1);
+    tester.proxy(Code.class, 2, code2);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
 

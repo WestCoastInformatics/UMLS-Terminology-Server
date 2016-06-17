@@ -72,6 +72,7 @@ public class AtomRelationshipJpaUnitTest extends ModelUnitSupport {
     map1.put("1", "1");
     map2 = new HashMap<>();
     map2.put("2", "2");
+    map2.put("3", "4");
 
     ProxyTester tester = new ProxyTester(new AtomJpa());
     tester.proxy(Map.class, 1, map1);
@@ -127,27 +128,16 @@ public class AtomRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("hierarchical");
     tester.include("to");
     tester.include("from");
-    tester.include("workflowStatus");
 
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
+    tester.proxy(Atom.class, 1, atom1);
+    tester.proxy(Atom.class, 2, atom2);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testIdentityFieldEquals());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testNonIdentityFieldEquals());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testIdentityFieldHashcode());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testNonIdentityFieldHashcode());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

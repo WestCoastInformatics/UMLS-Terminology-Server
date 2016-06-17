@@ -67,9 +67,10 @@ public class ComponentInfoRelationshipJpaUnitTest extends ModelUnitSupport {
 
     // for alt termionlogy ids
     map1 = new HashMap<>();
-    map1.put("1", "a");
+    map1.put("1", "1");
     map2 = new HashMap<>();
-    map2.put("2", "bb");
+    map2.put("2", "2");
+    map2.put("3", "4");
 
     ProxyTester tester = new ProxyTester(new ComponentInfoJpa());
     c1 = (ComponentInfoJpa) tester.createObject(1);
@@ -138,7 +139,6 @@ public class ComponentInfoRelationshipJpaUnitTest extends ModelUnitSupport {
 
     tester.include("to");
     tester.include("from");
-    tester.include("workflowStatus");
 
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);

@@ -285,14 +285,6 @@ public interface MetadataService extends ProjectService, Configurable {
     String version) throws Exception;
 
   /**
-   * Indicates whether or not to assign last modified when changing terminology
-   * components. Supports a loader that wants to disable this feature.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isLastModifiedFlag();
-
-  /**
    * Adds the semantic type.
    *
    * @param semanticType the semantic type
@@ -634,7 +626,8 @@ public interface MetadataService extends ProjectService, Configurable {
    * @return the precedence list
    * @throws Exception the exception
    */
-  public PrecedenceList getPrecedenceList(Long precedenceListId) throws Exception;
+  public PrecedenceList getPrecedenceList(Long precedenceListId)
+    throws Exception;
 
   /**
    * Gets the semantic type for a terminology.
@@ -645,8 +638,8 @@ public interface MetadataService extends ProjectService, Configurable {
    * @return the semantic type
    * @throws Exception the exception
    */
-  public SemanticType getSemanticType(String type, String terminology, String version)
-    throws Exception;
+  public SemanticType getSemanticType(String type, String terminology,
+    String version) throws Exception;
 
   /**
    * Gets the attribute name.
@@ -705,6 +698,6 @@ public interface MetadataService extends ProjectService, Configurable {
    * @return the language
    * @throws Exception the exception
    */
-  public Language getLanguage(String language, String terminology, String version)
-    throws Exception;
+  public Language getLanguage(String language, String terminology,
+    String version) throws Exception;
 }

@@ -2,11 +2,13 @@ package com.wci.umls.server.jpa.algo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasTerminology;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.meta.LogActivity;
@@ -209,4 +211,21 @@ public abstract class AbstractTerminologyAlgorithm extends HistoryServiceJpa
     listeners.remove(l);
   }
 
+  /**
+   * Returns the configurable value.
+   *
+   * @param terminology the terminology
+   * @param key the key
+   * @return the configurable value
+   * @throws Exception the exception
+   */
+  public String getConfigurableValue(String terminology, String key)
+    throws Exception {
+    Properties p = ConfigUtility.getConfigProperties();
+    String fullKey = getClass().getName() + "." + terminology + "." + key;
+    if (p.containsKey(fullKey)) {
+      return p.getProperty(fullKey);
+    }
+    return null;
+  }
 }

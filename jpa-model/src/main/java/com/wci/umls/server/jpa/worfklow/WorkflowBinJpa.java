@@ -348,7 +348,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getProjectId() {
-    return project == null ? 0L : project.getId();
+    return project == null ? null : project.getId();
   }
 
   /**

@@ -153,8 +153,6 @@ public abstract class AbstractNote implements Note {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((note == null) ? 0 : note.hashCode());
     return result;
   }
@@ -168,11 +166,6 @@ public abstract class AbstractNote implements Note {
     if (getClass() != obj.getClass())
       return false;
     AbstractNote other = (AbstractNote) obj;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (note == null) {
       if (other.note != null)
         return false;

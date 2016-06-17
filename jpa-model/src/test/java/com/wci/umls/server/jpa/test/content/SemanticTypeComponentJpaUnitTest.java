@@ -75,7 +75,6 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("semanticType");
-    tester.include("workflowStatus");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());

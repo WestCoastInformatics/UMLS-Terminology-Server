@@ -296,7 +296,6 @@ public class SourceDataJpa implements SourceData {
     this.sourceDataFiles = sourceDataFiles;
   }
 
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -307,23 +306,19 @@ public class SourceDataJpa implements SourceData {
     result =
         prime * result
             + ((handlerStatus == null) ? 0 : handlerStatus.hashCode());
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result =
-        prime * result
-            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result
-            + ((sourceDataFiles == null) ? 0 : sourceDataFiles.hashCode());
+            + ((releaseVersion == null) ? 0 : releaseVersion.hashCode());
     result = prime * result + ((status == null) ? 0 : status.hashCode());
     result =
         prime * result + ((statusText == null) ? 0 : statusText.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+    result =
+        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -345,25 +340,15 @@ public class SourceDataJpa implements SourceData {
       return false;
     if (handlerStatus != other.handlerStatus)
       return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
       return false;
-    if (sourceDataFiles == null) {
-      if (other.sourceDataFiles != null)
+    if (releaseVersion == null) {
+      if (other.releaseVersion != null)
         return false;
-    } else if (!sourceDataFiles.equals(other.sourceDataFiles))
+    } else if (!releaseVersion.equals(other.releaseVersion))
       return false;
     if (status != other.status)
       return false;
@@ -372,10 +357,15 @@ public class SourceDataJpa implements SourceData {
         return false;
     } else if (!statusText.equals(other.statusText))
       return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
+    if (terminology == null) {
+      if (other.terminology != null)
         return false;
-    } else if (!timestamp.equals(other.timestamp))
+    } else if (!terminology.equals(other.terminology))
+      return false;
+    if (version == null) {
+      if (other.version != null)
+        return false;
+    } else if (!version.equals(other.version))
       return false;
     return true;
   }

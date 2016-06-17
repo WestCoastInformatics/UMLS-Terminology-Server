@@ -343,9 +343,9 @@
       </build>
     </profile>
 
-    <!-- Add a project, specify -Drun.config=... -Dterminology=... -->
+    <!-- Generate sample data, specify -Drun.config=... -Dterminology=... -->
     <profile>
-      <id>Project</id>
+      <id>GenerateSampleData</id>
       <build>
         <plugins>
           <plugin>
@@ -354,22 +354,13 @@
             <version>${project.version}</version>
             <executions>
               <execution>
-                <id>add-project</id>
+                <id>generate-sample-data</id>
                 <phase>package</phase>
                 <goals>
-                  <goal>add-project</goal>
+                  <goal>generate-sample-data</goal>
                 </goals>
                 <configuration>
-                  <name>${name}</name>
-                  <description>${description}</description>
-                  <terminology>${terminology}</terminology>
-                  <version>${version}</version>
-                  <adminUser>${admin.user}</adminUser>
-                  <scopeConcepts>${scope.concepts}</scopeConcepts>
-                  <scopeDescendantsFlag>${scope.descendants.flag}</scopeDescendantsFlag>
-                  <scopeExcludesConcepts>${scope.excludes.concepts}</scopeExcludesConcepts>
-                  <scopeExcludesDescendantsFlag>${scope.excludes.descendants.flag}</scopeExcludesDescendantsFlag>
-                  <server>${server}</server>
+                  <mode>${mode}</mode>
                 </configuration>
               </execution>
             </executions>
