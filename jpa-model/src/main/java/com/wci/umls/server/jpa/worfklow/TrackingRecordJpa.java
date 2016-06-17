@@ -3,9 +3,9 @@
  */
 package com.wci.umls.server.jpa.worfklow;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -64,10 +64,10 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
 
-  /** The terminology ids . */
+  /** The component ids . */
   @ElementCollection
-  @CollectionTable(name = "terminology_ids")
-  private List<String> terminologyIds = new ArrayList<>();
+  @CollectionTable(name = "component_ids")
+  private Set<Long> componentIds = new HashSet<>();
 
   /** The cluster id. */
   @Column(nullable = false)
@@ -114,7 +114,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     clusterType = record.getClusterType();
     terminology = record.getTerminology();
     version = record.getVersion();
-    terminologyIds = new ArrayList<>(record.getTerminologyIds());
+    componentIds = new HashSet<>(record.getComponentIds());
     workflowBin = record.getWorkflowBin();
     worklist = record.getWorklist();
   }
@@ -159,17 +159,17 @@ public class TrackingRecordJpa implements TrackingRecord {
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
-  public List<String> getTerminologyIds() {
-    if (terminologyIds == null) {
-      terminologyIds = new ArrayList<>();
+  public Set<Long> getComponentIds() {
+    if (componentIds == null) {
+      componentIds = new HashSet<>();
     }
-    return terminologyIds;
+    return componentIds;
   }
 
   /* see superclass */
   @Override
-  public void setTerminologyIds(List<String> terminologyIds) {
-    this.terminologyIds = terminologyIds;
+  public void setComponentIds(Set<Long> componentIds) {
+    this.componentIds = componentIds;
   }
 
   /* see superclass */
@@ -338,7 +338,7 @@ public class TrackingRecordJpa implements TrackingRecord {
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
         prime * result
-            + ((terminologyIds == null) ? 0 : terminologyIds.hashCode());
+            + ((componentIds == null) ? 0 : componentIds.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
@@ -368,10 +368,10 @@ public class TrackingRecordJpa implements TrackingRecord {
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (terminologyIds == null) {
-      if (other.terminologyIds != null)
+    if (componentIds == null) {
+      if (other.componentIds != null)
         return false;
-    } else if (!terminologyIds.equals(other.terminologyIds))
+    } else if (!componentIds.equals(other.componentIds))
       return false;
     if (version == null) {
       if (other.version != null)
@@ -386,7 +386,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   public String toString() {
     return "TrackingRecordJpa [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", terminologyIds=" + terminologyIds + ", clusterId=" + clusterId
+        + ", componentIds=" + componentIds + ", clusterId=" + clusterId
         + ", clusterType=" + clusterType + ", terminology=" + terminology
         + ", version=" + version + "]";
   }

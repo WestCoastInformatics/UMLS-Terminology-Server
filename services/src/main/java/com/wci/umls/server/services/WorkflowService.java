@@ -29,7 +29,7 @@ import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 /**
  * Generically represents a service for performing workflow operations.
  */
-public interface WorkflowService {
+public interface WorkflowService extends RootService, ProjectService {
 
   /**
    * Returns the tracking record.

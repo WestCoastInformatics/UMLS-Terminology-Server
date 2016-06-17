@@ -6,8 +6,9 @@ package com.wci.umls.server.jpa.test.workflow;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -41,10 +42,10 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
   private TrackingRecordJpa object;
 
   /** The fixture l1. */
-  private List<String> l1;
+  private Set<Long> l1;
 
   /** The fixture l2. */
-  private List<String> l2;
+  private Set<Long> l2;
 
   /** The fixture w1. */
   private Worklist w1;
@@ -75,10 +76,10 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
   public void setup() throws Exception {
     object = new TrackingRecordJpa();
 
-    l1 = new ArrayList<>();
-    l1.add("1");
-    l2 = new ArrayList<>();
-    l2.add("2");
+    l1 = new HashSet<>();
+    l1.add(1L);
+    l2 = new HashSet<>();
+    l2.add(2L);
 
     final ProxyTester tester = new ProxyTester(new WorklistJpa());
     w1 = (WorklistJpa) tester.createObject(1);
@@ -89,7 +90,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     b2 = (WorkflowBinJpa) tester2.createObject(2);
 
     // for xml serialization
-    object.setTerminologyIds(l1);
+    object.setComponentIds(l1);
     object.setWorklist(w1);
     object.setWorkflowBin(b1);
 
