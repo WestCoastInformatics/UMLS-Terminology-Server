@@ -94,8 +94,7 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("name");
     tester.include("macroAction");
-    tester.proxy(List.class, 1, l1);
-    tester.proxy(List.class, 2, l2);
+   
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());

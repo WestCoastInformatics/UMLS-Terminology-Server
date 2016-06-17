@@ -42,7 +42,6 @@ public interface WorkflowServiceRest {
    *
    * @param workflowConfigId the workflow config id
    * @param authToken the auth token
-   * @return the workflow config
    * @throws Exception the exception
    */
   public void removeWorkflowConfig(Long workflowConfigId,

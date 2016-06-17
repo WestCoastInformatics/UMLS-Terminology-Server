@@ -186,6 +186,8 @@ public class AtomicActionJpa implements AtomicAction {
     int result = 1;
     result = prime * result + ((field == null) ? 0 : field.hashCode());
     result = prime * result + ((idType == null) ? 0 : idType.hashCode());
+    result = prime * result
+        + ((molecularAction == null) ? 0 : molecularAction.hashCode());
     result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
     result = prime * result + ((objectId == null) ? 0 : objectId.hashCode());
     result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
@@ -207,6 +209,11 @@ public class AtomicActionJpa implements AtomicAction {
     } else if (!field.equals(other.field))
       return false;
     if (idType != other.idType)
+      return false;
+    if (molecularAction == null) {
+      if (other.molecularAction != null)
+        return false;
+    } else if (!molecularAction.equals(other.molecularAction))
       return false;
     if (newValue == null) {
       if (other.newValue != null)

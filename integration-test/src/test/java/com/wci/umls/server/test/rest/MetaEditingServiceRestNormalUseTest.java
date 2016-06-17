@@ -19,7 +19,6 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;

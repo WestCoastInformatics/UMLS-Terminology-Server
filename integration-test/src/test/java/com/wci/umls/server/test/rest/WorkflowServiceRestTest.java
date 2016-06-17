@@ -12,10 +12,9 @@ import org.junit.BeforeClass;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.rest.client.ContentClientRest;
-import com.wci.umls.server.rest.client.WorkflowClientRest;
 import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
-import com.wci.umls.server.rest.client.ValidationClientRest;
+import com.wci.umls.server.rest.client.WorkflowClientRest;
 
 /**
  * Integration test for REST content service.
@@ -33,9 +32,6 @@ public class WorkflowServiceRestTest {
   
   /** The meta editing service */
   protected static WorkflowClientRest workflowService;
-  
-  /** The validation service. */
-  protected static ValidationClientRest validationService;
 
   /** The properties. */
   protected static Properties properties;
@@ -64,7 +60,6 @@ public class WorkflowServiceRestTest {
     properties = ConfigUtility.getConfigProperties();
 
     // instantiate required services
-    validationService = new ValidationClientRest(properties);
     workflowService = new WorkflowClientRest(properties);
     projectService = new ProjectClientRest(properties);
     contentService = new ContentClientRest(properties);

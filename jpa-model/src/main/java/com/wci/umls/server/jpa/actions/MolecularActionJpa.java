@@ -37,9 +37,6 @@ import com.wci.umls.server.model.actions.MolecularAction;
 }))
 @Indexed
 @XmlRootElement(name = "molecularActions")
-// TODO Add a second terminology id field (of some awesome name) for the second
-// concept involved in e.g. a relationship change, a merge change, a split
-// change, etc. Don't use source/target.
 public class MolecularActionJpa implements MolecularAction {
 
   /** The id. */
