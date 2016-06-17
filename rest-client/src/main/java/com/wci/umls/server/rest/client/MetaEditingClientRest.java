@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 
@@ -89,6 +90,75 @@ public class MetaEditingClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/sty/remove/" + semanticTypeComponentId + "?projectId="
+        + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(null);
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    ValidationResult v = ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+    return v;
+  }
+  
+  @Override
+  public ValidationResult addAttribute(Long projectId, Long conceptId,
+    Long timestamp, AttributeJpa attribute,
+    boolean overrideWarnings, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - add attribute to concept" + projectId
+            + ", " + conceptId + ", " + attribute.toString() + ", "
+            + timestamp + ", " + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/meta/attribute/add?projectId="
+            + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
+            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken)
+        .post(Entity.json(attribute));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    ValidationResult v = ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+    return v;
+  }
+
+  @Override
+  public ValidationResult removeAttribute(Long projectId, Long conceptId,
+    Long timestamp, Long attributeId, boolean overrideWarnings,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - remove attribute from concept "
+            + projectId + ", " + conceptId + ", " + attributeId
+            + ", " + timestamp + ", " + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/attribute/remove/" + attributeId + "?projectId="
         + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 

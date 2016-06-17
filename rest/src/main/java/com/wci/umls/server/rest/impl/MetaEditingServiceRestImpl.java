@@ -21,12 +21,14 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -212,7 +214,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             + conceptId + "/remove for user " + authToken + " with id "
             + semanticTypeComponentId);
 
-    final String action = "add semantic type to concept";
+    final String action = "remove semantic type from concept";
 
     final ValidationResult validationResult = new ValidationResultJpa();
 
@@ -280,6 +282,250 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // log the REST call
       contentService.addLogEntry(userName, projectId, conceptId,
           "Remove semantic type " + semanticTypeComponent.getSemanticType()
+              + " from concept " + concept.getTerminologyId());
+
+      // commit (also adds the molecular action and removes the lock)
+      contentService.commit();
+
+      return validationResult;
+
+    } catch (Exception e) {
+
+      // rollback any changes (releases the lock)
+      if (contentService != null) {
+        try {
+          contentService.rollback();
+        } catch (IllegalStateException ise) {
+          // do nothing -- if no transaction, no lock exists
+        }
+      }
+      handleException(e, action);
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/attribute/add")
+  @ApiOperation(value = "Add attribute to concept", notes = "Add attribute to concept on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult addAttribute(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept timestamp, as date", required = true) @QueryParam("timestamp") Long timestamp,
+    @ApiParam(value = "Semantic type to add", required = true) AttributeJpa attribute,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    {
+
+      Logger.getLogger(getClass())
+          .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
+              + conceptId + "/add for user " + authToken + " with attribute value "
+              + attribute.getName());
+
+      final String action = "add attribute to concept";
+
+      final ValidationResult validationResult = new ValidationResultJpa();
+
+      // instantiate services
+      final ContentService contentService = new ContentServiceJpa();
+
+      try {
+
+        // authorize and get user name from the token
+        final String userName = authorizeProject(contentService, projectId,
+            securityService, authToken, action, UserRole.AUTHOR);
+
+        // Initialization: retrieve and lock the concept, create molecular
+        // action and prep services
+        final Concept concept = prepareAction(contentService, conceptId,
+            userName, "ADD_ATTRIBUTE");
+
+        // retrieve the project
+        final Project project = contentService.getProject(projectId);
+
+        //
+        // Check prerequisites
+        //
+
+        // perform action-specific validation
+        // NOTE: No action-specific validation required for addAttribute
+
+        // check project and concept compatibility
+        checkPrerequisitesForProjectAndConcept(project, concept,
+            validationResult);
+
+        // check for stale-state
+        if (concept.getTimestamp().getTime() != timestamp) {
+          validationResult.getErrors().add(
+              "Stale state detected: stored timestamp does not match passed timestamp");
+        }
+
+        // check that attribute is valid
+        if (contentService.getAttributeName(attribute.getName(), concept.getTerminology(), concept.getVersion())
+            == null) {
+          validationResult.getErrors()
+              .add("Cannot add attribute: Invalid attribute name");
+        }
+
+        // check if attribute already exists on this concept
+        for (Attribute s : concept.getAttributes()) {
+          if (s.getName()
+              .equals(attribute.getName())) {
+            validationResult.getErrors().add(
+                "Cannot add attribute: Concept already contains attribute name");
+          }
+        }
+
+        // if prerequisites fail, return validation result
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty()
+                && !overrideWarnings)) {
+          // rollback -- unlocks the concept and closes transaction
+          contentService.rollback();
+          return validationResult;
+        }
+
+        //
+        // Perform the action
+        //
+
+        // add the attribute component itself and set the last modified
+        // TODO Should attribute have workflow status?
+        attribute.setLastModifiedBy(userName);
+        // attribute.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        Attribute newAttribute =
+            (AttributeJpa) contentService
+                .addAttribute(attribute, concept);
+
+        // add the attribute and set the last modified by
+        concept.getAttributes().add(newAttribute);
+        concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+        // update the concept
+        contentService.updateConcept(concept);
+
+        // log the REST call
+        contentService.addLogEntry(userName, projectId, conceptId,
+            "Add attribute " + newAttribute.getName() + " with value " + newAttribute.getValue()
+                + " to concept " + concept.getTerminologyId());
+
+        // commit (also removes the lock)
+        contentService.commit();
+
+        return validationResult;
+
+      } catch (Exception e) {
+
+        // rollback any changes (releases the lock)
+        if (contentService != null) {
+          try {
+            contentService.rollback();
+          } catch (IllegalStateException ise) {
+            // do nothing -- if no transaction, no lock exists
+          }
+        }
+        handleException(e, action);
+        return null;
+      } finally {
+        contentService.close();
+        securityService.close();
+      }
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/attribute/remove/{id}")
+  @ApiOperation(value = "Remove attribute from concept", notes = "Remove attribute from concept on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult removeAttribute(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept timestamp, in ms ", required = true) @QueryParam("timestamp") Long timestamp,
+    @ApiParam(value = "Attribute id, e.g. 3", required = true) @PathParam("id") Long attributeId,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
+            + conceptId + "/remove for user " + authToken + " with id "
+            + attributeId);
+
+    final String action = "remove attribute from concept";
+
+    final ValidationResult validationResult = new ValidationResultJpa();
+
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+
+      // authorize and get user name from the token
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, action, UserRole.AUTHOR);
+
+      // get the concept and prepare the service
+      final Concept concept = prepareAction(contentService, conceptId, userName,
+          "REMOVE_ATTRIBUTE");
+
+      // retrieve the project
+      final Project project = contentService.getProject(projectId);
+
+      //
+      // Check prerequisites
+      //
+
+      // perform action-specific validation
+      // NOTE: No validation required for removeAttribute
+
+      // check project and concept compatibility
+      checkPrerequisitesForProjectAndConcept(project, concept,
+          validationResult);
+
+      // check for stale-state
+      if (concept.getTimestamp().getTime() < timestamp) {
+        validationResult.getErrors()
+            .add("Stale state detected: concept modified after retrieval");
+      }
+
+      // check that attribute component exists on concept
+      Attribute attribute = null;
+      for (final Attribute sty : concept.getAttributes()) {
+        if (sty.getId().equals(attributeId)) {
+          attribute = sty;
+        }
+      }
+      if (attribute == null) {
+        validationResult.getErrors().add(
+            "Attribute could not be removed from concept, not present");
+      }
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()) {
+        contentService.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action
+      //
+
+      // remove the attribute component from the concept and update
+      concept.getAttributes().remove(attribute);
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      contentService.updateConcept(concept);
+
+      // remove the attribute component
+      contentService.removeAttribute(attribute.getId());
+
+      // log the REST call
+      contentService.addLogEntry(userName, projectId, conceptId,
+          "Remove attribute " + attribute.getName()
               + " from concept " + concept.getTerminologyId());
 
       // commit (also adds the molecular action and removes the lock)

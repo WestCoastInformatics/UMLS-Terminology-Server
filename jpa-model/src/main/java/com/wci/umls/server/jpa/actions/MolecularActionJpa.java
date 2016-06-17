@@ -85,7 +85,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /** The molecular action. */
   @IndexedEmbedded(targetElement = AtomicActionJpa.class)
-  @OneToMany(mappedBy = "id", targetEntity = AtomicActionJpa.class)
+  @OneToMany(mappedBy="molecularAction", targetEntity = AtomicActionJpa.class)
   private List<AtomicAction> atomicActions = new ArrayList<>();
 
   /**
@@ -264,12 +264,6 @@ public class MolecularActionJpa implements MolecularAction {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + ((atomicActions == null) ? 0 : atomicActions.hashCode());
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + (macroAction ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
@@ -278,7 +272,6 @@ public class MolecularActionJpa implements MolecularAction {
         + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result
         + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
@@ -292,21 +285,6 @@ public class MolecularActionJpa implements MolecularAction {
     if (getClass() != obj.getClass())
       return false;
     MolecularActionJpa other = (MolecularActionJpa) obj;
-    if (atomicActions == null) {
-      if (other.atomicActions != null)
-        return false;
-    } else if (!atomicActions.equals(other.atomicActions))
-      return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (macroAction != other.macroAction)
       return false;
     if (name == null) {
@@ -329,11 +307,6 @@ public class MolecularActionJpa implements MolecularAction {
         return false;
     } else if (!terminologyId2.equals(other.terminologyId2))
       return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
-        return false;
-    } else if (!timestamp.equals(other.timestamp))
-      return false;
     if (version == null) {
       if (other.version != null)
         return false;
@@ -342,15 +315,14 @@ public class MolecularActionJpa implements MolecularAction {
     return true;
   }
 
-  /* see superclass */
   @Override
   public String toString() {
     return "MolecularActionJpa [id=" + id + ", version=" + version
-        + ", terminologyId=" + terminologyId + ", terminology=" + terminology
-        + ", name=" + name + ", lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", macroAction=" + macroAction + ", atomicActions=" + atomicActions
-        + "]";
+        + ", terminologyId=" + terminologyId + ", terminologyId2="
+        + terminologyId2 + ", terminology=" + terminology + ", name=" + name
+        + ", lastModified=" + lastModified + ", lastModifiedBy="
+        + lastModifiedBy + ", timestamp=" + timestamp + ", macroAction="
+        + macroAction + "]";
   }
 
 }

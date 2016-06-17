@@ -56,7 +56,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   private List<ConceptRelationship> relationships = null;
 
   /** The component histories. */
-  @OneToMany(mappedBy = "referencedConcept", targetEntity = ComponentHistoryJpa.class)
+  @OneToMany(targetEntity = ComponentHistoryJpa.class)
   private List<ComponentHistory> componentHistories = null;
 
   /** The semantic type components. */

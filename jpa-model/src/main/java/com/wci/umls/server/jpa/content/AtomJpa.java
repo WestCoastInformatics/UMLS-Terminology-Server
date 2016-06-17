@@ -79,7 +79,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private List<AtomRelationship> relationships = null;
 
   /** The component histories. */
-  @OneToMany(mappedBy = "referencedConcept", targetEntity = ComponentHistoryJpa.class)
+  @OneToMany(targetEntity = ComponentHistoryJpa.class)
   private List<ComponentHistory> componentHistories = null;
 
   /** The concept terminology id map. */
