@@ -222,12 +222,12 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public WorkflowConfig addWorkflowConfig(
-    WorkflowConfig WorkflowConfig) throws Exception {
+    WorkflowConfig workflowConfig) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - add project workflow config " + WorkflowConfig.toString());
+        "Workflow Service - add project workflow config " + workflowConfig.toString());
 
     // Add component
-    WorkflowConfig config = addHasLastModified(WorkflowConfig);
+    WorkflowConfig config = addHasLastModified(workflowConfig);
 
     // do not inform listeners
     return config;
@@ -235,12 +235,12 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements WorkflowSer
 
   @Override
   public void updateWorkflowConfig(
-    WorkflowConfig WorkflowConfig) throws Exception {
+    WorkflowConfig workflowConfig) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - update project workflow config " + WorkflowConfig);
+        "Workflow Service - update project workflow config " + workflowConfig);
 
     // update component
-    updateHasLastModified(WorkflowConfig);
+    updateHasLastModified(workflowConfig);
 
   }
 
