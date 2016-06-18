@@ -138,16 +138,10 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getLastModified().compareTo(startDate) > 0);
     assertNotNull(ma.getAtomicActions());
 
-    // TODO Figure out marshaling error leading to empty array
-    // NOTE: The values are present in Hibernate-managed entity prior to return
-    // to ContentClientRest
-    // assertTrue(ma.getAtomicActions().size() == 1);
-    // assertTrue(
-    // ma.getAtomicActions().get(0).getIdType().equals(IdType.SEMANTIC_TYPE));
-    // assertNotNull(ma.getAtomicActions().get(0).getNewValue());
-    // assertNull(ma.getAtomicActions().get(0).getOldValue());
 
-    // TODO verify the log entry exists
+    // TODO Verify atomic actions once REST callback exists for getAtomicActions(Long molecularActionId, ...)
+
+    // TODO Verify the log entry exists
 
     //
     // Test removal
@@ -180,15 +174,11 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
     assertTrue(ma.getLastModified().compareTo(startDate) > 0);
-    assertNotNull(ma.getAtomicActions());
-    // TODO Re-enable this once marshaling error in ContentClientRest is resolved 
-    //assertTrue(ma.getAtomicActions().size() == 1);
-    //assertTrue(
-    //    ma.getAtomicActions().get(0).getIdType().equals(IdType.SEMANTIC_TYPE));
-    //assertNotNull(ma.getAtomicActions().get(0).getNewValue());
-    //assertNull(ma.getAtomicActions().get(0).getOldValue());
+    
 
-    // TODO Verify log entry
+    // TODO Verify atomic actions once REST callback exists for getAtomicActions(Long molecularActionId, ...)
+
+    // TODO Verify the log entry exists
   }
   
   /**
@@ -259,18 +249,10 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
     assertTrue(ma.getLastModified().compareTo(startDate) > 0);
-    assertNotNull(ma.getAtomicActions());
 
-    // TODO Figure out marshaling error leading to empty array
-    // NOTE: The values are present in Hibernate-managed entity prior to return
-    // to ContentClientRest
-    // assertTrue(ma.getAtomicActions().size() == 1);
-    // assertTrue(
-    // ma.getAtomicActions().get(0).getIdType().equals(IdType.SEMANTIC_TYPE));
-    // assertNotNull(ma.getAtomicActions().get(0).getNewValue());
-    // assertNull(ma.getAtomicActions().get(0).getOldValue());
+    // TODO Verify atomic actions once REST callback exists for getAtomicActions(Long molecularActionId, ...)
 
-    // TODO verify the log entry exists
+    // TODO Verify the log entry exists
 
     //
     // Test removal
