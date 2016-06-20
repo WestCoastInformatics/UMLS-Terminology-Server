@@ -123,14 +123,7 @@ public class AtomicActionJpaUnitTest {
   public void testModelXmlSerialization041() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    // The proxy concepts can have only "id" and "term" set due to xml transient
-    MolecularAction tr1 = new MolecularActionJpa();
-    tr1.setId(1L);
-    MolecularAction tr2 = new MolecularActionJpa();
-    tr2.setId(2L);
 
-    tester.proxy(MolecularAction.class, 1, tr1);
-    tester.proxy(MolecularAction.class, 2, tr2);
     tester.proxy(MolecularAction.class, 1, a1);
     tester.proxy(MolecularAction.class, 2, a2);
 
@@ -146,6 +139,7 @@ public class AtomicActionJpaUnitTest {
   public void testModelNotNullField041() throws Exception {
     NullableFieldTester tester = new NullableFieldTester(object);
 
+    tester.include("id");
     tester.include("idType");
     tester.include("objectId");
     tester.include("field");

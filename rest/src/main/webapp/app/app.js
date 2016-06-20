@@ -46,9 +46,12 @@ tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureSe
     if (appConfig.loginEnabled !== 'true') {
       securityService.setGuestUser();
     }
-    
+
   }
-  
+
+  // TODO Move this into a scope-accessible object of some kind (e.g. site-tracking directive analogous to header/footer)
+  $rootScope.siteTrackingCode = appConfig['siteTrackingCode'];
+
   if (errMsg.length > 0) {
     // Send an embedded 'data' object
     utilService.handleError({

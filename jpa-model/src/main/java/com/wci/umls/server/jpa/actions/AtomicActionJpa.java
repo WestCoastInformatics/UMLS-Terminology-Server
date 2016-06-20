@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -37,6 +38,7 @@ public class AtomicActionJpa implements AtomicAction {
   @TableGenerator(name = "EntityIdGenAction", table = "table_generator_action", pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenAction")
+  @JoinColumn(nullable = false)
   private Long id;
 
   /** The object id. */
@@ -60,7 +62,8 @@ public class AtomicActionJpa implements AtomicAction {
   private IdType idType;
 
   /** The molecular action. */
-  @ManyToOne(targetEntity = AtomicActionJpa.class, optional = false)
+  @ManyToOne(targetEntity = MolecularActionJpa.class, optional = false)
+  @JoinColumn(nullable = false)
   private MolecularAction molecularAction;
 
   /**
@@ -97,8 +100,8 @@ public class AtomicActionJpa implements AtomicAction {
   public void setId(Long id) {
     this.id = id;
   }
-
-  /* see superclass */
+/*
+   see superclass */
   @Override
   // Simply transient, no need to refer the id back - never needed for
   // serialization
@@ -106,8 +109,8 @@ public class AtomicActionJpa implements AtomicAction {
   public MolecularAction getMolecularAction() {
     return molecularAction;
   }
-
-  /* see superclass */
+  
+ /*  see superclass */
   @Override
   public void setMolecularAction(MolecularAction molecularAction) {
     this.molecularAction = molecularAction;
@@ -178,7 +181,6 @@ public class AtomicActionJpa implements AtomicAction {
     this.newValue = newValue;
   }
 
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -191,7 +193,6 @@ public class AtomicActionJpa implements AtomicAction {
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -226,13 +227,11 @@ public class AtomicActionJpa implements AtomicAction {
     return true;
   }
 
-  /* see superclass */
   @Override
   public String toString() {
     return "AtomicActionJpa [id=" + id + ", objectId=" + objectId
         + ", oldValue=" + oldValue + ", newValue=" + newValue + ", field="
-        + field + ", type=" + idType + ", molecularAction=" + molecularAction
-        + "]";
+        + field + ", idType=" + idType + "]";
   }
 
 }

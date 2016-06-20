@@ -22,6 +22,7 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.actions.AtomicAction;
@@ -36,9 +37,6 @@ import com.wci.umls.server.model.actions.MolecularAction;
 }))
 @Indexed
 @XmlRootElement(name = "molecularActions")
-// TODO Add a second terminology id field (of some awesome name) for the second
-// concept involved in e.g. a relationship change, a merge change, a split
-// change, etc. Don't use source/target.
 public class MolecularActionJpa implements MolecularAction {
 
   /** The id. */
@@ -86,7 +84,8 @@ public class MolecularActionJpa implements MolecularAction {
   private boolean macroAction;
 
   /** The molecular action. */
-  @OneToMany(targetEntity = AtomicActionJpa.class)
+  @IndexedEmbedded(targetElement = AtomicActionJpa.class)
+  @OneToMany(mappedBy="molecularAction", targetEntity = AtomicActionJpa.class)
   private List<AtomicAction> atomicActions = new ArrayList<>();
 
   /**
@@ -196,6 +195,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getLastModified() {
     return lastModified;
   }
@@ -260,7 +260,6 @@ public class MolecularActionJpa implements MolecularAction {
     this.macroAction = macroAction;
   }
 
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -269,17 +268,14 @@ public class MolecularActionJpa implements MolecularAction {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result =
-        prime * result
-            + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result
+        + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -319,7 +315,6 @@ public class MolecularActionJpa implements MolecularAction {
     return true;
   }
 
-  /* see superclass */
   @Override
   public String toString() {
     return "MolecularActionJpa [id=" + id + ", version=" + version

@@ -19,6 +19,7 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
@@ -987,5 +988,20 @@ public interface ContentServiceRest {
    */
   public SearchResultList getComponentsWithNotesForQuery(String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
+
+  /**
+   * Finds molecular actions for concept and query.
+   *
+   * @param conceptId the concept id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the molecular actions for concept
+   * @throws Exception the exception
+   */
+  public MolecularActionList findMolecularActionsForConcept(Long conceptId,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+
+
 
 }

@@ -15,7 +15,6 @@ import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.client.MetaEditingClientRest;
 import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
-import com.wci.umls.server.rest.client.ValidationClientRest;
 
 /**
  * Integration test for REST content service.
@@ -33,9 +32,6 @@ public class MetaEditingServiceRestTest {
   
   /** The meta editing service */
   protected static MetaEditingClientRest metaEditingService;
-  
-  /** The validation service. */
-  protected static ValidationClientRest validationService;
 
   /** The properties. */
   protected static Properties properties;
@@ -64,7 +60,6 @@ public class MetaEditingServiceRestTest {
     properties = ConfigUtility.getConfigProperties();
 
     // instantiate required services
-    validationService = new ValidationClientRest(properties);
     metaEditingService = new MetaEditingClientRest(properties);
     projectService = new ProjectClientRest(properties);
     contentService = new ContentClientRest(properties);

@@ -559,7 +559,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Object id, e.g. 5", required = false) @QueryParam("objectId") Long objectId,
     @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
     @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
-    @ApiParam(value = "Activity, e.g. EDITING", required = true) @QueryParam("activity") String activity,
+    @ApiParam(value = "Activity, e.g. EDITING", required = false) @QueryParam("activity") String activity,
     @ApiParam(value = "Lines, e.g. 5", required = false) @QueryParam("lines") int lines,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -605,6 +605,10 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       }
       if (activity != null) {
         query += " AND activity:" + activity;
+      }
+      
+      if (query.isEmpty()) {
+        throw new Exception("Must specify at least one parameter for querying log entries");
       }
 
       final List<LogEntry> entries =
@@ -825,5 +829,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
+  
+ 
 
 }

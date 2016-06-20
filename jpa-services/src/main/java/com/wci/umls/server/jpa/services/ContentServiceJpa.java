@@ -743,25 +743,22 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // check for molecular action flag
     if (isMolecularActionFlag()) {
-      // TODO Add comments everywhere indicating that this is how the molecular
-      // action & flag are checked
-      final MolecularAction molecularAction = getMolecularAction();
+     final MolecularAction molecularAction = getMolecularAction();
 
       // construct the atomic action
 
       final AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");
       atomicAction.setIdType(IdType.SEMANTIC_TYPE);
-      // TODO Doublecheck that the molecular action is persisted prior to this
-      // step
       atomicAction.setMolecularAction(molecularAction);
       atomicAction.setOldValue(null);
       atomicAction.setNewValue(component.getId().toString());
       atomicAction.setObjectId(component.getId());
 
-      addAtomicAction(atomicAction);
+      // persist the atomic action and add the persisted version to the molecular action
+      final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
 
-      molecularAction.getAtomicActions().add(atomicAction);
+      molecularAction.getAtomicActions().add(newAtomicAction);
 
     }
 
@@ -811,24 +808,19 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // check for molecular action flag
     if (isMolecularActionFlag()) {
-      MolecularAction molecularAction = getMolecularAction();
-
-      // TODO This method does not exist, need to retrieve for new value/old
-      // value?
-      // Duh, can use getHasLastModified
-      // SemanticTypeComponent semanticTypeComponent =
-      // getSemanticTypeComponent(id);
+      final MolecularAction molecularAction = getMolecularAction();
 
       // construct the atomic action
-      AtomicAction atomicAction = new AtomicActionJpa();
+      final AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");
       atomicAction.setIdType(IdType.SEMANTIC_TYPE);
-      atomicAction.setMolecularAction(molecularAction);
+       atomicAction.setMolecularAction(molecularAction);
       atomicAction.setObjectId(id);
       atomicAction.setOldValue(id.toString());
       atomicAction.setNewValue(null);
+      final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
 
-      molecularAction.getAtomicActions().add(atomicAction);
+      molecularAction.getAtomicActions().add(newAtomicAction);
     }
 
     // Remove the component

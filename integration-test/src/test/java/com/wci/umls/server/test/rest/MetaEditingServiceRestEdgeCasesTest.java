@@ -9,7 +9,9 @@ package com.wci.umls.server.test.rest;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -69,6 +71,8 @@ public class MetaEditingServiceRestEdgeCasesTest
 
   /**
    * Test terminology and branch mismatches between project and concept
+   * NOTE: Only need this one test, as the project/concept checks are uniform
+   * across all MetaEditing REST calls
    *
    * @throws Exception the exception
    */
@@ -148,14 +152,11 @@ public class MetaEditingServiceRestEdgeCasesTest
   }
 
   /**
-   * Check simultaneous editing
-   *
-   * @throws Exception the exception
+   * Test synchronicity.
+   * @throws Exception
    */
   @Test
-  public void testEdgeCaseRestContent002() throws Exception {
-    Logger.getLogger(getClass())
-        .info("TEST - Edge casetests for add/remove semantic type to concept");
+  public void testSynchronicity() throws Exception {
 
     ValidationResult result = new ValidationResultJpa();
 
@@ -164,7 +165,7 @@ public class MetaEditingServiceRestEdgeCasesTest
         umlsVersion, null, authToken);
 
     // construct a semantic type not present on concept (here, Lipid)
-    SemanticTypeComponentJpa sty = new SemanticTypeComponentJpa();
+    SemanticTypeComponent sty = new SemanticTypeComponentJpa();
     sty.setBranch(c1.getBranch());
     sty.setLastModifiedBy(authToken);
     sty.setSemanticType("Lipid");
@@ -175,8 +176,11 @@ public class MetaEditingServiceRestEdgeCasesTest
 
     // add the sty
     result = metaEditingService.addSemanticType(project.getId(), c1.getId(),
-        c1.getTimestamp().getTime(), sty, false, authToken);
-    System.out.println(result.getErrors());
+        c1.getTimestamp().getTime(), (SemanticTypeComponentJpa) sty, false,
+        authToken);
+    if (!result.isValid()) {
+      Logger.getLogger(getClass()).info("Invalid result: " + result.toString());
+    }
     assertTrue(result.isValid());
 
     // get the concept
@@ -195,43 +199,82 @@ public class MetaEditingServiceRestEdgeCasesTest
     final Long cDate = c1.getTimestamp().getTime();
     final Long styId = sty.getId();
 
-    final ValidationResult[] v = {
-        new ValidationResultJpa(), new ValidationResultJpa()
+    // number of repeated calls to make
+    final int[] nThreads = {
+        10
     };
 
-    // make duplicate remove calls
-    Thread t0 = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          v[0] = metaEditingService.removeSemanticType(project.getId(), cId,
-              cDate, styId, false, authToken);
-        } catch (Exception e) {
-          v[0].getErrors().add("Exception: " + e.getMessage());
+    // runnable instanes
+    final Thread[] threads = new Thread[nThreads[0]];
+
+    // accessible validation results from within runnables
+    final ValidationResult[] v = new ValidationResultJpa[nThreads[0]];
+
+    // accessible index, success, and exception counters
+    int ct[] = new int[1];
+    int completeCt[] = {
+        0
+    };
+    int successCt[] = {
+        0
+    };
+    int exceptionCt[] = {
+        0
+    };
+
+    for (int i = 0; i < nThreads[0]; i++) {
+      v[i] = new ValidationResultJpa();
+      ct[0] = i;
+      threads[i] = new Thread(new Runnable() {
+        @Override
+        public void run() {
+          Logger.getLogger(getClass()).info("Running new thread");
+          
+          // introduce slight delay (really for cleanliness of log)
+          try {
+            Thread.sleep(500);
+          } catch (InterruptedException e1) {
+            Logger.getLogger(getClass()).info("  Sleep command failed");
+          }
+          try {
+            if (metaEditingService.removeSemanticType(project.getId(), cId,
+                cDate, styId, false, authToken).isValid()) {
+              Logger.getLogger(getClass()).info("  Thread returned success");
+              successCt[0]++;
+            } else {
+              Logger.getLogger(getClass()).info("  Thread returned expected failure");
+            }
+          } catch (Exception e) {
+            Logger.getLogger(getClass()).info("  Unexpected exception encountered");
+            exceptionCt[0]++;
+          } finally {
+            completeCt[0]++;
+            Logger.getLogger(getClass()).info("Thread complete: " + completeCt[0] + "/"
+                + nThreads[0] + " (" + exceptionCt[0] + " exceptions, "
+                + successCt[0] + " successes)");
+            // on all threads complete, expect only one valid result and no
+            // exceptions
+            // NOTE: Exceptions indicate a commit error (asynchronous failure)
+            // NOTE: Failures due to data conditions are captured as validation
+            // results (isValid check above)
+            if (completeCt[0] == nThreads[0]) {
+              assertTrue(exceptionCt[0] == 0);
+              assertTrue(successCt[0] == 1);
+              Logger.getLogger(getClass()).info("Synchronicity test complete");
+              assertTrue(false);
+            }
+          }
         }
-      }
-    });
-    Thread t1 = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          v[1] = metaEditingService.removeSemanticType(project.getId(), cId,
-              cDate, styId, false, authToken);
-        } catch (Exception e) {
-          v[1].getErrors().add("Exception: " + e.getMessage());
-        }
-      }
-    });
+      });
+    }
 
-    System.out.println("Starting threads");
-
-    t0.run();
-    t1.run();
-
-    System.out.println("Threads complete");
-
-    System.out.println("v0:" + v[0].getErrors().toString());
-    System.out.println("v1:" + v[1].getErrors().toString());
+    // execute the simultaneous requests
+    for (int i = 0; i < nThreads[0]; i++) {
+      threads[i].start();
+    }
+    
+    // wait an arbitrary amount of time
+    Thread.sleep(20000);
 
   }
 
