@@ -70,7 +70,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   /** The tracking records. */
   @OneToMany(mappedBy = "worklist", targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
-
+ 
   /**
    * Instantiates an empty {@link WorklistJpa}.
    */
@@ -202,6 +202,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.trackingRecords = records;
   }
 
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -274,7 +275,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     return "WorklistJpa [id=" + getId() + ", assignDate=" + assignDate
         + ", returnDate=" + returnDate + ", stampDate=" + stampDate
         + ", editor=" + editor + ", group=" + worklistGroup + ", stampedBy="
-        + stampedBy + ", status=" + status + "] " + super.toString();
+        + stampedBy + ", status=" + status +  "] " + super.toString();
   }
 
 }

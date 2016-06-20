@@ -15,13 +15,25 @@ import javax.ws.rs.core.Response.Status.Family;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
+import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
+import com.wci.umls.server.model.workflow.Worklist;
 
 /**
  * A client for connecting to a content REST service.
@@ -230,5 +242,285 @@ public class WorkflowClientRest extends RootClientRest
     // TODO Auto-generated method stub
     
   }
+
+  @Override
+  public TrackingRecordList findAssignedWork(Long projectId, String userName,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find assigned work - " + projectId
+            + ", " + userName);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(userName, "userName");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/records/assigned" + "?projectId="
+            + projectId + "&userName="
+            + userName);
+
+    String pfsStr =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return (TrackingRecordList) ConfigUtility.getGraphForString(resultString,
+        TrackingRecordListJpa.class);
+  }
+
+  @Override
+  public WorklistList findAssignedWorklists(Long projectId, String userName,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find assigned worklists - " + projectId
+            + ", " + userName);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(userName, "userName");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/worklists/assigned" + "?projectId="
+            + projectId + "&userName="
+            + userName);
+
+    String pfsStr =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return (WorklistList) ConfigUtility.getGraphForString(resultString,
+        WorklistListJpa.class);
+  }
+
+  @Override
+  public ChecklistList findChecklists(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find checklists - " + projectId
+            + ", " + query);
+
+    validateNotEmpty(projectId, "projectId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/checklists" + "?projectId="
+            + projectId + "&query="
+            + query);
+
+    String pfsStr =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return (ChecklistList) ConfigUtility.getGraphForString(resultString,
+        ChecklistListJpa.class);
+  }
+
+  @Override
+  public StringList getWorkflowPaths(String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Client - get workflow paths");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/paths");
+
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return (StringList) ConfigUtility.getGraphForString(resultString,
+        StringList.class);
+  }
+
+  @Override
+  public Worklist performWorkflowAction(Long projectId, Long worklistId, String userName,
+    UserRole role, WorkflowAction action, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - perform workflow action " + projectId + ", "
+            + userName + ", " + action);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(worklistId, "worklistId");
+    validateNotEmpty(userName, "userName");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/action"
+            + "?projectId=" + projectId + "&worklistId=" + worklistId + "&action=" + action
+            + "&userName=" + userName + "&userRole=" + role);
+
+
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+    
+    
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return (Worklist) ConfigUtility.getGraphForString(resultString,
+        WorklistJpa.class);
+  }
+
+
+
+  @Override
+  public TrackingRecordList getTrackingRecordsForConcept(Long conceptId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - get tracking record for concept: " + conceptId);
+
+    validateNotEmpty(conceptId, "conceptId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/records"
+            + "?conceptId=" + conceptId);
+
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    if (response.getStatus() == 204) {
+      return null;
+    }
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return (TrackingRecordList) ConfigUtility.getGraphForString(resultString,
+        TrackingRecordListJpa.class);
+  }
+
+
+
+  @Override
+  public TrackingRecordList findAvailableWork(Long projectId, UserRole role,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find available work - " + projectId
+            + ", " + role);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(role.getValue(), "role");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/records/available" + "?projectId="
+            + projectId + "&userRole="
+            + role);
+
+    String pfsStr =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return (TrackingRecordList) ConfigUtility.getGraphForString(resultString,
+        TrackingRecordListJpa.class);
+  }
+
+
+
+  @Override
+  public WorklistList findAvailableWorklists(Long projectId, UserRole role,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find available worklists - " + projectId
+            + ", " + role);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(role.getValue(), "role");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/worklists/available" + "?projectId="
+            + projectId + "&userRole="
+            + role);
+
+    String pfsStr =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return (WorklistList) ConfigUtility.getGraphForString(resultString,
+        WorklistListJpa.class);
+  }
+
+
+
 
 }

@@ -169,4 +169,6 @@ public interface WorkflowBin extends HasLastModified {
    * @param project the project
    */
   public void setProject(Project project);
+  
+
 }

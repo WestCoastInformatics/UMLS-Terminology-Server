@@ -3,8 +3,11 @@
  */
 package com.wci.umls.server.model.workflow;
 
+import java.util.Map;
 import java.util.Set;
 
+import com.wci.umls.server.User;
+import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasTerminology;
 
@@ -85,4 +88,19 @@ public interface TrackingRecord extends HasLastModified, HasTerminology {
    * @param worklist the worklist
    */
   public void setWorklist(Worklist worklist);
+  
+
+  /**
+   * Returns the user role map.
+   *
+   * @return the user role map
+   */
+  public Map<User, UserRole> getUserRoleMap();
+
+  /**
+   * Sets the user role map.
+   *
+   * @param userRoleMap the user role map
+   */
+  public void setUserRoleMap(Map<User, UserRole> userRoleMap);
 }

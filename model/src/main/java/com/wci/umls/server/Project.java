@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -201,5 +201,19 @@ public interface Project extends HasId {
    * @param semanticTypeCategoryMap the semantic type category map
    */
   public void setSemanticTypeCategoryMap(Map<String, String> semanticTypeCategoryMap);
+  
+  /**
+   * Returns the workflow path.
+   *
+   * @return the workflow path
+   */
+  public String getWorkflowPath();
+  
+  /**
+   * Sets the workflow path.
+   *
+   * @param workflowPath the workflow path
+   */
+  public void setWorkflowPath(String workflowPath);
 
 }
