@@ -69,5 +69,19 @@ public interface Worklist extends Checklist, HasLastModified {
    * @param reviewers the reviewers
    */
   public void setReviewers(List<String> reviewers);
+  
+  /**
+   * Gets the workflow status.
+   *
+   * @return the workflow status
+   */
+  public WorkflowStatus getWorkflowStatus();
+
+  /**
+   * Sets the workflow status.
+   *
+   * @param workflowStatus the new workflow status
+   */
+  public void setWorkflowStatus(WorkflowStatus workflowStatus);
 
 }

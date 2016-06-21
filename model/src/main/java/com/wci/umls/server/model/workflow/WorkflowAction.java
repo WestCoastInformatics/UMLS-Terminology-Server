@@ -16,10 +16,6 @@ public enum WorkflowAction {
   SAVE,
   /** The finish action. */
   FINISH,
-  /** The beta action. */
-  BETA,
-  /** The publish action. */
-  PUBLISH,
   /** The cancel action. */
   CANCEL,   
   /**  The reassign. */

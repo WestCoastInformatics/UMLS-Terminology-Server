@@ -7,6 +7,8 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -23,6 +25,7 @@ import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 
 /**
@@ -59,6 +62,11 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @OneToMany(mappedBy = "worklist", targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
  
+  /** The workflow status. */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private WorkflowStatus workflowStatus;
+  
   /**
    * Instantiates an empty {@link WorklistJpa}.
    */
@@ -115,6 +123,19 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.reviewers = reviewers;
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public WorkflowStatus getWorkflowStatus() {
+    return workflowStatus;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
+    this.workflowStatus = workflowStatus;
+
+  }
 
   /* see superclass */
   @Override

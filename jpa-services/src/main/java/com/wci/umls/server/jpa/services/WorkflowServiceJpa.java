@@ -38,6 +38,7 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -271,6 +272,24 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     try {
       @SuppressWarnings("unchecked")
       final List<WorkflowConfig> m = query.getResultList();
+      return m;
+
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+  
+  @Override
+  public WorkflowConfig getWorkflowConfig(Long projectId, WorkflowBinType type) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - get project workflow config " + projectId + ", " + type);
+    final javax.persistence.Query query =
+        manager.createQuery("select a from WorkflowConfigJpa a where "
+            + "project.id = :projectId and type = :type");
+    try {
+      query.setParameter("projectId", projectId);
+      query.setParameter("type", type);
+      final WorkflowConfig m = (WorkflowConfig)query.getSingleResult();
       return m;
 
     } catch (NoResultException e) {
@@ -611,22 +630,21 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     String userName, UserRole role, WorkflowAction action) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - perform workflow action " + action + ", "
-            + project.getId() + ", " + worklist.getId() + ", " + userName + ", " + role);
-  
+            + project.getId() + ", " + worklist.getId() + ", " + userName + ", " + role); 
     
     // Obtain the handler
     final WorkflowActionHandler handler =
         getWorkflowHandlerForPath(project.getWorkflowPath());
     // Validate the action
     final ValidationResult result =
-        handler.validateWorkflowAction(project, worklist, getUser(userName), role, action);
+        handler.validateWorkflowAction(project, worklist, getUser(userName), role, action, this);
     if (!result.isValid()) {
       Logger.getLogger(getClass()).error("  validationResult = " + result);
       throw new LocalException(result.getErrors().iterator().next());
     }
     // Perform the action
     Worklist r =
-        handler.performWorkflowAction(project, worklist, getUser(userName), role, action);
+        handler.performWorkflowAction(project, worklist, getUser(userName), role, action, this);
     return r;
   }
 }

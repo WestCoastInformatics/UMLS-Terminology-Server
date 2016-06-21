@@ -56,28 +56,15 @@ public interface WorkflowActionHandler extends Configurable {
    * @param user the user
    * @param userRole the user role
    * @param workflowAction the workflow action
+   * @param service the service
    * @return the validation result
    * @throws Exception the exception
    */
   public ValidationResult validateWorkflowAction(Project project,
     Worklist worklist, User user, UserRole userRole,
-    WorkflowAction workflowAction) throws Exception;
+    WorkflowAction workflowAction, WorkflowService service) throws Exception;
 
-  /**
-   * Validate workflow action.
-   *
-   * @param project the project
-   * @param trackingRecord the tracking record
-   * @param user the user
-   * @param userRole the user role
-   * @param workflowAction the workflow action
-   * @return the tracking record
-   * @throws Exception the exception
-   */
-  public TrackingRecord validateWorkflowAction(Project project,
-    TrackingRecord trackingRecord, User user, UserRole userRole,
-    WorkflowAction workflowAction) throws Exception;
-
+ 
   /**
    * Perform workflow action.
    *
@@ -86,27 +73,13 @@ public interface WorkflowActionHandler extends Configurable {
    * @param user the user
    * @param userRole the user role
    * @param workflowAction the workflow action
+   * @param service the service
    * @return the worklist
    * @throws Exception the exception
    */
   public Worklist performWorkflowAction(Project project, Worklist worklist,
-    User user, UserRole userRole, WorkflowAction workflowAction)
+    User user, UserRole userRole, WorkflowAction workflowAction, WorkflowService service)
     throws Exception;
-
-  /**
-   * Perform workflow action.
-   *
-   * @param project the project
-   * @param trackingRecord the tracking record
-   * @param user the user
-   * @param userRole the user role
-   * @param workflowAction the workflow action
-   * @return the tracking record
-   * @throws Exception the exception
-   */
-  public TrackingRecord performWorkflowAction(Project project,
-    TrackingRecord trackingRecord, User user, UserRole userRole,
-    WorkflowAction workflowAction) throws Exception;
 
   /**
    * Find assigned work.
