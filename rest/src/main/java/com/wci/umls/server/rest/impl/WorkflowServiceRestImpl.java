@@ -40,6 +40,7 @@ import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
@@ -275,7 +276,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
   @Path("/definition/{id}/remove")
   @ApiOperation(value = "Remove a workflow bin definition", notes = "Remove a workflow bin definition")
   public void removeWorkflowBinDefinition(
-    @ApiParam(value = "Project id, e.g. 1", required = true) @PathParam("projectId") Long projectId,
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin definition id, e.g. 1", required = true) @PathParam("id") Long binDefinitionId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
@@ -311,10 +312,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
   }
 
-  
   @Override
-  public void regenerateBins(Long projectId, WorkflowBinType type,
-    String authToken) throws Exception {
+  @POST
+  @Path("/bins")
+  @ApiOperation(value = "Regenerate bins", notes = "Regenerate bins")
+  public void regenerateBins(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow bin type", required = true) WorkflowBinType type,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {  
+
     Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /bins ");
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
@@ -415,7 +422,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
           record.setWorklist(null);
 
           workflowService.addTrackingRecord(record);
-        }        
+        }
+        
+        
       }     
       
     } catch (Exception e) {
@@ -658,13 +667,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
   @Override
   @POST
   @Path("/action")
-  @ApiOperation(value = "Perform workflow action on a tracking record", notes = "Performs the specified action as the specified refset as the specified user", response = TrackingRecordJpa.class)
+  @ApiOperation(value = "Perform workflow action on a tracking record", notes = "Performs the specified action as the specified refset as the specified user", response = WorklistJpa.class)
   public Worklist performWorkflowAction(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Worklist id, e.g. 5", required = false) @QueryParam("worklistId") Long worklistId,
     @ApiParam(value = "User name, e.g. author1", required = true) @QueryParam("userName") String userName,
     @ApiParam(value = "User role, e.g. AUTHOR", required = true)  UserRole role,
-    @ApiParam(value = "Workflow action, e.g. 'SAVE'", required = true) WorkflowAction action,
+    @ApiParam(value = "Workflow action, e.g. 'SAVE'", required = true) @QueryParam("action") WorkflowAction action,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
