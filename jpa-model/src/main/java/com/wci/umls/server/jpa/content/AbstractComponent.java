@@ -13,6 +13,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -30,6 +31,9 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
  */
 @Audited
 @MappedSuperclass
+@XmlSeeAlso({
+  ConceptJpa.class
+})
 public abstract class AbstractComponent implements Component {
 
   /** The id. */

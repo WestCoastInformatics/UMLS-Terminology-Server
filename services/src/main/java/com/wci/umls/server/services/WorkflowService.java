@@ -24,12 +24,10 @@ import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 
-
-
 /**
  * Generically represents a service for performing workflow operations.
  */
-public interface WorkflowService extends RootService, ProjectService {
+public interface WorkflowService extends ProjectService {
 
   /**
    * Returns the tracking record.
@@ -39,7 +37,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public TrackingRecord getTrackingRecord(Long id) throws Exception;
-
 
   /**
    * Adds the tracking record.
@@ -121,14 +118,12 @@ public interface WorkflowService extends RootService, ProjectService {
   public TrackingRecordList findTrackingRecordsForQuery(String query,
     PfsParameter pfs) throws Exception;
 
-
   /**
    * Handle lazy init.
    *
    * @param record the record
    */
   public void handleLazyInit(TrackingRecord record);
-  
 
   /**
    * Add workflow epoch.
@@ -137,8 +132,8 @@ public interface WorkflowService extends RootService, ProjectService {
    * @return the workflow epoch
    * @throws Exception the exception
    */
-  public WorkflowEpoch addWorkflowEpoch(WorkflowEpoch workflowEpoch) throws Exception;
-
+  public WorkflowEpoch addWorkflowEpoch(WorkflowEpoch workflowEpoch)
+    throws Exception;
 
   /**
    * Update workflow epoch.
@@ -147,7 +142,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public void updateWorkflowEpoch(WorkflowEpoch workflowEpoch) throws Exception;
-  
 
   /**
    * Remove workflow epoch.
@@ -157,7 +151,6 @@ public interface WorkflowService extends RootService, ProjectService {
    */
   public void removeWorkflowEpoch(Long id) throws Exception;
 
- 
   /**
    * Gets the workflow epochs.
    *
@@ -165,7 +158,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public List<WorkflowEpoch> getWorkflowEpochs() throws Exception;
-  
 
   /**
    * Gets the workflow epoch.
@@ -175,7 +167,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public WorkflowEpoch getWorkflowEpoch(Long id) throws Exception;
-  
 
   /**
    * Find workflow epochs for query.
@@ -184,8 +175,8 @@ public interface WorkflowService extends RootService, ProjectService {
    * @return the list
    * @throws Exception the exception
    */
-  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query) throws Exception;
-  
+  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query)
+    throws Exception;
 
   /**
    * Add project workflow config.
@@ -194,8 +185,8 @@ public interface WorkflowService extends RootService, ProjectService {
    * @return the project workflow config
    * @throws Exception the exception
    */
-  public WorkflowConfig addWorkflowConfig(WorkflowConfig WorkflowConfig) throws Exception;
-
+  public WorkflowConfig addWorkflowConfig(WorkflowConfig WorkflowConfig)
+    throws Exception;
 
   /**
    * Update project workflow config.
@@ -203,8 +194,8 @@ public interface WorkflowService extends RootService, ProjectService {
    * @param WorkflowConfig the project workflow config
    * @throws Exception the exception
    */
-  public void updateWorkflowConfig(WorkflowConfig WorkflowConfig) throws Exception;
-  
+  public void updateWorkflowConfig(WorkflowConfig WorkflowConfig)
+    throws Exception;
 
   /**
    * Remove project workflow config.
@@ -214,7 +205,6 @@ public interface WorkflowService extends RootService, ProjectService {
    */
   public void removeWorkflowConfig(Long id) throws Exception;
 
- 
   /**
    * Gets the project workflow configs.
    *
@@ -222,7 +212,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public List<WorkflowConfig> getWorkflowConfigs() throws Exception;
-  
 
   /**
    * Gets the project workflow config.
@@ -232,7 +221,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public WorkflowConfig getWorkflowConfig(Long id) throws Exception;
-  
 
   /**
    * Find project workflow configs for query.
@@ -241,8 +229,8 @@ public interface WorkflowService extends RootService, ProjectService {
    * @return the list
    * @throws Exception the exception
    */
-  public List<WorkflowConfig> findWorkflowConfigsForQuery(String query) throws Exception;
-  
+  public List<WorkflowConfig> findWorkflowConfigsForQuery(String query)
+    throws Exception;
 
   /**
    * Add workflow bin definition.
@@ -251,8 +239,8 @@ public interface WorkflowService extends RootService, ProjectService {
    * @return the workflow bin definition
    * @throws Exception the exception
    */
-  public WorkflowBinDefinition addWorkflowBinDefinition(WorkflowBinDefinition workflowBinDefinition) throws Exception;
-
+  public WorkflowBinDefinition addWorkflowBinDefinition(
+    WorkflowBinDefinition workflowBinDefinition) throws Exception;
 
   /**
    * Update workflow bin definition.
@@ -260,8 +248,8 @@ public interface WorkflowService extends RootService, ProjectService {
    * @param workflowBinDefinition the workflow bin definition
    * @throws Exception the exception
    */
-  public void updateWorkflowBinDefinition(WorkflowBinDefinition workflowBinDefinition) throws Exception;
-  
+  public void updateWorkflowBinDefinition(
+    WorkflowBinDefinition workflowBinDefinition) throws Exception;
 
   /**
    * Remove workflow bin definition.
@@ -271,15 +259,14 @@ public interface WorkflowService extends RootService, ProjectService {
    */
   public void removeWorkflowBinDefinition(Long id) throws Exception;
 
- 
   /**
    * Gets the workflow bin definitions.
    *
    * @return the workflow bin definitions
    * @throws Exception the exception
    */
-  public List<WorkflowBinDefinition> getWorkflowBinDefinitions() throws Exception;
-  
+  public List<WorkflowBinDefinition> getWorkflowBinDefinitions()
+    throws Exception;
 
   /**
    * Gets the workflow bin definition.
@@ -288,8 +275,8 @@ public interface WorkflowService extends RootService, ProjectService {
    * @return the workflow bin definition
    * @throws Exception the exception
    */
-  public WorkflowBinDefinition getWorkflowBinDefinition(Long id) throws Exception;
-  
+  public WorkflowBinDefinition getWorkflowBinDefinition(Long id)
+    throws Exception;
 
   /**
    * Find workflow bin definitions for query.
@@ -298,9 +285,9 @@ public interface WorkflowService extends RootService, ProjectService {
    * @return the list
    * @throws Exception the exception
    */
-  public List<WorkflowBinDefinition> findWorkflowBinDefinitionsForQuery(String query) throws Exception;
-  
-  
+  public List<WorkflowBinDefinition> findWorkflowBinDefinitionsForQuery(
+    String query) throws Exception;
+
   /**
    * Add workflow bin.
    *
@@ -310,7 +297,6 @@ public interface WorkflowService extends RootService, ProjectService {
    */
   public WorkflowBin addWorkflowBin(WorkflowBin workflowBin) throws Exception;
 
-
   /**
    * Update workflow bin.
    *
@@ -318,7 +304,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public void updateWorkflowBin(WorkflowBin workflowBin) throws Exception;
-  
 
   /**
    * Remove workflow bin.
@@ -328,7 +313,6 @@ public interface WorkflowService extends RootService, ProjectService {
    */
   public void removeWorkflowBin(Long id) throws Exception;
 
- 
   /**
    * Gets the workflow bins.
    *
@@ -336,7 +320,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public List<WorkflowBin> getWorkflowBins() throws Exception;
-  
 
   /**
    * Gets the workflow bin.
@@ -346,7 +329,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public WorkflowBin getWorkflowBin(Long id) throws Exception;
-  
 
   /**
    * Find workflow bins for query.
@@ -355,8 +337,9 @@ public interface WorkflowService extends RootService, ProjectService {
    * @return the list
    * @throws Exception the exception
    */
-  public List<WorkflowBin> findWorkflowBinsForQuery(String query) throws Exception;
-  
+  public List<WorkflowBin> findWorkflowBinsForQuery(String query)
+    throws Exception;
+
   /**
    * Add worklist.
    *
@@ -366,7 +349,6 @@ public interface WorkflowService extends RootService, ProjectService {
    */
   public Worklist addWorklist(Worklist worklist) throws Exception;
 
-
   /**
    * Update worklist.
    *
@@ -374,7 +356,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public void updateWorklist(Worklist worklist) throws Exception;
-  
 
   /**
    * Remove worklist.
@@ -383,7 +364,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public void removeWorklist(Long id) throws Exception;
-  
 
   /**
    * Gets the worklist.
@@ -393,7 +373,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public Worklist getWorklist(Long id) throws Exception;
-  
 
   /**
    * Find worklists for query.
@@ -403,8 +382,9 @@ public interface WorkflowService extends RootService, ProjectService {
    * @return the worklist list
    * @throws Exception the exception
    */
-  public WorklistList findWorklistsForQuery(String query, PfsParameter pfs) throws Exception; 
-  
+  public WorklistList findWorklistsForQuery(String query, PfsParameter pfs)
+    throws Exception;
+
   /**
    * Add checklist.
    *
@@ -414,7 +394,6 @@ public interface WorkflowService extends RootService, ProjectService {
    */
   public Checklist addChecklist(Checklist worklist) throws Exception;
 
-
   /**
    * Update checklist.
    *
@@ -422,7 +401,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public void updateChecklist(Checklist worklist) throws Exception;
-  
 
   /**
    * Remove checklist.
@@ -431,7 +409,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public void removeChecklist(Long id) throws Exception;
-  
 
   /**
    * Gets the checklist.
@@ -441,7 +418,6 @@ public interface WorkflowService extends RootService, ProjectService {
    * @throws Exception the exception
    */
   public Checklist getChecklist(Long id) throws Exception;
-  
 
   /**
    * Find checklists for query.

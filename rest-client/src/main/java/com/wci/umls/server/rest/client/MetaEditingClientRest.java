@@ -42,12 +42,12 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
-    Long timestamp, SemanticTypeComponentJpa semanticTypeComponent,
+    Long lastModified, SemanticTypeComponentJpa semanticTypeComponent,
     boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add semantic type to concept" + projectId
             + ", " + conceptId + ", " + semanticTypeComponent.toString() + ", "
-            + timestamp + ", " + overrideWarnings + ", " + authToken);
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
@@ -55,7 +55,7 @@ public class MetaEditingClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client
         .target(config.getProperty("base.url") + "/meta/sty/add?projectId="
-            + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
+            + projectId + "&conceptId=" + conceptId + "&lastModified=" + lastModified
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
@@ -77,12 +77,12 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult removeSemanticType(Long projectId, Long conceptId,
-    Long timestamp, Long semanticTypeComponentId, boolean overrideWarnings,
+    Long lastModified, Long semanticTypeComponentId, boolean overrideWarnings,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - remove semantic type from concept "
             + projectId + ", " + conceptId + ", " + semanticTypeComponentId
-            + ", " + timestamp + ", " + overrideWarnings + ", " + authToken);
+            + ", " + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
@@ -90,7 +90,7 @@ public class MetaEditingClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/sty/remove/" + semanticTypeComponentId + "?projectId="
-        + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
+        + projectId + "&conceptId=" + conceptId + "&lastModified=" + lastModified
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
@@ -111,12 +111,12 @@ public class MetaEditingClientRest extends RootClientRest
   
   @Override
   public ValidationResult addAttribute(Long projectId, Long conceptId,
-    Long timestamp, AttributeJpa attribute,
+    Long lastModified, AttributeJpa attribute,
     boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add attribute to concept" + projectId
             + ", " + conceptId + ", " + attribute.toString() + ", "
-            + timestamp + ", " + overrideWarnings + ", " + authToken);
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
@@ -124,7 +124,7 @@ public class MetaEditingClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client
         .target(config.getProperty("base.url") + "/meta/attribute/add?projectId="
-            + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
+            + projectId + "&conceptId=" + conceptId + "&lastModified=" + lastModified
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
@@ -146,12 +146,12 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult removeAttribute(Long projectId, Long conceptId,
-    Long timestamp, Long attributeId, boolean overrideWarnings,
+    Long lastModified, Long attributeId, boolean overrideWarnings,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - remove attribute from concept "
             + projectId + ", " + conceptId + ", " + attributeId
-            + ", " + timestamp + ", " + overrideWarnings + ", " + authToken);
+            + ", " + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
@@ -159,7 +159,7 @@ public class MetaEditingClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/attribute/remove/" + attributeId + "?projectId="
-        + projectId + "&conceptId=" + conceptId + "&timestamp=" + timestamp
+        + projectId + "&conceptId=" + conceptId + "&lastModified=" + lastModified
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)

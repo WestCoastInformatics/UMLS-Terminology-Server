@@ -17,6 +17,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
@@ -27,7 +28,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 /**
  * Unit testing for {@link AtomicActionJpa}.
  */
-public class AtomicActionJpaUnitTest {
+public class AtomicActionJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private AtomicActionJpa object;
@@ -66,8 +67,8 @@ public class AtomicActionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet041");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -78,8 +79,8 @@ public class AtomicActionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode041");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
     tester.include("idType");
@@ -105,8 +106,8 @@ public class AtomicActionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(MolecularAction.class, 1, a1);
@@ -120,8 +121,8 @@ public class AtomicActionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization041");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
 
     tester.proxy(MolecularAction.class, 1, a1);
@@ -136,7 +137,8 @@ public class AtomicActionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField041() throws Exception {
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
 
     tester.include("id");
@@ -152,8 +154,8 @@ public class AtomicActionJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);

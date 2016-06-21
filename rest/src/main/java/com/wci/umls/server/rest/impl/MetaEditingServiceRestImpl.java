@@ -19,7 +19,10 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
@@ -27,10 +30,11 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
+import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.model.actions.MolecularAction;
-import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
@@ -49,8 +53,8 @@ import com.wordnik.swagger.annotations.ApiParam;
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Api(value = "/meta", description = "Operations for metathesaurus editing")
-public class MetaEditingServiceRestImpl extends RootServiceRestImpl
-    implements MetaEditingServiceRest {
+public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
+    MetaEditingServiceRest {
 
   /** The security service. */
   private SecurityService securityService;
@@ -72,126 +76,111 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult addSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
-    @ApiParam(value = "Concept timestamp, as date", required = true) @QueryParam("timestamp") Long timestamp,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponentJpa semanticTypeComponent,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
-    {
+    throws Exception {
 
-      Logger.getLogger(getClass())
-          .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
-              + conceptId + "/add for user " + authToken + " with sty value "
-              + semanticTypeComponent.getSemanticType());
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /sty/" + projectId + "/" + conceptId
+            + "/add for user " + authToken + " with sty value "
+            + semanticTypeComponent.getSemanticType());
 
-      final String action = "add semantic type to concept";
+    // Prep reusable variables
+    final String action = "ADD_SEMANTIC_TYPE";
+    final ValidationResult validationResult = new ValidationResultJpa();
 
-      final ValidationResult validationResult = new ValidationResultJpa();
+    // Instantiate services
+    final ContentService contentService = new ContentServiceJpa();
 
-      // instantiate services
-      final ContentService contentService = new ContentServiceJpa();
+    try {
 
-      try {
+      // Authorize project role, get userName
+      final String userName =
+          authorizeProject(contentService, projectId, securityService,
+              authToken, action, UserRole.AUTHOR);
 
-        // authorize and get user name from the token
-        final String userName = authorizeProject(contentService, projectId,
-            securityService, authToken, action, UserRole.AUTHOR);
+      // Retrieve the project
+      final Project project = contentService.getProject(projectId);
 
-        // Initialization: retrieve and lock the concept, create molecular
-        // action and prep services
-        final Concept concept = prepareAction(contentService, conceptId,
-            userName, "ADD_SEMANTIC_TYPE");
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      final Concept concept =
+          initialize(contentService, project, conceptId, userName, action,
+              lastModified, validationResult);
 
-        // retrieve the project
-        final Project project = contentService.getProject(projectId);
+      //
+      // Check prerequisites
+      //
 
-        //
-        // Check prerequisites
-        //
+      // Perform action specific validation - n/a
 
-        // perform action-specific validation
-        // NOTE: No action-specific validation required for addSemanticType
-
-        // check project and concept compatibility
-        checkPrerequisitesForProjectAndConcept(project, concept,
-            validationResult);
-
-        // check for stale-state
-        if (concept.getTimestamp().getTime() != timestamp) {
-          validationResult.getErrors().add(
-              "Stale state detected: stored timestamp does not match passed timestamp");
-        }
-
-        // check that semantic type is valid
-        if (contentService.getSemanticType(
-            semanticTypeComponent.getSemanticType(), concept.getTerminology(),
-            concept.getVersion()) == null) {
-          validationResult.getErrors()
-              .add("Cannot add semantic type: Invalid semantic type");
-        }
-
-        // check if semantic type already exists on this concept
-        for (SemanticTypeComponent s : concept.getSemanticTypes()) {
-          if (s.getSemanticType()
-              .equals(semanticTypeComponent.getSemanticType())) {
-            validationResult.getErrors().add(
-                "Cannot add semantic type: Concept already contains semantic type");
-          }
-        }
-
-        // if prerequisites fail, return validation result
-        if (!validationResult.getErrors().isEmpty()
-            || (!validationResult.getWarnings().isEmpty()
-                && !overrideWarnings)) {
-          // rollback -- unlocks the concept and closes transaction
-          contentService.rollback();
-          return validationResult;
-        }
-
-        //
-        // Perform the action
-        //
-
-        // add the semantic type component itself and set the last modified
-        semanticTypeComponent.setLastModifiedBy(userName);
-        semanticTypeComponent.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-        SemanticTypeComponent newSemanticTypeComponent =
-            (SemanticTypeComponentJpa) contentService
-                .addSemanticTypeComponent(semanticTypeComponent, concept);
-
-        // add the semantic type and set the last modified by
-        concept.getSemanticTypes().add(newSemanticTypeComponent);
-        concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-
-        // update the concept
-        contentService.updateConcept(concept);
-
-        // log the REST call
-        contentService.addLogEntry(userName, projectId, conceptId,
-            "Add semantic type " + newSemanticTypeComponent.getSemanticType()
-                + " to concept " + concept.getTerminologyId());
-
-        // commit (also removes the lock)
-        contentService.commit();
-
-        return validationResult;
-
-      } catch (Exception e) {
-
-        // rollback any changes (releases the lock)
-        if (contentService != null) {
-          try {
-            contentService.rollback();
-          } catch (IllegalStateException ise) {
-            // do nothing -- if no transaction, no lock exists
-          }
-        }
-        handleException(e, action);
-        return null;
-      } finally {
-        contentService.close();
-        securityService.close();
+      // Metadata referential integrity checking
+      if (contentService.getSemanticType(
+          semanticTypeComponent.getSemanticType(), concept.getTerminology(),
+          concept.getVersion()) == null) {
+        throw new LocalException("Cannot add invalid semantic type - "
+            + semanticTypeComponent.getSemanticType());
       }
+
+      // Duplicate check
+      for (SemanticTypeComponent s : concept.getSemanticTypes()) {
+        if (s.getSemanticType().equals(semanticTypeComponent.getSemanticType())) {
+          throw new LocalException("Duplicate semantic type - "
+              + semanticTypeComponent.getSemanticType());
+        }
+      }
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        contentService.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action (contentService will create atomic actions for CRUD
+      // operations)
+      //
+
+      // add the semantic type component itself and set the last modified
+      semanticTypeComponent.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      SemanticTypeComponentJpa newSemanticTypeComponent =
+          (SemanticTypeComponentJpa) contentService.addSemanticTypeComponent(
+              semanticTypeComponent, concept);
+
+      // add the semantic type and set the last modified by
+      concept.getSemanticTypes().add(newSemanticTypeComponent);
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+      // update the concept
+      contentService.updateConcept(concept);
+
+      // log the REST call
+      contentService.addLogEntry(userName, projectId, conceptId,
+          "Add semantic type " + newSemanticTypeComponent.getSemanticType()
+              + " to concept " + concept.getTerminologyId());
+
+      // commit (also removes the lock)
+      contentService.commit();
+
+      // Websocket notification
+      final ChangeEvent<SemanticTypeComponentJpa> event =
+          new ChangeEventJpa<SemanticTypeComponentJpa>(action,
+              IdType.SEMANTIC_TYPE.toString(), null, newSemanticTypeComponent);
+      getNotificationWebsocket().send(ConfigUtility.getJsonForGraph(event));
+
+      return validationResult;
+
+    } catch (Exception e) {
+
+      handleException(e, action);
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
     }
 
   }
@@ -203,54 +192,47 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult removeSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
-    @ApiParam(value = "Concept timestamp, in ms ", required = true) @QueryParam("timestamp") Long timestamp,
+    @ApiParam(value = "Concept lastModified, in ms ", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Semantic type id, e.g. 3", required = true) @PathParam("id") Long semanticTypeComponentId,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /sty/" + projectId + "/" + conceptId
+            + "/remove for user " + authToken + " with id "
             + semanticTypeComponentId);
 
-    final String action = "remove semantic type from concept";
-
+    // Prep reusable variables
+    final String action = "REMOVE_SEMANTIC_TYPE";
     final ValidationResult validationResult = new ValidationResultJpa();
 
+    // Instantiate services
     final ContentService contentService = new ContentServiceJpa();
 
     try {
 
-      // authorize and get user name from the token
-      final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, action, UserRole.AUTHOR);
+      // Authorize project role, get userName
+      final String userName =
+          authorizeProject(contentService, projectId, securityService,
+              authToken, action, UserRole.AUTHOR);
 
-      // get the concept and prepare the service
-      final Concept concept = prepareAction(contentService, conceptId, userName,
-          "REMOVE_SEMANTIC_TYPE");
-
-      // retrieve the project
+      // Retrieve the project
       final Project project = contentService.getProject(projectId);
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      final Concept concept =
+          initialize(contentService, project, conceptId, userName, action,
+              lastModified, validationResult);
 
       //
       // Check prerequisites
       //
 
-      // perform action-specific validation
-      // NOTE: No validation required for removeSemanticType
+      // Perform action specific validation - n/a
 
-      // check project and concept compatibility
-      checkPrerequisitesForProjectAndConcept(project, concept,
-          validationResult);
-
-      // check for stale-state
-      if (concept.getTimestamp().getTime() < timestamp) {
-        validationResult.getErrors()
-            .add("Stale state detected: concept modified after retrieval");
-      }
-
-      // check that semantic type component exists on concept
+      // Exists check
       SemanticTypeComponent semanticTypeComponent = null;
       for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         if (sty.getId().equals(semanticTypeComponentId)) {
@@ -258,11 +240,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         }
       }
       if (semanticTypeComponent == null) {
-        validationResult.getErrors().add(
-            "Semantic type could not be removed from concept, not present");
+        throw new LocalException("Semantic type to remove does not exist");
       }
+
       // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
         contentService.rollback();
         return validationResult;
       }
@@ -287,18 +271,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also adds the molecular action and removes the lock)
       contentService.commit();
 
+      // Websocket notification
+      final ChangeEvent<SemanticTypeComponentJpa> event =
+          new ChangeEventJpa<SemanticTypeComponentJpa>(action,
+              IdType.SEMANTIC_TYPE.toString(),
+              (SemanticTypeComponentJpa) semanticTypeComponent, null);
+      getNotificationWebsocket().send(ConfigUtility.getJsonForGraph(event));
+
       return validationResult;
 
     } catch (Exception e) {
-
-      // rollback any changes (releases the lock)
-      if (contentService != null) {
-        try {
-          contentService.rollback();
-        } catch (IllegalStateException ise) {
-          // do nothing -- if no transaction, no lock exists
-        }
-      }
       handleException(e, action);
       return null;
     } finally {
@@ -306,7 +288,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
   }
-
 
   /* see superclass */
   @Override
@@ -316,127 +297,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult addAttribute(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
-    @ApiParam(value = "Concept timestamp, as date", required = true) @QueryParam("timestamp") Long timestamp,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Semantic type to add", required = true) AttributeJpa attribute,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
-    {
-
-      Logger.getLogger(getClass())
-          .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
-              + conceptId + "/add for user " + authToken + " with attribute value "
-              + attribute.getName());
-
-      final String action = "add attribute to concept";
-
-      final ValidationResult validationResult = new ValidationResultJpa();
-
-      // instantiate services
-      final ContentService contentService = new ContentServiceJpa();
-
-      try {
-
-        // authorize and get user name from the token
-        final String userName = authorizeProject(contentService, projectId,
-            securityService, authToken, action, UserRole.AUTHOR);
-
-        // Initialization: retrieve and lock the concept, create molecular
-        // action and prep services
-        final Concept concept = prepareAction(contentService, conceptId,
-            userName, "ADD_ATTRIBUTE");
-
-        // retrieve the project
-        final Project project = contentService.getProject(projectId);
-
-        //
-        // Check prerequisites
-        //
-
-        // perform action-specific validation
-        // NOTE: No action-specific validation required for addAttribute
-
-        // check project and concept compatibility
-        checkPrerequisitesForProjectAndConcept(project, concept,
-            validationResult);
-
-        // check for stale-state
-        if (concept.getTimestamp().getTime() != timestamp) {
-          validationResult.getErrors().add(
-              "Stale state detected: stored timestamp does not match passed timestamp");
-        }
-
-        // check that attribute is valid
-        if (contentService.getAttributeName(attribute.getName(), concept.getTerminology(), concept.getVersion())
-            == null) {
-          validationResult.getErrors()
-              .add("Cannot add attribute: Invalid attribute name");
-        }
-
-        // check if attribute already exists on this concept
-        for (Attribute s : concept.getAttributes()) {
-          if (s.getName()
-              .equals(attribute.getName())) {
-            validationResult.getErrors().add(
-                "Cannot add attribute: Concept already contains attribute name");
-          }
-        }
-
-        // if prerequisites fail, return validation result
-        if (!validationResult.getErrors().isEmpty()
-            || (!validationResult.getWarnings().isEmpty()
-                && !overrideWarnings)) {
-          // rollback -- unlocks the concept and closes transaction
-          contentService.rollback();
-          return validationResult;
-        }
-
-        //
-        // Perform the action
-        //
-
-        // add the attribute component itself and set the last modified
-        // TODO Should attribute have workflow status?
-        attribute.setLastModifiedBy(userName);
-        // attribute.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-        Attribute newAttribute =
-            (AttributeJpa) contentService
-                .addAttribute(attribute, concept);
-
-        // add the attribute and set the last modified by
-        concept.getAttributes().add(newAttribute);
-        concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-
-        // update the concept
-        contentService.updateConcept(concept);
-
-        // log the REST call
-        contentService.addLogEntry(userName, projectId, conceptId,
-            "Add attribute " + newAttribute.getName() + " with value " + newAttribute.getValue()
-                + " to concept " + concept.getTerminologyId());
-
-        // commit (also removes the lock)
-        contentService.commit();
-
-        return validationResult;
-
-      } catch (Exception e) {
-
-        // rollback any changes (releases the lock)
-        if (contentService != null) {
-          try {
-            contentService.rollback();
-          } catch (IllegalStateException ise) {
-            // do nothing -- if no transaction, no lock exists
-          }
-        }
-        handleException(e, action);
-        return null;
-      } finally {
-        contentService.close();
-        securityService.close();
-      }
-    }
+    throws Exception {
+    // TODO
+    return null;
 
   }
 
@@ -447,149 +314,45 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult removeAttribute(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
-    @ApiParam(value = "Concept timestamp, in ms ", required = true) @QueryParam("timestamp") Long timestamp,
+    @ApiParam(value = "Concept lastModified, in ms ", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Attribute id, e.g. 3", required = true) @PathParam("id") Long attributeId,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
-
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
-            + attributeId);
-
-    final String action = "remove attribute from concept";
-
-    final ValidationResult validationResult = new ValidationResultJpa();
-
-    final ContentService contentService = new ContentServiceJpa();
-
-    try {
-
-      // authorize and get user name from the token
-      final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, action, UserRole.AUTHOR);
-
-      // get the concept and prepare the service
-      final Concept concept = prepareAction(contentService, conceptId, userName,
-          "REMOVE_ATTRIBUTE");
-
-      // retrieve the project
-      final Project project = contentService.getProject(projectId);
-
-      //
-      // Check prerequisites
-      //
-
-      // perform action-specific validation
-      // NOTE: No validation required for removeAttribute
-
-      // check project and concept compatibility
-      checkPrerequisitesForProjectAndConcept(project, concept,
-          validationResult);
-
-      // check for stale-state
-      if (concept.getTimestamp().getTime() < timestamp) {
-        validationResult.getErrors()
-            .add("Stale state detected: concept modified after retrieval");
-      }
-
-      // check that attribute component exists on concept
-      Attribute attribute = null;
-      for (final Attribute sty : concept.getAttributes()) {
-        if (sty.getId().equals(attributeId)) {
-          attribute = sty;
-        }
-      }
-      if (attribute == null) {
-        validationResult.getErrors().add(
-            "Attribute could not be removed from concept, not present");
-      }
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()) {
-        contentService.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-
-      // remove the attribute component from the concept and update
-      concept.getAttributes().remove(attribute);
-      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      contentService.updateConcept(concept);
-
-      // remove the attribute component
-      contentService.removeAttribute(attribute.getId());
-
-      // log the REST call
-      contentService.addLogEntry(userName, projectId, conceptId,
-          "Remove attribute " + attribute.getName()
-              + " from concept " + concept.getTerminologyId());
-
-      // commit (also adds the molecular action and removes the lock)
-      contentService.commit();
-
-      return validationResult;
-
-    } catch (Exception e) {
-
-      // rollback any changes (releases the lock)
-      if (contentService != null) {
-        try {
-          contentService.rollback();
-        } catch (IllegalStateException ise) {
-          // do nothing -- if no transaction, no lock exists
-        }
-      }
-      handleException(e, action);
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
+    throws Exception {
+    // TODO
+    return null;
   }
 
   /**
-   * Validate project and concept.
-   *
-   * @param project the project
-   * @param concept the concept
-   * @throws Exception the exception
-   */
-  private void checkPrerequisitesForProjectAndConcept(Project project,
-    Concept concept, ValidationResult validationResult) throws Exception {
-
-    // throw exception on terminology mismatch
-    if (!concept.getTerminology().equals(project.getTerminology())) {
-      validationResult.getErrors()
-          .add("Project and concept terminologies do not match");
-    }
-
-    // throw exception on branch mismatch
-    if (!concept.getBranch().equals(project.getBranch())) {
-      validationResult.getErrors()
-          .add("Project and concept branches do not match");
-    }
-  }
-
-  /**
-   * Helper function to (1) retrieve and lock concept, (2) prepare molecular
-   * action, and (3) set required service flags
+   * Helper function to:
+   * 
+   * <pre>
+   * (1) Set transaction mode and begin transaction
+   * (1) retrieve and lock concept, 
+   * (2) prepare molecular action 
+   * (3) configure the service
+   * (5) validate project/concept
+   * (6) Check dirty flag (concept lastModifiedBy)
+   * </pre>
+   * 
+   * .
    *
    * @param contentService the content service
+   * @param project the project
    * @param conceptId the concept id
    * @param userName the user name
    * @param actionType the action type
+   * @param lastModified the last modified
+   * @param result the result
    * @return the concept
    * @throws Exception the exception
    */
-  private Concept prepareAction(ContentService contentService, Long conceptId,
-    String userName, String actionType) throws Exception {
+  @SuppressWarnings("static-method")
+  private Concept initialize(ContentService contentService, Project project,
+    Long conceptId, String userName, String actionType, long lastModified,
+    ValidationResult result) throws Exception {
 
-    // prepare the transaction
-
+    // Set transaction mode and start transaction
     contentService.setTransactionPerOperation(false);
     contentService.beginTransaction();
 
@@ -599,10 +362,17 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // retrieve the concept
       concept = contentService.getConcept(conceptId);
 
-      // lock the concept via Hibernate, secondary protection
+      // Verify concept exists
+      if (concept == null) {
+        throw new Exception("Concept does not exist " + conceptId);
+      }
+
+      // Fail if already locked - this is secondary protection
       if (contentService.isObjectLocked(concept)) {
         throw new Exception("Fatal error: concept is locked");
       }
+
+      // lock the concept via JPA
       contentService.lockObject(concept);
 
     }
@@ -615,15 +385,37 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     molecularAction.setName(actionType);
     molecularAction.setTimestamp(new Date());
 
-    // set the service flags and variables
+    // Prepare the service
     contentService.setMolecularActionFlag(true);
     contentService.setLastModifiedFlag(true);
     contentService.setLastModifiedBy(userName);
 
-    // persist and set the service's molecular action
+    // Add the molecular action and pass to the service.
+    // It needs to be added now so that when atomic actions
+    // are created by the service, this object already has
+    // an identifier.
     final MolecularAction newMolecularAction =
         contentService.addMolecularAction(molecularAction);
     contentService.setMolecularAction(newMolecularAction);
+
+    // throw exception on terminology mismatch
+    if (!concept.getTerminology().equals(project.getTerminology())) {
+      result.getErrors().add("Project and concept terminologies do not match");
+    }
+
+    // throw exception on branch mismatch
+    if (!concept.getBranch().equals(project.getBranch())) {
+      result.getErrors().add("Project and concept branches do not match");
+    }
+
+    if (concept.getLastModified().getTime() != lastModified) {
+      result
+          .getErrors()
+          .add(
+              "Stale state detected: stored lastModified does not match passed lastModified");
+    }
+
+    // Return concept
     return concept;
   }
 }

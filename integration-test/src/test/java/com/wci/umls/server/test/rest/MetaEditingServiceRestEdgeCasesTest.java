@@ -9,9 +9,7 @@ package com.wci.umls.server.test.rest;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -190,7 +188,7 @@ public class MetaEditingServiceRestEdgeCasesTest
     sty = null;
     for (SemanticTypeComponent s : c1.getSemanticTypes()) {
       if (s.getSemanticType().equals("Lipid")) {
-        sty = (SemanticTypeComponentJpa) s;
+        sty = s;
       }
     }
     assertNotNull(sty);
