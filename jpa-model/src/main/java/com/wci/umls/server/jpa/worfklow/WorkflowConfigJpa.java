@@ -18,6 +18,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -42,7 +43,9 @@ import com.wci.umls.server.model.workflow.WorkflowConfig;
  * JPA and JAXB enabled implementation of a {@link WorkflowConfig}.
  */
 @Entity
-@Table(name = "workflow_configs")
+@Table(name = "workflow_configs", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "project_id", "type"
+}))
 @Indexed
 @XmlRootElement(name = "workflowConfig")
 public class WorkflowConfigJpa implements WorkflowConfig {
@@ -303,10 +306,10 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   /* see superclass */
   @Override
   public String toString() {
-    return "WorkflowConfigJpa [id=" + id + ", lastModified="
-        + lastModified + ", lastModifiedBy=" + lastModifiedBy + ", timestamp="
-        + timestamp + ", type=" + type + ", mutuallyExclusive="
-        + mutuallyExclusive + ", lastPartitionTime=" + lastPartitionTime
+    return "WorkflowConfigJpa [id=" + id + ", lastModified=" + lastModified
+        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
+        + ", type=" + type + ", mutuallyExclusive=" + mutuallyExclusive
+        + ", lastPartitionTime=" + lastPartitionTime
         + ", workflowBinDefinitions=" + workflowBinDefinitions
         + ", getProjectId()=" + getProjectId() + "]";
   }

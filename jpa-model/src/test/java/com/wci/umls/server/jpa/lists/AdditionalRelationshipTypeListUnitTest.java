@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.lists;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -63,6 +64,7 @@ public class AdditionalRelationshipTypeListUnitTest extends
    */
   @Test
   public void testNormalUse() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     testNormalUse(list1, list2, o1, o2);
   }
 
@@ -74,6 +76,7 @@ public class AdditionalRelationshipTypeListUnitTest extends
    */
   @Test
   public void testDegenerateUse() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     testDegenerateUse(list1, list2, o1, o2);
   }
 
@@ -84,6 +87,7 @@ public class AdditionalRelationshipTypeListUnitTest extends
    */
   @Test
   public void testEdgeCases() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     testEdgeCases(list1, list2, o1, o2);
   }
 
@@ -95,6 +99,7 @@ public class AdditionalRelationshipTypeListUnitTest extends
    */
   @Test
   public void testXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     testXmllSerialization(list1, list2, o1, o2);
   }
 
