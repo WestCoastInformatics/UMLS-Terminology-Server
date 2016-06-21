@@ -73,7 +73,9 @@ public abstract class AbstractChecklist implements Checklist {
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
+  
 
+  
   /**
    * Instantiates an empty {@link AbstractChecklist}.
    */
@@ -244,7 +246,7 @@ public abstract class AbstractChecklist implements Checklist {
     }
     project.setId(projectId);
   }
-
+  
   /* see superclass */
   @Override
   public int hashCode() {

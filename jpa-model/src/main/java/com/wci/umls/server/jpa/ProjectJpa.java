@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -101,6 +101,10 @@ public class ProjectJpa implements Project {
   /** The module id. */
   @Column(nullable = true)
   private String feedbackEmail;
+  
+  /**  The workflow path. */
+  @Column(nullable = false)
+  private String workflowPath;
 
   /** The role map. */
   @ElementCollection
@@ -379,6 +383,18 @@ public class ProjectJpa implements Project {
 
   /* see superclass */
   @Override
+  public String getWorkflowPath() {
+    return workflowPath;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowPath(String workflowPath) {
+    this.workflowPath = workflowPath;
+  }
+  
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -461,6 +477,8 @@ public class ProjectJpa implements Project {
         + ", terminology=" + terminology + ", branch=" + branch
         + ", userRoleMap=" + userRoleMap + ", feedbackEmail=" + feedbackEmail
         + ", precedenceList=" + precedenceList + ", validationChecks="
-        + validationChecks + "]";
+        + validationChecks + ", workflowPath=" + workflowPath + "]";
   }
+
+
 }

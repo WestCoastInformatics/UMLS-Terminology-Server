@@ -6,14 +6,13 @@ package com.wci.umls.server.services;
 import java.util.List;
 import java.util.Set;
 
-import com.wci.umls.server.User;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
@@ -72,33 +71,22 @@ public interface WorkflowService extends ProjectService {
    */
   public StringList getWorkflowPaths();
 
-  /**
-   * Perform workflow action.
-   *
-   * @param refsetId the refset id
-   * @param user the user
-   * @param projectRole the project role
-   * @param action the action
-   * @return the tracking record
-   * @throws Exception the exception
-   */
-  public TrackingRecord performWorkflowAction(Long refsetId, User user,
-    UserRole projectRole, WorkflowAction action) throws Exception;
 
   /**
    * Perform workflow action.
    *
-   * @param translationId the translation id
-   * @param user the user
-   * @param projectRole the project role
+   * @param project the project
+   * @param worklist the worklist
+   * @param userName the user name
+   * @param role the role
    * @param action the action
-   * @param concept the concept
-   * @return the tracking record
+   * @return the worklist
    * @throws Exception the exception
    */
-  public TrackingRecord performWorkflowAction(Long translationId, User user,
-    UserRole projectRole, WorkflowAction action, Concept concept)
-    throws Exception;
+  public Worklist performWorkflowAction(Project project, Worklist worklist, String userName,
+    UserRole role, WorkflowAction action) throws Exception;
+
+
 
   /**
    * Returns the workflow handler for path.
@@ -432,9 +420,10 @@ public interface WorkflowService extends ProjectService {
 
   /**
    * Find checklists for query.
-   *
+   * @param project project
    * @param query the query
    * @param pfs the pfs
+   *
    * @return the checklist list
    * @throws Exception the exception
    */

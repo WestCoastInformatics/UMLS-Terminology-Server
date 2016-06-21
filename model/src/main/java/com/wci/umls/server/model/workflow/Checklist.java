@@ -83,4 +83,6 @@ public interface Checklist extends HasLastModified {
    * @param project the project
    */
   public void setProject(Project project);
+  
+
 }

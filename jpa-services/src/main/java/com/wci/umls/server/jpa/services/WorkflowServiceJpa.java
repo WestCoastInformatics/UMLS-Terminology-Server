@@ -1,16 +1,23 @@
 package com.wci.umls.server.jpa.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.User;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
@@ -20,19 +27,18 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
-import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.Checklist;
-import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.WorkflowService;
@@ -45,6 +51,35 @@ import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 public class WorkflowServiceJpa extends ContentServiceJpa implements
     WorkflowService {
 
+  /** The workflow action handlers. */
+  static Map<String, WorkflowActionHandler> workflowHandlerMap =
+      new HashMap<>();
+
+  static {
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      final String key = "workflow.action.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        // Add handlers to map
+        final WorkflowActionHandler handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, WorkflowActionHandler.class);
+        workflowHandlerMap.put(handlerName, handlerService);
+      }
+      if (!workflowHandlerMap.containsKey(ConfigUtility.DEFAULT)) {
+        throw new Exception("workflow.action.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
+      }
+    } catch (Exception e) {
+      Logger.getLogger(WorkflowServiceJpa.class).error(
+          "Failed to initialize workflow.action.handler - serious error", e);
+      workflowHandlerMap = null;
+    }
+  }
+  
   /**
    * Instantiates a new workflow service.
    *
@@ -91,39 +126,10 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
-  @Override
-  public StringList getWorkflowPaths() {
 
-    return null;
-  }
 
-  @Override
-  public TrackingRecord performWorkflowAction(Long refsetId, User user,
-    UserRole projectRole, WorkflowAction action) throws Exception {
 
-    return null;
-  }
 
-  @Override
-  public TrackingRecord performWorkflowAction(Long translationId, User user,
-    UserRole projectRole, WorkflowAction action, Concept concept)
-    throws Exception {
-
-    return null;
-  }
-
-  @Override
-  public WorkflowActionHandler getWorkflowHandlerForPath(String workflowPat)
-    throws Exception {
-
-    return null;
-  }
-
-  @Override
-  public Set<WorkflowActionHandler> getWorkflowHandlers() throws Exception {
-
-    return null;
-  }
 
   @Override
   public TrackingRecordList findTrackingRecordsForQuery(String query,
@@ -539,16 +545,27 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public ChecklistList findChecklistsForQuery(String query, PfsParameter pfs)
+  public ChecklistList findChecklistsForQuery(Project project, String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - find checklists for query " + query);
+        "Workflow Service - find checklists for query " + query + ", project " + project.getId());
+
+    final StringBuilder sb = new StringBuilder();
+    if (query != null && !query.equals("")) {
+      sb.append(query).append(" AND ");
+    }
+    if (project == null) {
+      sb.append("projectId:[* TO *]");
+    } else {
+      sb.append("projectId:" + project.getId());
+    }
+    
     ChecklistList results = new ChecklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<ChecklistJpa> luceneResults =
-        searchHandler.getQueryResults(null, null, "", query, "",
-            ChecklistJpa.class, ChecklistJpa.class, new PfsParameterJpa(),
+        searchHandler.getQueryResults(null, null, "", sb.toString(), "",
+            ChecklistJpa.class, ChecklistJpa.class, pfs,
             totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final ChecklistJpa checklist : luceneResults) {
@@ -557,4 +574,59 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return results;
   }
 
+  /* see superclass */
+  @Override
+  public StringList getWorkflowPaths() {
+    Logger.getLogger(getClass()).debug("Workflow Service - get workflow paths");
+    final List<String> paths = new ArrayList<>();
+    for (final String path : workflowHandlerMap.keySet()) {
+      paths.add(path);
+    }
+    Collections.sort(paths);
+    final StringList list = new StringList();
+    list.setTotalCount(paths.size());
+    list.setObjects(paths);
+    return list;
+  }
+
+  /* see superclass */
+  @Override
+  public WorkflowActionHandler getWorkflowHandlerForPath(String path)
+    throws Exception {
+    final WorkflowActionHandler handler = workflowHandlerMap.get(path);
+    if (handler == null) {
+      throw new Exception("Unable to find workflow handler for path " + path);
+    }
+    return handler;
+  }
+  
+  /* see superclass */
+  @Override
+  public Set<WorkflowActionHandler> getWorkflowHandlers() throws Exception {
+    return new HashSet<>(workflowHandlerMap.values());
+  }
+
+  @Override
+  public Worklist performWorkflowAction(Project project, Worklist worklist,
+    String userName, UserRole role, WorkflowAction action) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Service - perform workflow action " + action + ", "
+            + project.getId() + ", " + worklist.getId() + ", " + userName + ", " + role);
+  
+    
+    // Obtain the handler
+    final WorkflowActionHandler handler =
+        getWorkflowHandlerForPath(project.getWorkflowPath());
+    // Validate the action
+    final ValidationResult result =
+        handler.validateWorkflowAction(project, worklist, getUser(userName), role, action);
+    if (!result.isValid()) {
+      Logger.getLogger(getClass()).error("  validationResult = " + result);
+      throw new LocalException(result.getErrors().iterator().next());
+    }
+    // Perform the action
+    Worklist r =
+        handler.performWorkflowAction(project, worklist, getUser(userName), role, action);
+    return r;
+  }
 }

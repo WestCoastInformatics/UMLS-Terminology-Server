@@ -113,7 +113,8 @@ public class WorkflowBinJpa implements WorkflowBin {
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
-
+  
+  
   /**
    * Instantiates an empty {@link WorkflowBinJpa}.
    */
@@ -363,6 +364,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     project.setId(projectId);
   }
 
+  
   /* see superclass */
   @Override
   public int hashCode() {
