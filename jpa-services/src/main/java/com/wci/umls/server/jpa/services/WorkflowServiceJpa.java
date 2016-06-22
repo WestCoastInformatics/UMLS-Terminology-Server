@@ -564,7 +564,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public ChecklistList findChecklistsForQuery(String query, PfsParameter pfs)
+  public ChecklistList findChecklistsForQuery(Project project, String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - find checklists for query " + query );

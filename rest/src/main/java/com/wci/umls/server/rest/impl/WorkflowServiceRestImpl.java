@@ -625,7 +625,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
           securityService, authToken, action, UserRole.AUTHOR);
       Project project = workflowService.getProject(projectId);
 
-      return workflowService.findChecklistsForQuery(query, pfs);
+      return workflowService.findChecklistsForQuery(project, query, pfs);
       
     } catch (Exception e) {
       handleException(e, "trying to find checklists");

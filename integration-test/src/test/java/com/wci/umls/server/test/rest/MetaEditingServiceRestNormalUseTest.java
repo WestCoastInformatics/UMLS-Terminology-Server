@@ -28,7 +28,6 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 
 /**
@@ -75,8 +74,8 @@ public class MetaEditingServiceRestNormalUseTest
     // assertTrue(project.getBranch().equals(Branch.ROOT));
 
     // Copy existing concept to avoid messing with actual database data.
+    //TODO Move to superclass
     IntegrationTestClientRest testService = new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-    ContentClientRest contentService =  new ContentClientRest(ConfigUtility.getConfigProperties());
     concept = new ConceptJpa(contentService.getConcept("C0000294",
         umlsTerminology, umlsVersion, null, authToken), false);
     concept.setId(null);
@@ -102,7 +101,7 @@ public class MetaEditingServiceRestNormalUseTest
     Date startDate = new Date();
 
     // get the concept
-    Concept c = concept;
+    Concept c = contentService.getConcept(concept.getId(), project.getId(), authToken);
     assertNotNull(c);
 
     // check against project
@@ -128,7 +127,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
-    c = concept;
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    
     semanticType = null;
     for (SemanticTypeComponent s : c.getSemanticTypes()) {
       if (s.getSemanticType().equals("Lipid")) {
@@ -165,7 +166,8 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
-    c = concept;
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);;
+    
     boolean attributePresent = false;
     for (SemanticTypeComponent s : c.getSemanticTypes()) {
       if (s.getSemanticType().equals("Lipid")) {

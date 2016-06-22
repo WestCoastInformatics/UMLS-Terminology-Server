@@ -84,6 +84,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
   @Override
   @DELETE
   @Path("/concept/remove/{id}")
@@ -99,6 +100,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     try {
       String authUser = authorizeApp(securityService, authToken,
           "remove concept", UserRole.ADMINISTRATOR);
+      contentService.setLastModifiedBy(authUser);
 
       // Create service and configure transaction scope
       contentService.removeConcept(id);
