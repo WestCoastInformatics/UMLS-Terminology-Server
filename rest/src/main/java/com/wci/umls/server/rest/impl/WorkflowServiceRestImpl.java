@@ -352,6 +352,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         bin.setTerminologyId("");
         bin.setTimestamp(new Date());
         bin.setType(type);
+        workflowService.addWorkflowBin(bin);
         
         String query = definition.getQuery();
 
@@ -423,8 +424,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
           workflowService.addTrackingRecord(record);
         }
-        
-        
+               
       }     
       
     } catch (Exception e) {
