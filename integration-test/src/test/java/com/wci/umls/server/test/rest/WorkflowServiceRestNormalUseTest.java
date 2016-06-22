@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -9,6 +9,7 @@ package com.wci.umls.server.test.rest;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -17,9 +18,12 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.model.workflow.QueryType;
+import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
@@ -40,6 +44,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
   /** The umls version. */
   private String umlsVersion = "latest";
+  
+  /**  The workflow service jpa. */
+  private WorkflowServiceJpa workflowServiceJpa;
 
   /**
    * Create test fixtures per test.
@@ -62,6 +69,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // verify terminology and branch are expected values
     assertTrue(project.getTerminology().equals(umlsTerminology));
     // TODO assertTrue(project.getBranch().equals(Branch.ROOT));
+    
+    workflowServiceJpa = new WorkflowServiceJpa();
+    workflowServiceJpa.setLastModifiedBy(authToken);
   }
 
   /**
@@ -244,7 +254,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         new WorkflowBinDefinitionJpa();
     workflowBinDefinition.setName("test name");
     workflowBinDefinition.setDescription("test description");
-    workflowBinDefinition.setQuery("select * from concepts");
+    workflowBinDefinition.setQuery("select c.id clusterId, c.id componentId from concepts c where c.name = 'adopce';");
     workflowBinDefinition.setEditable(true);
     workflowBinDefinition.setLastModified(startDate);
     workflowBinDefinition.setLastModifiedBy(authToken);
@@ -258,9 +268,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     WorkflowBinDefinitionJpa workflowBinDefinition2 =
         new WorkflowBinDefinitionJpa();
-    workflowBinDefinition2.setName("test name");
-    workflowBinDefinition2.setDescription("test description");
-    workflowBinDefinition2.setQuery("select * from concepts");
+    workflowBinDefinition2.setName("test name2");
+    workflowBinDefinition2.setDescription("test description2");
+    workflowBinDefinition2.setQuery("select c.id clusterId, c.id componentId from concepts c where c.name = 'AIDS';");
     workflowBinDefinition2.setEditable(true);
     workflowBinDefinition2.setLastModified(startDate);
     workflowBinDefinition2.setLastModifiedBy(authToken);
@@ -270,8 +280,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     WorkflowBinDefinition addedWorkflowBinDefinition2 =
         workflowService.addWorkflowBinDefinition(project.getId(),
-            addedWorkflowConfig.getId(), workflowBinDefinition, authToken);
-
+            addedWorkflowConfig.getId(), workflowBinDefinition2, authToken);
+    
     //
     // Regenerate bins
     //
@@ -279,17 +289,26 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
     //
-    // Test removal
+    // Test clean up
     //
 
+    // remove workflow bin definitions
     workflowService.removeWorkflowBinDefinition(project.getId(),
         addedWorkflowBinDefinition.getId(), authToken);
     workflowService.removeWorkflowBinDefinition(project.getId(),
         addedWorkflowBinDefinition2.getId(), authToken);
+    
     // remove the workflow config
     workflowService
         .removeWorkflowConfig(addedWorkflowConfig.getId(), authToken);
-    // assertTrue(v.getErrors().isEmpty());
+    
+    // remove bins and tracking records
+    for (WorkflowBin bin : workflowServiceJpa.getWorkflowBins()) {
+      for (TrackingRecord record : bin.getTrackingRecords()) {
+        workflowServiceJpa.removeTrackingRecord(record.getId());
+      }
+      workflowServiceJpa.removeWorkflowBin(bin.getId());
+    }
 
   }
 
@@ -304,7 +323,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // logout
     securityService.logout(authToken);
-
+    workflowServiceJpa.close();
   }
 
 }
