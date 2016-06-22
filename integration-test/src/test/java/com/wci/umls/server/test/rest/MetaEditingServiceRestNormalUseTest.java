@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -18,15 +18,18 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
-import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.rest.client.ContentClientRest;
+import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 
 /**
  * Implementation of the "MetaEditing Service REST Normal Use" Test Cases.
@@ -36,7 +39,7 @@ public class MetaEditingServiceRestNormalUseTest
 
   /** The auth token. */
   private static String authToken;
-
+  
   /** The project. */
   private static Project project;
 
@@ -45,6 +48,9 @@ public class MetaEditingServiceRestNormalUseTest
 
   /** The umls version. */
   private String umlsVersion = "latest";
+
+  /** The concept (will be copied from existing concept, to avoid affecting database values. */
+  private ConceptJpa concept;
 
   /**
    * Create test fixtures per test.
@@ -58,7 +64,7 @@ public class MetaEditingServiceRestNormalUseTest
     // authentication (admin for editing permissions)
     authToken =
         securityService.authenticate(adminUser, adminPassword).getAuthToken();
-
+    
     // ensure there is a concept associated with the project
     ProjectList projects = projectService.getProjects(authToken);
     assertTrue(projects.getCount() > 0);
@@ -67,6 +73,14 @@ public class MetaEditingServiceRestNormalUseTest
     // verify terminology and branch are expected values
     assertTrue(project.getTerminology().equals(umlsTerminology));
     // assertTrue(project.getBranch().equals(Branch.ROOT));
+
+    // Copy existing concept to avoid messing with actual database data.
+    IntegrationTestClientRest testService = new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+    ContentClientRest contentService =  new ContentClientRest(ConfigUtility.getConfigProperties());
+    concept = new ConceptJpa(contentService.getConcept("C0000294",
+        umlsTerminology, umlsVersion, null, authToken), false);
+    concept.setId(null);
+    concept = (ConceptJpa) testService.addConcept(concept, authToken);
   }
 
   /**
@@ -75,11 +89,11 @@ public class MetaEditingServiceRestNormalUseTest
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestContent001() throws Exception {
+  public void testAddAndRemoveSemanticTypeToConcept() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
+
     Logger.getLogger(getClass())
-        .info("TEST - Add and remove semantic type to/from " + "C0002520,"
+        .info("TEST - Add and remove semantic type to/from " + "C0000294,"
             + umlsTerminology + ", " + umlsVersion + ", " + authToken);
 
     //
@@ -88,42 +102,40 @@ public class MetaEditingServiceRestNormalUseTest
     Date startDate = new Date();
 
     // get the concept
-    Concept c = contentService.getConcept("C0002520", umlsTerminology,
-        umlsVersion, null, authToken);
+    Concept c = concept;
     assertNotNull(c);
 
     // check against project
     // assertTrue(c.getBranch().equals(project.getBranch()));
 
     // construct a semantic type not present on concept (here, Lipid)
-    SemanticTypeComponentJpa attribute = new SemanticTypeComponentJpa();
-    attribute.setBranch(c.getBranch());
-    attribute.setLastModifiedBy(authToken);
-    attribute.setSemanticType("Lipid");
-    attribute.setTerminologyId("TestId");
-    attribute.setTerminology(umlsTerminology);
-    attribute.setVersion(umlsVersion);
-    attribute.setTimestamp(new Date());
+    SemanticTypeComponentJpa semanticType = new SemanticTypeComponentJpa();
+    semanticType.setBranch(Branch.ROOT);
+    semanticType.setSemanticType("Lipid");
+    semanticType.setTerminologyId("TestId");
+    semanticType.setTerminology(umlsTerminology);
+    semanticType.setVersion(umlsVersion);
+    semanticType.setTimestamp(new Date());
 
     //
     // Test addition
     //
 
     // add the semantic type to the concept
-    ValidationResult v = metaEditingService.addSemanticType(project.getId(),
-        c.getId(), c.getTimestamp().getTime(), attribute, false, authToken);
+    ValidationResult v =
+        metaEditingService.addSemanticType(project.getId(), c.getId(),
+            c.getLastModified().getTime(), semanticType, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
-    c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion,
-        null, authToken);
-    attribute = null;
+    c = concept;
+    semanticType = null;
     for (SemanticTypeComponent s : c.getSemanticTypes()) {
       if (s.getSemanticType().equals("Lipid")) {
-        attribute = (SemanticTypeComponentJpa) s;
+        semanticType = (SemanticTypeComponentJpa) s;
       }
     }
-    assertNotNull(attribute);
+    assertNotNull(semanticType);
 
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -138,8 +150,8 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getLastModified().compareTo(startDate) > 0);
     assertNotNull(ma.getAtomicActions());
 
-
-    // TODO Verify atomic actions once REST callback exists for getAtomicActions(Long molecularActionId, ...)
+    // TODO Verify atomic actions once REST callback exists for
+    // getAtomicActions(Long molecularActionId, ...)
 
     // TODO Verify the log entry exists
 
@@ -149,12 +161,11 @@ public class MetaEditingServiceRestNormalUseTest
 
     // remove the semantic type from the concept
     v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), attribute.getId(), false, authToken);
+        c.getLastModified().getTime(), semanticType.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
-    c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion,
-        null, authToken);
+    c = concept;
     boolean attributePresent = false;
     for (SemanticTypeComponent s : c.getSemanticTypes()) {
       if (s.getSemanticType().equals("Lipid")) {
@@ -174,127 +185,128 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
     assertTrue(ma.getLastModified().compareTo(startDate) > 0);
-    
 
-    // TODO Verify atomic actions once REST callback exists for getAtomicActions(Long molecularActionId, ...)
+    // TODO Verify atomic actions once REST callback exists for
+    // getAtomicActions(Long molecularActionId, ...)
 
     // TODO Verify the log entry exists
   }
-  
+
   /**
    * Test add and remove attribute to concept
    *
    * @throws Exception the exception
    */
-  @Test
-  public void testNormalUseRestContent002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
-
-    Logger.getLogger(getClass())
-        .info("TEST - Add and remove attribute to/from " + "C0002520,"
-            + umlsTerminology + ", " + umlsVersion + ", " + authToken);
-
-    //
-    // Prepare the test and check prerequisites
-    //
-    Date startDate = new Date();
-
-    // get the concept
-    Concept c = contentService.getConcept("C0002520", umlsTerminology,
-        umlsVersion, null, authToken);
-    assertNotNull(c);
-
-    // check against project
-    // assertTrue(c.getBranch().equals(project.getBranch()));
-
-    // construct a attribute not present on concept (here, Lipid)
-    AttributeJpa attribute = new AttributeJpa();
-    attribute.setBranch(c.getBranch());
-    attribute.setLastModifiedBy(authToken);
-    attribute.setName("UMLSRELA");
-    attribute.setValue("VALUE");
-    attribute.setTerminologyId("TestId");
-    attribute.setTerminology(umlsTerminology);
-    attribute.setVersion(umlsVersion);
-    attribute.setTimestamp(new Date());
-
-    //
-    // Test addition
-    //
-
-    // add the attribute to the concept
-    ValidationResult v = metaEditingService.addAttribute(project.getId(),
-        c.getId(), c.getTimestamp().getTime(), attribute, false, authToken);
-    assertTrue(v.getErrors().isEmpty());
-
-    // retrieve the concept and check attributes
-    c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion,
-        null, authToken);
-    attribute = null;
-    for (Attribute s : c.getAttributes()) {
-      if (s.getName().equals("UMLSRELA")) {
-        attribute = (AttributeJpa) s;
-      }
-    }
-    assertNotNull(attribute);
-
-    // verify the molecular action exists
-    PfsParameterJpa pfs = new PfsParameterJpa();
-    pfs.setSortField("lastModified");
-    pfs.setAscending(false);
-    MolecularActionList list = contentService
-        .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
-    MolecularAction ma = list.getObjects().get(0);
-    assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
-    assertTrue(ma.getLastModified().compareTo(startDate) > 0);
-
-    // TODO Verify atomic actions once REST callback exists for getAtomicActions(Long molecularActionId, ...)
-
-    // TODO Verify the log entry exists
-
-    //
-    // Test removal
-    //
-
-    // remove the attribute from the concept
-    v = metaEditingService.removeAttribute(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), attribute.getId(), false, authToken);
-    assertTrue(v.getErrors().isEmpty());
-
-    // retrieve the concept and check attributes
-    c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion,
-        null, authToken);
-    boolean attributePresent = false;
-    for (Attribute s : c.getAttributes()) {
-      if (s.getName().equals("UMLSRELA")) {
-        attributePresent = true;
-      }
-    }
-    assertTrue(!attributePresent);
-
-    // verify the molecular action exists
-    pfs = new PfsParameterJpa();
-    pfs.setSortField("lastModified");
-    pfs.setAscending(false);
-    list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
-        authToken);
-    assertTrue(list.getCount() > 0);
-    ma = list.getObjects().get(0);
-    assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
-    assertTrue(ma.getLastModified().compareTo(startDate) > 0);
-    assertNotNull(ma.getAtomicActions());
-    // TODO Re-enable this once marshaling error in ContentClientRest is resolved 
-    //assertTrue(ma.getAtomicActions().size() == 1);
-    //assertTrue(
-    //    ma.getAtomicActions().get(0).getIdType().equals(IdType.SEMANTIC_TYPE));
-    //assertNotNull(ma.getAtomicActions().get(0).getNewValue());
-    //assertNull(ma.getAtomicActions().get(0).getOldValue());
-
-    // TODO Verify log entry
-  }
+  // @Test
+  // public void testAddAndRemoveAttributeToConcept() throws Exception {
+  // Logger.getLogger(getClass()).debug("Start test");
+  //
+  // Logger.getLogger(getClass())
+  // .info("TEST - Add and remove attribute to/from " + "C0002520,"
+  // + umlsTerminology + ", " + umlsVersion + ", " + authToken);
+  //
+  // //
+  // // Prepare the test and check prerequisites
+  // //
+  // Date startDate = new Date();
+  //
+  // // get the concept
+  // Concept c = concept;
+  // assertNotNull(c);
+  //
+  // // check against project
+  // // assertTrue(c.getBranch().equals(project.getBranch()));
+  //
+  // // construct a attribute not present on concept (here, UMLSRELA)
+  // AttributeJpa attribute = new AttributeJpa();
+  // attribute.setBranch(c.getBranch());
+  // attribute.setName("UMLSRELA");
+  // attribute.setValue("VALUE");
+  // attribute.setTerminologyId("TestId");
+  // attribute.setTerminology(umlsTerminology);
+  // attribute.setVersion(umlsVersion);
+  // attribute.setTimestamp(new Date());
+  //
+  // //
+  // // Test addition
+  // //
+  //
+  // // add the attribute to the concept
+  // ValidationResult v = metaEditingService.addAttribute(project.getId(),
+  // c.getId(), c.getLastModified().getTime(), attribute, false, authToken);
+  // assertTrue(v.getErrors().isEmpty());
+  //
+  // // retrieve the concept and check attributes
+  // c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion,
+  // null, authToken);
+  // attribute = null;
+  // for (Attribute s : c.getAttributes()) {
+  // if (s.getName().equals("UMLSRELA")) {
+  // attribute = (AttributeJpa) s;
+  // }
+  // }
+  // assertNotNull(attribute);
+  //
+  // // verify the molecular action exists
+  // PfsParameterJpa pfs = new PfsParameterJpa();
+  // pfs.setSortField("lastModified");
+  // pfs.setAscending(false);
+  // MolecularActionList list = contentService
+  // .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+  // assertTrue(list.getCount() > 0);
+  // MolecularAction ma = list.getObjects().get(0);
+  // assertNotNull(ma);
+  // assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+  // assertTrue(ma.getLastModified().compareTo(startDate) > 0);
+  //
+  // // TODO Verify atomic actions once REST callback exists for
+  // // getAtomicActions(Long molecularActionId, ...)
+  //
+  // // TODO Verify the log entry exists
+  //
+  // //
+  // // Test removal
+  // //
+  //
+  // // remove the attribute from the concept
+  // v = metaEditingService.removeAttribute(project.getId(), c.getId(),
+  // c.getLastModified().getTime(),
+  // attribute.getId(), false, authToken);
+  // assertTrue(v.getErrors().isEmpty());
+  //
+  // // retrieve the concept and check attributes
+  // c = contentService.getConcept("C0002520", umlsTerminology, umlsVersion,
+  // null, authToken);
+  // boolean attributePresent = false;
+  // for (Attribute s : c.getAttributes()) {
+  // if (s.getName().equals("UMLSRELA")) {
+  // attributePresent = true;
+  // }
+  // }
+  // assertTrue(!attributePresent);
+  //
+  // // verify the molecular action exists
+  // pfs = new PfsParameterJpa();
+  // pfs.setSortField("lastModified");
+  // pfs.setAscending(false);
+  // list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+  // authToken);
+  // assertTrue(list.getCount() > 0);
+  // ma = list.getObjects().get(0);
+  // assertNotNull(ma);
+  // assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+  // assertTrue(ma.getLastModified().compareTo(startDate) > 0);
+  // assertNotNull(ma.getAtomicActions());
+  // // TODO Re-enable this once marshaling error in ContentClientRest is
+  // // resolved
+  // // assertTrue(ma.getAtomicActions().size() == 1);
+  // // assertTrue(
+  // // ma.getAtomicActions().get(0).getIdType().equals(IdType.SEMANTIC_TYPE));
+  // // assertNotNull(ma.getAtomicActions().get(0).getNewValue());
+  // // assertNull(ma.getAtomicActions().get(0).getOldValue());
+  //
+  // // TODO Verify log entry
+  // }
 
   /**
    * Teardown.
@@ -304,6 +316,10 @@ public class MetaEditingServiceRestNormalUseTest
   @Override
   @After
   public void teardown() throws Exception {
+
+    // Copy existing concept to avoid messing with actual database data.
+    IntegrationTestClientRest testService = new IntegrationTestClientRest(ConfigUtility.getConfigProperties());  
+    testService.removeConcept(concept.getId(), authToken);
 
     // logout
     securityService.logout(authToken);

@@ -545,20 +545,16 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public ChecklistList findChecklistsForQuery(Project project, String query, PfsParameter pfs)
+  public ChecklistList findChecklistsForQuery(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - find checklists for query " + query + ", project " + project.getId());
+        "Workflow Service - find checklists for query " + query );
 
     final StringBuilder sb = new StringBuilder();
     if (query != null && !query.equals("")) {
       sb.append(query).append(" AND ");
     }
-    if (project == null) {
-      sb.append("projectId:[* TO *]");
-    } else {
-      sb.append("projectId:" + project.getId());
-    }
+
     
     ChecklistList results = new ChecklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
