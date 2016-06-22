@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.test.jpa;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.apache.log4j.Logger;
@@ -13,14 +14,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.services.handlers.UuidHashIdentifierAssignmentHandler;
+import com.wci.umls.server.jpa.services.handlers.DefaultIdentifierAssignmentHandler;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
- * Integration testing for {@link UuidHashIdentifierAssignmentHandler}.
+ * Integration testing for {@link DefaultIdentifierAssignmentHandler}.
  */
-public class Handler008Test {
+public class IdentifierAssignmentHandlerTest extends IntegrationUnitSupport {
 
   /** The handler service. */
   private IdentifierAssignmentHandler handlerService;
@@ -40,20 +42,20 @@ public class Handler008Test {
   public void setup() {
 
     try {
-      handlerService = new UuidHashIdentifierAssignmentHandler();
+      handlerService = new DefaultIdentifierAssignmentHandler();
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
   /**
-   * Test normal use of the handler object.
+   * /** Test normal use of the handler object.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testHandlerNormalUse008() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testHandlerNormalUse008");
+  public void testHandlerNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
   }
 
@@ -63,17 +65,19 @@ public class Handler008Test {
    * @throws Exception the exception
    */
   /**
-   * Test handler degenerate use001.
+   * Test handler degenerate use.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testHandlerDegenerateUse008() throws Exception {
-    // Call getTerminologyId((Concept)null)
+  public void testHandlerDegenerateUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
+
+    // Call getTerminologyId(null)
     // TEST: exception
     try {
       handlerService.getTerminologyId((Concept) null);
-      fail("Calling resolve((Concept)null) should have thrown an exception.");
+      fail("Calling getTerminologyId((Concept)null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing
     }
@@ -86,11 +90,11 @@ public class Handler008Test {
    * @throws Exception the exception
    */
   @Test
-  public void testHandlerEdgeCases008() throws Exception {
-    // Call computePreferredName(new ConceptJpa())
-    // TEST: no exceptions
-    handlerService.getTerminologyId(new ConceptJpa());
-
+  public void testHandlerEdgeCases() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
+    // Call getTerminologyId(new ConceptJpa())
+    // TEST: returns null
+    assertEquals(handlerService.getTerminologyId(new ConceptJpa()), null);
   }
 
   /**

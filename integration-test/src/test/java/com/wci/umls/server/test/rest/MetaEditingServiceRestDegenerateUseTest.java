@@ -79,7 +79,7 @@ public class MetaEditingServiceRestDegenerateUseTest
    */
   @Test
   public void testDegenerateUseRestContent001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "TEST - Degenerate use tests for add/remove semantic type to concept");
@@ -260,7 +260,7 @@ public class MetaEditingServiceRestDegenerateUseTest
    */
   @Test
   public void testDegenerateUseRestContent002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "TEST - Degenerate use tests for add/remove attribute to concept");

@@ -21,12 +21,13 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.rest.client.MetadataClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Implementation of the "Metadata Service REST Normal Use" Test Cases.
  */
 @Ignore
-public class MetadataServiceRestTest {
+public class MetadataServiceRestTest extends IntegrationUnitSupport {
 
   /** The service. */
   protected static MetadataClientRest metadataService;

@@ -15,12 +15,13 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Superclass for "Project Service REST" Test Cases.
  */
 @Ignore
-public class ProjectServiceRestTest {
+public class ProjectServiceRestTest extends IntegrationUnitSupport {
 
   /** The service. */
   protected static ProjectClientRest projectService;

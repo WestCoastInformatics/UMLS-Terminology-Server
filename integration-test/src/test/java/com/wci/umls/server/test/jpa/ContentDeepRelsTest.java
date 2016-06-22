@@ -25,11 +25,12 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Sample test to get auto complete working
  */
-public class ContentDeepRelsTest {
+public class ContentDeepRelsTest extends IntegrationUnitSupport {
 
   /** The service. */
   ContentService service = null;
@@ -58,7 +59,7 @@ public class ContentDeepRelsTest {
    */
   @Test
   public void testfindDeepRels() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "  Test basic findDeepRelationshipsForConcept call");

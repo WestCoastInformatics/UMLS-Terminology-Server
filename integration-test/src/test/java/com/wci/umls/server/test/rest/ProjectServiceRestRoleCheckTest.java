@@ -53,7 +53,7 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
    */
   @Test
   public void testRoleCheckRestProject001() throws Exception {
-    Logger.getLogger(getClass()).debug("RUN testRoleCheckRestProject001");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Attempt to add a project with viewer authorization level
     ProjectJpa project = new ProjectJpa();

@@ -13,11 +13,12 @@ import org.junit.BeforeClass;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Integration test for REST content service.
  */
-public class ContentServiceRestTest {
+public class ContentServiceRestTest extends IntegrationUnitSupport {
 
   /** The service. */
   protected static ContentClientRest contentService;

@@ -94,7 +94,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test with invalid terminologyId
     Logger.getLogger(getClass()).info("TEST invalid terminology id - "
@@ -139,7 +139,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test invalid SNOMEDCT_US descriptor
     Logger.getLogger(getClass()).info("TEST invalid SNOMEDCT_US descriptor - "
@@ -184,7 +184,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test invalid MSH code
     Logger.getLogger(getClass()).info(
@@ -258,7 +258,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent006() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test terminology is invalid - empty results
     Logger.getLogger(getClass())
@@ -359,7 +359,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
   @Test
   public void testEdgeCasesRestContent007() throws Exception {
 
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass())
@@ -458,7 +458,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent008() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid termionlogy - ");
@@ -490,7 +490,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent009() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
@@ -521,7 +521,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent010() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test terminology is invalid - empty results
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
@@ -553,7 +553,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent011() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
@@ -589,7 +589,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent012() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test terminology is invalid - empty result
     Logger.getLogger(getClass()).info("TEST invalid terminology - ");
@@ -634,7 +634,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent014() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test invalid concept id - empty list
     Logger.getLogger(getClass()).info("  Test get subset members for concept");
@@ -645,7 +645,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     assertEquals(0, list.getTotalCount());
     assertEquals(0, list.getCount());
 
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test with invalid terminologyId
 
@@ -696,7 +696,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestContent015() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test with invalid searchTerm - empty results
     Logger.getLogger(getClass()).info("TEST invalid searchTerm ");

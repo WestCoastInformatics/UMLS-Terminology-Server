@@ -29,11 +29,12 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.services.helpers.ReportHelper;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Unit testing for {@link ReportHelper}.
  */
-public class HelperUnit007Test {
+public class ReportHelperTest extends IntegrationUnitSupport {
 
   /** The concept. */
   private Concept concept;
@@ -60,8 +61,8 @@ public class HelperUnit007Test {
    * @throws Exception the exception
    */
   @Test
-  public void testHelperNormalUse007() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testHelperNormalUse007");
+  public void testHelperNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // create concept and test if concept report has correct elements
     concept.setId(1L);
@@ -189,13 +190,13 @@ public class HelperUnit007Test {
    * @throws Exception the exception
    */
   /**
-   * Test helper degenerate use007.
+   * Test helper degenerate use.
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
-  public void testHelperDegenerateUse007() throws Exception {
+  public void testHelperDegenerateUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     // provide a null concept
     try {
       ReportHelper.getConceptReport(null);
@@ -218,7 +219,8 @@ public class HelperUnit007Test {
    * @throws Exception the exception
    */
   @Test
-  public void testHelperEdgeCases007() throws Exception {
+  public void testHelperEdgeCases() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     // n/a
   }
 

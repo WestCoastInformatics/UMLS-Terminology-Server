@@ -13,11 +13,12 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Implementation of the Template Service REST Use Test Cases.
  */
-public class TemplateServiceXxxUseTest {
+public class TemplateServiceXxxUseTest extends IntegrationUnitSupport {
 
   /** The service. */
   @SuppressWarnings("unused")
@@ -41,6 +42,8 @@ public class TemplateServiceXxxUseTest {
   @Before
   public void setup() throws Exception {
     service = new SecurityClientRest(ConfigUtility.getConfigProperties());
+
+    // Use Jpa services here to create objects for test
   }
 
   /**
@@ -51,7 +54,7 @@ public class TemplateServiceXxxUseTest {
    */
   @Test
   public void testXxxUseRestTemplate001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
   }
 
@@ -62,7 +65,9 @@ public class TemplateServiceXxxUseTest {
    */
   @After
   public void teardown() throws Exception {
-    // do nothing (service does not need to be closed)
+    // Use Jpa services here remove objects for test
+
+    // logout
   }
 
   /**

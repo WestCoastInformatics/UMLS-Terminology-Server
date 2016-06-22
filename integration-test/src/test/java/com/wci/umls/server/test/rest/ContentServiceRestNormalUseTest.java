@@ -91,7 +91,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test MSH concept
 
@@ -192,7 +192,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "TEST - " + "D019226, MSH, 2015_2014_09_08, " + authToken);
@@ -227,7 +227,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "TEST - " + "D019226, MSH, 2015_2014_09_08, " + authToken);
@@ -274,7 +274,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent006() throws Exception {
 
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     SubsetList list =
         contentService.getAtomSubsets(snomedTerminology, snomedVersion,
@@ -357,7 +357,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent007() throws Exception {
 
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     SubsetList list =
         contentService.getConceptSubsets(snomedTerminology, snomedVersion,
@@ -447,7 +447,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent008() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     PfsParameterJpa pfs = new PfsParameterJpa();
     SearchResultList searchResults;
@@ -686,7 +686,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent009() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String query = "amino*";
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -898,7 +898,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent010() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String query = "amino*";
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -1093,7 +1093,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent011() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     PfsParameterJpa pfs = new PfsParameterJpa();
     ConceptList conceptList;
@@ -1152,7 +1152,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent012() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     PfsParameterJpa pfs = new PfsParameterJpa();
     DescriptorList descriptorList;
@@ -1222,7 +1222,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent014() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info("  Test get subset members for atom");
     SubsetMemberList list =
@@ -1251,7 +1251,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent015() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass())
         .info("  Test autocomplete for snomed concepts");
@@ -1338,7 +1338,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent016() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass())
         .info("  Test autocomplete for msh descriptors");
@@ -1375,7 +1375,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent017() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info("  Test autocomplete for snomed codes");
     StringList list =
@@ -1431,7 +1431,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent018() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // simple deep rels call
     Logger.getLogger(getClass()).info("  Test deep relationships");
@@ -1515,7 +1515,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent023() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // tree lookup, empty pfs
     Logger.getLogger(getClass()).info("  Tree lookup, empty pfs");
@@ -1593,7 +1593,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent024() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // tree lookup, empty pfs
     Logger.getLogger(getClass()).info("  Tree lookup, empty pfs");
@@ -1671,7 +1671,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent025() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     // n/a - no sample data
 
   }
@@ -1683,7 +1683,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent026() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     /** Find concepts with hql query */
     Logger.getLogger(getClass()).info(
@@ -1823,7 +1823,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent020() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     /** Find relationships for given concept */
     Logger.getLogger(getClass()).info(
@@ -1855,7 +1855,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent021() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     /** Find relationships for given descriptor */
     Logger.getLogger(getClass()).info(
@@ -1886,7 +1886,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent022() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     /** Find relationships for given code */
     Logger.getLogger(getClass()).info(
@@ -1917,7 +1917,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent027() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // tree lookup, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
@@ -1973,7 +1973,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent028() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // tree lookup, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
@@ -2015,7 +2015,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent029() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // n/a - no sample data
   }
@@ -2026,7 +2026,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent030() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
   }
 
@@ -2036,7 +2036,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent031() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
   }
 
@@ -2046,7 +2046,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent032() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
   }
 
@@ -2056,7 +2056,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent033() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "TEST - " + "447562003, SNOMEDCT_US, _2014_09_01, " + authToken);
@@ -2083,7 +2083,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent034() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
@@ -2100,7 +2100,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent035() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
@@ -2119,7 +2119,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    */
   @Test
   public void testNormalUseRestContent036() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "TEST - " + "C0155860, UMLS, latest" + authToken);

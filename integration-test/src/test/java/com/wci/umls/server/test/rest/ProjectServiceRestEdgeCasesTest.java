@@ -53,7 +53,7 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
    */
   @Test
   public void testEdgeCasesRestProject001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Get all projects and choose the first one.
     ProjectList projectList = projectService.getProjects(adminAuthToken);

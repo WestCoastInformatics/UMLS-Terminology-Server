@@ -191,6 +191,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     project1.setName("NCI-META Editing");
     project1.setPublic(true);
     project1.setTerminology(terminology);
+    project1.setWorkflowPath(ConfigUtility.DEFAULT);
 
     // Configure valid categories
     final List<String> validCategories = new ArrayList<>();

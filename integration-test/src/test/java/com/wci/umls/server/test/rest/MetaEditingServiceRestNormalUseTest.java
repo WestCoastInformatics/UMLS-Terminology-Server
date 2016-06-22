@@ -76,7 +76,7 @@ public class MetaEditingServiceRestNormalUseTest
    */
   @Test
   public void testNormalUseRestContent001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     
     Logger.getLogger(getClass())
         .info("TEST - Add and remove semantic type to/from " + "C0002520,"
@@ -188,7 +188,7 @@ public class MetaEditingServiceRestNormalUseTest
    */
   @Test
   public void testNormalUseRestContent002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass())
         .info("TEST - Add and remove attribute to/from " + "C0002520,"
