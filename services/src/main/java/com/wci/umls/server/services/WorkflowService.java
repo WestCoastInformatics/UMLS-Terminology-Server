@@ -18,6 +18,7 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -427,7 +428,18 @@ public interface WorkflowService extends ProjectService {
    * @return the checklist list
    * @throws Exception the exception
    */
-  public ChecklistList findChecklistsForQuery(String query, PfsParameter pfs)
-    throws Exception;
+  public ChecklistList findChecklistsForQuery(Project project, String query, PfsParameter pfs) throws Exception;
 
+
+  /**
+   * Returns the workflow config.
+   *
+   * @param projectId the project id
+   * @param type the type
+   * @return the workflow config
+   * @throws Exception the exception
+   */
+  public WorkflowConfig getWorkflowConfig(Long projectId, WorkflowBinType type)
+    throws Exception; 
+  
 }

@@ -6,6 +6,9 @@ package com.wci.umls.server.jpa.test.workflow;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -47,8 +50,14 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
   /** The fixture p1. */
   private Project p1;
 
-  /** The fdixture p2. */
+  /** The fixture p2. */
   private Project p2;
+
+  /** The fixture l1. */
+  private List<String> l1;
+
+  /** The fixture l2. */
+  private List<String> l2;
 
   /**
    * Setup class.
@@ -73,6 +82,12 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     final ProxyTester tester2 = new ProxyTester(new ProjectJpa());
     p1 = (ProjectJpa) tester2.createObject(1);
     p2 = (ProjectJpa) tester2.createObject(2);
+
+    l1 = new ArrayList<>();
+    l1.add("1");
+    l2 = new ArrayList<>();
+    l2.add("2");
+    l2.add("3");
 
     object.setProject(p1);
     object.setWorkflowBin(m1);
@@ -105,15 +120,12 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("project");
     tester.include("workflowBin");
-
-    tester.include("assignDate");
-    tester.include("editor");
+    tester.include("authors");
+    tester.include("reviewers");
     tester.include("worklistGroup");
-    tester.include("returnDate");
-    tester.include("stampDate");
-    tester.include("stampedBy");
-    tester.include("status");
 
+    tester.proxy(List.class, 1, l1);
+    tester.proxy(List.class, 2, l2);
     tester.proxy(WorkflowBin.class, 1, m1);
     tester.proxy(WorkflowBin.class, 2, m2);
     tester.proxy(Project.class, 1, p1);
@@ -137,6 +149,8 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
+    tester.proxy(List.class, 1, l1);
+    tester.proxy(List.class, 2, l2);
     tester.proxy(WorkflowBin.class, 1, m1);
     tester.proxy(WorkflowBin.class, 2, m2);
     tester.proxy(Project.class, 1, p1);
@@ -159,6 +173,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     p1.setId(1L);
     WorkflowBin b1 = new WorkflowBinJpa();
     b1.setId(1L);
+    tester.proxy(List.class, 1, l1);
     tester.proxy(Project.class, 1, p1);
     tester.proxy(WorkflowBin.class, 1, b1);
     assertTrue(tester.testXmlSerialization());
@@ -178,6 +193,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModifiedBy");
     tester.include("name");
     tester.include("description");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -193,7 +209,8 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    // NO analyzed fields
+    tester.include("authors");
+    tester.include("reviewers");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
@@ -202,11 +219,8 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("projectId");
     tester.include("workflowBinId");
     tester.include("lastModifiedBy");
-    tester.include("lastModifiedBy");
-    tester.include("editor");
     tester.include("worklistGroup");
-    tester.include("stampedBy");
-    tester.include("status");
+    tester.include("workflowStatus");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

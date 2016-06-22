@@ -13,11 +13,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.services.helpers.ProgressEvent;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Unit testing for {@link ProgressEvent}.
  */
-public class HelperUnit008Test {
+public class ProgressEventTest extends IntegrationUnitSupport {
 
   /** The helper object to test. */
   private ProgressEvent object;
@@ -56,8 +57,8 @@ public class HelperUnit008Test {
    * @throws Exception the exception
    */
   @Test
-  public void testHelperNormalUse008() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testHelperNormalUse008");
+  public void testHelperNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     note = "500 of 1000 completed";
     percent = 50;
     progress = 500;
@@ -78,13 +79,13 @@ public class HelperUnit008Test {
    * @throws Exception the exception
    */
   /**
-   * Test helper degenerate use008.
+   * Test helper degenerate use.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testHelperDegenerateUse008() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testHelperDegeneratelUse008");
+  public void testHelperDegenerateUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // note is null - TEST: no exceptions expected
     note = null;
@@ -116,8 +117,8 @@ public class HelperUnit008Test {
    * @throws Exception the exception
    */
   @Test
-  public void testHelperEdgeCases008() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testHelperEdgeCases008");
+  public void testHelperEdgeCases() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // lower bounds test - TEST: no exceptions expected
     note = "";

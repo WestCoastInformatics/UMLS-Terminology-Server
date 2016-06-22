@@ -15,11 +15,12 @@ import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.client.MetaEditingClientRest;
 import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Integration test for REST content service.
  */
-public class MetaEditingServiceRestTest {
+public class MetaEditingServiceRestTest extends IntegrationUnitSupport  {
 
   /** The service. */
   protected static ContentClientRest contentService;

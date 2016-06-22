@@ -80,6 +80,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     l1.add(1L);
     l2 = new HashSet<>();
     l2.add(2L);
+    l2.add(3L);
 
     final ProxyTester tester = new ProxyTester(new WorklistJpa());
     w1 = (WorklistJpa) tester.createObject(1);
@@ -123,11 +124,11 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     tester.include("clusterId");
     tester.include("clusterType");
     tester.include("terminology");
-    tester.include("terminologyIds");
+    tester.include("componentIds");
     tester.include("version");
 
-    tester.proxy(List.class, 1, l1);
-    tester.proxy(List.class, 2, l2);
+    tester.proxy(Set.class, 1, l1);
+    tester.proxy(Set.class, 2, l2);
     tester.proxy(Worklist.class, 1, w1);
     tester.proxy(Worklist.class, 2, w2);
     tester.proxy(WorkflowBin.class, 1, b1);
@@ -224,7 +225,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("terminologyIds");
+    tester.include("componentIds");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields

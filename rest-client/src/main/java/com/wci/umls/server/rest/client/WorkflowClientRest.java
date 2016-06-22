@@ -239,8 +239,26 @@ public class WorkflowClientRest extends RootClientRest
   @Override
   public void regenerateBins(Long projectId, WorkflowBinType type,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
+    Logger.getLogger(getClass()).debug("Workflow Client - add workflow config"
+        + projectId + ", " + type.toString() + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+
+    Client client = ClientBuilder.newClient();
     
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/bins?projectId=" + projectId);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(type));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
   }
 
   @Override

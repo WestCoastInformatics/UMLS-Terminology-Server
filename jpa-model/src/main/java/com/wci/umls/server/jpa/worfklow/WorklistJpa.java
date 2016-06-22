@@ -7,6 +7,8 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -23,6 +25,7 @@ import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 
 /**
@@ -51,14 +54,15 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Column(nullable = true)
   private String worklistGroup;
 
-  /** The status. */
-  @Column(nullable = true)
-  private String status;
-
   /** The tracking records. */
   @OneToMany(mappedBy = "worklist", targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
- 
+
+  /** The workflow status. */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private WorkflowStatus workflowStatus;
+
   /**
    * Instantiates an empty {@link WorklistJpa}.
    */
@@ -77,7 +81,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     authors = worklist.getAuthors();
     reviewers = worklist.getReviewers();
     worklistGroup = worklist.getWorklistGroup();
-    status = worklist.getStatus();
+    workflowStatus = worklist.getWorkflowStatus();
     if (deepCopy) {
       trackingRecords = new ArrayList<>(worklist.getTrackingRecords());
     }
@@ -115,6 +119,19 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.reviewers = reviewers;
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public WorkflowStatus getWorkflowStatus() {
+    return workflowStatus;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
+    this.workflowStatus = workflowStatus;
+
+  }
 
   /* see superclass */
   @Override
@@ -127,21 +144,6 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Override
   public void setWorklistGroup(String group) {
     this.worklistGroup = group;
-  }
-
-
-
-  /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @Override
-  public String getStatus() {
-    return status;
-  }
-
-  /* see superclass */
-  @Override
-  public void setStatus(String worklistStatus) {
-    this.status = worklistStatus;
   }
 
   /* see superclass */
@@ -160,20 +162,20 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.trackingRecords = records;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((authors == null) ? 0 : authors.hashCode());
     result = prime * result + ((reviewers == null) ? 0 : reviewers.hashCode());
-    result = prime * result + ((status == null) ? 0 : status.hashCode());
-    result = prime * result
-        + ((trackingRecords == null) ? 0 : trackingRecords.hashCode());
-    result = prime * result
-        + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
+    result =
+        prime * result
+            + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -193,16 +195,6 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
         return false;
     } else if (!reviewers.equals(other.reviewers))
       return false;
-    if (status == null) {
-      if (other.status != null)
-        return false;
-    } else if (!status.equals(other.status))
-      return false;
-    if (trackingRecords == null) {
-      if (other.trackingRecords != null)
-        return false;
-    } else if (!trackingRecords.equals(other.trackingRecords))
-      return false;
     if (worklistGroup == null) {
       if (other.worklistGroup != null)
         return false;
@@ -211,14 +203,12 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "WorklistJpa [authors=" + authors + ", reviewers=" + reviewers
-        + ", worklistGroup=" + worklistGroup + ", status=" + status
-        + ", trackingRecords=" + trackingRecords + "]";
+        + ", worklistGroup=" + worklistGroup + ", workflowStatus="
+        + workflowStatus + ", trackingRecords=" + trackingRecords + "]";
   }
-
-
-
 
 }

@@ -28,14 +28,14 @@ import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.jpa.services.handlers.DefaultComputePreferredNameHandler;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
- * Integration testing for {@link DefaultComputePreferredNameHandler}.
+ * Integration testing for {@link ProjectJpa}.
  */
-public class ProjectJpaTest {
+public class ProjectJpaTest extends IntegrationUnitSupport {
 
   /**
    * Setup class.
@@ -59,9 +59,8 @@ public class ProjectJpaTest {
    * @throws Exception the exception
    */
   @Test
-  public void testProjectNormalUse001() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testProjectNormalUse001");
-
+  public void testProjectNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     ProjectService projectService = new ProjectServiceJpa();
     SecurityService securityService = new SecurityServiceJpa();
@@ -89,7 +88,7 @@ public class ProjectJpaTest {
       project.setPrecedenceList(null);
       project.setPublic(true);
       Map<String, String> semanticTypeCategoryMap = new HashMap<>();
-      semanticTypeCategoryMap.put("T001", "CHEMICAL");
+      semanticTypeCategoryMap.put("T", "CHEMICAL");
       semanticTypeCategoryMap.put("T002", "CHEMICAL");
       project.setSemanticTypeCategoryMap(semanticTypeCategoryMap);
       Map<User, UserRole> userRoleMap = new HashMap<>();
@@ -130,7 +129,7 @@ public class ProjectJpaTest {
       // TODO:
       project.setPrecedenceList(null);
       project.setPublic(false);
-      semanticTypeCategoryMap.remove("T001", "CHEMICAL");
+      semanticTypeCategoryMap.remove("T", "CHEMICAL");
       semanticTypeCategoryMap.put("T003", "NON-CHEMICAL");
       project.setSemanticTypeCategoryMap(semanticTypeCategoryMap);
 

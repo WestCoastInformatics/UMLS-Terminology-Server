@@ -24,11 +24,12 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Integration testing for {@link DefaultComputePreferredNameHandler}.
  */
-public class Handler001Test {
+public class ComputePreferredNameHandlerTest extends IntegrationUnitSupport {
 
   /** The handler service. */
   private ComputePreferredNameHandler handlerService;
@@ -60,8 +61,8 @@ public class Handler001Test {
    * @throws Exception the exception
    */
   @Test
-  public void testHandlerNormalUse001() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testHandlerNormalUse001");
+  public void testHandlerNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // Retrieve concept 728.10 (ICD9CM) from the content service.
     ContentService contentService = new ContentServiceJpa();
@@ -101,7 +102,9 @@ public class Handler001Test {
    * @throws Exception the exception
    */
   @Test
-  public void testHandlerDegenerateUse001() throws Exception {
+  public void testHandlerDegenerateUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
+
     // Call computePreferredName(null)
     // TEST: exception
     try {
@@ -127,7 +130,9 @@ public class Handler001Test {
    * @throws Exception the exception
    */
   @Test
-  public void testHandlerEdgeCases001() throws Exception {
+  public void testHandlerEdgeCases() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
+
     // Call computePreferredName(new ConceptJpa())
     // TEST: returns null
     assertEquals(handlerService.computePreferredName(new HashSet<Atom>(),

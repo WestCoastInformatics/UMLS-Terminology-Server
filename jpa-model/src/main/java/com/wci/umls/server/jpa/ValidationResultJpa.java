@@ -109,6 +109,19 @@ public class ValidationResultJpa implements ValidationResult {
 
   /* see superclass */
   @Override
+  public void addError(String error) {
+    this.errors.add(error);
+  }
+
+  /* see superclass */
+  @Override
+  public void addWarning(String warning) {
+    this.warnings.add(warning);
+  }
+
+  
+  /* see superclass */
+  @Override
   public String toString() {
     return "ERRORS: " + errors + ", WARNINGS: " + warnings + ", COMMENTS: "
         + comments;

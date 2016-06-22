@@ -178,7 +178,8 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     tester.include("description");
     tester.include("isPublic");
     tester.include("terminology");
-    tester.include("semanticTypeCategorymap");
+    tester.include("semanticTypeCategoryMap");
+    tester.include("workflowPath");
     assertTrue(tester.testNotNullFields());
   }
 

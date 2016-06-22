@@ -6,6 +6,7 @@ package com.wci.umls.server.test.jpa;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -15,11 +16,12 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Sample test to get auto complete working
  */
-public class ContentServiceAutocompleteTest {
+public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
 
   /** The service. */
   ContentService service = null;
@@ -48,6 +50,7 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testConceptAutocompleteNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
         service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "lett");
     assertEquals(13, results.getObjects().size());
@@ -67,6 +70,7 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testDescriptorAutocompleteNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
         service.autocompleteDescriptors("MSH", "2015_2014_09_08", "dipa");
     assertEquals(7, results.getObjects().size());
@@ -86,6 +90,7 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testCodeAutocompleteNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
         service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "lett");
     assertEquals(13, results.getObjects().size());
@@ -113,6 +118,7 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testConceptAutocompleteEdgeCases() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
         service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "le");
     assertTrue(results.getObjects().isEmpty());
@@ -132,6 +138,7 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testConceptAutocompleteDegenerateUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results = service.autocompleteConcepts(null, null, null);
     assertTrue(results.getObjects().isEmpty());
   }

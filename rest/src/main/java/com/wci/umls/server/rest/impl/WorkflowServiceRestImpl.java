@@ -1,7 +1,13 @@
 package com.wci.umls.server.rest.impl;
 
+
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,6 +25,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -31,10 +38,13 @@ import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
+import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
@@ -266,7 +276,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
   @Path("/definition/{id}/remove")
   @ApiOperation(value = "Remove a workflow bin definition", notes = "Remove a workflow bin definition")
   public void removeWorkflowBinDefinition(
-    @ApiParam(value = "Project id, e.g. 1", required = true) @PathParam("projectId") Long projectId,
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin definition id, e.g. 1", required = true) @PathParam("id") Long binDefinitionId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
@@ -302,13 +312,183 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
 
   }
 
-  
   @Override
-  public void regenerateBins(Long projectId, WorkflowBinType type,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
+  @POST
+  @Path("/bins")
+  @ApiOperation(value = "Regenerate bins", notes = "Regenerate bins")
+  public void regenerateBins(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow bin type", required = true) WorkflowBinType type,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {  
+
+    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /bins ");
+
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+    try {
+      String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "trying to regenerate bins", UserRole.AUTHOR);
+
+      workflowService.setLastModifiedBy(userName);
+      Project project = workflowService.getProject(projectId);
+
+      WorkflowConfig workflowConfig =
+          workflowService.getWorkflowConfig(projectId, type);
+      
+      int i=0;
+      for (WorkflowBinDefinition definition : workflowConfig
+          .getWorkflowBinDefinitions()) {
+        
+        WorkflowBin bin = new WorkflowBinJpa();
+        bin.setCreationTime(new Date());
+        bin.setName(definition.getName());
+        bin.setDescription(definition.getDescription());
+        bin.setEditable(definition.isEditable());
+        bin.setProject(project);
+        bin.setRank(++i);
+        bin.setTerminology(project.getTerminology());
+        bin.setVersion("latest");
+        bin.setTerminologyId("");
+        bin.setTimestamp(new Date());
+        bin.setType(type);
+        workflowService.addWorkflowBin(bin);
+        
+        String query = definition.getQuery();
+
+        // execute the query
+        List<Object[]> results = null;
+        switch (definition.getQueryType()) {
+          case HQL:
+            try {
+              results = executeQuery(query, false, workflowService);
+            } catch (java.lang.IllegalArgumentException e) {
+              throw new LocalException(
+                  "Error executing HQL query: " + e.getMessage());
+            }
+            break;
+          case LUCENE:
+            // query map records index which returns map objects
+            // value = "", itemId = mapRecord.getId(),
+            // itemName=mapRecord.getConceptName()
+            break;
+          case SQL:
+            try {
+              results = executeQuery(query, true, workflowService);
+            } catch (javax.persistence.PersistenceException e) {
+              throw new LocalException(
+                  "Error executing SQL query:  " + e.getMessage());
+            } catch (java.lang.IllegalArgumentException e) {
+              throw new LocalException(
+                  "Error executing SQL query, possible invalid parameters (valid parameters are :MAP_PROJECT_ID:, :TIMESTAMP:):  "
+                      + e.getMessage());
+            }
+            break;
+          default:
+            break;
+
+        } // end execute query for each definition
+
+        if (results == null)
+          throw new Exception("Failed to retrieve results for query");
+
+        final Map<Long, Set<Long>> clusterIdComponentIdsMap = new HashMap<>();
+        
+        // put query results into map
+        for (final Object[] result : results) {
+          Long clusterId = new Long(result[0].toString());
+          Long componentId = new Long(result[1].toString());
+
+          if (clusterIdComponentIdsMap.containsKey(clusterId)) {
+            Set<Long> componentIds = clusterIdComponentIdsMap.get(clusterId);
+            componentIds.add(componentId);
+            clusterIdComponentIdsMap.put(clusterId, componentIds);
+          } else {
+            Set<Long> componentIds = new HashSet<>();
+            componentIds.add(componentId);
+            clusterIdComponentIdsMap.put(clusterId, componentIds);
+          }
+        }
+        
+        // for each cluster in clusterIdComponentIdsMap create a tracking record
+        for (Long clusterId : clusterIdComponentIdsMap.keySet()) {
+          TrackingRecord record = new TrackingRecordJpa();
+          record.setClusterId(clusterId);
+          record.setClusterType(""); // TODO!
+          record.setComponentIds(clusterIdComponentIdsMap.get(clusterId));
+          record.setTerminology(project.getTerminology());
+          record.setTimestamp(new Date());
+          record.setVersion("latest");
+          record.setWorkflowBin(bin);
+          record.setWorklist(null);
+
+          workflowService.addTrackingRecord(record);
+        }
+               
+      }     
+      
+    } catch (Exception e) {
+      handleException(e, "trying to regenerate bins");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
 
   }
+
+  private List<Object[]> executeQuery(String query, boolean nativeFlag, WorkflowServiceJpa workflowService)
+      throws Exception {
+
+      // check for sql query errors -- throw as local exception
+      // this is used to propagate errors back to user when testing queries
+
+      // ensure that query begins with SELECT (i.e. prevent injection
+      // problems)
+      if (!query.toUpperCase().startsWith("SELECT")) {
+        throw new LocalException(
+            "SQL Query has bad format:  does not begin with SELECT");
+      }
+
+      // check for multiple commands (i.e. multiple semi-colons)
+      if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
+        throw new LocalException(
+            "SQL Query has bad format:  multiple commands detected");
+      }
+
+      // crude check: check for data manipulation commands
+      if (query.toUpperCase().matches(
+          "ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
+        throw new LocalException(
+            "SQL Query has bad format:  data manipulation request detected");
+      }
+
+      // check for proper format for insertion into reports
+
+      if (query.toUpperCase().indexOf("FROM") == -1)
+        throw new LocalException("Workflow bin definition query must contain the term FROM");
+
+      String selectSubStr =
+          query.substring(0, query.toUpperCase().indexOf("FROM"));
+
+      if (!selectSubStr.contains("clusterId"))
+        throw new LocalException(
+            "Workflow bin definition query must return column result with name of 'clusterId'");
+
+      if (!selectSubStr.contains("componentId"))
+        throw new LocalException(
+            "Workflow bin definition query must return column result with name of 'componentId'");
+
+
+
+      javax.persistence.Query jpaQuery = null;
+      if (nativeFlag) {
+        jpaQuery = workflowService.getEntityManager().createNativeQuery(query);
+      } else {
+        jpaQuery = workflowService.getEntityManager().createQuery(query);
+      }
+      return jpaQuery.getResultList();
+    }
+
 
 
     @Override
@@ -487,13 +667,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
   @Override
   @POST
   @Path("/action")
-  @ApiOperation(value = "Perform workflow action on a tracking record", notes = "Performs the specified action as the specified refset as the specified user", response = TrackingRecordJpa.class)
+  @ApiOperation(value = "Perform workflow action on a tracking record", notes = "Performs the specified action as the specified refset as the specified user", response = WorklistJpa.class)
   public Worklist performWorkflowAction(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Worklist id, e.g. 5", required = false) @QueryParam("worklistId") Long worklistId,
     @ApiParam(value = "User name, e.g. author1", required = true) @QueryParam("userName") String userName,
     @ApiParam(value = "User role, e.g. AUTHOR", required = true)  UserRole role,
-    @ApiParam(value = "Workflow action, e.g. 'SAVE'", required = true) WorkflowAction action,
+    @ApiParam(value = "Workflow action, e.g. 'SAVE'", required = true) @QueryParam("action") WorkflowAction action,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -522,7 +702,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
       Worklist worklist = workflowService.getWorklist(worklistId);
       Project project = workflowService.getProject(projectId);
       // Set last modified by
-      worklist.setLastModifiedBy(authName);
+      workflowService.setLastModifiedBy(authName);
       Worklist returnWorklist = workflowService.performWorkflowAction(project, worklist, userName,
               role, action);
 

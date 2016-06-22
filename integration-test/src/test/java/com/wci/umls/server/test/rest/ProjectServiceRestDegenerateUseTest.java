@@ -55,7 +55,7 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestProject001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Get all projects and choose the first one.
     ProjectList projectList = projectService.getProjects(adminAuthToken);
@@ -141,7 +141,7 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestProject002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Procedure 1
     try {

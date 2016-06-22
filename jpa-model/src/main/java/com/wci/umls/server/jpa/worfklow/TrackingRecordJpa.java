@@ -4,47 +4,33 @@
 package com.wci.umls.server.jpa.worfklow;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyClass;
-import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
-import com.wci.umls.server.User;
-import com.wci.umls.server.UserRole;
-import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
-import com.wci.umls.server.jpa.helpers.UserMapUserNameBridge;
-import com.wci.umls.server.jpa.helpers.UserRoleBridge;
-import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -108,15 +94,6 @@ public class TrackingRecordJpa implements TrackingRecord {
   private Worklist worklist;
   
 
-  
-  /** The role map. */
-  @ElementCollection
-  @MapKeyClass(value = UserJpa.class)
-  @Enumerated(EnumType.STRING)
-  @MapKeyJoinColumn(name = "user_id")
-  @Column(name = "role")
-  @CollectionTable(name = "tracking_record_user_role_map")
-  private Map<User, UserRole> userRoleMap;
   
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
@@ -351,26 +328,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     return null;
   }
 
-  
-  /* see superclass */
-  @XmlJavaTypeAdapter(UserRoleMapAdapter.class)
-  @Fields({
-      @Field(bridge = @FieldBridge(impl = UserRoleBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-      @Field(name = "userAnyRole", bridge = @FieldBridge(impl = UserMapUserNameBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-  })
-  @Override
-  public Map<User, UserRole> getUserRoleMap() {
-    if (userRoleMap == null) {
-      userRoleMap = new HashMap<>();
-    }
-    return userRoleMap;
-  }
 
-  /* see superclass */
-  @Override
-  public void setUserRoleMap(Map<User, UserRole> userRoleMap) {
-    this.userRoleMap = userRoleMap;
-  }
   
   /* see superclass */
   @Override

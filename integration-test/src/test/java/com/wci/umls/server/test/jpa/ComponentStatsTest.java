@@ -18,11 +18,12 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Sample test to get auto complete working
  */
-public class ComponentStatsTest {
+public class ComponentStatsTest extends IntegrationUnitSupport {
 
   /** The service. */
   ContentService service = null;
@@ -51,7 +52,7 @@ public class ComponentStatsTest {
    */
   @Test
   public void testUmlsComponentStats() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     Map<String, Integer> umlsStats =
         service.getComponentStats("UMLS", "latest", Branch.ROOT);
@@ -126,7 +127,7 @@ public class ComponentStatsTest {
    */
   @Test
   public void testSnomedComponentStats() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     Map<String, Integer> snomedStats =
         service.getComponentStats("SNOMEDCT_US", "2014_09_01", Branch.ROOT);
@@ -201,7 +202,7 @@ public class ComponentStatsTest {
    */
   @Test
   public void testMshComponentStats() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     Map<String, Integer> mshStats =
         service.getComponentStats("MSH", "2015_2014_09_08", Branch.ROOT);

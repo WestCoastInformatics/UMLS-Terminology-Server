@@ -3,7 +3,6 @@ package com.wci.umls.server.jpa.worfklow;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
