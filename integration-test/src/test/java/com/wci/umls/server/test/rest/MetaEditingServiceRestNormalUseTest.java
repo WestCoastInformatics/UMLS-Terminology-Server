@@ -242,10 +242,9 @@ public class MetaEditingServiceRestNormalUseTest extends
     attribute.setVersion(umlsVersion);
     attribute.setTimestamp(new Date());
 
-    // TODO - remove once attribute ID functionality is implemented
-    attribute.setId(new Long(938596));
+    // TODO - remove manual declaration once attribute alternateIDs functionality is implemented
     Map<String,String> alternateIds = new HashMap<>();
-    alternateIds.put("UMLS", "AT175740342");
+    alternateIds.put(umlsTerminology, "AT175740342");
     attribute.setAlternateTerminologyIds(alternateIds);
 
     //

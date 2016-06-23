@@ -260,7 +260,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // log the REST call
       contentService.addLogEntry(userName, projectId, conceptId,
-          "Remove semantic type " + semanticTypeComponent.getSemanticType()
+          action + " " + semanticTypeComponent.getSemanticType()
               + " from concept " + concept.getTerminologyId());
 
       // commit (also adds the molecular action and removes the lock)
@@ -331,17 +331,17 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform action specific validation - n/a
 
       // Metadata referential integrity checking
-      //TODO - get ID from handler
-      if (contentService.getAttribute(attribute.getId()) == null) {
-        throw new LocalException(
-            "Cannot add invalid attribute - " + attribute.getName());
+      if (contentService.getAttributeName(attribute.getName(),
+          concept.getTerminology(), concept.getVersion()) == null) {
+        throw new LocalException("Cannot add invalid semantic type - "
+            + attribute.getName());
       }
 
       // Duplicate check
       for (Attribute a : concept.getAttributes()) {
-        if (a.getName().equals(attribute.getName())) {
+        if (a.getName().equals(attribute.getName()) && a.getValue().equals(attribute.getValue())) {
           throw new LocalException(
-              "Duplicate attribute - " + attribute.getName());
+              "Duplicate attribute - " + attribute.getName() + ", with value " + attribute.getValue());
         }
       }
 
@@ -380,7 +380,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent<AttributeJpa> event = new ChangeEventJpa<AttributeJpa>(
           action, IdType.ATTRIBUTE.toString(), null, newAttribute);
-      getNotificationWebsocket().send(ConfigUtility.getJsonForGraph(event));
+      sendChangeEvent(event);
 
       return validationResult;
 
@@ -473,7 +473,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // log the REST call
       contentService.addLogEntry(userName, projectId, conceptId,
-          "Remove semantic type " + attribute.getName()
+          action + " " + attribute.getName()
               + " from concept " + concept.getTerminologyId());
 
       // commit (also adds the molecular action and removes the lock)
@@ -484,7 +484,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           new ChangeEventJpa<AttributeJpa>(action,
               IdType.ATTRIBUTE.toString(),
               (AttributeJpa) attribute, null);
-      getNotificationWebsocket().send(ConfigUtility.getJsonForGraph(event));
+      sendChangeEvent(event);
 
       return validationResult;
 
