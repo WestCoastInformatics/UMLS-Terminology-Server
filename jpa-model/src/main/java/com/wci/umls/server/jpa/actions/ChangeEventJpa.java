@@ -1,9 +1,15 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.actions;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.model.actions.ChangeEvent;
 
@@ -15,8 +21,8 @@ import com.wci.umls.server.model.actions.ChangeEvent;
  * @param <T> the type
  */
 @XmlRootElement(name = "change")
-public class ChangeEventJpa<T extends AbstractComponent> implements
-    ChangeEvent<T> {
+public class ChangeEventJpa<T extends AbstractComponent>
+    implements ChangeEvent<T> {
 
   /** The id. */
   private Long id;
@@ -42,6 +48,9 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
   /** The new value. */
   private T newValue;
 
+  /** The container. */
+  private ComponentInfo container;
+
   /**
    * Instantiates an empty {@link ChangeEventJpa}.
    */
@@ -63,6 +72,7 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
     type = event.getType();
     oldValue = event.getOldValue();
     newValue = event.getNewValue();
+    container = event.getContainer();
   }
 
   /**
@@ -72,8 +82,10 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
    * @param type the type
    * @param oldValue the old value
    * @param newValue the new value
+   * @param container the container
    */
-  public ChangeEventJpa(String name, String type, T oldValue, T newValue) {
+  public ChangeEventJpa(String name, String type, T oldValue, T newValue,
+      ComponentInfo container) {
     if (newValue != null) {
       id = newValue.getId();
       timestamp = newValue.getTimestamp();
@@ -89,6 +101,7 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
     this.type = type;
     this.oldValue = oldValue;
     this.newValue = newValue;
+    this.container = container;
   }
 
   /* see superclass */
@@ -189,6 +202,19 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
 
   /* see superclass */
   @Override
+  @XmlElement(type=ComponentInfoJpa.class)  
+  public ComponentInfo getContainer() {
+    return container;
+  }
+
+  /* see superclass */
+  @Override
+  public void setContainer(ComponentInfo container) {
+    this.container = container;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -196,6 +222,7 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
     result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
     result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
+    result = prime * result + ((container == null) ? 0 : container.hashCode());
     return result;
   }
 
@@ -229,6 +256,11 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
         return false;
     } else if (!type.equals(other.type))
       return false;
+    if (container == null) {
+      if (other.container != null)
+        return false;
+    } else if (!container.equals(other.container))
+      return false;
     return true;
   }
 
@@ -238,7 +270,8 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
     return "ChangeEventJpa [id=" + id + ", timestamp=" + timestamp
         + ", lastModified=" + lastModified + ", lastModifiedBy="
         + lastModifiedBy + ", name=" + name + ", type=" + type + ", oldValue="
-        + oldValue + ", newValue=" + newValue + "]";
+        + oldValue + ", newValue=" + newValue + ", container=" + container
+        + "]";
   }
 
 }

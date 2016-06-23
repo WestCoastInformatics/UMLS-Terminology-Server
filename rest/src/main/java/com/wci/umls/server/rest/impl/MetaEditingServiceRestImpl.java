@@ -333,15 +333,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Metadata referential integrity checking
       if (contentService.getAttributeName(attribute.getName(),
           concept.getTerminology(), concept.getVersion()) == null) {
-        throw new LocalException("Cannot add invalid semantic type - "
-            + attribute.getName());
+        throw new LocalException(
+            "Cannot add invalid semantic type - " + attribute.getName());
       }
 
       // Duplicate check
       for (Attribute a : concept.getAttributes()) {
-        if (a.getName().equals(attribute.getName()) && a.getValue().equals(attribute.getValue())) {
-          throw new LocalException(
-              "Duplicate attribute - " + attribute.getName() + ", with value " + attribute.getValue());
+        if (a.getName().equals(attribute.getName())
+            && a.getValue().equals(attribute.getValue())) {
+          throw new LocalException("Duplicate attribute - "
+              + attribute.getName() + ", with value " + attribute.getValue());
         }
       }
 
@@ -395,6 +396,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/attribute/remove/{id}")
@@ -419,7 +421,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
     // Instantiate services
     final ContentService contentService = new ContentServiceJpa();
-    
+
     try {
 
       // Authorize project role, get userName
@@ -473,17 +475,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // log the REST call
       contentService.addLogEntry(userName, projectId, conceptId,
-          action + " " + attribute.getName()
-              + " from concept " + concept.getTerminologyId());
+          action + " " + attribute.getName() + " from concept "
+              + concept.getTerminologyId());
 
       // commit (also adds the molecular action and removes the lock)
       contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<AttributeJpa> event =
-          new ChangeEventJpa<AttributeJpa>(action,
-              IdType.ATTRIBUTE.toString(),
-              (AttributeJpa) attribute, null);
+      final ChangeEvent<AttributeJpa> event = new ChangeEventJpa<AttributeJpa>(
+          action, IdType.ATTRIBUTE.toString(), (AttributeJpa) attribute, null);
       sendChangeEvent(event);
 
       return validationResult;
