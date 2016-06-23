@@ -12,7 +12,6 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.apache.log4j.Logger;
-import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jsonp.JsonProcessingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -49,8 +48,8 @@ public class TermServerApplication extends Application {
     beanConfig.setVersion(API_VERSION);
 
     if (new ConfigureServiceRestImpl().isConfigured()) {
-      beanConfig.setBasePath(
-          ConfigUtility.getConfigProperties().getProperty("base.url"));
+      beanConfig.setBasePath(ConfigUtility.getConfigProperties().getProperty(
+          "base.url"));
       beanConfig.setResourcePackage("com.wci.umls.server.rest.impl");
       beanConfig.setScan(true);
     }
@@ -124,7 +123,7 @@ public class TermServerApplication extends Application {
     classes.add(ConfigureServiceRestImpl.class);
     classes.add(MetaEditingServiceRestImpl.class);
     classes.add(WorkflowServiceRestImpl.class);
-    //Make integration test rest services available in dev environment
+    // Make integration test rest services available in dev environment
     try {
       if (ConfigUtility.getConfigProperties().containsKey("base.url")
           && ConfigUtility.getConfigProperties().getProperty("base.url")
@@ -141,10 +140,10 @@ public class TermServerApplication extends Application {
     // register swagger classes
     classes
         .add(com.wordnik.swagger.jersey.listing.ApiListingResourceJSON.class);
-    classes.add(
-        com.wordnik.swagger.jersey.listing.JerseyApiDeclarationProvider.class);
-    classes.add(
-        com.wordnik.swagger.jersey.listing.JerseyResourceListingProvider.class);
+    classes
+        .add(com.wordnik.swagger.jersey.listing.JerseyApiDeclarationProvider.class);
+    classes
+        .add(com.wordnik.swagger.jersey.listing.JerseyResourceListingProvider.class);
     return classes;
   }
 
@@ -156,7 +155,7 @@ public class TermServerApplication extends Application {
     instances.add(new JsonProcessingFeature());
 
     // Enable for LOTS of logging of HTTP requests
-    instances.add(new LoggingFilter());
+    // instances.add(new LoggingFilter());
     return instances;
   }
 

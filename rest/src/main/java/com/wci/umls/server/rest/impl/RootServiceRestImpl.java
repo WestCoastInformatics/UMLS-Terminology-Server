@@ -174,7 +174,7 @@ public class RootServiceRestImpl {
    * @param event the event
    * @throws Exception
    */
-  public void sendChangeEvent(ChangeEvent<?> event) throws Exception {
+  public static void sendChangeEvent(ChangeEvent<?> event) throws Exception {
     if (websocket != null) {
       websocket.send(ConfigUtility.getJsonForGraph(event));
     }
