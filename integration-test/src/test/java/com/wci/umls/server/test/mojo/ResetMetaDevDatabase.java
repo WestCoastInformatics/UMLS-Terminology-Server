@@ -21,9 +21,9 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.ConfigUtility;
 
 /**
- * A mechanism to reset to the stock dev database.
+ * A mechanism to reset to the stock dev database for NCI-META testing.
  */
-public class ResetDevDatabase {
+public class ResetMetaDevDatabase {
 
   /** The properties. */
   static Properties config;
@@ -78,7 +78,6 @@ public class ResetDevDatabase {
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_UMLS");
     request.setProperties(p);
-    request.setDebug(true);
     Invoker invoker = new DefaultInvoker();
     InvocationResult result = invoker.execute(request);
     if (result.getExitCode() != 0) {

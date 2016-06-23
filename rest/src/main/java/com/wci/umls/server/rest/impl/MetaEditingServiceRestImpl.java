@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
@@ -168,7 +167,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent<SemanticTypeComponentJpa> event =
           new ChangeEventJpa<SemanticTypeComponentJpa>(action,
               IdType.SEMANTIC_TYPE.toString(), null, newSemanticType);
-      getNotificationWebsocket().send(ConfigUtility.getJsonForGraph(event));
+      sendChangeEvent(event);
 
       return validationResult;
 
@@ -272,7 +271,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           new ChangeEventJpa<SemanticTypeComponentJpa>(action,
               IdType.SEMANTIC_TYPE.toString(),
               (SemanticTypeComponentJpa) semanticTypeComponent, null);
-      getNotificationWebsocket().send(ConfigUtility.getJsonForGraph(event));
+      sendChangeEvent(event);
 
       return validationResult;
 

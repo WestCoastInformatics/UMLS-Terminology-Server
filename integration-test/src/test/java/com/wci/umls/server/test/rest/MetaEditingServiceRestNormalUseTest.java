@@ -37,8 +37,8 @@ import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 /**
  * Implementation of the "MetaEditing Service REST Normal Use" Test Cases.
  */
-public class MetaEditingServiceRestNormalUseTest
-    extends MetaEditingServiceRestTest {
+public class MetaEditingServiceRestNormalUseTest extends
+    MetaEditingServiceRestTest {
 
   /** The auth token. */
   private static String authToken;
@@ -99,8 +99,8 @@ public class MetaEditingServiceRestNormalUseTest
   public void testAddAndRemoveSemanticTypeToConcept() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    Logger.getLogger(getClass())
-        .info("TEST - Add and remove semantic type to/from " + "C0000294,"
+    Logger.getLogger(getClass()).info(
+        "TEST - Add and remove semantic type to/from " + "C0000294,"
             + umlsTerminology + ", " + umlsVersion + ", " + authToken);
 
     //
@@ -131,8 +131,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the semantic type to the concept
     ValidationResult v =
-        metaEditingService.addSemanticType(project.getId(), c.getId(),
-            c.getLastModified().getTime(), semanticType, false, authToken);
+        metaEditingService.addSemanticType(project.getId(), c.getId(), c
+            .getLastModified().getTime(), semanticType, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
@@ -150,8 +150,9 @@ public class MetaEditingServiceRestNormalUseTest
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    MolecularActionList list = contentService
-        .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+    MolecularActionList list =
+        contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+            authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -169,8 +170,10 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // remove the semantic type from the concept
-    v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getLastModified().getTime(), semanticType.getId(), false, authToken);
+    v =
+        metaEditingService.removeSemanticType(project.getId(), c.getId(), c
+            .getLastModified().getTime(), semanticType.getId(), false,
+            authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
@@ -188,8 +191,9 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
-        authToken);
+    list =
+        contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+            authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
