@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -53,9 +53,9 @@ public class MetaEditingClientRest extends RootClientRest
     validateNotEmpty(conceptId, "conceptId");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/meta/sty/add?projectId="
-            + projectId + "&conceptId=" + conceptId + "&lastModified=" + lastModified
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/meta/sty/add?projectId=" + projectId
+            + "&conceptId=" + conceptId + "&lastModified=" + lastModified
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
@@ -90,8 +90,8 @@ public class MetaEditingClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/sty/remove/" + semanticTypeComponentId + "?projectId="
-        + projectId + "&conceptId=" + conceptId + "&lastModified=" + lastModified
-        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+        + projectId + "&conceptId=" + conceptId + "&lastModified="
+        + lastModified + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
@@ -108,13 +108,14 @@ public class MetaEditingClientRest extends RootClientRest
         ValidationResultJpa.class);
     return v;
   }
-  
+
+  /* see superclass */
   @Override
   public ValidationResult addAttribute(Long projectId, Long conceptId,
-    Long lastModified, AttributeJpa attribute,
-    boolean overrideWarnings, String authToken) throws Exception {
+    Long lastModified, AttributeJpa attribute, boolean overrideWarnings,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
-        .debug("MetaEditing Client - add attribute to concept" + projectId
+        .debug("MetaEditing Client - add attribute to concept " + projectId
             + ", " + conceptId + ", " + attribute.toString() + ", "
             + lastModified + ", " + overrideWarnings + ", " + authToken);
 
@@ -122,14 +123,13 @@ public class MetaEditingClientRest extends RootClientRest
     validateNotEmpty(conceptId, "conceptId");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/meta/attribute/add?projectId="
-            + projectId + "&conceptId=" + conceptId + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/attribute/add?projectId=" + projectId + "&conceptId="
+        + conceptId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken)
-        .post(Entity.json(attribute));
+        .header("Authorization", authToken).post(Entity.json(attribute));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -149,17 +149,17 @@ public class MetaEditingClientRest extends RootClientRest
     Long lastModified, Long attributeId, boolean overrideWarnings,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
-        .debug("MetaEditing Client - remove attribute from concept "
-            + projectId + ", " + conceptId + ", " + attributeId
-            + ", " + lastModified + ", " + overrideWarnings + ", " + authToken);
+        .debug("MetaEditing Client - remove attribute from concept " + projectId
+            + ", " + conceptId + ", " + attributeId + ", " + lastModified + ", "
+            + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/meta/attribute/remove/" + attributeId + "?projectId="
-        + projectId + "&conceptId=" + conceptId + "&lastModified=" + lastModified
+        + "/meta/attribute/remove/" + attributeId + "?projectId=" + projectId
+        + "&conceptId=" + conceptId + "&lastModified=" + lastModified
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     Response response = target.request(MediaType.APPLICATION_XML)
