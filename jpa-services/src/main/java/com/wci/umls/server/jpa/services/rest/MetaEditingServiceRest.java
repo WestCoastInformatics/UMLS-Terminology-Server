@@ -24,7 +24,7 @@ public interface MetaEditingServiceRest {
    * @param semanticTypeComponent the semantic type component
    * @param overrideWarnings whether to override warnings
    * @param authToken the auth token
-   * @return the concept
+   * @return the validation result
    * @throws Exception the exception
    */
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
