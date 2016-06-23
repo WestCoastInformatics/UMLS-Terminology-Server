@@ -39,7 +39,7 @@ public class MetadataServiceRestDegenerateUseTest extends
    */
   @Test
   public void testDegenerateUseRestMetadata001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     try {
       metadataService.getTerminologies("InvalidAuthToken");
       fail("Getting all terminology/version pairs without authorization token succeeded.");
@@ -59,7 +59,7 @@ public class MetadataServiceRestDegenerateUseTest extends
    */
   @Test
   public void testDegenerateUseRestMetadata002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization
     try {
@@ -76,7 +76,7 @@ public class MetadataServiceRestDegenerateUseTest extends
    */
   @Test
   public void testDegenerateUseRestMetadata003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization
     try {
@@ -111,7 +111,7 @@ public class MetadataServiceRestDegenerateUseTest extends
    */
   @Test
   public void testDegenerateUseRestMetadata004() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization
     try {
@@ -130,7 +130,7 @@ public class MetadataServiceRestDegenerateUseTest extends
    */
   @Test
   public void testDegenerateUseRestMetadata005() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization
     try {

@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -233,9 +233,34 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public Concept getConcept(Long conceptId, Long projectId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Client - get concept "
+        + conceptId + ", " + "," + projectId + "," + authToken);
+    validateNotEmpty(conceptId, "conceptId");
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/content/concept/"
+            + conceptId + (projectId == null ? "" : "?projectId=" + projectId));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, ConceptJpa.class);
+  }
+
+  /* see superclass */
+  @Override
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - find concepts "
         + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
@@ -355,7 +380,7 @@ public class ContentClientRest extends RootClientRest
   @Override
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - find descriptors "
         + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
@@ -761,7 +786,7 @@ public class ContentClientRest extends RootClientRest
   @Override
   public CodeList findAncestorCodes(String terminologyId, String terminology,
     String version, boolean parentsOnly, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - find ancestor codes " + terminologyId + ", "
             + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
@@ -794,7 +819,7 @@ public class ContentClientRest extends RootClientRest
   @Override
   public CodeList findDescendantCodes(String terminologyId, String terminology,
     String version, boolean childrenOnly, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - find descendant codes " + terminologyId + ", "
             + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
@@ -906,6 +931,7 @@ public class ContentClientRest extends RootClientRest
 
   }
 
+  /* see superclass */
   @Override
   public void loadTerminologyRf2Full(String terminology, String version,
     String inputDir, String authToken) throws Exception {
@@ -976,6 +1002,7 @@ public class ContentClientRest extends RootClientRest
     }
   }
 
+  /* see superclass */
   @Override
   public void loadTerminologyOwl(String terminology, String version,
     String inputFile, String authToken) throws Exception {
@@ -1125,6 +1152,7 @@ public class ContentClientRest extends RootClientRest
    * @param terminology the terminology
    * @param version the version
    * @param pfs the pfs
+   * @param filter the filter
    * @param authToken the auth token
    * @return the relationship list
    * @throws Exception the exception
@@ -1441,7 +1469,7 @@ public class ContentClientRest extends RootClientRest
    */
   private TreeList findTreesHelper(String type, String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/" + type + "/"
@@ -1516,7 +1544,7 @@ public class ContentClientRest extends RootClientRest
    */
   private Tree findTreeForQueryHelper(String type, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/content/" + type + "/" + terminology + "/" + version + "/trees"
@@ -1543,7 +1571,7 @@ public class ContentClientRest extends RootClientRest
   @Override
   public TreeList findConceptTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/" + "/concept"
@@ -1570,7 +1598,7 @@ public class ContentClientRest extends RootClientRest
   @Override
   public TreeList findDescriptorTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client
         .target(config.getProperty("base.url") + "/content/" + "/descriptor"
@@ -1596,7 +1624,7 @@ public class ContentClientRest extends RootClientRest
   @Override
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/" + "/code"
@@ -1693,6 +1721,7 @@ public class ContentClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString, TreeJpa.class);
   }
 
+  /* see superclass */
   @Override
   public MapSet getMapSet(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
@@ -1719,6 +1748,7 @@ public class ContentClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString, MapSetJpa.class);
   }
 
+  /* see superclass */
   @Override
   public MapSetList getMapSets(String terminology, String version,
     String authToken) throws Exception {
@@ -1744,10 +1774,11 @@ public class ContentClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString, MapSetListJpa.class);
   }
 
+  /* see superclass */
   @Override
   public MappingList findMappingsForMapSet(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - find mappings for mapset " + terminology + ", "
             + version);
@@ -1776,6 +1807,7 @@ public class ContentClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString, MappingListJpa.class);
   }
 
+  /* see superclass */
   @Override
   public void computeExpressionIndexes(String terminology, String version,
     String authToken) throws Exception {
@@ -1800,6 +1832,7 @@ public class ContentClientRest extends RootClientRest
     }
   }
 
+  /* see superclass */
   @Override
   public Integer getEclExpressionResultCount(String query, String terminology,
     String version, String authToken) throws Exception {
@@ -1827,6 +1860,7 @@ public class ContentClientRest extends RootClientRest
     }
   }
 
+  /* see superclass */
   @Override
   public SearchResultList getEclExpressionResults(String terminology,
     String version, String query, String authToken) throws Exception {
@@ -1856,6 +1890,7 @@ public class ContentClientRest extends RootClientRest
     }
   }
 
+  /* see superclass */
   @Override
   public SearchResultList getFavoritesForUser(PfsParameterJpa pfs,
     String authToken) throws Exception {
@@ -1881,6 +1916,7 @@ public class ContentClientRest extends RootClientRest
         SearchResultListJpa.class);
   }
 
+  /* see superclass */
   @Override
   public void addConceptNote(String terminology, String version,
     String terminologyId, String noteText, String authToken) throws Exception {
@@ -1908,6 +1944,7 @@ public class ContentClientRest extends RootClientRest
     }
   }
 
+  /* see superclass */
   @Override
   public void removeConceptNote(Long noteId, String authToken)
     throws Exception {
@@ -1930,6 +1967,7 @@ public class ContentClientRest extends RootClientRest
 
   }
 
+  /* see superclass */
   @Override
   public void addDescriptorNote(String terminology, String version,
     String terminologyId, String noteText, String authToken) throws Exception {
@@ -1957,6 +1995,7 @@ public class ContentClientRest extends RootClientRest
     }
   }
 
+  /* see superclass */
   @Override
   public void removeDescriptorNote(Long noteId, String authToken)
     throws Exception {
@@ -1979,6 +2018,7 @@ public class ContentClientRest extends RootClientRest
 
   }
 
+  /* see superclass */
   @Override
   public void addCodeNote(String terminology, String version,
     String terminologyId, String noteText, String authToken) throws Exception {
@@ -2006,6 +2046,7 @@ public class ContentClientRest extends RootClientRest
     }
   }
 
+  /* see superclass */
   @Override
   public void removeCodeNote(Long noteId, String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -2027,6 +2068,7 @@ public class ContentClientRest extends RootClientRest
 
   }
 
+  /* see superclass */
   @Override
   public SearchResultList getComponentsWithNotesForQuery(String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
@@ -2053,6 +2095,7 @@ public class ContentClientRest extends RootClientRest
         SearchResultListJpa.class);
   }
 
+  /* see superclass */
   @Override
   public MolecularActionList findMolecularActionsForConcept(Long conceptId,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {

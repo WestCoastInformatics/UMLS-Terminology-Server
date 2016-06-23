@@ -77,7 +77,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
-    @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponentJpa semanticTypeComponent,
+    @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponentJpa semanticType,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -85,7 +85,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful POST call (MetaEditing): /sty/" + projectId + "/" + conceptId
             + "/add for user " + authToken + " with sty value "
-            + semanticTypeComponent.getSemanticType());
+            + semanticType.getSemanticType());
 
     // Prep reusable variables
     final String action = "ADD_SEMANTIC_TYPE";
@@ -118,17 +118,17 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Metadata referential integrity checking
       if (contentService.getSemanticType(
-          semanticTypeComponent.getSemanticType(), concept.getTerminology(),
+          semanticType.getSemanticType(), concept.getTerminology(),
           concept.getVersion()) == null) {
         throw new LocalException("Cannot add invalid semantic type - "
-            + semanticTypeComponent.getSemanticType());
+            + semanticType.getSemanticType());
       }
 
       // Duplicate check
       for (SemanticTypeComponent s : concept.getSemanticTypes()) {
-        if (s.getSemanticType().equals(semanticTypeComponent.getSemanticType())) {
+        if (s.getSemanticType().equals(semanticType.getSemanticType())) {
           throw new LocalException("Duplicate semantic type - "
-              + semanticTypeComponent.getSemanticType());
+              + semanticType.getSemanticType());
         }
       }
 
@@ -146,13 +146,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       //
 
       // add the semantic type component itself and set the last modified
-      semanticTypeComponent.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      SemanticTypeComponentJpa newSemanticTypeComponent =
+      semanticType.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      SemanticTypeComponentJpa newSemanticType =
           (SemanticTypeComponentJpa) contentService.addSemanticTypeComponent(
-              semanticTypeComponent, concept);
+              semanticType, concept);
 
       // add the semantic type and set the last modified by
-      concept.getSemanticTypes().add(newSemanticTypeComponent);
+      concept.getSemanticTypes().add(newSemanticType);
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
       // update the concept
@@ -160,7 +160,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // log the REST call
       contentService.addLogEntry(userName, projectId, conceptId,
-          "Add semantic type " + newSemanticTypeComponent.getSemanticType()
+          "Add semantic type " + newSemanticType.getSemanticType()
               + " to concept " + concept.getTerminologyId());
 
       // commit (also removes the lock)
@@ -169,7 +169,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       // Websocket notification
       final ChangeEvent<SemanticTypeComponentJpa> event =
           new ChangeEventJpa<SemanticTypeComponentJpa>(action,
-              IdType.SEMANTIC_TYPE.toString(), null, newSemanticTypeComponent);
+              IdType.SEMANTIC_TYPE.toString(), null, newSemanticType);
       getNotificationWebsocket().send(ConfigUtility.getJsonForGraph(event));
 
       return validationResult;
@@ -400,19 +400,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
     // throw exception on terminology mismatch
     if (!concept.getTerminology().equals(project.getTerminology())) {
-      result.getErrors().add("Project and concept terminologies do not match");
-    }
-
-    // throw exception on branch mismatch
-    if (!concept.getBranch().equals(project.getBranch())) {
-      result.getErrors().add("Project and concept branches do not match");
+      throw new Exception("Project and concept terminologies do not match");
     }
 
     if (concept.getLastModified().getTime() != lastModified) {
-      result
-          .getErrors()
-          .add(
-              "Stale state detected: stored lastModified does not match passed lastModified");
+      throw new LocalException(
+              "Concept has changed since last read, please refresh and try again");
     }
 
     // Return concept

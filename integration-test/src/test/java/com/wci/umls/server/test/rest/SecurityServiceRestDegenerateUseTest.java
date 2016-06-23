@@ -52,7 +52,7 @@ public class SecurityServiceRestDegenerateUseTest extends
    */
   @Test
   public void testDegenerateUseRestSecurity001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Method method =
         service.getClass().getMethod("authenticate", new Class<?>[] {
@@ -75,7 +75,7 @@ public class SecurityServiceRestDegenerateUseTest extends
    */
   @Test
   public void testDegenerateUseRestSecurity002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // degenerate helper parameters
     Method method;

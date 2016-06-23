@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -290,8 +290,8 @@ public interface ContentService extends MetadataService {
    * @return the descriptors
    * @throws Exception the exception
    */
-  public DescriptorList getDescriptors(String terminologyId,
-    String terminology, String version) throws Exception;
+  public DescriptorList getDescriptors(String terminologyId, String terminology,
+    String version) throws Exception;
 
   /**
    * Gets the descriptor.
@@ -807,8 +807,7 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeRelationship(
-    Long id,
+  public void removeRelationship(Long id,
     Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
     throws Exception;
 
@@ -853,8 +852,7 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeTransitiveRelationship(
-    Long id,
+  public void removeTransitiveRelationship(Long id,
     Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
     throws Exception;
 
@@ -957,8 +955,7 @@ public interface ContentService extends MetadataService {
    * @param memberClass the member class
    * @throws Exception the exception
    */
-  public void removeSubsetMember(
-    Long id,
+  public void removeSubsetMember(Long id,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1072,7 +1069,8 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @return the all codes
    */
-  public CodeList getAllCodes(String terminology, String version, String branch);
+  public CodeList getAllCodes(String terminology, String version,
+    String branch);
 
   /**
    * Gets the all subsets.
@@ -1315,8 +1313,8 @@ public interface ContentService extends MetadataService {
    * @return the definitions
    * @throws Exception the exception
    */
-  public DefinitionList getDefinitions(String terminologyId,
-    String terminology, String version) throws Exception;
+  public DefinitionList getDefinitions(String terminologyId, String terminology,
+    String version) throws Exception;
 
   /**
    * Gets the definition.
@@ -1339,10 +1337,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> getRelationship(
-    String terminologyId,
-    String terminology,
-    String version,
-    String branch,
+    String terminologyId, String terminology, String version, String branch,
     Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
     throws Exception;
 
@@ -1356,10 +1351,8 @@ public interface ContentService extends MetadataService {
    * @return the relationships
    * @throws Exception the exception
    */
-  public RelationshipList getRelationships(
-    String terminologyId,
-    String terminology,
-    String version,
+  public RelationshipList getRelationships(String terminologyId,
+    String terminology, String version,
     Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
     throws Exception;
 
@@ -1388,10 +1381,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    String terminologyId,
-    String terminology,
-    String version,
-    String branch,
+    String terminologyId, String terminology, String version, String branch,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1405,10 +1395,8 @@ public interface ContentService extends MetadataService {
    * @return the subset members
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembers(
-    String terminologyId,
-    String terminology,
-    String version,
+  public SubsetMemberList getSubsetMembers(String terminologyId,
+    String terminology, String version,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1683,8 +1671,8 @@ public interface ContentService extends MetadataService {
    * @return the map sets
    * @throws Exception the exception
    */
-  public MapSetList getMapSets(String terminology, String version, String branch)
-    throws Exception;
+  public MapSetList getMapSets(String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Find mappings for concept.

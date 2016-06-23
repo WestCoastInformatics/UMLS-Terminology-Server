@@ -124,6 +124,16 @@ public class TermServerApplication extends Application {
     classes.add(ConfigureServiceRestImpl.class);
     classes.add(MetaEditingServiceRestImpl.class);
     classes.add(WorkflowServiceRestImpl.class);
+    //Make integration test rest services available in dev environment
+    try {
+      if (ConfigUtility.getConfigProperties().containsKey("base.url")
+          && ConfigUtility.getConfigProperties().getProperty("base.url")
+              .contains("localhost:8080")) {
+        classes.add(IntegrationTestServiceRestImpl.class);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
 
     // register file upload support classes
     classes.add(MultiPartFeature.class);

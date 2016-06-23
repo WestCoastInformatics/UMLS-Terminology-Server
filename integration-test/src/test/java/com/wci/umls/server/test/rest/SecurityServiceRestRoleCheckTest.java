@@ -54,7 +54,7 @@ public class SecurityServiceRestRoleCheckTest extends SecurityServiceRestTest {
    */
   @Test
   public void testRoleCheckRestSecurity002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // create test user
     UserJpa testUser = new UserJpa();

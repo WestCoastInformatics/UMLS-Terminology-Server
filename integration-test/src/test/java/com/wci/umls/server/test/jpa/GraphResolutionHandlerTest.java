@@ -30,11 +30,12 @@ import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Integration testing for {@link DefaultGraphResolutionHandler}.
  */
-public class Handler002Test {
+public class GraphResolutionHandlerTest extends IntegrationUnitSupport {
 
   /** The handler service. */
   private GraphResolutionHandler handlerService;
@@ -66,7 +67,7 @@ public class Handler002Test {
    */
   @Test
   public void testHandlerNormalUse002() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testHandlerNormalUse002");
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // Test a UMLS concept
     // Test a UMLS atom
@@ -91,6 +92,7 @@ public class Handler002Test {
    */
   @Test
   public void testHandlerDegenerateUse002() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // TEST: exception
     try {
@@ -191,6 +193,7 @@ public class Handler002Test {
    */
   @Test
   public void testHandlerEdgeCases002() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     // Call computePreferredName(new ConceptJpa())
     // TEST: no exceptions
     handlerService.resolve(new SemanticTypeComponentJpa());

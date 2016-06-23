@@ -85,11 +85,12 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestWorkflow001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testNormalUseRestWorkflow00() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    Logger.getLogger(getClass()).info("TEST - Add and remove workflow config"
-        + umlsTerminology + ", " + umlsVersion + ", " + authToken);
+    Logger.getLogger(getClass()).info(
+        "TEST - Add and remove workflow config" + umlsTerminology + ", "
+            + umlsVersion + ", " + authToken);
 
     //
     // Prepare the test and check prerequisites
@@ -111,10 +112,10 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
 
     // add the workflow config
-    WorkflowConfig addedWorkflowConfig = workflowService
-        .addWorkflowConfig(project.getId(), workflowConfig, authToken);
-    assertTrue(
-        addedWorkflowConfig.getType() == WorkflowBinType.MUTUALLY_EXCLUSIVE);
+    WorkflowConfig addedWorkflowConfig =
+        workflowService.addWorkflowConfig(project.getId(), workflowConfig,
+            authToken);
+    assertTrue(addedWorkflowConfig.getType() == WorkflowBinType.MUTUALLY_EXCLUSIVE);
     assertTrue(addedWorkflowConfig.isMutuallyExclusive());
     assertTrue(addedWorkflowConfig.getLastModifiedBy().equals(authToken));
     assertTrue(addedWorkflowConfig.getProject().getId().longValue() == project
@@ -135,8 +136,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
 
     // remove the workflow config
-    workflowService.removeWorkflowConfig(addedWorkflowConfig.getId(),
-        authToken);
+    workflowService
+        .removeWorkflowConfig(addedWorkflowConfig.getId(), authToken);
     // assertTrue(v.getErrors().isEmpty());
 
   }
@@ -148,10 +149,10 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
    */
   @Test
   public void testNormalUseRestWorkflow002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    Logger.getLogger(getClass())
-        .info("TEST - Add and remove workflow bin definition" + umlsTerminology
+    Logger.getLogger(getClass()).info(
+        "TEST - Add and remove workflow bin definition" + umlsTerminology
             + ", " + umlsVersion + ", " + authToken);
 
     //
@@ -174,8 +175,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
 
     // add the workflow config
-    WorkflowConfig addedWorkflowConfig = workflowService
-        .addWorkflowConfig(project.getId(), workflowConfig, authToken);
+    WorkflowConfig addedWorkflowConfig =
+        workflowService.addWorkflowConfig(project.getId(), workflowConfig,
+            authToken);
 
     WorkflowBinDefinitionJpa workflowBinDefinition =
         new WorkflowBinDefinitionJpa();
@@ -210,8 +212,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     workflowService.removeWorkflowBinDefinition(project.getId(),
         addedWorkflowBinDefinition.getId(), authToken);
     // remove the workflow config
-    workflowService.removeWorkflowConfig(addedWorkflowConfig.getId(),
-        authToken);
+    workflowService
+        .removeWorkflowConfig(addedWorkflowConfig.getId(), authToken);
     // assertTrue(v.getErrors().isEmpty());
 
   }
@@ -223,7 +225,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
    */
   @Test
   public void testNormalUseRestWorkflow003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info("TEST - Regenerate bins" + umlsTerminology
         + ", " + umlsVersion + ", " + authToken);
@@ -248,8 +250,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
 
     // add the workflow config
-    WorkflowConfig addedWorkflowConfig = workflowService
-        .addWorkflowConfig(project.getId(), workflowConfig, authToken);
+    WorkflowConfig addedWorkflowConfig =
+        workflowService.addWorkflowConfig(project.getId(), workflowConfig,
+            authToken);
 
     WorkflowBinDefinitionJpa workflowBinDefinition =
         new WorkflowBinDefinitionJpa();
@@ -496,8 +499,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         addedWorkflowBinDefinition.getId(), authToken);
 
     // remove the workflow config
-    workflowService.removeWorkflowConfig(addedWorkflowConfig.getId(),
-        authToken);
+    workflowService
+        .removeWorkflowConfig(addedWorkflowConfig.getId(), authToken);
 
     // remove bins and tracking records
     for (WorkflowBin bin : workflowServiceJpa.getWorkflowBins()) {

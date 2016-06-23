@@ -145,6 +145,7 @@ public class AtomicActionJpaUnitTest extends ModelUnitSupport {
     tester.include("idType");
     tester.include("objectId");
     tester.include("field");
+    tester.include("molecularAction");
     assertTrue(tester.testNotNullFields());
   }
 

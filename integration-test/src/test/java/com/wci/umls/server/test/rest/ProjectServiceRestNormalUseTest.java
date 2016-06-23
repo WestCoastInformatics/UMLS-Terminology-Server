@@ -64,7 +64,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    */
   @Test
   public void testNormalUseRestProject001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Add a project
     Logger.getLogger(getClass()).info("  Add project");
@@ -112,7 +112,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    */
   @Test
   public void testNormalUseRestProject002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Add a project
     Logger.getLogger(getClass()).info("  Add project");
@@ -159,7 +159,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    */
   @Test
   public void testNormalUseRestValidation001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Project p = projectService.getProjects(adminAuthToken).getObjects().get(0);
     
@@ -180,7 +180,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    */
   // TODO @Test
   public void testNormalUseRestValidation002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     
 
     /*Project p = projectService.getProjects(adminAuthToken).getObjects().get(0);
@@ -203,7 +203,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    */
   @Test
   public void testNormalUseRestValidation003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
 
     Project p = projectService.getProjects(adminAuthToken).getObjects().get(0);
@@ -226,7 +226,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    */
   @Test
   public void testNormalUseRestProject004() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     
     Project p = projectService.getProjects(adminAuthToken).getObjects().get(0);
 

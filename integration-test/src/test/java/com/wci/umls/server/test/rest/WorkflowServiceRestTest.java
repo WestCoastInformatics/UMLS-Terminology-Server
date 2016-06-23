@@ -15,21 +15,22 @@ import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
 import com.wci.umls.server.rest.client.WorkflowClientRest;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Integration test for REST content service.
  */
-public class WorkflowServiceRestTest {
+public class WorkflowServiceRestTest extends IntegrationUnitSupport {
 
   /** The service. */
   protected static ContentClientRest contentService;
 
   /** The security service. */
   protected static SecurityClientRest securityService;
-  
+
   /** the project service */
   protected static ProjectClientRest projectService;
-  
+
   /** The meta editing service */
   protected static WorkflowClientRest workflowService;
 
@@ -86,7 +87,6 @@ public class WorkflowServiceRestTest {
     if (adminPassword == null || adminPassword.isEmpty()) {
       throw new Exception("Test prerequisite: admin.password must be specified");
     }
-    
 
   }
 
@@ -103,7 +103,7 @@ public class WorkflowServiceRestTest {
      */
 
   }
-  
+
   /**
    * Teardown.
    *

@@ -63,7 +63,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   @Test
   public void testNormalUseRestMetadata001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     TerminologyList termList = metadataService.getTerminologies(authToken);
     Logger.getLogger(getClass()).debug("  data = " + termList);
@@ -106,7 +106,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   @Test
   public void testNormalUseRestMetadata002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // flags for whether SNOMEDCT_US and ICD9CM were found
     boolean foundUmls = false;
@@ -151,7 +151,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   @Test
   public void testNormalUseRestMetadata003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test UMLS metadata
     assertTrue(testUmlsMetadata(metadataService.getAllMetadata("UMLS",
@@ -173,7 +173,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   @Test
   public void testNormalUseRestMetadata004() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test UMLS metadata
     Terminology umls =
@@ -264,7 +264,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   @Test
   public void testNormalUseRestMetadata005() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test precedence list
     PrecedenceList precedence =

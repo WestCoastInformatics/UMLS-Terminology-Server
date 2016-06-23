@@ -16,11 +16,12 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.services.validation.DefaultValidationCheck;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Testing for {@link DefaultValidationCheckTest}.
  */
-public class DefaultValidationCheckTest {
+public class DefaultValidationCheckTest extends IntegrationUnitSupport {
 
   /** The handler service. */
   private DefaultValidationCheck defaultValidationCheck;
@@ -52,8 +53,8 @@ public class DefaultValidationCheckTest {
    * @throws Exception the exception
    */
   @Test
-  public void testHandlerNormalUse001() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testHandlerNormalUse001");
+  public void testHandlerNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     Atom atom = new AtomJpa();
     atom.setTerminologyId("12345");
@@ -98,7 +99,8 @@ public class DefaultValidationCheckTest {
    * @throws Exception the exception
    */
   @Test
-  public void testHandlerDegenerateUse001() throws Exception {
+  public void testHandlerDegenerateUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     Atom atom = null;
     ValidationResult result = defaultValidationCheck.validate(atom);
@@ -113,7 +115,9 @@ public class DefaultValidationCheckTest {
    * @throws Exception the exception
    */
   @Test
-  public void testHandlerEdgeCases001() throws Exception {
+  public void testHandlerEdgeCases() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
+
     Atom atom = new AtomJpa();
     ValidationResult result = defaultValidationCheck.validate(atom);
     Logger.getLogger(getClass()).info(result);

@@ -11,12 +11,13 @@ import org.junit.Ignore;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.rest.client.SecurityClientRest;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * The Class SecurityServiceRestTest.
  */
 @Ignore
-public class SecurityServiceRestTest {
+public class SecurityServiceRestTest extends IntegrationUnitSupport {
   /** The service. */
   protected static SecurityClientRest service;
 

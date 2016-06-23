@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -47,6 +47,17 @@ public interface ContentServiceRest {
   public Concept getConcept(String terminologyId, String terminology,
     String version, Long projectId, String authToken) throws Exception;
 
+  /**
+   * Returns the concept.
+   *
+   * @param conceptId the concept id
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the concept
+   * @throws Exception the exception
+   */
+  public Concept getConcept(Long conceptId, Long projectId, String authToken) throws Exception;
+  
   /**
    * Find concepts for query.
    *
@@ -980,8 +991,8 @@ public interface ContentServiceRest {
   /**
    * Gets the components with notes for user.
    *
-   * @param pfs the pfs
    * @param query the query
+   * @param pfs the pfs
    * @param authToken the auth token
    * @return the components with notes for user
    * @throws Exception the exception
