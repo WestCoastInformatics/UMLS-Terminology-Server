@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
@@ -117,9 +116,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       // Perform action specific validation - n/a
 
       // Metadata referential integrity checking
-      if (contentService.getSemanticType(
-          semanticType.getSemanticType(), concept.getTerminology(),
-          concept.getVersion()) == null) {
+      if (contentService.getSemanticType(semanticType.getSemanticType(),
+          concept.getTerminology(), concept.getVersion()) == null) {
         throw new LocalException("Cannot add invalid semantic type - "
             + semanticType.getSemanticType());
       }
@@ -170,7 +168,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       final ChangeEvent<SemanticTypeComponentJpa> event =
           new ChangeEventJpa<SemanticTypeComponentJpa>(action,
               IdType.SEMANTIC_TYPE.toString(), null, newSemanticType);
-      getNotificationWebsocket().send(ConfigUtility.getJsonForGraph(event));
+      sendChangeEvent(event);
 
       return validationResult;
 
@@ -276,7 +274,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
           new ChangeEventJpa<SemanticTypeComponentJpa>(action,
               IdType.SEMANTIC_TYPE.toString(),
               (SemanticTypeComponentJpa) semanticTypeComponent, null);
-      getNotificationWebsocket().send(ConfigUtility.getJsonForGraph(event));
+      sendChangeEvent(event);
 
       return validationResult;
 
@@ -405,7 +403,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
     if (concept.getLastModified().getTime() != lastModified) {
       throw new LocalException(
-              "Concept has changed since last read, please refresh and try again");
+          "Concept has changed since last read, please refresh and try again");
     }
 
     // Return concept

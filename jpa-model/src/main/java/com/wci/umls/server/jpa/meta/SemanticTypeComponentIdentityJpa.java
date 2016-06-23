@@ -14,7 +14,7 @@ import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
  */
 @Entity
 @Table(name = "sty_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "concepTerminologyId", "terminology", "id"
+    "conceptTerminologyId", "terminology", "id"
 }))
 @XmlRootElement(name = "styIdentity")
 public class SemanticTypeComponentIdentityJpa implements

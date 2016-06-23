@@ -33,12 +33,12 @@ import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 /**
  * Implementation of the "MetaEditing Service REST Normal Use" Test Cases.
  */
-public class MetaEditingServiceRestNormalUseTest
-    extends MetaEditingServiceRestTest {
+public class MetaEditingServiceRestNormalUseTest extends
+    MetaEditingServiceRestTest {
 
   /** The auth token. */
   private static String authToken;
-  
+
   /** The project. */
   private static Project project;
 
@@ -48,7 +48,10 @@ public class MetaEditingServiceRestNormalUseTest
   /** The umls version. */
   private String umlsVersion = "latest";
 
-  /** The concept (will be copied from existing concept, to avoid affecting database values. */
+  /**
+   * The concept (will be copied from existing concept, to avoid affecting
+   * database values.
+   */
   private ConceptJpa concept;
 
   /**
@@ -63,7 +66,7 @@ public class MetaEditingServiceRestNormalUseTest
     // authentication (admin for editing permissions)
     authToken =
         securityService.authenticate(adminUser, adminPassword).getAuthToken();
-    
+
     // ensure there is a concept associated with the project
     ProjectList projects = projectService.getProjects(authToken);
     assertTrue(projects.getCount() > 0);
@@ -74,10 +77,12 @@ public class MetaEditingServiceRestNormalUseTest
     // assertTrue(project.getBranch().equals(Branch.ROOT));
 
     // Copy existing concept to avoid messing with actual database data.
-    //TODO Move to superclass
-    IntegrationTestClientRest testService = new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-    concept = new ConceptJpa(contentService.getConcept("C0000294",
-        umlsTerminology, umlsVersion, null, authToken), false);
+    // TODO Move to superclass
+    IntegrationTestClientRest testService =
+        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+    concept =
+        new ConceptJpa(contentService.getConcept("C0000294", umlsTerminology,
+            umlsVersion, null, authToken), false);
     concept.setId(null);
     concept = (ConceptJpa) testService.addConcept(concept, authToken);
   }
@@ -91,8 +96,8 @@ public class MetaEditingServiceRestNormalUseTest
   public void testAddAndRemoveSemanticTypeToConcept() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    Logger.getLogger(getClass())
-        .info("TEST - Add and remove semantic type to/from " + "C0000294,"
+    Logger.getLogger(getClass()).info(
+        "TEST - Add and remove semantic type to/from " + "C0000294,"
             + umlsTerminology + ", " + umlsVersion + ", " + authToken);
 
     //
@@ -101,7 +106,8 @@ public class MetaEditingServiceRestNormalUseTest
     Date startDate = new Date();
 
     // get the concept
-    Concept c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    Concept c =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
     assertNotNull(c);
 
     // check against project
@@ -122,14 +128,13 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the semantic type to the concept
     ValidationResult v =
-        metaEditingService.addSemanticType(project.getId(), c.getId(),
-            c.getLastModified().getTime(), semanticType, false, authToken);
+        metaEditingService.addSemanticType(project.getId(), c.getId(), c
+            .getLastModified().getTime(), semanticType, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
-    
     semanticType = null;
     for (SemanticTypeComponent s : c.getSemanticTypes()) {
       if (s.getSemanticType().equals("Lipid")) {
@@ -142,8 +147,9 @@ public class MetaEditingServiceRestNormalUseTest
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    MolecularActionList list = contentService
-        .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+    MolecularActionList list =
+        contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+            authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -161,13 +167,15 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // remove the semantic type from the concept
-    v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getLastModified().getTime(), semanticType.getId(), false, authToken);
+    v =
+        metaEditingService.removeSemanticType(project.getId(), c.getId(), c
+            .getLastModified().getTime(), semanticType.getId(), false,
+            authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
-    c = contentService.getConcept(concept.getId(), project.getId(), authToken);;
-    
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
     boolean attributePresent = false;
     for (SemanticTypeComponent s : c.getSemanticTypes()) {
       if (s.getSemanticType().equals("Lipid")) {
@@ -180,8 +188,9 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
-        authToken);
+    list =
+        contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+            authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -320,7 +329,8 @@ public class MetaEditingServiceRestNormalUseTest
   public void teardown() throws Exception {
 
     // Copy existing concept to avoid messing with actual database data.
-    IntegrationTestClientRest testService = new IntegrationTestClientRest(ConfigUtility.getConfigProperties());  
+    IntegrationTestClientRest testService =
+        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
     testService.removeConcept(concept.getId(), authToken);
 
     // logout

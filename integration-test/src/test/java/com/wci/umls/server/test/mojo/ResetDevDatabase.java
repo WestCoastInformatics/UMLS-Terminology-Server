@@ -78,6 +78,7 @@ public class ResetDevDatabase {
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_UMLS");
     request.setProperties(p);
+    request.setDebug(true);
     Invoker invoker = new DefaultInvoker();
     InvocationResult result = invoker.execute(request);
     if (result.getExitCode() != 0) {
@@ -98,7 +99,6 @@ public class ResetDevDatabase {
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
-
 
   }
 

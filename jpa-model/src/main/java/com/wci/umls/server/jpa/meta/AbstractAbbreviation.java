@@ -39,7 +39,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
   @Column(nullable = false)
   private String terminology;
 
-  /** The expandedForm. */
+  /** The version. */
   @Column(nullable = false)
   private String version;
 

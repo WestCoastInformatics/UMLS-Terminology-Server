@@ -7,7 +7,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.ExceptionHandler;
@@ -18,7 +20,7 @@ import com.wci.umls.server.services.handlers.ExceptionHandler;
 public class RootServiceRestImpl {
 
   /** The websocket. */
-  private static NotificationWebsocket websocket = new NotificationWebsocket();
+  private static NotificationWebsocket websocket = null;
 
   /**
    * Instantiates an empty {@link RootServiceRestImpl}.
@@ -51,19 +53,19 @@ public class RootServiceRestImpl {
     }
     // throw the local exception as a web application exception
     if (e instanceof LocalException) {
-      throw new WebApplicationException(
-          Response.status(500).entity(message).build());
+      throw new WebApplicationException(Response.status(500).entity(message)
+          .build());
     }
 
     // throw the web application exception as-is, e.g. for 401 errors
     if (e instanceof WebApplicationException) {
       throw new WebApplicationException(message, e);
     }
-    throw new WebApplicationException(
-        Response
-            .status(500).entity("\"Unexpected error trying to "
-                + whatIsHappening + ". Please contact the administrator.\"")
-        .build());
+    throw new WebApplicationException(Response
+        .status(500)
+        .entity(
+            "\"Unexpected error trying to " + whatIsHappening
+                + ". Please contact the administrator.\"").build());
 
   }
 
@@ -87,8 +89,7 @@ public class RootServiceRestImpl {
     }
     if (!role.hasPrivilegesOf(cmpRole))
       throw new WebApplicationException(Response.status(401)
-          .entity("User does not have permissions to " + perform + ".")
-          .build());
+          .entity("User does not have permissions to " + perform + ".").build());
     return securityService.getUsernameForToken(authToken);
   }
 
@@ -118,13 +119,13 @@ public class RootServiceRestImpl {
     }
 
     // Verify that user project role has privileges of required role
-    UserRole role = projectService.getProject(projectId).getUserRoleMap()
-        .get(securityService.getUser(userName));
+    UserRole role =
+        projectService.getProject(projectId).getUserRoleMap()
+            .get(securityService.getUser(userName));
     UserRole projectRole = (role == null) ? UserRole.VIEWER : role;
     if (!projectRole.hasPrivilegesOf(requiredProjectRole))
       throw new WebApplicationException(Response.status(401)
-          .entity("User does not have permissions to " + perform + ".")
-          .build());
+          .entity("User does not have permissions to " + perform + ".").build());
 
     // return username
     return userName;
@@ -137,7 +138,7 @@ public class RootServiceRestImpl {
    * @return the total elapsed time str
    */
   @SuppressWarnings({
-      "boxing"
+    "boxing"
   })
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;
@@ -163,9 +164,20 @@ public class RootServiceRestImpl {
    *
    * @param websocket2 the notification websocket
    */
-  public static void setNotificationWebsocket(
-    NotificationWebsocket websocket2) {
+  public static void setNotificationWebsocket(NotificationWebsocket websocket2) {
     websocket = websocket2;
+  }
+
+  /**
+   * Send change event.
+   *
+   * @param event the event
+   * @throws Exception
+   */
+  public void sendChangeEvent(ChangeEvent<?> event) throws Exception {
+    if (websocket != null) {
+      websocket.send(ConfigUtility.getJsonForGraph(event));
+    }
   }
 
 }
