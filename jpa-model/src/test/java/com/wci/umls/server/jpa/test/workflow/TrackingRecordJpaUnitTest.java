@@ -22,7 +22,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
@@ -47,7 +46,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
 
   /** The fixture l2. */
   private Set<Long> l2;
-  
+
   /** The fixture s1. */
   private List<Long> s1;
 
@@ -76,13 +75,12 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     l2 = new HashSet<>();
     l2.add(2L);
     l2.add(3L);
-    
+
     s1 = new ArrayList<>();
     s1.add(1L);
     s2 = new ArrayList<>();
     s2.add(2L);
     s2.add(3L);
-
 
     // for xml serialization
     object.setComponentIds(l1);

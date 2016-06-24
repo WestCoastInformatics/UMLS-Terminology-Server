@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.test.workflow;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
@@ -14,7 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
@@ -25,9 +23,7 @@ import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
-import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.model.workflow.Checklist;
-import com.wci.umls.server.model.workflow.WorkflowBin;
 
 /**
  * Unit testing for {@link ChecklistJpa}.
@@ -36,12 +32,6 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private ChecklistJpa object;
-
-  /** The fixture m1. */
-  private WorkflowBin m1;
-
-  /** The fixture m2. */
-  private WorkflowBin m2;
 
   /** The fixture p1. */
   private Project p1;
@@ -65,9 +55,6 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() throws Exception {
     object = new ChecklistJpa();
-    final ProxyTester tester = new ProxyTester(new WorkflowBinJpa());
-    m1 = (WorkflowBinJpa) tester.createObject(1);
-    m2 = (WorkflowBinJpa) tester.createObject(2);
 
     final ProxyTester tester2 = new ProxyTester(new ProjectJpa());
     p1 = (ProjectJpa) tester2.createObject(1);
@@ -186,17 +173,6 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModifiedBy");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
-  }
-
-  /**
-   * Test XML transient
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelXmlTransient() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    String xml = ConfigUtility.getStringForGraph(object);
   }
 
   /**

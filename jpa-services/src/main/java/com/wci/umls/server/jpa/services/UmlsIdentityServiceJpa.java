@@ -35,26 +35,6 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     return getObject(id, AttributeIdentity.class);
   }
 
-  /* see superclass */
-  @Override
-  public AttributeIdentity getAttributeIdentity(String hashCode)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Umls Identity Service - get attribute identity " + hashCode);
-
-    try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a from AttributeIdentity a "
-              + "where hashCode = :hashCode");
-      query.setParameter("hashCode", hashCode);
-
-      return (AttributeIdentity) query.getSingleResult();
-
-    } catch (NoResultException e) {
-      return null;
-    }
-  }
-
   @Override
   public Long getNextAttributeId() throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -151,27 +131,6 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get semanticTypeComponent identity " + id);
     return getObject(id, SemanticTypeComponentIdentity.class);
-  }
-
-  /* see superclass */
-  @Override
-  public SemanticTypeComponentIdentity getSemanticTypeComponentIdentity(
-    String hashCode) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Umls Identity Service - get semanticTypeComponent identity "
-            + hashCode);
-
-    try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a from SemanticTypeComponentIdentity a "
-              + "where hashCode = :hashCode");
-      query.setParameter("hashCode", hashCode);
-
-      return (SemanticTypeComponentIdentity) query.getSingleResult();
-
-    } catch (NoResultException e) {
-      return null;
-    }
   }
 
   @Override
