@@ -423,9 +423,16 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public void removeWorkflowBin(Long id) throws Exception {
+  public void removeWorkflowBin(Long id, boolean cascade) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove workflow bin " + id);
+        "Workflow Service - remove workflow bin " + id + ", " + cascade);
+    // if cascade, remove tracking records before removing workflow bin
+    if (cascade) {
+      WorkflowBin bin = getWorkflowBin(id);
+      for (TrackingRecord record : bin.getTrackingRecords()) {
+        removeHasLastModified(record.getId(), TrackingRecordJpa.class);
+      }
+    }
     // Remove the component
     removeHasLastModified(id, WorkflowBinJpa.class);
   }
@@ -494,9 +501,16 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public void removeWorklist(Long id) throws Exception {
+  public void removeWorklist(Long id, boolean cascade) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove worklist " + id);
+        "Workflow Service - remove worklist " + id + ", " + cascade);
+    // if cascade, remove tracking records before removing worklist
+    if (cascade) {
+      Worklist worklist = getWorklist(id);
+      for (TrackingRecord record : worklist.getTrackingRecords()) {
+        removeHasLastModified(record.getId(), TrackingRecordJpa.class);
+      }
+    }
     // Remove the component
     removeHasLastModified(id, WorklistJpa.class);
   }
@@ -549,9 +563,16 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public void removeChecklist(Long id) throws Exception {
+  public void removeChecklist(Long id, boolean cascade) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove checklist " + id);
+        "Workflow Service - remove checklist " + id + ", " + cascade);
+    // if cascade, remove tracking records before removing checklist
+    if (cascade) {
+      Checklist checklist = getChecklist(id);
+      for (TrackingRecord record : checklist.getTrackingRecords()) {
+        removeHasLastModified(record.getId(), TrackingRecordJpa.class);
+      }
+    }
     // Remove the component
     removeHasLastModified(id, ChecklistJpa.class);
   }
