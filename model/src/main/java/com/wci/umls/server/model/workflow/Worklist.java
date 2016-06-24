@@ -25,6 +25,20 @@ public interface Worklist extends Checklist {
   public void setWorklistGroup(String group);
 
   /**
+   * Returns the workflow bin.
+   *
+   * @return the workflow bin
+   */
+  public String getWorkflowBin();
+  
+  /**
+   * Sets the workflow bin.
+   *
+   * @param bin the workflow bin
+   */
+  public void setWorkflowBin(String bin);
+  
+  /**
    * Sets the authors.
    *
    * @param authors the authors

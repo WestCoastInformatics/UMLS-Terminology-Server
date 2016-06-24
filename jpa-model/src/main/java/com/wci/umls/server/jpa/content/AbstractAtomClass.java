@@ -49,6 +49,10 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
         @TokenFilterDef(factory = StandardFilterFactory.class),
         @TokenFilterDef(factory = LowerCaseFilterFactory.class)
     }),
+    @AnalyzerDef(name = "whitespac", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
+        @TokenFilterDef(factory = StandardFilterFactory.class),
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class)
+    }),
     @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
     // Split input into tokens according to tokenizer
     tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class), filters = {
@@ -107,7 +111,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private WorkflowStatus workflowStatus;
-  
+
   /**
    * Instantiates an empty {@link AbstractAtomClass}.
    */

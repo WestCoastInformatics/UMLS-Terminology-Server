@@ -113,6 +113,8 @@ public class UmlsIdentifierAssignmentHandler implements
       final AttributeIdentity identity = new AttributeIdentityJpa();
       identity.setHashCode(ConfigUtility.getMd5(attribute.getValue()));
       identity.setName(attribute.getName());
+      // TODO: may need to support both CUI and "concept id"
+      // TODO: for relationships, need to know the RUI not the SRUI
       identity.setOwnerId(component.getTerminologyId());
       identity.setOwnerQualifier(component.getTerminology());
       identity.setOwnerType(IdType.getIdType(component));
@@ -130,7 +132,9 @@ public class UmlsIdentifierAssignmentHandler implements
       else {
         // Block between getting next id and saving the id value
         synchronized (this) {
+          // Get next id
           final Long nextId = service.getNextAttributeId();
+          // Add new identity object
           identity.setId(nextId);
           service.addAttributeIdentity(identity);
           return convertId(nextId, "ATUI");

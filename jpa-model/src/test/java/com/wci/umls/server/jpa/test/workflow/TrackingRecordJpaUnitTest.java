@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.test.workflow;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,18 +47,12 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
 
   /** The fixture l2. */
   private Set<Long> l2;
+  
+  /** The fixture s1. */
+  private List<Long> s1;
 
-  /** The fixture w1. */
-  private Worklist w1;
-
-  /** The fixture w2. */
-  private Worklist w2;
-
-  /** The fixture b1. */
-  private WorkflowBin b1;
-
-  /** The fixture b2. */
-  private WorkflowBin b2;
+  /** The fixture s2. */
+  private List<Long> s2;
 
   /**
    * Setup class.
@@ -81,19 +76,17 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     l2 = new HashSet<>();
     l2.add(2L);
     l2.add(3L);
+    
+    s1 = new ArrayList<>();
+    s1.add(1L);
+    s2 = new ArrayList<>();
+    s2.add(2L);
+    s2.add(3L);
 
-    final ProxyTester tester = new ProxyTester(new WorklistJpa());
-    w1 = (WorklistJpa) tester.createObject(1);
-    w2 = (WorklistJpa) tester.createObject(2);
-
-    final ProxyTester tester2 = new ProxyTester(new WorkflowBinJpa());
-    b1 = (WorkflowBinJpa) tester2.createObject(1);
-    b2 = (WorkflowBinJpa) tester2.createObject(2);
 
     // for xml serialization
     object.setComponentIds(l1);
-    object.setWorklist(w1);
-    object.setWorkflowBin(b1);
+    object.setOrigConceptIds(s1);
 
   }
 
@@ -129,10 +122,6 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
 
     tester.proxy(Set.class, 1, l1);
     tester.proxy(Set.class, 2, l2);
-    tester.proxy(Worklist.class, 1, w1);
-    tester.proxy(Worklist.class, 2, w2);
-    tester.proxy(WorkflowBin.class, 1, b1);
-    tester.proxy(WorkflowBin.class, 2, b2);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -153,10 +142,8 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-    tester.proxy(Worklist.class, 1, w1);
-    tester.proxy(Worklist.class, 2, w2);
-    tester.proxy(WorkflowBin.class, 1, b1);
-    tester.proxy(WorkflowBin.class, 2, b2);
+    tester.proxy(List.class, 1, s1);
+    tester.proxy(List.class, 2, s2);
     assertTrue(tester.testCopyConstructor(TrackingRecord.class));
   }
 
@@ -189,8 +176,6 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
   public void testModelXmlTransient() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     String xml = ConfigUtility.getStringForGraph(object);
-    assertTrue(xml.contains("<workflowBinId>"));
-    assertTrue(xml.contains("<worklistId>"));
     assertFalse(xml.contains("<workflowBin>"));
     assertFalse(xml.contains("<worklist>"));
   }
@@ -226,6 +211,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("componentIds");
+    tester.include("origConceptIds");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
@@ -235,9 +221,8 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     tester.include("clusterType");
     tester.include("terminology");
     tester.include("version");
-    tester.include("projectId");
-    tester.include("worklistId");
-    tester.include("workflowBinId");
+    tester.include("worklist");
+    tester.include("workflowBin");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

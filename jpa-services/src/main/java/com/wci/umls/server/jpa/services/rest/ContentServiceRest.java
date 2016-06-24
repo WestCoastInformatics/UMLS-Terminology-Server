@@ -19,6 +19,7 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
@@ -56,8 +57,9 @@ public interface ContentServiceRest {
    * @return the concept
    * @throws Exception the exception
    */
-  public Concept getConcept(Long conceptId, Long projectId, String authToken) throws Exception;
-  
+  public Concept getConcept(Long conceptId, Long projectId, String authToken)
+    throws Exception;
+
   /**
    * Find concepts for query.
    *
@@ -71,7 +73,7 @@ public interface ContentServiceRest {
    */
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find concepts for general query.
@@ -248,10 +250,10 @@ public interface ContentServiceRest {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForComponentInfo(String terminologyId,
-    String terminology, String version, IdType type, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
-  
+  public RelationshipList findRelationshipsForComponentInfo(
+    String terminologyId, String terminology, String version, IdType type,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+
   /**
    * Find descriptors for query.
    *
@@ -265,7 +267,7 @@ public interface ContentServiceRest {
    */
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find descriptors for general query.
@@ -336,8 +338,8 @@ public interface ContentServiceRest {
    * @return the code
    * @throws Exception the exception
    */
-  public Code getCode(String terminologyId, String terminology, String version, Long projectId,
-    String authToken) throws Exception;
+  public Code getCode(String terminologyId, String terminology, String version,
+    Long projectId, String authToken) throws Exception;
 
   /**
    * Find codes for query.
@@ -711,7 +713,7 @@ public interface ContentServiceRest {
    */
   public TreeList findConceptTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find descriptor tree children.
@@ -724,9 +726,9 @@ public interface ContentServiceRest {
    * @return the tree list
    * @throws Exception the exception
    */
-  public TreeList findDescriptorTreeChildren(String terminology, String version,
-    String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+  public TreeList findDescriptorTreeChildren(String terminology,
+    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Find code tree children.
@@ -741,7 +743,7 @@ public interface ContentServiceRest {
    */
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find concept tree roots.
@@ -821,7 +823,7 @@ public interface ContentServiceRest {
    */
   public MappingList findMappingsForMapSet(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find mappings for concept.
@@ -835,9 +837,9 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForConcept(String mapSetId, String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+  public MappingList findMappingsForConcept(String mapSetId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Find mappings for code.
@@ -892,8 +894,8 @@ public interface ContentServiceRest {
    * @return the ecl expression result count
    * @throws Exception the exception
    */
-  public Integer getEclExpressionResultCount(String terminology, String version,
-    String query, String authToken) throws Exception;
+  public Integer getEclExpressionResultCount(String terminology,
+    String version, String query, String authToken) throws Exception;
 
   /**
    * Gets the ecl expression results.
@@ -907,7 +909,6 @@ public interface ContentServiceRest {
    */
   public SearchResultList getEclExpressionResults(String terminology,
     String version, String query, String authToken) throws Exception;
-
 
   /**
    * Remove concept note.
@@ -976,7 +977,6 @@ public interface ContentServiceRest {
   public void removeDescriptorNote(Long noteId, String authToken)
     throws Exception;
 
-
   /**
    * Gets favorite components for a user.
    *
@@ -985,8 +985,8 @@ public interface ContentServiceRest {
    * @return the favorites for user
    * @throws Exception the exception
    */
-  public SearchResultList getFavoritesForUser(PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public SearchResultList getFavoritesForUser(PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Gets the components with notes for user.
@@ -997,8 +997,8 @@ public interface ContentServiceRest {
    * @return the components with notes for user
    * @throws Exception the exception
    */
-  public SearchResultList getComponentsWithNotesForQuery(String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+  public SearchResultList getComponentsWithNotesForQuery(String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Finds molecular actions for concept and query.
@@ -1013,6 +1013,17 @@ public interface ContentServiceRest {
   public MolecularActionList findMolecularActionsForConcept(Long conceptId,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
-
+  /**
+   * Find atomic actions.
+   *
+   * @param molecularActionId the molecular action id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the atomic action list
+   * @throws Exception the exception
+   */
+  public AtomicActionList findAtomicActions(Long molecularActionId,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
 }

@@ -5,7 +5,9 @@ package com.wci.umls.server.rest.impl;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -18,10 +20,14 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
+import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.WorkflowService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -116,4 +122,101 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
   }
 
+
+    @Override
+    @POST
+    @Path("/worklist/add")
+    @ApiOperation(value = "Add a worklist", notes = "Add a worklist", response = WorklistJpa.class)
+    public Worklist addWorklist(
+      @ApiParam(value = "Worklist to add", required = true) WorklistJpa worklist,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+
+      Logger.getLogger(getClass())
+          .info("RESTful POST call (Integration Test): /config/add/"
+              + worklist.toString() + " " + authToken);
+
+      String action = "trying to add worklist";
+
+      WorkflowService workflowService = new WorkflowServiceJpa();
+
+      try {
+
+        final String authUser = authorizeProject(workflowService, worklist.getProjectId(),
+            securityService, authToken, action, UserRole.AUTHOR);
+
+        workflowService.setLastModifiedBy(authUser);
+        return workflowService.addWorklist(worklist);
+        
+      } catch (Exception e) {
+        handleException(e, "trying to add worklist");
+        return null;
+      } finally {
+        workflowService.close();
+        securityService.close();
+      }
+
+    }
+    
+
+    @Override
+    @DELETE
+    @Path("/worklist/{id}/remove")
+    @ApiOperation(value = "Remove a worklist", notes = "Remove a worklist")
+    public void removeWorklist(
+      @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long worklistId,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+        throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Integration Test): /worklist/" + worklistId + "/remove");
+
+      WorkflowService workflowService = new WorkflowServiceJpa();
+      try {
+
+        final String authUser = authorizeApp(securityService, authToken, "remove worklist",
+            UserRole.USER);
+
+        workflowService.setLastModifiedBy(authUser);
+        workflowService.removeWorklist(worklistId);
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove a worklist");
+      } finally {
+        workflowService.close();
+        securityService.close();
+      }
+
+    }
+
+    @Override
+    @GET
+    @Path("/worklist/{id}")
+    @ApiOperation(value = "Get a worklist", notes = "Get a worklist", response = WorklistJpa.class)
+    public Worklist getWorklist(
+      @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long worklistId,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+        throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Integration Test): /worklist/" + worklistId);
+
+      WorkflowService workflowService = new WorkflowServiceJpa();
+      try {
+
+        final String authUser = authorizeApp(securityService, authToken, "get worklist",
+            UserRole.USER);
+
+        Worklist worklist = workflowService.getWorklist(worklistId);
+        workflowService.setLastModifiedBy(authUser);
+        return workflowService.getWorklist(worklistId);
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove a worklist");
+      } finally {
+        workflowService.close();
+        securityService.close();
+      }
+      return null;
+    }
+
+ 
 }

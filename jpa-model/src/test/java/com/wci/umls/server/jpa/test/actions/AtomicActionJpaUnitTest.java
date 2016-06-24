@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.test.actions;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
@@ -12,6 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
@@ -70,6 +72,7 @@ public class AtomicActionJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("molecularActionId");
     tester.test();
   }
 
@@ -170,8 +173,27 @@ public class AtomicActionJpaUnitTest extends ModelUnitSupport {
     tester.include("field");
     tester.include("oldValue");
     tester.include("newValue");
+    tester.include("molecularActionId");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
+  }
+
+  /**
+   * Test xml transient fields
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    final AtomicActionJpa action = new AtomicActionJpa(object);
+    action.setMolecularAction(a1);
+    String xml = ConfigUtility.getStringForGraph(action);
+
+    assertTrue(xml.contains("<molecularActionId>"));
+    assertFalse(xml.contains("<molecularAction>"));
+
   }
 
   /**

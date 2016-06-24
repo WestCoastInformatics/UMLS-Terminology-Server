@@ -3,8 +3,10 @@
  */
 package com.wci.umls.server.jpa.worfklow;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -14,13 +16,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -32,8 +32,6 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.workflow.TrackingRecord;
-import com.wci.umls.server.model.workflow.WorkflowBin;
-import com.wci.umls.server.model.workflow.Worklist;
 
 /**
  * JPA enabled implementation of {@link TrackingRecord}.
@@ -86,14 +84,17 @@ public class TrackingRecordJpa implements TrackingRecord {
   private String version;
 
   /** The workflow bin. */
-  @ManyToOne(targetEntity = WorkflowBinJpa.class)
-  private WorkflowBin workflowBin;
+  @Column(nullable = true)
+  private String workflowBinName;
 
-  /** The worklist . */
-  @ManyToOne(targetEntity = WorklistJpa.class, optional = true)
-  private Worklist worklist;
+  /** The worklist name. */
+  @Column(nullable = true)
+  private String worklistName;
   
-
+  /** The original concept ids . */
+  @ElementCollection
+  @CollectionTable(name = "orig_concept_ids")
+  private List<Long> origConceptIds = new ArrayList<>();
   
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
@@ -117,8 +118,9 @@ public class TrackingRecordJpa implements TrackingRecord {
     terminology = record.getTerminology();
     version = record.getVersion();
     componentIds = new HashSet<>(record.getComponentIds());
-    workflowBin = record.getWorkflowBin();
-    worklist = record.getWorklist();
+    origConceptIds = new ArrayList<>(record.getOrigConceptIds());
+    workflowBinName = record.getWorkflowBin();
+    worklistName = record.getWorklist();
   }
 
   /* see superclass */
@@ -173,7 +175,21 @@ public class TrackingRecordJpa implements TrackingRecord {
   public void setComponentIds(Set<Long> componentIds) {
     this.componentIds = componentIds;
   }
+  
+  @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Override
+  public List<Long> getOrigConceptIds() {
+    if (origConceptIds == null) {
+      origConceptIds = new ArrayList<>();
+    }
+    return origConceptIds;
+  }
 
+  @Override
+  public void setOrigConceptIds(List<Long> origConceptIds) {
+    this.origConceptIds = origConceptIds;
+  }
+  
   /* see superclass */
   @Override
   @FieldBridge(impl = LongBridge.class)
@@ -240,92 +256,31 @@ public class TrackingRecordJpa implements TrackingRecord {
   }
 
   /* see superclass */
-  @XmlTransient
   @Override
-  public WorkflowBin getWorkflowBin() {
-    return workflowBin;
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getWorkflowBin() {
+    return workflowBinName;
   }
 
   /* see superclass */
   @Override
-  public void setWorkflowBin(WorkflowBin workflowBin) {
-    this.workflowBin = workflowBin;
+  public void setWorkflowBin(String workflowBin) {
+    this.workflowBinName = workflowBin;
   }
 
-  /**
-   * Returns the workflow bin id.
-   *
-   * @return the workflow bin id
-   */
-  @FieldBridge(impl = LongBridge.class)
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public Long getWorkflowBinId() {
-    return workflowBin == null ? null : workflowBin.getId();
-  }
 
-  /**
-   * Sets the workflow bin id.
-   *
-   * @param workflowBinId the workflow bin id
-   */
-  public void setWorkflowBinId(Long workflowBinId) {
-    if (workflowBin == null) {
-      workflowBin = new WorkflowBinJpa();
-    }
-    workflowBin.setId(workflowBinId);
-  }
 
   /* see superclass */
-  @XmlTransient
   @Override
-  public Worklist getWorklist() {
-    return worklist;
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getWorklist() {
+    return worklistName;
   }
 
   /* see superclass */
   @Override
-  public void setWorklist(Worklist worklist) {
-    this.worklist = worklist;
-  }
-
-  /**
-   * Returns the worklist id.
-   *
-   * @return the worklist id
-   */
-  @FieldBridge(impl = LongBridge.class)
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public Long getWorklistId() {
-    return worklist == null ? null : worklist.getId();
-  }
-
-  /**
-   * Sets the worklist id.
-   *
-   * @param worklistId the worklist id
-   */
-  public void setWorklistId(Long worklistId) {
-    if (worklist == null) {
-      worklist = new WorklistJpa();
-    }
-    worklist.setId(worklistId);
-  }
-
-  /**
-   * Returns the project id. Just for indexing.
-   *
-   * @return the project id
-   * @XmlElement, though then "set" method becomes complicated and
-   *              nondeterministic for testing.
-   */
-  @XmlTransient
-  @FieldBridge(impl = LongBridge.class)
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public Long getProjectId() {
-    if (this.workflowBin != null) {
-      return workflowBin.getProject().getId();
-    }
-    return null;
+  public void setWorklist(String worklist) {
+    this.worklistName = worklist;
   }
 
 
@@ -343,6 +298,9 @@ public class TrackingRecordJpa implements TrackingRecord {
     result =
         prime * result
             + ((componentIds == null) ? 0 : componentIds.hashCode());
+    result =
+        prime * result
+            + ((origConceptIds == null) ? 0 : origConceptIds.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
@@ -377,6 +335,11 @@ public class TrackingRecordJpa implements TrackingRecord {
         return false;
     } else if (!componentIds.equals(other.componentIds))
       return false;
+    if (origConceptIds == null) {
+      if (other.origConceptIds != null)
+        return false;
+    } else if (!origConceptIds.equals(other.origConceptIds))
+      return false;
     if (version == null) {
       if (other.version != null)
         return false;
@@ -392,7 +355,9 @@ public class TrackingRecordJpa implements TrackingRecord {
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", componentIds=" + componentIds + ", clusterId=" + clusterId
         + ", clusterType=" + clusterType + ", terminology=" + terminology
-        + ", version=" + version + "]";
+        + ", version=" + version + ", origConceptIds=" + origConceptIds + "]";
   }
+
+
 
 }

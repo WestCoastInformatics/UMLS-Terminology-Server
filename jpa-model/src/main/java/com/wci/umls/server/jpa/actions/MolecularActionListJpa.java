@@ -16,12 +16,12 @@ import com.wci.umls.server.model.actions.MolecularActionList;
  * JAXB enabled implementation of {@link MolecularActionList}.
  */
 @XmlRootElement(name = "molecularActionList")
-public class MolecularActionListJpa extends AbstractResultList<MolecularAction> implements
-    MolecularActionList {
+public class MolecularActionListJpa extends AbstractResultList<MolecularAction>
+    implements MolecularActionList {
 
   /* see superclass */
   @Override
-  @XmlElement(type = MolecularActionJpa.class, name = "molecularActions")
+  @XmlElement(type = MolecularActionJpa.class, name = "actions")
   public List<MolecularAction> getObjects() {
     return super.getObjectsTransient();
   }

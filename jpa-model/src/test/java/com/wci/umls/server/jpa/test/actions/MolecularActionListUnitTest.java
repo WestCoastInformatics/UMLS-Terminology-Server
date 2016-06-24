@@ -1,7 +1,7 @@
 /*
  * Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.lists;
+package com.wci.umls.server.jpa.test.actions;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -9,28 +9,29 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.ChecklistList;
-import com.wci.umls.server.helpers.ProxyTester;
-import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
-import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
-import com.wci.umls.server.model.workflow.Checklist;
+import com.wci.umls.server.jpa.actions.MolecularActionJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
+import com.wci.umls.server.jpa.lists.AbstractListUnit;
+import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.actions.MolecularActionList;
 
 /**
- * Unit testing for {@link ChecklistList}.
+ * Unit testing for {@link MolecularActionList}.
  */
-public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
+public class MolecularActionListUnitTest extends
+    AbstractListUnit<MolecularAction> {
 
-  /** The list1 test fixture . */
-  private ChecklistList list1;
+  /** The list test fixture . */
+  private MolecularActionList list;
 
   /** The list2 test fixture . */
-  private ChecklistList list2;
+  private MolecularActionList list2;
 
-  /** The test fixture o1. */
-  private Checklist o1;
+  /** The test fixture s1. */
+  private MolecularAction c1;
 
-  /** The test fixture o2. */
-  private Checklist o2;
+  /** The test fixture s2. */
+  private MolecularAction c2;
 
   /**
    * Setup class.
@@ -42,20 +43,17 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
 
   /**
    * Setup.
-   *
-   * @throws Exception the exception
    */
   @Before
-  public void setup() throws Exception {
-    list1 = new ChecklistListJpa();
-    list2 = new ChecklistListJpa();
-
-    ProxyTester tester = new ProxyTester(new ChecklistJpa());
-    o1 = (Checklist) tester.createObject(1);
-    o2 = (Checklist) tester.createObject(2);
-    
-    o1.setProject(null);
-    o2.setProject(null);
+  public void setup() {
+    list = new MolecularActionListJpa();
+    list2 = new MolecularActionListJpa();
+    c1 = new MolecularActionJpa();
+    c1.setId(1L);
+    c1.setTerminologyId("1");
+    c2 = new MolecularActionJpa();
+    c2.setId(2L);
+    c2.setTerminologyId("2");
 
   }
 
@@ -65,7 +63,7 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
    */
   @Test
   public void testNormalUse() throws Exception {
-    testNormalUse(list1, list2, o1, o2);
+    testNormalUse(list, list2, c1, c2);
   }
 
   /**
@@ -76,7 +74,7 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
    */
   @Test
   public void testDegenerateUse() throws Exception {
-    testDegenerateUse(list1, list2, o1, o2);
+    testDegenerateUse(list, list2, c1, c2);
   }
 
   /**
@@ -86,7 +84,7 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
    */
   @Test
   public void testEdgeCases() throws Exception {
-    testEdgeCases(list1, list2, o1, o2);
+    testEdgeCases(list, list2, c1, c2);
   }
 
   /**
@@ -97,7 +95,7 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
    */
   @Test
   public void testXmlSerialization() throws Exception {
-    testXmllSerialization(list1, list2, o1, o2);
+    testXmllSerialization(list, list2, c1, c2);
   }
 
   /**

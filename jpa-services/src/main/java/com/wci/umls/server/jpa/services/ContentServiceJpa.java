@@ -3897,26 +3897,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /* see superclass */
-  @Override
-  public SearchHandler getSearchHandler(String key) throws Exception {
-    if (searchHandlers.containsKey(key)) {
-      return searchHandlers.get(key);
-    }
-    if (searchHandlerNames.contains(key)) {
-      // Add handlers to map
-      SearchHandler searchHandler =
-          ConfigUtility.newStandardHandlerInstanceWithConfiguration(
-              "search.handler", key, SearchHandler.class);
-      searchHandlers.put(key, searchHandler);
-      return searchHandler;
-    }
-    final SearchHandler searchHandler =
-        ConfigUtility.newStandardHandlerInstanceWithConfiguration(
-            "search.handler", ConfigUtility.DEFAULT, SearchHandler.class);
-    searchHandlers.put(key, searchHandler);
-    return searchHandler;
-  }
 
   /* see superclass */
   @Override
