@@ -35,7 +35,7 @@ import com.wci.umls.server.model.workflow.Worklist;
  */
 @Entity
 @Table(name = "worklists", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "name", "description", "workflowBin_id"
+    "name", "description", "workflowBinName"
 }))
 @Audited
 @Indexed
@@ -57,7 +57,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   private String worklistGroup;
 
   /** The workflow bin. */
-  @ManyToOne(targetEntity = WorkflowBinJpa.class)
+  @Column(nullable = true)
   private String workflowBinName;
 
   /** The workflow status. */
