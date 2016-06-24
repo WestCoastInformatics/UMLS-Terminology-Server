@@ -1,6 +1,11 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.worfklow;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -8,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -25,7 +31,7 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.Checklist;
-import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.Worklist;
 
 /**
@@ -66,15 +72,14 @@ public abstract class AbstractChecklist implements Checklist {
   @Column(nullable = false)
   private String description;
 
-  /** The workflow bin. */
-  @ManyToOne(targetEntity = WorkflowBinJpa.class)
-  private WorkflowBin workflowBin;
 
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
   
-
+  /** The tracking records. */
+  @OneToMany(targetEntity = TrackingRecordJpa.class)
+  private List<TrackingRecord> trackingRecords = new ArrayList<>();
   
   /**
    * Instantiates an empty {@link AbstractChecklist}.
@@ -87,16 +92,19 @@ public abstract class AbstractChecklist implements Checklist {
    * Instantiates a {@link AbstractChecklist} from the specified parameters.
    *
    * @param checklist the checklist
+   * @param deepCopy the deep copy
    */
-  public AbstractChecklist(Checklist checklist) {
+  public AbstractChecklist(Checklist checklist, boolean deepCopy) {
     id = checklist.getId();
     lastModified = checklist.getLastModified();
     lastModifiedBy = checklist.getLastModifiedBy();
     timestamp = checklist.getTimestamp();
     name = checklist.getName();
     description = checklist.getDescription();
-    workflowBin = checklist.getWorkflowBin();
     project = checklist.getProject();
+    if (deepCopy) {
+      trackingRecords = new ArrayList<>(checklist.getTrackingRecords());
+    }
   }
 
   /* see superclass */
@@ -173,42 +181,7 @@ public abstract class AbstractChecklist implements Checklist {
     this.description = description;
   }
 
-  /* see superclass */
-  @Override
-  @XmlTransient
-  public WorkflowBin getWorkflowBin() {
-    return workflowBin;
-  }
 
-  /* see superclass */
-  @Override
-  public void setWorkflowBin(WorkflowBin workflowBin) {
-    this.workflowBin = workflowBin;
-  }
-
-  /**
-   * Returns the workflow bin id.
-   *
-   * @return the workflow bin id
-   */
-  @XmlElement
-  @FieldBridge(impl = LongBridge.class)
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public Long getWorkflowBinId() {
-    return workflowBin == null ? null : workflowBin.getId();
-  }
-
-  /**
-   * Sets the workflow bin id.
-   *
-   * @param workflowBinId the workflow bin id
-   */
-  public void setWorkflowBinId(Long workflowBinId) {
-    if (workflowBin == null) {
-      workflowBin = new WorkflowBinJpa();
-    }
-    workflowBin.setId(workflowBinId);
-  }
 
   /* see superclass */
   @Override
@@ -248,6 +221,22 @@ public abstract class AbstractChecklist implements Checklist {
   }
   
   /* see superclass */
+  @XmlTransient
+  @Override
+  public List<TrackingRecord> getTrackingRecords() {
+    if (trackingRecords == null) {
+      return new ArrayList<>();
+    }
+    return trackingRecords;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTrackingRecords(List<TrackingRecord> records) {
+    this.trackingRecords = records;
+  }
+  
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -256,8 +245,7 @@ public abstract class AbstractChecklist implements Checklist {
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((project == null) ? 0 : project.hashCode());
-    result =
-        prime * result + ((workflowBin == null) ? 0 : workflowBin.hashCode());
+
     return result;
   }
 
@@ -286,11 +274,6 @@ public abstract class AbstractChecklist implements Checklist {
         return false;
     } else if (!project.equals(other.project))
       return false;
-    if (workflowBin == null) {
-      if (other.workflowBin != null)
-        return false;
-    } else if (!workflowBin.equals(other.workflowBin))
-      return false;
     return true;
   }
 
@@ -299,8 +282,7 @@ public abstract class AbstractChecklist implements Checklist {
   public String toString() {
     return "AbstractChecklist [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description + ", workflowBin="
-        + workflowBin + ", project=" + project + "]";
+        + ", name=" + name + ", description=" + description + ", project=" + project + ", trackingRecords=" + trackingRecords +"]";
   }
 
 }

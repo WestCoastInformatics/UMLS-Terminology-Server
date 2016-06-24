@@ -213,8 +213,8 @@ public class ProxyTester {
   protected void setField(Object o, Method get, Method set, Class<?> argType,
     int initializer) throws Exception {
     Object proxy = makeProxy(argType, initializer);
-    // Logger.getLogger(getClass()).debug(
-    // "  " + set.getName() + " = " + proxy.toString());
+     Logger.getLogger(getClass()).info(
+     "  " + set.getName() + " = " + proxy.toString());
     try {
       set.invoke(o, new Object[] {
         proxy

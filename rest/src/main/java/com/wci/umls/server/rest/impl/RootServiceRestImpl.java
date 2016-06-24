@@ -18,8 +18,8 @@ import com.wci.umls.server.services.handlers.ExceptionHandler;
 public class RootServiceRestImpl {
 
   /** The websocket. */
-  private static NotificationWebsocket websocket = new NotificationWebsocket();
-
+  private static NotificationWebsocket websocket = null;
+  
   /**
    * Instantiates an empty {@link RootServiceRestImpl}.
    */

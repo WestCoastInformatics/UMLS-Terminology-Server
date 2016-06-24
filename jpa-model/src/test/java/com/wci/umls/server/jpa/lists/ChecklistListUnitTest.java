@@ -54,9 +54,7 @@ public class ChecklistListUnitTest extends AbstractListUnit<Checklist> {
     o1 = (Checklist) tester.createObject(1);
     o2 = (Checklist) tester.createObject(2);
     
-    o1.setWorkflowBin(null);
     o1.setProject(null);
-    o2.setWorkflowBin(null);
     o2.setProject(null);
 
   }

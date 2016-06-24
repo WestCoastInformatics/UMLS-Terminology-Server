@@ -102,7 +102,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   private boolean editable;
 
   /** The tracking records. */
-  @OneToMany(mappedBy = "workflowBin", targetEntity = TrackingRecordJpa.class)
+  @OneToMany(targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
   /** The creation time. */

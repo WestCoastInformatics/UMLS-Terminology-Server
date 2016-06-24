@@ -48,9 +48,7 @@ public class ResetDevDatabase {
    * Test the sequence:
    * 
    * <pre>
-   * Run Updatedb mojo in "create" mode to clear the database
-   * Run Reindex mojo to clear the indexes
-   * Run the RRF-umls mojo against the sample config/src/resources/data/SAMPLE_2014AB" data.
+   * Run the RRF-umls mojo against the sample config/src/resources/data/SAMPLE_2014AB" data.  This will create db and reindex.
    * Create a "UMLS" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
    * Start an editing cycle for "UMLS"
    * stop here and the db is ready to use

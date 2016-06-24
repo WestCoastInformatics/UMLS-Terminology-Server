@@ -9,7 +9,6 @@ package com.wci.umls.server.test.rest;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -19,14 +18,11 @@ import org.junit.Test;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.workflow.QueryType;
-import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
-import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
@@ -49,9 +45,10 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
   /** The umls version. */
   private String umlsVersion = "latest";
+  
+  /**  The added worklist. */
+  private Worklist addedWorklist;
 
-  /** The workflow service jpa. */
-  private WorkflowServiceJpa workflowServiceJpa;
 
   /**
    * Create test fixtures per test.
@@ -75,8 +72,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     assertTrue(project.getTerminology().equals(umlsTerminology));
     // TODO assertTrue(project.getBranch().equals(Branch.ROOT));
 
-    workflowServiceJpa = new WorkflowServiceJpa();
-    workflowServiceJpa.setLastModifiedBy(authToken);
+    
   }
 
   /**
@@ -223,7 +219,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
    *
    * @throws Exception the exception
    */
-  @Test
+  //@Test
   public void testNormalUseRestWorkflow003() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
@@ -235,7 +231,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
     Date startDate = new Date();
 
-    WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
+    /*WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
     workflowConfig.setLastModifiedBy(authToken);
     workflowConfig.setTimestamp(new Date());
     workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
@@ -287,7 +283,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     WorkflowBinDefinition addedWorkflowBinDefinition2 =
         workflowService.addWorkflowBinDefinition(project.getId(),
             addedWorkflowConfig.getId(), workflowBinDefinition2, authToken);
-
+*/
     //
     // Regenerate bins
     //
@@ -299,22 +295,23 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
 
     // remove workflow bin definitions
-    workflowService.removeWorkflowBinDefinition(project.getId(),
+    /*workflowService.removeWorkflowBinDefinition(project.getId(),
         addedWorkflowBinDefinition.getId(), authToken);
     workflowService.removeWorkflowBinDefinition(project.getId(),
         addedWorkflowBinDefinition2.getId(), authToken);
 
     // remove the workflow config
     workflowService.removeWorkflowConfig(addedWorkflowConfig.getId(),
-        authToken);
+        authToken);*/
 
     // remove bins and tracking records
-    for (WorkflowBin bin : workflowServiceJpa.getWorkflowBins()) {
+    // TODO clear bins
+    /*for (WorkflowBin bin : integrationTestService.getWorkflowBins(authToken)) {
       for (TrackingRecord record : bin.getTrackingRecords()) {
-        workflowServiceJpa.removeTrackingRecord(record.getId());
+        integrationTestService.removeTrackingRecord(record.getId());
       }
-      workflowServiceJpa.removeWorkflowBin(bin.getId());
-    }
+      integrationTestService.removeWorkflowBin(bin.getId());
+    }*/
 
   }
 
@@ -335,7 +332,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
     Date startDate = new Date();
 
-    WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
+/*    WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
     workflowConfig.setLastModifiedBy(authToken);
     workflowConfig.setTimestamp(startDate);
     workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
@@ -370,28 +367,28 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     WorkflowBinDefinition addedWorkflowBinDefinition =
         workflowService.addWorkflowBinDefinition(project.getId(),
             addedWorkflowConfig.getId(), workflowBinDefinition, authToken);
-
+*/
     //
     // Regenerate bins
     //
     workflowService.regenerateBins(project.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
-    WorkflowBin workflowBin = workflowServiceJpa.getWorkflowBins().get(0);
+    /*WorkflowBin workflowBin = integrationTestService.getWorkflowBins(authToken).get(0);
     List<TrackingRecord> trackingRecordList = workflowBin.getTrackingRecords();
-
-    Worklist worklist = new WorklistJpa();
+*/
+    WorklistJpa worklist = new WorklistJpa();
     worklist.setName("test worklist");
     worklist.setDescription("test worklist description");
     worklist.setProject(project);
     worklist.setWorkflowStatus(WorkflowStatus.NEW);
     worklist.setTimestamp(new Date());
 
-    Worklist addedWorklist = workflowServiceJpa.addWorklist(worklist);
+    addedWorklist = integrationTestService.addWorklist(worklist, authToken);
 
     // go through the trackingrecords and add the worklist to each object
     /*addedWorklist.setTrackingRecords(trackingRecordList);
-    workflowServiceJpa.updateWorklist(addedWorklist);*/
+    integrationTestServiceJpa.updateWorklist(addedWorklist);*/
 
     //
     // Test perform workflow action
@@ -399,91 +396,91 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.AUTHOR,
         WorkflowAction.ASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.NEW);
 
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.AUTHOR,
         WorkflowAction.UNASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.NEW);
 
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.AUTHOR,
         WorkflowAction.ASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.NEW);
 
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.AUTHOR,
         WorkflowAction.SAVE, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.EDITING_IN_PROGRESS);
     
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.AUTHOR,
         WorkflowAction.UNASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.NEW);
     
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.AUTHOR,
         WorkflowAction.ASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.NEW);
 
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.AUTHOR,
         WorkflowAction.FINISH, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
 
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.REVIEWER,
         WorkflowAction.ASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
 
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.REVIEWER,
         WorkflowAction.UNASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
     
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.REVIEWER,
         WorkflowAction.ASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
     
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.REVIEWER,
         WorkflowAction.SAVE, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.REVIEW_IN_PROGRESS);
     
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.REVIEWER,
         WorkflowAction.UNASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
     
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.REVIEWER,
         WorkflowAction.ASSIGN, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
     
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.REVIEWER,
         WorkflowAction.FINISH, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.REVIEW_DONE);
     
     workflowService.performWorkflowAction(project.getId(),
         addedWorklist.getId(), authToken, UserRole.REVIEWER,
         WorkflowAction.FINISH, authToken);
-    assertTrue(workflowServiceJpa.getWorklist(addedWorklist.getId())
+    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
         .getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION);
     
 
@@ -494,7 +491,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // Test clean up
     //
 
-    // remove workflow bin definitions
+    /*// remove workflow bin definitions
     workflowService.removeWorkflowBinDefinition(project.getId(),
         addedWorkflowBinDefinition.getId(), authToken);
 
@@ -508,7 +505,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         workflowServiceJpa.removeTrackingRecord(record.getId());
       }
       workflowServiceJpa.removeWorkflowBin(bin.getId());
-    }
+    }*/
 
   }
 
@@ -523,7 +520,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // logout
     securityService.logout(authToken);
-    workflowServiceJpa.close();
   }
 
 }

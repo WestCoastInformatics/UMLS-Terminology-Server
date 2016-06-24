@@ -20,6 +20,7 @@
 package com.wci.umls.server.mojo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +42,17 @@ import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.model.meta.SemanticType;
+import com.wci.umls.server.model.workflow.QueryType;
+import com.wci.umls.server.model.workflow.WorkflowBinType;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.rest.impl.HistoryServiceRestImpl;
 import com.wci.umls.server.rest.impl.ProjectServiceRestImpl;
 import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
+import com.wci.umls.server.rest.impl.WorkflowServiceRestImpl;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
 
@@ -243,6 +250,56 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     final HistoryServiceRestImpl historyService = new HistoryServiceRestImpl();
     historyService.startEditingCycle(nextRelease, terminology, version,
         admin.getAuthToken());
+
+    
+    //
+    // Prepare the test and check prerequisites
+    //
+    Date startDate = new Date();
+
+    WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
+    workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
+    workflowConfig.setMutuallyExclusive(true);
+    workflowConfig.setProjectId(project1.getId());
+    workflowConfig.setTimestamp(startDate);
+    workflowConfig.setLastPartitionTime(1L);
+
+
+    // add the workflow config
+    WorkflowServiceRestImpl workflowService = new WorkflowServiceRestImpl();
+    WorkflowConfig addedWorkflowConfig =
+        workflowService.addWorkflowConfig(project1.getId(), workflowConfig,
+            admin.getAuthToken());
+
+    WorkflowBinDefinitionJpa workflowBinDefinition =
+        new WorkflowBinDefinitionJpa();
+    workflowBinDefinition.setName("test name");
+    workflowBinDefinition.setDescription("test description");
+    workflowBinDefinition.setQuery(
+        "select distinct c.id clusterId, c.id conceptId from concepts c where c.name = 'adopce';");
+    workflowBinDefinition.setEditable(true);
+    workflowBinDefinition.setQueryType(QueryType.SQL);
+    workflowBinDefinition.setTimestamp(startDate);
+    workflowBinDefinition.setWorkflowConfig(addedWorkflowConfig);
+    
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(project1.getId(),
+            addedWorkflowConfig.getId(), workflowBinDefinition, admin.getAuthToken());
+
+    WorkflowBinDefinitionJpa workflowBinDefinition2 =
+        new WorkflowBinDefinitionJpa();
+    workflowBinDefinition2.setName("test name2");
+    workflowBinDefinition2.setDescription("test description2");
+    workflowBinDefinition2.setQuery(
+        "select distinct c.id clusterId, c.id conceptId from ConceptJpa c where c.name like '%AIDS%';");
+    workflowBinDefinition2.setEditable(true);
+    workflowBinDefinition2.setQueryType(QueryType.HQL);
+    workflowBinDefinition2.setTimestamp(startDate);
+    workflowBinDefinition2.setWorkflowConfig(addedWorkflowConfig);
+
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(project1.getId(),
+            addedWorkflowConfig.getId(), workflowBinDefinition2, admin.getAuthToken());
 
   }
 

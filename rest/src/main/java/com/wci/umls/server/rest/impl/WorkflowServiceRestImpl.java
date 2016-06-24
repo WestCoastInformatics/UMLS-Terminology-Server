@@ -26,6 +26,8 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -105,10 +107,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     try {
 
       // authorize and get user name from the token
-      authorizeProject(workflowService, projectId,
+      final String authUser = authorizeProject(workflowService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
 
-      workflowService.setLastModifiedBy(workflowConfig.getLastModifiedBy());
+      workflowService.setLastModifiedBy(authUser);
       return workflowService.addWorkflowConfig(workflowConfig);
       
     } catch (Exception e) {
@@ -212,10 +214,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     try {
 
       // authorize and get user name from the token
-      authorizeProject(workflowService, projectId,
+      final String authUser = authorizeProject(workflowService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
 
-      workflowService.setLastModifiedBy(binDefinition.getLastModifiedBy());
+      workflowService.setLastModifiedBy(authUser);
       
       WorkflowConfig workflowConfig = workflowService.getWorkflowConfig(configId);
       binDefinition.setWorkflowConfig(workflowConfig);
@@ -367,10 +369,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
                   "Error executing HQL query: " + e.getMessage());
             }
             break;
-          case LUCENE:
-            // query map records index which returns map objects
-            // value = "", itemId = mapRecord.getId(),
-            // itemName=mapRecord.getConceptName()
+          case LUCENE:           
+            SearchResultList resultList = workflowService.findConceptsForQuery(
+                project.getTerminology(), null, null, query, null);
+            results = new ArrayList<>();
+            for (SearchResult result : resultList.getObjects()) {
+              Object[] objectArray = new Object[1];
+              objectArray[0] = result.getId();
+              objectArray[1] = result.getValue();
+              results.add(objectArray);
+            }
             break;
           case SQL:
             try {
@@ -419,7 +427,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
           record.setTerminology(project.getTerminology());
           record.setTimestamp(new Date());
           record.setVersion("latest");
-          record.setWorkflowBin(bin);
+          record.setWorkflowBin(bin.getName());
           record.setWorklist(null);
 
           workflowService.addTrackingRecord(record);
@@ -474,9 +482,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
         throw new LocalException(
             "Workflow bin definition query must return column result with name of 'clusterId'");
 
-      if (!selectSubStr.contains("componentId"))
+      if (!selectSubStr.contains("conceptId"))
         throw new LocalException(
-            "Workflow bin definition query must return column result with name of 'componentId'");
+            "Workflow bin definition query must return column result with name of 'conceptId'");
 
 
 
@@ -721,10 +729,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements Work
     }
     return null;
   }
-
-
-
-
     
     
   @Override

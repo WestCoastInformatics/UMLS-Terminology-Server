@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.rest;
 
@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.rest.client.ContentClientRest;
+import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
 import com.wci.umls.server.rest.client.WorkflowClientRest;
@@ -33,6 +34,9 @@ public class WorkflowServiceRestTest extends IntegrationUnitSupport {
 
   /** The meta editing service */
   protected static WorkflowClientRest workflowService;
+  
+  /**  The integration service. */
+  protected static IntegrationTestClientRest integrationTestService;
 
   /** The properties. */
   protected static Properties properties;
@@ -65,6 +69,7 @@ public class WorkflowServiceRestTest extends IntegrationUnitSupport {
     projectService = new ProjectClientRest(properties);
     contentService = new ContentClientRest(properties);
     securityService = new SecurityClientRest(properties);
+    integrationTestService = new IntegrationTestClientRest(properties);
 
     // test run.config.ts has viewer user
     testUser = properties.getProperty("viewer.user");

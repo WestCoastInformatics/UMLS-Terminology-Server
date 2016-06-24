@@ -74,7 +74,6 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
     p2 = (ProjectJpa) tester2.createObject(2);
 
     object.setProject(p1);
-    object.setWorkflowBin(m1);
   }
 
   /**
@@ -103,10 +102,7 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
     tester.include("description");
     tester.include("name");
     tester.include("project");
-    tester.include("workflowBin");
 
-    tester.proxy(WorkflowBin.class, 1, m1);
-    tester.proxy(WorkflowBin.class, 2, m2);
     tester.proxy(Project.class, 1, p1);
     tester.proxy(Project.class, 2, p2);
 
@@ -128,8 +124,6 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(WorkflowBin.class, 1, m1);
-    tester.proxy(WorkflowBin.class, 2, m2);
     tester.proxy(Project.class, 1, p1);
     tester.proxy(Project.class, 2, p2);
     assertTrue(tester.testCopyConstructorDeep(Checklist.class));
@@ -148,10 +142,7 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
 
     Project p1 = new ProjectJpa();
     p1.setId(1L);
-    WorkflowBin b1 = new WorkflowBinJpa();
-    b1.setId(1L);
     tester.proxy(Project.class, 1, p1);
-    tester.proxy(WorkflowBin.class, 1, b1);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -191,7 +182,6 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
     tester = new IndexedFieldTester(object);
     tester.include("name");
     tester.include("projectId");
-    tester.include("workflowBinId");
     tester.include("lastModifiedBy");
     tester.include("lastModifiedBy");
 
@@ -207,8 +197,6 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
   public void testModelXmlTransient() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     String xml = ConfigUtility.getStringForGraph(object);
-    assertTrue(xml.contains("<workflowBinId>"));
-    assertFalse(xml.contains("<workflowBin>"));
   }
 
   /**
