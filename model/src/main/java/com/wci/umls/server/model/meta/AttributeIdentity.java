@@ -7,7 +7,7 @@ import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasName;
 
 /**
- * Represents the name of an attribute.
+ * Represents attribute identity for Metathesaurus editing.
  */
 public interface AttributeIdentity extends HasId, HasName {
 
@@ -58,7 +58,7 @@ public interface AttributeIdentity extends HasId, HasName {
    *
    * @return the hash code
    */
-  public String getHashCode();
+  public String getHashcode();
 
   /**
    * Sets the hash code.
@@ -80,7 +80,6 @@ public interface AttributeIdentity extends HasId, HasName {
    * @param terminology the new terminology
    */
   public void setTerminology(String terminology);
-  
 
   /**
    * Gets the terminology.

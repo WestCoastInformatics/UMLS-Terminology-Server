@@ -21,9 +21,9 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.ConfigUtility;
 
 /**
- * A mechanism to reset to the stock dev database.
+ * A mechanism to reset to the stock dev database for NCI-META testing.
  */
-public class ResetDevDatabase {
+public class ResetMetaDevDatabase {
 
   /** The properties. */
   static Properties config;
@@ -48,7 +48,9 @@ public class ResetDevDatabase {
    * Test the sequence:
    * 
    * <pre>
-   * Run the RRF-umls mojo against the sample config/src/resources/data/SAMPLE_2014AB" data.  This will create db and reindex.
+   * Run Updatedb mojo in "create" mode to clear the database
+   * Run Reindex mojo to clear the indexes
+   * Run the RRF-umls mojo against the sample config/src/resources/data/SAMPLE_2014AB" data.
    * Create a "UMLS" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
    * Start an editing cycle for "UMLS"
    * stop here and the db is ready to use
@@ -76,7 +78,6 @@ public class ResetDevDatabase {
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_UMLS");
     request.setProperties(p);
-    request.setDebug(true);
     Invoker invoker = new DefaultInvoker();
     InvocationResult result = invoker.execute(request);
     if (result.getExitCode() != 0) {

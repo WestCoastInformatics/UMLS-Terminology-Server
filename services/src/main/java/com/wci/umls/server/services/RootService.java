@@ -8,9 +8,11 @@ import java.util.List;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.meta.LogActivity;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Represents a service.
@@ -171,10 +173,19 @@ public interface RootService {
   public void setMolecularActionFlag(boolean molecularActionFlag);
 
   /**
+   * Gets the search handler.
+   *
+   * @param key the key
+   * @return the search handler
+   * @throws Exception the exception
+   */
+  public SearchHandler getSearchHandler(String key) throws Exception;
+
+  /**
    * Gets the molecular action.
    *
    * @return the molecular action
-   * @throws Exception
+   * @throws Exception the exception
    */
   public MolecularAction getMolecularAction() throws Exception;
 
@@ -342,8 +353,20 @@ public interface RootService {
    * @param query the query
    * @param pfs the pfs
    * @return the list
-   * @throws Exception
+   * @throws Exception the exception
    */
-  public MolecularActionList findMolecularActions(String terminology, String version, String query, PfsParameter pfs) throws Exception;
+  public MolecularActionList findMolecularActions(String terminology,
+    String version, String query, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find atomic actions.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @return the atomic action list
+   * @throws Exception the exception
+   */
+  public AtomicActionList findAtomicActions(String query, PfsParameter pfs)
+    throws Exception;
 
 }

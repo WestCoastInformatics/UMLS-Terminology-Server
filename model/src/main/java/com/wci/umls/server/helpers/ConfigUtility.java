@@ -53,6 +53,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -985,5 +986,15 @@ public class ConfigUtility {
    */
   public static boolean isEmpty(String str) {
     return str == null || str.isEmpty();
+  }
+
+  /**
+   * Returns the md5.
+   *
+   * @param str the str
+   * @return the static string
+   */
+  public static String getMd5(String str) {
+    return DigestUtils.md5Hex(str);
   }
 }

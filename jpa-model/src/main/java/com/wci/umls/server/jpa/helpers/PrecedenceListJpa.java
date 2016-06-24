@@ -68,7 +68,7 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Column(nullable = false)
   private String terminology;
 
-  /** The expandedForm. */
+  /** The version. */
   @Column(nullable = false)
   private String version;
 

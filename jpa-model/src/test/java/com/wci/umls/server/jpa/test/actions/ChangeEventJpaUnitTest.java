@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
@@ -86,10 +87,13 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
     tester.include("type");
     tester.include("oldValue");
     tester.include("newValue");
+    tester.include("container");
 
     tester.proxy(AbstractComponent.class, 1, c1);
     tester.proxy(AbstractComponent.class, 2, c2);
-
+    tester.proxy(ComponentInfo.class, 1, c1);
+    tester.proxy(ComponentInfo.class, 2, c2);
+    
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -110,6 +114,8 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(AbstractComponent.class, 1, c1);
     tester.proxy(AbstractComponent.class, 2, c2);
+    tester.proxy(ComponentInfo.class, 1, c1);
+    tester.proxy(ComponentInfo.class, 2, c2);
     assertTrue(tester.testCopyConstructor(ChangeEvent.class));
   }
 

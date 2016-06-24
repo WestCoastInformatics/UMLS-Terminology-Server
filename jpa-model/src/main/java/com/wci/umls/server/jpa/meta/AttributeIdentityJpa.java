@@ -2,28 +2,26 @@ package com.wci.umls.server.jpa.meta;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * The Attribute Identity Object Class
+ * JPA and JAXB enabled implementation of {@link AttributeIdentity}
  */
 @Entity
-@Table(name = "attribute_identities")
+@Table(name = "attribute_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "ownerId", "ownerType", "terminology", "id"
+}))
 @XmlRootElement(name = "attributeIdentity")
 public class AttributeIdentityJpa implements AttributeIdentity {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
 
   /** The attribute name. */
@@ -52,29 +50,29 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /** The attribute value hash code. */
   @Column(nullable = false)
-  private String hashCode;
+  private String hashcode;
 
   /**
-   * Default Constructor.
+   * Instantiates an empty {@link AttributeIdentityJpa}.
    */
   public AttributeIdentityJpa() {
-
+    //
   }
 
   /**
-   * Copy constructor.
+   * Instantiates a {@link AttributeIdentityJpa} from the specified parameters.
    *
-   * @param identity the a
+   * @param identity the identity
    */
   public AttributeIdentityJpa(AttributeIdentity identity) {
-    super();
-    this.name = identity.getName();
-    this.terminologyId = identity.getTerminologyId();
-    this.terminology = identity.getTerminology();
-    this.ownerId = identity.getOwnerId();
-    this.ownerType = identity.getOwnerType();
-    this.ownerQualifier = identity.getOwnerQualifier();
-    this.hashCode = identity.getHashCode();
+    id = identity.getId();
+    name = identity.getName();
+    terminologyId = identity.getTerminologyId();
+    terminology = identity.getTerminology();
+    ownerId = identity.getOwnerId();
+    ownerType = identity.getOwnerType();
+    ownerQualifier = identity.getOwnerQualifier();
+    hashcode = identity.getHashcode();
   }
 
   /* see superclass */
@@ -151,31 +149,34 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
-  public String getHashCode() {
-    return hashCode;
+  public String getHashcode() {
+    return hashcode;
   }
 
   /* see superclass */
   @Override
   public void setHashCode(String hashCode) {
-    this.hashCode = hashCode;
+    this.hashcode = hashCode;
   }
 
+  /* see superclass */
   @Override
   public String getName() {
     return name;
   }
 
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((hashCode == null) ? 0 : hashCode.hashCode());
+    result = prime * result + ((hashcode == null) ? 0 : hashcode.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((ownerId == null) ? 0 : ownerId.hashCode());
     result =
@@ -190,6 +191,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -199,10 +201,10 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     if (getClass() != obj.getClass())
       return false;
     AttributeIdentityJpa other = (AttributeIdentityJpa) obj;
-    if (hashCode == null) {
-      if (other.hashCode != null)
+    if (hashcode == null) {
+      if (other.hashcode != null)
         return false;
-    } else if (!hashCode.equals(other.hashCode))
+    } else if (!hashcode.equals(other.hashcode))
       return false;
     if (name == null) {
       if (other.name != null)
@@ -234,12 +236,13 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "AttributeIdentityJpa [id=" + id + ", name=" + name
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
         + ", ownerId=" + ownerId + ", ownerType=" + ownerType
-        + ", ownerQualifier=" + ownerQualifier + ", hashCode=" + hashCode + "]";
+        + ", ownerQualifier=" + ownerQualifier + ", hashCode=" + hashcode + "]";
   }
 
 }
