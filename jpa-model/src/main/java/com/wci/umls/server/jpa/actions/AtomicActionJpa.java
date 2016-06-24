@@ -15,9 +15,11 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
@@ -100,8 +102,10 @@ public class AtomicActionJpa implements AtomicAction {
   public void setId(Long id) {
     this.id = id;
   }
-/*
-   see superclass */
+
+  /*
+   * see superclass
+   */
   @Override
   // Simply transient, no need to refer the id back - never needed for
   // serialization
@@ -109,11 +113,34 @@ public class AtomicActionJpa implements AtomicAction {
   public MolecularAction getMolecularAction() {
     return molecularAction;
   }
-  
- /*  see superclass */
+
+  /* see superclass */
   @Override
   public void setMolecularAction(MolecularAction molecularAction) {
     this.molecularAction = molecularAction;
+  }
+
+  /**
+   * Returns the molecular action id. For Lucene and JAXB.
+   *
+   * @return the molecular action id
+   */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getMolecularActionId() {
+    return molecularAction == null ? null : molecularAction.getId();
+  }
+
+  /**
+   * Sets the molecular action id. For JAXB.
+   *
+   * @param molecularActionId the molecular action id
+   */
+  public void setMolecularActionId(Long molecularActionId) {
+    if (molecularAction == null) {
+      molecularAction = new MolecularActionJpa();
+    }
+    molecularAction.setId(molecularActionId);
   }
 
   /* see superclass */

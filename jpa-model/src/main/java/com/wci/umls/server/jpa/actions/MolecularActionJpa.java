@@ -85,7 +85,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /** The molecular action. */
   @IndexedEmbedded(targetElement = AtomicActionJpa.class)
-  @OneToMany(mappedBy="molecularAction", targetEntity = AtomicActionJpa.class)
+  @OneToMany(mappedBy = "molecularAction", targetEntity = AtomicActionJpa.class)
   private List<AtomicAction> atomicActions = new ArrayList<>();
 
   /**
@@ -268,10 +268,12 @@ public class MolecularActionJpa implements MolecularAction {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result = prime * result
-        + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result =
+        prime * result
+            + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
