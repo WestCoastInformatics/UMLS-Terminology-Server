@@ -6,7 +6,8 @@
  */
 package com.wci.umls.server.test.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 
@@ -147,7 +148,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     MolecularActionList list = contentService
         .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
-    assertEquals(1, list.getCount());
+    assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
@@ -155,7 +156,8 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(ma.getAtomicActions());
 
     // TODO Verify atomic actions once REST callback exists for
-    for (AtomicAction a : ma.getAtomicActions()){
+    pfs.setAscending(true);
+    for (AtomicAction a : contentService.findAtomicActions(ma.getId(), null, pfs, authToken).getObjects()){
       Logger.getLogger(getClass())
       .info("TEST - Included atomic action: " + a.toString());     
     }

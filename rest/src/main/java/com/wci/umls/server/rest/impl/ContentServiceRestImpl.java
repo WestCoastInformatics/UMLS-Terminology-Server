@@ -4406,8 +4406,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/actions/atomic")
   @ApiOperation(value = "Get atomic actions for a molecular action", notes = "Get atomic actions for a molecular action", response = AtomicActionListJpa.class)
-  public AtomicActionList findAtomicActions(Long molecularActionId,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception {
+  public AtomicActionList findAtomicActions(
+    @ApiParam(value = "The molecularActionId id, e.g. 1", required = true) @QueryParam("molecularActionId") Long molecularActionId,
+    @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken) throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful call POST (Content): /actions/atomic " + molecularActionId
             + ", " + query);

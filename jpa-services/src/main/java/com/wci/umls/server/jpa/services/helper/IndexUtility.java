@@ -293,7 +293,7 @@ public class IndexUtility {
    * @param type the type
    * @return the all fields
    */
-  private static java.lang.reflect.Field[] getAllFields(Class<?> type) {
+  public static java.lang.reflect.Field[] getAllFields(Class<?> type) {
     if (type.getSuperclass() != null) {
       return ArrayUtils.addAll(getAllFields(type.getSuperclass()),
           type.getDeclaredFields());

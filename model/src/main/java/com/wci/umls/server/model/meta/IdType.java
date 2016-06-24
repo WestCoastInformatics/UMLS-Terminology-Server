@@ -1,9 +1,9 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.meta;
 
-import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.Component;
 
 /**
  * Enum for identifier types. This is used to help bridge the gap between the
@@ -73,9 +73,28 @@ public enum IdType {
    * @return the id type
    * @throws Exception the exception
    */
-  public static IdType getIdType(ComponentHasAttributes component)
-    throws Exception {
+  public static IdType getIdType(Component component) throws Exception {
     final String type = component.getClass().getName().toUpperCase();
+    for (final IdType value : IdType.values()) {
+      final String valueStr = value.toString().replaceAll("_", "");
+      if (type.contains(valueStr)) {
+        return value;
+      }
+    }
+    throw new Exception("Unable to determine IdType " + type);
+  }
+
+  /**
+   * Returns the id type.
+   *
+   * @param <T> the
+   * @param clazz the clazz
+   * @return the id type
+   * @throws Exception the exception
+   */
+  public static <T extends Component> IdType getIdType(Class<T> clazz)
+    throws Exception {
+    final String type = clazz.getName().toUpperCase();
     for (final IdType value : IdType.values()) {
       final String valueStr = value.toString().replaceAll("_", "");
       if (type.contains(valueStr)) {

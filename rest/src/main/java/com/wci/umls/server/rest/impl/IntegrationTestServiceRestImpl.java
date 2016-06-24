@@ -75,6 +75,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
       final String authUser = authorizeApp(securityService, authToken,
           "add concept", UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
+      contentService.setMolecularActionFlag(false);
 
       // Add concept
       Concept newConcept = contentService.addConcept(concept);
@@ -107,6 +108,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
       String authUser = authorizeApp(securityService, authToken,
           "remove concept", UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
+      contentService.setMolecularActionFlag(false);
 
       // Create service and configure transaction scope
       contentService.removeConcept(id);
