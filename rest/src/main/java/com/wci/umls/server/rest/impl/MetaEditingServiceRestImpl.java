@@ -53,8 +53,8 @@ import com.wordnik.swagger.annotations.ApiParam;
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Api(value = "/meta", description = "Operations for metathesaurus editing")
-public class MetaEditingServiceRestImpl extends RootServiceRestImpl
-    implements MetaEditingServiceRest {
+public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
+    MetaEditingServiceRest {
 
   /** The security service. */
   private SecurityService securityService;
@@ -82,9 +82,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
-            + conceptId + "/add for user " + authToken + " with sty value "
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /sty/" + projectId + "/" + conceptId
+            + "/add for user " + authToken + " with sty value "
             + semanticType.getSemanticType());
 
     // Prep reusable variables
@@ -97,16 +97,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     try {
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, action, UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(contentService, projectId, securityService,
+              authToken, action, UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = contentService.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final Concept concept =
+          initialize(contentService, project, conceptId, userName, action,
+              lastModified, validationResult);
 
       //
       // Check prerequisites
@@ -124,8 +126,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Duplicate check
       for (SemanticTypeComponent s : concept.getSemanticTypes()) {
         if (s.getSemanticType().equals(semanticType.getSemanticType())) {
-          throw new LocalException(
-              "Duplicate semantic type - " + semanticType.getSemanticType());
+          throw new LocalException("Duplicate semantic type - "
+              + semanticType.getSemanticType());
         }
       }
 
@@ -145,8 +147,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // add the semantic type component itself and set the last modified
       semanticType.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       SemanticTypeComponentJpa newSemanticType =
-          (SemanticTypeComponentJpa) contentService
-              .addSemanticTypeComponent(semanticType, concept);
+          (SemanticTypeComponentJpa) contentService.addSemanticTypeComponent(
+              semanticType, concept);
 
       // add the semantic type and set the last modified by
       concept.getSemanticTypes().add(newSemanticType);
@@ -166,7 +168,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent<SemanticTypeComponentJpa> event =
           new ChangeEventJpa<SemanticTypeComponentJpa>(action,
-              IdType.SEMANTIC_TYPE.toString(), null, newSemanticType);
+              IdType.SEMANTIC_TYPE.toString(), null, newSemanticType, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -195,9 +197,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /sty/" + projectId + "/" + conceptId
+            + "/remove for user " + authToken + " with id "
             + semanticTypeComponentId);
 
     // Prep reusable variables
@@ -210,16 +212,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     try {
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, action, UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(contentService, projectId, securityService,
+              authToken, action, UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = contentService.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final Concept concept =
+          initialize(contentService, project, conceptId, userName, action,
+              lastModified, validationResult);
 
       //
       // Check prerequisites
@@ -259,9 +263,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.removeSemanticTypeComponent(semanticTypeComponent.getId());
 
       // log the REST call
-      contentService.addLogEntry(userName, projectId, conceptId,
-          action + " " + semanticTypeComponent.getSemanticType()
-              + " from concept " + concept.getTerminologyId());
+      contentService.addLogEntry(userName, projectId, conceptId, action + " "
+          + semanticTypeComponent.getSemanticType() + " from concept "
+          + concept.getTerminologyId());
 
       // commit (also adds the molecular action and removes the lock)
       contentService.commit();
@@ -270,7 +274,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent<SemanticTypeComponentJpa> event =
           new ChangeEventJpa<SemanticTypeComponentJpa>(action,
               IdType.SEMANTIC_TYPE.toString(),
-              (SemanticTypeComponentJpa) semanticTypeComponent, null);
+              (SemanticTypeComponentJpa) semanticTypeComponent, null, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -298,8 +302,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
             + conceptId + "/add for user " + authToken
             + " with attribute value " + attribute.getName());
 
@@ -313,16 +317,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     try {
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, action, UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(contentService, projectId, securityService,
+              authToken, action, UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = contentService.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final Concept concept =
+          initialize(contentService, project, conceptId, userName, action,
+              lastModified, validationResult);
 
       //
       // Check prerequisites
@@ -333,8 +339,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Metadata referential integrity checking
       if (contentService.getAttributeName(attribute.getName(),
           concept.getTerminology(), concept.getVersion()) == null) {
-        throw new LocalException(
-            "Cannot add invalid semantic type - " + attribute.getName());
+        throw new LocalException("Cannot add invalid semantic type - "
+            + attribute.getName());
       }
 
       // Duplicate check
@@ -371,7 +377,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.updateConcept(concept);
 
       // log the REST call
-      contentService.addLogEntry(userName, projectId, conceptId,
+      contentService.addLogEntry(
+          userName,
+          projectId,
+          conceptId,
           "Add attribute " + newAttribute.getName() + " to concept "
               + concept.getTerminologyId());
 
@@ -379,8 +388,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<AttributeJpa> event = new ChangeEventJpa<AttributeJpa>(
-          action, IdType.ATTRIBUTE.toString(), null, newAttribute);
+      final ChangeEvent<AttributeJpa> event =
+          new ChangeEventJpa<AttributeJpa>(action, IdType.ATTRIBUTE.toString(),
+              null, newAttribute, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -410,8 +420,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
             + conceptId + "/remove for user " + authToken + " with id "
             + attributeId);
 
@@ -425,16 +435,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     try {
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, action, UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(contentService, projectId, securityService,
+              authToken, action, UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = contentService.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final Concept concept =
+          initialize(contentService, project, conceptId, userName, action,
+              lastModified, validationResult);
 
       //
       // Check prerequisites
@@ -474,16 +486,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.removeAttribute(attribute.getId());
 
       // log the REST call
-      contentService.addLogEntry(userName, projectId, conceptId,
-          action + " " + attribute.getName() + " from concept "
-              + concept.getTerminologyId());
+      contentService
+          .addLogEntry(
+              userName,
+              projectId,
+              conceptId,
+              action + " " + attribute.getName() + " from concept "
+                  + concept.getTerminologyId());
 
       // commit (also adds the molecular action and removes the lock)
       contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<AttributeJpa> event = new ChangeEventJpa<AttributeJpa>(
-          action, IdType.ATTRIBUTE.toString(), (AttributeJpa) attribute, null);
+      final ChangeEvent<AttributeJpa> event =
+          new ChangeEventJpa<AttributeJpa>(action, IdType.ATTRIBUTE.toString(),
+              (AttributeJpa) attribute, null, concept);
       sendChangeEvent(event);
 
       return validationResult;
