@@ -38,6 +38,7 @@ import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -166,7 +167,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Websocket notification
       final ChangeEvent<SemanticTypeComponentJpa> event =
           new ChangeEventJpa<SemanticTypeComponentJpa>(action,
-              IdType.SEMANTIC_TYPE.toString(), null, newSemanticType);
+              IdType.SEMANTIC_TYPE.toString(), null, newSemanticType, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -270,7 +271,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent<SemanticTypeComponentJpa> event =
           new ChangeEventJpa<SemanticTypeComponentJpa>(action,
               IdType.SEMANTIC_TYPE.toString(),
-              (SemanticTypeComponentJpa) semanticTypeComponent, null);
+              (SemanticTypeComponentJpa) semanticTypeComponent, null, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -359,6 +360,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // operations)
       //
 
+      // Assign alternateTerminologyId
+      if (attribute.isPublishable()) {
+        IdentifierAssignmentHandler handler = contentService
+            .getIdentifierAssignmentHandler(concept.getTerminology());
+        String altId = handler.getTerminologyId(attribute, concept);
+        attribute.getAlternateTerminologyIds().put(concept.getTerminology(),
+            altId);
+      }
+
       // set the attribute component last modified
       AttributeJpa newAttribute =
           (AttributeJpa) contentService.addAttribute(attribute, concept);
@@ -380,7 +390,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent<AttributeJpa> event = new ChangeEventJpa<AttributeJpa>(
-          action, IdType.ATTRIBUTE.toString(), null, newAttribute);
+          action, IdType.ATTRIBUTE.toString(), null, newAttribute, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -482,8 +492,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<AttributeJpa> event = new ChangeEventJpa<AttributeJpa>(
-          action, IdType.ATTRIBUTE.toString(), (AttributeJpa) attribute, null);
+      final ChangeEvent<AttributeJpa> event =
+          new ChangeEventJpa<AttributeJpa>(action, IdType.ATTRIBUTE.toString(),
+              (AttributeJpa) attribute, null, concept);
       sendChangeEvent(event);
 
       return validationResult;

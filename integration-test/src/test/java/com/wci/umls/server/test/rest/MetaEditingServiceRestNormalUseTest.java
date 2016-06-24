@@ -6,12 +6,9 @@
  */
 package com.wci.umls.server.test.rest;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -27,6 +24,7 @@ import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Attribute;
@@ -81,9 +79,6 @@ public class MetaEditingServiceRestNormalUseTest
     // assertTrue(project.getBranch().equals(Branch.ROOT));
 
     // Copy existing concept to avoid messing with actual database data.
-    // TODO Move to superclass
-    IntegrationTestClientRest testService =
-        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
     concept = new ConceptJpa(contentService.getConcept("C0000294",
         umlsTerminology, umlsVersion, null, authToken), false);
     concept.setId(null);
@@ -152,7 +147,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     MolecularActionList list = contentService
         .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertEquals(1, list.getCount());
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
@@ -160,7 +155,10 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(ma.getAtomicActions());
 
     // TODO Verify atomic actions once REST callback exists for
-    // getAtomicActions(Long molecularActionId, ...)
+    for (AtomicAction a : ma.getAtomicActions()){
+      Logger.getLogger(getClass())
+      .info("TEST - Included atomic action: " + a.toString());     
+    }
 
     // TODO Verify the log entry exists
 
@@ -194,7 +192,7 @@ public class MetaEditingServiceRestNormalUseTest
     ma = list.getObjects().get(0);
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
-    assertTrue(ma.getLastModified().compareTo(startDate) > 0);
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
 
     // TODO Verify atomic actions once REST callback exists for
     // getAtomicActions(Long molecularActionId, ...)
@@ -225,9 +223,6 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(concept.getId(), project.getId(), authToken);
     assertNotNull(c);
 
-    // check against project
-    // assertTrue(c.getBranch().equals(project.getBranch()));
-
     // construct a attribute not present on concept (here, UMLSRELA)
     AttributeJpa attribute = new AttributeJpa();
     attribute.setBranch(Branch.ROOT);
@@ -237,12 +232,6 @@ public class MetaEditingServiceRestNormalUseTest
     attribute.setTerminology(umlsTerminology);
     attribute.setVersion(umlsVersion);
     attribute.setTimestamp(new Date());
-
-    // TODO - remove manual declaration once attribute alternateIDs
-    // functionality is implemented
-    Map<String, String> alternateIds = new HashMap<>();
-    alternateIds.put(umlsTerminology, "AT175740342");
-    attribute.setAlternateTerminologyIds(alternateIds);
 
     //
     // Test addition
@@ -273,7 +262,7 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
-    assertTrue(ma.getLastModified().compareTo(startDate) > 0);
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
 
     // TODO Verify atomic actions once REST callback exists for
     // getAtomicActions(Long molecularActionId, ...)
@@ -312,6 +301,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
     assertTrue(ma.getLastModified().compareTo(startDate) > 0);
     assertNotNull(ma.getAtomicActions());
+
     // TODO Re-enable this once marshaling error in ContentClientRest is
     // resolved
     // assertTrue(ma.getAtomicActions().size() == 1);

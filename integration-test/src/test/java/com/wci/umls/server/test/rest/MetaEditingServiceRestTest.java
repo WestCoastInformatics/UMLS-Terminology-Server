@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.rest;
 
@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.rest.client.ContentClientRest;
+import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 import com.wci.umls.server.rest.client.MetaEditingClientRest;
 import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
@@ -34,6 +35,9 @@ public class MetaEditingServiceRestTest extends IntegrationUnitSupport  {
   /** The meta editing service */
   protected static MetaEditingClientRest metaEditingService;
 
+  /**  The test service. */
+  protected static IntegrationTestClientRest testService;
+  
   /** The properties. */
   protected static Properties properties;
 
@@ -63,6 +67,7 @@ public class MetaEditingServiceRestTest extends IntegrationUnitSupport  {
     // instantiate required services
     metaEditingService = new MetaEditingClientRest(properties);
     projectService = new ProjectClientRest(properties);
+    testService = new IntegrationTestClientRest(properties);
     contentService = new ContentClientRest(properties);
     securityService = new SecurityClientRest(properties);
 

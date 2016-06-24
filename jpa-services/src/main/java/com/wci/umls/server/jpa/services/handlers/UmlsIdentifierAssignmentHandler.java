@@ -247,8 +247,7 @@ public class UmlsIdentifierAssignmentHandler implements
     final int length = lengthMap.get(type);
     final String idStr = id.toString();
     final int startIndex = idStr.length() + 19 - length;
-    final int endIndex = idStr.length() + 19;
     return prefixMap.get(type)
-        + ("00000000000000000000" + idStr).substring(startIndex, endIndex);
+        + ("00000000000000000000" + idStr).substring(startIndex);
   }
 }
