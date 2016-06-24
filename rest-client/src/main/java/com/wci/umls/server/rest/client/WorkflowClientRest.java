@@ -229,7 +229,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public void regenerateBins(Long projectId, WorkflowBinType type,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - add workflow config" + projectId + ", "
+        "Workflow Client - regenerate bins" + projectId + ", "
             + type.toString() + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
@@ -509,6 +509,31 @@ public class WorkflowClientRest extends RootClientRest implements
 
     // converting to object
     return ConfigUtility.getGraphForString(resultString, WorklistListJpa.class);
+  }
+
+  @Override
+  public void clearBins(Long projectId, WorkflowBinType type, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - clear bins" + projectId + ", "
+            + type.toString() + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/clear?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.json(type));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
   }
 
 }

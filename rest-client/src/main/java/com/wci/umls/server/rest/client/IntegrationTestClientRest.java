@@ -123,7 +123,7 @@ public class IntegrationTestClientRest extends RootClientRest
   }
 
   @Override
-  public void removeWorklist(Long worklistId, String authToken)
+  public void removeWorklist(Long worklistId, boolean cascade, String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Integration Test Client - remove worklist " + worklistId + ", "
@@ -133,7 +133,7 @@ public class IntegrationTestClientRest extends RootClientRest
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/test/worklist/" + worklistId + "/remove");
+        + "/test/worklist/" + worklistId + "/remove?cascade=" + cascade);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();

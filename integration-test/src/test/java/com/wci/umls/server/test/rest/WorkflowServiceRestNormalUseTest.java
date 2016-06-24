@@ -215,11 +215,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   }
 
   /**
-   * Test add and remove workflow config and regenerate bins
+   * Test regenerate and clear bins
    *
    * @throws Exception the exception
    */
-  //@Test
+  @Test
   public void testNormalUseRestWorkflow003() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
@@ -228,91 +228,13 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
             + authToken);
 
     //
-    // Prepare the test and check prerequisites
-    //
-    Date startDate = new Date();
-
-    /*WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
-    workflowConfig.setLastModifiedBy(authToken);
-    workflowConfig.setTimestamp(new Date());
-    workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
-    workflowConfig.setMutuallyExclusive(true);
-    workflowConfig.setProjectId(project.getId());
-    workflowConfig.setLastModified(startDate);
-    workflowConfig.setTimestamp(startDate);
-    workflowConfig.setLastPartitionTime(1L);
-
-    //
-    // Test addition
-    //
-
-    // add the workflow config
-    WorkflowConfig addedWorkflowConfig =
-        workflowService.addWorkflowConfig(project.getId(), workflowConfig,
-            authToken);
-
-    WorkflowBinDefinitionJpa workflowBinDefinition =
-        new WorkflowBinDefinitionJpa();
-    workflowBinDefinition.setName("test name");
-    workflowBinDefinition.setDescription("test description");
-    workflowBinDefinition
-        .setQuery("select c.id clusterId, c.id componentId from concepts c where c.name = 'adopce';");
-    workflowBinDefinition.setEditable(true);
-    workflowBinDefinition.setLastModified(startDate);
-    workflowBinDefinition.setLastModifiedBy(authToken);
-    workflowBinDefinition.setQueryType(QueryType.SQL);
-    workflowBinDefinition.setTimestamp(startDate);
-    workflowBinDefinition.setWorkflowConfig(addedWorkflowConfig);
-
-    WorkflowBinDefinition addedWorkflowBinDefinition =
-        workflowService.addWorkflowBinDefinition(project.getId(),
-            addedWorkflowConfig.getId(), workflowBinDefinition, authToken);
-
-    WorkflowBinDefinitionJpa workflowBinDefinition2 =
-        new WorkflowBinDefinitionJpa();
-    workflowBinDefinition2.setName("test name2");
-    workflowBinDefinition2.setDescription("test description2");
-    workflowBinDefinition2
-        .setQuery("select c.id clusterId, c.id componentId from concepts c where c.name = 'AIDS';");
-    workflowBinDefinition2.setEditable(true);
-    workflowBinDefinition2.setLastModified(startDate);
-    workflowBinDefinition2.setLastModifiedBy(authToken);
-    workflowBinDefinition2.setQueryType(QueryType.SQL);
-    workflowBinDefinition2.setTimestamp(startDate);
-    workflowBinDefinition2.setWorkflowConfig(addedWorkflowConfig);
-
-    WorkflowBinDefinition addedWorkflowBinDefinition2 =
-        workflowService.addWorkflowBinDefinition(project.getId(),
-            addedWorkflowConfig.getId(), workflowBinDefinition2, authToken);
-*/
-    //
-    // Regenerate bins
+    // Regenerate bins and then clear bins
     //
     workflowService.regenerateBins(project.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
-    //
-    // Test clean up
-    //
-
-    // remove workflow bin definitions
-    /*workflowService.removeWorkflowBinDefinition(project.getId(),
-        addedWorkflowBinDefinition.getId(), authToken);
-    workflowService.removeWorkflowBinDefinition(project.getId(),
-        addedWorkflowBinDefinition2.getId(), authToken);
-
-    // remove the workflow config
-    workflowService.removeWorkflowConfig(addedWorkflowConfig.getId(),
-        authToken);*/
-
-    // remove bins and tracking records
-    // TODO clear bins
-    /*for (WorkflowBin bin : integrationTestService.getWorkflowBins(authToken)) {
-      for (TrackingRecord record : bin.getTrackingRecords()) {
-        integrationTestService.removeTrackingRecord(record.getId());
-      }
-      integrationTestService.removeWorkflowBin(bin.getId());
-    }*/
+    workflowService.clearBins(project.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
   }
 
@@ -329,47 +251,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         "TEST - Perform workflow action" + umlsTerminology + ", " + umlsVersion
             + ", " + authToken);
 
-    //
-    // Prepare the test and check prerequisites
-    //
-    Date startDate = new Date();
 
-/*    WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
-    workflowConfig.setLastModifiedBy(authToken);
-    workflowConfig.setTimestamp(startDate);
-    workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
-    workflowConfig.setMutuallyExclusive(true);
-    workflowConfig.setProjectId(project.getId());
-    workflowConfig.setLastModified(startDate);
-    workflowConfig.setTimestamp(startDate);
-    workflowConfig.setLastPartitionTime(1L);
-
-    //
-    // Test addition
-    //
-
-    // add the workflow config
-    WorkflowConfig addedWorkflowConfig =
-        workflowService.addWorkflowConfig(project.getId(), workflowConfig,
-            authToken);
-
-    WorkflowBinDefinitionJpa workflowBinDefinition =
-        new WorkflowBinDefinitionJpa();
-    workflowBinDefinition.setName("test name");
-    workflowBinDefinition.setDescription("test description");
-    workflowBinDefinition
-        .setQuery("select c.id clusterId, c.id componentId from concepts c where c.name = 'adopce';");
-    workflowBinDefinition.setEditable(true);
-    workflowBinDefinition.setLastModified(startDate);
-    workflowBinDefinition.setLastModifiedBy(authToken);
-    workflowBinDefinition.setQueryType(QueryType.SQL);
-    workflowBinDefinition.setTimestamp(startDate);
-    workflowBinDefinition.setWorkflowConfig(addedWorkflowConfig);
-
-    WorkflowBinDefinition addedWorkflowBinDefinition =
-        workflowService.addWorkflowBinDefinition(project.getId(),
-            addedWorkflowConfig.getId(), workflowBinDefinition, authToken);
-*/
     //
     // Regenerate bins
     //

@@ -92,6 +92,17 @@ public interface WorkflowServiceRest {
     Long workflowBinDefinitionId, String authToken) throws Exception;
 
   /**
+   * Clear bins.
+   *
+   * @param projectId the project id
+   * @param type the type
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void clearBins(Long projectId, WorkflowBinType type, String authToken)
+    throws Exception;
+
+  /**
    * Regenerate bins.
    *
    * @param projectId the project id
