@@ -1,5 +1,9 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.model.actions;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
 import com.wci.umls.server.model.content.Component;
@@ -9,8 +13,8 @@ import com.wci.umls.server.model.content.Component;
  *
  * @param <T> the
  */
-public interface ChangeEvent<T extends Component> extends HasName,
-    HasLastModified {
+public interface ChangeEvent<T extends Component>
+    extends HasName, HasLastModified {
 
   /**
    * Returns the type.
@@ -53,5 +57,19 @@ public interface ChangeEvent<T extends Component> extends HasName,
    * @param newValue the new value
    */
   public void setNewValue(T newValue);
+
+  /**
+   * Returns the container.
+   *
+   * @return the container
+   */
+  public ComponentInfo getContainer();
+
+  /**
+   * Sets the container.
+   *
+   * @param container the container
+   */
+  public void setContainer(ComponentInfo container);
 
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -28,8 +28,8 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
-    Long timestamp, SemanticTypeComponentJpa semanticTypeComponent, boolean overrideWarnings,
-    String authToken) throws Exception;
+    Long timestamp, SemanticTypeComponentJpa semanticTypeComponent,
+    boolean overrideWarnings, String authToken) throws Exception;
 
   /**
    * Remove semantic type.
@@ -44,9 +44,9 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult removeSemanticType(Long projectId, Long conceptId,
-    Long timestamp, Long semanticTypeComponentId, boolean overrideWarnings, String authToken)
-      throws Exception;
- 
+    Long timestamp, Long semanticTypeComponentId, boolean overrideWarnings,
+    String authToken) throws Exception;
+
   /**
    * Add attribute.
    *
@@ -63,7 +63,6 @@ public interface MetaEditingServiceRest {
     Long timestamp, AttributeJpa attribute, boolean overrideWarnings,
     String authToken) throws Exception;
 
-  
   /**
    * Remove attribute.
    *
@@ -77,7 +76,7 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult removeAttribute(Long projectId, Long conceptId,
-    Long timestamp, Long attributeId, boolean overrideWarnings, String authToken)
-      throws Exception;
+    Long timestamp, Long attributeId, boolean overrideWarnings,
+    String authToken) throws Exception;
 
 }
