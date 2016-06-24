@@ -51,10 +51,11 @@ public interface IntegrationTestServiceRest {
    * Removes the worklist.
    *
    * @param worklistId the worklist id
+   * @param cascade the cascade flag
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeWorklist(Long worklistId, String authToken) throws Exception;
+  public void removeWorklist(Long worklistId, boolean cascade, String authToken) throws Exception;
   
   /**
    * Returns the worklist.

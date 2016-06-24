@@ -309,9 +309,10 @@ public interface WorkflowService extends ProjectService {
    * Remove workflow bin.
    *
    * @param id the id
+   * @param cascade cascade flag
    * @throws Exception the exception
    */
-  public void removeWorkflowBin(Long id) throws Exception;
+  public void removeWorkflowBin(Long id, boolean cascade) throws Exception;
 
   /**
    * Gets the workflow bins.
@@ -361,9 +362,10 @@ public interface WorkflowService extends ProjectService {
    * Remove worklist.
    *
    * @param id the id
+   * @param cascade cascade flag
    * @throws Exception the exception
    */
-  public void removeWorklist(Long id) throws Exception;
+  public void removeWorklist(Long id, boolean cascade) throws Exception;
 
   /**
    * Gets the worklist.
@@ -406,9 +408,10 @@ public interface WorkflowService extends ProjectService {
    * Remove checklist.
    *
    * @param id the id
+   * @param cascade cascade flag
    * @throws Exception the exception
    */
-  public void removeChecklist(Long id) throws Exception;
+  public void removeChecklist(Long id, boolean cascade) throws Exception;
 
   /**
    * Gets the checklist.

@@ -12,6 +12,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
@@ -168,6 +169,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Remove a worklist", notes = "Remove a worklist")
   public void removeWorklist(
     @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long worklistId,
+      @ApiParam(value = "Cascade flag, e.g. false", required = true) @QueryParam("cascade") boolean cascade,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -181,7 +183,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
               UserRole.USER);
 
       workflowService.setLastModifiedBy(authUser);
-      workflowService.removeWorklist(worklistId);
+        workflowService.removeWorklist(worklistId, cascade);
     } catch (Exception e) {
 
       handleException(e, "trying to remove a worklist");
