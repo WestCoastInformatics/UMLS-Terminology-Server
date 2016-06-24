@@ -143,6 +143,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Lucene reindex.
+   *
+   * @param indexedObjects the indexed objects
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/reindex")
@@ -181,6 +188,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the ecl expression result count.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param authToken the auth token
+   * @return the ecl expression result count
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/expression/count/{terminology}/{version}/{query}")
@@ -211,6 +228,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the ecl expression results.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param authToken the auth token
+   * @return the ecl expression results
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/expression/query/{terminology}/{version}/{query}")
@@ -241,6 +268,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Compute expression indexes.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/expression/index/{terminology}/{version}")
@@ -278,6 +313,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Compute transitive closure.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/terminology/closure/compute/{terminology}/{version}")
@@ -325,6 +368,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Compute tree positions.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/terminology/treepos/compute/{terminology}/{version}")
@@ -378,6 +429,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Load terminology rrf.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param singleMode the single mode
+   * @param codeFlag the code flag
+   * @param prefix the prefix
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @PUT
   @Path("/terminology/load/rrf")
@@ -426,6 +489,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Load terminology rf2 delta.
+   *
+   * @param terminology the terminology
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @PUT
   @Path("/terminology/load/rf2/delta/{terminology}")
@@ -470,6 +541,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Load terminology rf2 snapshot.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @PUT
   @Path("/terminology/load/rf2/snapshot/{terminology}/{version}")
@@ -516,6 +596,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Load terminology rf2 full.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @PUT
   @Path("/terminology/load/rf2/full/{terminology}/{version}")
@@ -566,6 +655,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Load terminology claml.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputFile the input file
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @PUT
   @Path("/terminology/load/claml/{terminology}/{version}")
@@ -634,6 +732,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Load terminology owl.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputFile the input file
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @Override
   @PUT
   @Path("/terminology/load/owl/{terminology}/{version}")
@@ -705,6 +812,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Removes the terminology.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return true, if successful
+   * @throws Exception the exception
+   */
   @Override
   @DELETE
   @Path("/terminology/remove/{terminology}/{version}")
@@ -815,6 +931,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the concept.
+   *
+   * @param conceptId the concept id
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the concept
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/concept/{conceptId}")
@@ -859,6 +984,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the map set.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the map set
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/mapset/{terminology}/{version}/{terminologyId}")
@@ -898,6 +1033,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the map sets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the map sets
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/mapset/all/{terminology}/{version}")
@@ -931,6 +1075,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find concepts for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}")
@@ -971,6 +1126,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find concepts for general query.
+   *
+   * @param query the query
+   * @param jql the jql
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept")
@@ -1010,6 +1175,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find codes for general query.
+   *
+   * @param query the query
+   * @param jql the jql
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code")
@@ -1048,6 +1223,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Autocomplete concepts.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param searchTerm the search term
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/concept/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -1080,6 +1265,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the descriptor.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the descriptor
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/descriptor/{terminology}/{version}/{terminologyId}")
@@ -1130,6 +1326,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find descriptors for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}")
@@ -1170,6 +1377,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find descriptors for general query.
+   *
+   * @param query the query
+   * @param jql the jql
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/")
@@ -1209,6 +1426,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Autocomplete descriptors.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param searchTerm the search term
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/descriptor/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -1241,6 +1468,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the code.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the code
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/code/{terminology}/{version}/{terminologyId}")
@@ -1290,6 +1528,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find codes for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code/{terminology}/{version}")
@@ -1330,6 +1579,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Autocomplete codes.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param searchTerm the search term
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/code/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -1360,6 +1619,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the lexical class.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the lexical class
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/lui/{terminology}/{version}/{terminologyId}")
@@ -1410,6 +1680,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the string class.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the string class
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/sui/{terminology}/{version}/{terminologyId}")
@@ -1459,6 +1740,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find ancestor concepts.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the parents only
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the concept list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1502,6 +1795,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find descendant concepts.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the children only
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the concept list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1545,6 +1850,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find ancestor descriptors.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the parents only
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the descriptor list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1587,6 +1904,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find descendant descriptors.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the children only
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the descriptor list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1629,6 +1958,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find ancestor codes.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the parents only
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the code list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1670,6 +2011,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find descendant codes.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the children only
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the code list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1712,6 +2065,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the subset members for concept.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the subset members for concept
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/concept/{terminology}/{version}/{terminologyId}/members")
@@ -1752,6 +2115,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the subset members for atom.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the subset members for atom
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/aui/{terminology}/{version}/{terminologyId}/members")
@@ -1791,6 +2164,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find relationships for concept.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
   @SuppressWarnings({
       "rawtypes", "unchecked"
   })
@@ -1884,6 +2269,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find deep relationships for concept.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param query the query
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/relationships/deep")
@@ -1919,6 +2316,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find relationships for descriptor.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/relationships")
@@ -1965,6 +2374,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find relationships for code.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/relationships")
@@ -2009,6 +2430,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the atom subsets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the atom subsets
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/aui/subset/all/{terminology}/{version}")
@@ -2044,6 +2474,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the concept subsets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the concept subsets
+   * @throws Exception the exception
+   */
   @Override
   @GET
   @Path("/concept/subset/all/{terminology}/{version}")
@@ -2078,6 +2517,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find atom subset members.
+   *
+   * @param subsetId the subset id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the subset member list
+   * @throws Exception the exception
+   */
   @Produces({
       MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
   })
@@ -2123,6 +2574,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find concept subset members.
+   *
+   * @param subsetId the subset id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the subset member list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/subset/{subsetId}/{terminology}/{version}/members")
@@ -2165,6 +2628,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find concept trees.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/trees")
@@ -2209,6 +2683,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find descriptor trees.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/trees/")
@@ -2253,6 +2738,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find code trees.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/trees")
@@ -2297,6 +2793,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find concept tree for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/trees")
@@ -2372,6 +2879,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find descriptor tree for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/trees")
@@ -2448,6 +2966,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find code tree for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/trees")
@@ -2523,6 +3052,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find concept tree children.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/trees/children")
@@ -2571,6 +3111,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find code tree children.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/trees/children")
@@ -2619,6 +3170,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find descriptor tree children.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/trees/children")
@@ -2667,6 +3229,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find concept tree roots.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/trees/roots")
@@ -2745,6 +3317,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find descriptor tree roots.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/trees/roots")
@@ -2824,6 +3406,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find code tree roots.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/trees/roots")
@@ -2903,6 +3495,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find mappings for map set.
+   *
+   * @param mapSetId the map set id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the mapping list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/mapset/{mapSetId}/{terminology}/{version}/mappings")
@@ -2944,6 +3548,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find mappings for concept.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the mapping list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/concept/{terminologyId}/{terminology}/{version}/mappings")
@@ -2984,6 +3600,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find mappings for code.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the mapping list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/code/{terminologyId}/{terminology}/{version}/mappings")
@@ -3024,6 +3652,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find mappings for descriptor.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the mapping list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/descriptor/{terminologyId}/{terminology}/{version}/mappings")
@@ -3103,6 +3743,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the favorites for user.
+   *
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the favorites for user
+   * @throws Exception the exception
+   */
   @POST
   @Path("/favorites")
   @ApiOperation(value = "Get user favorites", notes = "Gets user favorites for a terminology and version", response = String.class)
@@ -3197,6 +3845,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Adds the concept note.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param noteText the note text
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @POST
   @Path("/concept/note/{terminology}/{version}/{terminologyId}/add")
   @Produces("text/plain")
@@ -3247,6 +3905,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Removes the concept note.
+   *
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @DELETE
   @Path("/concept/note/{id}/remove")
   @Produces("text/plain")
@@ -3284,6 +3949,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Adds the code note.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param noteText the note text
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @POST
   @Path("/code/note/{terminology}/{version}/{terminologyId}/add")
   @Produces("text/plain")
@@ -3333,6 +4008,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Removes the code note.
+   *
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @DELETE
   @Path("/code/note/{id}/remove")
   @Produces("text/plain")
@@ -3370,6 +4052,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Adds the descriptor note.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param noteText the note text
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @POST
   @Path("/descriptor/note/{terminology}/{version}/{terminologyId}/add")
   @Produces("text/plain")
@@ -3420,6 +4112,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Removes the descriptor note.
+   *
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @DELETE
   @Path("/descriptor/note/{id}/remove")
   @Produces("text/plain")
@@ -3458,6 +4157,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Returns the components with notes for query.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the components with notes for query
+   * @throws Exception the exception
+   */
   @POST
   @Path("/component/notes")
   @ApiOperation(value = "Get components annotated by a user", notes = "Gets user favorites for a terminology and version", response = String.class)
@@ -3576,6 +4284,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
 
+  /**
+   * Find relationships for component info.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param type the type
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/component/{type}/{terminology}/{version}/{terminologyId}/relationships")
@@ -3624,6 +4345,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  /**
+   * Find molecular actions for concept.
+   *
+   * @param conceptId the concept id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the molecular action list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/actions/molecular")
@@ -3661,6 +4392,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /**
+   * Find atomic actions.
+   *
+   * @param molecularActionId the molecular action id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the atomic action list
+   * @throws Exception the exception
+   */
   @Override
   @POST
   @Path("/actions/atomic")
