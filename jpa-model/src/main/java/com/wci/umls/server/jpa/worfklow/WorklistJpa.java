@@ -9,9 +9,10 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -22,9 +23,10 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
-import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 
@@ -33,7 +35,7 @@ import com.wci.umls.server.model.workflow.Worklist;
  */
 @Entity
 @Table(name = "worklists", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "name", "description", "workflowBin_id"
+    "name", "description", "workflowBinName"
 }))
 @Audited
 @Indexed
@@ -54,9 +56,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Column(nullable = true)
   private String worklistGroup;
 
-  /** The tracking records. */
-  @OneToMany(mappedBy = "worklist", targetEntity = TrackingRecordJpa.class)
-  private List<TrackingRecord> trackingRecords = new ArrayList<>();
+  /** The workflow bin. */
+  @Column(nullable = true)
+  private String workflowBinName;
 
   /** The workflow status. */
   @Enumerated(EnumType.STRING)
@@ -77,14 +79,12 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
    * @param deepCopy the deep copy
    */
   public WorklistJpa(Worklist worklist, boolean deepCopy) {
-    super(worklist);
+    super(worklist, deepCopy);
     authors = worklist.getAuthors();
     reviewers = worklist.getReviewers();
     worklistGroup = worklist.getWorklistGroup();
     workflowStatus = worklist.getWorkflowStatus();
-    if (deepCopy) {
-      trackingRecords = new ArrayList<>(worklist.getTrackingRecords());
-    }
+    workflowBinName = worklist.getWorkflowBin();
   }
 
   /* see superclass */
@@ -147,20 +147,18 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   }
 
   /* see superclass */
-  @XmlTransient
   @Override
-  public List<TrackingRecord> getTrackingRecords() {
-    if (trackingRecords == null) {
-      return new ArrayList<>();
-    }
-    return trackingRecords;
+  public String getWorkflowBin() {
+    return workflowBinName;
   }
 
   /* see superclass */
   @Override
-  public void setTrackingRecords(List<TrackingRecord> records) {
-    this.trackingRecords = records;
+  public void setWorkflowBin(String workflowBin) {
+    this.workflowBinName = workflowBin;
   }
+
+
 
   /* see superclass */
   @Override
@@ -171,7 +169,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     result = prime * result + ((reviewers == null) ? 0 : reviewers.hashCode());
     result =
         prime * result
-            + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
+            + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());    
+    result =
+            prime * result + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
     return result;
   }
 
@@ -200,6 +200,12 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
         return false;
     } else if (!worklistGroup.equals(other.worklistGroup))
       return false;
+    if (workflowBinName == null) {
+      if (other.workflowBinName != null)
+        return false;
+    } else if (!workflowBinName.equals(other.workflowBinName))
+      return false;
+    
     return true;
   }
 
@@ -207,8 +213,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Override
   public String toString() {
     return "WorklistJpa [authors=" + authors + ", reviewers=" + reviewers
-        + ", worklistGroup=" + worklistGroup + ", workflowStatus="
-        + workflowStatus + ", trackingRecords=" + trackingRecords + "]";
+        + ", worklistGroup=" + worklistGroup + ", workflowBin="
+            + workflowBinName + ", workflowStatus="
+        + workflowStatus +  "]";
   }
 
 }

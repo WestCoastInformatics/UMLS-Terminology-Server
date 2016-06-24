@@ -90,7 +90,6 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     l2.add("3");
 
     object.setProject(p1);
-    object.setWorkflowBin(m1);
   }
 
   /**
@@ -151,8 +150,6 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-    tester.proxy(WorkflowBin.class, 1, m1);
-    tester.proxy(WorkflowBin.class, 2, m2);
     tester.proxy(Project.class, 1, p1);
     tester.proxy(Project.class, 2, p2);
     assertTrue(tester.testCopyConstructorDeep(Worklist.class));
@@ -171,11 +168,8 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
 
     Project p1 = new ProjectJpa();
     p1.setId(1L);
-    WorkflowBin b1 = new WorkflowBinJpa();
-    b1.setId(1L);
     tester.proxy(List.class, 1, l1);
     tester.proxy(Project.class, 1, p1);
-    tester.proxy(WorkflowBin.class, 1, b1);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -217,7 +211,6 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester = new IndexedFieldTester(object);
     tester.include("name");
     tester.include("projectId");
-    tester.include("workflowBinId");
     tester.include("lastModifiedBy");
     tester.include("worklistGroup");
     tester.include("workflowStatus");
@@ -234,8 +227,6 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
   public void testModelXmlTransient() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     String xml = ConfigUtility.getStringForGraph(object);
-    assertTrue(xml.contains("<workflowBinId>"));
-    assertFalse(xml.contains("<workflowBin>"));
   }
 
   /**

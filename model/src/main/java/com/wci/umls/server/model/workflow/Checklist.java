@@ -56,19 +56,6 @@ public interface Checklist extends HasLastModified {
    */
   public void setDescription(String description);
   
-  /**
-   * Gets the workflow bin.
-   *
-   * @return the workflow bin
-   */
-  public WorkflowBin getWorkflowBin();
-  
-  /**
-   * Sets the workflow bin.
-   *
-   * @param workflowBin the new workflow bin
-   */
-  public void setWorkflowBin(WorkflowBin workflowBin);
   
   /**
    * Returns the project.

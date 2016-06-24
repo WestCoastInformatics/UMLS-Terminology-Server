@@ -18,7 +18,9 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
+import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.workflow.Worklist;
 
 /**
  * A client for connecting to an integration test REST service.
@@ -90,6 +92,91 @@ public class IntegrationTestClientRest extends RootClientRest
     } else {
       throw new Exception("Unexpected status - " + response.getStatus());
     }
+  }
+
+  @Override
+  public Worklist addWorklist(WorklistJpa worklist, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Integration Test Client - add worklist"
+         + worklist.toString() + ", " + authToken);
+
+
+    Client client = ClientBuilder.newClient();
+    
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/test/worklist/add");
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(worklist));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    Worklist v =
+        ConfigUtility.getGraphForString(resultString, WorklistJpa.class);
+    return v;
+  }
+
+  @Override
+  public void removeWorklist(Long worklistId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - remove worklist " + worklistId + ", "
+            + authToken);
+
+    validateNotEmpty(worklistId, "worklistId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/test/worklist/" + worklistId + "/remove");
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }
+
+  @Override
+  public Worklist getWorklist(Long worklistId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Integration Test Client - get worklist: " + worklistId);
+
+    validateNotEmpty(worklistId, "worklistId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/test/worklist"
+            + "?worklistId=" + worklistId);
+
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    if (response.getStatus() == 204) {
+      return null;
+    }
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return (Worklist) ConfigUtility.getGraphForString(resultString,
+        WorklistJpa.class);
   }
 
 }
