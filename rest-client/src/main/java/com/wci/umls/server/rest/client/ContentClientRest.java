@@ -2358,7 +2358,7 @@ public class ContentClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/content/actions/atomic?,molecularActionId="
+            + "/content/actions/atomic?molecularActionId="
             + molecularActionId
             + "&query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")

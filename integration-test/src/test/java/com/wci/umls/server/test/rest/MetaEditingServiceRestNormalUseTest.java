@@ -87,7 +87,7 @@ public class MetaEditingServiceRestNormalUseTest
   }
 
   /**
-   * Test add and remove semanticType to concept
+   * Test add and remove semanticType to concept.
    *
    * @throws Exception the exception
    */
@@ -152,14 +152,19 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
-    assertTrue(ma.getLastModified().compareTo(startDate) > 0);
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
     // TODO Verify atomic actions once REST callback exists for
     pfs.setAscending(true);
-    for (AtomicAction a : contentService.findAtomicActions(ma.getId(), null, pfs, authToken).getObjects()){
+    // AtomicActionList atomicActionsList = (AtomicActionList)
+    // contentService.findAtomicActions(ma.getId(), null, pfs,
+    // authToken).getObjects();
+
+    for (AtomicAction a : contentService
+        .findAtomicActions(ma.getId(), null, null, authToken).getObjects()) {
       Logger.getLogger(getClass())
-      .info("TEST - Included atomic action: " + a.toString());     
+          .info("TEST - Included atomic action: " + a.toString());
     }
 
     // TODO Verify the log entry exists

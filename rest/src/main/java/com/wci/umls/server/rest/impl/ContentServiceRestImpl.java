@@ -4420,7 +4420,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken,
           "find atomic actions for a molecular action", UserRole.VIEWER);
       String localQuery;
-      if (query == null) {
+      if (query == null || query.isEmpty()) {
         localQuery = "molecularActionId:" + molecularActionId;
       } else {
         localQuery = "molecularActionId:" + molecularActionId + " AND " + query;

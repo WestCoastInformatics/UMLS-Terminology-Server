@@ -1,8 +1,9 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.persistence.Column;
 import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
 
@@ -2918,57 +2920,89 @@ public class ContentServiceJpa extends MetadataServiceJpa
     throws Exception {
     // Component-specific handling
 
-//    // check for molecular action flag
-//    if (isMolecularActionFlag()) {
-//      final MolecularAction molecularAction = getMolecularAction();
-//
-//      final T oldComponent = getComponent(newComponent.getId(),
-//          (Class<T>) newComponent.getClass());
-//
-//      final Set<String> excludedFields = new HashSet<>();
-//      excludedFields.add("id");
-//      excludedFields.add("timestamp");
-//      excludedFields.add("lastModified");
-//      excludedFields.add("lastModifiedBy");
-//      excludedFields.add("branch");
-//
-//      // for every non-excluded field, create an atomic action when
-//      // old value is different from new value.
-//
-//      for (Field field : IndexUtility.getAllFields(oldComponent.getClass())) {
-//
-//        if (excludedFields.contains(field.getName())) {
-//          continue;
-//        }
-//        if (!field.isAnnotationPresent(Column.class)) {
-//          continue;
-//        }
-//
-//        String oldValue = field.get(oldComponent).toString(); // ???//
-//        String newValue = field.get(newComponent).toString(); // ???//
-//
-//        if (!(oldValue.compareTo(newValue) == 0)) {
-//
-//          // construct the atomic action
-//
-//          final AtomicAction atomicAction = new AtomicActionJpa();
-//          atomicAction.setField(field.getName());
-//          atomicAction.setIdType(IdType.getIdType(oldComponent));
-//          atomicAction.setMolecularAction(molecularAction);
-//          atomicAction.setOldValue(oldValue);
-//          atomicAction.setNewValue(newValue);
-//          atomicAction.setObjectId(oldComponent.getId());
-//
-//          // persist the atomic action and add the persisted version to the
-//          // molecular action
-//          final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
-//
-//          molecularAction.getAtomicActions().add(newAtomicAction);
-//        }
-//
-//      }
-//
-//    }
+    // check for molecular action flag
+    if (isMolecularActionFlag()) {
+      final MolecularAction molecularAction = getMolecularAction();
+
+      final T oldComponent = getComponent(newComponent.getId(),
+          (Class<T>) newComponent.getClass());
+
+      final Set<String> excludedFields = new HashSet<>();
+      excludedFields.add("id");
+      excludedFields.add("timestamp");
+      excludedFields.add("lastModified");
+      excludedFields.add("lastModifiedBy");
+      excludedFields.add("terminology");
+      excludedFields.add("branch");
+      excludedFields.add("branchedTo");
+
+      // for every non-excluded field, create an atomic action when
+      // old value is different from new value.
+
+      // TODO - getAllFields should cache results//
+
+      for (final Field field : IndexUtility
+          .getAllFields(oldComponent.getClass())) {
+
+        if (excludedFields.contains(field.getName())) {
+          continue;
+        }
+        if (!field.isAnnotationPresent(Column.class)) {
+          continue;
+        }
+
+        String oldValue = "";
+        String newValue = "";
+
+        // Try get frist - find a getXXX method that takes no parameters
+        try {
+          final String accessorName1 =
+              "get" + field.getName().substring(0, 1).toUpperCase()
+                  + field.getName().substring(1);
+          final Method getMethod = oldComponent.getClass()
+              .getMethod(accessorName1, new Class<?>[] {});
+          if (getMethod != null) {
+            oldValue =
+                getMethod.invoke(oldComponent, new Object[] {}).toString();
+            newValue =
+                getMethod.invoke(newComponent, new Object[] {}).toString();
+          }
+        } catch (Exception e) {
+          // Otherwise, it's is - find an isXXX method that takes no parameters
+          final String accessorName2 =
+              "is" + field.getName().substring(0, 1).toUpperCase()
+                  + field.getName().substring(1);
+          final Method isMethod = oldComponent.getClass()
+              .getMethod(accessorName2, new Class<?>[] {});
+          if (isMethod != null) {
+            oldValue =
+                isMethod.invoke(oldComponent, new Object[] {}).toString();
+            newValue =
+                isMethod.invoke(newComponent, new Object[] {}).toString();
+          }
+        }
+        if (!oldValue.equals(newValue)) {
+
+          // construct the atomic action
+
+          final AtomicAction atomicAction = new AtomicActionJpa();
+          atomicAction.setField(field.getName());
+          atomicAction.setIdType(IdType.getIdType(oldComponent));
+          atomicAction.setMolecularAction(molecularAction);
+          atomicAction.setOldValue(oldValue);
+          atomicAction.setNewValue(newValue);
+          atomicAction.setObjectId(oldComponent.getId());
+
+          // persist the atomic action and add the persisted version to the
+          // molecular action
+          final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
+
+          molecularAction.getAtomicActions().add(newAtomicAction);
+        }
+
+      }
+
+    }
 
     // handle as a normal "has last modified"
     updateHasLastModified(newComponent);

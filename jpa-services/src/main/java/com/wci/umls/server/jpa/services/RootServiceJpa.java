@@ -1269,7 +1269,7 @@ public abstract class RootServiceJpa implements RootService {
   public AtomicActionList findAtomicActions(String query, PfsParameter pfs)
     throws Exception {
 
-    // TODO: search handler initialization shoudld be here
+    // TODO: search handler initialization should be here
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
 
     int totalCt[] = new int[1];
