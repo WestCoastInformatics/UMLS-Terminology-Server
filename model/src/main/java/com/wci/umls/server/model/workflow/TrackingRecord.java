@@ -93,14 +93,14 @@ public interface TrackingRecord extends HasLastModified, HasTerminology {
    *
    * @return the orig concept ids
    */
-  public List<Long> getOrigConceptIds();
+  public Set<Long> getOrigConceptIds();
   
   /**
    * Sets the orig concept ids.
    *
    * @param origConceptIds the orig concept ids
    */
-  public void setOrigConceptIds(List<Long> origConceptIds);
+  public void setOrigConceptIds(Set<Long> origConceptIds);
 
   /**
    * Returns the project.

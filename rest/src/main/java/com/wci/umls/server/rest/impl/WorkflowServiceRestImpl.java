@@ -341,15 +341,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       workflowService.setLastModifiedBy(userName);
       Project project = workflowService.getProject(projectId);  
       
+   // TODO; error org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags
+      
       // find workflow bins matching type and projectId
-/*      final StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
       
       if (project == null) {
         sb.append("projectId:[* TO *]");
       } else {
         sb.append("projectId:" + project.getId());
       }
-      // TODO; error org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags
       sb.append(" AND ");
       if (type == null || type.equals("")) {
         sb.append("type:[* TO *]");
@@ -357,9 +358,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         sb.append("type:" + type);
       } 
       
-      List<WorkflowBin> results = workflowService.findWorkflowBinsForQuery(sb.toString());*/
+      List<WorkflowBin> results = workflowService.findWorkflowBinsForQuery(sb.toString());
       
-      List<WorkflowBin> results = workflowService.getWorkflowBins();
+      //List<WorkflowBin> results = workflowService.getWorkflowBins();
       
       // remove bins and all of the tracking records in the bins
       for (WorkflowBin workflowBin : results) {
@@ -553,9 +554,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             }
 
             workflowService.addTrackingRecord(record);
+            bin.getTrackingRecords().add(record);
           }
         }
-
+        workflowService.updateWorkflowBin(bin);
       }
 
     } catch (Exception e) {
@@ -951,12 +953,23 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     return null;
   }
 
-  @Override
-  public Checklist createChecklist(Long projectId, Long workflowBinId,
-    String name, Boolean randomize, Boolean excludeOnWorklist, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Workflow): /worklists/available ");
+
+    @Override
+    @POST
+    @Path("/checklist")
+    @ApiOperation(value = "Find assigned work", notes = "Finds tracking records assigned", response = TrackingRecordListJpa.class)
+    public Checklist createChecklist(
+      @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+      @ApiParam(value = "Workflow bin id, e.g. 5", required = false) @QueryParam("workflowBinId") Long workflowBinId,
+      @ApiParam(value = "Checklist name", required = false) @QueryParam("name") String name,
+      @ApiParam(value = "Randomize, e.g. false", required = true) @QueryParam("randomize") Boolean randomize,
+      @ApiParam(value = "Exclude on worklist, e.g. false", required = true) @QueryParam("excludeOnWorklist") Boolean excludeOnWorklist,
+      @ApiParam(value = "Query", required = false) @QueryParam("query") String query,
+      @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+      @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass()).info(
+          "RESTful POST call (Workflow): /checklist ");
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {

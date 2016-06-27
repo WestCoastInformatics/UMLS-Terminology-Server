@@ -6,9 +6,7 @@ package com.wci.umls.server.jpa.test.workflow;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -48,10 +46,10 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
   private Set<Long> l2;
 
   /** The fixture s1. */
-  private List<Long> s1;
+  private Set<Long> s1;
 
   /** The fixture s2. */
-  private List<Long> s2;
+  private Set<Long> s2;
 
   /**
    * Setup class.
@@ -76,9 +74,9 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     l2.add(2L);
     l2.add(3L);
 
-    s1 = new ArrayList<>();
+    s1 = new HashSet<>();
     s1.add(1L);
-    s2 = new ArrayList<>();
+    s2 = new HashSet<>();
     s2.add(2L);
     s2.add(3L);
 
@@ -138,10 +136,10 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(List.class, 1, l1);
-    tester.proxy(List.class, 2, l2);
-    tester.proxy(List.class, 1, s1);
-    tester.proxy(List.class, 2, s2);
+    tester.proxy(Set.class, 1, l1);
+    tester.proxy(Set.class, 2, l2);
+    tester.proxy(Set.class, 1, s1);
+    tester.proxy(Set.class, 2, s2);
     assertTrue(tester.testCopyConstructor(TrackingRecord.class));
   }
 

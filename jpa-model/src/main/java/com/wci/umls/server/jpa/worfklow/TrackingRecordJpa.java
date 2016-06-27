@@ -13,6 +13,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -96,9 +97,9 @@ public class TrackingRecordJpa implements TrackingRecord {
   private String worklistName;
   
   /** The original concept ids . */
-  @ElementCollection
+  @ElementCollection(fetch=FetchType.LAZY)
   @CollectionTable(name = "orig_concept_ids")
-  private List<Long> origConceptIds = new ArrayList<>();
+  private Set<Long> origConceptIds = new HashSet<>();
   
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
@@ -126,7 +127,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     terminology = record.getTerminology();
     version = record.getVersion();
     componentIds = new HashSet<>(record.getComponentIds());
-    origConceptIds = new ArrayList<>(record.getOrigConceptIds());
+    origConceptIds = new HashSet<>(record.getOrigConceptIds());
     workflowBinName = record.getWorkflowBin();
     worklistName = record.getWorklist();
   }
@@ -186,15 +187,15 @@ public class TrackingRecordJpa implements TrackingRecord {
   
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
-  public List<Long> getOrigConceptIds() {
+  public Set<Long> getOrigConceptIds() {
     if (origConceptIds == null) {
-      origConceptIds = new ArrayList<>();
+      origConceptIds = new HashSet<>();
     }
     return origConceptIds;
   }
 
   @Override
-  public void setOrigConceptIds(List<Long> origConceptIds) {
+  public void setOrigConceptIds(Set<Long> origConceptIds) {
     this.origConceptIds = origConceptIds;
   }
   
