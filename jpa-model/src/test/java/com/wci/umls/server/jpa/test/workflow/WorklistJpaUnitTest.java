@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.test.workflow;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
@@ -216,17 +214,6 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("workflowStatus");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
-  }
-
-  /**
-   * Test XML transient
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelXmlTransient() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    String xml = ConfigUtility.getStringForGraph(object);
   }
 
   /**

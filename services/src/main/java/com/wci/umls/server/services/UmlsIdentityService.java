@@ -43,16 +43,6 @@ public interface UmlsIdentityService extends RootService {
     throws Exception;
 
   /**
-   * Gets the attribute identity.
-   *
-   * @param hashCode the hash code
-   * @return the attribute identity
-   * @throws Exception the exception
-   */
-  public AttributeIdentity getAttributeIdentity(String hashCode)
-    throws Exception;
-
-  /**
    * Add attribute identity.
    *
    * @param attributeIdentity the attribute identity
@@ -110,16 +100,6 @@ public interface UmlsIdentityService extends RootService {
    */
   public SemanticTypeComponentIdentity getSemanticTypeComponentIdentity(
     SemanticTypeComponentIdentity identity) throws Exception;
-
-  /**
-   * Gets the semantic type component identity.
-   *
-   * @param hashCode the hash code
-   * @return the semantic type component identity
-   * @throws Exception the exception
-   */
-  public SemanticTypeComponentIdentity getSemanticTypeComponentIdentity(
-    String hashCode) throws Exception;
 
   /**
    * Add semantic type component identity.

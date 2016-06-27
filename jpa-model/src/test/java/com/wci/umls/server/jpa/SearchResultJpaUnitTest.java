@@ -28,6 +28,12 @@ public class SearchResultJpaUnitTest extends ModelUnitSupport {
   /** The model object to test. */
   private SearchResultJpa object;
 
+  /** The fixture kvp1. */
+  private KeyValuePair kvp1;
+
+  /** The fixture kvp2. */
+  private KeyValuePair kvp2;
+
   /**
    * Setup class.
    */
@@ -42,6 +48,8 @@ public class SearchResultJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() {
     object = new SearchResultJpa();
+    kvp1 = new KeyValuePair("1", "1");
+    kvp2 = new KeyValuePair("2", "2");
   }
 
   /**
@@ -74,10 +82,8 @@ public class SearchResultJpaUnitTest extends ModelUnitSupport {
     tester.include("type");
     tester.include("property");
 
-    KeyValuePair kvp = new KeyValuePair();
-    kvp.setKey("1");
-    kvp.setValue("1");
-    tester.proxy(KeyValuePair.class, 1, kvp);
+    tester.proxy(KeyValuePair.class, 1, kvp1);
+    tester.proxy(KeyValuePair.class, 2, kvp2);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -97,10 +103,9 @@ public class SearchResultJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
-    KeyValuePair kvp = new KeyValuePair();
-    kvp.setKey("1");
-    kvp.setValue("1");
-    tester.proxy(KeyValuePair.class, 1, kvp);
+    tester.proxy(KeyValuePair.class, 1, kvp1);
+    tester.proxy(KeyValuePair.class, 2, kvp2);
+
     assertTrue(tester.testCopyConstructor(SearchResult.class));
   }
 
@@ -113,13 +118,7 @@ public class SearchResultJpaUnitTest extends ModelUnitSupport {
   public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
-
-    KeyValuePair kvp = new KeyValuePair();
-
-    kvp.setKey("1");
-    kvp.setValue("1");
-    tester.proxy(KeyValuePair.class, 1, kvp);
-
+    tester.proxy(KeyValuePair.class, 1, kvp1);
     assertTrue(tester.testXmlSerialization());
   }
 

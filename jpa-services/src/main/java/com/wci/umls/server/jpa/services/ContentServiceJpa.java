@@ -397,10 +397,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
           subsetClass);
     } else {
       Subset subset = getComponent(terminologyId, terminology, version, branch,
-          AtomSubsetJpa.class);
+              AtomSubsetJpa.class);
       if (subset == null) {
         subset = getComponent(terminologyId, terminology, version, branch,
-            ConceptSubsetJpa.class);
+                ConceptSubsetJpa.class);
       }
       return subset;
     }
@@ -1238,12 +1238,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final String queryStr = "select a from "
         + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, "
         + clazz.getName() + " super, " + clazz.getName() + " a "
-        + " where super.version = :version "
-        + " and super.terminology = :terminology "
-        + " and super.terminologyId = :terminologyId"
-        + " and tr.superType = super" + " and tr.subType = a "
-        + " and tr.superType != tr.subType"
-        + (childrenOnly ? " and depth = 1" : "");
+            + " where super.version = :version "
+            + " and super.terminology = :terminology "
+            + " and super.terminologyId = :terminologyId"
+            + " and tr.superType = super" + " and tr.subType = a "
+            + " and tr.superType != tr.subType"
+            + (childrenOnly ? " and depth = 1" : "");
     final javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
 
     final javax.persistence.Query ctQuery =
@@ -1297,11 +1297,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final String queryStr = "select a from "
         + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " tr, "
         + clazz.getName() + " sub, " + clazz.getName() + " a "
-        + " where sub.version = :version "
-        + " and sub.terminology = :terminology "
+            + " where sub.version = :version "
+            + " and sub.terminology = :terminology "
         + " and sub.terminologyId = :terminologyId" + " and tr.subType = sub"
         + " and tr.superType = a " + " and tr.subType != tr.superType"
-        + (parentsOnly ? " and depth = 1" : "");
+            + (parentsOnly ? " and depth = 1" : "");
     final javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
 
     final javax.persistence.Query ctQuery =
@@ -1531,18 +1531,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
           getComponents(terminologyId, terminology, version, relationshipClass);
     } else {
       relationships = getComponents(terminologyId, terminology, version,
-          ConceptRelationshipJpa.class);
+              ConceptRelationshipJpa.class);
       if (relationships == null) {
         relationships = getComponents(terminologyId, terminology, version,
-            AtomRelationshipJpa.class);
+                AtomRelationshipJpa.class);
       }
       if (relationships == null) {
         relationships = getComponents(terminologyId, terminology, version,
-            CodeRelationshipJpa.class);
+                CodeRelationshipJpa.class);
       }
       if (relationships == null) {
         relationships = getComponents(terminologyId, terminology, version,
-            DescriptorRelationshipJpa.class);
+                DescriptorRelationshipJpa.class);
       }
     }
 
@@ -1942,13 +1942,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (memberClass != null) {
       members =
 
-          getComponents(terminologyId, terminology, version, memberClass);
+      getComponents(terminologyId, terminology, version, memberClass);
     } else {
       members = getComponents(terminologyId, terminology, version,
-          AtomSubsetMemberJpa.class);
+              AtomSubsetMemberJpa.class);
       if (members == null) {
         members = getComponents(terminologyId, terminology, version,
-            ConceptSubsetMemberJpa.class);
+                ConceptSubsetMemberJpa.class);
 
       }
     }
@@ -1978,7 +1978,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
               AtomSubsetMemberJpa.class);
       if (member == null) {
         member = getComponent(terminologyId, terminology, version, branch,
-            ConceptSubsetMemberJpa.class);
+                ConceptSubsetMemberJpa.class);
       }
       return member;
     }
@@ -2239,8 +2239,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       // if results found, constuct a query restriction
       if (exprResults.getCount() > 0) {
         String exprQueryRestr = (pfs.getQueryRestriction() != null
-            && !pfs.getQueryRestriction().isEmpty() ? " AND " : "")
-            + "terminologyId:(";
+                && !pfs.getQueryRestriction().isEmpty() ? " AND " : "")
+                + "terminologyId:(";
         for (final SearchResult exprResult : exprResults.getObjects()) {
           exprQueryRestr += exprResult.getTerminologyId() + " ";
         }
@@ -2636,8 +2636,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       query =
           manager.createQuery("DELETE From DescriptorTransitiveRelationshipJpa "
-              + " c where terminology = :terminology "
-              + " and version = :version");
+                  + " c where terminology = :terminology "
+                  + " and version = :version");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       deleteRecords = query.executeUpdate();
@@ -2828,8 +2828,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         if (terminology != null) {
 
           query = manager.createQuery("select count(*) from " + jpaTable
-              + " where obsolete = 0 and terminology = :terminology "
-              + "and version = :version ");
+                  + " where obsolete = 0 and terminology = :terminology "
+                  + "and version = :version ");
           query.setParameter("terminology", terminology);
           query.setParameter("version", version);
         } else {
@@ -2857,8 +2857,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String terminology, String version, Class<T> clazz) {
     try {
       final javax.persistence.Query query = manager.createQuery("select a from "
-          + clazz.getName()
-          + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
+                  + clazz.getName()
+                  + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
       query.setParameter("terminologyId", terminologyId);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -2903,7 +2903,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       molecularAction.getAtomicActions().add(newAtomicAction);
 
-    }
+  }
     return newComponent;
 
   }
@@ -3130,7 +3130,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @SuppressWarnings({
-      "unchecked"
+    "unchecked"
   })
   @Override
   public RelationshipList findDeepRelationshipsForConcept(String conceptId,
@@ -3165,11 +3165,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.addAll(query.getResultList());
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
-          + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
-          + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ")
-          + "from AtomRelationshipJpa a join "
-          + (inverseFlag ? "a.from.conceptTerminologyIds"
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable, "
+              + (inverseFlag ? "a.from.name " : "a.to.name ")
+              + "from AtomRelationshipJpa a join "
+              + (inverseFlag ? "a.from.conceptTerminologyIds"
               : "a.to.conceptTerminologyIds")
           + " cui2 " + "where key(cui2) = '" + concept.getTerminology()
           + "' and " + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds) ";
@@ -3182,17 +3182,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.addAll(query.getResultList());
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
-          + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
-          + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ")
-          + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
-          + "DescriptorJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
-          + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
-          + "and b.terminologyId = c.descriptorId "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable, "
+              + (inverseFlag ? "a.from.name " : "a.to.name ")
+              + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
+              + "DescriptorJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
+              + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
+              + "and b.terminologyId = c.descriptorId "
           + "and b.terminology = c.terminology " + "and b.version = c.version "
-          + "and b.name = c.name and c.id in (:atomIds) " + "and a."
-          + (inverseFlag ? "from" : "to") + ".id = d.id "
-          + "and d.terminologyId = e.descriptorId "
+              + "and b.name = c.name and c.id in (:atomIds) " + "and a."
+              + (inverseFlag ? "from" : "to") + ".id = d.id "
+              + "and d.terminologyId = e.descriptorId "
           + "and d.terminology = e.terminology " + "and d.version = e.version "
           + "and d.name = e.name ";
       query = manager.createQuery(queryStr);
@@ -3200,17 +3200,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.addAll(query.getResultList());
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
-          + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
-          + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ")
-          + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
-          + "ConceptJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
-          + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
-          + "and b.terminologyId = c.conceptId "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable, "
+              + (inverseFlag ? "a.from.name " : "a.to.name ")
+              + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
+              + "ConceptJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
+              + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
+              + "and b.terminologyId = c.conceptId "
           + "and b.terminology = c.terminology " + "and b.version = c.version "
-          + "and b.name = c.name and c.id in (:atomIds) " + "and a."
-          + (inverseFlag ? "from" : "to") + ".id = d.id "
-          + "and d.terminologyId = e.conceptId "
+              + "and b.name = c.name and c.id in (:atomIds) " + "and a."
+              + (inverseFlag ? "from" : "to") + ".id = d.id "
+              + "and d.terminologyId = e.conceptId "
           + "and d.terminology = e.terminology " + "and d.version = e.version "
           + "and d.name = e.name ";
       query = manager.createQuery(queryStr);
@@ -3218,17 +3218,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.addAll(query.getResultList());
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
-          + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
-          + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ")
-          + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
-          + "CodeJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
-          + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
-          + "and b.terminologyId = c.codeId "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable, "
+              + (inverseFlag ? "a.from.name " : "a.to.name ")
+              + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
+              + "CodeJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
+              + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
+              + "and b.terminologyId = c.codeId "
           + "and b.terminology = c.terminology " + "and b.version = c.version "
-          + "and b.name = c.name and c.id in (:atomIds) " + "and a."
-          + (inverseFlag ? "from" : "to") + ".id = d.id "
-          + "and d.terminologyId = e.codeId "
+              + "and b.name = c.name and c.id in (:atomIds) " + "and a."
+              + (inverseFlag ? "from" : "to") + ".id = d.id "
+              + "and d.terminologyId = e.codeId "
           + "and d.terminology = e.terminology " + "and d.version = e.version "
           + "and d.name = e.name ";
       query = manager.createQuery(queryStr);
@@ -3608,9 +3608,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final QueryParser queryParser = new MultiFieldQueryParser(
         IndexUtility.getIndexedFieldNames(ConceptTreePositionJpa.class, true)
             .toArray(new String[] {}),
-        searchFactory.getAnalyzer(clazz));
+            searchFactory.getAnalyzer(clazz));
     final String fullAncPath = treePosition.getAncestorPath()
-        + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
+            + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
 
     // Iterate over ancestor path
     for (final String pathPart : fullAncPath.split("~")) {
@@ -3791,7 +3791,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     final Long tpId = treePosition.getNode().getId();
     final String fullAncPath = treePosition.getAncestorPath()
-        + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
+            + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
 
     final String query = "ancestorPath:\"" + fullAncPath + "\"";
 
@@ -4028,7 +4028,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @SuppressWarnings({
-      "unchecked"
+    "unchecked"
   })
   @Override
   public MappingList findMappingsForMapSet(Long mapSetId, String query,
@@ -4180,7 +4180,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     javax.persistence.Query query = manager.createQuery(
         "select a.id, a.terminologyId from " + tableName + " a where "
-            + "version = :version and terminology = :terminology");
+                + "version = :version and terminology = :terminology");
 
     Map<Long, String> idMap = new HashMap<>();
 
@@ -4251,6 +4251,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public NoteList findConceptNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find concept notes " + query + ", " + pfs);
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
@@ -4268,6 +4270,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public NoteList findDescriptorNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find description notes " + query + ", " + pfs);
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
@@ -4285,6 +4289,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public NoteList findCodeNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find code notes " + query + ", " + pfs);
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
