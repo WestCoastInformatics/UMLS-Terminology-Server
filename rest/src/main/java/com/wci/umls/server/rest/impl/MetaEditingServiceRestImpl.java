@@ -38,6 +38,7 @@ import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -364,6 +365,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       // Perform the action (contentService will create atomic actions for CRUD
       // operations)
       //
+
+      // Assign alternateTerminologyId
+      if (attribute.isPublishable()) {
+        IdentifierAssignmentHandler handler = contentService
+            .getIdentifierAssignmentHandler(concept.getTerminology());
+        String altId = handler.getTerminologyId(attribute, concept);
+        attribute.getAlternateTerminologyIds().put(concept.getTerminology(),
+            altId);
+      }
 
       // set the attribute component last modified
       AttributeJpa newAttribute =
