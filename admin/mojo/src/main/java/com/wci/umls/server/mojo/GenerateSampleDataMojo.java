@@ -273,7 +273,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
     WorkflowBinDefinitionJpa workflowBinDefinition =
         new WorkflowBinDefinitionJpa();
-    workflowBinDefinition.setName("test name");
+    workflowBinDefinition.setName("testName");
     workflowBinDefinition.setDescription("test description");
     workflowBinDefinition.setQuery(
         "select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Amino%';");
@@ -288,12 +288,12 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
     WorkflowBinDefinitionJpa workflowBinDefinition2 =
         new WorkflowBinDefinitionJpa();
-    workflowBinDefinition2.setName("test name2");
+    workflowBinDefinition2.setName("testName2");
     workflowBinDefinition2.setDescription("test description2");
     workflowBinDefinition2.setQuery(
-        "select distinct c.id clusterId, c.id conceptId from ConceptJpa c where c.name like '%Acid%';");
+        "select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Acid%';");
     workflowBinDefinition2.setEditable(true);
-    workflowBinDefinition2.setQueryType(QueryType.HQL);
+    workflowBinDefinition2.setQueryType(QueryType.SQL);
     workflowBinDefinition2.setTimestamp(startDate);
     workflowBinDefinition2.setWorkflowConfig(addedWorkflowConfig);
 

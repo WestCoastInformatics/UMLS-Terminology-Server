@@ -29,6 +29,7 @@ import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
@@ -534,6 +535,14 @@ public class WorkflowClientRest extends RootClientRest implements
       throw new Exception(response.toString());
     }
 
+  }
+
+  @Override
+  public Checklist createChecklist(Long projectId, Long workflowBinId,
+    String name, Boolean randomize, Boolean excludeOnWorklist, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

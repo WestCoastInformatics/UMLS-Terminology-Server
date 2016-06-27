@@ -6,6 +6,7 @@ package com.wci.umls.server.model.workflow;
 import java.util.List;
 import java.util.Set;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasTerminology;
 
@@ -64,40 +65,54 @@ public interface TrackingRecord extends HasLastModified, HasTerminology {
    *
    * @return the workflow bin
    */
-  public String getWorkflowBin();
+  public String getWorkflowBinName();
 
   /**
    * Sets the workflow bin.
    *
    * @param workflowBin the workflow bin
    */
-  public void setWorkflowBin(String workflowBin);
+  public void setWorkflowBinName(String workflowBin);
 
   /**
    * Returns the worklist name.
    *
    * @return the worklistname
    */
-  public String getWorklist();
+  public String getWorklistName();
 
   /**
    * Sets the worklist.
    *
    * @param worklistName the worklist
    */
-  public void setWorklist(String worklistName);
+  public void setWorklistName(String worklistName);
   
   /**
    * Returns the orig concept ids.
    *
    * @return the orig concept ids
    */
-  public List<Long> getOrigConceptIds();
+  public Set<Long> getOrigConceptIds();
   
   /**
    * Sets the orig concept ids.
    *
    * @param origConceptIds the orig concept ids
    */
-  public void setOrigConceptIds(List<Long> origConceptIds);
+  public void setOrigConceptIds(Set<Long> origConceptIds);
+
+  /**
+   * Returns the project.
+   *
+   * @return the project
+   */
+  public Project getProject();
+
+  /**
+   * Sets the project.
+   *
+   * @param project the project
+   */
+  public void setProject(Project project);
 }

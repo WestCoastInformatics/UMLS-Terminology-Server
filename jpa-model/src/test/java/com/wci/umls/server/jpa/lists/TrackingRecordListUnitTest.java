@@ -55,10 +55,10 @@ public class TrackingRecordListUnitTest extends
     o1 = (TrackingRecord) tester.createObject(1);
     o2 = (TrackingRecord) tester.createObject(2);
 
-    o1.setWorkflowBin(null);
-    o1.setWorklist(null);
-    o2.setWorkflowBin(null);
-    o2.setWorklist(null);
+    o1.setWorkflowBinName(null);
+    o1.setWorklistName(null);
+    o2.setWorkflowBinName(null);
+    o2.setWorklistName(null);
 
   }
 

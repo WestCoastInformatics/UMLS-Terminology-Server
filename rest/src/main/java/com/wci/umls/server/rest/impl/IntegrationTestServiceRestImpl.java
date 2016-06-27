@@ -68,13 +68,14 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept, e.g. newConcept", required = true) ConceptJpa concept,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call PUT (Concept): /add " + concept);
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (Concept): /add " + concept);
 
     ContentService contentService = new ContentServiceJpa();
     try {
-      final String authUser = authorizeApp(securityService, authToken,
-          "add concept", UserRole.ADMINISTRATOR);
+      final String authUser =
+          authorizeApp(securityService, authToken, "add concept",
+              UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
       contentService.setMolecularActionFlag(false);
 
@@ -101,13 +102,14 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept id, e.g. 3", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call DELETE (Concept): /remove/" + id);
+    Logger.getLogger(getClass()).info(
+        "RESTful call DELETE (Concept): /remove/" + id);
 
     ContentService contentService = new ContentServiceJpa();
     try {
-      String authUser = authorizeApp(securityService, authToken,
-          "remove concept", UserRole.ADMINISTRATOR);
+      String authUser =
+          authorizeApp(securityService, authToken, "remove concept",
+              UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
       contentService.setMolecularActionFlag(false);
 
@@ -125,102 +127,99 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/worklist/add")
+  @ApiOperation(value = "Add a worklist", notes = "Add a worklist", response = WorklistJpa.class)
+  public Worklist addWorklist(
+    @ApiParam(value = "Worklist to add", required = true) WorklistJpa worklist,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
 
-    @Override
-    @POST
-    @Path("/worklist/add")
-    @ApiOperation(value = "Add a worklist", notes = "Add a worklist", response = WorklistJpa.class)
-    public Worklist addWorklist(
-      @ApiParam(value = "Worklist to add", required = true) WorklistJpa worklist,
-      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Integration Test): /config/add/"
+            + worklist.toString() + " " + authToken);
 
-      Logger.getLogger(getClass())
-          .info("RESTful POST call (Integration Test): /config/add/"
-              + worklist.toString() + " " + authToken);
+    String action = "trying to add worklist";
 
-      String action = "trying to add worklist";
+    WorkflowService workflowService = new WorkflowServiceJpa();
 
-      WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
 
-      try {
+      final String authUser =
+          authorizeProject(workflowService, worklist.getProjectId(),
+              securityService, authToken, action, UserRole.AUTHOR);
 
-        final String authUser = authorizeProject(workflowService, worklist.getProjectId(),
-            securityService, authToken, action, UserRole.AUTHOR);
+      workflowService.setLastModifiedBy(authUser);
+      return workflowService.addWorklist(worklist);
 
-        workflowService.setLastModifiedBy(authUser);
-        return workflowService.addWorklist(worklist);
-        
-      } catch (Exception e) {
-        handleException(e, "trying to add worklist");
-        return null;
-      } finally {
-        workflowService.close();
-        securityService.close();
-      }
-
-    }
-    
-
-    @Override
-    @DELETE
-    @Path("/worklist/{id}/remove")
-    @ApiOperation(value = "Remove a worklist", notes = "Remove a worklist")
-    public void removeWorklist(
-      @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long worklistId,
-      @ApiParam(value = "Cascade flag, e.g. false", required = true) @QueryParam("cascade") boolean cascade,
-      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-        throws Exception {
-      Logger.getLogger(getClass())
-          .info("RESTful call (Integration Test): /worklist/" + worklistId + "/remove");
-
-      WorkflowService workflowService = new WorkflowServiceJpa();
-      try {
-
-        final String authUser = authorizeApp(securityService, authToken, "remove worklist",
-            UserRole.USER);
-
-        workflowService.setLastModifiedBy(authUser);
-        workflowService.removeWorklist(worklistId, cascade);
-      } catch (Exception e) {
-
-        handleException(e, "trying to remove a worklist");
-      } finally {
-        workflowService.close();
-        securityService.close();
-      }
-
-    }
-
-    @Override
-    @GET
-    @Path("/worklist/{id}")
-    @ApiOperation(value = "Get a worklist", notes = "Get a worklist", response = WorklistJpa.class)
-    public Worklist getWorklist(
-      @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long worklistId,
-      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-        throws Exception {
-      Logger.getLogger(getClass())
-          .info("RESTful call (Integration Test): /worklist/" + worklistId);
-
-      WorkflowService workflowService = new WorkflowServiceJpa();
-      try {
-
-        final String authUser = authorizeApp(securityService, authToken, "get worklist",
-            UserRole.USER);
-
-        Worklist worklist = workflowService.getWorklist(worklistId);
-        workflowService.setLastModifiedBy(authUser);
-        return workflowService.getWorklist(worklistId);
-      } catch (Exception e) {
-
-        handleException(e, "trying to remove a worklist");
-      } finally {
-        workflowService.close();
-        securityService.close();
-      }
+    } catch (Exception e) {
+      handleException(e, "trying to add worklist");
       return null;
+    } finally {
+      workflowService.close();
+      securityService.close();
     }
 
- 
+  }
+
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/worklist/{id}/remove")
+  @ApiOperation(value = "Remove a worklist", notes = "Remove a worklist")
+  public void removeWorklist(
+    @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long worklistId,
+      @ApiParam(value = "Cascade flag, e.g. false", required = true) @QueryParam("cascade") boolean cascade,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Integration Test): /worklist/" + worklistId + "/remove");
+
+    WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+
+      final String authUser =
+          authorizeApp(securityService, authToken, "remove worklist",
+              UserRole.USER);
+
+      workflowService.setLastModifiedBy(authUser);
+        workflowService.removeWorklist(worklistId, cascade);
+    } catch (Exception e) {
+
+      handleException(e, "trying to remove a worklist");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/worklist/{id}")
+  @ApiOperation(value = "Get a worklist", notes = "Get a worklist", response = WorklistJpa.class)
+  public Worklist getWorklist(
+    @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long worklistId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Integration Test): /worklist/" + worklistId);
+
+    WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get worklist", UserRole.USER);
+      return workflowService.getWorklist(worklistId);
+    } catch (Exception e) {
+
+      handleException(e, "trying to remove a worklist");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
 }

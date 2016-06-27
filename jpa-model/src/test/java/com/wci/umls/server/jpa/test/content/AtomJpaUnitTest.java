@@ -146,6 +146,7 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     ProxyTester tester = new ProxyTester(atom);
     tester.proxy(Map.class, 1, map1);
     atom = (Atom) tester.createObject(1);
+    tester.proxy(Map.class, 2, map2);
     Atom toAtom = (Atom) tester.createObject(2);
 
     ProxyTester tester2 = new ProxyTester(new AttributeJpa());
