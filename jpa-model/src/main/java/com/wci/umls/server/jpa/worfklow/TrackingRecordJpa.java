@@ -3,10 +3,8 @@
  */
 package com.wci.umls.server.jpa.worfklow;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -95,16 +93,16 @@ public class TrackingRecordJpa implements TrackingRecord {
   /** The worklist name. */
   @Column(nullable = true)
   private String worklistName;
-  
+
   /** The original concept ids . */
-  @ElementCollection(fetch=FetchType.LAZY)
+  @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(name = "orig_concept_ids")
   private Set<Long> origConceptIds = new HashSet<>();
-  
+
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
-  
+
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
    */
@@ -128,8 +126,9 @@ public class TrackingRecordJpa implements TrackingRecord {
     version = record.getVersion();
     componentIds = new HashSet<>(record.getComponentIds());
     origConceptIds = new HashSet<>(record.getOrigConceptIds());
-    workflowBinName = record.getWorkflowBin();
-    worklistName = record.getWorklist();
+    workflowBinName = record.getWorkflowBinName();
+    worklistName = record.getWorklistName();
+    project = record.getProject();
   }
 
   /* see superclass */
@@ -184,7 +183,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   public void setComponentIds(Set<Long> componentIds) {
     this.componentIds = componentIds;
   }
-  
+
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
   public Set<Long> getOrigConceptIds() {
@@ -198,7 +197,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   public void setOrigConceptIds(Set<Long> origConceptIds) {
     this.origConceptIds = origConceptIds;
   }
-  
+
   /* see superclass */
   @Override
   @FieldBridge(impl = LongBridge.class)
@@ -303,34 +302,29 @@ public class TrackingRecordJpa implements TrackingRecord {
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getWorkflowBin() {
+  public String getWorkflowBinName() {
     return workflowBinName;
   }
 
   /* see superclass */
   @Override
-  public void setWorkflowBin(String workflowBin) {
+  public void setWorkflowBinName(String workflowBin) {
     this.workflowBinName = workflowBin;
   }
-
-
 
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getWorklist() {
+  public String getWorklistName() {
     return worklistName;
   }
 
   /* see superclass */
   @Override
-  public void setWorklist(String worklist) {
+  public void setWorklistName(String worklist) {
     this.worklistName = worklist;
   }
 
-
-  
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -339,20 +333,22 @@ public class TrackingRecordJpa implements TrackingRecord {
     result =
         prime * result + ((clusterType == null) ? 0 : clusterType.hashCode());
     result =
-        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result + ((project == null) ? 0 : project.hashCode());
-    result =
-        prime * result
-            + ((componentIds == null) ? 0 : componentIds.hashCode());
+        prime * result + ((componentIds == null) ? 0 : componentIds.hashCode());
     result =
         prime * result
             + ((origConceptIds == null) ? 0 : origConceptIds.hashCode());
+    result = prime * result + ((project == null) ? 0 : project.hashCode());
+    result =
+        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result =
+        prime * result
+            + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
+    result =
+        prime * result + ((worklistName == null) ? 0 : worklistName.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -372,11 +368,6 @@ public class TrackingRecordJpa implements TrackingRecord {
         return false;
     } else if (!clusterType.equals(other.clusterType))
       return false;
-    if (terminology == null) {
-      if (other.terminology != null)
-        return false;
-    } else if (!terminology.equals(other.terminology))
-      return false;
     if (componentIds == null) {
       if (other.componentIds != null)
         return false;
@@ -387,15 +378,30 @@ public class TrackingRecordJpa implements TrackingRecord {
         return false;
     } else if (!origConceptIds.equals(other.origConceptIds))
       return false;
+    if (project == null) {
+      if (other.project != null)
+        return false;
+    } else if (!project.equals(other.project))
+      return false;
+    if (terminology == null) {
+      if (other.terminology != null)
+        return false;
+    } else if (!terminology.equals(other.terminology))
+      return false;
     if (version == null) {
       if (other.version != null)
         return false;
     } else if (!version.equals(other.version))
       return false;
-    if (project == null) {
-      if (other.project != null)
+    if (workflowBinName == null) {
+      if (other.workflowBinName != null)
         return false;
-    } else if (!project.equals(other.project))
+    } else if (!workflowBinName.equals(other.workflowBinName))
+      return false;
+    if (worklistName == null) {
+      if (other.worklistName != null)
+        return false;
+    } else if (!worklistName.equals(other.worklistName))
       return false;
     return true;
   }
@@ -407,10 +413,8 @@ public class TrackingRecordJpa implements TrackingRecord {
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", componentIds=" + componentIds + ", clusterId=" + clusterId
         + ", clusterType=" + clusterType + ", terminology=" + terminology
-        + ", version=" + version + ", origConceptIds=" + origConceptIds 
-        + ", project=" + project +"]";
+        + ", version=" + version + ", origConceptIds=" + origConceptIds
+        + ", project=" + project + "]";
   }
-
-
 
 }

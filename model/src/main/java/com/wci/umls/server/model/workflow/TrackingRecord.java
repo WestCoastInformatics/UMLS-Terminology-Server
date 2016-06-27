@@ -65,28 +65,28 @@ public interface TrackingRecord extends HasLastModified, HasTerminology {
    *
    * @return the workflow bin
    */
-  public String getWorkflowBin();
+  public String getWorkflowBinName();
 
   /**
    * Sets the workflow bin.
    *
    * @param workflowBin the workflow bin
    */
-  public void setWorkflowBin(String workflowBin);
+  public void setWorkflowBinName(String workflowBin);
 
   /**
    * Returns the worklist name.
    *
    * @return the worklistname
    */
-  public String getWorklist();
+  public String getWorklistName();
 
   /**
    * Sets the worklist.
    *
    * @param worklistName the worklist
    */
-  public void setWorklist(String worklistName);
+  public void setWorklistName(String worklistName);
   
   /**
    * Returns the orig concept ids.
