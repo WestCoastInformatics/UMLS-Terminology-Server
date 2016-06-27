@@ -9,8 +9,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
 import com.wci.umls.server.model.workflow.TrackingRecord;
@@ -55,10 +57,12 @@ public class TrackingRecordListUnitTest extends
     o1 = (TrackingRecord) tester.createObject(1);
     o2 = (TrackingRecord) tester.createObject(2);
 
-    o1.setWorkflowBinName(null);
-    o1.setWorklistName(null);
-    o2.setWorkflowBinName(null);
-    o2.setWorklistName(null);
+    Project p1 = new ProjectJpa();
+    p1.setId(1L);
+    Project p2 = new ProjectJpa();
+    p2.setId(2L);
+    o1.setProject(p1);
+    o2.setProject(p2);
 
   }
 
