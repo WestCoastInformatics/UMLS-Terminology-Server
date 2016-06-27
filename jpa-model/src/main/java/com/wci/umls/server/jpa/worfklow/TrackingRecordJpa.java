@@ -16,11 +16,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -30,6 +32,8 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 
@@ -95,6 +99,10 @@ public class TrackingRecordJpa implements TrackingRecord {
   @ElementCollection
   @CollectionTable(name = "orig_concept_ids")
   private List<Long> origConceptIds = new ArrayList<>();
+  
+  /** The project. */
+  @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
+  private Project project;
   
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
@@ -218,6 +226,42 @@ public class TrackingRecordJpa implements TrackingRecord {
 
   /* see superclass */
   @Override
+  @XmlTransient
+  public Project getProject() {
+    return project;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProject(Project project) {
+    this.project = project;
+  }
+
+  /**
+   * Returns the project id.
+   *
+   * @return the project id
+   */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getProjectId() {
+    return project == null ? null : project.getId();
+  }
+
+  /**
+   * Sets the project id.
+   *
+   * @param projectId the project id
+   */
+  public void setProjectId(Long projectId) {
+    if (project == null) {
+      project = new ProjectJpa();
+    }
+    project.setId(projectId);
+  }
+
+  /* see superclass */
+  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminology() {
     return terminology;
@@ -296,6 +340,8 @@ public class TrackingRecordJpa implements TrackingRecord {
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
+        prime * result + ((project == null) ? 0 : project.hashCode());
+    result =
         prime * result
             + ((componentIds == null) ? 0 : componentIds.hashCode());
     result =
@@ -345,6 +391,11 @@ public class TrackingRecordJpa implements TrackingRecord {
         return false;
     } else if (!version.equals(other.version))
       return false;
+    if (project == null) {
+      if (other.project != null)
+        return false;
+    } else if (!project.equals(other.project))
+      return false;
     return true;
   }
 
@@ -355,7 +406,8 @@ public class TrackingRecordJpa implements TrackingRecord {
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", componentIds=" + componentIds + ", clusterId=" + clusterId
         + ", clusterType=" + clusterType + ", terminology=" + terminology
-        + ", version=" + version + ", origConceptIds=" + origConceptIds + "]";
+        + ", version=" + version + ", origConceptIds=" + origConceptIds 
+        + ", project=" + project +"]";
   }
 
 

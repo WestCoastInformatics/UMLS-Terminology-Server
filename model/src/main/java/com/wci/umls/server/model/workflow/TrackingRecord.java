@@ -6,6 +6,7 @@ package com.wci.umls.server.model.workflow;
 import java.util.List;
 import java.util.Set;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasTerminology;
 
@@ -100,4 +101,18 @@ public interface TrackingRecord extends HasLastModified, HasTerminology {
    * @param origConceptIds the orig concept ids
    */
   public void setOrigConceptIds(List<Long> origConceptIds);
+
+  /**
+   * Returns the project.
+   *
+   * @return the project
+   */
+  public Project getProject();
+
+  /**
+   * Sets the project.
+   *
+   * @param project the project
+   */
+  public void setProject(Project project);
 }

@@ -37,6 +37,7 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
+import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
@@ -45,6 +46,7 @@ import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
@@ -340,13 +342,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       Project project = workflowService.getProject(projectId);  
       
       // find workflow bins matching type and projectId
-      final StringBuilder sb = new StringBuilder();
+/*      final StringBuilder sb = new StringBuilder();
       
       if (project == null) {
         sb.append("projectId:[* TO *]");
       } else {
         sb.append("projectId:" + project.getId());
       }
+      // TODO; error org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags
       sb.append(" AND ");
       if (type == null || type.equals("")) {
         sb.append("type:[* TO *]");
@@ -354,7 +357,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         sb.append("type:" + type);
       } 
       
-      List<WorkflowBin> results = workflowService.findWorkflowBinsForQuery(sb.toString());
+      List<WorkflowBin> results = workflowService.findWorkflowBinsForQuery(sb.toString());*/
+      
+      List<WorkflowBin> results = workflowService.getWorkflowBins();
       
       // remove bins and all of the tracking records in the bins
       for (WorkflowBin workflowBin : results) {
@@ -518,6 +523,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             record.setTimestamp(new Date());
             record.setVersion("latest");
             record.setWorkflowBin(bin.getName());
+            record.setProject(project);
 
             record.setWorklist(null);
             record.setClusterType("");
@@ -538,7 +544,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
               for (Atom atom : concept.getAtoms()) {
                 record.getComponentIds().add(atom.getId());
               }
-              if (record.getWorklist().equals(null)) {
+              if (record.getWorklist() == null) {
                 if (conceptIdWorklistNameMap.containsKey(conceptId)) {
                   record.setWorklist(conceptIdWorklistNameMap.get(conceptId));
                   break;
@@ -936,6 +942,56 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           handler.findAvailableWorklists(project, role, pfs, workflowService);
 
       return list;
+    } catch (Exception e) {
+      handleException(e, "trying to find available worklists");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  @Override
+  public Checklist createChecklist(Long projectId, Long workflowBinId,
+    String name, Boolean randomize, Boolean excludeOnWorklist, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Workflow): /worklists/available ");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "trying to find available worklists", UserRole.AUTHOR);
+
+      Project project = workflowService.getProject(projectId);
+
+      // TODO augment query
+      /*
+Perform a search based on projectId, workflowBinName, query, pfs (in TrackingRecordJpa)
+use pfs.setSortField("clusterId") by default.
+for "randomize" -> see how to randomize a lucene search (maybe we can have a special sort field, "random")
+excludeOnWorklist means worklistName is null (" AND NOT worklist:[* TO *] ")
+
+       */
+      TrackingRecordList recordResultList = workflowService.findTrackingRecordsForQuery(query, pfs);
+
+      ChecklistJpa checklist = new ChecklistJpa();
+      checklist.setName("test checklist");
+      checklist.setDescription("test checklist description");
+      checklist.setProject(project);
+      checklist.setTimestamp(new Date());
+
+      Checklist addedChecklist = workflowService.addChecklist(checklist);
+      
+      for (TrackingRecord record : recordResultList.getObjects()) {
+        TrackingRecord checklistRecord = new TrackingRecordJpa(record);
+        checklistRecord.setId(null);
+        workflowService.addTrackingRecord(checklistRecord);
+        addedChecklist.getTrackingRecords().add(checklistRecord);
+        workflowService.updateChecklist(addedChecklist);
+      }
+
+      return addedChecklist;
     } catch (Exception e) {
       handleException(e, "trying to find available worklists");
     } finally {

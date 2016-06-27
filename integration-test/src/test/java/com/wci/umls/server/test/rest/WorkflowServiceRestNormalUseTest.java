@@ -230,8 +230,14 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
     // Regenerate bins and then clear bins
     //
-    workflowService.regenerateBins(project.getId(),
+    try {
+      workflowService.regenerateBins(project.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
 
     workflowService.clearBins(project.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);

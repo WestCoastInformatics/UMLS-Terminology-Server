@@ -291,7 +291,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowBinDefinition2.setName("test name2");
     workflowBinDefinition2.setDescription("test description2");
     workflowBinDefinition2.setQuery(
-        "select distinct c.id clusterId, c.id conceptId from ConceptJpa c where c.name like '%Acid%';");
+        "select distinct c.id clusterId, c.id conceptId from ConceptJpa c where c.name like '%Acid%'");
     workflowBinDefinition2.setEditable(true);
     workflowBinDefinition2.setQueryType(QueryType.HQL);
     workflowBinDefinition2.setTimestamp(startDate);

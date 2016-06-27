@@ -429,7 +429,9 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     // if cascade, remove tracking records before removing workflow bin
     if (cascade) {
       WorkflowBin bin = getWorkflowBin(id);
-      for (TrackingRecord record : bin.getTrackingRecords()) {
+      StringBuilder sb = new StringBuilder();      
+      sb.append("workflowBin:" + bin.getName());
+      for (TrackingRecord record : findTrackingRecordsForQuery(sb.toString(), null).getObjects()) {
         removeHasLastModified(record.getId(), TrackingRecordJpa.class);
       }
     }
