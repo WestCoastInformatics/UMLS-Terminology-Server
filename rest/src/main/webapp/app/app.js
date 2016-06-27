@@ -20,6 +20,7 @@ var projectUrl = 'project/';
 var validationUrl = 'validation/';
 var sourceDataUrl = 'file/';
 var configureUrl = 'configure/';
+var workflowUrl = 'workflow/';
 
 tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureService, utilService,
   securityService) {
