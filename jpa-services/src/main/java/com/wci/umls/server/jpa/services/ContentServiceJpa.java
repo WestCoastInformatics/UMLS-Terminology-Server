@@ -743,7 +743,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // check for molecular action flag
     if (isMolecularActionFlag()) {
-     final MolecularAction molecularAction = getMolecularAction();
+      final MolecularAction molecularAction = getMolecularAction();
 
       // construct the atomic action
 
@@ -755,7 +755,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       atomicAction.setNewValue(component.getId().toString());
       atomicAction.setObjectId(component.getId());
 
-      // persist the atomic action and add the persisted version to the molecular action
+      // persist the atomic action and add the persisted version to the
+      // molecular action
       final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
 
       molecularAction.getAtomicActions().add(newAtomicAction);
@@ -814,7 +815,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       final AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");
       atomicAction.setIdType(IdType.SEMANTIC_TYPE);
-       atomicAction.setMolecularAction(molecularAction);
+      atomicAction.setMolecularAction(molecularAction);
       atomicAction.setObjectId(id);
       atomicAction.setOldValue(id.toString());
       atomicAction.setNewValue(null);
@@ -3897,7 +3898,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-
   /* see superclass */
   @Override
   public ExpressionHandler getExpressionHandler(String terminology,
@@ -4257,6 +4257,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public NoteList findConceptNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find concept notes " + query + ", " + pfs);
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
@@ -4274,6 +4276,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public NoteList findDescriptorNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find description notes " + query + ", " + pfs);
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
@@ -4292,6 +4296,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public NoteList findCodeNotesForQuery(String query, PfsParameter pfs)
     throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find code notes " + query + ", " + pfs);
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
