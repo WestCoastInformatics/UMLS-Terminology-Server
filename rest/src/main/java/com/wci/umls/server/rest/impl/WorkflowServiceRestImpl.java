@@ -420,7 +420,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       Map<Long, String> conceptIdWorklistNameMap = new HashMap<>();
       for (TrackingRecord trackingRecord : recordList.getObjects()) {
         for (Long conceptId : trackingRecord.getOrigConceptIds()) {
-          conceptIdWorklistNameMap.put(conceptId, trackingRecord.getWorklist());
+          conceptIdWorklistNameMap.put(conceptId, trackingRecord.getWorklistName());
         }
       }
       
@@ -523,10 +523,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             record.setTerminology(project.getTerminology());
             record.setTimestamp(new Date());
             record.setVersion("latest");
-            record.setWorkflowBin(bin.getName());
+            record.setWorkflowBinName(bin.getName());
             record.setProject(project);
 
-            record.setWorklist(null);
+            record.setWorklistName(null);
             record.setClusterType("");
 
             for (Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
@@ -545,9 +545,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
               for (Atom atom : concept.getAtoms()) {
                 record.getComponentIds().add(atom.getId());
               }
-              if (record.getWorklist() == null) {
+              if (record.getWorklistName() == null) {
                 if (conceptIdWorklistNameMap.containsKey(conceptId)) {
-                  record.setWorklist(conceptIdWorklistNameMap.get(conceptId));
+                  record.setWorklistName(conceptIdWorklistNameMap.get(conceptId));
                   break;
                 }
               }
