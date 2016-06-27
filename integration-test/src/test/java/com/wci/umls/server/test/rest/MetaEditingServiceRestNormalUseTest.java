@@ -6,10 +6,13 @@
  */
 package com.wci.umls.server.test.rest;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -31,6 +34,7 @@ import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 
 /**
@@ -83,6 +87,7 @@ public class MetaEditingServiceRestNormalUseTest
     concept = new ConceptJpa(contentService.getConcept("C0000294",
         umlsTerminology, umlsVersion, null, authToken), false);
     concept.setId(null);
+    concept.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     concept = (ConceptJpa) testService.addConcept(concept, authToken);
   }
 
@@ -155,19 +160,26 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
-    // TODO Verify atomic actions once REST callback exists for
+    // Verify that two atomic actions exists for add Semantic Type, and update
+    // Concept WorkflowStatus
+    pfs.setSortField("idType");
     pfs.setAscending(true);
-    // AtomicActionList atomicActionsList = (AtomicActionList)
-    // contentService.findAtomicActions(ma.getId(), null, pfs,
-    // authToken).getObjects();
 
-    for (AtomicAction a : contentService
-        .findAtomicActions(ma.getId(), null, null, authToken).getObjects()) {
-      Logger.getLogger(getClass())
-          .info("TEST - Included atomic action: " + a.toString());
-    }
+    List<AtomicAction> atomicActions = contentService
+        .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
+    assertEquals(atomicActions.size(), 2);
+    assertEquals(atomicActions.get(0).getIdType().toString(), "CONCEPT");
+    assertNotNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+    assertEquals(atomicActions.get(1).getIdType().toString(), "SEMANTIC_TYPE");
+    assertNull(atomicActions.get(1).getOldValue());
+    assertNotNull(atomicActions.get(1).getNewValue());
 
-    // TODO Verify the log entry exists
+    // Verify the log entry exists
+    String logEntry = projectService.getLog(project.getId(), c.getId(),
+        1, authToken);   
+    assertTrue(logEntry
+        .contains("ADD_SEMANTIC_TYPE " + semanticType.getSemanticType()));
 
     //
     // Test removal
@@ -181,13 +193,13 @@ public class MetaEditingServiceRestNormalUseTest
     // retrieve the concept and check semantic types
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
-    boolean attributePresent = false;
+    boolean semanticTypePresent = false;
     for (SemanticTypeComponent s : c.getSemanticTypes()) {
       if (s.getSemanticType().equals("Lipid")) {
-        attributePresent = true;
+        semanticTypePresent = true;
       }
     }
-    assertTrue(!attributePresent);
+    assertTrue(!semanticTypePresent);
 
     // verify the molecular action exists
     pfs = new PfsParameterJpa();
@@ -200,11 +212,31 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
 
-    // TODO Verify atomic actions once REST callback exists for
-    // getAtomicActions(Long molecularActionId, ...)
+    // Verify that one atomic action exists for remove Semantic Type
+    pfs.setAscending(true);
+    
+    atomicActions = contentService
+        .findAtomicActions(ma.getId(), null, null, authToken).getObjects();
+    assertEquals(atomicActions.size(), 1);
+    assertEquals(atomicActions.get(0).getIdType().toString(), "SEMANTIC_TYPE");
+    assertNotNull(atomicActions.get(0).getOldValue());
+    assertNull(atomicActions.get(0).getNewValue());
 
-    // TODO Verify the log entry exists
+
+//    for (AtomicAction a : contentService
+//        .findAtomicActions(ma.getId(), null, null, authToken).getObjects()) {
+//      Logger.getLogger(getClass())
+//          .info("TEST - Included atomic action: " + a.toString());
+//    }
+
+    // Verify the log entry exists
+    logEntry = projectService.getLog(project.getId(), c.getId(),
+        1, authToken);   
+    assertTrue(logEntry
+        .contains("REMOVE_SEMANTIC_TYPE " + semanticType.getSemanticType())); 
+    
   }
 
   /**
@@ -251,6 +283,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // retrieve the concept and check attributes
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    
     attribute = null;
     for (Attribute s : c.getAttributes()) {
       if (s.getName().equals("UMLSRELA")) {
@@ -271,10 +304,27 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
 
-    // TODO Verify atomic actions once REST callback exists for
-    // getAtomicActions(Long molecularActionId, ...)
+    // Verify that two atomic actions exists for add attribute, and update
+    // Concept WorkflowStatus
 
-    // TODO Verify the log entry exists
+    pfs.setSortField("idType");
+    pfs.setAscending(true);    
+
+    List<AtomicAction> atomicActions = contentService
+        .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
+    assertEquals(atomicActions.size(), 2);
+    assertEquals(atomicActions.get(0).getIdType().toString(), "ATTRIBUTE");
+    assertNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+    assertEquals(atomicActions.get(1).getIdType().toString(), "CONCEPT");
+    assertNotNull(atomicActions.get(1).getOldValue());
+    assertNotNull(atomicActions.get(1).getNewValue());
+    
+    // Verify the log entry exists
+    String logEntry = projectService.getLog(project.getId(), c.getId(),
+        1, authToken);       
+    assertTrue(logEntry
+        .contains("ADD_ATTRIBUTE " + attribute.getName()));    
 
     //
     // Test removal
@@ -286,11 +336,11 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check attributes
-    c = contentService.getConcept("C0000294", umlsTerminology, umlsVersion,
-        null, authToken);
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    
     boolean attributePresent = false;
-    for (Attribute s : c.getAttributes()) {
-      if (s.getName().equals("UMLSRELA")) {
+    for (Attribute a : c.getAttributes()) {
+      if (a.getName().equals("UMLSRELA")) {
         attributePresent = true;
       }
     }
@@ -306,18 +356,25 @@ public class MetaEditingServiceRestNormalUseTest
     ma = list.getObjects().get(0);
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
-    assertTrue(ma.getLastModified().compareTo(startDate) > 0);
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
-    // TODO Re-enable this once marshaling error in ContentClientRest is
-    // resolved
-    // assertTrue(ma.getAtomicActions().size() == 1);
-    // assertTrue(
-    // ma.getAtomicActions().get(0).getIdType().equals(IdType.SEMANTIC_TYPE));
-    // assertNotNull(ma.getAtomicActions().get(0).getNewValue());
-    // assertNull(ma.getAtomicActions().get(0).getOldValue());
+    // Verify that one atomic action exists for remove Attribute
+    pfs.setAscending(true);
+    
+    atomicActions = contentService
+        .findAtomicActions(ma.getId(), null, null, authToken).getObjects();
+    assertEquals(atomicActions.size(), 1);
+    assertEquals(atomicActions.get(0).getIdType().toString(), "ATTRIBUTE");
+    assertNotNull(atomicActions.get(0).getOldValue());
+    assertNull(atomicActions.get(0).getNewValue());
 
-    // TODO Verify log entry
+    // Verify the log entry exists
+    logEntry = projectService.getLog(project.getId(), c.getId(),
+        1, authToken);   
+    assertTrue(logEntry
+        .contains("REMOVE_ATTRIBUTE " + attribute.getName())); 
+    
   }
 
   /**
