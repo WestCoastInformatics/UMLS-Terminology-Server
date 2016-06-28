@@ -18,6 +18,8 @@ import org.junit.Test;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
@@ -245,12 +247,53 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   }
 
   /**
-   * Test perform workflow action
+   * Test create checklist
    *
    * @throws Exception the exception
    */
   @Test
   public void testNormalUseRestWorkflow004() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    Logger.getLogger(getClass()).info(
+        "TEST - Create checklist" + umlsTerminology + ", " + umlsVersion + ", "
+            + authToken);
+
+    try {
+      workflowService.regenerateBins(project.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    WorkflowBinList binList = workflowService.findWorkflowBinsForQuery("name:testName", null, authToken);
+    
+    //
+    // Create checklist
+    //
+    try {
+      workflowService.createChecklist(project.getId(), binList.getObjects().get(0).getId(), 
+          "newChecklistName", false, false, "terminology:UMLS", new PfsParameterJpa(), authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+
+    workflowService.clearBins(project.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+
+  }
+  
+  /**
+   * Test perform workflow action
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestWorkflow005() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
     Logger.getLogger(getClass()).info(

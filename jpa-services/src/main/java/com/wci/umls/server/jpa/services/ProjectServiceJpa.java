@@ -254,7 +254,6 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
 
       // Remove
       if (getTransactionPerOperation()) {
-        // remove refset member
         tx.begin();
         if (manager.contains(project)) {
           manager.remove(project);
