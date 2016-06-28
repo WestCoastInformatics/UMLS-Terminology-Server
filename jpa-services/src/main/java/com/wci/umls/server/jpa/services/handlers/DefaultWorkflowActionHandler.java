@@ -67,7 +67,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     } else {
       sb.append("userRole:" + role.name());
     }   
-    sb.append(" AND ").append("( NOT worklist:[* TO *])");
+    sb.append(" AND ").append("( NOT worklistName:[* TO *])");
           
 
     return service.findTrackingRecordsForQuery(sb.toString(), pfs);
@@ -316,7 +316,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     } else {
       sb.append("userName:" + userName);
     }   
-    sb.append(" AND ").append("worklist:[* TO *]");
+    sb.append(" AND ").append("worklistName:[* TO *]");
           
 
     return service.findTrackingRecordsForQuery(sb.toString(), pfs);

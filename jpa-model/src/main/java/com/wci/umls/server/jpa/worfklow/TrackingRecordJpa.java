@@ -11,7 +11,6 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -23,6 +22,8 @@ import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
@@ -68,6 +69,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   /** The component ids . */
   @ElementCollection
   @CollectionTable(name = "component_ids")
+  @Fetch(value = FetchMode.SELECT)
   private Set<Long> componentIds = new HashSet<>();
 
   /** The cluster id. */
@@ -95,7 +97,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   private String worklistName;
 
   /** The original concept ids . */
-  @ElementCollection(fetch = FetchType.LAZY)
+  @ElementCollection
   @CollectionTable(name = "orig_concept_ids")
   private Set<Long> origConceptIds = new HashSet<>();
 
