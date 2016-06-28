@@ -3,13 +3,13 @@
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasLastModified;
-import com.wci.umls.server.helpers.HasTerminologyId;
 
 /**
  * Represents a terminology component.
  */
-public interface Component extends HasTerminologyId, HasLastModified {
+public interface Component extends HasLastModified, ComponentInfo {
 
   /**
    * Indicates whether or not the component is obsolete.

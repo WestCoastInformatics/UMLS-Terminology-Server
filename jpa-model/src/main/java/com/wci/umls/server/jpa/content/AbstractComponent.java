@@ -25,6 +25,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
  * Abstract implementation of {@link ComponentHasAttributes} for use with JPA.
@@ -287,6 +288,29 @@ public abstract class AbstractComponent implements Component {
   @Override
   public void setTerminologyId(String terminologyId) {
     this.terminologyId = terminologyId;
+  }
+
+  @Override
+  public void setType(IdType type) {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public IdType getType() throws Exception {
+    return IdType.getIdType(getClass());
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  public void setName(String name) {
+    // n/a
   }
 
   /**

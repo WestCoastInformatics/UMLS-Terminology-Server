@@ -12,7 +12,8 @@ import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 
 /**
- * Abstract JPA and JAXB enabled implementation of {@link TransitiveRelationship}.
+ * Abstract JPA and JAXB enabled implementation of
+ * {@link TransitiveRelationship}.
  *
  * @param <T> the component type
  */
@@ -44,16 +45,31 @@ public abstract class AbstractTransitiveRelationship<T extends ComponentHasAttri
     super(relationship, deepCopy);
   }
 
+  /* see superclass */
   @Override
   public int getDepth() {
     return depth;
   }
 
+  /* see superclass */
   @Override
   public void setDepth(int depth) {
     this.depth = depth;
   }
 
+  /* see superclass */
+  @Override
+  public String getName() {
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  public void setName(String name) {
+    // n/a
+  }
+
+  /* see superclass */
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [superType=" + getSuperType()

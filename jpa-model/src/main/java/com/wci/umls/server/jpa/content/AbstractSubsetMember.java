@@ -13,8 +13,8 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
- * Abstract JPA and JAXB enabled implementation of {@link SubsetMember}. Used mostly to
- * define the table.
+ * Abstract JPA and JAXB enabled implementation of {@link SubsetMember}. Used
+ * mostly to define the table.
  * @param <T> the member type
  * @param <S> the subset type
  */
@@ -41,6 +41,18 @@ public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndNa
    */
   public AbstractSubsetMember(SubsetMember<T, S> member, boolean deepCopy) {
     super(member, deepCopy);
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  public void setName(String name) {
+    // n/a
   }
 
   @Override

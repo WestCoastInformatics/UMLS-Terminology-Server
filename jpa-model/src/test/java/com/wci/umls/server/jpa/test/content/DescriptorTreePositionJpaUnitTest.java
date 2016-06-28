@@ -82,6 +82,8 @@ public class DescriptorTreePositionJpaUnitTest extends ModelUnitSupport {
     tester.exclude("nodeTerminology");
     tester.exclude("nodeVersion");
     tester.exclude("nodeName");
+    tester.exclude("type");
+    tester.exclude("name");
     tester.test();
   }
 

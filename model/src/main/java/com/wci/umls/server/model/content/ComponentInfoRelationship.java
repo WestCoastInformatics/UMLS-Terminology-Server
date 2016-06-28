@@ -8,6 +8,7 @@ import com.wci.umls.server.helpers.ComponentInfo;
 /**
  * Represents a relationship between two {@link ComponentInfo}s.
  */
-public interface ComponentInfoRelationship extends Relationship<ComponentInfo, ComponentInfo> {
-  // nothing extra, connects two component infos
+public interface ComponentInfoRelationship extends
+    Relationship<ComponentInfo, ComponentInfo> {
+  // n/a
 }

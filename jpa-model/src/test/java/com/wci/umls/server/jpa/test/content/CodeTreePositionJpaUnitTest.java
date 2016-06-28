@@ -82,6 +82,8 @@ public class CodeTreePositionJpaUnitTest extends ModelUnitSupport {
     tester.exclude("nodeTerminology");
     tester.exclude("nodeVersion");
     tester.exclude("nodeName");
+    tester.exclude("name");
+    tester.exclude("type");
     tester.test();
   }
 

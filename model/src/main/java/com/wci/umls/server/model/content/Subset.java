@@ -9,20 +9,6 @@ package com.wci.umls.server.model.content;
 public interface Subset extends ComponentHasAttributes {
 
   /**
-   * Returns the name.
-   * 
-   * @return the name
-   */
-  public String getName();
-
-  /**
-   * Sets the name.
-   * 
-   * @param name the name
-   */
-  public void setName(String name);
-
-  /**
    * Returns the description.
    * 
    * @return the description

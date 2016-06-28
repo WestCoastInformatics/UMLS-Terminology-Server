@@ -66,47 +66,68 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
     descendantCt = treepos.getDescendantCt();
   }
 
+  /* see superclass */
   @Override
   public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
 
+  /* see superclass */
   @Override
   public void setAdditionalRelationshipType(String additionalRelationshipType) {
     this.additionalRelationshipType = additionalRelationshipType;
   }
 
+  /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getAncestorPath() {
     return ancestorPath;
   }
 
+  /* see superclass */
   @Override
   public void setAncestorPath(String ancestorPath) {
     this.ancestorPath = ancestorPath;
   }
 
+  /* see superclass */
   @Override
   public int getChildCt() {
     return childCt;
   }
 
+  /* see superclass */
   @Override
   public void setChildCt(int childCt) {
     this.childCt = childCt;
   }
 
+  /* see superclass */
   @Override
   public int getDescendantCt() {
     return descendantCt;
   }
 
+  /* see superclass */
   @Override
   public void setDescendantCt(int descendantCt) {
     this.descendantCt = descendantCt;
   }
 
+  /* see superclass */
+  @Override
+  public String getName() {
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  public void setName(String name) {
+    // n/a
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -123,6 +144,7 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
     return result;
   }
 
+  /* see superclass */
   @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(Object obj) {
@@ -151,6 +173,7 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[node=" + getNode() + ", "

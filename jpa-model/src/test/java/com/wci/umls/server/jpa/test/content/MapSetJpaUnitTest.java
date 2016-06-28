@@ -80,6 +80,7 @@ public class MapSetJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("type");
     tester.test();
   }
 
@@ -106,7 +107,7 @@ public class MapSetJpaUnitTest extends ModelUnitSupport {
     tester.include("toComplexity");
     tester.include("fromExhaustive");
     tester.include("toExhaustive");
-    tester.include("type");
+    tester.include("mapType");
     tester.include("fromTerminology");
     tester.include("toTerminology");
     tester.include("fromVersion");
@@ -180,7 +181,7 @@ public class MapSetJpaUnitTest extends ModelUnitSupport {
     // tester.include("toComplexity");
     // tester.include("fromExhaustive");
     // tester.include("toExhaustive");
-    // tester.include("type");
+    // tester.include("mapType");
     tester.include("fromTerminology");
     // tester.include("toTerminology");
     // tester.include("fromVersion");

@@ -99,6 +99,8 @@ public class AtomRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.exclude("toId");
     tester.exclude("toTerminologyId");
     tester.exclude("toName");
+    tester.exclude("type");
+    tester.exclude("name");
     tester.test();
   }
 

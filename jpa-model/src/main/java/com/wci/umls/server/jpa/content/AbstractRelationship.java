@@ -200,6 +200,18 @@ public abstract class AbstractRelationship<S extends HasTerminologyId, T extends
 
   /* see superclass */
   @Override
+  public String getName() {
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  public void setName(String name) {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();

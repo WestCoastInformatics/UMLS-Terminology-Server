@@ -66,8 +66,9 @@ public class ComponentInfoJpa implements ComponentInfo {
    * Instantiates a new component info JPA object.
    *
    * @param componentInfo the component info
+   * @throws Exception the exception
    */
-  public ComponentInfoJpa(ComponentInfo componentInfo) {
+  public ComponentInfoJpa(ComponentInfo componentInfo) throws Exception {
     super();
 
     this.terminology = componentInfo.getTerminology();

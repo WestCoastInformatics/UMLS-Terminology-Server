@@ -307,4 +307,5 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
         + getAdditionalRelationshipType() + ", getId()=" + getId() + "]";
   }
 
+
 }

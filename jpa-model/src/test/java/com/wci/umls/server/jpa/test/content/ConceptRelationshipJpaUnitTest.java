@@ -104,6 +104,8 @@ public class ConceptRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.exclude("toVersion");
     tester.exclude("toTerminologyId");
     tester.exclude("toName");
+    tester.exclude("type");
+    tester.exclude("name");
     tester.test();
   }
 
@@ -133,7 +135,6 @@ public class ConceptRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("hierarchical");
     tester.include("to");
     tester.include("from");
-
 
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);

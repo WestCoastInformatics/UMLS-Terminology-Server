@@ -83,6 +83,8 @@ public class AtomTransitiveRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.exclude("subTypeTerminology");
     tester.exclude("subTypeVersion");
     tester.exclude("subTypeName");
+    tester.exclude("name");
+    tester.exclude("type");
     tester.test();
   }
 

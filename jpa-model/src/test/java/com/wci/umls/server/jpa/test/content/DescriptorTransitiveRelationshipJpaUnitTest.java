@@ -84,6 +84,8 @@ public class DescriptorTransitiveRelationshipJpaUnitTest extends
     tester.exclude("subTypeTerminology");
     tester.exclude("subTypeVersion");
     tester.exclude("subTypeName");
+    tester.exclude("type");
+    tester.exclude("name");
     tester.test();
   }
 

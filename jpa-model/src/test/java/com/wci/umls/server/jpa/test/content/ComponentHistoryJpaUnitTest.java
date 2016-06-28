@@ -78,6 +78,9 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
     tester.exclude("referencedConceptVersion");
     tester.exclude("referencedConceptTerminologyId");
     tester.exclude("referencedConceptName");
+    tester.exclude("type");
+    tester.exclude("name");
+
     tester.test();
   }
 

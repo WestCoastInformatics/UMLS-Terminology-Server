@@ -83,6 +83,8 @@ public class ConceptTransitiveRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.exclude("subTypeTerminology");
     tester.exclude("subTypeVersion");
     tester.exclude("subTypeName");
+    tester.exclude("type");
+    tester.exclude("name");
     tester.test();
   }
 

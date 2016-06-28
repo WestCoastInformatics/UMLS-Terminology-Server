@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.model.workflow;
 
-import java.util.List;
 import java.util.Set;
 
 import com.wci.umls.server.Project;

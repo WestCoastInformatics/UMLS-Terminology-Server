@@ -103,6 +103,8 @@ public class DescriptorRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.exclude("toVersion");
     tester.exclude("toTerminologyId");
     tester.exclude("toName");
+    tester.exclude("type");
+    tester.exclude("name");
     tester.test();
   }
 

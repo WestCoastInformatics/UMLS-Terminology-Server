@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.model.content.Atom;
@@ -121,8 +122,8 @@ public class UuidHashIdentifierAssignmentHandler implements
 
   /* see superclass */
   @Override
-  public String getTerminologyId(Attribute attribute,
-    ComponentHasAttributes component) throws Exception {
+  public String getTerminologyId(Attribute attribute, ComponentInfo component)
+    throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, name, value, component.terminologyId
     hashKey.append(attribute.getTerminology())

@@ -58,7 +58,7 @@ public class MappingTest extends IntegrationUnitSupport {
     ContentService contentService = new ContentServiceJpa();
     MapSet mapSet = new MapSetJpa();
     mapSet.setName("Test MapSet");
-    mapSet.setType("CONCEPT");
+    mapSet.setMapType("CONCEPT");
     mapSet.setFromComplexity("fcomp");
     mapSet.setToComplexity("toComp");
     mapSet.setFromExhaustive("fromExh");
