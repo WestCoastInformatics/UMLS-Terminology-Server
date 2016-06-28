@@ -15,7 +15,6 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -101,8 +100,8 @@ public class ProjectJpa implements Project {
   /** The module id. */
   @Column(nullable = true)
   private String feedbackEmail;
-  
-  /**  The workflow path. */
+
+  /** The workflow path. */
   @Column(nullable = false)
   private String workflowPath;
 
@@ -117,7 +116,7 @@ public class ProjectJpa implements Project {
 
   /** The validation checks. */
   @Column(nullable = true)
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @CollectionTable(name = "project_validation_checks")
   private List<String> validationChecks = new ArrayList<>();
 
@@ -126,13 +125,13 @@ public class ProjectJpa implements Project {
   private PrecedenceList precedenceList;
 
   /** The semantic type category map. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @Column(nullable = false)
   private Map<String, String> semanticTypeCategoryMap = new HashMap<>();
 
   /** The valid categories. */
   @Column(nullable = true)
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @CollectionTable(name = "valid_categories")
   private List<String> validCategories = new ArrayList<>();
 
@@ -392,7 +391,7 @@ public class ProjectJpa implements Project {
   public void setWorkflowPath(String workflowPath) {
     this.workflowPath = workflowPath;
   }
-  
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -479,6 +478,5 @@ public class ProjectJpa implements Project {
         + ", precedenceList=" + precedenceList + ", validationChecks="
         + validationChecks + ", workflowPath=" + workflowPath + "]";
   }
-
 
 }

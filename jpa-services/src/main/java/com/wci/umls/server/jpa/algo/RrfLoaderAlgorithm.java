@@ -204,6 +204,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The map set map. */
   private Map<String, MapSet> mapSetMap = new HashMap<>();
 
+  /** The umls identity loader algo. */
+  private UmlsIdentityLoaderAlgorithm umlsIdentityLoaderAlgo;
+
   static {
 
     // from http://www.nationsonline.org/oneworld/country_code_list.htm
@@ -440,8 +443,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     clear();
 
     // Clean-up
-
     ConfigUtility.deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
+
+    // Identity Loader
+    umlsIdentityLoaderAlgo = new UmlsIdentityLoaderAlgorithm();
+    umlsIdentityLoaderAlgo.setTerminology(getTerminology());
+    umlsIdentityLoaderAlgo.setInputPath(getInputPath());
+    umlsIdentityLoaderAlgo.compute();
+    umlsIdentityLoaderAlgo.close();
 
     // Final logging messages
     Logger.getLogger(getClass()).info(
@@ -3069,7 +3078,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     treePosAlgorithm.cancel();
     transClosureAlgorithm.cancel();
     labelSetAlgorithm.cancel();
-
+    if (umlsIdentityLoaderAlgo != null) {
+      umlsIdentityLoaderAlgo.cancel();
+    }
     // invoke superclass cancel
     super.cancel();
   }

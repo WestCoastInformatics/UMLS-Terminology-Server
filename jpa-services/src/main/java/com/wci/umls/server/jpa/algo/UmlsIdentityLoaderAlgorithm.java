@@ -37,23 +37,31 @@ public class UmlsIdentityLoaderAlgorithm extends
   public void compute() throws Exception {
     logInfo("Umls Identity Loader");
     logInfo("  terminology = " + getTerminology());
-    logInfo("  version = " + getVersion());
     logInfo("  inputPath = " + getInputPath());
     fireProgressEvent(0, "Starting...");
 
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
+      service.setTransactionPerOperation(false);
+      service.beginTransaction();
+
       //
       // Handle AttributeIdentity
       // id|terminologyId|terminology|ownerId|ownerType|ownerQualifier|hashcode
       //
       if (new File(getInputPath(), "attributeIdentity.txt").exists()) {
+        logInfo("  Load attribute identity");
 
         final BufferedReader in =
             new BufferedReader(new FileReader(new File(getInputPath(),
                 "attributeIdentity.txt")));
         String line;
+        int ct = 0;
         while ((line = in.readLine()) != null) {
+          if (isCancelled()) {
+            in.close();
+            return;
+          }
           final String[] fields = FieldedStringTokenizer.split(line, "|");
           final AttributeIdentity identity = new AttributeIdentityJpa();
           identity.setId(Long.valueOf(fields[0]));
@@ -64,8 +72,13 @@ public class UmlsIdentityLoaderAlgorithm extends
           identity.setOwnerQualifier(fields[5]);
           identity.setHashCode(fields[6]);
           service.addAttributeIdentity(identity);
+          if (++ct % commitCt == 0) {
+            service.commitClearBegin();
+          }
         }
         in.close();
+        service.commitClearBegin();
+        logInfo("    count = " + ct);
       }
 
       //
@@ -74,12 +87,18 @@ public class UmlsIdentityLoaderAlgorithm extends
       //
       if (new File(getInputPath(), "semanticTypeComponentIdentity.txt")
           .exists()) {
+        logInfo("  Load semanticType identity");
 
         final BufferedReader in =
             new BufferedReader(new FileReader(new File(getInputPath(),
                 "semanticTypeComponentIdentity.txt")));
         String line;
+        int ct = 0;
         while ((line = in.readLine()) != null) {
+          if (isCancelled()) {
+            in.close();
+            return;
+          }
           final String[] fields = FieldedStringTokenizer.split(line, "|");
           final SemanticTypeComponentIdentity identity =
               new SemanticTypeComponentIdentityJpa();
@@ -89,11 +108,17 @@ public class UmlsIdentityLoaderAlgorithm extends
           identity.setSemanticType(fields[3]);
           service.addSemanticTypeComponentIdentity(identity);
         }
+        if (++ct % commitCt == 0) {
+          service.commitClearBegin();
+        }
+        service.commitClearBegin();
         in.close();
+        logInfo("    count = " + ct);
       }
 
       // TODO: AtomIdentity, etc.
 
+      service.commit();
       fireProgressEvent(0, "Finished...");
     } catch (Exception e) {
       logError("FAILED to assign identity");

@@ -80,7 +80,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
       workflowHandlerMap = null;
     }
   }
-  
+
   /**
    * Instantiates a new workflow service.
    *
@@ -88,6 +88,11 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
    */
   public WorkflowServiceJpa() throws Exception {
     super();
+
+    if (workflowHandlerMap == null) {
+      throw new Exception(
+          "Workflow action handler did not properly initialize, serious error.");
+    }
 
   }
 
@@ -126,11 +131,6 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     removeHasLastModified(id, TrackingRecordJpa.class);
 
   }
-
-
-
-
-
 
   @Override
   public TrackingRecordList findTrackingRecordsForQuery(String query,
@@ -231,10 +231,11 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public WorkflowConfig addWorkflowConfig(
-    WorkflowConfig workflowConfig) throws Exception {
+  public WorkflowConfig addWorkflowConfig(WorkflowConfig workflowConfig)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - add project workflow config " + workflowConfig.toString());
+        "Workflow Service - add project workflow config "
+            + workflowConfig.toString());
 
     // Add component
     WorkflowConfig config = addHasLastModified(workflowConfig);
@@ -244,8 +245,8 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public void updateWorkflowConfig(
-    WorkflowConfig workflowConfig) throws Exception {
+  public void updateWorkflowConfig(WorkflowConfig workflowConfig)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - update project workflow config " + workflowConfig);
 
@@ -278,18 +279,20 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
       return null;
     }
   }
-  
+
   @Override
-  public WorkflowConfig getWorkflowConfig(Long projectId, WorkflowBinType type) throws Exception {
+  public WorkflowConfig getWorkflowConfig(Long projectId, WorkflowBinType type)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - get project workflow config " + projectId + ", " + type);
+        "Workflow Service - get project workflow config " + projectId + ", "
+            + type);
     final javax.persistence.Query query =
         manager.createQuery("select a from WorkflowConfigJpa a where "
             + "project.id = :projectId and type = :type");
     try {
       query.setParameter("projectId", projectId);
       query.setParameter("type", type);
-      final WorkflowConfig m = (WorkflowConfig)query.getSingleResult();
+      final WorkflowConfig m = (WorkflowConfig) query.getSingleResult();
       return m;
 
     } catch (NoResultException e) {
@@ -429,9 +432,10 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     // if cascade, remove tracking records before removing workflow bin
     if (cascade) {
       WorkflowBin bin = getWorkflowBin(id);
-      StringBuilder sb = new StringBuilder();      
-      sb.append("workflowBin:" + bin.getName());
-      for (TrackingRecord record : findTrackingRecordsForQuery(sb.toString(), null).getObjects()) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("workflowBinName:" + bin.getName());
+      for (TrackingRecord record : findTrackingRecordsForQuery(sb.toString(),
+          null).getObjects()) {
         removeHasLastModified(record.getId(), TrackingRecordJpa.class);
       }
     }
@@ -587,24 +591,22 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public ChecklistList findChecklistsForQuery(Project project, String query, PfsParameter pfs)
-    throws Exception {
+  public ChecklistList findChecklistsForQuery(Project project, String query,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Service - find checklists for query " + query );
+        "Workflow Service - find checklists for query " + query);
 
     final StringBuilder sb = new StringBuilder();
     if (query != null && !query.equals("")) {
       sb.append(query).append(" AND ");
     }
 
-    
     ChecklistList results = new ChecklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<ChecklistJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", sb.toString(), "",
-            ChecklistJpa.class, ChecklistJpa.class, pfs,
-            totalCt, manager);
+            ChecklistJpa.class, ChecklistJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final ChecklistJpa checklist : luceneResults) {
       results.getObjects().add(checklist);
@@ -637,7 +639,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     }
     return handler;
   }
-  
+
   /* see superclass */
   @Override
   public Set<WorkflowActionHandler> getWorkflowHandlers() throws Exception {
@@ -649,21 +651,24 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     String userName, UserRole role, WorkflowAction action) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - perform workflow action " + action + ", "
-            + project.getId() + ", " + worklist.getId() + ", " + userName + ", " + role); 
-    
+            + project.getId() + ", " + worklist.getId() + ", " + userName
+            + ", " + role);
+
     // Obtain the handler
     final WorkflowActionHandler handler =
         getWorkflowHandlerForPath(project.getWorkflowPath());
     // Validate the action
     final ValidationResult result =
-        handler.validateWorkflowAction(project, worklist, getUser(userName), role, action, this);
+        handler.validateWorkflowAction(project, worklist, getUser(userName),
+            role, action, this);
     if (!result.isValid()) {
       Logger.getLogger(getClass()).error("  validationResult = " + result);
       throw new LocalException(result.getErrors().iterator().next());
     }
     // Perform the action
     Worklist r =
-        handler.performWorkflowAction(project, worklist, getUser(userName), role, action, this);
+        handler.performWorkflowAction(project, worklist, getUser(userName),
+            role, action, this);
     return r;
   }
 }
