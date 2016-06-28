@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.services;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.persistence.Column;
 import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
 
@@ -3002,71 +3000,64 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (isMolecularActionFlag()) {
       final MolecularAction molecularAction = getMolecularAction();
 
-      final T oldComponent =
-          getComponent(newComponent.getId(), (Class<T>) newComponent.getClass());
+      final T oldComponent = getComponent(newComponent.getId(),
+          (Class<T>) newComponent.getClass());           
+      
+      // Create an atomic action when old value is different from new value.      
+      
+      List<Method> allClassMethods = IndexUtility.getAllAccessorMethods(oldComponent.getClass());
+      
 
-      final Set<String> excludedFields = new HashSet<>();
-      excludedFields.add("id");
-      excludedFields.add("timestamp");
-      excludedFields.add("lastModified");
-      excludedFields.add("lastModifiedBy");
-      excludedFields.add("terminology");
-      excludedFields.add("branch");
-      excludedFields.add("branchedTo");
-
-      // for every non-excluded field, create an atomic action when
-      // old value is different from new value.
-
-      // TODO - getAllFields should cache results//
-
-      for (final Field field : IndexUtility.getAllFields(oldComponent
-          .getClass())) {
-
-        if (excludedFields.contains(field.getName())) {
-          continue;
-        }
-        if (!field.isAnnotationPresent(Column.class)) {
-          continue;
-        }
-
-        String oldValue = "";
-        String newValue = "";
-
-        // Try get frist - find a getXXX method that takes no parameters
-        try {
-          final String accessorName1 =
-              "get" + field.getName().substring(0, 1).toUpperCase()
-                  + field.getName().substring(1);
-          final Method getMethod =
-              oldComponent.getClass().getMethod(accessorName1,
-                  new Class<?>[] {});
-          if (getMethod != null) {
-            oldValue =
-                getMethod.invoke(oldComponent, new Object[] {}).toString();
-            newValue =
-                getMethod.invoke(newComponent, new Object[] {}).toString();
-          }
-        } catch (Exception e) {
-          // Otherwise, it's is - find an isXXX method that takes no parameters
-          final String accessorName2 =
-              "is" + field.getName().substring(0, 1).toUpperCase()
-                  + field.getName().substring(1);
-          final Method isMethod =
-              oldComponent.getClass().getMethod(accessorName2,
-                  new Class<?>[] {});
-          if (isMethod != null) {
-            oldValue =
-                isMethod.invoke(oldComponent, new Object[] {}).toString();
-            newValue =
-                isMethod.invoke(newComponent, new Object[] {}).toString();
-          }
-        }
+//      for (final Field field : IndexUtility
+//          .getAllFields(oldComponent.getClass())) {
+//
+//        if (excludedFields.contains(field.getName())) {
+//          continue;
+//        }
+//        if (!field.isAnnotationPresent(Column.class)) {
+//          continue;
+//        }
+//
+//        // Try get frist - find a getXXX method that takes no parameters
+//        try {
+//          final String accessorName1 =
+//              "get" + field.getName().substring(0, 1).toUpperCase()
+//                  + field.getName().substring(1);
+//          final Method getMethod = oldComponent.getClass()
+//              .getMethod(accessorName1, new Class<?>[] {});
+//          if (getMethod != null) {
+//            oldValue =
+//                getMethod.invoke(oldComponent, new Object[] {}).toString();
+//            newValue =
+//                getMethod.invoke(newComponent, new Object[] {}).toString();
+//          }
+//        } catch (Exception e) {
+//          // Otherwise, it's is - find an isXXX method that takes no parameters
+//          final String accessorName2 =
+//              "is" + field.getName().substring(0, 1).toUpperCase()
+//                  + field.getName().substring(1);
+//          final Method isMethod = oldComponent.getClass()
+//              .getMethod(accessorName2, new Class<?>[] {});
+//          if (isMethod != null) {
+//            oldValue =
+//                isMethod.invoke(oldComponent, new Object[] {}).toString();
+//            newValue =
+//                isMethod.invoke(newComponent, new Object[] {}).toString();
+//          }
+//        }
+        
+      for(Method m : allClassMethods){
+        if (m == null) {continue;}
+        
+        final String oldValue = m.invoke(oldComponent, new Object[] {}).toString();
+        final String newValue = m.invoke(newComponent, new Object[] {}).toString();
+        
         if (!oldValue.equals(newValue)) {
 
           // construct the atomic action
 
           final AtomicAction atomicAction = new AtomicActionJpa();
-          atomicAction.setField(field.getName());
+          atomicAction.setField(IndexUtility.getFieldNameFromMethod(m, null));
           atomicAction.setIdType(IdType.getIdType(oldComponent));
           atomicAction.setMolecularAction(molecularAction);
           atomicAction.setOldValue(oldValue);

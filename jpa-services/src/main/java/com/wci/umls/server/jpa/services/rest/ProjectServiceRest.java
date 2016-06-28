@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -155,10 +155,21 @@ public interface ProjectServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Gets the log.
+   * Returns the log.
    *
    * @param projectId the project id
    * @param objectId the object id
+   * @param lines the lines
+   * @param authToken the auth token
+   * @return the log
+   * @throws Exception the exception
+   */
+  public String getLog(Long projectId, Long objectId, int lines,
+    String authToken) throws Exception;
+
+  /**
+   * Returns the log.
+   *
    * @param terminology the terminology
    * @param version the version
    * @param activity the activity
@@ -167,10 +178,8 @@ public interface ProjectServiceRest {
    * @return the log
    * @throws Exception the exception
    */
-  public String getLog(Long projectId, Long objectId, String terminology,
-    String version, String activity, int lines, String authToken)
-    throws Exception;
-  
+  public String getLog(String terminology, String version, String activity,
+    int lines, String authToken) throws Exception;
 
   /**
    * Validates the specified concept. Checks are defined the "run.config.umls"
@@ -182,8 +191,8 @@ public interface ProjectServiceRest {
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateConcept(Long projectId, ConceptJpa concept, String authToken)
-    throws Exception;
+  public ValidationResult validateConcept(Long projectId, ConceptJpa concept,
+    String authToken) throws Exception;
 
   /**
    * Validate atom.
@@ -194,8 +203,8 @@ public interface ProjectServiceRest {
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateAtom(Long projectId, AtomJpa atom, String authToken)
-    throws Exception;
+  public ValidationResult validateAtom(Long projectId, AtomJpa atom,
+    String authToken) throws Exception;
 
   /**
    * Validate descriptor.
@@ -206,8 +215,8 @@ public interface ProjectServiceRest {
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateDescriptor(Long projectId, DescriptorJpa descriptor,
-    String authToken) throws Exception;
+  public ValidationResult validateDescriptor(Long projectId,
+    DescriptorJpa descriptor, String authToken) throws Exception;
 
   /**
    * Validate code.
@@ -218,8 +227,8 @@ public interface ProjectServiceRest {
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateCode(Long projectId, CodeJpa code, String authToken)
-    throws Exception;
+  public ValidationResult validateCode(Long projectId, CodeJpa code,
+    String authToken) throws Exception;
 
   /**
    * Validate merge.
@@ -233,8 +242,9 @@ public interface ProjectServiceRest {
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateMerge(Long projectId, String terminology, String version,
-    String cui1, String cui2, String authToken) throws Exception;
+  public ValidationResult validateMerge(Long projectId, String terminology,
+    String version, String cui1, String cui2, String authToken)
+    throws Exception;
 
   /**
    * Gets the validation checks.

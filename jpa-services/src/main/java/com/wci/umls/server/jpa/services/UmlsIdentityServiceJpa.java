@@ -40,20 +40,22 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get next attribute id");
 
-    Long attId = null;
-    Long styId = null;
+    Long attId = 1L;
+    Long styId = 1L;
     try {
       final javax.persistence.Query query =
-          manager.createQuery("select max(a.id) from AttributeIdentity a ");
-      attId = (Long) query.getSingleResult();
+          manager.createQuery("select max(a.id) from AttributeIdentityJpa a ");
+      Long attId2 = (Long) query.getSingleResult();
+      attId = attId2!=null?attId2:attId;
     } catch (NoResultException e) {
       attId = 1L;
     }
     try {
       final javax.persistence.Query query =
           manager
-              .createQuery("select max(a.id) from SemanticTypeComponentIdentity a ");
-      styId = (Long) query.getSingleResult();
+              .createQuery("select max(a.id) from SemanticTypeComponentIdentityJpa a ");
+      Long styId2 = (Long) query.getSingleResult();
+      styId = styId2!=null?styId2:styId;
     } catch (NoResultException e) {
       styId = 1L;
     }
@@ -70,11 +72,13 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
 
     try {
       final javax.persistence.Query query =
-          manager.createQuery("select a from AttributeIdentity a "
+          manager.createQuery("select a from AttributeIdentityJpa a "
               + "where terminology = :terminology "
-              + "and terminologyId = :terminologyId" + "and ownerId = :ownerId"
-              + "and ownerType = :ownerType"
-              + "and ownerQualifier = :ownerQualifier" + "and name = :name"
+              + "and terminologyId = :terminologyId " 
+              + "and ownerId = :ownerId "
+              + "and ownerType = :ownerType "
+              + "and ownerQualifier = :ownerQualifier " 
+              + "and name = :name "
               + "and hashcode = :hashcode");
       query.setParameter("terminology", identity.getTerminology());
       query.setParameter("terminologyId", identity.getTerminologyId());
@@ -150,7 +154,7 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     try {
       final javax.persistence.Query query =
           manager
-              .createQuery("select max(a.id) from SemanticTypeComponentIdentity a ");
+              .createQuery("select max(a.id) from SemanticTypeComponentIdentityJpa a ");
       styId = (Long) query.getSingleResult();
     } catch (NoResultException e) {
       styId = 1L;
@@ -169,7 +173,7 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
 
     try {
       final javax.persistence.Query query =
-          manager.createQuery("select a from SemanticTypeComponentIdentity a "
+          manager.createQuery("select a from SemanticTypeComponentIdentityJpa a "
               + "where terminology = :terminology "
               + "and conceptTerminologyId = :conceptTerminologyId"
               + "and semanticType = :semanticType");

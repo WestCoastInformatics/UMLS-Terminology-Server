@@ -556,27 +556,23 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   public String getLog(
     @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Object id, e.g. 5", required = false) @QueryParam("objectId") Long objectId,
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
-    @ApiParam(value = "Activity, e.g. EDITING", required = false) @QueryParam("activity") String activity,
-    @ApiParam(value = "Lines, e.g. 5", required = false) @QueryParam("lines") int lines,
+    @ApiParam(value = "Object id, e.g. 5", required = true) @QueryParam("objectId") Long objectId,
+    @ApiParam(value = "Lines, e.g. 5", required = true) @QueryParam("lines") int lines,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Project): /log/" + projectId + ", " + objectId
-            + ", " + terminology + ", " + version + ", " + activity + ", "
-            + lines);
+            + ", " + lines);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeProject(projectService, projectId, securityService, authToken,
           "get log entries", UserRole.AUTHOR);
 
-      // Precondition checking -- must have terminology/version OR projectId set
-      if (projectId == null && terminology == null && version == null) {
+      // Precondition checking -- must have projectId and objectId set
+      if (projectId == null || objectId == null) {
         throw new LocalException(
-            "Project id or terminology/version must be set");
+            "Project id and Object id must be set");
       }
 
       PfsParameter pfs = new PfsParameterJpa();
@@ -587,21 +583,86 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
       String query = "";
 
-      // at least one of projectId or terminology/version must be set
+      // projectId and objectId must be set
       if (projectId != null) {
         query += "projectId:" + projectId;
       }
+      if (objectId != null) {
+        query += " AND objectId:" + objectId;
+      }
+      
+      if (query.isEmpty()) {
+        throw new Exception("Must specify at least one parameter for querying log entries");
+      }
+
+      final List<LogEntry> entries =
+          projectService.findLogEntriesForQuery(query, pfs);
+
+      StringBuilder log = new StringBuilder();
+      for (int i = entries.size() - 1; i >= 0; i--) {
+        final LogEntry entry = entries.get(i);
+        final StringBuilder message = new StringBuilder();
+        message.append("[").append(
+            ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
+        message.append("] ");
+        message.append(entry.getLastModifiedBy()).append(" ");
+        message.append(entry.getMessage()).append("\n");
+        log.append(message);
+      }
+
+      return log.toString();
+
+    } catch (Exception e) {
+      handleException(e, "trying to get log");
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @GET
+  @Path("/log/{activity}")
+  @Produces("text/plain")
+  @ApiOperation(value = "Get log entries", notes = "Returns log entries for specified query parameters", response = String.class)
+  @Override
+  public String getLog(
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Activity, e.g. EDITING", required = true) @PathParam("activity") String activity,
+    @ApiParam(value = "Lines, e.g. 5", required = true) @QueryParam("lines") int lines,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Terminology): /log/" + terminology + ", " + version + ", " + activity + ", "
+            + lines);
+
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {  
+      authorizeApp(securityService, authToken,"get log entries", UserRole.VIEWER);
+
+      // Precondition checking -- must have terminology version AND activity set
+      if (terminology == null || version == null || activity == null) {
+        throw new LocalException(
+            "Terminology/version and activity must be set");
+      }
+
+      PfsParameter pfs = new PfsParameterJpa();
+      pfs.setStartIndex(0);
+      pfs.setMaxResults(lines);
+      pfs.setAscending(false);
+      pfs.setSortField("lastModified");
+
+      String query = "";
+
+      // Terminology/version and activity must be set
       if (terminology != null) {
         query +=
             (query.length() == 0 ? "" : " AND ") + "terminology:" + terminology;
       }
       if (version != null) {
         query += (query.length() == 0 ? "" : " AND ") + "version:" + version;
-      }
-
-      // optional parameters
-      if (objectId != null) {
-        query += " AND objectId:" + objectId;
       }
       if (activity != null) {
         query += " AND activity:" + activity;
@@ -635,8 +696,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
     return null;
-  }
-
+  }  
+  
 
   /* see superclass */
   @Override

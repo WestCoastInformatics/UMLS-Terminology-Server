@@ -37,8 +37,8 @@ import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 /**
  * A client for connecting to a project REST service.
  */
-public class ProjectClientRest extends RootClientRest implements
-    ProjectServiceRest {
+public class ProjectClientRest extends RootClientRest
+    implements ProjectServiceRest {
 
   /** The config. */
   private Properties config = null;
@@ -62,12 +62,10 @@ public class ProjectClientRest extends RootClientRest implements
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/add");
 
-    String projectString =
-        ConfigUtility.getStringForGraph(project == null ? new ProjectJpa()
-            : project);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(projectString));
+    String projectString = ConfigUtility
+        .getStringForGraph(project == null ? new ProjectJpa() : project);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(projectString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -86,18 +84,16 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public void updateProject(ProjectJpa project, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Client - update project " + project);
+    Logger.getLogger(getClass())
+        .debug("Project Client - update project " + project);
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/update");
 
-    String projectString =
-        ConfigUtility.getStringForGraph(project == null ? new ProjectJpa()
-            : project);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(projectString));
+    String projectString = ConfigUtility
+        .getStringForGraph(project == null ? new ProjectJpa() : project);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(projectString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing, successful
@@ -117,9 +113,8 @@ public class ProjectClientRest extends RootClientRest implements
     if (id == null)
       return;
 
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing, successful
@@ -136,9 +131,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/" + id);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -159,9 +153,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/all");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -180,21 +173,19 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public Project assignUserToProject(Long projectId, String userName,
     String role, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Client - assign user to project " + projectId + ", "
+    Logger.getLogger(getClass())
+        .debug("Project Client - assign user to project " + projectId + ", "
             + userName + ", " + role);
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(userName, "userName");
     validateNotEmpty(role, "role");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/assign?projectId=" + projectId + "&userName="
-            + userName + "&role=" + role);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/project/assign?projectId="
+            + projectId + "&userName=" + userName + "&role=" + role);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -214,20 +205,17 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public Project unassignUserFromProject(Long projectId, String userName,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Client - assign user to project " + projectId + ", "
+    Logger.getLogger(getClass())
+        .debug("Project Client - assign user to project " + projectId + ", "
             + userName);
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(userName, "userName");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/unassign?projectId=" + projectId + "&userName="
-            + userName);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/unassign?projectId=" + projectId + "&userName=" + userName);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -251,9 +239,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/roles");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -276,19 +263,14 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(query, "query");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/users/"
-            + projectId
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/project/users/" + projectId
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -311,20 +293,14 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(query, "query");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/users/"
-            + projectId
-            + "/unassigned"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/users/" + projectId + "/unassigned" + "?query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -346,9 +322,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/user/anyrole");
-    Response response =
-        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
-            .get();
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -369,17 +344,13 @@ public class ProjectClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/projects"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+        client.target(config.getProperty("base.url") + "/project/projects"
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -396,20 +367,20 @@ public class ProjectClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public String getLog(Long projectId, Long objectId, String terminology,
-    String version, String activity, int lines, String authToken)
+  public String getLog(Long projectId, Long objectId, int lines, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - get log");
 
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(objectId, "object");
+    validateNotEmpty(authToken, "Authorization");
+
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/log?"
-            + "projectId=" + projectId + "&terminology=" + terminology
-            + "&version=" + version + "&activity=" + activity + "&objectId="
-            + objectId + "&lines=" + lines);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/project/log?" + "projectId="
+            + projectId + "&objectId=" + objectId + "&lines=" + lines);
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -425,18 +396,47 @@ public class ProjectClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public ValidationResult validateConcept(Long projectId, ConceptJpa c, String authToken)
+  public String getLog(String terminology,
+    String version, String activity, int lines, String authToken)
     throws Exception {
+    Logger.getLogger(getClass()).debug("Project Client - get log");
+
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    validateNotEmpty(activity, "activity");
+    validateNotEmpty(authToken, "Authorization");
+
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/concept?projectId = " + projectId);
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/project/log/" + activity + "?" + "terminology=" + terminology + "&version=" + version + "&lines=" + lines);
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return resultString;
+
+  }  
+  
+  /* see superclass */
+  @Override
+  public ValidationResult validateConcept(Long projectId, ConceptJpa c,
+    String authToken) throws Exception {
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/validation/concept?projectId = " + projectId);
 
     String conceptString =
         (c != null ? ConfigUtility.getStringForGraph(c) : null);
     Logger.getLogger(getClass()).info(conceptString);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(conceptString));
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(conceptString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -446,26 +446,24 @@ public class ProjectClientRest extends RootClientRest implements
     }
 
     // converting to object
-    final ValidationResult result =
-        ConfigUtility
-    .getGraphForString(resultString, ValidationResultJpa.class);
+    final ValidationResult result = ConfigUtility
+        .getGraphForString(resultString, ValidationResultJpa.class);
     return result;
   }
 
   /* see superclass */
   @Override
-  public ValidationResult validateAtom(Long projectId, AtomJpa atom, String authToken)
-    throws Exception {
+  public ValidationResult validateAtom(Long projectId, AtomJpa atom,
+    String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/aui?projectId=" + projectId);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/validation/aui?projectId=" + projectId);
 
     String atomString =
         (atom != null ? ConfigUtility.getStringForGraph(atom) : null);
     Logger.getLogger(getClass()).info(atomString);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(atomString));
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(atomString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -475,57 +473,51 @@ public class ProjectClientRest extends RootClientRest implements
     }
 
     // converting to object
-    ValidationResult result =
-        ConfigUtility
-            .getGraphForString(resultString, ValidationResultJpa.class);
+    ValidationResult result = ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
     return result;
   }
 
   /* see superclass */
   @Override
-  public ValidationResult validateDescriptor(Long projectId, DescriptorJpa descriptor,
+  public ValidationResult validateDescriptor(Long projectId,
+    DescriptorJpa descriptor, String authToken) throws Exception {
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/validation/descriptor?projectId=" + projectId);
+
+    String descriptorString = (descriptor != null
+        ? ConfigUtility.getStringForGraph(descriptor) : null);
+    Logger.getLogger(getClass()).info(descriptorString);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(descriptorString));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    ValidationResult result = ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateCode(Long projectId, CodeJpa code,
     String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/descriptor?projectId=" + projectId);
-
-    String descriptorString =
-        (descriptor != null ? ConfigUtility.getStringForGraph(descriptor)
-            : null);
-    Logger.getLogger(getClass()).info(descriptorString);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .put(Entity.xml(descriptorString));
-
-    String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
-    } else {
-      throw new Exception(resultString);
-    }
-
-    // converting to object
-    ValidationResult result =
-        ConfigUtility
-            .getGraphForString(resultString, ValidationResultJpa.class);
-    return result;
-  }
-
-  /* see superclass */
-  @Override
-  public ValidationResult validateCode(Long projectId, CodeJpa code, String authToken)
-    throws Exception {
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/validation/code?projectId=" + projectId);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/validation/code?projectId=" + projectId);
 
     String codeString =
         (code != null ? ConfigUtility.getStringForGraph(code) : null);
     Logger.getLogger(getClass()).info(codeString);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(codeString));
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(codeString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -535,24 +527,23 @@ public class ProjectClientRest extends RootClientRest implements
     }
 
     // converting to object
-    ValidationResult result =
-        ConfigUtility
-            .getGraphForString(resultString, ValidationResultJpa.class);
+    ValidationResult result = ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
     return result;
   }
 
   @Override
-  public ValidationResult validateMerge(Long projectId, String terminology, String version,
-    String cui1, String cui2, String authToken) throws Exception {
+  public ValidationResult validateMerge(Long projectId, String terminology,
+    String version, String cui1, String cui2, String authToken)
+    throws Exception {
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/validate/concept/merge/"
-            + terminology + "/" + version + "/" + cui1 + "/" + cui2+ "?projectId=" + projectId);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/validate/concept/merge/" + terminology + "/" + version + "/" + cui1
+        + "/" + cui2 + "?projectId=" + projectId);
 
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -562,9 +553,8 @@ public class ProjectClientRest extends RootClientRest implements
     }
 
     // converting to object
-    ValidationResult result =
-        ConfigUtility
-            .getGraphForString(resultString, ValidationResultJpa.class);
+    ValidationResult result = ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
     return result;
   }
 
@@ -572,12 +562,11 @@ public class ProjectClientRest extends RootClientRest implements
   public KeyValuePairList getValidationChecks(Long projectId, String authToken)
     throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/checks?projectId=" + projectId);
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/checks?projectId=" + projectId);
 
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
