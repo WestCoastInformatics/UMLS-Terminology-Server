@@ -20,12 +20,15 @@ import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
+import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
@@ -238,7 +241,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bins?projectId=" + projectId);
+            + "/workflow/bins/regenerate?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).post(Entity.json(type));
@@ -524,7 +527,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/clear?projectId=" + projectId);
+            + "/workflow/bins/clear?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).post(Entity.json(type));
@@ -541,8 +544,66 @@ public class WorkflowClientRest extends RootClientRest implements
   public Checklist createChecklist(Long projectId, Long workflowBinId,
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+
+      Logger.getLogger(getClass()).debug(
+          "Workflow Client - create checklist" + projectId + ", " + workflowBinId + ", "
+              + name + ", " + randomize + ", " + excludeOnWorklist + ", " + query + ", " + authToken);
+
+      validateNotEmpty(projectId, "projectId");
+
+      final Client client = ClientBuilder.newClient();
+      final WebTarget target =
+          client.target(config.getProperty("base.url")
+              + "/workflow/checklist?projectId=" + projectId + "&workflowBinId=" + workflowBinId +
+              "&name=" + name +  (randomize != null ? ("&randomize=" + randomize)
+                  : "") + (excludeOnWorklist != null ? ("&excludeOnWorklist=" + excludeOnWorklist)
+                      : "")
+              + "&query=" + query);
+      final Response response =
+          target.request(MediaType.APPLICATION_XML)
+              .header("Authorization", authToken).post(Entity.json(pfs));
+
+      final String resultString = response.readEntity(String.class);
+      if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+        // n/a
+      } else {
+        throw new Exception(resultString);
+      }
+
+      // converting to object
+      return ConfigUtility
+          .getGraphForString(resultString, ChecklistJpa.class);
+    }
+
+  /* see superclass */
+  @Override
+  public WorkflowBinList findWorkflowBinsForQuery(String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find workflow bins for query - "  + query);
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/bins"
+            + "?query=" + query);
+    final String pfsStr =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility
+        .getGraphForString(resultString, WorkflowBinListJpa.class);
   }
+
 
 }
