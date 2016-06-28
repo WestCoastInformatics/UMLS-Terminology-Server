@@ -8,12 +8,15 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
@@ -107,7 +110,8 @@ public class MetaEditingServiceRestNormalUseTest
     //
     // Prepare the test and check prerequisites
     //
-    Date startDate = new Date();
+    // Due to MySQL rounding to the second, we must also round our comparison startDate.
+    Date startDate = DateUtils.round(new Date(),Calendar.SECOND);
 
     // get the concept
     Concept c =
@@ -125,6 +129,7 @@ public class MetaEditingServiceRestNormalUseTest
     semanticType.setTerminology(umlsTerminology);
     semanticType.setVersion(umlsVersion);
     semanticType.setTimestamp(new Date());
+    semanticType.setPublishable(true);     
 
     //
     // Test addition
@@ -167,25 +172,96 @@ public class MetaEditingServiceRestNormalUseTest
 
     List<AtomicAction> atomicActions = contentService
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
-    assertEquals(atomicActions.size(), 2);
-    assertEquals(atomicActions.get(0).getIdType().toString(), "CONCEPT");
+    assertEquals(2, atomicActions.size());
+    assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
     assertNotNull(atomicActions.get(0).getNewValue());
-    assertEquals(atomicActions.get(1).getIdType().toString(), "SEMANTIC_TYPE");
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(1).getIdType().toString());
     assertNull(atomicActions.get(1).getOldValue());
     assertNotNull(atomicActions.get(1).getNewValue());
 
     // Verify the log entry exists
-    String logEntry = projectService.getLog(project.getId(), c.getId(),
-        1, authToken);   
+    String logEntry =
+        projectService.getLog(project.getId(), c.getId(), 1, authToken);
     assertTrue(logEntry
         .contains("ADD_SEMANTIC_TYPE " + semanticType.getSemanticType()));
 
+    
+    //
+    // Add second semantic type
+    //    
+    
+    // Due to MySQL rounding to the second, we must also round our comparison startDate.
+    startDate = DateUtils.round(new Date(),Calendar.SECOND);
+   
+    
+    // construct a second semantic type not present on concept (here, Enzyme)
+    SemanticTypeComponentJpa semanticType2 = new SemanticTypeComponentJpa();
+    semanticType2.setBranch(Branch.ROOT);
+    semanticType2.setSemanticType("Enzyme");
+    semanticType2.setTerminologyId("TestId");
+    semanticType2.setTerminology(umlsTerminology);
+    semanticType2.setVersion(umlsVersion);
+    semanticType2.setTimestamp(new Date()); 
+    semanticType2.setPublishable(true);       
+    
+    // add the second semantic type to the concept
+    v =
+        metaEditingService.addSemanticType(project.getId(), c.getId(),
+            c.getLastModified().getTime(), semanticType2, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    // retrieve the concept and check semantic types
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);  
+    
+    semanticType = null;
+    semanticType2 = null;
+    for (SemanticTypeComponent s : c.getSemanticTypes()) {
+      if (s.getSemanticType().equals("Lipid")) {
+        semanticType = (SemanticTypeComponentJpa) s;
+      }      if (s.getSemanticType().equals("Enzyme")) {
+        semanticType2 = (SemanticTypeComponentJpa) s;
+      }
+    }
+    assertNotNull(semanticType);
+    assertNotNull(semanticType2);
+
+    // verify the molecular action exists
+    pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    list = contentService
+        .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+    assertTrue(list.getCount() > 0);
+    ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Verify that ONE atomic actions exists for add Semantic Type (Concept Workflow Status was already set during previous addition)
+    pfs.setSortField("idType");
+    pfs.setAscending(true);
+
+    atomicActions = contentService
+        .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
+    assertEquals(1, atomicActions.size());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(0).getIdType().toString());
+    assertNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+
+    // Verify the log entry exists
+    logEntry =
+        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry
+        .contains("ADD_SEMANTIC_TYPE " + semanticType2.getSemanticType()));    
+    
     //
     // Test removal
     //
 
-    // remove the semantic type from the concept
+    // remove the first semantic type from the concept
     v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
         c.getLastModified().getTime(), semanticType.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
@@ -216,7 +292,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify that one atomic action exists for remove Semantic Type
     pfs.setAscending(true);
-    
+
     atomicActions = contentService
         .findAtomicActions(ma.getId(), null, null, authToken).getObjects();
     assertEquals(atomicActions.size(), 1);
@@ -224,18 +300,26 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(atomicActions.get(0).getOldValue());
     assertNull(atomicActions.get(0).getNewValue());
 
-
-//    for (AtomicAction a : contentService
-//        .findAtomicActions(ma.getId(), null, null, authToken).getObjects()) {
-//      Logger.getLogger(getClass())
-//          .info("TEST - Included atomic action: " + a.toString());
-//    }
-
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(),
-        1, authToken);   
+    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
     assertTrue(logEntry
-        .contains("REMOVE_SEMANTIC_TYPE " + semanticType.getSemanticType())); 
+        .contains("REMOVE_SEMANTIC_TYPE " + semanticType.getSemanticType()));
+
+    // remove the second semantic type from the concept (assume verification of MA, atomic actions, and log entry since we just tested those)
+    v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
+        c.getLastModified().getTime(), semanticType2.getId(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    
+    // retrieve the concept and check attributes
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);    
+ 
+    boolean semanticType2Present = false;
+    for (SemanticTypeComponent s : c.getSemanticTypes()) {
+      if (s.getSemanticType().equals("Enzyme")) {
+        semanticType2Present = true;
+      }
+    }
+    assertTrue(!semanticType2Present);    
     
   }
 
@@ -255,7 +339,8 @@ public class MetaEditingServiceRestNormalUseTest
     //
     // Prepare the test and check prerequisites
     //
-    Date startDate = new Date();
+    // Due to MySQL rounding to the second, we must also round our comparison startDate.
+    Date startDate = DateUtils.round(new Date(),Calendar.SECOND);
 
     // get the concept
     Concept c =
@@ -284,7 +369,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // retrieve the concept and check attributes
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
-    
+
     attribute = null;
     for (Attribute s : c.getAttributes()) {
       if (s.getName().equals("UMLSRELA")) {
@@ -292,7 +377,11 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertNotNull(attribute);
-
+    
+    // verify that alternate ID was created and is correctly formed.
+    assertNotNull(attribute.getAlternateTerminologyIds().get(umlsTerminology));
+    assertTrue(attribute.getAlternateTerminologyIds().get(umlsTerminology).startsWith("AT"));
+    
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
@@ -304,44 +393,126 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(ma);
     assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
 
     // Verify that two atomic actions exists for add attribute, and update
     // Concept WorkflowStatus
 
     pfs.setSortField("idType");
-    pfs.setAscending(true);    
+    pfs.setAscending(true);
 
     List<AtomicAction> atomicActions = contentService
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
-    assertEquals(atomicActions.size(), 2);
-    assertEquals(atomicActions.get(0).getIdType().toString(), "ATTRIBUTE");
+    assertEquals(2, atomicActions.size());
+    assertEquals("ATTRIBUTE", atomicActions.get(0).getIdType().toString());
     assertNull(atomicActions.get(0).getOldValue());
     assertNotNull(atomicActions.get(0).getNewValue());
     assertEquals(atomicActions.get(1).getIdType().toString(), "CONCEPT");
     assertNotNull(atomicActions.get(1).getOldValue());
     assertNotNull(atomicActions.get(1).getNewValue());
-    
-    // Verify the log entry exists
-    String logEntry = projectService.getLog(project.getId(), c.getId(),
-        1, authToken);       
-    assertTrue(logEntry
-        .contains("ADD_ATTRIBUTE " + attribute.getName()));    
 
+    // Verify the log entry exists
+    String logEntry =
+        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry.contains("ADD_ATTRIBUTE " + attribute.getName()));
+    
+    
+    //
+    // Add second attribute (also ensures alternateTerminologyId increments correctly)
+    //    
+    
+    // Due to MySQL rounding to the second, we must also round our comparison startDate.
+    startDate = DateUtils.round(new Date(),Calendar.SECOND);
+
+    
+    // construct a second attribute not present on concept (here, UMLSRELA with Value of VALUE2)
+    AttributeJpa attribute2 = new AttributeJpa();
+    attribute2.setBranch(Branch.ROOT);
+    attribute2.setName("UMLSRELA");
+    attribute2.setValue("VALUE2");
+    attribute2.setTerminologyId("TestId");
+    attribute2.setTerminology(umlsTerminology);
+    attribute2.setVersion(umlsVersion);
+    attribute2.setTimestamp(new Date());
+    attribute2.setPublishable(true);
+    
+    //
+    // add the second attribute to the concept
+    //
+
+    // add the attribute to the concept
+    v = metaEditingService.addAttribute(project.getId(),
+        c.getId(), c.getLastModified().getTime(), attribute2, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    
+    // retrieve the concept and check to make sure both attributes are still there
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+        
+    attribute = null;
+    attribute2 = null;
+   for (Attribute s : c.getAttributes()) {
+      if (s.getName().equals("UMLSRELA") && s.getValue().equals("VALUE")) {
+        attribute = (AttributeJpa) s;
+      }      
+      if (s.getName().equals("UMLSRELA") && s.getValue().equals("VALUE2")) {
+        attribute2 = (AttributeJpa) s;
+      }
+    }
+    assertNotNull(attribute);    
+    assertNotNull(attribute2);    
+   
+    
+    // verify that alternate ID was created and is correctly formed.
+    assertNotNull(attribute2.getAlternateTerminologyIds().get(umlsTerminology));
+    assertTrue(attribute2.getAlternateTerminologyIds().get(umlsTerminology).startsWith("AT"));
+    
+    // verify that attribute2's alternate ID is different from the first one
+    assertNotSame(attribute.getAlternateTerminologyIds().get(umlsTerminology), attribute2.getAlternateTerminologyIds().get(umlsTerminology));
+
+    // verify the molecular action exists
+    pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    list = contentService
+        .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+    assertTrue(list.getCount() > 0);
+    ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());    
+    
+    // Verify that ONE atomic actions exists for add attribute (Concept Workflow Status was already set during previous addition)
+    pfs.setSortField("idType");
+    pfs.setAscending(true);
+
+    atomicActions = contentService
+        .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
+    assertEquals(1, atomicActions.size());
+    assertEquals("ATTRIBUTE", atomicActions.get(0).getIdType().toString());
+    assertNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+
+    // Verify the log entry exists
+    logEntry =
+        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry
+        .contains("ADD_ATTRIBUTE " + attribute2.getName()));       
+    
     //
     // Test removal
-    //
-
-    // remove the attribute from the concept
+    //  
+    
+    // remove the first attribute from the concept
     v = metaEditingService.removeAttribute(project.getId(), c.getId(),
         c.getLastModified().getTime(), attribute.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
-
-    // retrieve the concept and check attributes
-    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);    
     
     boolean attributePresent = false;
     for (Attribute a : c.getAttributes()) {
-      if (a.getName().equals("UMLSRELA")) {
+      if (a.getName().equals("UMLSRELA") && a.getValue().equals("VALUE")) {
         attributePresent = true;
       }
     }
@@ -362,7 +533,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify that one atomic action exists for remove Attribute
     pfs.setAscending(true);
-    
+
     atomicActions = contentService
         .findAtomicActions(ma.getId(), null, null, authToken).getObjects();
     assertEquals(atomicActions.size(), 1);
@@ -371,10 +542,25 @@ public class MetaEditingServiceRestNormalUseTest
     assertNull(atomicActions.get(0).getNewValue());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(),
-        1, authToken);   
-    assertTrue(logEntry
-        .contains("REMOVE_ATTRIBUTE " + attribute.getName())); 
+    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry.contains("REMOVE_ATTRIBUTE " + attribute.getName()));
+
+    // remove the second attribute from the concept (assume verification of MA, atomic actions, and log entry since we just tested those)
+    v = metaEditingService.removeAttribute(project.getId(), c.getId(),
+        c.getLastModified().getTime(), attribute2.getId(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());   
+    
+    // retrieve the concept and check attributes
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);    
+    
+    boolean attribute2Present = false;
+    for (Attribute a : c.getAttributes()) {
+      if (a.getName().equals("UMLSRELA") && a.getValue().equals("VALUE2")) {
+        attribute2Present = true;
+      }      
+    }
+    assertTrue(!attribute2Present);
+    
     
   }
 
