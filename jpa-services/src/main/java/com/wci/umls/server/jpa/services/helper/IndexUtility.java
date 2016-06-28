@@ -266,7 +266,8 @@ public class IndexUtility {
   public static String getFieldNameFromMethod(Method m, Field annotationField) {
     // iannotationField annotationFieldield has a speciannotationFieldied name,
     // use that
-    if (annotationField != null && annotationField.name() != null && !annotationField.name().isEmpty())
+    if (annotationField != null && annotationField.name() != null
+        && !annotationField.name().isEmpty())
       return annotationField.name();
 
     // otherwise, assume method name of form getannotationFieldName
@@ -367,15 +368,15 @@ public class IndexUtility {
           allClassMethods.add(getMethod);
         }
       } catch (Exception e) {
-          // Otherwise, use is - find an isXXX method that takes no parameters
-          final String accessorName2 =
-              "is" + field.getName().substring(0, 1).toUpperCase()
-                  + field.getName().substring(1);
-          final Method isMethod =
-              clazz.getMethod(accessorName2, new Class<?>[] {});
-          if (isMethod != null) {
-            allClassMethods.add(isMethod);
-          }
+        // Otherwise, use is - find an isXXX method that takes no parameters
+        final String accessorName2 =
+            "is" + field.getName().substring(0, 1).toUpperCase()
+                + field.getName().substring(1);
+        final Method isMethod =
+            clazz.getMethod(accessorName2, new Class<?>[] {});
+        if (isMethod != null) {
+          allClassMethods.add(isMethod);
+        }
       }
     }
 
