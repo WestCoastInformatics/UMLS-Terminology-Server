@@ -2,6 +2,8 @@ package com.wci.umls.server.jpa.meta;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -42,6 +44,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /** The owner type. */
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)  
   private IdType ownerType;
 
   /** The owner qualifier. */

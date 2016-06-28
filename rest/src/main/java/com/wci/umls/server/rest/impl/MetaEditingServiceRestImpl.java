@@ -371,13 +371,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
 
       // Assign alternateTerminologyId
-      if (attribute.isPublishable()) {
         IdentifierAssignmentHandler handler = contentService
             .getIdentifierAssignmentHandler(concept.getTerminology());
         String altId = handler.getTerminologyId(attribute, concept);
         attribute.getAlternateTerminologyIds().put(concept.getTerminology(),
             altId);
-      }
 
       // set the attribute component last modified
       AttributeJpa newAttribute =

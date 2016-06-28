@@ -271,6 +271,7 @@ public class MetaEditingServiceRestNormalUseTest
     attribute.setTerminology(umlsTerminology);
     attribute.setVersion(umlsVersion);
     attribute.setTimestamp(new Date());
+    attribute.setPublishable(true);
 
     //
     // Test addition

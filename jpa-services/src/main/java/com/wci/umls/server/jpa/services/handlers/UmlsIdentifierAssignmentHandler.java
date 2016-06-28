@@ -107,6 +107,8 @@ public class UmlsIdentifierAssignmentHandler implements
   public String getTerminologyId(Attribute attribute,
     ComponentHasAttributes component) throws Exception {
 
+    if (!attribute.isPublishable()) {return "";}
+    
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
       // Create AttributeIdentity and populate from the attribute.
@@ -125,7 +127,7 @@ public class UmlsIdentifierAssignmentHandler implements
           service.getAttributeIdentity(identity);
 
       // Reuse existing id
-      if (identity2.getId() != null) {
+      if (identity2 != null) {
         return convertId(identity2.getId(), "ATUI");
       }
       // else generate a new one and add it
