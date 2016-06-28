@@ -11,20 +11,6 @@ import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 public interface Attribute extends Component, HasAlternateTerminologyIds {
 
   /**
-   * Returns the name.
-   *
-   * @return the name
-   */
-  public String getName();
-
-  /**
-   * Sets the name.
-   *
-   * @param name the name
-   */
-  public void setName(String name);
-
-  /**
    * Returns the value.
    *
    * @return the value

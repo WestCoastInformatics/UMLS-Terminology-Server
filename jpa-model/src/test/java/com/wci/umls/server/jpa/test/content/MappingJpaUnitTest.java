@@ -110,6 +110,8 @@ public class MappingJpaUnitTest extends ModelUnitSupport {
     tester.exclude("mapSetId");
     tester.exclude("mapSetTerminologyId");
     tester.exclude("mapSet");
+    tester.exclude("type");
+    tester.exclude("name");
     tester.test();
   }
 

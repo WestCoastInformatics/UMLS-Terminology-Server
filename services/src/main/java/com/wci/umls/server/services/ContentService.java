@@ -8,6 +8,7 @@ package com.wci.umls.server.services;
 
 import java.util.Map;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
@@ -52,7 +53,6 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
-import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.ExpressionHandler;
@@ -1244,8 +1244,8 @@ public interface ContentService extends MetadataService {
    * @param component the component
    * @throws Exception the exception
    */
-  public void updateAttribute(Attribute attribute,
-    ComponentHasAttributes component) throws Exception;
+  public void updateAttribute(Attribute attribute, ComponentInfo component)
+    throws Exception;
 
   /**
    * Add attribute.
@@ -1255,8 +1255,8 @@ public interface ContentService extends MetadataService {
    * @return the attribute
    * @throws Exception the exception
    */
-  public Attribute addAttribute(Attribute attribute,
-    ComponentHasAttributes component) throws Exception;
+  public Attribute addAttribute(Attribute attribute, ComponentInfo component)
+    throws Exception;
 
   /**
    * Gets the attribute.
@@ -1826,69 +1826,6 @@ public interface ContentService extends MetadataService {
   public RelationshipList findRelationshipsForComponentInfo(
     String componentInfoId, String terminology, String version, IdType type,
     String branch, String query, boolean inverseFlag, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Gets the attribute identity.
-   *
-   * @param id the id
-   * @return the attribute identity
-   * @throws Exception the exception
-   */
-
-  public AttributeIdentity getAttributeIdentity(Long id) throws Exception;
-
-  /**
-   * Gets the attribute identity.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @return the attribute identity
-   * @throws Exception the exception
-   */
-
-  public AttributeIdentity getAttributeIdentity(String terminologyId,
-    String terminology) throws Exception;
-
-  /**
-   * Gets the attribute identity.
-   *
-   * @param hashCode the hash code
-   * @return the attribute identity
-   * @throws Exception the exception
-   */
-  public AttributeIdentity getAttributeIdentity(String hashCode)
-    throws Exception;
-
-  /**
-   * Add attribute identity.
-   *
-   * @param attributeIdentity the attribute identity
-   * @return the attribute identity
-   * @throws Exception the exception
-   */
-
-  public AttributeIdentity addAttributeIdentity(
-    AttributeIdentity attributeIdentity) throws Exception;
-
-  /**
-   * Update attribute identity.
-   *
-   * @param attributeIdentity the attribute identity
-   * @throws Exception the exception
-   */
-
-  public void updateAttributeIdentity(AttributeIdentity attributeIdentity)
-    throws Exception;
-
-  /**
-   * Remove attribute identity.
-   *
-   * @param attributeIdentityId the attribute identity id
-   * @throws Exception the exception
-   */
-
-  public void removeAttributeIdentity(Long attributeIdentityId)
     throws Exception;
 
 }

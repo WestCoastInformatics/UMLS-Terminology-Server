@@ -103,6 +103,8 @@ public class CodeRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.exclude("toVersion");
     tester.exclude("toTerminologyId");
     tester.exclude("toName");
+    tester.exclude("name");
+    tester.exclude("type");
     tester.test();
   }
 

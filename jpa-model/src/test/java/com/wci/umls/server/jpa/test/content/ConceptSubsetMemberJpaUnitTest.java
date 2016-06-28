@@ -108,6 +108,8 @@ public class ConceptSubsetMemberJpaUnitTest extends ModelUnitSupport {
     tester.exclude("subsetTerminology");
     tester.exclude("subsetVersion");
     tester.exclude("subsetName");
+    tester.exclude("type");
+    tester.exclude("name");
     tester.test();
   }
 

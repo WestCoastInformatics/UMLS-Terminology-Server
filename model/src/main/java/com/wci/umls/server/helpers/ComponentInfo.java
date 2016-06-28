@@ -7,7 +7,7 @@ import com.wci.umls.server.model.meta.IdType;
 /**
  * Represents a pointer to some kind of component.
  */
-public interface ComponentInfo extends HasTerminologyId, HasName, HasId {
+public interface ComponentInfo extends HasTerminologyId, HasId {
 
   /**
    * Returns the timestamp.
@@ -34,6 +34,21 @@ public interface ComponentInfo extends HasTerminologyId, HasName, HasId {
    * Gets the type.
    *
    * @return the type
+   * @throws Exception the exception
    */
-  public IdType getType();
+  public IdType getType() throws Exception;
+
+  /**
+   * Returns the name.
+   *
+   * @return the name
+   */
+  public String getName();
+
+  /**
+   * Sets the name.
+   *
+   * @param name the name
+   */
+  public void setName(String name);
 }

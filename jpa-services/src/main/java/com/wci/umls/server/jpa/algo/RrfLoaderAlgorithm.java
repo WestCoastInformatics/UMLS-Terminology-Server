@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.jpa.algo;
 
+import gnu.trove.strategy.HashingStrategy;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,8 +104,6 @@ import com.wci.umls.server.model.meta.UsageType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.PushBackReader;
-
-import gnu.trove.strategy.HashingStrategy;
 
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
@@ -1719,7 +1719,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
 
     } else if (atn.equals("MAPSETTYPE")) {
-      mapSet.setType(atv);
+      mapSet.setMapType(atv);
     } else if (atn.equals("MAPSETVSAB")) {
       // If really a metathesaurus mapping, use terminology/version
       if (atv.equals(proxySab)) {

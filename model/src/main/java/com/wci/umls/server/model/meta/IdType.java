@@ -14,11 +14,17 @@ public enum IdType {
   /** The code. */
   CODE,
 
-  /** The scui. */
+  /** The concept. */
   CONCEPT,
 
-  /** The sdui. */
+  /** The descriptor. */
   DESCRIPTOR,
+
+  /** The lexical class. */
+  LEXICAL_CLASS,
+
+  /** The string class. */
+  STRING_CLASS,
 
   /** The atom. */
   ATOM,
@@ -37,6 +43,21 @@ public enum IdType {
 
   /** The subset. */
   SUBSET,
+
+  /** The member. */
+  MEMBER,
+
+  /** The map set. */
+  MAP_SET,
+
+  /** The mapping. */
+  MAPPING,
+
+  /** The component history. */
+  COMPONENT_HISTORY,
+
+  /** The general concep axiom. */
+  GENERAL_CONCEP_AXIOM,
 
   /** The definition. */
   DEFINITION;

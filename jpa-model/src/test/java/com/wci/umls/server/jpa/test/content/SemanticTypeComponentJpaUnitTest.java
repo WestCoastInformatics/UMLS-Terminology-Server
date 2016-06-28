@@ -55,6 +55,8 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet");
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("type");
+    tester.exclude("name");
     tester.test();
   }
 

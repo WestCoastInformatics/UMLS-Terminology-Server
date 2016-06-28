@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.services.handlers;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.Atom;
@@ -92,8 +93,8 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @return the string
    * @throws Exception the exception
    */
-  public String getTerminologyId(Attribute attribute,
-    ComponentHasAttributes component) throws Exception;
+  public String getTerminologyId(Attribute attribute, ComponentInfo component)
+    throws Exception;
 
   /**
    * Returns the terminology id.
@@ -149,7 +150,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(Subset subset) throws Exception;
-  
+
   /**
    * Gets the terminology id.
    *
@@ -158,7 +159,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(Mapping mapping) throws Exception;
-  
+
   /**
    * Gets the terminology id.
    *

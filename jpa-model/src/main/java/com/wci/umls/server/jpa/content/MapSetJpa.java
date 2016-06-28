@@ -106,7 +106,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
     complexity = mapSet.getComplexity();
     fromExhaustive = mapSet.getFromExhaustive();
     toExhaustive = mapSet.getToExhaustive();
-    type = mapSet.getType();
+    type = mapSet.getMapType();
     fromTerminology = mapSet.getFromTerminology();
     toTerminology = mapSet.getToTerminology();
     fromVersion = mapSet.getFromVersion();
@@ -185,13 +185,13 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
 
   /* see superclass */
   @Override
-  public void setType(String type) {
+  public void setMapType(String type) {
     this.type = type;
   }
 
   /* see superclass */
   @Override
-  public String getType() {
+  public String getMapType() {
     return type;
   }
 

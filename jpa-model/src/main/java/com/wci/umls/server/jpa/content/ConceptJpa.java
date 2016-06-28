@@ -317,7 +317,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void setType(IdType type) {
     // N/A
-
   }
 
   @Override

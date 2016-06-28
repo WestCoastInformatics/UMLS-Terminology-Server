@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
@@ -31,7 +32,6 @@ import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.AttributeIdentity;
-import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
@@ -104,8 +104,8 @@ public class UmlsIdentifierAssignmentHandler implements
 
   /* see superclass */
   @Override
-  public String getTerminologyId(Attribute attribute,
-    ComponentHasAttributes component) throws Exception {
+  public String getTerminologyId(Attribute attribute, ComponentInfo component)
+    throws Exception {
 
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
@@ -113,11 +113,9 @@ public class UmlsIdentifierAssignmentHandler implements
       final AttributeIdentity identity = new AttributeIdentityJpa();
       identity.setHashCode(ConfigUtility.getMd5(attribute.getValue()));
       identity.setName(attribute.getName());
-      // TODO: may need to support both CUI and "concept id"
-      // TODO: for relationships, need to know the RUI not the SRUI
       identity.setOwnerId(component.getTerminologyId());
       identity.setOwnerQualifier(component.getTerminology());
-      identity.setOwnerType(IdType.getIdType(component));
+      identity.setOwnerType(component.getType());
       identity.setTerminology(attribute.getTerminology());
       identity.setTerminologyId(attribute.getTerminologyId());
 

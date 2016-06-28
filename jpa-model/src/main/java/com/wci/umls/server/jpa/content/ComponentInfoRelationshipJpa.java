@@ -93,9 +93,10 @@ public class ComponentInfoRelationshipJpa extends
    *
    * @param relationship the relationship
    * @param deepCopy the deep copy
+   * @throws Exception the exception
    */
   public ComponentInfoRelationshipJpa(ComponentInfoRelationship relationship,
-      boolean deepCopy) {
+      boolean deepCopy) throws Exception {
     super(relationship, deepCopy);
     fromTerminologyId = relationship.getFrom().getTerminologyId();
     fromTerminology = relationship.getFrom().getTerminology();
@@ -128,7 +129,7 @@ public class ComponentInfoRelationshipJpa extends
 
   /* see superclass */
   @Override
-  public void setFrom(ComponentInfo component) {
+  public void setFrom(ComponentInfo component) throws Exception {
     fromTerminology = component.getTerminology();
     fromVersion = component.getVersion();
     fromType = component.getType();
@@ -249,7 +250,7 @@ public class ComponentInfoRelationshipJpa extends
 
   /* see superclass */
   @Override
-  public void setTo(ComponentInfo component) {
+  public void setTo(ComponentInfo component) throws Exception {
     toTerminology = component.getTerminology();
     toVersion = component.getVersion();
     toType = component.getType();

@@ -15,7 +15,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 public interface Relationship<S extends HasTerminologyId, T extends HasTerminologyId>
     extends ComponentHasAttributes, HasAlternateTerminologyIds {
-  
+
   /**
    * Returns the from.
    *
@@ -27,8 +27,9 @@ public interface Relationship<S extends HasTerminologyId, T extends HasTerminolo
    * Sets the from.
    *
    * @param component the from
+   * @throws Exception the exception
    */
-  public void setFrom(S component);
+  public void setFrom(S component) throws Exception;
 
   /**
    * Returns the to.
@@ -41,8 +42,9 @@ public interface Relationship<S extends HasTerminologyId, T extends HasTerminolo
    * Sets the to.
    *
    * @param component the to
+   * @throws Exception the exception
    */
-  public void setTo(T component);
+  public void setTo(T component) throws Exception;
 
   /**
    * Returns the relationship label.

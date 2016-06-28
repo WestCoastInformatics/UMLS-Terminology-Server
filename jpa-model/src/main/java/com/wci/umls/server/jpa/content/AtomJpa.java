@@ -548,4 +548,5 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   public void setComponentHistory(List<ComponentHistory> componentHistory) {
     this.componentHistories = componentHistory;
   }
+
 }

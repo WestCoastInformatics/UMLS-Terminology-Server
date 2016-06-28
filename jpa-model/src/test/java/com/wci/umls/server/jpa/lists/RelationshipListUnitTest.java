@@ -74,10 +74,12 @@ public class RelationshipListUnitTest
 
   /**
    * Setup.
+   *
+   * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();
     Concept c = new ConceptJpa();
