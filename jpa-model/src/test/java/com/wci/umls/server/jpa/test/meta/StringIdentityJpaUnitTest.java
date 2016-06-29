@@ -59,7 +59,7 @@ public class StringIdentityJpaUnitTest extends ModelUnitSupport {
   }
 
   /**
-   * Test equals and hascode methods.
+   * Test equals and hashcode methods.
    *
    * @throws Exception the exception
    */
@@ -67,11 +67,8 @@ public class StringIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("caseInsensitiveId");
-    tester.include("stringPre");
     tester.include("string");
-    tester.include("lowerStringPre");
-    tester.include("lowerString");
+    tester.include("stringPre");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -114,11 +111,8 @@ public class StringIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("caseInsensitiveId");
     tester.include("stringPre");
     tester.include("string");
-    tester.include("lowerStringPre");
-    tester.include("lowerString");
 
     assertTrue(tester.testNotNullFields());
   }

@@ -21,7 +21,7 @@ import com.wci.umls.server.model.meta.StringIdentity;
  */
 @Entity
 @Table(name = "string_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "stringPre", "lowerStringPre", "id"
+    "stringPre", "id"
 }))
 @XmlRootElement(name = "stringIdentity")
 public class StringIdentityJpa implements StringIdentity {
@@ -30,10 +30,6 @@ public class StringIdentityJpa implements StringIdentity {
   @Id
   private Long id;
 
-  /** The case insensitive id. */
-  @Column(nullable = false)
-  private String caseInsensitiveId;
-
   /** The string pre. */
   @Column(nullable = false)
   private String stringPre;
@@ -41,14 +37,6 @@ public class StringIdentityJpa implements StringIdentity {
   /** The string. */
   @Column(nullable = false, length = 4000)
   private String string;
-
-  /** The lower string pre. */
-  @Column(nullable = false)
-  private String lowerStringPre;
-
-  /** The lower string. */
-  @Column(nullable = false, length = 4000)
-  private String lowerString;
 
   /**
    * Instantiates an empty {@link StringIdentityJpa}.
@@ -147,10 +135,9 @@ public class StringIdentityJpa implements StringIdentity {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + ((caseInsensitiveId == null) ? 0 : caseInsensitiveId.hashCode());
     result = prime * result + ((string == null) ? 0 : string.hashCode());
-
+    result =
+        prime * result + ((stringPre == null) ? 0 : stringPre.hashCode());
     return result;
   }
 
@@ -170,11 +157,6 @@ public class StringIdentityJpa implements StringIdentity {
     if (getClass() != obj.getClass())
       return false;
     StringIdentityJpa other = (StringIdentityJpa) obj;
-    if (caseInsensitiveId == null) {
-      if (other.caseInsensitiveId != null)
-        return false;
-    } else if (!caseInsensitiveId.equals(other.caseInsensitiveId))
-      return false;
     if (stringPre == null) {
       if (other.stringPre != null)
         return false;
@@ -184,16 +166,6 @@ public class StringIdentityJpa implements StringIdentity {
       if (other.string != null)
         return false;
     } else if (!string.equals(other.string))
-      return false;
-    if (lowerStringPre == null) {
-      if (other.lowerStringPre != null)
-        return false;
-    } else if (!lowerStringPre.equals(other.lowerStringPre))
-      return false;
-    if (lowerString == null) {
-      if (other.lowerString != null)
-        return false;
-    } else if (!lowerString.equals(other.lowerString))
       return false;
     return true;
   }
@@ -206,9 +178,7 @@ public class StringIdentityJpa implements StringIdentity {
   /* see superclass */
   @Override
   public String toString() {
-    return "StringIdentityJpa [id=" + id + ", caseInsensitiveId="
-        + caseInsensitiveId + ", stringPre=" + stringPre + ", string=" + string
-        + ", lowerStringPre=" + lowerStringPre + ", lowerString=" + lowerString
-        + "]";
+    return "StringIdentityJpa [id=" + id + ", stringPre=" + stringPre
+        + ", string=" + string + "]";
   }
 }
