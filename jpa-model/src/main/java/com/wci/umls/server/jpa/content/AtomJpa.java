@@ -121,7 +121,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private String stringClassId;
 
   /** The lower name hash. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String lowerNameHash;
 
   /** The name. */
