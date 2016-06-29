@@ -17,9 +17,9 @@ import com.wci.umls.server.model.meta.AtomIdentity;
  */
 @Entity
 @Table(name = "atom_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminology", "id"
+    "stringClassId", "terminology", "termType", "id"
 }))
-@XmlRootElement(name = "attributeIdentity")
+@XmlRootElement(name = "atomIdentity")
 public class AtomIdentityJpa implements AtomIdentity {
 
   /** The id. */

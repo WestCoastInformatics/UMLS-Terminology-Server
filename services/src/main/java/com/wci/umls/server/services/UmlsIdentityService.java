@@ -6,8 +6,11 @@
  */
 package com.wci.umls.server.services;
 
+import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
+import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
+import com.wci.umls.server.model.meta.StringIdentity;
 
 /**
  * Represents a service used by Metathesaurus editing for assigning identifiers.
@@ -80,6 +83,7 @@ public interface UmlsIdentityService extends RootService {
    * @return the semantic type component identity
    * @throws Exception the exception
    */
+
   public SemanticTypeComponentIdentity getSemanticTypeComponentIdentity(Long id)
     throws Exception;
 
@@ -134,5 +138,166 @@ public interface UmlsIdentityService extends RootService {
 
   public void removeSemanticTypeComponentIdentity(
     Long semanticTypeComponentIdentityId) throws Exception;
+
+  /**
+   * Returns the atom identity.
+   *
+   * @param id the id
+   * @return the atom identity
+   * @throws Exception the exception
+   */
+  public AtomIdentity getAtomIdentity(Long id) throws Exception;
+
+  /**
+   * Returns the next atom id.
+   *
+   * @return the next atom id
+   * @throws Exception the exception
+   */
+  public Long getNextAtomId() throws Exception;
+
+  /**
+   * Returns the atom identity.
+   *
+   * @param identity the identity
+   * @return the atom identity
+   * @throws Exception the exception
+   */
+  public AtomIdentity getAtomIdentity(AtomIdentity identity) throws Exception;
+
+  /**
+   * Adds the atom identity.
+   *
+   * @param atomIdentity the atom identity
+   * @return the atom identity
+   * @throws Exception the exception
+   */
+  public AtomIdentity addAtomIdentity(AtomIdentity atomIdentity)
+    throws Exception;
+
+  /**
+   * Update atom identity.
+   *
+   * @param atomIdentity the atom identity
+   * @throws Exception the exception
+   */
+  public void updateAtomIdentity(AtomIdentity atomIdentity) throws Exception;
+
+  /**
+   * Removes the atom identity.
+   *
+   * @param atomIdentityId the atom identity id
+   * @throws Exception the exception
+   */
+  public void removeAtomIdentity(Long atomIdentityId) throws Exception;
+
+  /**
+   * Returns the string identity.
+   *
+   * @param id the id
+   * @return the string identity
+   * @throws Exception the exception
+   */
+  public StringIdentity getStringIdentity(Long id) throws Exception;
+
+  /**
+   * Returns the next string id.
+   *
+   * @return the next string id
+   * @throws Exception the exception
+   */
+  public Long getNextStringId() throws Exception;
+
+  /**
+   * Returns the string identity.
+   *
+   * @param identity the identity
+   * @return the string identity
+   * @throws Exception the exception
+   */
+  public StringIdentity getStringIdentity(StringIdentity identity)
+    throws Exception;
+
+  /**
+   * Adds the string identity.
+   *
+   * @param stringIdentity the string identity
+   * @return the string identity
+   * @throws Exception the exception
+   */
+  public StringIdentity addStringIdentity(StringIdentity stringIdentity)
+    throws Exception;
+
+  /**
+   * Update string identity.
+   *
+   * @param stringIdentity the string identity
+   * @throws Exception the exception
+   */
+  public void updateStringIdentity(StringIdentity stringIdentity)
+    throws Exception;
+
+  /**
+   * Removes the string identity.
+   *
+   * @param stringIdentityId the string identity id
+   * @throws Exception the exception
+   */
+  public void removeStringIdentity(Long stringIdentityId) throws Exception;
+
+  /**
+   * Returns the lexical class identity.
+   *
+   * @param id the id
+   * @return the lexical class identity
+   * @throws Exception the exception
+   */
+  public LexicalClassIdentity getLexicalClassIdentity(Long id) throws Exception;
+
+  /**
+   * Returns the next lexical class id.
+   *
+   * @return the next lexical class id
+   * @throws Exception the exception
+   */
+  public Long getNextLexicalClassId() throws Exception;
+
+  /**
+   * Returns the lexical class identity.
+   *
+   * @param identity the identity
+   * @return the lexical class identity
+   * @throws Exception the exception
+   */
+  public LexicalClassIdentity getLexicalClassIdentity(
+    LexicalClassIdentity identity) throws Exception;
+
+  /**
+   * Adds the lexical class identity.
+   *
+   * @param lexicalClassIdentity the lexical class identity
+   * @return the lexical class identity
+   * @throws Exception the exception
+   */
+  public LexicalClassIdentity addLexicalClassIdentity(
+    LexicalClassIdentity lexicalClassIdentity) throws Exception;
+
+  /**
+   * Update lexical class identity.
+   *
+   * @param lexicalClassIdentity the lexical class identity
+   * @throws Exception the exception
+   */
+  public void updateLexicalClassIdentity(
+    LexicalClassIdentity lexicalClassIdentity) throws Exception;
+
+  /**
+   * Removes the lexical class identity.
+   *
+   * @param lexicalClassIdentityId the lexical class identity id
+   * @throws Exception the exception
+   */
+  public void removeLexicalClassIdentity(Long lexicalClassIdentityId)
+    throws Exception;
 
 }
