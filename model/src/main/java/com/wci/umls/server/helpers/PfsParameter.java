@@ -88,7 +88,8 @@ public interface PfsParameter {
   public String getSortField();
 
   /**
-   * Sets the sort field.
+   * Sets the sort field. Use the special value "RANDOM" for a random sort
+   * order.
    *
    * @param sortField the new sort field
    */
@@ -157,5 +158,5 @@ public interface PfsParameter {
    * @param expression the new expression
    */
   public void setExpression(String expression);
-  
+
 }
