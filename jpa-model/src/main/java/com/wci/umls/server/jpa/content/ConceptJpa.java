@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -123,9 +123,10 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       for (final Definition definition : concept.getDefinitions()) {
         getDefinitions().add(new DefinitionJpa(definition, deepCopy));
       }
-      for (final ConceptRelationship relationship : concept.getRelationships()) {
-        getRelationships().add(
-            new ConceptRelationshipJpa(relationship, deepCopy));
+      for (final ConceptRelationship relationship : concept
+          .getRelationships()) {
+        getRelationships()
+            .add(new ConceptRelationshipJpa(relationship, deepCopy));
       }
       for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         getSemanticTypes().add(new SemanticTypeComponentJpa(sty));
@@ -299,12 +300,14 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   }
 
+  /* see superclass */
   @Override
   public void setNotes(List<Note> notes) {
     this.notes = notes;
 
   }
 
+  /* see superclass */
   @Override
   @XmlElement(type = ConceptNoteJpa.class)
   public List<Note> getNotes() {
@@ -314,11 +317,13 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return this.notes;
   }
 
+  /* see superclass */
   @Override
   public void setType(IdType type) {
     // N/A
   }
 
+  /* see superclass */
   @Override
   public IdType getType() {
     return IdType.CONCEPT;
@@ -356,9 +361,10 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       return false;
     return true;
   }
-  
+
+  /* see superclass */
   @Override
-  @XmlElement(type=ComponentHistoryJpa.class)
+  @XmlElement(type = ComponentHistoryJpa.class)
   public List<ComponentHistory> getComponentHistory() {
     if (componentHistories == null) {
       componentHistories = new ArrayList<ComponentHistory>();
@@ -366,6 +372,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return componentHistories;
   }
 
+  /* see superclass */
   @Override
   public void setComponentHistory(List<ComponentHistory> componentHistory) {
     this.componentHistories = componentHistory;

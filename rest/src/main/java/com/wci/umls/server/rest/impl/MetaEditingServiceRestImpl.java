@@ -107,9 +107,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = new ConceptJpa(initialize(contentService, project,
-          conceptId, userName, action, lastModified, validationResult), false);
-//      final Concept oldConcept = new ConceptJpa(concept, false);
+      final Concept concept = initialize(contentService, project,
+          conceptId, userName, action, lastModified, validationResult);
 
       //
       // Check prerequisites
@@ -192,6 +191,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/sty/remove/{id}")
@@ -331,10 +331,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = new ConceptJpa(initialize(contentService, project,
-          conceptId, userName, action, lastModified, validationResult), false);
-//      final Concept concept = initialize(contentService, project, conceptId,
-//          userName, action, lastModified, validationResult);      
+      final Concept concept = initialize(contentService, project, conceptId,
+          userName, action, lastModified, validationResult);      
       //
       // Check prerequisites
       //
@@ -602,6 +600,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     }
 
     // Return concept
-    return concept;
+    return new ConceptJpa(concept, true);
   }
 }

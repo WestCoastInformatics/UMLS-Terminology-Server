@@ -2954,11 +2954,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   protected <T extends Component> T addComponent(T component) throws Exception {
 
-    // Component-specific handling
-
+    
     // handle as a normal "has last modified"
     final T newComponent = addHasLastModified(component);
 
+    // Component-specific handling
     // check for molecular action flag
     if (isMolecularActionFlag()) {
       final MolecularAction molecularAction = getMolecularAction();
@@ -2995,7 +2995,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   protected <T extends Component> void updateComponent(T newComponent)
     throws Exception {
     // Component-specific handling
-
+    
     // check for molecular action flag
     if (isMolecularActionFlag()) {
       final MolecularAction molecularAction = getMolecularAction();
@@ -3006,48 +3006,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       // Create an atomic action when old value is different from new value.      
       
       List<Method> allClassMethods = IndexUtility.getAllAccessorMethods(oldComponent.getClass());
-      
-
-//      for (final Field field : IndexUtility
-//          .getAllFields(oldComponent.getClass())) {
-//
-//        if (excludedFields.contains(field.getName())) {
-//          continue;
-//        }
-//        if (!field.isAnnotationPresent(Column.class)) {
-//          continue;
-//        }
-//
-//        // Try get frist - find a getXXX method that takes no parameters
-//        try {
-//          final String accessorName1 =
-//              "get" + field.getName().substring(0, 1).toUpperCase()
-//                  + field.getName().substring(1);
-//          final Method getMethod = oldComponent.getClass()
-//              .getMethod(accessorName1, new Class<?>[] {});
-//          if (getMethod != null) {
-//            oldValue =
-//                getMethod.invoke(oldComponent, new Object[] {}).toString();
-//            newValue =
-//                getMethod.invoke(newComponent, new Object[] {}).toString();
-//          }
-//        } catch (Exception e) {
-//          // Otherwise, it's is - find an isXXX method that takes no parameters
-//          final String accessorName2 =
-//              "is" + field.getName().substring(0, 1).toUpperCase()
-//                  + field.getName().substring(1);
-//          final Method isMethod = oldComponent.getClass()
-//              .getMethod(accessorName2, new Class<?>[] {});
-//          if (isMethod != null) {
-//            oldValue =
-//                isMethod.invoke(oldComponent, new Object[] {}).toString();
-//            newValue =
-//                isMethod.invoke(newComponent, new Object[] {}).toString();
-//          }
-//        }
         
       for(Method m : allClassMethods){
-        if (m == null) {continue;}
         
         final String oldValue = m.invoke(oldComponent, new Object[] {}).toString();
         final String newValue = m.invoke(newComponent, new Object[] {}).toString();

@@ -430,17 +430,40 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Workflow Service - remove workflow bin " + id + ", " + cascade);
     // if cascade, remove tracking records before removing workflow bin
+
+    // Manage transaction
+    boolean origTpo = getTransactionPerOperation();
+    if (origTpo) {
+      setTransactionPerOperation(false);
+      beginTransaction();
+    }
+
+    WorkflowBin workflowBin = getWorkflowBin(id);
     if (cascade) {
-      WorkflowBin bin = getWorkflowBin(id);
-      StringBuilder sb = new StringBuilder();
-      sb.append("workflowBinName:" + bin.getName());
-      for (TrackingRecord record : findTrackingRecordsForQuery(sb.toString(),
-          null).getObjects()) {
-        removeHasLastModified(record.getId(), TrackingRecordJpa.class);
+      if (getTransactionPerOperation())
+        throw new Exception(
+            "Unable to remove workflow bin, transactionPerOperation must be disabled to perform cascade remove.");
+      
+      for (final TrackingRecord record : workflowBin.getTrackingRecords()) {
+        removeTrackingRecord(record.getId());
       }
     }
+
+
     // Remove the component
-    removeHasLastModified(id, WorkflowBinJpa.class);
+    workflowBin = removeHasLastModified(id, WorkflowBinJpa.class);
+
+    // Manage transaction
+    if (origTpo) {
+      commit();
+      setTransactionPerOperation(origTpo);
+    }
+
+    /*if (listenersEnabled) {
+      for (final WorkflowListener listener : workflowListeners) {
+        listener.refsetChanged(workflowBin, WorkflowListener.Action.REMOVE);
+      }
+    }*/
   }
 
   @Override

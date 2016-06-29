@@ -7,6 +7,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -234,4 +235,18 @@ public interface WorkflowServiceRest {
   public Checklist createChecklist(Long projectId, Long workflowBinId,
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception;
+  
+  /**
+   * Find workflow bin for query.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the list
+   * @throws Exception the exception
+   */
+  public WorkflowBinList findWorkflowBinsForQuery(String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+  
+
 }

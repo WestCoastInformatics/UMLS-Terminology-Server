@@ -66,7 +66,7 @@ public interface IntegrationTestServiceRest {
    * @throws Exception the exception
    */
   public Worklist getWorklist(Long worklistId, String authToken) throws Exception;
-  
+
 
 
 }

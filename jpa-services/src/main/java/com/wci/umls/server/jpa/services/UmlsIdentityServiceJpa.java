@@ -60,7 +60,7 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
       styId = 1L;
     }
     // Return the max
-    return Math.max(attId, styId);
+    return Math.max(attId, styId)+1;
   }
 
   /* see superclass */

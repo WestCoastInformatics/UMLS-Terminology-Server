@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -39,8 +39,8 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * Default implementation of {@link IdentifierAssignmentHandler}. This supports
  * "application-managed" identifier assignment.
  */
-public class UmlsIdentifierAssignmentHandler implements
-    IdentifierAssignmentHandler {
+public class UmlsIdentifierAssignmentHandler
+    implements IdentifierAssignmentHandler {
 
   /** The atui prefix. */
   private Map<String, String> prefixMap = new HashMap<>();
@@ -107,8 +107,10 @@ public class UmlsIdentifierAssignmentHandler implements
   public String getTerminologyId(Attribute attribute, ComponentInfo component)
     throws Exception {
 
-    if (!attribute.isPublishable()) {return "";}
-    
+    if (!attribute.isPublishable()) {
+      return "";
+    }
+
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
       // Create AttributeIdentity and populate from the attribute.
