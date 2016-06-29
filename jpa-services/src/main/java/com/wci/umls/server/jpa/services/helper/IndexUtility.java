@@ -74,7 +74,7 @@ public class IndexUtility {
           ConfigUtility.getConfigProperties().getProperty("index.packages");
       final String[] packages =
           indexProp != null ? indexProp.split(";") : new String[] {
-              "com.wci.umls.server"
+            "com.wci.umls.server"
           };
       final Reflections reflections =
           new Reflections(new ConfigurationBuilder().forPackages(packages));
@@ -311,8 +311,9 @@ public class IndexUtility {
     }
 
     if (type.getSuperclass() != null) {
-      java.lang.reflect.Field[] allFieldsArray = ArrayUtils
-          .addAll(getAllFields(type.getSuperclass()), type.getDeclaredFields());
+      java.lang.reflect.Field[] allFieldsArray =
+          ArrayUtils.addAll(getAllFields(type.getSuperclass()),
+              type.getDeclaredFields());
       allFields.put(type, allFieldsArray);
       return allFieldsArray;
     }
@@ -395,8 +396,8 @@ public class IndexUtility {
    * @throws SecurityException the security exception
    */
   public static Map<String, Boolean> getNameAnalyzedPairsFromAnnotation(
-    Class<?> clazz, String sortField)
-    throws NoSuchMethodException, SecurityException {
+    Class<?> clazz, String sortField) throws NoSuchMethodException,
+    SecurityException {
     final String key = clazz.getName() + "." + sortField;
     if (sortFieldAnalyzedMap.containsKey(key)) {
       return sortFieldAnalyzedMap.get(key);
@@ -405,32 +406,32 @@ public class IndexUtility {
     // initialize the name->analyzed pair map
     Map<String, Boolean> nameAnalyzedPairs = new HashMap<>();
 
-    Method m = clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
-        + sortField.substring(1), new Class<?>[] {});
+    Method m =
+        clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
+            + sortField.substring(1), new Class<?>[] {});
 
     Set<org.hibernate.search.annotations.Field> annotationFields =
         new HashSet<>();
 
     // check for Field annotation
     if (m.isAnnotationPresent(org.hibernate.search.annotations.Field.class)) {
-      annotationFields
-          .add(m.getAnnotation(org.hibernate.search.annotations.Field.class));
+      annotationFields.add(m
+          .getAnnotation(org.hibernate.search.annotations.Field.class));
     }
 
     // check for Fields annotation
     if (m.isAnnotationPresent(org.hibernate.search.annotations.Fields.class)) {
       // add all specified fields
-      for (final org.hibernate.search.annotations.Field f : m
-          .getAnnotation(org.hibernate.search.annotations.Fields.class)
-          .value()) {
+      for (final org.hibernate.search.annotations.Field f : m.getAnnotation(
+          org.hibernate.search.annotations.Fields.class).value()) {
         annotationFields.add(f);
       }
     }
 
     // cycle over discovered fields and put name and analyze == YES into map
     for (final org.hibernate.search.annotations.Field f : annotationFields) {
-      nameAnalyzedPairs.put(f.name(),
-          f.analyze().equals(Analyze.YES) ? true : false);
+      nameAnalyzedPairs.put(f.name(), f.analyze().equals(Analyze.YES) ? true
+          : false);
     }
 
     sortFieldAnalyzedMap.put(key, nameAnalyzedPairs);
@@ -477,9 +478,10 @@ public class IndexUtility {
     SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
 
     Query luceneQuery;
-    QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
-        .getIndexedFieldNames(fieldNamesKey, true).toArray(new String[] {}),
-        searchFactory.getAnalyzer(clazz));
+    QueryParser queryParser =
+        new MultiFieldQueryParser(IndexUtility.getIndexedFieldNames(
+            fieldNamesKey, true).toArray(new String[] {}),
+            searchFactory.getAnalyzer(clazz));
 
     // preserve capitalization from incoming query (in order to correctly match
     // capitalized terms)
@@ -494,16 +496,19 @@ public class IndexUtility {
     luceneQuery = queryParser.parse(finalQuery);
 
     // Validate query terms
-    luceneQuery = luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
-        .getIndexReaderAccessor().open(clazz));
+    luceneQuery =
+        luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
+            .getIndexReaderAccessor().open(clazz));
     Set<Term> terms = new HashSet<>();
     luceneQuery.extractTerms(terms);
     for (final Term t : terms) {
-      if (t.field() != null && !t.field().isEmpty() && !IndexUtility
-          .getIndexedFieldNames(fieldNamesKey, false).contains(t.field())) {
-        throw new ParseException(
-            "Query references invalid field name " + t.field() + ", "
-                + IndexUtility.getIndexedFieldNames(fieldNamesKey, false));
+      if (t.field() != null
+          && !t.field().isEmpty()
+          && !IndexUtility.getIndexedFieldNames(fieldNamesKey, false).contains(
+              t.field())) {
+        throw new ParseException("Query references invalid field name "
+            + t.field() + ", "
+            + IndexUtility.getIndexedFieldNames(fieldNamesKey, false));
       }
     }
 
@@ -536,8 +541,9 @@ public class IndexUtility {
         final List<SortField> sortFields = new ArrayList<>();
 
         for (final String sortFieldName : sortFieldNames) {
-          final Map<String, Boolean> nameToAnalyzedMap = IndexUtility
-              .getNameAnalyzedPairsFromAnnotation(clazz, sortFieldName);
+          final Map<String, Boolean> nameToAnalyzedMap =
+              IndexUtility.getNameAnalyzedPairsFromAnnotation(clazz,
+                  sortFieldName);
 
           // the computed string name of the indexed field to sort by
           String sortFieldStr = null;
@@ -574,16 +580,17 @@ public class IndexUtility {
 
           // check for LONG fields
           if (sortFieldStr.equals("lastModified")
-              || sortFieldStr.equals("timestamp")
-              || sortFieldStr.equals("id")) {
-            sortField = new SortField(sortFieldStr, SortField.Type.LONG,
-                !pfs.isAscending());
+              || sortFieldStr.equals("timestamp") || sortFieldStr.equals("id")) {
+            sortField =
+                new SortField(sortFieldStr, SortField.Type.LONG,
+                    !pfs.isAscending());
           }
 
           // otherwise, sort by STRING value
           else {
-            sortField = new SortField(sortFieldStr, SortField.Type.STRING,
-                !pfs.isAscending());
+            sortField =
+                new SortField(sortFieldStr, SortField.Type.STRING,
+                    !pfs.isAscending());
           }
 
           // add the field
