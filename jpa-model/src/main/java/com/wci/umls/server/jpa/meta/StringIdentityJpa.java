@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.model.meta.StringIdentity;
 
 /**
@@ -32,11 +33,15 @@ public class StringIdentityJpa implements StringIdentity {
 
   /** The string pre. */
   @Column(nullable = false)
-  private String stringPre;
+  private String stringHash;
 
   /** The string. */
   @Column(nullable = false, length = 4000)
   private String string;
+
+  /** The language. */
+  @Column(nullable = false)
+  private String language;
 
   /**
    * Instantiates an empty {@link StringIdentityJpa}.
@@ -52,8 +57,20 @@ public class StringIdentityJpa implements StringIdentity {
    */
   public StringIdentityJpa(StringIdentity identity) {
     id = identity.getId();
-    stringPre = identity.getStringPre();
-    string = identity.getString();
+    setString(identity.getString());
+    language = identity.getLanguage();
+
+  }
+
+  /**
+   * Instantiates a {@link StringIdentityJpa} from the specified parameters.
+   *
+   * @param string the string
+   * @param language the language
+   */
+  public StringIdentityJpa(String string, String language) {
+    setString(string);
+    this.language = language;
 
   }
 
@@ -80,29 +97,6 @@ public class StringIdentityJpa implements StringIdentity {
   }
 
   /**
-   * Returns the string pre.
-   *
-   * @return the string pre
-   */
-  /* see superclass */
-  @Override
-  public String getStringPre() {
-    return stringPre;
-  }
-
-  /**
-   * Sets the string pre.
-   *
-   * @param stringPre the string pre
-   */
-  /* see superclass */
-  @Override
-  public void setStringPre(String stringPre) {
-    this.stringPre = stringPre;
-
-  }
-
-  /**
    * Returns the string.
    *
    * @return the string
@@ -122,7 +116,18 @@ public class StringIdentityJpa implements StringIdentity {
   @Override
   public void setString(String string) {
     this.string = string;
+    this.stringHash = ConfigUtility.getMd5(string);
 
+  }
+
+  /* see superclass */
+  public String getLanguage() {
+    return language;
+  }
+
+  /* see superclass */
+  public void setLanguage(String language) {
+    this.language = language;
   }
 
   /**
@@ -136,8 +141,7 @@ public class StringIdentityJpa implements StringIdentity {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((string == null) ? 0 : string.hashCode());
-    result =
-        prime * result + ((stringPre == null) ? 0 : stringPre.hashCode());
+    result = prime * result + ((language == null) ? 0 : language.hashCode());
     return result;
   }
 
@@ -157,15 +161,15 @@ public class StringIdentityJpa implements StringIdentity {
     if (getClass() != obj.getClass())
       return false;
     StringIdentityJpa other = (StringIdentityJpa) obj;
-    if (stringPre == null) {
-      if (other.stringPre != null)
-        return false;
-    } else if (!stringPre.equals(other.stringPre))
-      return false;
     if (string == null) {
       if (other.string != null)
         return false;
     } else if (!string.equals(other.string))
+      return false;
+    if (language == null) {
+      if (other.language != null)
+        return false;
+    } else if (!language.equals(other.language))
       return false;
     return true;
   }
@@ -178,7 +182,7 @@ public class StringIdentityJpa implements StringIdentity {
   /* see superclass */
   @Override
   public String toString() {
-    return "StringIdentityJpa [id=" + id + ", stringPre=" + stringPre
-        + ", string=" + string + "]";
+    return "StringIdentityJpa [id=" + id + ", string=" + string
+        + ", stringHash=" + stringHash + "]";
   }
 }

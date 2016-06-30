@@ -11,6 +11,7 @@ import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
+import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
@@ -32,6 +33,7 @@ import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.AttributeIdentity;
+import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
@@ -42,10 +44,10 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 public class UmlsIdentifierAssignmentHandler
     implements IdentifierAssignmentHandler {
 
-  /** The atui prefix. */
+  /** The ui prefixes. */
   private Map<String, String> prefixMap = new HashMap<>();
 
-  /** The atui length. */
+  /** The ui lengths. */
   private Map<String, Integer> lengthMap = new HashMap<>();
 
   /* see superclass */
@@ -59,7 +61,13 @@ public class UmlsIdentifierAssignmentHandler
       if (p.containsKey("atui.prefix")) {
         prefixMap.put("ATUI", p.getProperty("atui.prefix"));
       }
-    }
+      if (p.containsKey("sui.length")) {
+        lengthMap.put("SUI", Integer.valueOf(p.getProperty("sui.length")));
+      }
+      if (p.containsKey("sui.prefix")) {
+        prefixMap.put("SUI", p.getProperty("sui.prefix"));
+      }    
+      }
   }
 
   /* see superclass */
@@ -117,9 +125,9 @@ public class UmlsIdentifierAssignmentHandler
       final AttributeIdentity identity = new AttributeIdentityJpa();
       identity.setHashCode(ConfigUtility.getMd5(attribute.getValue()));
       identity.setName(attribute.getName());
-      identity.setOwnerId(component.getTerminologyId());
-      identity.setOwnerQualifier(component.getTerminology());
-      identity.setOwnerType(component.getType());
+      identity.setComponentId(component.getTerminologyId());
+      identity.setComponentTerminology(component.getTerminology());
+      identity.setComponentType(component.getType());
       identity.setTerminology(attribute.getTerminology());
       identity.setTerminologyId(attribute.getTerminologyId());
 
@@ -202,8 +210,46 @@ public class UmlsIdentifierAssignmentHandler
   @Override
   public String getTerminologyId(SemanticTypeComponent semanticTypeComponent,
     Concept concept) throws Exception {
-    // TODO
-    return "";
+
+    //TODO (? - the below may not be correct)
+    
+    if (!semanticTypeComponent.isPublishable()) {
+      return "";
+    }
+
+    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    try {
+      // Create semanticTypeIdentity and populate from the semanticType.
+      final SemanticTypeComponentIdentity identity = new SemanticTypeComponentIdentityJpa();
+      identity.setConceptTerminologyId(concept.getTerminologyId());
+      identity.setSemanticType(semanticTypeComponent.getSemanticType());
+      identity.setTerminology(semanticTypeComponent.getTerminology());
+
+      final SemanticTypeComponentIdentity identity2 =
+          service.getSemanticTypeComponentIdentity(identity);
+
+      // Reuse existing id
+      if (identity2 != null) {
+        return convertId(identity2.getId(), "ATUI");
+      }
+      // else generate a new one and add it
+      else {
+        // Block between getting next id and saving the id value
+        synchronized (this) {
+          // Get next id
+          final Long nextId = service.getNextSemanticTypeComponentId();
+          // Add new identity object
+          identity.setId(nextId);
+          service.addSemanticTypeComponentIdentity(identity);
+          return convertId(nextId, "ATUI");
+        }
+      }
+
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
   }
 
   /* see superclass */

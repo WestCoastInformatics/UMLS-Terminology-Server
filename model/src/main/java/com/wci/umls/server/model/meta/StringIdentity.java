@@ -11,20 +11,6 @@ import com.wci.umls.server.helpers.HasId;
 public interface StringIdentity extends HasId {
 
   /**
-   * Returns the string pre.
-   *
-   * @return the string pre
-   */
-  public String getStringPre();
-
-  /**
-   * Sets the string pre.
-   *
-   * @param stringPre the string pre
-   */
-  public void setStringPre(String stringPre);
-
-  /**
    * Returns the string.
    *
    * @return the string
@@ -37,5 +23,19 @@ public interface StringIdentity extends HasId {
    * @param string the string
    */
   public void setString(String string);
+
+  /**
+   * Returns the language.
+   *
+   * @return the language
+   */
+  public String getLanguage();
+
+  /**
+   * Sets the language.
+   *
+   * @param language the language
+   */
+  public void setLanguage(String language);
 
 }

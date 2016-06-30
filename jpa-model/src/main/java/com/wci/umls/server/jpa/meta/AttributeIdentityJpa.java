@@ -17,7 +17,7 @@ import com.wci.umls.server.model.meta.IdType;
  */
 @Entity
 @Table(name = "attribute_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "ownerId", "ownerType", "terminology", "id"
+    "componentId", "componentType", "terminology", "id"
 }))
 @XmlRootElement(name = "attributeIdentity")
 public class AttributeIdentityJpa implements AttributeIdentity {
@@ -31,25 +31,25 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   private String name;
 
   /** The terminology id. */
-  @Column(nullable = true)
+  @Column(nullable = false)
   private String terminologyId;
 
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
 
-  /** The owner id. */
+  /** The component id. */
   @Column(nullable = false)
-  private String ownerId;
+  private String componentId;
 
-  /** The owner type. */
+  /** The component type. */
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)  
-  private IdType ownerType;
+  private IdType componentType;
 
-  /** The owner qualifier. */
-  @Column(nullable = true)
-  private String ownerQualifier;
+  /** The component terminology. */
+  @Column(nullable = false)
+  private String componentTerminology;
 
   /** The attribute value hash code. */
   @Column(nullable = false)
@@ -72,9 +72,9 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     name = identity.getName();
     terminologyId = identity.getTerminologyId();
     terminology = identity.getTerminology();
-    ownerId = identity.getOwnerId();
-    ownerType = identity.getOwnerType();
-    ownerQualifier = identity.getOwnerQualifier();
+    componentId = identity.getComponentId();
+    componentType = identity.getComponentType();
+    componentTerminology = identity.getComponentTerminology();
     hashcode = identity.getHashcode();
   }
 
@@ -116,38 +116,38 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
-  public String getOwnerId() {
-    return ownerId;
+  public String getComponentId() {
+    return componentId;
   }
 
   /* see superclass */
   @Override
-  public void setOwnerId(String ownerId) {
-    this.ownerId = ownerId;
+  public void setComponentId(String componentId) {
+    this.componentId = componentId;
   }
 
   /* see superclass */
   @Override
-  public IdType getOwnerType() {
-    return ownerType;
+  public IdType getComponentType() {
+    return componentType;
   }
 
   /* see superclass */
   @Override
-  public void setOwnerType(IdType ownerType) {
-    this.ownerType = ownerType;
+  public void setComponentType(IdType componentType) {
+    this.componentType = componentType;
   }
 
   /* see superclass */
   @Override
-  public String getOwnerQualifier() {
-    return ownerQualifier;
+  public String getComponentTerminology() {
+    return componentTerminology;
   }
 
   /* see superclass */
   @Override
-  public void setOwnerQualifier(String ownerQualifier) {
-    this.ownerQualifier = ownerQualifier;
+  public void setComponentTerminology(String componentTerminology) {
+    this.componentTerminology = componentTerminology;
   }
 
   /* see superclass */
@@ -181,11 +181,11 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     int result = 1;
     result = prime * result + ((hashcode == null) ? 0 : hashcode.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((ownerId == null) ? 0 : ownerId.hashCode());
+    result = prime * result + ((componentId == null) ? 0 : componentId.hashCode());
     result =
         prime * result
-            + ((ownerQualifier == null) ? 0 : ownerQualifier.hashCode());
-    result = prime * result + ((ownerType == null) ? 0 : ownerType.hashCode());
+            + ((componentTerminology == null) ? 0 : componentTerminology.hashCode());
+    result = prime * result + ((componentType == null) ? 0 : componentType.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
@@ -214,17 +214,17 @@ public class AttributeIdentityJpa implements AttributeIdentity {
         return false;
     } else if (!name.equals(other.name))
       return false;
-    if (ownerId == null) {
-      if (other.ownerId != null)
+    if (componentId == null) {
+      if (other.componentId != null)
         return false;
-    } else if (!ownerId.equals(other.ownerId))
+    } else if (!componentId.equals(other.componentId))
       return false;
-    if (ownerQualifier == null) {
-      if (other.ownerQualifier != null)
+    if (componentTerminology == null) {
+      if (other.componentTerminology != null)
         return false;
-    } else if (!ownerQualifier.equals(other.ownerQualifier))
+    } else if (!componentTerminology.equals(other.componentTerminology))
       return false;
-    if (ownerType != other.ownerType)
+    if (componentType != other.componentType)
       return false;
     if (terminology == null) {
       if (other.terminology != null)
@@ -244,8 +244,8 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   public String toString() {
     return "AttributeIdentityJpa [id=" + id + ", name=" + name
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
-        + ", ownerId=" + ownerId + ", ownerType=" + ownerType
-        + ", ownerQualifier=" + ownerQualifier + ", hashCode=" + hashcode + "]";
+        + ", componentId=" + componentId + ", componentType=" + componentType
+        + ", componentTerminology=" + componentTerminology + ", hashCode=" + hashcode + "]";
   }
 
 }

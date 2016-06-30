@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
 
 /**
@@ -26,13 +27,13 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
   @Id
   private Long id;
 
-  /**  The normalized string. */
+  /** The normalized string. */
   @Column(nullable = false, length = 4000)
   private String normalizedString;
 
-  /**  The normalized string pre. */
+  /** The normalized string pre. */
   @Column(nullable = false)
-  private String normalizedStringPre;
+  private String normalizedStringHash;
 
   /**
    * Instantiates an empty {@link LexicalClassIdentityJpa}.
@@ -49,8 +50,17 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
    */
   public LexicalClassIdentityJpa(LexicalClassIdentity identity) {
     id = identity.getId();
-    normalizedString = identity.getNormalizedString();
-    normalizedStringPre = identity.getNormalizedStringPre();
+    setNormalizedString(identity.getNormalizedString());
+  }
+  
+
+  /**
+   * Instantiates a {@link LexicalClassIdentityJpa} from the specified parameters.
+   *
+   * @param normalizedString the normalized string
+   */
+  public LexicalClassIdentityJpa(String normalizedString) {
+    setNormalizedString(normalizedString);
   }
 
   /* see superclass */
@@ -75,19 +85,8 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
   @Override
   public void setNormalizedString(String normalizedString) {
     this.normalizedString = normalizedString;
+    this.normalizedStringHash = ConfigUtility.getMd5(normalizedString);
 
-  }
-
-  /* see superclass */
-  @Override
-  public String getNormalizedStringPre() {
-    return normalizedStringPre;
-  }
-
-  /* see superclass */
-  @Override
-  public void setNormalizedStringPre(String normalizedStringPre) {
-    this.normalizedStringPre = normalizedStringPre;
   }
 
   /* see superclass */
@@ -97,8 +96,6 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
     int result = 1;
     result = prime * result
         + ((normalizedString == null) ? 0 : normalizedString.hashCode());
-    result = prime * result
-        + ((normalizedStringPre == null) ? 0 : normalizedStringPre.hashCode());
 
     return result;
   }
@@ -118,11 +115,6 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
         return false;
     } else if (!normalizedString.equals(other.normalizedString))
       return false;
-    if (normalizedStringPre == null) {
-      if (other.normalizedStringPre != null)
-        return false;
-    } else if (!normalizedStringPre.equals(other.normalizedStringPre))
-      return false;
     return true;
   }
 
@@ -130,7 +122,7 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
   @Override
   public String toString() {
     return "LexicalClassIdentityJpa [id=" + id + ", normalizedString="
-        + normalizedString + ", normalizedStringPre=" + normalizedStringPre
+        + normalizedString + ", normalizedStringHash=" + normalizedStringHash
         + "]";
   }
 

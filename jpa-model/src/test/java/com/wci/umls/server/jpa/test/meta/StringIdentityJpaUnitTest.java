@@ -68,7 +68,7 @@ public class StringIdentityJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("string");
-    tester.include("stringPre");
+    tester.include("language");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -111,8 +111,9 @@ public class StringIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("stringPre");
+    tester.include("stringHash");
     tester.include("string");
+    tester.include("language");
 
     assertTrue(tester.testNotNullFields());
   }

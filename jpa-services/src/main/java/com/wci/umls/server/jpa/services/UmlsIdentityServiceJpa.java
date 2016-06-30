@@ -43,15 +43,15 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get next attribute id");
 
-    Long attId = 1L;
-    Long styId = 1L;
+    Long attId = 0L;
+    Long styId = 0L;
     try {
       final javax.persistence.Query query =
           manager.createQuery("select max(a.id) from AttributeIdentityJpa a ");
       Long attId2 = (Long) query.getSingleResult();
       attId = attId2 != null ? attId2 : attId;
     } catch (NoResultException e) {
-      attId = 1L;
+      attId = 0L;
     }
     try {
       final javax.persistence.Query query =
@@ -60,7 +60,7 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
       Long styId2 = (Long) query.getSingleResult();
       styId = styId2 != null ? styId2 : styId;
     } catch (NoResultException e) {
-      styId = 1L;
+      styId = 0L;
     }
     // Return the max
     return Math.max(attId, styId)+1;
@@ -78,14 +78,14 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
           manager.createQuery("select a from AttributeIdentityJpa a "
               + "where terminology = :terminology "
               + "and terminologyId = :terminologyId "
-              + "and ownerId = :ownerId " + "and ownerType = :ownerType "
-              + "and ownerQualifier = :ownerQualifier " + "and name = :name "
+              + "and componentId = :componentId " + "and componentType = :componentType "
+              + "and componentTerminology = :componentTerminology " + "and name = :name "
               + "and hashcode = :hashcode");
       query.setParameter("terminology", identity.getTerminology());
       query.setParameter("terminologyId", identity.getTerminologyId());
-      query.setParameter("ownerId", identity.getOwnerId());
-      query.setParameter("ownerType", identity.getOwnerType());
-      query.setParameter("ownerQualifier", identity.getOwnerQualifier());
+      query.setParameter("componentId", identity.getComponentId());
+      query.setParameter("componentType", identity.getComponentType());
+      query.setParameter("componentTerminology", identity.getComponentTerminology());
       query.setParameter("name", identity.getName());
       query.setParameter("hashcode", identity.getHashcode());
 
@@ -143,15 +143,15 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get next semanticTypeComponent id");
 
-    Long attId = null;
-    Long styId = null;
+    Long attId = 0L;
+    Long styId = 0L;
     try {
       final javax.persistence.Query query =
           manager.createQuery("select max(a.id) from AttributeIdentity a ");
       Long attId2 = (Long) query.getSingleResult();
       attId = attId2 != null ? attId2 : attId;
     } catch (NoResultException e) {
-      attId = 1L;
+      attId = 0L;
     }
     try {
       final javax.persistence.Query query =
@@ -159,10 +159,10 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
               .createQuery("select max(a.id) from SemanticTypeComponentIdentityJpa a ");
       styId = (Long) query.getSingleResult();
     } catch (NoResultException e) {
-      styId = 1L;
+      styId = 0L;
     }
     // Return the max
-    return Math.max(attId, styId);
+    return Math.max(attId, styId)+1;
   }
 
   /* see superclass */
@@ -240,14 +240,14 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get next atom id");
 
-    Long atomId = 1L;
+    Long atomId = 0L;
     try {
       final javax.persistence.Query query =
           manager.createQuery("select max(a.id) from AtomIdentityJpa a ");
       Long atomId2 = (Long) query.getSingleResult();
       atomId = atomId2!=null?atomId2:atomId;
     } catch (NoResultException e) {
-      atomId = 1L;
+      atomId = 0L;
     }
     // Return the max
     return atomId+1;
@@ -324,14 +324,14 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get next string id");
 
-    Long stringId = 1L;
+    Long stringId = 0L;
     try {
       final javax.persistence.Query query =
           manager.createQuery("select max(a.id) from StringIdentityJpa a ");
       Long stringId2 = (Long) query.getSingleResult();
       stringId = stringId2!=null?stringId2:stringId;
     } catch (NoResultException e) {
-      stringId = 1L;
+      stringId = 0L;
     }
     // Return the max
     return stringId+1;
@@ -347,12 +347,8 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
       final javax.persistence.Query query =
           manager.createQuery("select a from StringIdentityJpa a "
               + "where caseInsensitiveId = :caseInsensitiveId "
-              + "and stringPre = :stringPre " 
-              + "and string = :string "
-              + "and lowerStringPre = :lowerStringPre "
-              + "and lowerString = :lowerString");
+              + "and string = :string");
       query.setParameter("id", identity.getId());
-      query.setParameter("stringPre", identity.getStringPre());
       query.setParameter("string", identity.getString());
 
       return (StringIdentity) query.getSingleResult();
@@ -404,14 +400,14 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get next lexicalClass id");
 
-    Long lexicalClassId = 1L;
+    Long lexicalClassId = 0L;
     try {
       final javax.persistence.Query query =
           manager.createQuery("select max(a.id) from LexicalClassIdentityJpa a ");
       Long lexicalClassId2 = (Long) query.getSingleResult();
       lexicalClassId = lexicalClassId2!=null?lexicalClassId2:lexicalClassId;
     } catch (NoResultException e) {
-      lexicalClassId = 1L;
+      lexicalClassId = 0L;
     }
     // Return the max
     return lexicalClassId+1;
@@ -426,15 +422,8 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     try {
       final javax.persistence.Query query =
           manager.createQuery("select a from LexicalClassIdentityJpa a "
-              + "where normalizedString = :normalizedString "
-              + "and normalizedStringPre = :normalizedStringPre " 
-              + "and ownerId = :ownerId "
-              + "and ownerType = :ownerType "
-              + "and ownerQualifier = :ownerQualifier " 
-              + "and name = :name "
-              + "and hashcode = :hashcode");
+              + "where normalizedString = :normalizedString ");
       query.setParameter("normalizedString", identity.getNormalizedString());
-      query.setParameter("normalizedStringPre", identity.getNormalizedStringPre());
 
       return (LexicalClassIdentity) query.getSingleResult();
 

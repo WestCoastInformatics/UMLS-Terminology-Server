@@ -25,18 +25,4 @@ public interface LexicalClassIdentity extends HasId {
 
   public void setNormalizedString(String normalizedString);
 
-  /**
-   * Returns the normalized string pre.
-   *
-   * @return the normalized string pre
-   */
-  public String getNormalizedStringPre();
-
-  /**
-   * Sets the normalized string pre.
-   *
-   * @param normalizedStringPre the normalized string pre
-   */
-  public void setNormalizedStringPre(String normalizedStringPre);
-
 }
