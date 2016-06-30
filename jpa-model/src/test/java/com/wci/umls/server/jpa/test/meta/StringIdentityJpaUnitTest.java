@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.meta;
 
@@ -18,16 +18,16 @@ import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.meta.AttributeNameJpa;
-import com.wci.umls.server.model.meta.AttributeName;
+import com.wci.umls.server.jpa.meta.StringIdentityJpa;
+import com.wci.umls.server.model.meta.StringIdentity;
 
 /**
- * Unit testing for {@link AttributeNameJpa}.
+ * Unit testing for {@link StringIdentityJpa}.
  */
-public class AttributeNameJpaUnitTest extends ModelUnitSupport {
+public class StringIdentityJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
-  private AttributeNameJpa object;
+  private StringIdentityJpa object;
 
   /**
    * Setup class.
@@ -43,7 +43,7 @@ public class AttributeNameJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() {
 
-    object = new AttributeNameJpa();
+    object = new StringIdentityJpa();
   }
 
   /**
@@ -59,7 +59,7 @@ public class AttributeNameJpaUnitTest extends ModelUnitSupport {
   }
 
   /**
-   * Test equals and hascode methods.
+   * Test equals and hashcode methods.
    *
    * @throws Exception the exception
    */
@@ -67,18 +67,8 @@ public class AttributeNameJpaUnitTest extends ModelUnitSupport {
   public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("abbreviation");
-    tester.include("expandedForm");
-    tester.include("terminology");
-    tester.include("version");
-    tester.include("publishable");
-    tester.include("published");
-    tester.include("domainId");
-    tester.include("rangeId");
-    tester.include("functional");
-    tester.include("annotation");
-    tester.include("existentialQuantification");
-    tester.include("universalQuantification");
+    tester.include("string");
+    tester.include("stringPre");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -97,7 +87,7 @@ public class AttributeNameJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructor(AttributeName.class));
+    assertTrue(tester.testCopyConstructor(StringIdentity.class));
   }
 
   /**
@@ -121,19 +111,8 @@ public class AttributeNameJpaUnitTest extends ModelUnitSupport {
   public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("abbreviation");
-    tester.include("expandedForm");
-    tester.include("terminology");
-    tester.include("version");
-    tester.include("publishable");
-    tester.include("published");
-    tester.include("timestamp");
-    tester.include("lastModified");
-    tester.include("lastModifiedBy");
-    tester.include("functional");
-    tester.include("annotation");
-    tester.include("existentialQuantification");
-    tester.include("universalQuantification");
+    tester.include("stringPre");
+    tester.include("string");
 
     assertTrue(tester.testNotNullFields());
   }

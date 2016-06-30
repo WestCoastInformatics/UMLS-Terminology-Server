@@ -20,7 +20,6 @@ import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
 import com.wci.umls.server.model.meta.AttributeIdentity;
-import com.wci.umls.server.model.meta.IdType;
 
 /**
  * Unit testing for {@link AttributeIdentityJpa}.
@@ -29,12 +28,6 @@ public class AttributeIdentityJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private AttributeIdentityJpa object;
-
-  /** The test fixture */
-  private AttributeIdentityJpa atn;
-
-  /** The test fixture */
-  private AttributeIdentityJpa atn2;
 
   /**
    * Setup class.
@@ -51,25 +44,6 @@ public class AttributeIdentityJpaUnitTest extends ModelUnitSupport {
   public void setup() {
 
     object = new AttributeIdentityJpa();
-    atn = new AttributeIdentityJpa();
-    atn2 = new AttributeIdentityJpa();
-    atn.setId(1L);
-    atn.setHashCode("9e107d9d372bb6826bd81d3542a419d6");
-    atn.setName("name1");
-    atn.setOwnerId("1");
-    atn.setOwnerQualifier("qualifier1");
-    atn.setOwnerType(IdType.CONCEPT);
-    atn.setTerminology("terminology");
-    atn.setTerminologyId("1");
-
-    atn2.setId(2L);
-    atn2.setHashCode("e4d909c290d0fb1ca068ffaddf22cbd06");
-    atn2.setName("name2");
-    atn2.setOwnerId("2");
-    atn2.setOwnerQualifier("qualifier2");
-    atn2.setOwnerType(IdType.CONCEPT);
-    atn2.setTerminology("terminology");
-    atn2.setTerminologyId("2");
 
   }
 

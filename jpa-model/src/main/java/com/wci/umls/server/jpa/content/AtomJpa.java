@@ -59,6 +59,8 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
         "lexicalClassId", "terminology", "version", "id"
     }), @UniqueConstraint(columnNames = {
         "stringClassId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "lowerNameHash", "conceptId", "terminology", "version", "id"
     })
 })
 @Audited
@@ -118,6 +120,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Column(nullable = false)
   private String stringClassId;
 
+  /** The lower name hash. */
+  @Column(nullable = true)
+  private String lowerNameHash;
+
   /** The name. */
   @Column(nullable = false, length = 4000)
   private String name;
@@ -163,7 +169,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     language = atom.getLanguage();
     lexicalClassId = atom.getLexicalClassId();
     stringClassId = atom.getStringClassId();
-    name = atom.getName();
+    setName(atom.getName());
     termType = atom.getTermType();
     workflowStatus = atom.getWorkflowStatus();
 
@@ -325,6 +331,16 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     this.stringClassId = stringClassId;
   }
 
+  /**
+   * Returns the lower name hash.
+   *
+   * @return the lower name hash
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  private String getLowerNameHash() {
+    return lowerNameHash;
+  }
+
   /* see superclass */
   @Override
   @Fields({
@@ -352,6 +368,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void setName(String name) {
     this.name = name;
+    this.lowerNameHash = ConfigUtility.getMd5(name.toLowerCase());
   }
 
   /* see superclass */
