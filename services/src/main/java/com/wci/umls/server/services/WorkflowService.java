@@ -172,10 +172,11 @@ public interface WorkflowService extends ProjectService {
    * Find workflow epochs for query.
    *
    * @param query the query
+   * @param pfs TODO
    * @return the list
    * @throws Exception the exception
    */
-  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query)
+  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query, PfsParameter pfs)
     throws Exception;
 
   /**
@@ -443,6 +444,15 @@ public interface WorkflowService extends ProjectService {
    * @throws Exception the exception
    */
   public WorkflowConfig getWorkflowConfig(Long projectId, WorkflowBinType type)
-    throws Exception; 
+    throws Exception;
+
+  /**
+   * Returns the current workflow epoch.
+   *
+   * @param project the project
+   * @return the current workflow epoch
+   * @throws Exception the exception
+   */
+  public WorkflowEpoch getCurrentWorkflowEpoch(Project project) throws Exception; 
   
 }

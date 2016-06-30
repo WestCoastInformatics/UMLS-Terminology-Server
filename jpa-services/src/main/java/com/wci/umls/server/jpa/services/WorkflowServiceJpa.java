@@ -143,7 +143,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     final List<TrackingRecordJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
             TrackingRecordJpa.class, TrackingRecordJpa.class,
-            new PfsParameterJpa(), totalCt, manager);
+            pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final TrackingRecordJpa trackingRecord : luceneResults) {
       results.getObjects().add(trackingRecord);
@@ -168,6 +168,20 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
     // do not inform listeners
     return epoch;
+  }
+  
+  @Override
+  public WorkflowEpoch getCurrentWorkflowEpoch(Project project) throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Service - add workflow epoch ");
+    
+    PfsParameter pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(1);
+    // TODO translated into obsolete:false and no obsolete field pfs.setActiveOnly(true);
+    pfs.setSortField("name");
+    pfs.setAscending(false);
+    
+    return findWorkflowEpochsForQuery("projectId:" + project.getId(), pfs).get(0);
   }
 
   @Override
@@ -213,7 +227,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query)
+  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - find workflow epochs for query " + query);
@@ -223,7 +237,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     final List<WorkflowEpochJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
             WorkflowEpochJpa.class, WorkflowEpochJpa.class,
-            new PfsParameterJpa(), totalCt, manager);
+            pfs, totalCt, manager);
     for (final WorkflowEpoch epoch : luceneResults) {
       results.add(epoch);
     }
@@ -560,7 +574,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     final int[] totalCt = new int[1];
     final List<WorklistJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            WorklistJpa.class, WorklistJpa.class, new PfsParameterJpa(),
+            WorklistJpa.class, WorklistJpa.class, pfs,
             totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final WorklistJpa worklist : luceneResults) {
@@ -606,6 +620,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     removeHasLastModified(id, ChecklistJpa.class);
   }
 
+  
   @Override
   public Checklist getChecklist(Long id) throws Exception {
     Logger.getLogger(getClass())

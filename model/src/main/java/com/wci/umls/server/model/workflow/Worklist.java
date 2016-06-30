@@ -80,4 +80,18 @@ public interface Worklist extends Checklist {
    */
   public void setWorkflowStatus(WorkflowStatus workflowStatus);
 
+  /**
+   * Sets the number.
+   *
+   * @param number the number
+   */
+  public void setNumber(int number);
+
+  /**
+   * Returns the number.
+   *
+   * @return the number
+   */
+  public int getNumber();
+
 }

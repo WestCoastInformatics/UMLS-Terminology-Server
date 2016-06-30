@@ -23,6 +23,7 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
@@ -261,26 +262,62 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     try {
       workflowService.regenerateBins(project.getId(),
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
-    WorkflowBinList binList = workflowService.findWorkflowBinsForQuery("name:testName", null, authToken);
-    
+    WorkflowBinList binList = workflowService
+        .findWorkflowBinsForQuery("name:testName", null, authToken);
+
     //
-    // Create checklist
+    // Create checklist with cluster id order tracking records
     //
+    Checklist checklistOrderByClusterId;
     try {
-      workflowService.createChecklist(project.getId(), binList.getObjects().get(0).getId(), 
-          "newChecklistName", false, false, "terminology:UMLS", new PfsParameterJpa(), authToken);
+      checklistOrderByClusterId = workflowService.createChecklist(
+          project.getId(), binList.getObjects().get(0).getId(),
+          "checklistOrderByClusterId", false, false, "clusterType:chem",
+          new PfsParameterJpa(), authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
 
+    //
+    // Create checklist with random tracking records
+    //
+    Checklist checklistOrderByRandom;
+    try {
+      checklistOrderByRandom = workflowService.createChecklist(project.getId(),
+          binList.getObjects().get(0).getId(), "checklistOrderByRandom", true,
+          false, "clusterType:chem", new PfsParameterJpa(), authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    /*assertTrue(!checklistOrderByClusterId.getTrackingRecords()
+        .equals(checklistOrderByRandom.getTrackingRecords()));*/
+    workflowService.removeChecklist(checklistOrderByClusterId.getId(),
+        authToken);
+    workflowService.removeChecklist(checklistOrderByRandom.getId(), authToken);
+
+    //
+    // Create worklist
+    //
+    Worklist worklist;
+    try {
+      worklist = workflowService.createWorklist(project.getId(), binList.getObjects().get(0).getId(), 
+          "chem", 0, 5, new PfsParameterJpa(), authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    
     workflowService.clearBins(project.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 

@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.services.helper;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
@@ -266,7 +269,8 @@ public class IndexUtility {
   public static String getFieldNameFromMethod(Method m, Field annotationField) {
     // iannotationField annotationFieldield has a speciannotationFieldied name,
     // use that
-    if (annotationField != null && annotationField.name() != null && !annotationField.name().isEmpty())
+    if (annotationField != null && annotationField.name() != null
+        && !annotationField.name().isEmpty())
       return annotationField.name();
 
     // otherwise, assume method name of form getannotationFieldName
@@ -367,15 +371,15 @@ public class IndexUtility {
           allClassMethods.add(getMethod);
         }
       } catch (Exception e) {
-          // Otherwise, use is - find an isXXX method that takes no parameters
-          final String accessorName2 =
-              "is" + field.getName().substring(0, 1).toUpperCase()
-                  + field.getName().substring(1);
-          final Method isMethod =
-              clazz.getMethod(accessorName2, new Class<?>[] {});
-          if (isMethod != null) {
-            allClassMethods.add(isMethod);
-          }
+        // Otherwise, use is - find an isXXX method that takes no parameters
+        final String accessorName2 =
+            "is" + field.getName().substring(0, 1).toUpperCase()
+                + field.getName().substring(1);
+        final Method isMethod =
+            clazz.getMethod(accessorName2, new Class<?>[] {});
+        if (isMethod != null) {
+          allClassMethods.add(isMethod);
+        }
       }
     }
 
@@ -516,8 +520,24 @@ public class IndexUtility {
         fullTextQuery.setMaxResults(pfs.getMaxResults());
       }
 
-      // if sort specified (single or multi-field sort), set sorting
-      if ((pfs.getSortFields() != null && !pfs.getSortFields().isEmpty())
+      if (pfs.getSortField() != null && !pfs.getSortField().isEmpty()
+          && pfs.getSortField().equals("RANDOM")) {
+
+        Sort sort = new Sort(new SortField("", new FieldComparatorSource() {
+
+          @Override
+          public FieldComparator<Integer> newComparator(String fieldname,
+            int numHits, int sortPos, boolean reversed) throws IOException {
+            return new RandomOrderFieldComparator(numHits, fieldname, null,
+                null);
+          }
+
+        }));
+
+        fullTextQuery.setSort(sort);
+
+        // if sort specified (single or multi-field sort), set sorting
+      } else if ((pfs.getSortFields() != null && !pfs.getSortFields().isEmpty())
           || (pfs.getSortField() != null && !pfs.getSortField().isEmpty())) {
 
         // convenience container for sort field names (from either method)
