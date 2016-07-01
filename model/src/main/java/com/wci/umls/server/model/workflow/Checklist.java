@@ -8,9 +8,9 @@ import java.util.List;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
 
-
 /**
- * Represents a checklist.
+ * Represents a checklist which is a collection of tracking records without
+ * participating in workflow .
  */
 public interface Checklist extends HasLastModified {
 
@@ -41,22 +41,21 @@ public interface Checklist extends HasLastModified {
    * @param name the new name
    */
   public void setName(String name);
-  
+
   /**
    * Gets the description.
    *
    * @return the description
    */
   public String getDescription();
-  
+
   /**
    * Sets the description.
    *
    * @param description the new description
    */
   public void setDescription(String description);
-  
-  
+
   /**
    * Returns the project.
    *
@@ -70,6 +69,5 @@ public interface Checklist extends HasLastModified {
    * @param project the project
    */
   public void setProject(Project project);
-  
 
 }

@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a worklist.
+ * Represents a checklist which is a collection of tracking records that
+ * participate in workflow .
  */
 public interface Worklist extends Checklist {
 
@@ -32,28 +33,28 @@ public interface Worklist extends Checklist {
    * @return the workflow bin
    */
   public String getWorkflowBin();
-  
+
   /**
    * Sets the workflow bin.
    *
    * @param bin the workflow bin
    */
   public void setWorkflowBin(String bin);
-  
+
   /**
    * Returns the workflow state history.
    *
    * @return the workflow state history
    */
   public Map<String, Date> getWorkflowStateHistory();
-  
+
   /**
    * Sets the workflow state history.
    *
    * @param workflowStateHistory the workflow state history
    */
   public void setWorkflowStateHistory(Map<String, Date> workflowStateHistory);
-  
+
   /**
    * Sets the authors.
    *

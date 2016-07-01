@@ -28,7 +28,6 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
-import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 
@@ -66,12 +65,12 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private WorkflowStatus workflowStatus;
-  
-  /**  The number. */
+
+  /** The number. */
   @Column(nullable = false)
   private int number;
 
-  /**  The workflow state history. */
+  /** The workflow state history. */
   @ElementCollection
   @Column(nullable = false)
   private Map<String, Date> workflowStateHistory = new HashMap<>();
@@ -102,16 +101,18 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     }
   }
 
+  /* see superclass */
   @Override
   public int getNumber() {
     return number;
   }
-  
+
+  /* see superclass */
   @Override
   public void setNumber(int number) {
     this.number = number;
   }
-  
+
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
@@ -128,21 +129,21 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.authors = authors;
   }
 
+  /* see superclass */
   @Override
-  @FieldBridge(impl = MapValueToCsvBridge.class)
-  @Field(name = "workflowStateHistoryMap", index = Index.YES, analyze = Analyze.YES, store = Store.NO)  
   public Map<String, Date> getWorkflowStateHistory() {
     if (workflowStateHistory == null) {
       workflowStateHistory = new HashMap<>();
     }
     return workflowStateHistory;
   }
-  
+
+  /* see superclass */
   @Override
   public void setWorkflowStateHistory(Map<String, Date> workflowStateHistory) {
     this.workflowStateHistory = workflowStateHistory;
   }
-  
+
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
@@ -199,10 +200,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.workflowBinName = workflowBin;
   }
 
-
-
-
-
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -210,13 +208,16 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     result = prime * result + ((authors == null) ? 0 : authors.hashCode());
     result = prime * result + number;
     result = prime * result + ((reviewers == null) ? 0 : reviewers.hashCode());
-    result = prime * result
-        + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
-    result = prime * result
-        + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
+    result =
+        prime * result
+            + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
+    result =
+        prime * result
+            + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -256,9 +257,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   public String toString() {
     return "WorklistJpa [authors=" + authors + ", reviewers=" + reviewers
         + ", worklistGroup=" + worklistGroup + ", workflowBin="
-            + workflowBinName + ", workflowStatus="
-        + workflowStatus +  ", number=" + number + ", " + 
-            "workflowStateHistory=" + workflowStateHistory + "]";
+        + workflowBinName + ", workflowStatus=" + workflowStatus + ", number="
+        + number + ", " + "workflowStateHistory=" + workflowStateHistory + "]";
   }
 
 }
