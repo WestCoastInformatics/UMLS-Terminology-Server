@@ -223,7 +223,6 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("termType");
     tester.include("workflowStatus");
-    tester.include("lowerNameHash");
 
     assertTrue(tester.testNotNullFields());
   }

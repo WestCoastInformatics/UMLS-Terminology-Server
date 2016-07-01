@@ -47,7 +47,7 @@ public class UmlsIdentityLoaderAlgorithm extends
 
       //
       // Handle AttributeIdentity
-      // id|terminologyId|terminology|ownerId|ownerType|ownerQualifier|hashcode
+      // id|terminologyId|terminology|ownerId|ownerType|ownerQualifier|name|hashcode
       //
       if (new File(getInputPath(), "attributeIdentity.txt").exists()) {
         logInfo("  Load attribute identity");
@@ -70,7 +70,8 @@ public class UmlsIdentityLoaderAlgorithm extends
           identity.setOwnerId(fields[3]);
           identity.setOwnerType(IdType.valueOf(fields[4]));
           identity.setOwnerQualifier(fields[5]);
-          identity.setHashCode(fields[6]);
+          identity.setName(fields[6]);
+          identity.setHashCode(fields[7]);
           service.addAttributeIdentity(identity);
           if (++ct % commitCt == 0) {
             service.commitClearBegin();

@@ -8,13 +8,7 @@ import com.wci.umls.server.helpers.HasId;
 /**
  * Represents atom identity for Metathesaurus editing.
  */
-public interface AtomIdentity extends HasId/*, HasName*/ {
-
-  /* see superclass */
-  public Long getId();
-
-  /* see superclass */
-  public void setId(Long id);
+public interface AtomIdentity extends HasId {
 
   /**
    * Returns the string class id.
@@ -100,12 +94,12 @@ public interface AtomIdentity extends HasId/*, HasName*/ {
    */
   public void setConceptId(String conceptId);
 
-   /**
-    * Returns the descriptor id.
-    *
-    * @return the descriptor id
-    */
-   public String getDescriptorId();
+  /**
+   * Returns the descriptor id.
+   *
+   * @return the descriptor id
+   */
+  public String getDescriptorId();
 
   /**
    * Sets the descriptor id.
