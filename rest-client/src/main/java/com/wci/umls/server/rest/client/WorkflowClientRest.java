@@ -21,6 +21,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.helpers.WorkflowBinStatsList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -702,6 +703,13 @@ public class WorkflowClientRest extends RootClientRest implements
     // converting to object
     return ConfigUtility
         .getGraphForString(resultString, WorklistJpa.class);
+  }
+
+  @Override
+  public WorkflowBinStatsList getWorkflowBinStats(Long projectId,
+    WorkflowBinType type, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 
