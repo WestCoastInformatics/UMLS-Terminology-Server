@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.meta;
 
@@ -18,16 +18,16 @@ import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
-import com.wci.umls.server.model.meta.AtomIdentity;
+import com.wci.umls.server.jpa.meta.StringIdentityJpa;
+import com.wci.umls.server.model.meta.StringIdentity;
 
 /**
- * Unit testing for {@link AtomIdentityJpa}.
+ * Unit testing for {@link StringIdentityJpa}.
  */
-public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
+public class StringIdentityJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
-  private AtomIdentityJpa object;
+  private StringIdentityJpa object;
 
   /**
    * Setup class.
@@ -43,8 +43,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() {
 
-    object = new AtomIdentityJpa();
-
+    object = new StringIdentityJpa();
   }
 
   /**
@@ -68,14 +67,8 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-
-    tester.include("stringClassId");
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("termType");
-    tester.include("code");
-    tester.include("conceptId");
-    tester.include("descriptorId");
+    tester.include("string");
+    tester.include("language");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -94,7 +87,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructor(AtomIdentity.class));
+    assertTrue(tester.testCopyConstructor(StringIdentity.class));
   }
 
   /**
@@ -118,14 +111,9 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
-
-    tester.include("stringClassId");
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("termType");
-    tester.include("code");
-    tester.include("conceptId");
-    tester.include("descriptorId");    
+    tester.include("stringHash");
+    tester.include("string");
+    tester.include("language");
 
     assertTrue(tester.testNotNullFields());
   }

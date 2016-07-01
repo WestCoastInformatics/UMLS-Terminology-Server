@@ -1,7 +1,13 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.worfklow;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -22,6 +28,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
+import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 
@@ -59,6 +66,15 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private WorkflowStatus workflowStatus;
+  
+  /**  The number. */
+  @Column(nullable = false)
+  private int number;
+
+  /**  The workflow state history. */
+  @ElementCollection
+  @Column(nullable = false)
+  private Map<String, Date> workflowStateHistory = new HashMap<>();
 
   /**
    * Instantiates an empty {@link WorklistJpa}.
@@ -80,8 +96,22 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     worklistGroup = worklist.getWorklistGroup();
     workflowStatus = worklist.getWorkflowStatus();
     workflowBinName = worklist.getWorkflowBin();
+    number = worklist.getNumber();
+    if (deepCopy) {
+      workflowStateHistory = worklist.getWorkflowStateHistory();
+    }
   }
 
+  @Override
+  public int getNumber() {
+    return number;
+  }
+  
+  @Override
+  public void setNumber(int number) {
+    this.number = number;
+  }
+  
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
@@ -98,6 +128,21 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.authors = authors;
   }
 
+  @Override
+  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @Field(name = "workflowStateHistoryMap", index = Index.YES, analyze = Analyze.YES, store = Store.NO)  
+  public Map<String, Date> getWorkflowStateHistory() {
+    if (workflowStateHistory == null) {
+      workflowStateHistory = new HashMap<>();
+    }
+    return workflowStateHistory;
+  }
+  
+  @Override
+  public void setWorkflowStateHistory(Map<String, Date> workflowStateHistory) {
+    this.workflowStateHistory = workflowStateHistory;
+  }
+  
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
@@ -143,6 +188,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getWorkflowBin() {
     return workflowBinName;
   }
@@ -155,22 +201,22 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
 
 
-  /* see superclass */
+
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((authors == null) ? 0 : authors.hashCode());
+    result = prime * result + number;
     result = prime * result + ((reviewers == null) ? 0 : reviewers.hashCode());
-    result =
-        prime * result
-            + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());    
-    result =
-            prime * result + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
+    result = prime * result
+        + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
+    result = prime * result
+        + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -185,22 +231,23 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
         return false;
     } else if (!authors.equals(other.authors))
       return false;
+    if (number != other.number)
+      return false;
     if (reviewers == null) {
       if (other.reviewers != null)
         return false;
     } else if (!reviewers.equals(other.reviewers))
-      return false;
-    if (worklistGroup == null) {
-      if (other.worklistGroup != null)
-        return false;
-    } else if (!worklistGroup.equals(other.worklistGroup))
       return false;
     if (workflowBinName == null) {
       if (other.workflowBinName != null)
         return false;
     } else if (!workflowBinName.equals(other.workflowBinName))
       return false;
-    
+    if (worklistGroup == null) {
+      if (other.worklistGroup != null)
+        return false;
+    } else if (!worklistGroup.equals(other.worklistGroup))
+      return false;
     return true;
   }
 
@@ -210,7 +257,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     return "WorklistJpa [authors=" + authors + ", reviewers=" + reviewers
         + ", worklistGroup=" + worklistGroup + ", workflowBin="
             + workflowBinName + ", workflowStatus="
-        + workflowStatus +  "]";
+        + workflowStatus +  ", number=" + number + ", " + 
+            "workflowStateHistory=" + workflowStateHistory + "]";
   }
 
 }

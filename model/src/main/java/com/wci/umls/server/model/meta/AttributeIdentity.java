@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.meta;
 
@@ -12,46 +12,46 @@ import com.wci.umls.server.helpers.HasName;
 public interface AttributeIdentity extends HasId, HasName {
 
   /**
-   * Sets the owner type.
+   * Sets the component type.
    *
-   * @param ownerType the new owner type
+   * @param componentType the new component type
    */
-  public void setOwnerType(IdType ownerType);
+  public void setComponentType(IdType componentType);
 
   /**
-   * Gets the owner type.
+   * Gets the component type.
    *
-   * @return the owner type
+   * @return the component type
    */
-  public IdType getOwnerType();
+  public IdType getComponentType();
 
   /**
-   * Sets the owner id.
+   * Sets the component id.
    *
-   * @param ownerId the new owner id
+   * @param componentId the new component id
    */
-  public void setOwnerId(String ownerId);
+  public void setComponentId(String componentId);
 
   /**
-   * Gets the owner id.
+   * Gets the component id.
    *
-   * @return the owner id
+   * @return the component id
    */
-  public String getOwnerId();
+  public String getComponentId();
 
   /**
-   * Sets the owner qualifier.
+   * Sets the component terminology.
    *
-   * @param qualifier the new owner qualifier
+   * @param terminology the new component terminology
    */
-  public void setOwnerQualifier(String qualifier);
+  public void setComponentTerminology(String terminology);
 
   /**
-   * Gets the owner qualifier.
+   * Gets the component terminology.
    *
-   * @return the owner qualifier
+   * @return the component terminology
    */
-  public String getOwnerQualifier();
+  public String getComponentTerminology();
 
   /**
    * Gets the hash code.

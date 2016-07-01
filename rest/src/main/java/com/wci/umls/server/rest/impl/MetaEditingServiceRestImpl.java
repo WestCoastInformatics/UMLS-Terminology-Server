@@ -23,15 +23,19 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
+import com.wci.umls.server.jpa.meta.StringIdentityJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -107,8 +111,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project,
-          conceptId, userName, action, lastModified, validationResult);
+      final Concept concept = initialize(contentService, project, conceptId,
+          userName, action, lastModified, validationResult);
 
       //
       // Check prerequisites
@@ -121,6 +125,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           concept.getTerminology(), concept.getVersion()) == null) {
         throw new LocalException("Cannot add invalid semantic type - "
             + semanticType.getSemanticType());
+      }
+      if (contentService.getTerminology(semanticType.getTerminology(),
+          semanticType.getVersion()) == null) {
+        throw new LocalException(
+            "Cannot add semanticType with invalid terminology - "
+                + semanticType.getTerminology() + ", version: "
+                + semanticType.getVersion());
       }
 
       // Duplicate check
@@ -154,20 +165,22 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       concept.getSemanticTypes().add(newSemanticType);
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
-//      Logger.getLogger(getClass()).info(
-//          "TESTTEST - The oldConcept workflow status in the MetaEditingServiceRestImpl layer is: "
-//              + oldConcept.getWorkflowStatus().toString());
-//      Logger.getLogger(getClass()).info(
-//          "TESTTEST - The concept workflow status in the MetaEditingServiceRestImpl layer is: "
-//              + concept.getWorkflowStatus().toString());
+      // Logger.getLogger(getClass()).info(
+      // "TESTTEST - The oldConcept workflow status in the
+      // MetaEditingServiceRestImpl layer is: "
+      // + oldConcept.getWorkflowStatus().toString());
+      // Logger.getLogger(getClass()).info(
+      // "TESTTEST - The concept workflow status in the
+      // MetaEditingServiceRestImpl layer is: "
+      // + concept.getWorkflowStatus().toString());
 
       // update the concept
       contentService.updateConcept(concept);
 
       // log the REST call
       contentService.addLogEntry(userName, projectId, conceptId,
-          action + " " + newSemanticType.getSemanticType()
-              + " to concept " + concept.getTerminologyId());
+          action + " " + newSemanticType.getSemanticType() + " to concept "
+              + concept.getTerminologyId());
 
       // commit (also removes the lock)
       contentService.commit();
@@ -332,10 +345,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Do some standard intialization and precondition checking
       // action and prep services
       final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);      
+          userName, action, lastModified, validationResult);
       //
       // Check prerequisites
       //
+
+      if (concept.getTerminologyId() == "") {
+        throw new LocalException(
+            "Cannot add an attribute to a concept that doesn't have a TerminologyId (Concept: "
+                + concept.getName() + ")");
+      }
 
       // Perform action specific validation - n/a
 
@@ -344,6 +363,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           concept.getTerminology(), concept.getVersion()) == null) {
         throw new LocalException(
             "Cannot add invalid attribute - " + attribute.getName());
+      }
+      if (contentService.getTerminology(attribute.getTerminology(),
+          attribute.getVersion()) == null) {
+        throw new LocalException(
+            "Cannot add attribute with invalid terminology - "
+                + attribute.getTerminology() + ", version: "
+                + attribute.getVersion());
       }
 
       // Duplicate check
@@ -369,17 +395,17 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
 
       // Assign alternateTerminologyId
-        IdentifierAssignmentHandler handler = contentService
-            .getIdentifierAssignmentHandler(concept.getTerminology());
-        String altId = handler.getTerminologyId(attribute, concept);
-        attribute.getAlternateTerminologyIds().put(concept.getTerminology(),
-            altId);
+      IdentifierAssignmentHandler handler = contentService
+          .getIdentifierAssignmentHandler(concept.getTerminology());
+      String altId = handler.getTerminologyId(attribute, concept);
+      attribute.getAlternateTerminologyIds().put(concept.getTerminology(),
+          altId);
 
       // set the attribute component last modified
       AttributeJpa newAttribute =
           (AttributeJpa) contentService.addAttribute(attribute, concept);
 
-      // add the semantic type and set the last modified by
+      // add the attribute and set the last modified by
       concept.getAttributes().add(newAttribute);
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
@@ -481,12 +507,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       //
 
-      // remove the semantic type component from the concept and update
+      // remove the attribute type component from the concept and update
       concept.getAttributes().remove(attribute);
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       contentService.updateConcept(concept);
 
-      // remove the semantic type component
+      // remove the attribute component
       contentService.removeAttribute(attribute.getId());
 
       // log the REST call
@@ -501,6 +527,239 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent<AttributeJpa> event =
           new ChangeEventJpa<AttributeJpa>(action, IdType.ATTRIBUTE.toString(),
               (AttributeJpa) attribute, null, concept);
+      sendChangeEvent(event);
+
+      return validationResult;
+
+    } catch (Exception e) {
+      handleException(e, action);
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/atom/add")
+  @ApiOperation(value = "Add atom to concept", notes = "Add atom to concept on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult addAtom(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Atom to add", required = true) AtomJpa atom,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /atom/" + projectId + "/"
+            + conceptId + "/add for user " + authToken + " with atom value "
+            + atom.getName());
+
+    // Prep reusable variables
+    final String action = "ADD_ATOM";
+    final ValidationResult validationResult = new ValidationResultJpa();
+
+    // Instantiate services
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, action, UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = contentService.getProject(projectId);
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      final Concept concept = initialize(contentService, project, conceptId,
+          userName, action, lastModified, validationResult);
+      //
+      // Check prerequisites
+      //
+
+      // Perform action specific validation - n/a
+
+      // Metadata referential integrity checking
+      if (contentService.getTermType(atom.getTermType(),
+          concept.getTerminology(), concept.getVersion()) == null) {
+        throw new LocalException(
+            "Cannot add atom with invalid term type - " + atom.getTermType());
+      }
+      if (contentService.getLanguage(atom.getLanguage(),
+          concept.getTerminology(), concept.getVersion()) == null) {
+        throw new LocalException(
+            "Cannot add atom with invalid language - " + atom.getLanguage());
+      }
+      if (contentService.getTerminology(atom.getTerminology(),
+          atom.getVersion()) == null) {
+        throw new LocalException("Cannot add atom with invalid terminology - "
+            + atom.getTerminology() + ", version: " + atom.getVersion());
+      }
+
+      // Duplicate check
+      for (Atom a : concept.getAtoms()) {
+        if (a.getName().equals(atom.getName())) {
+          throw new LocalException("Duplicate atom - " + atom.getName());
+        }
+      }
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        contentService.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action (contentService will create atomic actions for CRUD
+      // operations)
+      //
+
+      // Assign alternateTerminologyId
+      IdentifierAssignmentHandler handler = contentService
+          .getIdentifierAssignmentHandler(concept.getTerminology());
+
+      StringIdentityJpa stringIdent = new StringIdentityJpa(atom.getName(), atom.getLanguage());
+
+      // TODO add string and lexical class identifier
+      //atom.setStringClassId((handler.getTerminologyId(new StringClass(atom.getName()));
+      atom.setStringClassId(
+          new StringIdentityJpa(atom.getName(), atom.getLanguage()).getId().toString());
+      atom.setLexicalClassId(
+          new LexicalClassIdentityJpa(atom.getName()).getId().toString());
+
+      String altId = handler.getTerminologyId(atom);
+      atom.getAlternateTerminologyIds().put(concept.getTerminology(), altId);
+
+      // set the atom component last modified
+      AtomJpa newAtom = (AtomJpa) contentService.addAtom(atom);
+
+      // add the atom and set the last modified by
+      concept.getAtoms().add(newAtom);
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+      // update the concept
+      contentService.updateConcept(concept);
+
+      // log the REST call
+      contentService.addLogEntry(userName, projectId, conceptId, action + " "
+          + newAtom.getName() + " to concept " + concept.getTerminologyId());
+
+      // commit (also removes the lock)
+      contentService.commit();
+
+      // Websocket notification
+      final ChangeEvent<AtomJpa> event = new ChangeEventJpa<AtomJpa>(action,
+          IdType.ATOM.toString(), null, newAtom, concept);
+      sendChangeEvent(event);
+
+      return validationResult;
+
+    } catch (Exception e) {
+
+      handleException(e, action);
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/atom/remove/{id}")
+  @ApiOperation(value = "Remove atom from concept", notes = "Remove atom from concept on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult removeAtom(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept lastModified, in ms ", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Atom id, e.g. 3", required = true) @PathParam("id") Long atomId,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /atom/" + projectId + "/"
+            + conceptId + "/remove for user " + authToken + " with id "
+            + atomId);
+
+    // Prep reusable variables
+    final String action = "REMOVE_ATOM";
+    final ValidationResult validationResult = new ValidationResultJpa();
+
+    // Instantiate services
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, action, UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = contentService.getProject(projectId);
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      final Concept concept = initialize(contentService, project, conceptId,
+          userName, action, lastModified, validationResult);
+
+      //
+      // Check prerequisites
+      //
+
+      // Perform action specific validation - n/a
+
+      // Exists check
+      Atom atom = null;
+      for (final Atom atm : concept.getAtoms()) {
+        if (atm.getId().equals(atomId)) {
+          atom = atm;
+        }
+      }
+      if (atom == null) {
+        throw new LocalException("Atom to remove does not exist");
+      }
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        contentService.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action
+      //
+
+      // remove the atom from the concept and update
+      concept.getAtoms().remove(atom);
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      contentService.updateConcept(concept);
+
+      // remove the atom
+      contentService.removeAtom(atom.getId());
+
+      // log the REST call
+      contentService.addLogEntry(userName, projectId, conceptId, action + " "
+          + atom.getName() + " from concept " + concept.getTerminologyId());
+
+      // commit (also adds the molecular action and removes the lock)
+      contentService.commit();
+
+      // Websocket notification
+      final ChangeEvent<AtomJpa> event = new ChangeEventJpa<AtomJpa>(action,
+          IdType.ATTRIBUTE.toString(), (AtomJpa) atom, null, concept);
       sendChangeEvent(event);
 
       return validationResult;

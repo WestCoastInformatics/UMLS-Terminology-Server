@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -8,12 +8,18 @@ import java.io.File;
 import java.io.FileReader;
 
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
+import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
+import com.wci.umls.server.jpa.meta.StringIdentityJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
+import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
+import com.wci.umls.server.model.meta.StringIdentity;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.UmlsIdentityService;
 
@@ -21,8 +27,8 @@ import com.wci.umls.server.services.UmlsIdentityService;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class UmlsIdentityLoaderAlgorithm extends
-    AbstractTerminologyLoaderAlgorithm {
+public class UmlsIdentityLoaderAlgorithm
+    extends AbstractTerminologyLoaderAlgorithm {
 
   /**
    * Instantiates an empty {@link UmlsIdentityLoaderAlgorithm}.
@@ -52,9 +58,8 @@ public class UmlsIdentityLoaderAlgorithm extends
       if (new File(getInputPath(), "attributeIdentity.txt").exists()) {
         logInfo("  Load attribute identity");
 
-        final BufferedReader in =
-            new BufferedReader(new FileReader(new File(getInputPath(),
-                "attributeIdentity.txt")));
+        final BufferedReader in = new BufferedReader(
+            new FileReader(new File(getInputPath(), "attributeIdentity.txt")));
         String line;
         int ct = 0;
         while ((line = in.readLine()) != null) {
@@ -67,9 +72,9 @@ public class UmlsIdentityLoaderAlgorithm extends
           identity.setId(Long.valueOf(fields[0]));
           identity.setTerminologyId(fields[1]);
           identity.setTerminology(fields[2]);
-          identity.setOwnerId(fields[3]);
-          identity.setOwnerType(IdType.valueOf(fields[4]));
-          identity.setOwnerQualifier(fields[5]);
+          identity.setComponentId(fields[3]);
+          identity.setComponentType(IdType.valueOf(fields[4]));
+          identity.setComponentTerminology(fields[5]);
           identity.setName(fields[6]);
           identity.setHashCode(fields[7]);
           service.addAttributeIdentity(identity);
@@ -90,9 +95,8 @@ public class UmlsIdentityLoaderAlgorithm extends
           .exists()) {
         logInfo("  Load semanticType identity");
 
-        final BufferedReader in =
-            new BufferedReader(new FileReader(new File(getInputPath(),
-                "semanticTypeComponentIdentity.txt")));
+        final BufferedReader in = new BufferedReader(new FileReader(
+            new File(getInputPath(), "semanticTypeComponentIdentity.txt")));
         String line;
         int ct = 0;
         while ((line = in.readLine()) != null) {
@@ -117,7 +121,101 @@ public class UmlsIdentityLoaderAlgorithm extends
         logInfo("    count = " + ct);
       }
 
-      // TODO: AtomIdentity, etc.
+      //
+      // Handle AtomIdentity
+      // id|stringClassId|terminology|terminologyId|termType|code|conceptId|descriptorId
+      //
+      if (new File(getInputPath(), "atomIdentity.txt").exists()) {
+        logInfo("  Load atom identity");
+
+        final BufferedReader in = new BufferedReader(
+            new FileReader(new File(getInputPath(), "atomIdentity.txt")));
+        String line;
+        int ct = 0;
+        while ((line = in.readLine()) != null) {
+          if (isCancelled()) {
+            in.close();
+            return;
+          }
+          final String[] fields = FieldedStringTokenizer.split(line, "|");
+          final AtomIdentity identity = new AtomIdentityJpa();
+          identity.setId(Long.valueOf(fields[0]));
+          identity.setStringClassId(fields[1]);
+          identity.setTerminology(fields[2]);
+          identity.setTerminologyId(fields[3]);
+          identity.setTermType(fields[4]);
+          identity.setCode(fields[5]);
+          identity.setConceptId(fields[6]);
+          identity.setDescriptorId(fields[7]);
+          service.addAtomIdentity(identity);
+          if (++ct % commitCt == 0) {
+            service.commitClearBegin();
+          }
+        }
+        in.close();
+        service.commitClearBegin();
+        logInfo("    count = " + ct);
+      }
+
+      //
+      // Handle StringIdentity
+      // id|string
+      //
+      if (new File(getInputPath(), "stringIdentity.txt").exists()) {
+        logInfo("  Load string identity");
+
+        final BufferedReader in = new BufferedReader(
+            new FileReader(new File(getInputPath(), "stringIdentity.txt")));
+        String line;
+        int ct = 0;
+        while ((line = in.readLine()) != null) {
+          if (isCancelled()) {
+            in.close();
+            return;
+          }
+          final String[] fields = FieldedStringTokenizer.split(line, "|");
+          final StringIdentity identity = new StringIdentityJpa();
+          identity.setId(Long.valueOf(fields[0]));
+          identity.setString(fields[1]);
+          service.addStringIdentity(identity);
+          if (++ct % commitCt == 0) {
+            service.commitClearBegin();
+          }
+        }
+        in.close();
+        service.commitClearBegin();
+        logInfo("    count = " + ct);
+      }
+
+      //
+      // Handle LexicalClassIdentity
+      // id|normalizedString
+      //
+      if (new File(getInputPath(), "lexicalClassIdentity.txt").exists()) {
+        logInfo("  Load lexicalClass identity");
+
+        final BufferedReader in = new BufferedReader(new FileReader(
+            new File(getInputPath(), "lexicalClassIdentity.txt")));
+        String line;
+        int ct = 0;
+        while ((line = in.readLine()) != null) {
+          if (isCancelled()) {
+            in.close();
+            return;
+          }
+          final String[] fields = FieldedStringTokenizer.split(line, "|");
+          final LexicalClassIdentity identity = new LexicalClassIdentityJpa();
+          identity.setId(Long.valueOf(fields[0]));
+          identity.setNormalizedString(fields[1]);
+          service.addLexicalClassIdentity(identity);
+          if (++ct % commitCt == 0) {
+            service.commitClearBegin();
+          }
+        }
+        in.close();
+        service.commitClearBegin();
+        logInfo("    count = " + ct);
+      }
 
       service.commit();
       fireProgressEvent(0, "Finished...");

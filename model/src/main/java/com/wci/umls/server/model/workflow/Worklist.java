@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.model.workflow;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a worklist.
@@ -37,6 +39,20 @@ public interface Worklist extends Checklist {
    * @param bin the workflow bin
    */
   public void setWorkflowBin(String bin);
+  
+  /**
+   * Returns the workflow state history.
+   *
+   * @return the workflow state history
+   */
+  public Map<String, Date> getWorkflowStateHistory();
+  
+  /**
+   * Sets the workflow state history.
+   *
+   * @param workflowStateHistory the workflow state history
+   */
+  public void setWorkflowStateHistory(Map<String, Date> workflowStateHistory);
   
   /**
    * Sets the authors.
@@ -79,5 +95,19 @@ public interface Worklist extends Checklist {
    * @param workflowStatus the new workflow status
    */
   public void setWorkflowStatus(WorkflowStatus workflowStatus);
+
+  /**
+   * Sets the number.
+   *
+   * @param number the number
+   */
+  public void setNumber(int number);
+
+  /**
+   * Returns the number.
+   *
+   * @return the number
+   */
+  public int getNumber();
 
 }

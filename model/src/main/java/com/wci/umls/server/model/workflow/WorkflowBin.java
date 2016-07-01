@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.model.workflow;
 
-import java.util.Date;
 import java.util.List;
 
 import com.wci.umls.server.Project;
@@ -119,14 +118,14 @@ public interface WorkflowBin extends HasLastModified {
    *
    * @return the creation time
    */
-  public Date getCreationTime();
+  public Long getCreationTime();
   
   /**
    * Sets the creation time.
    *
    * @param creationTime the new creation time
    */
-  public void setCreationTime(Date creationTime);
+  public void setCreationTime(Long creationTime);
 
   /**
    * Gets the terminology.

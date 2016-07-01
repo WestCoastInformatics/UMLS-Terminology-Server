@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.Properties;
 
@@ -218,6 +219,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         if (userRole == UserRole.AUTHOR) {
           worklist.getAuthors().add(user.getUserName());
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_IN_PROGRESS);
+          worklist.getWorkflowStateHistory().put("Assigned", new Date());
         }
 
         // Reviewer case
@@ -272,6 +274,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         if (EnumSet.of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS)
             .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_DONE);
+          worklist.getWorkflowStateHistory().put("Returned", new Date());
         }
 
         // REVIEW_NEW, REVIEW_IN_PROGRESS => REVIEW_DONE
@@ -279,12 +282,14 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
             WorkflowStatus.REVIEW_IN_PROGRESS).contains(
             worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.REVIEW_DONE);
+          worklist.getWorkflowStateHistory().put("Stamped", new Date());
         }
 
         // REVIEW_DONE => READY_FOR_PUBLICATION
         else if (EnumSet.of(WorkflowStatus.REVIEW_DONE).contains(
             worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+          worklist.getWorkflowStateHistory().put("Done", new Date());
         }
 
         // Otherwise status stays the same

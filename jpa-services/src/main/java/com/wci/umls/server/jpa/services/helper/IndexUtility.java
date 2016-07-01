@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.services.helper;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
@@ -522,8 +525,24 @@ public class IndexUtility {
         fullTextQuery.setMaxResults(pfs.getMaxResults());
       }
 
-      // if sort specified (single or multi-field sort), set sorting
-      if ((pfs.getSortFields() != null && !pfs.getSortFields().isEmpty())
+      if (pfs.getSortField() != null && !pfs.getSortField().isEmpty()
+          && pfs.getSortField().equals("RANDOM")) {
+
+        Sort sort = new Sort(new SortField("", new FieldComparatorSource() {
+
+          @Override
+          public FieldComparator<Integer> newComparator(String fieldname,
+            int numHits, int sortPos, boolean reversed) throws IOException {
+            return new RandomOrderFieldComparator(numHits, fieldname, null,
+                null);
+          }
+
+        }));
+
+        fullTextQuery.setSort(sort);
+
+        // if sort specified (single or multi-field sort), set sorting
+      } else if ((pfs.getSortFields() != null && !pfs.getSortFields().isEmpty())
           || (pfs.getSortField() != null && !pfs.getSortField().isEmpty())) {
 
         // convenience container for sort field names (from either method)

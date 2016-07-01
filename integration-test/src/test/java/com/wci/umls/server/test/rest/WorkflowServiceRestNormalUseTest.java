@@ -17,12 +17,15 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
@@ -48,8 +51,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   /** The umls version. */
   private String umlsVersion = "latest";
   
-  /**  The added worklist. */
-  private Worklist addedWorklist;
+
 
 
   /**
@@ -247,7 +249,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   }
 
   /**
-   * Test create checklist
+   * Test create/find/delete checklist
    *
    * @throws Exception the exception
    */
@@ -256,30 +258,62 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
-        "TEST - Create checklist" + umlsTerminology + ", " + umlsVersion + ", "
+        "TEST - Create create/find/delete checklist" + umlsTerminology + ", " + umlsVersion + ", "
             + authToken);
 
     try {
       workflowService.regenerateBins(project.getId(),
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
-    WorkflowBinList binList = workflowService.findWorkflowBinsForQuery("name:testName", null, authToken);
+    WorkflowBinList binList = workflowService
+        .findWorkflowBinsForQuery("name:testName", null, authToken);
+
+    // remove any checklists that are created previously
+    ChecklistList list = workflowService.findChecklists(project.getId(), "projectId:" + project.getId(), null, authToken);
+    for (Checklist checklist : list.getObjects()) {
+      workflowService.removeChecklist(checklist.getId(), authToken);
+    }
+    // TODO; concern that sorting isn't happening correctly
     
     //
-    // Create checklist
+    // Create checklist with cluster id order tracking records
     //
+    Checklist checklistOrderByClusterId;
     try {
-      workflowService.createChecklist(project.getId(), binList.getObjects().get(0).getId(), 
-          "newChecklistName", false, false, "terminology:UMLS", new PfsParameterJpa(), authToken);
+      checklistOrderByClusterId = workflowService.createChecklist(
+          project.getId(), binList.getObjects().get(0).getId(),
+          "checklistOrderByClusterId", false, false, "clusterType:chem",
+          new PfsParameterJpa(), authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
+    workflowService.removeChecklist(checklistOrderByClusterId.getId(),
+        authToken);
+    
+    //
+    // Create checklist with random tracking records
+    //
+    Checklist checklistOrderByRandom;
+    try {
+      checklistOrderByRandom = workflowService.createChecklist(project.getId(),
+          binList.getObjects().get(0).getId(), "checklistOrderByRandom", true,
+          false, "clusterType:chem", new PfsParameterJpa(), authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    /*assertTrue(!checklistOrderByClusterId.getTrackingRecords()
+        .equals(checklistOrderByRandom.getTrackingRecords()));*/
+    
+    workflowService.removeChecklist(checklistOrderByRandom.getId(), authToken);
+
 
     workflowService.clearBins(project.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -288,12 +322,70 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   }
   
   /**
-   * Test perform workflow action
+   * Test create/find/delete worklist
    *
    * @throws Exception the exception
    */
   @Test
   public void testNormalUseRestWorkflow005() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    Logger.getLogger(getClass()).info(
+        "TEST - Test create/find/delete worklist" + umlsTerminology + ", " + umlsVersion + ", "
+            + authToken);
+
+    try {
+      workflowService.regenerateBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    WorkflowBinList binList = workflowService
+        .findWorkflowBinsForQuery("name:testName", null, authToken);
+
+    // Remove any worklists first
+    WorklistList worklists = workflowService.findWorklists(project.getId(), "projectId:" + project.getId(), null, authToken);
+    for (Worklist worklist : worklists.getObjects()) {
+      integrationTestService.removeWorklist(worklist.getId(), true, authToken);
+    }
+    
+    
+    //
+    // Create worklist
+    //
+    Worklist worklist;
+    try {
+      worklist = workflowService.createWorklist(project.getId(), binList.getObjects().get(0).getId(), 
+          "chem", 0, 5, new PfsParameterJpa(), authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    
+    //
+    // clean up
+    //
+    integrationTestService.removeWorklist(worklist.getId(), true, authToken);
+
+ 
+    // clear bins
+    workflowService.clearBins(project.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+
+  }
+  
+  
+  /**
+   * Test perform workflow action
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestWorkflow006() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
     Logger.getLogger(getClass()).info(
@@ -301,140 +393,163 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
             + ", " + authToken);
 
 
+    try {
+      workflowService.regenerateBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    WorkflowBinList binList = workflowService
+        .findWorkflowBinsForQuery("name:testName", null, authToken);
+
+    // Remove any worklists first
+    WorklistList worklists = workflowService.findWorklists(project.getId(), "projectId:" + project.getId(), null, authToken);
+    for (Worklist worklist : worklists.getObjects()) {
+      integrationTestService.removeWorklist(worklist.getId(), true, authToken);
+    }
+    
+    
     //
-    // Regenerate bins
+    // Create worklist
     //
-    workflowService.regenerateBins(project.getId(),
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-
-    /*WorkflowBin workflowBin = integrationTestService.getWorkflowBins(authToken).get(0);
-    List<TrackingRecord> trackingRecordList = workflowBin.getTrackingRecords();
-*/
-    WorklistJpa worklist = new WorklistJpa();
-    worklist.setName("test worklist");
-    worklist.setDescription("test worklist description");
-    worklist.setProject(project);
-    worklist.setWorkflowStatus(WorkflowStatus.NEW);
-    worklist.setTimestamp(new Date());
-
-    addedWorklist = integrationTestService.addWorklist(worklist, authToken);
-
-    // go through the trackingrecords and add the worklist to each object
-    /*addedWorklist.setTrackingRecords(trackingRecordList);
-    integrationTestServiceJpa.updateWorklist(addedWorklist);*/
+    Worklist addedWorklist;
+    try {
+      addedWorklist = workflowService.createWorklist(project.getId(), binList.getObjects().get(0).getId(), 
+          "chem", 0, 5, new PfsParameterJpa(), authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
 
     //
     // Test perform workflow action
     //
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.AUTHOR,
-        WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.NEW);
+    try {
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.AUTHOR,
+          WorkflowAction.ASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.NEW);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.AUTHOR,
-        WorkflowAction.UNASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.NEW);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.AUTHOR,
+          WorkflowAction.UNASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.NEW);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.AUTHOR,
-        WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.NEW);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.AUTHOR,
+          WorkflowAction.ASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.NEW);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.AUTHOR, WorkflowAction.SAVE,
-        authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.EDITING_IN_PROGRESS);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.AUTHOR,
+          WorkflowAction.SAVE, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.EDITING_IN_PROGRESS);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.AUTHOR,
-        WorkflowAction.UNASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.NEW);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.AUTHOR,
+          WorkflowAction.UNASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.NEW);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.AUTHOR,
-        WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.NEW);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.AUTHOR,
+          WorkflowAction.ASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.NEW);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.AUTHOR,
-        WorkflowAction.FINISH, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.AUTHOR,
+          WorkflowAction.FINISH, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.REVIEWER,
-        WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.REVIEWER,
+          WorkflowAction.ASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.REVIEWER,
-        WorkflowAction.UNASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.REVIEWER,
+          WorkflowAction.UNASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.REVIEWER,
-        WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.REVIEWER,
+          WorkflowAction.ASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.REVIEWER,
-        WorkflowAction.SAVE, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.REVIEW_IN_PROGRESS);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.REVIEWER,
+          WorkflowAction.SAVE, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.REVIEW_IN_PROGRESS);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.REVIEWER,
-        WorkflowAction.UNASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.REVIEWER,
+          WorkflowAction.UNASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.REVIEWER,
-        WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.REVIEWER,
+          WorkflowAction.ASSIGN, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.REVIEWER,
-        WorkflowAction.FINISH, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.REVIEW_DONE);
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.REVIEWER,
+          WorkflowAction.FINISH, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.REVIEW_DONE);
 
-    workflowService.performWorkflowAction(project.getId(),
-        addedWorklist.getId(), authToken, UserRole.REVIEWER,
-        WorkflowAction.FINISH, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(), authToken)
-        .getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION);
-
+      workflowService.performWorkflowAction(project.getId(),
+          addedWorklist.getId(), authToken, UserRole.REVIEWER,
+          WorkflowAction.FINISH, authToken);
+      assertTrue(
+          integrationTestService.getWorklist(addedWorklist.getId(), authToken)
+              .getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION);
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      integrationTestService.removeWorklist(addedWorklist.getId(), true, authToken);
+     
+      // clear bins
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    }
+    
     //
     // Test clean up
     //
-
-    /*// remove workflow bin definitions
-    workflowService.removeWorkflowBinDefinition(project.getId(),
-        addedWorkflowBinDefinition.getId(), authToken);
-
-    // remove the workflow config
-    workflowService
-        .removeWorkflowConfig(addedWorkflowConfig.getId(), authToken);
-
-    // remove bins and tracking records
-    for (WorkflowBin bin : workflowServiceJpa.getWorkflowBins()) {
-      for (TrackingRecord record : bin.getTrackingRecords()) {
-        workflowServiceJpa.removeTrackingRecord(record.getId());
-      }
-      workflowServiceJpa.removeWorkflowBin(bin.getId());
-    }*/
+    integrationTestService.removeWorklist(addedWorklist.getId(), true, authToken);
+    
+    // clear bins
+    workflowService.clearBins(project.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken); 
 
   }
 
