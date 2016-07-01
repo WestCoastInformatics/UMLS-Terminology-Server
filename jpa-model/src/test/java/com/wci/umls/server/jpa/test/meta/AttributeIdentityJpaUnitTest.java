@@ -72,9 +72,9 @@ public class AttributeIdentityJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("ownerId");
-    tester.include("ownerQualifier");
-    tester.include("ownerType");
+    tester.include("componentId");
+    tester.include("componentTerminology");
+    tester.include("componentType");
     tester.include("hashCode");
 
     assertTrue(tester.testIdentityFieldEquals());
@@ -121,8 +121,10 @@ public class AttributeIdentityJpaUnitTest extends ModelUnitSupport {
 
     tester.include("name");
     tester.include("terminology");
-    tester.include("ownerId");
-    tester.include("ownerType");
+    tester.include("terminologyId");
+    tester.include("componentId");
+    tester.include("componentType");
+    tester.include("componentTerminology");
     tester.include("hashCode");
 
     assertTrue(tester.testNotNullFields());
