@@ -926,21 +926,22 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
-  @POST
+  @GET
   @Path("/action")
   @ApiOperation(value = "Perform workflow action on a tracking record", notes = "Performs the specified action as the specified refset as the specified user", response = WorklistJpa.class)
   public Worklist performWorkflowAction(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Worklist id, e.g. 5", required = false) @QueryParam("worklistId") Long worklistId,
     @ApiParam(value = "User name, e.g. author1", required = true) @QueryParam("userName") String userName,
-    @ApiParam(value = "User role, e.g. AUTHOR", required = true) UserRole role,
+    @ApiParam(value = "User role, e.g. AUTHOR", required = true) @QueryParam("userRole") UserRole userRole,
     @ApiParam(value = "Workflow action, e.g. 'SAVE'", required = true) @QueryParam("action") WorkflowAction action,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /action " + action + ", " + projectId
+        "RESTful POST call (Workflow): /action " + action + ", " + projectId + ", " + worklistId + ", " + userRole
             + ", " + userName);
 
+    
     // Test preconditions
     if (projectId == null || userName == null) {
       handleException(new Exception("Required parameter has a null value"), "");
@@ -966,7 +967,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       workflowService.setLastModifiedBy(authName);
       Worklist returnWorklist =
           workflowService.performWorkflowAction(project, worklist, userName,
-              role, action);
+              userRole, action);
 
       /*
        * TODO addLogEntry(workflowService, userName, "WORKFLOW action",

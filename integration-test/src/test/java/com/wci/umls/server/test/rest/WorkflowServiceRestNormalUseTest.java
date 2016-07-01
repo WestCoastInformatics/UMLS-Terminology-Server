@@ -535,6 +535,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     } catch (Exception e) {
       throw e;
     } finally {
+      // clean up
       integrationTestService.removeWorklist(addedWorklist.getId(), true, authToken);
      
       // clear bins
@@ -542,14 +543,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
     }
     
-    //
-    // Test clean up
-    //
-    integrationTestService.removeWorklist(addedWorklist.getId(), true, authToken);
-    
-    // clear bins
-    workflowService.clearBins(project.getId(),
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken); 
 
   }
 

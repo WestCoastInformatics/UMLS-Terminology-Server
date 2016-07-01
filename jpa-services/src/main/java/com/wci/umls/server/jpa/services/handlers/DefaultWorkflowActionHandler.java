@@ -140,7 +140,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
             worklist.getAuthors().size() == 1
                 && userRole == UserRole.AUTHOR
                 && user.getUserName().equals(worklist.getAuthors().get(0))
-                && EnumSet.of(WorkflowStatus.EDITING_IN_PROGRESS,
+                && EnumSet.of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS,
                     WorkflowStatus.EDITING_DONE).contains(
                     worklist.getWorkflowStatus());
 
@@ -163,7 +163,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         // dependent on user role
         authorFlag =
             userRole == UserRole.AUTHOR
-                && EnumSet.of(WorkflowStatus.EDITING_IN_PROGRESS,
+                && EnumSet.of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS,
                     WorkflowStatus.EDITING_DONE).contains(
                     worklist.getWorkflowStatus());
         reviewerFlag =
@@ -218,7 +218,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         // Author case
         if (userRole == UserRole.AUTHOR) {
           worklist.getAuthors().add(user.getUserName());
-          worklist.setWorkflowStatus(WorkflowStatus.EDITING_IN_PROGRESS);
+          worklist.setWorkflowStatus(WorkflowStatus.NEW);
           worklist.getWorkflowStateHistory().put("Assigned", new Date());
         }
 
