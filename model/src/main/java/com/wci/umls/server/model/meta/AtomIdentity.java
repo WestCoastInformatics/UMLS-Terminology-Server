@@ -94,12 +94,12 @@ public interface AtomIdentity extends HasId {
    */
   public void setConceptId(String conceptId);
 
-   /**
-    * Returns the descriptor id.
-    *
-    * @return the descriptor id
-    */
-   public String getDescriptorId();
+  /**
+   * Returns the descriptor id.
+   *
+   * @return the descriptor id
+   */
+  public String getDescriptorId();
 
   /**
    * Sets the descriptor id.
