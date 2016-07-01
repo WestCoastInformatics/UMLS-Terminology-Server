@@ -114,7 +114,7 @@ public class LexicalClassIdentityJpaUnitTest extends ModelUnitSupport {
     NullableFieldTester tester = new NullableFieldTester(object);
 
     tester.include("normalizedString");
-    tester.include("normalizedStringPre");
+    tester.include("normalizedStringHash");
 
     assertTrue(tester.testNotNullFields());
   }

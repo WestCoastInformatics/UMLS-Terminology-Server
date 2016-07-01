@@ -7,6 +7,7 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 
@@ -79,4 +80,35 @@ public interface MetaEditingServiceRest {
     Long timestamp, Long attributeId, boolean overrideWarnings,
     String authToken) throws Exception;
 
+  /**
+   * Adds the atom.
+   *
+   * @param projectId the project id
+   * @param conceptId the concept id
+   * @param timestamp the timestamp
+   * @param atom the atom
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult addAtom(Long projectId, Long conceptId,
+    Long timestamp, AtomJpa atom, boolean overrideWarnings, String authToken)
+    throws Exception;
+
+  /**
+   * Removes the atom.
+   *
+   * @param projectId the project id
+   * @param conceptId the concept id
+   * @param timestamp the timestamp
+   * @param atomId the atom id
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult removeAtom(Long projectId, Long conceptId,
+    Long timestamp, Long atomId, boolean overrideWarnings, String authToken)
+    throws Exception;
 }
