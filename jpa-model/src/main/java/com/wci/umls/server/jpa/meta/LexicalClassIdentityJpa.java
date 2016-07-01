@@ -17,8 +17,8 @@ import com.wci.umls.server.model.meta.LexicalClassIdentity;
  * JPA and JAXB enabled implementation of {@link LexicalClassIdentity}.
  */
 @Entity
-@Table(name = "lexicalClass_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "normalizedStringHash", "id"
+@Table(name = "lexical_class_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "normalizedNameHash", "id"
 }))
 @XmlRootElement(name = "lexicalClassIdentity")
 public class LexicalClassIdentityJpa implements LexicalClassIdentity {
@@ -27,13 +27,13 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
   @Id
   private Long id;
 
-  /** The normalized string. */
+  /** The normalized name. */
   @Column(nullable = false, length = 4000)
-  private String normalizedString;
+  private String normalizedName;
 
-  /** The normalized string pre. */
+  /** The normalized name hash. */
   @Column(nullable = false)
-  private String normalizedStringHash;
+  private String normalizedNameHash;
 
   /**
    * Instantiates an empty {@link LexicalClassIdentityJpa}.
@@ -50,17 +50,17 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
    */
   public LexicalClassIdentityJpa(LexicalClassIdentity identity) {
     id = identity.getId();
-    setNormalizedString(identity.getNormalizedString());
+    setNormalizedName(identity.getNormalizedName());
   }
   
 
   /**
    * Instantiates a {@link LexicalClassIdentityJpa} from the specified parameters.
    *
-   * @param normalizedString the normalized string
+   * @param normalizedName the normalized string
    */
-  public LexicalClassIdentityJpa(String normalizedString) {
-    setNormalizedString(normalizedString);
+  public LexicalClassIdentityJpa(String normalizedName) {
+    setNormalizedName(normalizedName);
   }
 
   /* see superclass */
@@ -77,15 +77,15 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
 
   /* see superclass */
   @Override
-  public String getNormalizedString() {
-    return normalizedString;
+  public String getNormalizedName() {
+    return normalizedName;
   }
 
   /* see superclass */
   @Override
-  public void setNormalizedString(String normalizedString) {
-    this.normalizedString = normalizedString;
-    this.normalizedStringHash = ConfigUtility.getMd5(normalizedString);
+  public void setNormalizedName(String normalizedName) {
+    this.normalizedName = normalizedName;
+    this.normalizedNameHash = ConfigUtility.getMd5(normalizedName);
 
   }
 
@@ -95,7 +95,7 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
     final int prime = 31;
     int result = 1;
     result = prime * result
-        + ((normalizedString == null) ? 0 : normalizedString.hashCode());
+        + ((normalizedName == null) ? 0 : normalizedName.hashCode());
 
     return result;
   }
@@ -110,10 +110,10 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
     if (getClass() != obj.getClass())
       return false;
     LexicalClassIdentityJpa other = (LexicalClassIdentityJpa) obj;
-    if (normalizedString == null) {
-      if (other.normalizedString != null)
+    if (normalizedName == null) {
+      if (other.normalizedName != null)
         return false;
-    } else if (!normalizedString.equals(other.normalizedString))
+    } else if (!normalizedName.equals(other.normalizedName))
       return false;
     return true;
   }
@@ -121,8 +121,8 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
   /* see superclass */
   @Override
   public String toString() {
-    return "LexicalClassIdentityJpa [id=" + id + ", normalizedString="
-        + normalizedString + ", normalizedStringHash=" + normalizedStringHash
+    return "LexicalClassIdentityJpa [id=" + id + ", normalizedName="
+        + normalizedName + ", normalizedNameHash=" + normalizedNameHash
         + "]";
   }
 

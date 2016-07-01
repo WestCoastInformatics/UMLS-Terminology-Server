@@ -42,9 +42,9 @@ public class AtomIdentityJpa implements AtomIdentity {
   @Column(nullable = false)
   private String termType;
 
-  /** The code. */
+  /** The code id. */
   @Column(nullable = false)
-  private String code;
+  private String codeId;
 
   /** The concept id. */
   @Column(nullable = false)
@@ -72,7 +72,7 @@ public class AtomIdentityJpa implements AtomIdentity {
     terminology = identity.getTerminology();
     terminologyId = identity.getTerminologyId();
     termType = identity.getTermType();
-    code = identity.getCode();
+    codeId = identity.getCodeId();
     conceptId = identity.getConceptId();
     descriptorId = identity.getDescriptorId();
 
@@ -135,13 +135,13 @@ public class AtomIdentityJpa implements AtomIdentity {
   }
 
   @Override
-  public String getCode() {
-    return code;
+  public String getCodeId() {
+    return codeId;
   }
 
   @Override
-  public void setCode(String code) {
-    this.code = code;
+  public void setCodeId(String codeId) {
+    this.codeId = codeId;
 
   }
 
@@ -177,7 +177,7 @@ public class AtomIdentityJpa implements AtomIdentity {
     result = prime * result
         + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
-    result = prime * result + ((code == null) ? 0 : code.hashCode());
+    result = prime * result + ((codeId == null) ? 0 : codeId.hashCode());
     result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
     result =
         prime * result + ((descriptorId == null) ? 0 : descriptorId.hashCode());
@@ -215,10 +215,10 @@ public class AtomIdentityJpa implements AtomIdentity {
         return false;
     } else if (!termType.equals(other.termType))
       return false;
-    if (code == null) {
-      if (other.code != null)
+    if (codeId == null) {
+      if (other.codeId != null)
         return false;
-    } else if (!code.equals(other.code))
+    } else if (!codeId.equals(other.codeId))
       return false;
     if (conceptId == null) {
       if (other.conceptId != null)
@@ -238,7 +238,7 @@ public class AtomIdentityJpa implements AtomIdentity {
   public String toString() {
     return "AtomIdentityJpa [id=" + id + ", stringClassId=" + stringClassId
         + ", terminology=" + terminology + ", terminologyId=" + terminologyId
-        + ", termType=" + termType + ", code=" + code + ", conceptId="
+        + ", termType=" + termType + ", code=" + codeId + ", conceptId="
         + conceptId + ", descriptorId=" + descriptorId + "]";
   }
 

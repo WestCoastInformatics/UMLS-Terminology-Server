@@ -248,6 +248,7 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     // Test non analyzed fields
     assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
+    tester.include("id");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("suppressible");

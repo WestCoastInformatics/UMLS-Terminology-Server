@@ -50,7 +50,7 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
    * Instantiates an empty {@link LexicalClassJpa}.
    */
   public LexicalClassJpa() {
-    // do nothing
+    setPublishable(true);
   }
 
   /**

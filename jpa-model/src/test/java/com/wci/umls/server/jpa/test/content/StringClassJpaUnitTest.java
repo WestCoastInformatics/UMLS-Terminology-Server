@@ -79,6 +79,7 @@ public class StringClassJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
 
     tester.include("name");
+    tester.include("language");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -132,6 +133,7 @@ public class StringClassJpaUnitTest extends ModelUnitSupport {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("name");
+    tester.include("language");
     tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());
@@ -154,6 +156,7 @@ public class StringClassJpaUnitTest extends ModelUnitSupport {
     // Test non analyzed fields
     assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
+    tester.include("id");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("suppressible");

@@ -4,25 +4,12 @@
 package com.wci.umls.server.model.meta;
 
 import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.HasName;
 
 /**
  * Represents atom identity for Metathesaurus editing.
  */
-public interface StringIdentity extends HasId {
-
-  /**
-   * Returns the string.
-   *
-   * @return the string
-   */
-  public String getString();
-
-  /**
-   * Sets the string.
-   *
-   * @param string the string
-   */
-  public void setString(String string);
+public interface StringClassIdentity extends HasId, HasName {
 
   /**
    * Returns the language.

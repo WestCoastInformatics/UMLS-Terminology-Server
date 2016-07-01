@@ -10,7 +10,7 @@ import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
-import com.wci.umls.server.model.meta.StringIdentity;
+import com.wci.umls.server.model.meta.StringClassIdentity;
 
 /**
  * Represents a service used by Metathesaurus editing for assigning identifiers.
@@ -198,7 +198,7 @@ public interface UmlsIdentityService extends RootService {
    * @return the string identity
    * @throws Exception the exception
    */
-  public StringIdentity getStringIdentity(Long id) throws Exception;
+  public StringClassIdentity getStringClassIdentity(Long id) throws Exception;
 
   /**
    * Returns the next string id.
@@ -206,7 +206,7 @@ public interface UmlsIdentityService extends RootService {
    * @return the next string id
    * @throws Exception the exception
    */
-  public Long getNextStringId() throws Exception;
+  public Long getNextStringClassId() throws Exception;
 
   /**
    * Returns the string identity.
@@ -215,7 +215,7 @@ public interface UmlsIdentityService extends RootService {
    * @return the string identity
    * @throws Exception the exception
    */
-  public StringIdentity getStringIdentity(StringIdentity identity)
+  public StringClassIdentity getStringClassIdentity(StringClassIdentity identity)
     throws Exception;
 
   /**
@@ -225,7 +225,7 @@ public interface UmlsIdentityService extends RootService {
    * @return the string identity
    * @throws Exception the exception
    */
-  public StringIdentity addStringIdentity(StringIdentity stringIdentity)
+  public StringClassIdentity addStringClassIdentity(StringClassIdentity stringIdentity)
     throws Exception;
 
   /**
@@ -234,7 +234,7 @@ public interface UmlsIdentityService extends RootService {
    * @param stringIdentity the string identity
    * @throws Exception the exception
    */
-  public void updateStringIdentity(StringIdentity stringIdentity)
+  public void updateStringClassIdentity(StringClassIdentity stringIdentity)
     throws Exception;
 
   /**
@@ -243,7 +243,7 @@ public interface UmlsIdentityService extends RootService {
    * @param stringIdentityId the string identity id
    * @throws Exception the exception
    */
-  public void removeStringIdentity(Long stringIdentityId) throws Exception;
+  public void removeStringClassIdentity(Long stringIdentityId) throws Exception;
 
   /**
    * Returns the lexical class identity.

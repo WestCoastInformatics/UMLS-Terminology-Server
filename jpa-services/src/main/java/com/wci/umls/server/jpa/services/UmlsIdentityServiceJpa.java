@@ -11,7 +11,7 @@ import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
-import com.wci.umls.server.model.meta.StringIdentity;
+import com.wci.umls.server.model.meta.StringClassIdentity;
 import com.wci.umls.server.services.UmlsIdentityService;
 
 /**
@@ -261,19 +261,19 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     try {
       final javax.persistence.Query query =
           manager.createQuery("select a from AtomIdentityJpa a "
-              + "where stringClassId = : stringClassId"
-              + "where terminology = :terminology "
+              + "where stringClassId = :stringClassId "
+              + "and terminology = :terminology "
               + "and terminologyId = :terminologyId "
-              + "where termType = : termType"
-              + "where code = code: "
-              + "where conceptId = : conceptId"
-              + "where descriptorId = : descriptorId"
+              + "and termType = :termType "
+              + "and codeId = :codeId "
+              + "and conceptId = :conceptId "
+              + "and descriptorId = :descriptorId "
               );
       query.setParameter("stringClassId", identity.getStringClassId());
       query.setParameter("terminology", identity.getTerminology());
       query.setParameter("terminologyId", identity.getTerminologyId());
       query.setParameter("termType", identity.getTermType());
-      query.setParameter("code", identity.getCode());
+      query.setParameter("codeId", identity.getCodeId());
       query.setParameter("conceptId", identity.getConceptId());
       query.setParameter("descriptorId", identity.getDescriptorId());
 
@@ -313,21 +313,21 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
   }
 
   @Override
-  public StringIdentity getStringIdentity(Long id) throws Exception {
+  public StringClassIdentity getStringClassIdentity(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get string identity " + id);
-    return getObject(id, StringIdentity.class);
+    return getObject(id, StringClassIdentity.class);
   }
 
   @Override
-  public Long getNextStringId() throws Exception {
+  public Long getNextStringClassId() throws Exception {
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get next string id");
 
     Long stringId = 0L;
     try {
       final javax.persistence.Query query =
-          manager.createQuery("select max(a.id) from StringIdentityJpa a ");
+          manager.createQuery("select max(a.id) from StringClassIdentityJpa a ");
       Long stringId2 = (Long) query.getSingleResult();
       stringId = stringId2!=null?stringId2:stringId;
     } catch (NoResultException e) {
@@ -338,20 +338,20 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
   }
 
   @Override
-  public StringIdentity getStringIdentity(StringIdentity identity)
+  public StringClassIdentity getStringClassIdentity(StringClassIdentity identity)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get string identity " + identity);
 
     try {
       final javax.persistence.Query query =
-          manager.createQuery("select a from StringIdentityJpa a "
-              + "where caseInsensitiveId = :caseInsensitiveId "
-              + "and string = :string");
-      query.setParameter("id", identity.getId());
-      query.setParameter("string", identity.getString());
+          manager.createQuery("select a from StringClassIdentityJpa a "
+              + "where name = :name "
+              + "and language = :language");
+      query.setParameter("name", identity.getName());
+      query.setParameter("language", identity.getLanguage());
 
-      return (StringIdentity) query.getSingleResult();
+      return (StringClassIdentity) query.getSingleResult();
 
     } catch (NoResultException e) {
       return null;
@@ -359,32 +359,32 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
   }
 
   @Override
-  public StringIdentity addStringIdentity(StringIdentity stringIdentity)
+  public StringClassIdentity addStringClassIdentity(StringClassIdentity stringClassIdentity)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Umls Identity Service - add string identity "
-            + stringIdentity.toString());
-    return addObject(stringIdentity);
+        "Umls Identity Service - add string class identity "
+            + stringClassIdentity.toString());
+    return addObject(stringClassIdentity);
   }
 
   @Override
-  public void updateStringIdentity(StringIdentity stringIdentity)
+  public void updateStringClassIdentity(StringClassIdentity stringClassIdentity)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - update string identity "
-            + stringIdentity.toString());
+            + stringClassIdentity.toString());
 
-    updateObject(stringIdentity);
+    updateObject(stringClassIdentity);
   }
 
   @Override
-  public void removeStringIdentity(Long stringIdentityId) throws Exception {
+  public void removeStringClassIdentity(Long stringClassIdentityId) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - remove string identity "
-            + stringIdentityId);
+            + stringClassIdentityId);
 
-    StringIdentity identity = getStringIdentity(stringIdentityId);
-    removeObject(identity, StringIdentity.class);
+    StringClassIdentity identity = getStringClassIdentity(stringClassIdentityId);
+    removeObject(identity, StringClassIdentity.class);
   }
 
   @Override
@@ -422,8 +422,8 @@ public class UmlsIdentityServiceJpa extends RootServiceJpa implements
     try {
       final javax.persistence.Query query =
           manager.createQuery("select a from LexicalClassIdentityJpa a "
-              + "where normalizedString = :normalizedString ");
-      query.setParameter("normalizedString", identity.getNormalizedString());
+              + "where normalizedName = :normalizedName ");
+      query.setParameter("normalizedName", identity.getNormalizedName());
 
       return (LexicalClassIdentity) query.getSingleResult();
 

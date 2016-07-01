@@ -11,65 +11,62 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.model.meta.StringIdentity;
+import com.wci.umls.server.model.meta.StringClassIdentity;
 
 /**
- * JPA and JAXB enabled implementation of {@link StringIdentity}.
+ * JPA and JAXB enabled implementation of {@link StringClassIdentity}.
  */
 
-/**
- * The Class StringIdentityJpa.
- */
 @Entity
-@Table(name = "string_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "stringHash", "id"
+@Table(name = "string_class_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "nameHash", "id"
 }))
 @XmlRootElement(name = "stringIdentity")
-public class StringIdentityJpa implements StringIdentity {
+public class StringClassIdentityJpa implements StringClassIdentity {
 
   /** The id. */
   @Id
   private Long id;
 
-  /** The string pre. */
+  /** The name. */
   @Column(nullable = false)
-  private String stringHash;
-
-  /** The string. */
-  @Column(nullable = false, length = 4000)
-  private String string;
+  private String name;
+  
+  /** The name pre. */
+  @Column(nullable = false)
+  private String nameHash;
 
   /** The language. */
   @Column(nullable = false)
   private String language;
 
   /**
-   * Instantiates an empty {@link StringIdentityJpa}.
+   * Instantiates an empty {@link StringClassIdentityJpa}.
    */
-  public StringIdentityJpa() {
+  public StringClassIdentityJpa() {
     //
   }
 
   /**
-   * Instantiates a {@link StringIdentityJpa} from the specified parameters.
+   * Instantiates a {@link StringClassIdentityJpa} from the specified parameters.
    *
    * @param identity the identity
    */
-  public StringIdentityJpa(StringIdentity identity) {
+  public StringClassIdentityJpa(StringClassIdentity identity) {
     id = identity.getId();
-    setString(identity.getString());
+    setName(identity.getName());
     language = identity.getLanguage();
 
   }
 
   /**
-   * Instantiates a {@link StringIdentityJpa} from the specified parameters.
+   * Instantiates a {@link StringClassIdentityJpa} from the specified parameters.
    *
-   * @param string the string
+   * @param name the name
    * @param language the language
    */
-  public StringIdentityJpa(String string, String language) {
-    setString(string);
+  public StringClassIdentityJpa(String name, String language) {
+    setName(name);
     this.language = language;
 
   }
@@ -97,26 +94,26 @@ public class StringIdentityJpa implements StringIdentity {
   }
 
   /**
-   * Returns the string.
+   * Returns the name.
    *
-   * @return the string
+   * @return the name
    */
   /* see superclass */
   @Override
-  public String getString() {
-    return string;
+  public String getName() {
+    return name;
   }
 
   /**
-   * Sets the string.
+   * Sets the name.
    *
-   * @param string the string
+   * @param name the name
    */
   /* see superclass */
   @Override
-  public void setString(String string) {
-    this.string = string;
-    this.stringHash = ConfigUtility.getMd5(string);
+  public void setName(String name) {
+    this.name = name;
+    this.nameHash = ConfigUtility.getMd5(name);
 
   }
 
@@ -140,7 +137,7 @@ public class StringIdentityJpa implements StringIdentity {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((string == null) ? 0 : string.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
     return result;
   }
@@ -160,11 +157,11 @@ public class StringIdentityJpa implements StringIdentity {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    StringIdentityJpa other = (StringIdentityJpa) obj;
-    if (string == null) {
-      if (other.string != null)
+    StringClassIdentityJpa other = (StringClassIdentityJpa) obj;
+    if (name == null) {
+      if (other.name != null)
         return false;
-    } else if (!string.equals(other.string))
+    } else if (!name.equals(other.name))
       return false;
     if (language == null) {
       if (other.language != null)
@@ -175,14 +172,14 @@ public class StringIdentityJpa implements StringIdentity {
   }
 
   /**
-   * To string.
+   * To name.
    *
-   * @return the string
+   * @return the name
    */
   /* see superclass */
   @Override
   public String toString() {
-    return "StringIdentityJpa [id=" + id + ", string=" + string
-        + ", stringHash=" + stringHash + "]";
+    return "StringIdentityJpa [id=" + id + ", name=" + name
+        + ", nameHash=" + nameHash + "]";
   }
 }
