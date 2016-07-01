@@ -18,6 +18,7 @@ import org.junit.Test;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -282,12 +283,14 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
     // Create checklist with cluster id order tracking records
     //
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setMaxResults(5);
     Checklist checklistOrderByClusterId;
     try {
       checklistOrderByClusterId = workflowService.createChecklist(
           project.getId(), binList.getObjects().get(0).getId(),
           "checklistOrderByClusterId", false, false, "clusterType:chem",
-          new PfsParameterJpa(), authToken);
+          pfs, authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -303,7 +306,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     try {
       checklistOrderByRandom = workflowService.createChecklist(project.getId(),
           binList.getObjects().get(0).getId(), "checklistOrderByRandom", true,
-          false, "clusterType:chem", new PfsParameterJpa(), authToken);
+          false, "clusterType:chem", pfs, authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);

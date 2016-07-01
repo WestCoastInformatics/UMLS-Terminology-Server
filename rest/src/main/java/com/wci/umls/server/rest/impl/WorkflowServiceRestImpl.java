@@ -31,6 +31,7 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.helpers.WorkflowBinStatsList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -45,6 +46,7 @@ import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinStatsJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
@@ -52,10 +54,12 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.Checklist;
+import com.wci.umls.server.model.workflow.ClusterTypeStats;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowBinStats;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
@@ -1287,4 +1291,39 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       }
 
     }
+
+  @Override
+  public WorkflowBinStatsList getWorkflowBinStats(Long projectId,
+    WorkflowBinType type, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Workflow): /bin/stats ");
+  return null;
+    /*final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "trying to get workflow bin stats", UserRole.AUTHOR);
+
+      workflowService.setLastModifiedBy(userName);
+
+      Project project = workflowService.getProject(projectId);
+      
+      
+      List<WorkflowBin> bins = workflowService.findWorkflowBinsForQuery();
+      for (WorkflowBin bin : bins) {
+        WorkflowBinStats workflowBinStats = new WorkflowBinStatsJpa();
+        Map<String, ClusterTypeStats> clusterTypeStatsMap = workflowBinStats.getClusterTypeStatsMap();
+        List<TrackingRecord> trackingRecords = bin.getTrackingRecords();
+        for (TrackingRecord record : trackingRecords) {
+          if (clusterTypeStatsMap.containsKey(record.getClusterType()) {
+            
+          }
+        }
+        
+      }
+      
+    } catch (Exception e) {
+
+    }*/
+  }
 }

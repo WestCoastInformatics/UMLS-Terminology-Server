@@ -9,6 +9,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.helpers.WorkflowBinStatsList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -143,7 +144,7 @@ public interface WorkflowServiceRest {
    */
   public TrackingRecordList findAvailableWork(Long projectId, UserRole role,
     PfsParameterJpa pfs, String authToken) throws Exception;
-  
+
   /**
    * Find assigned worklists.
    *
@@ -169,7 +170,7 @@ public interface WorkflowServiceRest {
    */
   public ChecklistList findChecklists(Long projectId, String query,
     PfsParameterJpa pfs, String authToken) throws Exception;
-  
+
   /**
    * Returns the workflow paths defined by the supported listeners.
    *
@@ -178,7 +179,7 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public StringList getWorkflowPaths(String authToken) throws Exception;
-  
+
   /**
    * Perform workflow action.
    *
@@ -192,10 +193,9 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public Worklist performWorkflowAction(Long projectId, Long worklistId,
-    String userName, UserRole role, WorkflowAction action,
-    String authToken) throws Exception;
-  
-  
+    String userName, UserRole role, WorkflowAction action, String authToken)
+    throws Exception;
+
   /**
    * Returns the tracking records for concept.
    *
@@ -205,7 +205,7 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public TrackingRecordList getTrackingRecordsForConcept(Long conceptId,
-    String authToken) throws Exception;  
+    String authToken) throws Exception;
 
   /**
    * Find available worklists.
@@ -217,9 +217,8 @@ public interface WorkflowServiceRest {
    * @return the worklist list
    * @throws Exception the exception
    */
-  public WorklistList findAvailableWorklists(Long projectId,
-    UserRole role, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public WorklistList findAvailableWorklists(Long projectId, UserRole role,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Creates the checklist.
@@ -238,7 +237,7 @@ public interface WorkflowServiceRest {
   public Checklist createChecklist(Long projectId, Long workflowBinId,
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception;
-  
+
   /**
    * Find workflow bin for query.
    *
@@ -248,10 +247,9 @@ public interface WorkflowServiceRest {
    * @return the list
    * @throws Exception the exception
    */
-  public WorkflowBinList findWorkflowBinsForQuery(String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+  public WorkflowBinList findWorkflowBinsForQuery(String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
- 
   /**
    * Adds the workflow epoch.
    *
@@ -261,8 +259,8 @@ public interface WorkflowServiceRest {
    * @return the workflow epoch
    * @throws Exception the exception
    */
-  public WorkflowEpoch addWorkflowEpoch(
-    Long projectId, WorkflowEpochJpa epoch, String authToken) throws Exception;
+  public WorkflowEpoch addWorkflowEpoch(Long projectId, WorkflowEpochJpa epoch,
+    String authToken) throws Exception;
 
   /**
    * Creates the worklist.
@@ -300,12 +298,29 @@ public interface WorkflowServiceRest {
    * @return the worklist list
    * @throws Exception the exception
    */
-  public WorklistList findWorklists(Long projectId, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
-  
-  /*public StringList findGeneratedConceptReports(Long projectId, String query, PfsParameter pfs, String authToken) throws Exception;
-  
-  public String getGeneratedConceptReport(Long projectId, String fileName, String authToken) throws Exception;
-  
-  public void removeGeneratedConceptReport(Long projectId, String fileName, String authToken) throws Exception;*/
+  public WorklistList findWorklists(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Returns the workflow bin stats.
+   *
+   * @param projectId the project id
+   * @param type the type
+   * @param authToken the auth token
+   * @return the workflow bin stats
+   * @throws Exception the exception
+   */
+  public WorkflowBinStatsList getWorkflowBinStats(Long projectId,
+    WorkflowBinType type, String authToken) throws Exception;
+
+  /*
+   * public StringList findGeneratedConceptReports(Long projectId, String query,
+   * PfsParameter pfs, String authToken) throws Exception;
+   * 
+   * public String getGeneratedConceptReport(Long projectId, String fileName,
+   * String authToken) throws Exception;
+   * 
+   * public void removeGeneratedConceptReport(Long projectId, String fileName,
+   * String authToken) throws Exception;
+   */
 }
