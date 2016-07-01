@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -36,11 +36,15 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
   @Column(nullable = true)
   List<String> labels;
 
+  /** The language. */
+  @Column(nullable = false)
+  String language;
+
   /**
    * Instantiates a new string class jpa.
    */
   public StringClassJpa() {
-    // do nothing
+    setPublishable(true);
   }
 
   /**
@@ -53,6 +57,9 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
     super(stringClass, deepCopy);
     if (stringClass.getLabels() != null) {
       labels = new ArrayList<>(stringClass.getLabels());
+    }
+    if (stringClass.getLanguage() != "") {
+      language = new String(stringClass.getLanguage());
     }
   }
 
@@ -67,6 +74,43 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
   public void setLabels(List<String> labels) {
     this.labels = labels;
 
+  }
+
+  /* see superclass */
+  @Override
+  public String getLanguage() {
+    return language;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLanguage(String language) {
+    this.language = language;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((language == null) ? 0 : language.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    StringClassJpa other = (StringClassJpa) obj;
+    if (language == null) {
+      if (other.language != null)
+        return false;
+    } else if (!language.equals(other.language))
+      return false;
+    return true;
   }
 
 }

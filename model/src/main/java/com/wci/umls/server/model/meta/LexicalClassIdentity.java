@@ -11,18 +11,17 @@ import com.wci.umls.server.helpers.HasId;
 public interface LexicalClassIdentity extends HasId {
 
   /**
-   * Returns the normalized string.
+   * Returns the normalized name.
    *
-   * @return the normalized string
+   * @return the normalized name
    */
-  public String getNormalizedString();
+  public String getNormalizedName();
 
   /**
-   * Sets the normalized string.
+   * Sets the normalized name.
    *
-   * @param normalizedString the normalized string
+   * @param normalizedName the normalized name
    */
-
-  public void setNormalizedString(String normalizedString);
+  public void setNormalizedName(String normalizedName);
 
 }

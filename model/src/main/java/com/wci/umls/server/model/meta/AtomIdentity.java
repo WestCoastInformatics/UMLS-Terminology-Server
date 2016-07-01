@@ -71,14 +71,14 @@ public interface AtomIdentity extends HasId {
    *
    * @return the code
    */
-  public String getCode();
+  public String getCodeId();
 
   /**
    * Sets the code.
    *
    * @param code the code
    */
-  public void setCode(String code);
+  public void setCodeId(String codeId);
 
   /**
    * Returns the concept id.

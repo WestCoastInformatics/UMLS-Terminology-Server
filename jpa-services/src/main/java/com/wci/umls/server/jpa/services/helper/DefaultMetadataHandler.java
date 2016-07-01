@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.helper;
 
@@ -44,8 +44,8 @@ import com.wci.umls.server.services.handlers.MetadataHandler;
 /**
  * Default implementation of {@link MetadataService}.
  */
-public class DefaultMetadataHandler extends RootServiceJpa implements
-    MetadataHandler {
+public class DefaultMetadataHandler extends RootServiceJpa
+    implements MetadataHandler {
 
   /**
    * Instantiates an empty {@link DefaultMetadataHandler}.
@@ -58,15 +58,14 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
 
   /* see superclass */
   @SuppressWarnings({
-    "unchecked"
+      "unchecked"
   })
   @Override
   public RelationshipTypeList getRelationshipTypes(String terminology,
     String version) throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT r from RelationshipTypeJpa r where terminology = :terminology"
-                + " and version = :version");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from RelationshipTypeJpa r where terminology = :terminology"
+            + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -78,15 +77,14 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
 
   /* see superclass */
   @SuppressWarnings({
-    "unchecked"
+      "unchecked"
   })
   @Override
   public LanguageList getLanguages(String terminology, String version)
     throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT r from LanguageJpa r where terminology = :terminology"
-                + " and version = :version");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from LanguageJpa r where terminology = :terminology"
+            + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -101,10 +99,9 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public PropertyChainList getPropertyChains(String terminology, String version)
     throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT r from PropertyChainJpa r where terminology = :terminology"
-                + " and version = :version");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from PropertyChainJpa r where terminology = :terminology"
+            + " and version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     PropertyChainList types = new PropertyChainListJpa();
@@ -118,10 +115,9 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public AdditionalRelationshipTypeList getAdditionalRelationshipTypes(
     String terminology, String version) throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT r from AdditionalRelationshipTypeJpa r where terminology = :terminology"
-                + " and version = :version");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from AdditionalRelationshipTypeJpa r where terminology = :terminology"
+            + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -138,10 +134,9 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public AttributeNameList getAttributeNames(String terminology, String version)
     throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT a from AttributeNameJpa a where terminology = :terminology"
-                + " and version = :version");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT a from AttributeNameJpa a where terminology = :terminology"
+            + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -156,10 +151,9 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public LabelSetList getLabelSets(String terminology, String version)
     throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT a from LabelSetJpa a where terminology = :terminology"
-                + " and version = :version");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT a from LabelSetJpa a where terminology = :terminology"
+            + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -174,10 +168,9 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public SemanticTypeList getSemanticTypes(String terminology, String version)
     throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT s from SemanticTypeJpa s where terminology = :terminology"
-                + " and version = :version");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT s from SemanticTypeJpa s where terminology = :terminology"
+            + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -192,10 +185,9 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public TermTypeList getTermTypes(String terminology, String version)
     throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT t from TermTypeJpa t where terminology = :terminology"
-                + " and version = :version");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT t from TermTypeJpa t where terminology = :terminology"
+            + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -222,10 +214,9 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public RelationshipTypeList getNonGroupingRelationshipTypes(
     String terminology, String version) throws Exception {
-    javax.persistence.Query query =
-        manager.createQuery("SELECT r from RelationshipTypeJpa r "
-            + " where groupingType = 0" + " and terminology = :terminology"
-            + " and version = :version");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from RelationshipTypeJpa r " + " where groupingType = 0"
+            + " and terminology = :terminology" + " and version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     RelationshipTypeList types = new RelationshipTypeListJpa();
@@ -307,13 +298,11 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public SemanticType getSemanticType(String type, String terminology,
     String version) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - get semanticType " + type + "," + terminology + ","
-            + version);
+    Logger.getLogger(getClass()).debug("Metadata Service - get semanticType "
+        + type + "," + terminology + "," + version);
 
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT s from SemanticTypeJpa s where terminology = :terminology and version = :version and expandedForm = :type");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT s from SemanticTypeJpa s where terminology = :terminology and version = :version and expandedForm = :type");
     query.setParameter("type", type);
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -331,13 +320,11 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public AttributeName getAttributeName(String name, String terminology,
     String version) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - get attributeName " + name + "," + terminology
-            + "," + version);
+    Logger.getLogger(getClass()).debug("Metadata Service - get attributeName "
+        + name + "," + terminology + "," + version);
 
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT a from AttributeNameJpa a where terminology = :terminology and version = :version and abbreviation = :name");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT a from AttributeNameJpa a where terminology = :terminology and version = :version and abbreviation = :name");
     query.setParameter("name", name);
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -355,13 +342,11 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public TermType getTermType(String type, String terminology, String version)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - get termType " + type + "," + terminology + ","
-            + version);
+    Logger.getLogger(getClass()).debug("Metadata Service - get termType " + type
+        + "," + terminology + "," + version);
 
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT t from TermTypeJpa t where terminology = :terminology and version = :version and abbreviation = :type");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT t from TermTypeJpa t where terminology = :terminology and version = :version and abbreviation = :type");
     query.setParameter("type", type);
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -379,13 +364,12 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public RelationshipType getRelationshipType(String type, String terminology,
     String version) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - get relationshipType " + type + "," + terminology
-            + "," + version);
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - get relationshipType " + type + ","
+            + terminology + "," + version);
 
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT r from RelationshipTypeJpa r where terminology = :terminology and version = :version and abbreviation = :type");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from RelationshipTypeJpa r where terminology = :terminology and version = :version and abbreviation = :type");
     query.setParameter("type", type);
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -404,13 +388,12 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public AdditionalRelationshipType getAdditionalRelationshipType(String type,
     String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - get additionalRelationshipType " + type + ","
+    Logger.getLogger(getClass())
+        .debug("Metadata Service - get additionalRelationshipType " + type + ","
             + terminology + "," + version);
 
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT r from AdditionalRelationshipTypeJpa r where terminology = :terminology and version = :version and abbreviation = :type");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT r from AdditionalRelationshipTypeJpa r where terminology = :terminology and version = :version and abbreviation = :type");
     query.setParameter("type", type);
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -428,13 +411,12 @@ public class DefaultMetadataHandler extends RootServiceJpa implements
   @Override
   public Language getLanguage(String language, String terminology,
     String version) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - get language " + language + "," + terminology + ","
-            + version);
+    Logger.getLogger(getClass()).debug("Metadata Service - get language "
+        + language + "," + terminology + "," + version);
 
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT l from Language l where terminology = :terminology and version = :version and abbreviation = :language");
+    javax.persistence.Query query = manager.createQuery(
+        "SELECT l from LanguageJpa l " + "where terminology = :terminology and "
+            + "version = :version and abbreviation = :language");
     query.setParameter("language", language);
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);

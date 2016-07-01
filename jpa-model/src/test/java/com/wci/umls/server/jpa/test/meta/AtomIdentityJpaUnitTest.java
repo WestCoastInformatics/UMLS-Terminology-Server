@@ -73,7 +73,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("termType");
-    tester.include("code");
+    tester.include("codeId");
     tester.include("conceptId");
     tester.include("descriptorId");
 
@@ -123,7 +123,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("termType");
-    tester.include("code");
+    tester.include("codeId");
     tester.include("conceptId");
     tester.include("descriptorId");    
 

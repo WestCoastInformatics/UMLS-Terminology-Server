@@ -18,16 +18,16 @@ import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.meta.StringIdentityJpa;
-import com.wci.umls.server.model.meta.StringIdentity;
+import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
+import com.wci.umls.server.model.meta.StringClassIdentity;
 
 /**
- * Unit testing for {@link StringIdentityJpa}.
+ * Unit testing for {@link StringClassIdentityJpa}.
  */
-public class StringIdentityJpaUnitTest extends ModelUnitSupport {
+public class StringClassIdentityJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
-  private StringIdentityJpa object;
+  private StringClassIdentityJpa object;
 
   /**
    * Setup class.
@@ -43,7 +43,7 @@ public class StringIdentityJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() {
 
-    object = new StringIdentityJpa();
+    object = new StringClassIdentityJpa();
   }
 
   /**
@@ -67,7 +67,7 @@ public class StringIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("string");
+    tester.include("name");
     tester.include("language");
 
     assertTrue(tester.testIdentityFieldEquals());
@@ -87,7 +87,7 @@ public class StringIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructor(StringIdentity.class));
+    assertTrue(tester.testCopyConstructor(StringClassIdentity.class));
   }
 
   /**
@@ -111,8 +111,8 @@ public class StringIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelNotNullField() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("stringHash");
-    tester.include("string");
+    tester.include("nameHash");
+    tester.include("name");
     tester.include("language");
 
     assertTrue(tester.testNotNullFields());

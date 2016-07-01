@@ -12,14 +12,14 @@ import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
 import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
-import com.wci.umls.server.jpa.meta.StringIdentityJpa;
+import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
-import com.wci.umls.server.model.meta.StringIdentity;
+import com.wci.umls.server.model.meta.StringClassIdentity;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.UmlsIdentityService;
 
@@ -143,7 +143,7 @@ public class UmlsIdentityLoaderAlgorithm
           identity.setTerminology(fields[2]);
           identity.setTerminologyId(fields[3]);
           identity.setTermType(fields[4]);
-          identity.setCode(fields[5]);
+          identity.setCodeId(fields[5]);
           identity.setConceptId(fields[6]);
           identity.setDescriptorId(fields[7]);
           service.addAtomIdentity(identity);
@@ -157,8 +157,8 @@ public class UmlsIdentityLoaderAlgorithm
       }
 
       //
-      // Handle StringIdentity
-      // id|string
+      // Handle StringClassIdentity
+      // id|name|language
       //
       if (new File(getInputPath(), "stringIdentity.txt").exists()) {
         logInfo("  Load string identity");
@@ -173,10 +173,11 @@ public class UmlsIdentityLoaderAlgorithm
             return;
           }
           final String[] fields = FieldedStringTokenizer.split(line, "|");
-          final StringIdentity identity = new StringIdentityJpa();
+          final StringClassIdentity identity = new StringClassIdentityJpa();
           identity.setId(Long.valueOf(fields[0]));
-          identity.setString(fields[1]);
-          service.addStringIdentity(identity);
+          identity.setName(fields[1]);
+          identity.setLanguage(fields[2]);
+          service.addStringClassIdentity(identity);
           if (++ct % commitCt == 0) {
             service.commitClearBegin();
           }
@@ -188,7 +189,7 @@ public class UmlsIdentityLoaderAlgorithm
 
       //
       // Handle LexicalClassIdentity
-      // id|normalizedString
+      // id|normalizedName
       //
       if (new File(getInputPath(), "lexicalClassIdentity.txt").exists()) {
         logInfo("  Load lexicalClass identity");
@@ -205,7 +206,7 @@ public class UmlsIdentityLoaderAlgorithm
           final String[] fields = FieldedStringTokenizer.split(line, "|");
           final LexicalClassIdentity identity = new LexicalClassIdentityJpa();
           identity.setId(Long.valueOf(fields[0]));
-          identity.setNormalizedString(fields[1]);
+          identity.setNormalizedName(fields[1]);
           service.addLexicalClassIdentity(identity);
           if (++ct % commitCt == 0) {
             service.commitClearBegin();

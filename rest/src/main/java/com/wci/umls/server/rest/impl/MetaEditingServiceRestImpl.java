@@ -26,11 +26,14 @@ import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
-import com.wci.umls.server.jpa.meta.StringIdentityJpa;
+import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.jpa.services.handlers.LuceneNormalizedStringHandler;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.actions.ChangeEvent;
@@ -38,7 +41,9 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
@@ -625,15 +630,20 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Assign alternateTerminologyId
       IdentifierAssignmentHandler handler = contentService
           .getIdentifierAssignmentHandler(concept.getTerminology());
+      
+      // Add string and lexical classes to get assign their Ids
+      StringClass strClass = new StringClassJpa();
+      // TODO: populate
+      strClass.setLanguage(atom.getLanguage());
+      strClass.setName(atom.getName());
+      atom.setStringClassId(handler.getTerminologyId(strClass));
 
-      StringIdentityJpa stringIdent = new StringIdentityJpa(atom.getName(), atom.getLanguage());
-
-      // TODO add string and lexical class identifier
-      //atom.setStringClassId((handler.getTerminologyId(new StringClass(atom.getName()));
-      atom.setStringClassId(
-          new StringIdentityJpa(atom.getName(), atom.getLanguage()).getId().toString());
-      atom.setLexicalClassId(
-          new LexicalClassIdentityJpa(atom.getName()).getId().toString());
+      // Get normalization handler
+      LexicalClass lexClass = new LexicalClassJpa();
+      lexClass.setNormalizedName(new LuceneNormalizedStringHandler().getNormalizedString(atom.getName()));
+      atom.setLexicalClassId(handler.getTerminologyId(lexClass));
+      
+      
 
       String altId = handler.getTerminologyId(atom);
       atom.getAlternateTerminologyIds().put(concept.getTerminology(), altId);

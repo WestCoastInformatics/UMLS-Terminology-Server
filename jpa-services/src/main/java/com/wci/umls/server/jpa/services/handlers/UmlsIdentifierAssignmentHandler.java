@@ -10,8 +10,11 @@ import java.util.Properties;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
+import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
+import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
@@ -32,8 +35,11 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
+import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
+import com.wci.umls.server.model.meta.StringClassIdentity;
 import com.wci.umls.server.services.UmlsIdentityService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
@@ -55,6 +61,18 @@ public class UmlsIdentifierAssignmentHandler
   public void setProperties(Properties p) throws Exception {
 
     if (p != null) {
+      if (p.containsKey("aui.length")) {
+        lengthMap.put("AUI", Integer.valueOf(p.getProperty("aui.length")));
+      }
+      if (p.containsKey("aui.prefix")) {
+        prefixMap.put("AUI", p.getProperty("aui.prefix"));
+      }
+      if (p.containsKey("lui.length")) {
+        lengthMap.put("LUI", Integer.valueOf(p.getProperty("lui.length")));
+      }
+      if (p.containsKey("lui.prefix")) {
+        prefixMap.put("LUI", p.getProperty("lui.prefix"));
+      }
       if (p.containsKey("atui.length")) {
         lengthMap.put("ATUI", Integer.valueOf(p.getProperty("atui.length")));
       }
@@ -66,8 +84,8 @@ public class UmlsIdentifierAssignmentHandler
       }
       if (p.containsKey("sui.prefix")) {
         prefixMap.put("SUI", p.getProperty("sui.prefix"));
-      }    
       }
+    }
   }
 
   /* see superclass */
@@ -92,22 +110,131 @@ public class UmlsIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(StringClass stringClass) throws Exception {
-    // TODO:
-    return "";
+
+    if (!stringClass.isPublishable()) {
+      return "";
+    }
+
+    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    try {
+      // Create StringClassIdentity and populate from the stringClass.
+      final StringClassIdentity identity = new StringClassIdentityJpa();
+      identity.setName(stringClass.getName());
+      identity.setLanguage(stringClass.getLanguage());
+
+      final StringClassIdentity identity2 = service.getStringClassIdentity(identity);
+
+      // Reuse existing id
+      if (identity2 != null) {
+        return convertId(identity2.getId(), "SUI");
+      }
+      // else generate a new one and add it
+      else {
+        // Block between getting next id and saving the id value
+        synchronized (this) {
+          // Get next id
+          final Long nextId = service.getNextStringClassId();
+          // Add new identity object
+          identity.setId(nextId);
+          service.addStringClassIdentity(identity);
+          return convertId(nextId, "SUI");
+        }
+      }
+
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
+
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(LexicalClass lexicalClass) throws Exception {
-    // TODO:
-    return "";
+
+    if (!lexicalClass.isPublishable()) {
+      return "";
+    }
+
+    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    try {
+      // Create LexicalClassIdentity and populate from the lexicalClass.
+      final LexicalClassIdentity identity = new LexicalClassIdentityJpa();
+      identity.setNormalizedName(lexicalClass.getNormalizedName());
+
+      final LexicalClassIdentity identity2 =
+          service.getLexicalClassIdentity(identity);
+
+      // Reuse existing id
+      if (identity2 != null) {
+        return convertId(identity2.getId(), "LUI");
+      }
+      // else generate a new one and add it
+      else {
+        // Block between getting next id and saving the id value
+        synchronized (this) {
+          // Get next id
+          final Long nextId = service.getNextLexicalClassId();
+          // Add new identity object
+          identity.setId(nextId);
+          service.addLexicalClassIdentity(identity);
+          return convertId(nextId, "LUI");
+        }
+      }
+
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(Atom atom) throws Exception {
-    // TODO:
-    return "";
+
+    if (!atom.isPublishable()) {
+      return "";
+    }
+
+    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    try {
+      // Create AtomIdentity and populate from the atom.
+      final AtomIdentity identity = new AtomIdentityJpa();
+      identity.setCodeId(atom.getCodeId());
+      identity.setConceptId(atom.getConceptId());
+      identity.setDescriptorId(atom.getDescriptorId());
+      identity.setStringClassId(atom.getStringClassId());
+      identity.setTerminology(atom.getTerminology());
+      identity.setTerminologyId(atom.getTerminologyId());
+      identity.setTermType(atom.getTermType());
+
+      final AtomIdentity identity2 =
+          service.getAtomIdentity(identity);
+
+      // Reuse existing id
+      if (identity2 != null) {
+        return convertId(identity2.getId(), "AUI");
+      }
+      // else generate a new one and add it
+      else {
+        // Block between getting next id and saving the id value
+        synchronized (this) {
+          // Get next id
+          final Long nextId = service.getNextAtomId();
+          // Add new identity object
+          identity.setId(nextId);
+          service.addAtomIdentity(identity);
+          return convertId(nextId, "AUI");
+        }
+      }
+
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
   }
 
   /* see superclass */
@@ -211,8 +338,8 @@ public class UmlsIdentifierAssignmentHandler
   public String getTerminologyId(SemanticTypeComponent semanticTypeComponent,
     Concept concept) throws Exception {
 
-    //TODO (? - the below may not be correct)
-    
+    // TODO (? - the below may not be correct)
+
     if (!semanticTypeComponent.isPublishable()) {
       return "";
     }
@@ -220,7 +347,8 @@ public class UmlsIdentifierAssignmentHandler
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
       // Create semanticTypeIdentity and populate from the semanticType.
-      final SemanticTypeComponentIdentity identity = new SemanticTypeComponentIdentityJpa();
+      final SemanticTypeComponentIdentity identity =
+          new SemanticTypeComponentIdentityJpa();
       identity.setConceptTerminologyId(concept.getTerminologyId());
       identity.setSemanticType(semanticTypeComponent.getSemanticType());
       identity.setTerminology(semanticTypeComponent.getTerminology());
