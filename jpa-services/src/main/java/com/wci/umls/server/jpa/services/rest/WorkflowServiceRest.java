@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -12,12 +13,14 @@ import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
 /**
  * The Interface WorkflowServiceRest.
@@ -247,6 +250,62 @@ public interface WorkflowServiceRest {
    */
   public WorkflowBinList findWorkflowBinsForQuery(String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
-  
 
+ 
+  /**
+   * Adds the workflow epoch.
+   *
+   * @param projectId the project id
+   * @param epoch the epoch
+   * @param authToken the auth token
+   * @return the workflow epoch
+   * @throws Exception the exception
+   */
+  public WorkflowEpoch addWorkflowEpoch(
+    Long projectId, WorkflowEpochJpa epoch, String authToken) throws Exception;
+
+  /**
+   * Creates the worklist.
+   *
+   * @param projectId the project id
+   * @param workflowBinId the workflow bin id
+   * @param clusterType the cluster type
+   * @param skipClusterCt the skip cluster ct
+   * @param clusterCt the cluster ct
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the worklist
+   * @throws Exception the exception
+   */
+  public Worklist createWorklist(Long projectId, Long workflowBinId,
+    String clusterType, int skipClusterCt, int clusterCt, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
+   * Removes the checklist.
+   *
+   * @param id the id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeChecklist(Long id, String authToken) throws Exception;
+
+  /**
+   * Find worklists.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the worklist list
+   * @throws Exception the exception
+   */
+  public WorklistList findWorklists(Long projectId, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+  
+  /*public StringList findGeneratedConceptReports(Long projectId, String query, PfsParameter pfs, String authToken) throws Exception;
+  
+  public String getGeneratedConceptReport(Long projectId, String fileName, String authToken) throws Exception;
+  
+  public void removeGeneratedConceptReport(Long projectId, String fileName, String authToken) throws Exception;*/
 }

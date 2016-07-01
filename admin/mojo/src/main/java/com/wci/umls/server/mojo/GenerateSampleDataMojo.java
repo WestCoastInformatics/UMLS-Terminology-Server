@@ -44,6 +44,7 @@ import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
@@ -253,10 +254,23 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
     
     //
-    // Prepare the test and check prerequisites
+    // Prepare workflow related objects
     //
-    Date startDate = new Date();
 
+    WorkflowServiceRestImpl workflowService = new WorkflowServiceRestImpl();
+    Date startDate = new Date();
+    
+    WorkflowEpochJpa workflowEpoch = new WorkflowEpochJpa();
+    workflowEpoch.setActive(true);
+    workflowEpoch.setName("16a");
+    workflowEpoch.setProjectId(project1.getId());
+    workflowEpoch.setProject(project1);
+    workflowEpoch.setTimestamp(startDate);
+    workflowService.addWorkflowEpoch(project1.getId(), workflowEpoch,
+        admin.getAuthToken());
+
+
+    workflowService = new WorkflowServiceRestImpl();
     WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
     workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
     workflowConfig.setMutuallyExclusive(true);
@@ -266,7 +280,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
 
     // add the workflow config
-    WorkflowServiceRestImpl workflowService = new WorkflowServiceRestImpl();
+    workflowService = new WorkflowServiceRestImpl();
     WorkflowConfig addedWorkflowConfig =
         workflowService.addWorkflowConfig(project1.getId(), workflowConfig,
             admin.getAuthToken());

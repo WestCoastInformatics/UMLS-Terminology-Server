@@ -17,12 +17,15 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
@@ -256,30 +259,62 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
-        "TEST - Create checklist" + umlsTerminology + ", " + umlsVersion + ", "
+        "TEST - Create create/find/delete checklist" + umlsTerminology + ", " + umlsVersion + ", "
             + authToken);
 
     try {
       workflowService.regenerateBins(project.getId(),
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
-    WorkflowBinList binList = workflowService.findWorkflowBinsForQuery("name:testName", null, authToken);
+    WorkflowBinList binList = workflowService
+        .findWorkflowBinsForQuery("name:testName", null, authToken);
+
+    // remove any checklists that are created previously
+    ChecklistList list = workflowService.findChecklists(project.getId(), "projectId:" + project.getId(), null, authToken);
+    for (Checklist checklist : list.getObjects()) {
+      workflowService.removeChecklist(checklist.getId(), authToken);
+    }
+    // TODO; concern that sorting isn't happening correctly
     
     //
-    // Create checklist
+    // Create checklist with cluster id order tracking records
     //
+    Checklist checklistOrderByClusterId;
     try {
-      workflowService.createChecklist(project.getId(), binList.getObjects().get(0).getId(), 
-          "newChecklistName", false, false, "terminology:UMLS", new PfsParameterJpa(), authToken);
+      checklistOrderByClusterId = workflowService.createChecklist(
+          project.getId(), binList.getObjects().get(0).getId(),
+          "checklistOrderByClusterId", false, false, "clusterType:chem",
+          new PfsParameterJpa(), authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
+    workflowService.removeChecklist(checklistOrderByClusterId.getId(),
+        authToken);
+    
+    //
+    // Create checklist with random tracking records
+    //
+    Checklist checklistOrderByRandom;
+    try {
+      checklistOrderByRandom = workflowService.createChecklist(project.getId(),
+          binList.getObjects().get(0).getId(), "checklistOrderByRandom", true,
+          false, "clusterType:chem", new PfsParameterJpa(), authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    /*assertTrue(!checklistOrderByClusterId.getTrackingRecords()
+        .equals(checklistOrderByRandom.getTrackingRecords()));*/
+    
+    workflowService.removeChecklist(checklistOrderByRandom.getId(), authToken);
+
 
     workflowService.clearBins(project.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -288,12 +323,66 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   }
   
   /**
-   * Test perform workflow action
+   * Test create checklist
    *
    * @throws Exception the exception
    */
   @Test
   public void testNormalUseRestWorkflow005() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    Logger.getLogger(getClass()).info(
+        "TEST - Test create/find/delete worklist" + umlsTerminology + ", " + umlsVersion + ", "
+            + authToken);
+
+    try {
+      workflowService.regenerateBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    WorkflowBinList binList = workflowService
+        .findWorkflowBinsForQuery("name:testName", null, authToken);
+
+    // Remove any worklists first
+    WorklistList worklists = workflowService.findWorklists(project.getId(), "projectId:" + project.getId(), null, authToken);
+    for (Worklist worklist : worklists.getObjects()) {
+      integrationTestService.removeWorklist(worklist.getId(), true, authToken);
+    }
+    
+    
+    //
+    // Create worklist
+    //
+    Worklist worklist;
+    try {
+      worklist = workflowService.createWorklist(project.getId(), binList.getObjects().get(0).getId(), 
+          "chem", 0, 5, new PfsParameterJpa(), authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    integrationTestService.removeWorklist(worklist.getId(), true, authToken);
+
+ 
+    // clear bins
+    workflowService.clearBins(project.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+
+  }
+  
+  
+  /**
+   * Test perform workflow action
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestWorkflow006() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
     Logger.getLogger(getClass()).info(

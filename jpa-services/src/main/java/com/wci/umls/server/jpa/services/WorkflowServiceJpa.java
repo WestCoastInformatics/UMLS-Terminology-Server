@@ -143,7 +143,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     final List<TrackingRecordJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
             TrackingRecordJpa.class, TrackingRecordJpa.class,
-            new PfsParameterJpa(), totalCt, manager);
+            pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final TrackingRecordJpa trackingRecord : luceneResults) {
       results.getObjects().add(trackingRecord);
@@ -154,6 +154,13 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   @Override
   public void handleLazyInit(TrackingRecord record) {
     // TODO
+  }
+  
+  public void handleLazyInit(Worklist worklist) {
+    worklist.getReviewers().size();
+    worklist.getAuthors().size();
+    worklist.getTrackingRecords().size();
+    worklist.getWorkflowStateHistory().size();
   }
 
   @Override
@@ -168,6 +175,20 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
     // do not inform listeners
     return epoch;
+  }
+  
+  @Override
+  public WorkflowEpoch getCurrentWorkflowEpoch(Project project) throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Service - add workflow epoch ");
+    
+    PfsParameter pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(1);
+    // TODO translated into obsolete:false and no obsolete field pfs.setActiveOnly(true);
+    pfs.setSortField("name");
+    pfs.setAscending(false);
+    
+    return findWorkflowEpochsForQuery("projectId:" + project.getId(), pfs).get(0);
   }
 
   @Override
@@ -187,6 +208,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     // Remove the component
     removeHasLastModified(id, WorkflowEpochJpa.class);
   }
+  
 
   @Override
   public List<WorkflowEpoch> getWorkflowEpochs() throws Exception {
@@ -213,7 +235,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   }
 
   @Override
-  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query)
+  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - find workflow epochs for query " + query);
@@ -223,7 +245,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     final List<WorkflowEpochJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
             WorkflowEpochJpa.class, WorkflowEpochJpa.class,
-            new PfsParameterJpa(), totalCt, manager);
+            pfs, totalCt, manager);
     for (final WorkflowEpoch epoch : luceneResults) {
       results.add(epoch);
     }
@@ -459,11 +481,6 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
       setTransactionPerOperation(origTpo);
     }
 
-    /*if (listenersEnabled) {
-      for (final WorkflowListener listener : workflowListeners) {
-        listener.refsetChanged(workflowBin, WorkflowListener.Action.REMOVE);
-      }
-    }*/
   }
 
   @Override
@@ -534,20 +551,41 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Workflow Service - remove worklist " + id + ", " + cascade);
     // if cascade, remove tracking records before removing worklist
+    // Manage transaction
+    boolean origTpo = getTransactionPerOperation();
+    if (origTpo) {
+      setTransactionPerOperation(false);
+      beginTransaction();
+    }
+
+    Worklist worklist = getWorklist(id);
     if (cascade) {
-      Worklist worklist = getWorklist(id);
-      for (TrackingRecord record : worklist.getTrackingRecords()) {
-        removeHasLastModified(record.getId(), TrackingRecordJpa.class);
+      if (getTransactionPerOperation())
+        throw new Exception(
+            "Unable to remove worklist, transactionPerOperation must be disabled to perform cascade remove.");
+      
+      for (final TrackingRecord record : worklist.getTrackingRecords()) {
+        removeTrackingRecord(record.getId());
       }
     }
+
     // Remove the component
-    removeHasLastModified(id, WorklistJpa.class);
+    worklist = removeHasLastModified(id, WorklistJpa.class);
+
+    // Manage transaction
+    if (origTpo) {
+      commit();
+      setTransactionPerOperation(origTpo);
+    }
+    
   }
 
   @Override
   public Worklist getWorklist(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Service - get worklist " + id);
-    return getHasLastModified(id, WorklistJpa.class);
+    Worklist worklist = getHasLastModified(id, WorklistJpa.class);
+    handleLazyInit(worklist);
+    return worklist;
   }
 
   @Override
@@ -555,15 +593,27 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - find worklists for query " + query);
+    
+    final StringBuilder sb = new StringBuilder();
+    if (query != null && !query.equals("")) {
+      sb.append(query);
+    }
+    if (pfs != null && pfs.getQueryRestriction() != null) {
+      if(sb.toString().length() > 0) {
+        sb.append(" AND ").append(pfs.getQueryRestriction());
+      }
+    }
+    
     WorklistList results = new WorklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorklistJpa> luceneResults =
-        searchHandler.getQueryResults(null, null, "", query, "",
-            WorklistJpa.class, WorklistJpa.class, new PfsParameterJpa(),
+        searchHandler.getQueryResults(null, null, "", sb.toString(), "",
+            WorklistJpa.class, WorklistJpa.class, pfs,
             totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final WorklistJpa worklist : luceneResults) {
+      handleLazyInit(worklist);
       results.getObjects().add(worklist);
     }
     return results;
@@ -596,16 +646,37 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Workflow Service - remove checklist " + id + ", " + cascade);
     // if cascade, remove tracking records before removing checklist
+    // Manage transaction
+    boolean origTpo = getTransactionPerOperation();
+    if (origTpo) {
+      setTransactionPerOperation(false);
+      beginTransaction();
+    }
+
+    Checklist checklist = getChecklist(id);
     if (cascade) {
-      Checklist checklist = getChecklist(id);
-      for (TrackingRecord record : checklist.getTrackingRecords()) {
-        removeHasLastModified(record.getId(), TrackingRecordJpa.class);
+      if (getTransactionPerOperation())
+        throw new Exception(
+            "Unable to remove checklist, transactionPerOperation must be disabled to perform cascade remove.");
+      
+      for (final TrackingRecord record : checklist.getTrackingRecords()) {
+        removeTrackingRecord(record.getId());
       }
     }
+
+
     // Remove the component
-    removeHasLastModified(id, ChecklistJpa.class);
+    checklist = removeHasLastModified(id, ChecklistJpa.class);
+
+    // Manage transaction
+    if (origTpo) {
+      commit();
+      setTransactionPerOperation(origTpo);
+    }
+    
   }
 
+  
   @Override
   public Checklist getChecklist(Long id) throws Exception {
     Logger.getLogger(getClass())
@@ -621,7 +692,12 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
     final StringBuilder sb = new StringBuilder();
     if (query != null && !query.equals("")) {
-      sb.append(query).append(" AND ");
+      sb.append(query);
+    }
+    if (pfs != null && pfs.getQueryRestriction() != null) {
+      if(sb.toString().length() > 0) {
+        sb.append(" AND ").append(pfs.getQueryRestriction());
+      }
     }
 
     ChecklistList results = new ChecklistListJpa();

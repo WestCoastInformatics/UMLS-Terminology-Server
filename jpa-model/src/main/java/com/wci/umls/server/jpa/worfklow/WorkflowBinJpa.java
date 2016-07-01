@@ -107,8 +107,7 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /** The creation time. */
   @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date creationTime = null;
+  private Long creationTime = null;
 
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
@@ -276,13 +275,13 @@ public class WorkflowBinJpa implements WorkflowBin {
 
   /* see superclass */
   @Override
-  public Date getCreationTime() {
+  public Long getCreationTime() {
     return creationTime;
   }
 
   /* see superclass */
   @Override
-  public void setCreationTime(Date creationTime) {
+  public void setCreationTime(Long creationTime) {
     this.creationTime = creationTime;
   }
 
