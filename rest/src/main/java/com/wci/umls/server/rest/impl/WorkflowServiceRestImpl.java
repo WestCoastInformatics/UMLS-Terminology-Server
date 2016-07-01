@@ -216,7 +216,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       WorkflowConfig workflowConfig = workflowService.getWorkflowConfig(id);
       workflowService.setLastModifiedBy(userName);
-      workflowService.removeWorkflowConfig(id);
+      workflowService.removeChecklist(id, true);
     } catch (Exception e) {
 
       handleException(e, "trying to remove a checklist");
@@ -1175,7 +1175,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       // and the max worklist id+1. (e.g. wrk16a_demotions_chem_001)
       StringBuffer worklistName = new StringBuffer();
 
-      worklistName.append(currentEpoch.getName()).append("_");
+      worklistName.append("wrk").append(currentEpoch.getName()).append("_");
       worklistName.append(workflowBin.getName()).append("_");
       if (clusterType.equals("chem"))
         worklistName.append("chem").append("_");
@@ -1188,7 +1188,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       worklistQueryPfs.setAscending(false);
       StringBuffer query = new StringBuffer();
       query.append("projectId:").append(project.getId());
-      query.append(" AND ").append("name:").append(currentEpoch.getName() + "_"
+      query.append(" AND ").append("name:").append("wrk").append(currentEpoch.getName() + "_"
           + workflowBin.getName() + "_" + clusterType + '*');
       WorklistList worklistList = workflowService
           .findWorklistsForQuery(query.toString(), worklistQueryPfs);
@@ -1231,6 +1231,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       for (TrackingRecord record : recordResultList.getObjects()) {
         TrackingRecord worklistRecord = new TrackingRecordJpa(record);
         worklistRecord.setId(null);
+        worklistRecord.setWorklistName(worklistName.toString());
         workflowService.addTrackingRecord(worklistRecord);
         addedWorklist.getTrackingRecords().add(worklistRecord);
         workflowService.updateWorklist(addedWorklist);

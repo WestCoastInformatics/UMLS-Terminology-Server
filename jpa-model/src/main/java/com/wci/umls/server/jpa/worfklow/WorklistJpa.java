@@ -1,7 +1,13 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.worfklow;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -22,6 +28,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
+import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 
@@ -60,8 +67,14 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Column(nullable = false)
   private WorkflowStatus workflowStatus;
   
+  /**  The number. */
   @Column(nullable = false)
   private int number;
+
+  /**  The workflow state history. */
+  @ElementCollection
+  @Column(nullable = false)
+  private Map<String, Date> workflowStateHistory = new HashMap<>();
 
   /**
    * Instantiates an empty {@link WorklistJpa}.
@@ -84,6 +97,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     workflowStatus = worklist.getWorkflowStatus();
     workflowBinName = worklist.getWorkflowBin();
     number = worklist.getNumber();
+    if (deepCopy) {
+      workflowStateHistory = worklist.getWorkflowStateHistory();
+    }
   }
 
   @Override
@@ -112,6 +128,21 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.authors = authors;
   }
 
+  @Override
+  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @Field(name = "workflowStateHistoryMap", index = Index.YES, analyze = Analyze.YES, store = Store.NO)  
+  public Map<String, Date> getWorkflowStateHistory() {
+    if (workflowStateHistory == null) {
+      workflowStateHistory = new HashMap<>();
+    }
+    return workflowStateHistory;
+  }
+  
+  @Override
+  public void setWorkflowStateHistory(Map<String, Date> workflowStateHistory) {
+    this.workflowStateHistory = workflowStateHistory;
+  }
+  
   /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
@@ -226,7 +257,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     return "WorklistJpa [authors=" + authors + ", reviewers=" + reviewers
         + ", worklistGroup=" + worklistGroup + ", workflowBin="
             + workflowBinName + ", workflowStatus="
-        + workflowStatus +  ", number=" + number + "]";
+        + workflowStatus +  ", number=" + number + ", " + 
+            "workflowStateHistory=" + workflowStateHistory + "]";
   }
 
 }

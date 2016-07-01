@@ -262,13 +262,15 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     
     WorkflowEpochJpa workflowEpoch = new WorkflowEpochJpa();
     workflowEpoch.setActive(true);
-    workflowEpoch.setName("wrk16a");
+    workflowEpoch.setName("16a");
     workflowEpoch.setProjectId(project1.getId());
     workflowEpoch.setProject(project1);
     workflowEpoch.setTimestamp(startDate);
     workflowService.addWorkflowEpoch(project1.getId(), workflowEpoch,
         admin.getAuthToken());
 
+
+    workflowService = new WorkflowServiceRestImpl();
     WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
     workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
     workflowConfig.setMutuallyExclusive(true);
@@ -278,6 +280,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
 
     // add the workflow config
+    workflowService = new WorkflowServiceRestImpl();
     WorkflowConfig addedWorkflowConfig =
         workflowService.addWorkflowConfig(project1.getId(), workflowConfig,
             admin.getAuthToken());
