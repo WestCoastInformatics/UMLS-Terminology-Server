@@ -22,7 +22,7 @@ import com.wci.umls.server.model.meta.StringIdentity;
  */
 @Entity
 @Table(name = "string_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "stringPre", "id"
+    "stringHash", "id"
 }))
 @XmlRootElement(name = "stringIdentity")
 public class StringIdentityJpa implements StringIdentity {
