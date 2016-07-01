@@ -186,7 +186,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("description");
     tester.include("workflowStatus");
-
+    tester.include("workflowStateHistory);
     assertTrue(tester.testNotNullFields());
   }
 

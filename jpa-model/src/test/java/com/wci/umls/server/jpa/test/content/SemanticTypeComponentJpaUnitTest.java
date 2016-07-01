@@ -149,6 +149,7 @@ public class SemanticTypeComponentJpaUnitTest extends ModelUnitSupport {
     // Test non analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester = new IndexedFieldTester(object);
+    tester.include("id");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("suppressible");

@@ -165,8 +165,8 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/worklist"
-            + "?worklistId=" + worklistId);
+        client.target(config.getProperty("base.url") + "/test/worklist/"
+            /*+ "?worklistId="*/ + worklistId);
 
     Response response =
         target.request(MediaType.APPLICATION_XML)
