@@ -121,8 +121,11 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
 
     tester.include("stringClassId");
     tester.include("terminology");
+    tester.include("terminologyId");
     tester.include("termType");
     tester.include("code");
+    tester.include("conceptId");
+    tester.include("descriptorId");    
 
     assertTrue(tester.testNotNullFields());
   }

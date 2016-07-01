@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
@@ -177,5 +178,75 @@ public class MetaEditingClientRest extends RootClientRest
         ValidationResultJpa.class);
     return v;
   }
+
+  /* see superclass */
+  @Override
+  public ValidationResult addAtom(Long projectId, Long conceptId,
+    Long lastModified, AtomJpa atom, boolean overrideWarnings,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - add atom to concept " + projectId
+            + ", " + conceptId + ", " + atom.toString() + ", "
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/atom/add?projectId=" + projectId + "&conceptId="
+        + conceptId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(atom));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    ValidationResult v = ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+    return v;
+  }
+
+  @Override
+  public ValidationResult removeAtom(Long projectId, Long conceptId,
+    Long lastModified, Long atomId, boolean overrideWarnings,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - remove atom from concept " + projectId
+            + ", " + conceptId + ", " + atomId + ", " + lastModified + ", "
+            + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/atom/remove/" + atomId + "?projectId=" + projectId
+        + "&conceptId=" + conceptId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(null);
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    ValidationResult v = ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+    return v;
+  }  
+  
 
 }
