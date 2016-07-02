@@ -9290,7 +9290,6 @@
 289381|cardio pericardial|
 289404|cardiovascular disorder general|
 289447|carini pneumocystis|
-289447|carinu pneumocystis|
 2894829|body cardiac structure structure|
 2894862|body cardiovascular structure structure|
 289496|carpal tunnel|

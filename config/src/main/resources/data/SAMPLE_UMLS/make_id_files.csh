@@ -104,11 +104,15 @@ endif
 # verify that we don't have the same norm string for 2 different LUIs - e.g. norm string should be unique in the file
 cut -d\| -f 2 lexicalClassIdentity.txt | sort | uniq -d | sed 's/$/\\\|\$/; s/^/\\\|/;' >! x.$$
 egrep -f x.$$ lexicalClassIdentity.txt | sort -n | perl -ne 'chop; @_=split/\|/; if ($map{$_[1]}) { $_[1] = "$_[1]$map{$_[1]}";} $map{$_[1]}++; print join "|", @_; print "|\n";' >! y.$$
-egrep -v -f x.$$ lexicalClassIdentity.txt >> y.$$
+egrep -v -f x.$$ lexicalClassIdentity.txt | grep -v '289447|carinu pneumocystis|' >> y.$$
 /bin/mv -f y.$$ lexicalClassIdentity.txt
 /bin/rm -f x.$$
 if (`cut -d\| -f 2 lexicalClassIdentity.txt | sort | uniq -d | wc -l` > 0) then
 	echo "ERROR problem with lexicalClassIdentity.txt"
+	exit 1
+endif
+if (`cut -d\| -f 1 lexicalClassIdentity.txt  | sort | uniq -d | wc -l` > 0) then
+	echo "ERROR problem with lexicalClassIdentity.txt - duplicate id"
 	exit 1
 endif
 
