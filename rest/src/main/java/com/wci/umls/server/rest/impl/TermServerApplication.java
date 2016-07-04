@@ -123,6 +123,7 @@ public class TermServerApplication extends Application {
     classes.add(ConfigureServiceRestImpl.class);
     classes.add(MetaEditingServiceRestImpl.class);
     classes.add(WorkflowServiceRestImpl.class);
+    classes.add(ReportServiceRestImpl.class);
     // Make integration test rest services available in dev environment
     try {
       if (ConfigUtility.getConfigProperties().containsKey("base.url")
