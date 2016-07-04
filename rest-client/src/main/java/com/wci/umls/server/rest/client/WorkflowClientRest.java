@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -41,6 +42,7 @@ import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.model.workflow.WorklistStats;
 
 /**
  * A client for connecting to a content REST service.
@@ -710,6 +712,56 @@ public class WorkflowClientRest extends RootClientRest implements
     WorkflowBinType type, String authToken) throws Exception {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public WorklistStats getWorklistStats(Long projectId, Long worklistId,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void clearBin(Long projectId, Long workflowBinId, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void regenerateBin(Long projectId, Long workflowBinId,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public String generateConceptReport(Long projectId, Long worklistId,
+    Long delay, Boolean sendEmail, String conceptReportType,
+    Integer relationshipCt, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public StringList findGeneratedConceptReports(Long projectId, String query,
+    PfsParameter pfs, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String getGeneratedConceptReport(Long projectId, String fileName,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void removeGeneratedConceptReport(Long projectId, String fileName,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
   }
 
 
