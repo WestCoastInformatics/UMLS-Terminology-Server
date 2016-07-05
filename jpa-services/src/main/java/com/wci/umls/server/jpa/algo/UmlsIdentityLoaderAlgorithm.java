@@ -53,7 +53,7 @@ public class UmlsIdentityLoaderAlgorithm
 
       //
       // Handle AttributeIdentity
-      // id|terminologyId|terminology|ownerId|ownerType|ownerQualifier|name|hashcode
+      // id|terminologyId|terminology|componentId|componentType|componentTerminology|name|hashcode
       //
       if (new File(getInputPath(), "attributeIdentity.txt").exists()) {
         logInfo("  Load attribute identity");
@@ -123,8 +123,8 @@ public class UmlsIdentityLoaderAlgorithm
 
       //
       // Handle AtomIdentity
-      // id|stringClassId|terminology|terminologyId|termType|code|conceptId|descriptorId
-      //
+      // id|stringClassId|terminology|terminologyId|termType|codeId|conceptId|descriptorId
+      // 
       if (new File(getInputPath(), "atomIdentity.txt").exists()) {
         logInfo("  Load atom identity");
 
@@ -159,7 +159,7 @@ public class UmlsIdentityLoaderAlgorithm
 
       //
       // Handle StringClassIdentity
-      // id|name|language
+      // id|language|name
       //
       if (new File(getInputPath(), "stringIdentity.txt").exists()) {
         logInfo("  Load string identity");
@@ -176,8 +176,8 @@ public class UmlsIdentityLoaderAlgorithm
           final String[] fields = FieldedStringTokenizer.split(line, "|");
           final StringClassIdentity identity = new StringClassIdentityJpa();
           identity.setId(Long.valueOf(fields[0]));
-          identity.setName(fields[1]);
-          identity.setLanguage(fields[2]);
+          identity.setLanguage(fields[1]);
+          identity.setName(fields[2]);
           service.addStringClassIdentity(identity);
           if (++ct % commitCt == 0) {
             service.commitClearBegin();
