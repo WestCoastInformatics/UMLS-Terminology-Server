@@ -4,7 +4,7 @@
 package com.wci.umls.server.model.workflow;
 
 /**
- * The Interface WorklistStats.
+ * Represents a collection of statistics about worklists.
  */
 public interface WorklistStats {
 
@@ -14,35 +14,35 @@ public interface WorklistStats {
    * @return the worklist
    */
   public Worklist getWorklist();
-  
+
   /**
    * Sets the worklist.
    *
    * @param worklist the worklist
    */
   public void setWorklist(Worklist worklist);
-  
+
   /**
    * Returns the action ct.
    *
    * @return the action ct
    */
   public int getActionCt();
-  
+
   /**
    * Sets the action ct.
    *
    * @param actionCt the action ct
    */
   public void setActionCt(int actionCt);
-  
+
   /**
    * Returns the approved ct.
    *
    * @return the approved ct
    */
   public int getApprovedCt();
-  
+
   /**
    * Sets the approved ct.
    *

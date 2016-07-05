@@ -8,9 +8,9 @@ import java.util.List;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
 
-
 /**
- * Represents a workflow bin.
+ * Represents a collection of tracking records that result from the execution of
+ * the query in a {@link WorkflowBinDefinition}.
  */
 public interface WorkflowBin extends HasLastModified {
 
@@ -41,77 +41,76 @@ public interface WorkflowBin extends HasLastModified {
    * @param name the new name
    */
   public void setName(String name);
-  
+
   /**
    * Gets the description.
    *
    * @return the description
    */
   public String getDescription();
-  
+
   /**
    * Sets the description.
    *
    * @param description the new description
    */
   public void setDescription(String description);
-  
+
   /**
    * Gets the type.
    *
    * @return the type
    */
   public WorkflowBinType getType();
-  
+
   /**
    * Sets the type.
    *
    * @param type the new type
    */
   public void setType(WorkflowBinType type);
-  
+
   /**
    * Gets the rank.
    *
    * @return the rank
    */
   public int getRank();
-  
+
   /**
    * Sets the rank.
    *
    * @param rank the new rank
    */
   public void setRank(int rank);
-  
+
   /**
    * Checks if is editable.
    *
    * @return true, if is editable
    */
   public boolean isEditable();
-  
+
   /**
    * Sets the editable.
    *
    * @param editable the new editable
    */
   public void setEditable(boolean editable);
-  
+
   /**
    * Gets the terminology id.
    *
    * @return the terminology id
    */
   public String getTerminologyId();
-  
+
   /**
    * Sets the terminology id.
    *
    * @param terminologyId the new terminology id
    */
   public void setTerminologyId(String terminologyId);
-  
 
   /**
    * Gets the creation time.
@@ -119,7 +118,7 @@ public interface WorkflowBin extends HasLastModified {
    * @return the creation time
    */
   public Long getCreationTime();
-  
+
   /**
    * Sets the creation time.
    *
@@ -154,7 +153,7 @@ public interface WorkflowBin extends HasLastModified {
    * @return the version
    */
   public String getVersion();
-  
+
   /**
    * Returns the project.
    *
@@ -168,6 +167,5 @@ public interface WorkflowBin extends HasLastModified {
    * @param project the project
    */
   public void setProject(Project project);
-  
 
 }

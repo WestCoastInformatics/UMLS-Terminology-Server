@@ -3,8 +3,8 @@
  */
 package com.wci.umls.server.jpa.worfklow;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.model.workflow.WorklistStats;
@@ -44,7 +44,7 @@ public class WorklistStatsJpa implements WorklistStats {
 
   /* see superclass */
   @Override
-  @XmlTransient
+  @XmlElement(type = WorklistJpa.class)
   public Worklist getWorklist() {
     return worklist;
   }

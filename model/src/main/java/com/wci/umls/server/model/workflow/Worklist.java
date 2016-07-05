@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a checklist which is a collection of tracking records that
- * participate in workflow .
+ * Represents a worklist which is a collection of tracking records that
+ * participate in workflow.
  */
 public interface Worklist extends Checklist {
 

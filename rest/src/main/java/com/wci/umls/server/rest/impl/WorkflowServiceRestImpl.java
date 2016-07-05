@@ -1255,7 +1255,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       worklist.setNumber(nextNumber);
       worklist.setProjectId(project.getId());
       worklist.setTimestamp(new Date());
-      worklist.setWorkflowBin(workflowBin.getName());
+      worklist.setWorkflowBinName(workflowBin.getName());
 
       Worklist addedWorklist = workflowService.addWorklist(worklist);
 

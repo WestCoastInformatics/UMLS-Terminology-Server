@@ -4,10 +4,23 @@
 package com.wci.umls.server.model.workflow;
 
 /**
- * The Interface ClusterTypeStats.
+ *  Represents cluster type statistics for a bin, checklist, or worklist.
  */
 public interface ClusterTypeStats {
   
+  /**
+   * Returns the cluster type.
+   *
+   * @return the cluster type
+   */
+  public String getClusterType();
+  
+  /**
+   * Sets the cluster type.
+   *
+   * @param clusterType the cluster type
+   */
+  public void setClusterType(String clusterType);
   /**
    * Returns the all.
    *

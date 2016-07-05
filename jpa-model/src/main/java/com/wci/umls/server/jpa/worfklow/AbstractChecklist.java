@@ -65,22 +65,21 @@ public abstract class AbstractChecklist implements Checklist {
   private Date timestamp = null;
 
   /** The name. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 255)
   private String name;
 
   /** The description. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 4000)
   private String description;
-
 
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
-  
+
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
-  
+
   /**
    * Instantiates an empty {@link AbstractChecklist}.
    */
@@ -181,8 +180,6 @@ public abstract class AbstractChecklist implements Checklist {
     this.description = description;
   }
 
-
-
   /* see superclass */
   @Override
   @XmlTransient
@@ -219,7 +216,7 @@ public abstract class AbstractChecklist implements Checklist {
     }
     project.setId(projectId);
   }
-  
+
   /* see superclass */
   @XmlTransient
   @Override
@@ -235,7 +232,7 @@ public abstract class AbstractChecklist implements Checklist {
   public void setTrackingRecords(List<TrackingRecord> records) {
     this.trackingRecords = records;
   }
-  
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -282,7 +279,8 @@ public abstract class AbstractChecklist implements Checklist {
   public String toString() {
     return "AbstractChecklist [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description + ", project=" + project + ", trackingRecords=" + trackingRecords +"]";
+        + ", name=" + name + ", description=" + description + ", project="
+        + project + ", trackingRecords=" + trackingRecords + "]";
   }
 
 }

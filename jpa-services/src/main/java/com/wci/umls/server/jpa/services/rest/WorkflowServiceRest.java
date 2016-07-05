@@ -3,6 +3,9 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.QueryParam;
+
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.StringList;
@@ -21,6 +24,8 @@ import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.model.workflow.WorklistStats;
+import com.wordnik.swagger.annotations.ApiParam;
 
 /**
  * Represents a workflow service REST API.
@@ -320,17 +325,19 @@ public interface WorkflowServiceRest {
    * String authToken) throws Exception;
    * 
    * public void removeGeneratedConceptReport(Long projectId, String fileName,
-   * String authToken) throws Exception;
-  public WorklistStats getWorklistStats(Long projectId, Long worklistId,
-    String authToken) throws Exception;
-  
-  
-  /**
+   * String authToken) throws Exception; public WorklistStats
+   * getWorklistStats(Long projectId, Long worklistId, String authToken) throws
+   * Exception;
    */
-   *
+
+  /**
+   * 
    * @param projectId the project id
+   * 
    * @param workflowBinId the workflow bin id
+   * 
    * @param authToken the auth token
+   * 
    * @throws Exception the exception
    */
   public void clearBin(Long projectId, Long workflowBinId, String authToken)
@@ -344,8 +351,8 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void regenerateBin(Long projectId, Long workflowBinId,
-    String authToken) throws Exception;
+  public void regenerateBin(Long projectId, Long workflowBinId, String authToken)
+    throws Exception;
 
   /**
    * Generate concept report.
@@ -400,4 +407,15 @@ public interface WorkflowServiceRest {
   public void removeGeneratedConceptReport(Long projectId, String fileName,
     String authToken) throws Exception;
 
+  /**
+   * Returns the worklist stats.
+   *
+   * @param projectId the project id
+   * @param worklistId the worklist id
+   * @param authToken the auth token
+   * @return the worklist stats
+   * @throws Exception the exception
+   */
+  public WorklistStats getWorklistStats(Long projectId, Long worklistId,
+    String authToken) throws Exception;
 }

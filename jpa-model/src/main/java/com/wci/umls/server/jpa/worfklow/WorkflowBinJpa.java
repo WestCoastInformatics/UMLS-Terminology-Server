@@ -38,7 +38,7 @@ import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 
 /**
- * JPA-enabled implementation of a {@link WorkflowBin}.
+ * JAXB and JPA enabled implementation of a {@link WorkflowBin}.
  */
 @Entity
 @Table(name = "workflow_bins", uniqueConstraints = @UniqueConstraint(columnNames = {

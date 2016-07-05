@@ -32,11 +32,11 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 
 /**
- * JPA-enabled implementation of a {@link Worklist}.
+ * JAXB and JPA enabled implementation of {@link Worklist}.
  */
 @Entity
 @Table(name = "worklists", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "name", "description", "workflowBinName"
+    "name", "workflowBinName"
 }))
 @Audited
 @Indexed

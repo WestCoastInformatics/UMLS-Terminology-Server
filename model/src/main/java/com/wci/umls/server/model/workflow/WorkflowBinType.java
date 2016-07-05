@@ -4,7 +4,7 @@
 package com.wci.umls.server.model.workflow;
 
 /**
- * Enumeration of workflow bin type values.
+ * Enumeration of workflow bin types.
  */
 public enum WorkflowBinType {
 
@@ -12,9 +12,6 @@ public enum WorkflowBinType {
   MUTUALLY_EXCLUSIVE,
 
   /** Quality assurance. */
-  QUALITY_ASSURANCE,
-
-  /** Ad-hoc. */
-  AD_HOC;
+  QUALITY_ASSURANCE;
 
 }

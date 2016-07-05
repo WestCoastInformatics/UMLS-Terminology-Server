@@ -9,7 +9,9 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
 
 /**
- * Represents a workflow epoch.
+ * Represents an editing cycle during which the workflow system operates.
+ * Typical naming convention is the (2-digit) year followed by a letter designation
+ * for the release.  For example, 16a.
  */
 public interface WorkflowEpoch extends HasLastModified {
 

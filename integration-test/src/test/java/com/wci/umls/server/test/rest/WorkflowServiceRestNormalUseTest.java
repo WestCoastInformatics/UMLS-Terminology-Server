@@ -121,7 +121,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
 
     // update the workflow config
-    addedWorkflowConfig.setType(WorkflowBinType.AD_HOC);
+    addedWorkflowConfig.setType(WorkflowBinType.QUALITY_ASSURANCE);
     addedWorkflowConfig.setMutuallyExclusive(false);
     workflowService.updateWorkflowConfig(project.getId(),
         (WorkflowConfigJpa) addedWorkflowConfig, authToken);
@@ -552,56 +552,45 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
+    }
+    WorkflowBinList binList =
+        workflowService.findWorkflowBinsForQuery("name:testName", null,
+            authToken);
+
+    /**
+     * WorklistList worklists = workflowService.findWorklists(project.getId(),
+     * "projectId:" + project.getId(), null, authToken); for (Worklist worklist
+     * : worklists.getObjects()) {
+     * integrationTestService.removeWorklist(worklist.getId(), true, authToken);
+     * }
+     * 
+     * 
+     * // // Create worklist // Worklist worklist; try { worklist =
+     * workflowService.createWorklist(project.getId(),
+     * binList.getObjects().get(0).getId(), "chem", 0, 5, new PfsParameterJpa(),
+     * authToken); } catch (Exception e) {
+     * workflowService.clearBins(project.getId(),
+     * WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken); throw e; }
+     * 
+     * try { String reportFileName =
+     * workflowService.generateConceptReport(project.getId(), worklist.getId(),
+     * 1L, false, "", 0, authToken); String reportContents =
+     * workflowService.getGeneratedConceptReport(project.getId(),
+     * reportFileName, authToken); assertTrue(reportContents.contains("ATOMS"));
+     * workflowService.findGeneratedConceptReports(project.getId(), ".txt", new
+     * PfsParameterJpa(), authToken);
+     * workflowService.removeGeneratedConceptReport(project.getId(),
+     * reportFileName, authToken); } catch (Exception e) { throw e; } finally {
+     * 
+     * // // clean up // integrationTestService.removeWorklist(worklist.getId(),
+     * true, authToken); Teardown.
+     * 
+     * // clear bins workflowService.clearBins(project.getId(),
+     * WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken); }
+     */
   }
-    WorkflowBinList binList = workflowService
-        .findWorkflowBinsForQuery("name:testName", null, authToken);
 
   /**
-    WorklistList worklists = workflowService.findWorklists(project.getId(), "projectId:" + project.getId(), null, authToken);
-    for (Worklist worklist : worklists.getObjects()) {
-      integrationTestService.removeWorklist(worklist.getId(), true, authToken);
-    }
-    
-    
-    //
-    // Create worklist
-    //
-    Worklist worklist;
-    try {
-      worklist = workflowService.createWorklist(project.getId(), binList.getObjects().get(0).getId(), 
-          "chem", 0, 5, new PfsParameterJpa(), authToken);
-    } catch (Exception e) {
-      workflowService.clearBins(project.getId(),
-          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-      throw e;
-    }
-    
-    try {
-      String reportFileName = workflowService.generateConceptReport(project.getId(), worklist.getId(), 1L, false, "", 0, authToken);
-      String reportContents = workflowService.getGeneratedConceptReport(project.getId(), reportFileName, authToken);
-      assertTrue(reportContents.contains("ATOMS"));
-      workflowService.findGeneratedConceptReports(project.getId(), ".txt", new PfsParameterJpa(), authToken);
-      workflowService.removeGeneratedConceptReport(project.getId(), reportFileName, authToken);
-    } catch (Exception e) {
-      throw e;
-    } finally {
-         
-      //
-      // clean up
-      //
-      integrationTestService.removeWorklist(worklist.getId(), true, authToken);
-   * Teardown.
- 
-      // clear bins
-      workflowService.clearBins(project.getId(),
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-   *
-    }
-  }
-  
-  /**
-   * @throws Exception the exception
-   */
    * @throws Exception the exception
    */
   @Override

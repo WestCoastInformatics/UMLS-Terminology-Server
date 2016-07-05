@@ -34,7 +34,7 @@ import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
 /**
- * JPA-enabled implementation of a {@link WorkflowEpoch}.
+ * JAXB and JPA enabled implementation of a {@link WorkflowEpoch}.
  */
 @Entity
 @Table(name = "workflow_epochs", uniqueConstraints = @UniqueConstraint(columnNames = {

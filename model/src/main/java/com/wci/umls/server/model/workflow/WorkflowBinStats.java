@@ -6,7 +6,7 @@ package com.wci.umls.server.model.workflow;
 import java.util.Map;
 
 /**
- * The Interface WorkflowBinStats.
+ * Represents statistics about a workflow bin broken down by cluster type.
  */
 public interface WorkflowBinStats {
 

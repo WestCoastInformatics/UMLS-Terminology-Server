@@ -6,7 +6,9 @@ package com.wci.umls.server.model.workflow;
 import com.wci.umls.server.helpers.HasLastModified;
 
 /**
- * Represents a workflow bin definition.
+ * Represents a query for identifing concepts/components that meet some set of
+ * known criteria. The criteria can be expressed as an SQL, HQL, or Lucene query
+ * and produces lists of clustered concepts.
  */
 public interface WorkflowBinDefinition extends HasLastModified {
 

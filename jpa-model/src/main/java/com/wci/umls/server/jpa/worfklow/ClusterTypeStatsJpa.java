@@ -8,19 +8,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.model.workflow.ClusterTypeStats;
 
 /**
- * The Class ClusterTypeStatsJpa.
+ * JAXB-enabled implementation of {@link ClusterTypeStats}.
  */
 @XmlRootElement(name = "clusterTypeStats")
 public class ClusterTypeStatsJpa implements ClusterTypeStats {
 
-  /** The all. */
+  /** The all count. */
   private int all;
 
-  /** The editable. */
+  /** The editable count. */
   private int editable;
 
-  /** The uneditable. */
+  /** The uneditable count. */
   private int uneditable;
+
+  /** The cluster type. */
+  private String clusterType;
 
   /**
    * Instantiates an empty {@link ClusterTypeStatsJpa}.
@@ -36,6 +39,7 @@ public class ClusterTypeStatsJpa implements ClusterTypeStats {
    */
   public ClusterTypeStatsJpa(ClusterTypeStats clusterTypeStats) {
     all = clusterTypeStats.getAll();
+    clusterType = clusterTypeStats.getClusterType();
     editable = clusterTypeStats.getEditable();
     uneditable = clusterTypeStats.getUneditable();
   }
@@ -78,10 +82,23 @@ public class ClusterTypeStatsJpa implements ClusterTypeStats {
 
   /* see superclass */
   @Override
+  public String getClusterType() {
+    return clusterType;
+  }
+
+  /* see superclass */
+  @Override
+  public void setClusterType(String clusterType) {
+    this.clusterType = clusterType;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + all;
+    result =
+        prime * result + ((clusterType == null) ? 0 : clusterType.hashCode());
     result = prime * result + editable;
     result = prime * result + uneditable;
     return result;
@@ -97,7 +114,10 @@ public class ClusterTypeStatsJpa implements ClusterTypeStats {
     if (getClass() != obj.getClass())
       return false;
     ClusterTypeStatsJpa other = (ClusterTypeStatsJpa) obj;
-    if (all != other.all)
+    if (clusterType == null) {
+      if (other.clusterType != null)
+        return false;
+    } else if (!clusterType.equals(other.clusterType))
       return false;
     if (editable != other.editable)
       return false;
@@ -110,7 +130,7 @@ public class ClusterTypeStatsJpa implements ClusterTypeStats {
   @Override
   public String toString() {
     return "ClusterTypeStatsJpa [all=" + all + ", editable=" + editable
-        + ", uneditable=" + uneditable + "]";
+        + ", uneditable=" + uneditable + ", clusterType=" + clusterType + "]";
   }
 
 }

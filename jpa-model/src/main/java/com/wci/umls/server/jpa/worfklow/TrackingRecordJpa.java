@@ -38,7 +38,7 @@ import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 
 /**
- * JPA enabled implementation of {@link TrackingRecord}.
+ * JAXB and JPA enabled implementation of {@link TrackingRecord}.
  */
 @Entity
 @Table(name = "tracking_records")

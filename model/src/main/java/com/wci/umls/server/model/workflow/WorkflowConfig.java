@@ -8,12 +8,11 @@ import java.util.List;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
 
-
 /**
- * Represents a workflow bin definitions.
+ * Represents a collection of workflow bin definitions of a particular type for
+ * a project.
  */
 public interface WorkflowConfig extends HasLastModified {
-
 
   /**
    * Gets the workflow bin definitions.
@@ -22,7 +21,6 @@ public interface WorkflowConfig extends HasLastModified {
    */
   public List<WorkflowBinDefinition> getWorkflowBinDefinitions();
 
-
   /**
    * Sets the workflow bin definitions.
    *
@@ -30,56 +28,55 @@ public interface WorkflowConfig extends HasLastModified {
    */
   public void setWorkflowBinDefinitions(List<WorkflowBinDefinition> definitions);
 
-
   /**
    * Gets the type.
    *
    * @return the type
    */
   public WorkflowBinType getType();
-  
+
   /**
    * Sets the type.
    *
    * @param type the new type
    */
   public void setType(WorkflowBinType type);
- 
+
   /**
    * Gets the mutually exclusive.
    *
    * @return the mutually exclusive
    */
   public boolean isMutuallyExclusive();
-  
+
   /**
    * Sets the mutually exclusive.
    *
    * @param mutuallyExclusive the new mutually exclusive
    */
   public void setMutuallyExclusive(boolean mutuallyExclusive);
-  
+
   /**
    * Gets the last partition time.
    *
    * @return the last partition time
    */
   public Long getLastPartitionTime();
-  
+
   /**
    * Sets the last partition time.
    *
    * @param lastPartitionTime the new last partition time
    */
   public void setLastPartitionTime(Long lastPartitionTime);
-  
+
   /**
    * Gets the project.
    *
    * @return the project
    */
   public Project getProject();
-  
+
   /**
    * Sets the project.
    *

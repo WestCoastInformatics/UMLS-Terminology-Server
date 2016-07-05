@@ -3,17 +3,21 @@
  */
 package com.wci.umls.server.jpa.worfklow;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.wci.umls.server.model.workflow.ClusterTypeStats;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinStats;
 
 /**
- * A JAXB-enabled implementation of {@link WorkflowBinStats}.
+ * JAXB enabled implementation of {@link WorkflowBinStats}.
  */
 @XmlRootElement(name = "workflowBinStats")
 public class WorkflowBinStatsJpa implements WorkflowBinStats {
@@ -43,6 +47,7 @@ public class WorkflowBinStatsJpa implements WorkflowBinStats {
 
   /* see superclass */
   @Override
+  @XmlElement(type = WorkflowBinJpa.class)
   public WorkflowBin getWorkflowBin() {
     return workflowBin;
   }
@@ -55,8 +60,11 @@ public class WorkflowBinStatsJpa implements WorkflowBinStats {
 
   /* see superclass */
   @Override
-  // TODO: @XmlJavaTypeAdapter(UserRoleMapAdapter.class)
+  @XmlTransient
   public Map<String, ClusterTypeStats> getClusterTypeStatsMap() {
+    if (clusterTypeStatsMap == null) {
+      clusterTypeStatsMap = new HashMap<>();
+    }
     return clusterTypeStatsMap;
   }
 
@@ -67,6 +75,32 @@ public class WorkflowBinStatsJpa implements WorkflowBinStats {
     this.clusterTypeStatsMap = clusterTypeStatsMap;
   }
 
+  /**
+   * Returns the cluster type stats.
+   *
+   * @return the cluster type stats
+   */
+  @XmlElement(type = ClusterTypeStatsJpa.class)
+  public List<ClusterTypeStats> getClusterTypeStats() {
+    if (clusterTypeStatsMap == null) {
+      clusterTypeStatsMap = new HashMap<>();
+    }
+    return new ArrayList<>(clusterTypeStatsMap.values());
+  }
+
+  /**
+   * Sets the cluster type stats.
+   *
+   * @param stats the cluster type stats
+   */
+  public void setClusterTypeStats(List<ClusterTypeStats> stats) {
+    clusterTypeStatsMap = new HashMap<>();
+    for (final ClusterTypeStats stat : stats) {
+      clusterTypeStatsMap.put(stat.getClusterType(), stat);
+    }
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -81,6 +115,7 @@ public class WorkflowBinStatsJpa implements WorkflowBinStats {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -103,6 +138,7 @@ public class WorkflowBinStatsJpa implements WorkflowBinStats {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "WorkflowBinStatsJpa [workflowBin=" + workflowBin
