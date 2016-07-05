@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -377,7 +376,7 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public StringList findGeneratedConceptReports(Long projectId, String query,
-    PfsParameter pfs, String authToken) throws Exception;
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Returns the generated concept report.

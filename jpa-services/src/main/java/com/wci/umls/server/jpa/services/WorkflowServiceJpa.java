@@ -146,14 +146,16 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
             pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final TrackingRecordJpa trackingRecord : luceneResults) {
+      handleLazyInit(trackingRecord);
       results.getObjects().add(trackingRecord);
     }
     return results;
   }
 
-  @Override
+
   public void handleLazyInit(TrackingRecord record) {
-    // TODO
+    record.getComponentIds().size();
+    record.getOrigConceptIds().size();
   }
   
   public void handleLazyInit(Worklist worklist) {

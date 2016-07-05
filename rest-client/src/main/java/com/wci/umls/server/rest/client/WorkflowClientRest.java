@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.net.URLEncoder;
 import java.util.Properties;
 
 import javax.ws.rs.client.Client;
@@ -18,7 +19,6 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -670,8 +670,32 @@ public class WorkflowClientRest extends RootClientRest implements
   @Override
   public WorkflowEpoch addWorkflowEpoch(Long projectId, WorkflowEpochJpa epoch,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - add workflow epoch" + projectId + ", "
+            + epoch.toString() + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/epoch/add?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .post(Entity.json(epoch));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    WorkflowEpoch v =
+        ConfigUtility.getGraphForString(resultString, WorkflowEpochJpa.class);
+    return v;
   }
 
   @Override
@@ -710,58 +734,224 @@ public class WorkflowClientRest extends RootClientRest implements
   @Override
   public WorkflowBinStatsList getWorkflowBinStats(Long projectId,
     WorkflowBinType type, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - get workflow bin stats" + projectId + ", " + type );
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/bin/stats?projectId=" + projectId + "&type=" + type);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility
+        .getGraphForString(resultString, WorkflowBinStatsList.class);
   }
 
   @Override
   public WorklistStats getWorklistStats(Long projectId, Long worklistId,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - get worklist stats" + projectId + ", " + worklistId );
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(worklistId, "worklistId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/bin/stats?projectId=" + projectId + "&worklistId=" + worklistId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility
+        .getGraphForString(resultString, WorklistStats.class);
   }
 
   @Override
   public void clearBin(Long projectId, Long workflowBinId, String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - clear bin" + projectId + ", "
+            + workflowBinId + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(workflowBinId, "workflowBinId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/bin/clear?projectId=" + projectId + "&workflowBinId=" + workflowBinId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
   }
 
   @Override
   public void regenerateBin(Long projectId, Long workflowBinId,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - regenerate bin" + projectId + ", "
+            + workflowBinId + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(workflowBinId, "workflowBinId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/bins/regenerate?projectId=" + projectId + "&workflowBinId=" + workflowBinId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
   }
 
   @Override
   public String generateConceptReport(Long projectId, Long worklistId,
     Long delay, Boolean sendEmail, String conceptReportType,
     Integer relationshipCt, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - generate concept report" + projectId + ", " + worklistId + ", "
+            + sendEmail + ", " + conceptReportType + ", " + relationshipCt + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/report/generate?projectId=" + projectId + "&worklistId=" + worklistId +
+            "&delay=" + delay +  (sendEmail != null ? ("&sendEmail=" + sendEmail)
+                : "") + "&conceptReportType=" + conceptReportType
+            + "&relationshipCt=" + relationshipCt);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    return resultString;
   }
 
-  @Override
-  public StringList findGeneratedConceptReports(Long projectId, String query,
-    PfsParameter pfs, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
 
   @Override
   public String getGeneratedConceptReport(Long projectId, String fileName,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - get generated concept report: " + projectId + ", " + fileName);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/report/get"
+            + "?projectId=" + projectId + "&fileName=" + fileName);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    if (response.getStatus() == 204) {
+      return null;
+    }
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    return resultString;
   }
 
   @Override
   public void removeGeneratedConceptReport(Long projectId, String fileName,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - remove generated concept report " + projectId);
+
+    validateNotEmpty(projectId, "project id");
+    validateNotEmpty(fileName, "fileName");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/workflow/report/remove?projectId="
+            + projectId + "&fileName=" + fileName);
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing
+    } else {
+      throw new Exception(response.toString());
+    }
+  }
+
+  @Override
+  public StringList findGeneratedConceptReports(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find generated concept reports" + projectId + ", " + query);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/report/find?projectId=" + projectId + "&query="
+                + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.json(pfs));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility
+        .getGraphForString(resultString, StringList.class);
   }
 
 

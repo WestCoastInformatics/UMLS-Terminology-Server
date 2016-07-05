@@ -1,6 +1,12 @@
 package com.wci.umls.server.rest.impl;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,6 +30,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResult;
@@ -40,6 +47,7 @@ import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinStatsListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
@@ -93,6 +101,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /** The security service. */
   private SecurityService securityService;
+  
+  private static String uploadDir = "";
 
   /**
    * Instantiates an empty {@link WorkflowServiceRestImpl}.
@@ -103,6 +113,25 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     securityService = new SecurityServiceJpa();
   }
 
+  static {
+
+    try {
+      if (ConfigUtility.getConfigProperties().containsKey(
+          "upload.dir")) {
+        uploadDir =
+            ConfigUtility.getConfigProperties().getProperty(
+                "upload.dir");
+      }
+
+      if (uploadDir.equals("")) {
+        throw new Exception("upload.dir"
+            + " expected and does not exist.");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  
   @Override
   @POST
   @Path("/config/add")
@@ -1396,7 +1425,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   }
 
   @Override
-  @POST
+  @GET
   @Path("/bin/clear")
   @ApiOperation(value = "Clear bin", notes = "Clear bin")
   public void clearBin(
@@ -1428,7 +1457,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   }
 
   @Override
-  @POST
+  @GET
   @Path("/bin/regenerate")
   @ApiOperation(value = "Regenerate bin", notes = "Regenerate bin")
   public void regenerateBin(
@@ -1625,33 +1654,181 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 */
   }
 
-
   @Override
-  public String generateConceptReport(Long projectId, Long worklistId,
-    Long delay, Boolean sendEmail, String conceptReportType,
-    Integer relationshipCt, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public StringList findGeneratedConceptReports(Long projectId, String query,
-    PfsParameter pfs, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public String getGeneratedConceptReport(Long projectId, String fileName,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public void removeGeneratedConceptReport(Long projectId, String fileName,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
+  @GET
+  @Path("/report/generate")
+  @ApiOperation(value = "Generate concept report", notes = "Generate concept report", response = String.class)
+  public String generateConceptReport(
+    @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Worklist id, e.g. 5") @QueryParam("worklistId") Long worklistId,
+    @ApiParam(value = "Delay", required = false) @QueryParam("delay") Long delay,
+    @ApiParam(value = "Send email, e.g. false", required = false) @QueryParam("sendEmail") Boolean sendEmail,
+    @ApiParam(value = "Concept report type", required = true) @QueryParam("conceptReportType") String conceptReportType,
+    @ApiParam(value = "Relationship count", required = false) @QueryParam("relationshipCt") Integer relationshipCt,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken) throws Exception {
     
+    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /report/generate ");
+    // TODO: parameters not used
+    // TODO: how to determine fileName?
+    
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+    ReportServiceJpa reportService = null;
+    StringBuffer conceptReport = new StringBuffer();
+    try {
+      String userName = authorizeProject(workflowService, projectId,
+          securityService, authToken, "trying to generate concept report", UserRole.AUTHOR);
+
+      workflowService.setLastModifiedBy(userName);
+      Project project = workflowService.getProject(projectId);
+      Worklist worklist = workflowService.getWorklist(worklistId);
+      TrackingRecordList recordList = 
+          workflowService.findTrackingRecordsForQuery("projectId:" + projectId + " AND worklistName:" + worklist.getName(), new PfsParameterJpa());
+      workflowService.close();
+      reportService = new ReportServiceJpa();
+      for (TrackingRecord record : recordList.getObjects()) {
+        for (Long conceptId : record.getOrigConceptIds()) {
+          Concept concept = reportService.getConcept(conceptId);
+          conceptReport.append(reportService.getConceptReport(project, concept));
+          conceptReport.append("---------------------------------------------");
+        }
+      }
+      String fileName = worklistId + "_Report.txt";
+      File reportsDir = new File(uploadDir + "/" + projectId + "/reports");
+      File file = new File(uploadDir + "/" + projectId + "/reports/" + fileName);
+      if (file.exists())
+        throw new Exception(file.getAbsolutePath() + " already exists.");
+      
+      if (!reportsDir.exists())
+        reportsDir.mkdirs();
+      file.createNewFile();
+      
+      FileWriter fw = new FileWriter(file.getAbsoluteFile());
+      BufferedWriter bw = new BufferedWriter(fw);
+      bw.write(conceptReport.toString());
+      bw.close();
+      
+      return fileName;
+    } catch (Exception e) {
+      handleException(e, "trying to generate concept report");
+    } finally {
+      if (reportService != null) {
+        reportService.close();
+      }
+      workflowService.close();
+      securityService.close();
+    }
+    return "";
+  }
+
+  @Override
+  @POST
+  @Path("/report/find")
+  @ApiOperation(value = "Find concept reports", notes = "Find generated concept reports", response = StringList.class)
+  public StringList findGeneratedConceptReports(
+    @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Query") @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken) throws Exception {
+    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /report/find ");
+
+    // TODO; deal with pfs
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+    StringList stringList = new StringList();
+    List<String> matchingFiles = new ArrayList<>();
+    try {
+      String filePath = uploadDir + "/" + projectId + "/reports/";
+      File dir = new File(filePath);
+      if (!dir.exists()) {
+        throw new Exception("No reports exist for path " + filePath);
+      }
+      for (String file : dir.list()) {
+        if (file.contains(query)) {
+          matchingFiles.add(file);
+        }
+      }
+      Collections.sort(matchingFiles);
+      stringList.setObjects(matchingFiles);
+      stringList.setTotalCount(matchingFiles.size());
+      return stringList;
+      
+    } catch (Exception e) {
+      handleException(e, e.getMessage() + ". Trying to find generated concept reports.");
+    } finally {
+      
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  @Override
+  @GET
+  @Path("/report/get")
+  @ApiOperation(value = "Get generated concept report", notes = "Get generated concept report", response = String.class)
+  public String getGeneratedConceptReport(
+    @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "File name") @QueryParam("fileName") String fileName,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Workflow): /report/get ");
+
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+    BufferedReader reader = null;
+
+    try {
+      String filePath = uploadDir + "/" + projectId + "/reports/" + fileName;
+      File file = new File(filePath);
+      if (!file.exists()) {
+        throw new Exception("No report exists for path " + filePath);
+      }
+      reader = new BufferedReader(new FileReader(file));
+      String line = null;
+      StringBuilder stringBuilder = new StringBuilder();
+      String ls = System.getProperty("line.separator");
+
+      while ((line = reader.readLine()) != null) {
+        stringBuilder.append(line);
+        stringBuilder.append(ls);
+      }
+
+      return stringBuilder.toString();
+
+    } catch (Exception e) {
+      handleException(e,
+          e.getMessage() + ". Trying to find generated concept report.");
+    } finally {
+      reader.close();
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  @Override
+  @DELETE
+  @Path("/report/remove")
+  @ApiOperation(value = "Get generated concept report", notes = "Get generated concept report", response = String.class)
+  public void removeGeneratedConceptReport(
+    @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "File name") @QueryParam("fileName") String fileName,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken) throws Exception {
+    Logger.getLogger(getClass())
+    .info("RESTful POST call (Workflow): /bin/clear ");
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+
+    try {
+      String filePath = uploadDir + "/" + projectId + "/reports/" + fileName;
+      File file = new File(filePath);
+      if (!file.exists()) {
+        throw new Exception("No report exists for path " + filePath);
+      }
+      file.delete();
+    } catch (Exception e) {
+      handleException(e,
+          e.getMessage() + ". Trying to remove generated concept report.");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
   }
 }
