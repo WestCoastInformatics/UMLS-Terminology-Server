@@ -161,6 +161,10 @@ public class EqualsHashcodeTester extends ProxyTester {
     Object o1 = createObject(1);
     Object o2 = createObject(1);
     setFields(o2, false, true, 2);
+    if (o1.hashCode() != o2.hashCode()) {
+      Logger.getLogger(getClass()).info("o1 = " + o1.hashCode() + ", " + o1);
+      Logger.getLogger(getClass()).info("o2 = " + o2.hashCode() + ", " + o2);
+    }
     return o1.hashCode() == o2.hashCode();
   }
 

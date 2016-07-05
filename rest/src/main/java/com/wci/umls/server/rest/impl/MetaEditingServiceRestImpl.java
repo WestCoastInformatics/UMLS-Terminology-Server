@@ -29,8 +29,6 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
-import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
-import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.LuceneNormalizedStringHandler;

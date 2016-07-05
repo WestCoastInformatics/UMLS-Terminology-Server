@@ -76,7 +76,7 @@ public interface AtomIdentity extends HasId {
   /**
    * Sets the code.
    *
-   * @param code the code
+   * @param codeId the code id
    */
   public void setCodeId(String codeId);
 

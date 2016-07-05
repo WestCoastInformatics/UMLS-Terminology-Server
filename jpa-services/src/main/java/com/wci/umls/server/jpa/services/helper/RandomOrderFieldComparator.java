@@ -10,19 +10,24 @@ import org.apache.lucene.search.FieldComparator;
  */
 public class RandomOrderFieldComparator extends FieldComparator.IntComparator {
 
+  /** The random number genreator. */
+  private final Random random = new Random();
+
   /**
-   * @param numHits
-   * @param field
-   * @param parser
-   * @param missingValue
+   * Instantiates a {@link RandomOrderFieldComparator} from the specified
+   * parameters.
+   *
+   * @param numHits the num hits
+   * @param field the field
+   * @param parser the parser
+   * @param missingValue the missing value
    */
   public RandomOrderFieldComparator(int numHits, String field, Parser parser,
       Integer missingValue) {
     super(numHits, field, parser, missingValue);
   }
 
-  private final Random random = new Random();
-
+  /* see superclass */
   @Override
   public Integer value(int slot) {
     return random.nextInt();

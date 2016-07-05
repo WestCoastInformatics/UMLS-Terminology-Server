@@ -32,14 +32,14 @@ public interface Worklist extends Checklist {
    *
    * @return the workflow bin
    */
-  public String getWorkflowBin();
+  public String getWorkflowBinName();
 
   /**
    * Sets the workflow bin.
    *
    * @param bin the workflow bin
    */
-  public void setWorkflowBin(String bin);
+  public void setWorkflowBinName(String bin);
 
   /**
    * Returns the workflow state history.

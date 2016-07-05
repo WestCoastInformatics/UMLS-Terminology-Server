@@ -7,15 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
 import com.wci.umls.server.model.workflow.ClusterTypeStats;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinStats;
 
 /**
- * The Class WorkflowBinStatsJpa.
+ * A JAXB-enabled implementation of {@link WorkflowBinStats}.
  */
 @XmlRootElement(name = "workflowBinStats")
 public class WorkflowBinStatsJpa implements WorkflowBinStats {
@@ -73,8 +71,11 @@ public class WorkflowBinStatsJpa implements WorkflowBinStats {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + ((clusterTypeStatsMap == null) ? 0 : clusterTypeStatsMap.hashCode());
+    result =
+        prime
+            * result
+            + ((clusterTypeStatsMap == null) ? 0 : clusterTypeStatsMap
+                .hashCode());
     result =
         prime * result + ((workflowBin == null) ? 0 : workflowBin.hashCode());
     return result;
@@ -107,7 +108,5 @@ public class WorkflowBinStatsJpa implements WorkflowBinStats {
     return "WorkflowBinStatsJpa [workflowBin=" + workflowBin
         + ", clusterTypeStatsMap=" + clusterTypeStatsMap + "]";
   }
-  
-  
 
 }

@@ -55,9 +55,9 @@ public class WorklistListUnitTest extends AbstractListUnit<Worklist> {
     o2 = (Worklist) tester.createObject(2);
 
     o1.setProject(null);
-    o1.setWorkflowBin(null);
+    o1.setWorkflowBinName(null);
     o2.setProject(null);
-    o2.setWorkflowBin(null);
+    o2.setWorkflowBinName(null);
   }
 
   /**

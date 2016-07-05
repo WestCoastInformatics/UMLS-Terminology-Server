@@ -72,7 +72,6 @@ public interface WorkflowService extends ProjectService {
    */
   public StringList getWorkflowPaths();
 
-
   /**
    * Perform workflow action.
    *
@@ -84,10 +83,8 @@ public interface WorkflowService extends ProjectService {
    * @return the worklist
    * @throws Exception the exception
    */
-  public Worklist performWorkflowAction(Project project, Worklist worklist, String userName,
-    UserRole role, WorkflowAction action) throws Exception;
-
-
+  public Worklist performWorkflowAction(Project project, Worklist worklist,
+    String userName, UserRole role, WorkflowAction action) throws Exception;
 
   /**
    * Returns the workflow handler for path.
@@ -124,6 +121,13 @@ public interface WorkflowService extends ProjectService {
    * @param record the record
    */
   public void handleLazyInit(TrackingRecord record);
+
+  /**
+   * Handle lazy init.
+   *
+   * @param worklist the worklist
+   */
+  public void handleLazyInit(Worklist worklist);
 
   /**
    * Add workflow epoch.
@@ -176,8 +180,8 @@ public interface WorkflowService extends ProjectService {
    * @return the list
    * @throws Exception the exception
    */
-  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query, PfsParameter pfs)
-    throws Exception;
+  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Add project workflow config.
@@ -432,8 +436,8 @@ public interface WorkflowService extends ProjectService {
    * @return the checklist list
    * @throws Exception the exception
    */
-  public ChecklistList findChecklistsForQuery(Project project, String query, PfsParameter pfs) throws Exception;
-
+  public ChecklistList findChecklistsForQuery(Project project, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the workflow config.
@@ -453,6 +457,7 @@ public interface WorkflowService extends ProjectService {
    * @return the current workflow epoch
    * @throws Exception the exception
    */
-  public WorkflowEpoch getCurrentWorkflowEpoch(Project project) throws Exception; 
-  
+  public WorkflowEpoch getCurrentWorkflowEpoch(Project project)
+    throws Exception;
+
 }

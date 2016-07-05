@@ -72,7 +72,6 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /** The workflow state history. */
   @ElementCollection
-  @Column(nullable = false)
   private Map<String, Date> workflowStateHistory = new HashMap<>();
 
   /**
@@ -94,7 +93,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     reviewers = worklist.getReviewers();
     worklistGroup = worklist.getWorklistGroup();
     workflowStatus = worklist.getWorkflowStatus();
-    workflowBinName = worklist.getWorkflowBin();
+    workflowBinName = worklist.getWorkflowBinName();
     number = worklist.getNumber();
     if (deepCopy) {
       workflowStateHistory = worklist.getWorkflowStateHistory();
@@ -189,14 +188,14 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-  public String getWorkflowBin() {
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getWorkflowBinName() {
     return workflowBinName;
   }
 
   /* see superclass */
   @Override
-  public void setWorkflowBin(String workflowBin) {
+  public void setWorkflowBinName(String workflowBin) {
     this.workflowBinName = workflowBin;
   }
 
@@ -206,7 +205,6 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((authors == null) ? 0 : authors.hashCode());
-    result = prime * result + number;
     result = prime * result + ((reviewers == null) ? 0 : reviewers.hashCode());
     result =
         prime * result
@@ -231,8 +229,6 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
       if (other.authors != null)
         return false;
     } else if (!authors.equals(other.authors))
-      return false;
-    if (number != other.number)
       return false;
     if (reviewers == null) {
       if (other.reviewers != null)

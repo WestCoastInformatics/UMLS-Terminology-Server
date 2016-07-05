@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -20,11 +19,11 @@ import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
-import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
+import com.wci.umls.server.model.workflow.Worklist;
 
 /**
- * The Interface WorkflowServiceRest.
+ * Represents a workflow service REST API.
  */
 public interface WorkflowServiceRest {
 

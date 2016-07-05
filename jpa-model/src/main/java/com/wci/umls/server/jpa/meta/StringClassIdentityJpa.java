@@ -31,7 +31,7 @@ public class StringClassIdentityJpa implements StringClassIdentity {
   /** The name. */
   @Column(nullable = false)
   private String name;
-  
+
   /** The name pre. */
   @Column(nullable = false)
   private String nameHash;
@@ -48,7 +48,8 @@ public class StringClassIdentityJpa implements StringClassIdentity {
   }
 
   /**
-   * Instantiates a {@link StringClassIdentityJpa} from the specified parameters.
+   * Instantiates a {@link StringClassIdentityJpa} from the specified
+   * parameters.
    *
    * @param identity the identity
    */
@@ -60,7 +61,8 @@ public class StringClassIdentityJpa implements StringClassIdentity {
   }
 
   /**
-   * Instantiates a {@link StringClassIdentityJpa} from the specified parameters.
+   * Instantiates a {@link StringClassIdentityJpa} from the specified
+   * parameters.
    *
    * @param name the name
    * @param language the language
@@ -118,11 +120,13 @@ public class StringClassIdentityJpa implements StringClassIdentity {
   }
 
   /* see superclass */
+  @Override
   public String getLanguage() {
     return language;
   }
 
   /* see superclass */
+  @Override
   public void setLanguage(String language) {
     this.language = language;
   }
@@ -179,7 +183,7 @@ public class StringClassIdentityJpa implements StringClassIdentity {
   /* see superclass */
   @Override
   public String toString() {
-    return "StringIdentityJpa [id=" + id + ", name=" + name
-        + ", nameHash=" + nameHash + "]";
+    return "StringIdentityJpa [id=" + id + ", name=" + name + ", nameHash="
+        + nameHash + "]";
   }
 }

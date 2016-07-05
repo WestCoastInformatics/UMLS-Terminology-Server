@@ -47,7 +47,7 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 
 /**
- * Workflow Service JPA implementation
+ * Workflow Service JPA implementation.
  */
 public class WorkflowServiceJpa extends ContentServiceJpa implements
     WorkflowService {
@@ -96,6 +96,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public TrackingRecord getTrackingRecord(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -103,6 +104,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return getHasLastModified(id, TrackingRecordJpa.class);
   }
 
+  /* see superclass */
   @Override
   public TrackingRecord addTrackingRecord(TrackingRecord trackingRecord)
     throws Exception {
@@ -116,6 +118,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return record;
   }
 
+  /* see superclass */
   @Override
   public void updateTrackingRecord(TrackingRecord trackingRecord)
     throws Exception {
@@ -123,6 +126,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public void removeTrackingRecord(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -132,6 +136,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public TrackingRecordList findTrackingRecordsForQuery(String query,
     PfsParameter pfs) throws Exception {
@@ -142,8 +147,8 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     final int[] totalCt = new int[1];
     final List<TrackingRecordJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            TrackingRecordJpa.class, TrackingRecordJpa.class,
-            pfs, totalCt, manager);
+            TrackingRecordJpa.class, TrackingRecordJpa.class, pfs, totalCt,
+            manager);
     results.setTotalCount(totalCt[0]);
     for (final TrackingRecordJpa trackingRecord : luceneResults) {
       results.getObjects().add(trackingRecord);
@@ -151,18 +156,22 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return results;
   }
 
+  /* see superclass */
   @Override
   public void handleLazyInit(TrackingRecord record) {
-    // TODO
+    record.getOrigConceptIds().size();
+    record.getComponentIds().size();
   }
-  
+
+  /* see superclass */
+  @Override
   public void handleLazyInit(Worklist worklist) {
     worklist.getReviewers().size();
     worklist.getAuthors().size();
-    worklist.getTrackingRecords().size();
     worklist.getWorkflowStateHistory().size();
   }
 
+  /* see superclass */
   @Override
   public WorkflowEpoch addWorkflowEpoch(WorkflowEpoch workflowEpoch)
     throws Exception {
@@ -176,21 +185,27 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     // do not inform listeners
     return epoch;
   }
-  
+
+  /* see superclass */
   @Override
-  public WorkflowEpoch getCurrentWorkflowEpoch(Project project) throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Service - add workflow epoch ");
-    
+  public WorkflowEpoch getCurrentWorkflowEpoch(Project project)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - add workflow epoch ");
+
     PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(1);
-    // TODO translated into obsolete:false and no obsolete field pfs.setActiveOnly(true);
+    // TODO translated into obsolete:false and no obsolete field
+    // pfs.setActiveOnly(true);
     pfs.setSortField("name");
     pfs.setAscending(false);
-    
-    return findWorkflowEpochsForQuery("projectId:" + project.getId(), pfs).get(0);
+
+    return findWorkflowEpochsForQuery("projectId:" + project.getId(), pfs).get(
+        0);
   }
 
+  /* see superclass */
   @Override
   public void updateWorkflowEpoch(WorkflowEpoch workflowEpoch) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -201,6 +216,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public void removeWorkflowEpoch(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -208,8 +224,8 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     // Remove the component
     removeHasLastModified(id, WorkflowEpochJpa.class);
   }
-  
 
+  /* see superclass */
   @Override
   public List<WorkflowEpoch> getWorkflowEpochs() throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -227,6 +243,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public WorkflowEpoch getWorkflowEpoch(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -234,9 +251,10 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return getHasLastModified(id, WorkflowEpochJpa.class);
   }
 
+  /* see superclass */
   @Override
-  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query, PfsParameter pfs)
-    throws Exception {
+  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - find workflow epochs for query " + query);
     List<WorkflowEpoch> results = new ArrayList<>();
@@ -244,14 +262,15 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     final int[] totalCt = new int[1];
     final List<WorkflowEpochJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", query, "",
-            WorkflowEpochJpa.class, WorkflowEpochJpa.class,
-            pfs, totalCt, manager);
+            WorkflowEpochJpa.class, WorkflowEpochJpa.class, pfs, totalCt,
+            manager);
     for (final WorkflowEpoch epoch : luceneResults) {
       results.add(epoch);
     }
     return results;
   }
 
+  /* see superclass */
   @Override
   public WorkflowConfig addWorkflowConfig(WorkflowConfig workflowConfig)
     throws Exception {
@@ -266,6 +285,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return config;
   }
 
+  /* see superclass */
   @Override
   public void updateWorkflowConfig(WorkflowConfig workflowConfig)
     throws Exception {
@@ -277,6 +297,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public void removeWorkflowConfig(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -285,6 +306,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     removeHasLastModified(id, WorkflowConfigJpa.class);
   }
 
+  /* see superclass */
   @Override
   public List<WorkflowConfig> getWorkflowConfigs() throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -302,6 +324,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public WorkflowConfig getWorkflowConfig(Long projectId, WorkflowBinType type)
     throws Exception {
@@ -322,6 +345,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public WorkflowConfig getWorkflowConfig(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -329,6 +353,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return getHasLastModified(id, WorkflowConfigJpa.class);
   }
 
+  /* see superclass */
   @Override
   public List<WorkflowConfig> findWorkflowConfigsForQuery(String query)
     throws Exception {
@@ -347,6 +372,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return results;
   }
 
+  /* see superclass */
   @Override
   public WorkflowBinDefinition addWorkflowBinDefinition(
     WorkflowBinDefinition workflowBinDefinition) throws Exception {
@@ -361,6 +387,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return def;
   }
 
+  /* see superclass */
   @Override
   public void updateWorkflowBinDefinition(
     WorkflowBinDefinition workflowBinDefinition) throws Exception {
@@ -373,6 +400,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public void removeWorkflowBinDefinition(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -381,6 +409,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     removeHasLastModified(id, WorkflowBinDefinitionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public List<WorkflowBinDefinition> getWorkflowBinDefinitions()
     throws Exception {
@@ -399,6 +428,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public WorkflowBinDefinition getWorkflowBinDefinition(Long id)
     throws Exception {
@@ -407,6 +437,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return getHasLastModified(id, WorkflowBinDefinitionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public List<WorkflowBinDefinition> findWorkflowBinDefinitionsForQuery(
     String query) throws Exception {
@@ -425,6 +456,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return results;
   }
 
+  /* see superclass */
   @Override
   public WorkflowBin addWorkflowBin(WorkflowBin workflowBin) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -437,6 +469,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return bin;
   }
 
+  /* see superclass */
   @Override
   public void updateWorkflowBin(WorkflowBin workflowBin) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -447,6 +480,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public void removeWorkflowBin(Long id, boolean cascade) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -465,12 +499,11 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
       if (getTransactionPerOperation())
         throw new Exception(
             "Unable to remove workflow bin, transactionPerOperation must be disabled to perform cascade remove.");
-      
+
       for (final TrackingRecord record : workflowBin.getTrackingRecords()) {
         removeTrackingRecord(record.getId());
       }
     }
-
 
     // Remove the component
     workflowBin = removeHasLastModified(id, WorkflowBinJpa.class);
@@ -483,6 +516,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public List<WorkflowBin> getWorkflowBins() throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Service - get workflow bins ");
@@ -499,6 +533,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public WorkflowBin getWorkflowBin(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -506,6 +541,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return getHasLastModified(id, WorkflowBinJpa.class);
   }
 
+  /* see superclass */
   @Override
   public List<WorkflowBin> findWorkflowBinsForQuery(String query)
     throws Exception {
@@ -524,6 +560,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return results;
   }
 
+  /* see superclass */
   @Override
   public Worklist addWorklist(Worklist worklist) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -536,6 +573,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return list;
   }
 
+  /* see superclass */
   @Override
   public void updateWorklist(Worklist worklist) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -546,6 +584,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public void removeWorklist(Long id, boolean cascade) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -563,7 +602,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
       if (getTransactionPerOperation())
         throw new Exception(
             "Unable to remove worklist, transactionPerOperation must be disabled to perform cascade remove.");
-      
+
       for (final TrackingRecord record : worklist.getTrackingRecords()) {
         removeTrackingRecord(record.getId());
       }
@@ -577,9 +616,10 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
       commit();
       setTransactionPerOperation(origTpo);
     }
-    
+
   }
 
+  /* see superclass */
   @Override
   public Worklist getWorklist(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Service - get worklist " + id);
@@ -588,29 +628,29 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return worklist;
   }
 
+  /* see superclass */
   @Override
   public WorklistList findWorklistsForQuery(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - find worklists for query " + query);
-    
+
     final StringBuilder sb = new StringBuilder();
     if (query != null && !query.equals("")) {
       sb.append(query);
     }
     if (pfs != null && pfs.getQueryRestriction() != null) {
-      if(sb.toString().length() > 0) {
+      if (sb.toString().length() > 0) {
         sb.append(" AND ").append(pfs.getQueryRestriction());
       }
     }
-    
+
     WorklistList results = new WorklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorklistJpa> luceneResults =
         searchHandler.getQueryResults(null, null, "", sb.toString(), "",
-            WorklistJpa.class, WorklistJpa.class, pfs,
-            totalCt, manager);
+            WorklistJpa.class, WorklistJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final WorklistJpa worklist : luceneResults) {
       handleLazyInit(worklist);
@@ -619,6 +659,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return results;
   }
 
+  /* see superclass */
   @Override
   public Checklist addChecklist(Checklist checklist) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -631,6 +672,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return list;
   }
 
+  /* see superclass */
   @Override
   public void updateChecklist(Checklist checklist) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -641,6 +683,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public void removeChecklist(Long id, boolean cascade) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -658,12 +701,11 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
       if (getTransactionPerOperation())
         throw new Exception(
             "Unable to remove checklist, transactionPerOperation must be disabled to perform cascade remove.");
-      
+
       for (final TrackingRecord record : checklist.getTrackingRecords()) {
         removeTrackingRecord(record.getId());
       }
     }
-
 
     // Remove the component
     checklist = removeHasLastModified(id, ChecklistJpa.class);
@@ -673,10 +715,10 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
       commit();
       setTransactionPerOperation(origTpo);
     }
-    
+
   }
 
-  
+  /* see superclass */
   @Override
   public Checklist getChecklist(Long id) throws Exception {
     Logger.getLogger(getClass())
@@ -684,6 +726,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return getHasLastModified(id, ChecklistJpa.class);
   }
 
+  /* see superclass */
   @Override
   public ChecklistList findChecklistsForQuery(Project project, String query,
     PfsParameter pfs) throws Exception {
@@ -695,7 +738,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
       sb.append(query);
     }
     if (pfs != null && pfs.getQueryRestriction() != null) {
-      if(sb.toString().length() > 0) {
+      if (sb.toString().length() > 0) {
         sb.append(" AND ").append(pfs.getQueryRestriction());
       }
     }
@@ -745,6 +788,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     return new HashSet<>(workflowHandlerMap.values());
   }
 
+  /* see superclass */
   @Override
   public Worklist performWorkflowAction(Project project, Worklist worklist,
     String userName, UserRole role, WorkflowAction action) throws Exception {

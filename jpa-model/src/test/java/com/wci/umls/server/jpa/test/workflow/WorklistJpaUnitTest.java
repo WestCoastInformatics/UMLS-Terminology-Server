@@ -25,10 +25,8 @@ import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
-import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.Worklist;
 
 /**
@@ -38,12 +36,6 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private WorklistJpa object;
-
-  /** The fixture m1. */
-  private WorkflowBin m1;
-
-  /** The fixture m2. */
-  private WorkflowBin m2;
 
   /** The fixture p1. */
   private Project p1;
@@ -73,9 +65,6 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() throws Exception {
     object = new WorklistJpa();
-    final ProxyTester tester = new ProxyTester(new WorkflowBinJpa());
-    m1 = (WorkflowBinJpa) tester.createObject(1);
-    m2 = (WorkflowBinJpa) tester.createObject(2);
 
     final ProxyTester tester2 = new ProxyTester(new ProjectJpa());
     p1 = (ProjectJpa) tester2.createObject(1);
@@ -99,7 +88,6 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("workflowBinId");
     tester.exclude("projectId");
     tester.test();
   }
@@ -116,15 +104,13 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("description");
     tester.include("name");
     tester.include("project");
-    tester.include("workflowBin");
     tester.include("authors");
     tester.include("reviewers");
     tester.include("worklistGroup");
+    tester.include("workflowBinName");
 
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-    tester.proxy(WorkflowBin.class, 1, m1);
-    tester.proxy(WorkflowBin.class, 2, m2);
     tester.proxy(Project.class, 1, p1);
     tester.proxy(Project.class, 2, p2);
 
@@ -186,7 +172,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("description");
     tester.include("workflowStatus");
-    tester.include("workflowStateHistory);
+    tester.include("number");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -212,6 +198,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModifiedBy");
     tester.include("worklistGroup");
     tester.include("workflowStatus");
+    tester.include("workflowBinName");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
