@@ -151,6 +151,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
             manager);
     results.setTotalCount(totalCt[0]);
     for (final TrackingRecordJpa trackingRecord : luceneResults) {
+      handleLazyInit(trackingRecord);
       results.getObjects().add(trackingRecord);
     }
     return results;

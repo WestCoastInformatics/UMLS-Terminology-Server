@@ -321,5 +321,83 @@ public interface WorkflowServiceRest {
    * 
    * public void removeGeneratedConceptReport(Long projectId, String fileName,
    * String authToken) throws Exception;
+  public WorklistStats getWorklistStats(Long projectId, Long worklistId,
+    String authToken) throws Exception;
+  
+  
+  /**
    */
+   *
+   * @param projectId the project id
+   * @param workflowBinId the workflow bin id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void clearBin(Long projectId, Long workflowBinId, String authToken)
+    throws Exception;
+
+  /**
+   * Regenerate bin.
+   *
+   * @param projectId the project id
+   * @param workflowBinId the workflow bin id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void regenerateBin(Long projectId, Long workflowBinId,
+    String authToken) throws Exception;
+
+  /**
+   * Generate concept report.
+   *
+   * @param projectId the project id
+   * @param worklistId the worklist id
+   * @param delay the delay
+   * @param sendEmail the send email
+   * @param conceptReportType the concept report type
+   * @param relationshipCt the relationship ct
+   * @param authToken the auth token
+   * @return the string
+   * @throws Exception the exception
+   */
+  public String generateConceptReport(Long projectId, Long worklistId,
+    Long delay, Boolean sendEmail, String conceptReportType,
+    Integer relationshipCt, String authToken) throws Exception;
+
+  /**
+   * Find generated concept reports.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList findGeneratedConceptReports(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Returns the generated concept report.
+   *
+   * @param projectId the project id
+   * @param fileName the file name
+   * @param authToken the auth token
+   * @return the generated concept report
+   * @throws Exception the exception
+   */
+  public String getGeneratedConceptReport(Long projectId, String fileName,
+    String authToken) throws Exception;
+
+  /**
+   * Removes the generated concept report.
+   *
+   * @param projectId the project id
+   * @param fileName the file name
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeGeneratedConceptReport(Long projectId, String fileName,
+    String authToken) throws Exception;
+
 }
