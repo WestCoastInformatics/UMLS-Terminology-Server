@@ -28,6 +28,7 @@ import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowBinStatsListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
@@ -35,6 +36,7 @@ import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.jpa.worfklow.WorklistStatsJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
@@ -756,7 +758,7 @@ public class WorkflowClientRest extends RootClientRest implements
 
     // converting to object
     return ConfigUtility
-        .getGraphForString(resultString, WorkflowBinStatsList.class);
+        .getGraphForString(resultString, WorkflowBinStatsListJpa.class);
   }
 
   @Override
@@ -771,7 +773,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bin/stats?projectId=" + projectId + "&worklistId=" + worklistId);
+            + "/workflow/worklist/stats?projectId=" + projectId + "&worklistId=" + worklistId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -785,7 +787,7 @@ public class WorkflowClientRest extends RootClientRest implements
 
     // converting to object
     return ConfigUtility
-        .getGraphForString(resultString, WorklistStats.class);
+        .getGraphForString(resultString, WorklistStatsJpa.class);
   }
 
   @Override

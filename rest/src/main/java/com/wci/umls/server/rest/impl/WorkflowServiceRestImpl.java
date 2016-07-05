@@ -1466,9 +1466,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /bin/regenerate ");
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Workflow): /bin/regenerate ");
 
-/*    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     try {
       String userName =
           authorizeProject(workflowService, projectId, securityService,
@@ -1477,8 +1478,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.setLastModifiedBy(userName);
       Project project = workflowService.getProject(projectId);
 
-      WorkflowConfig workflowConfig =
-          workflowService.getWorkflowConfig(projectId, type);
+      /*
+       * WorkflowConfig workflowConfig =
+       * workflowService.getWorkflowConfig(projectId, type);
+       */
 
       // concepts seen set
       Set<Long> conceptsSeen = new HashSet<>();
@@ -1509,23 +1512,26 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       }
 
       int i = 0;
-      for (WorkflowBinDefinition definition : workflowConfig
-          .getWorkflowBinDefinitions()) {
+      WorkflowBin bin = workflowService.getWorkflowBin(workflowBinId);
+      clearBin(project.getId(), bin.getId(), authToken);
 
-        WorkflowBin bin = new WorkflowBinJpa();
-        bin.setCreationTime(new Date().getTime());
-        bin.setName(definition.getName());
-        bin.setDescription(definition.getDescription());
-        bin.setEditable(definition.isEditable());
-        bin.setProject(project);
-        bin.setRank(++i);
-        bin.setTerminology(project.getTerminology());
-        bin.setVersion("latest");
-        bin.setTerminologyId("");
-        bin.setTimestamp(new Date());
-        bin.setType(type);
-        workflowService.addWorkflowBin(bin);
+      /*
+       * WorkflowBin bin = new WorkflowBinJpa(); bin.setCreationTime(new
+       * Date().getTime()); bin.setName(definition.getName());
+       * bin.setDescription(definition.getDescription());
+       * bin.setEditable(definition.isEditable()); bin.setProject(project);
+       * bin.setRank(++i); bin.setTerminology(project.getTerminology());
+       * bin.setVersion("latest"); bin.setTerminologyId("");
+       * bin.setTimestamp(new Date()); bin.setType(type);
+       * workflowService.addWorkflowBin(bin);
+       */
 
+      List<WorkflowBinDefinition> definitions = workflowService
+          .findWorkflowBinDefinitionsForQuery("name:" + bin.getName());
+      List<WorkflowConfig> workflowConfigs =
+          workflowService.findWorkflowConfigsForQuery("projectId:" + projectId);
+      WorkflowConfig workflowConfig = workflowConfigs.get(0);
+      for (WorkflowBinDefinition definition : definitions) {
         String query = definition.getQuery();
 
         // execute the query
@@ -1646,12 +1652,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       }
 
     } catch (Exception e) {
-      handleException(e, "trying to regenerate bins");
+      handleException(e, "trying to regenerate bin");
     } finally {
       workflowService.close();
       securityService.close();
     }
-*/
+
   }
 
   @Override

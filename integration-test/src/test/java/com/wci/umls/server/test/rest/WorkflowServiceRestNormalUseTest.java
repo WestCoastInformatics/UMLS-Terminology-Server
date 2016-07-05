@@ -21,6 +21,7 @@ import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.helpers.WorkflowBinStatsList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -30,10 +31,12 @@ import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowBinStats;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.model.workflow.WorklistStats;
 
 /**
  * Implementation of the "Workflow Service REST Normal Use" Test Cases.
@@ -549,7 +552,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   }
 
   /**
-   * Test generate/find concept report
+   * Test generate/find/get/remove concept report
    *
    * @throws Exception the exception
    */
@@ -558,7 +561,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
-        "TEST - Test generate/find concept report" + authToken);
+        "TEST - Test generate/find/get/remove concept report" + authToken);
 
     try {
       workflowService.regenerateBins(project.getId(),
@@ -614,6 +617,69 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     }
   }
   
+  
+  /**
+   * Test workflowBinStats and WorklistStats
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestWorkflow008() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    Logger.getLogger(getClass()).info(
+        "TEST - Test workflowBinStats and worklistStats" + authToken);
+
+    try {
+      workflowService.regenerateBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    WorkflowBinList binList = workflowService
+        .findWorkflowBinsForQuery("name:testName", null, authToken);
+
+    // Remove any worklists first
+    WorklistList worklists = workflowService.findWorklists(project.getId(), "projectId:" + project.getId(), null, authToken);
+    for (Worklist worklist : worklists.getObjects()) {
+      integrationTestService.removeWorklist(worklist.getId(), true, authToken);
+    }
+    
+    
+    //
+    // Create worklist
+    //
+    Worklist worklist;
+    try {
+      worklist = workflowService.createWorklist(project.getId(), binList.getObjects().get(0).getId(), 
+          "chem", 0, 5, new PfsParameterJpa(), authToken);
+    } catch (Exception e) {
+      workflowService.clearBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      throw e;
+    }
+    
+    try {
+      WorkflowBinStatsList binStatsList = workflowService.getWorkflowBinStats(project.getId(), WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      WorklistStats worklistStatsList = workflowService.getWorklistStats(project.getId(), worklist.getId(), authToken) ;   
+    } catch (Exception e) {
+      throw e;
+    } finally {
+         
+      //
+      // clean up
+      //
+      integrationTestService.removeWorklist(worklist.getId(), true, authToken);
+
+ 
+      // clear bins
+      workflowService.clearBins(project.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+    }
+  }
   /**
    * Teardown.
    *
