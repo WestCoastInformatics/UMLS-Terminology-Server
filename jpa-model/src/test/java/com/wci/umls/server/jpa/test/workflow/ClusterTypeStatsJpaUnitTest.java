@@ -5,6 +5,9 @@ package com.wci.umls.server.jpa.test.workflow;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,6 +31,12 @@ public class ClusterTypeStatsJpaUnitTest extends ModelUnitSupport {
   /** The model object to test. */
   private ClusterTypeStatsJpa object;
 
+  /** The fixture m1. */
+  private Map<String, Integer> m1;
+
+  /** The fixture m2. */
+  private Map<String, Integer> m2;
+
   /**
    * Setup class.
    */
@@ -44,6 +53,13 @@ public class ClusterTypeStatsJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() throws Exception {
     object = new ClusterTypeStatsJpa();
+
+    m1 = new HashMap<>();
+    m1.put("1", 1);
+    m2 = new HashMap<>();
+    m2.put("2", 2);
+    m2.put("3", 3);
+
   }
 
   /**
@@ -68,8 +84,9 @@ public class ClusterTypeStatsJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("clusterType");
-    tester.include("editable");
-    tester.include("uneditable");
+    tester.include("stats");
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -84,9 +101,11 @@ public class ClusterTypeStatsJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
     assertTrue(tester.testCopyConstructor(ClusterTypeStats.class));
   }
 
@@ -99,6 +118,8 @@ public class ClusterTypeStatsJpaUnitTest extends ModelUnitSupport {
   public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
     assertTrue(tester.testXmlSerialization());
   }
 

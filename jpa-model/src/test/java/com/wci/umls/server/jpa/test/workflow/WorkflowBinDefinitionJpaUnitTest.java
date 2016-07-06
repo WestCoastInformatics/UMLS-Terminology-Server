@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.test.workflow;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
@@ -12,6 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
@@ -150,6 +152,20 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
     tester.include("editable");
     tester.include("queryType");
     assertTrue(tester.testNotAnalyzedIndexedFields());
+  }
+
+  /**
+   * Test XML transient
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelXmlTransient() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    String xml = ConfigUtility.getStringForGraph(object);
+    assertTrue(xml.contains("<workflowConfigId>"));
+    assertFalse(xml.contains("<workflowConfig>"));
   }
 
   /**

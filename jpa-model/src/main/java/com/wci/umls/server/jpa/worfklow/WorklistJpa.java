@@ -16,6 +16,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -73,6 +74,13 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   /** The workflow state history. */
   @ElementCollection
   private Map<String, Date> workflowStateHistory = new HashMap<>();
+
+  /**
+   * The stats - intended only for JAXB serialization and reporting, not
+   * persisted.
+   */
+  @Transient
+  private Map<String, Integer> stats = new HashMap<>();
 
   /**
    * Instantiates an empty {@link WorklistJpa}.
@@ -197,6 +205,19 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Override
   public void setWorkflowBinName(String workflowBin) {
     this.workflowBinName = workflowBin;
+  }
+
+  @Override
+  public Map<String, Integer> getStats() {
+    if (stats == null) {
+      stats = new HashMap<>();
+    }
+    return stats;
+  }
+
+  @Override
+  public void setStats(Map<String, Integer> stats) {
+    this.stats = stats;
   }
 
   /* see superclass */

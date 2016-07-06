@@ -89,11 +89,11 @@ public interface WorkflowService extends ProjectService {
   /**
    * Returns the workflow handler for path.
    *
-   * @param workflowPat the workflow pat
+   * @param workflowPath the workflow path
    * @return the workflow handler for path
    * @throws Exception the exception
    */
-  public WorkflowActionHandler getWorkflowHandlerForPath(String workflowPat)
+  public WorkflowActionHandler getWorkflowHandlerForPath(String workflowPath)
     throws Exception;
 
   /**
@@ -105,14 +105,16 @@ public interface WorkflowService extends ProjectService {
   public Set<WorkflowActionHandler> getWorkflowHandlers() throws Exception;
 
   /**
-   * Find tracking records for query.
+   * Find tracking records for query. Typically this would be accessed also with
+   * a worklist or workflowBin parameter in the query.
    *
+   * @param project the project
    * @param query the query
    * @param pfs the pfs
    * @return the tracking record list
    * @throws Exception the exception
    */
-  public TrackingRecordList findTrackingRecordsForQuery(String query,
+  public TrackingRecordList findTrackingRecords(Project project, String query,
     PfsParameter pfs) throws Exception;
 
   /**
@@ -158,10 +160,12 @@ public interface WorkflowService extends ProjectService {
   /**
    * Gets the workflow epochs.
    *
+   * @param project the project
    * @return the workflow epochs
    * @throws Exception the exception
    */
-  public List<WorkflowEpoch> getWorkflowEpochs() throws Exception;
+  public List<WorkflowEpoch> getWorkflowEpochs(Project project)
+    throws Exception;
 
   /**
    * Gets the workflow epoch.
@@ -171,17 +175,6 @@ public interface WorkflowService extends ProjectService {
    * @throws Exception the exception
    */
   public WorkflowEpoch getWorkflowEpoch(Long id) throws Exception;
-
-  /**
-   * Find workflow epochs for query.
-   *
-   * @param query the query
-   * @param pfs TODO
-   * @return the list
-   * @throws Exception the exception
-   */
-  public List<WorkflowEpoch> findWorkflowEpochsForQuery(String query,
-    PfsParameter pfs) throws Exception;
 
   /**
    * Add project workflow config.
@@ -213,10 +206,12 @@ public interface WorkflowService extends ProjectService {
   /**
    * Gets the project workflow configs.
    *
+   * @param project the project
    * @return the project workflow configs
    * @throws Exception the exception
    */
-  public List<WorkflowConfig> getWorkflowConfigs() throws Exception;
+  public List<WorkflowConfig> getWorkflowConfigs(Project project)
+    throws Exception;
 
   /**
    * Gets the project workflow config.
@@ -226,16 +221,6 @@ public interface WorkflowService extends ProjectService {
    * @throws Exception the exception
    */
   public WorkflowConfig getWorkflowConfig(Long id) throws Exception;
-
-  /**
-   * Find project workflow configs for query.
-   *
-   * @param query the query
-   * @return the list
-   * @throws Exception the exception
-   */
-  public List<WorkflowConfig> findWorkflowConfigsForQuery(String query)
-    throws Exception;
 
   /**
    * Add workflow bin definition.
@@ -267,11 +252,13 @@ public interface WorkflowService extends ProjectService {
   /**
    * Gets the workflow bin definitions.
    *
+   * @param project the project
+   * @param type the type
    * @return the workflow bin definitions
    * @throws Exception the exception
    */
-  public List<WorkflowBinDefinition> getWorkflowBinDefinitions()
-    throws Exception;
+  public List<WorkflowBinDefinition> getWorkflowBinDefinitions(Project project,
+    WorkflowBinType type) throws Exception;
 
   /**
    * Gets the workflow bin definition.
@@ -282,16 +269,6 @@ public interface WorkflowService extends ProjectService {
    */
   public WorkflowBinDefinition getWorkflowBinDefinition(Long id)
     throws Exception;
-
-  /**
-   * Find workflow bin definitions for query.
-   *
-   * @param query the query
-   * @return the list
-   * @throws Exception the exception
-   */
-  public List<WorkflowBinDefinition> findWorkflowBinDefinitionsForQuery(
-    String query) throws Exception;
 
   /**
    * Add workflow bin.
@@ -322,10 +299,13 @@ public interface WorkflowService extends ProjectService {
   /**
    * Gets the workflow bins.
    *
+   * @param project the project
+   * @param type the type
    * @return the workflow bins
    * @throws Exception the exception
    */
-  public List<WorkflowBin> getWorkflowBins() throws Exception;
+  public List<WorkflowBin> getWorkflowBins(Project project, WorkflowBinType type)
+    throws Exception;
 
   /**
    * Gets the workflow bin.
@@ -335,16 +315,6 @@ public interface WorkflowService extends ProjectService {
    * @throws Exception the exception
    */
   public WorkflowBin getWorkflowBin(Long id) throws Exception;
-
-  /**
-   * Find workflow bins for query.
-   *
-   * @param query the query
-   * @return the list
-   * @throws Exception the exception
-   */
-  public List<WorkflowBin> findWorkflowBinsForQuery(String query)
-    throws Exception;
 
   /**
    * Add worklist.
@@ -382,15 +352,27 @@ public interface WorkflowService extends ProjectService {
   public Worklist getWorklist(Long id) throws Exception;
 
   /**
+   * Gets the worklists.
+   *
+   * @param project the project
+   * @param bin the bin
+   * @return the worklist
+   * @throws Exception the exception
+   */
+  public List<Worklist> getWorklists(Project project, WorkflowBin bin)
+    throws Exception;
+
+  /**
    * Find worklists for query.
    *
+   * @param project the project
    * @param query the query
    * @param pfs the pfs
    * @return the worklist list
    * @throws Exception the exception
    */
-  public WorklistList findWorklistsForQuery(String query, PfsParameter pfs)
-    throws Exception;
+  public WorklistList findWorklists(Project project, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Add checklist.
@@ -436,18 +418,18 @@ public interface WorkflowService extends ProjectService {
    * @return the checklist list
    * @throws Exception the exception
    */
-  public ChecklistList findChecklistsForQuery(Project project, String query,
+  public ChecklistList findChecklists(Project project, String query,
     PfsParameter pfs) throws Exception;
 
   /**
    * Returns the workflow config.
    *
-   * @param projectId the project id
+   * @param project the project
    * @param type the type
    * @return the workflow config
    * @throws Exception the exception
    */
-  public WorkflowConfig getWorkflowConfig(Long projectId, WorkflowBinType type)
+  public WorkflowConfig getWorkflowConfig(Project project, WorkflowBinType type)
     throws Exception;
 
   /**

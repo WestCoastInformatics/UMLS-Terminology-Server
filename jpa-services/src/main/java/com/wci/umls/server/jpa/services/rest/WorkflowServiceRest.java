@@ -3,15 +3,12 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.QueryParam;
+import java.util.List;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
-import com.wci.umls.server.helpers.WorkflowBinList;
-import com.wci.umls.server.helpers.WorkflowBinStatsList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -19,13 +16,12 @@ import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
+import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
-import com.wci.umls.server.model.workflow.WorklistStats;
-import com.wordnik.swagger.annotations.ApiParam;
 
 /**
  * Represents a workflow service REST API.
@@ -128,13 +124,14 @@ public interface WorkflowServiceRest {
    *
    * @param projectId the project id
    * @param userName the user name
+   * @param role the role
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tracking record list
    * @throws Exception the exception
    */
   public TrackingRecordList findAssignedWork(Long projectId, String userName,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find available work.
@@ -154,13 +151,14 @@ public interface WorkflowServiceRest {
    *
    * @param projectId the project id
    * @param userName the user name
+   * @param role the role
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the worklist list
    * @throws Exception the exception
    */
   public WorklistList findAssignedWorklists(Long projectId, String userName,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find checklists.
@@ -177,7 +175,7 @@ public interface WorkflowServiceRest {
 
   /**
    * Returns the workflow paths defined by the supported listeners.
-   *
+   * 
    * @param authToken the auth token
    * @return the workflow paths
    * @throws Exception the exception
@@ -199,17 +197,6 @@ public interface WorkflowServiceRest {
   public Worklist performWorkflowAction(Long projectId, Long worklistId,
     String userName, UserRole role, WorkflowAction action, String authToken)
     throws Exception;
-
-  /**
-   * Returns the tracking records for concept.
-   *
-   * @param conceptId the concept id
-   * @param authToken the auth token
-   * @return the tracking records for concept
-   * @throws Exception the exception
-   */
-  public TrackingRecordList getTrackingRecordsForConcept(Long conceptId,
-    String authToken) throws Exception;
 
   /**
    * Find available worklists.
@@ -240,18 +227,6 @@ public interface WorkflowServiceRest {
    */
   public Checklist createChecklist(Long projectId, Long workflowBinId,
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception;
-
-  /**
-   * Find workflow bin for query.
-   *
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the list
-   * @throws Exception the exception
-   */
-  public WorkflowBinList findWorkflowBinsForQuery(String query,
     PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -314,7 +289,7 @@ public interface WorkflowServiceRest {
    * @return the workflow bin stats
    * @throws Exception the exception
    */
-  public WorkflowBinStatsList getWorkflowBinStats(Long projectId,
+  public List<WorkflowBin> getWorkflowBins(Long projectId,
     WorkflowBinType type, String authToken) throws Exception;
 
   /*
@@ -416,6 +391,6 @@ public interface WorkflowServiceRest {
    * @return the worklist stats
    * @throws Exception the exception
    */
-  public WorklistStats getWorklistStats(Long projectId, Long worklistId,
-    String authToken) throws Exception;
+  public Worklist getWorklist(Long projectId, Long worklistId, String authToken)
+    throws Exception;
 }

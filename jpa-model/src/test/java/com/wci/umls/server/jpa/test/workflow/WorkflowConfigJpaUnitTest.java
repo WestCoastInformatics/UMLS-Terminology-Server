@@ -27,7 +27,9 @@ import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 
 /**
@@ -45,10 +47,10 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
   private Project p2;
 
   /** The fixture l1. */
-  private List<?> l1;
+  private List<WorkflowBinDefinition> l1;
 
   /** The fixture l2. */
-  private List<?> l2;
+  private List<WorkflowBinDefinition> l2;
 
   /**
    * Setup class.
@@ -66,13 +68,20 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() throws Exception {
     object = new WorkflowConfigJpa();
+
+    p1 = new ProjectJpa();
+    p1.setId(1L);
+    p1.setName("1");
+    p2 = new ProjectJpa();
+    p2.setId(2L);
+    p2.setName("2");
+
     l1 = new ArrayList<>();
     l2 = new ArrayList<>();
-    l2.add(null);
-    ProxyTester tester = new ProxyTester(new ProjectJpa());
-    p1 = (Project) tester.createObject(1);
-    p2 = (Project) tester.createObject(2);
-    
+    ProxyTester tester2 = new ProxyTester(new WorkflowBinDefinitionJpa());
+    l1.add((WorkflowBinDefinition) tester2.createObject(1));
+    l2.add((WorkflowBinDefinition) tester2.createObject(2));
+
     object.setProject(p1);
   }
 
@@ -114,8 +123,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
     assertTrue(tester.testIdentityFieldNotEquals());
     assertTrue(tester.testIdentityFieldHashcode());
     assertTrue(tester.testNonIdentityFieldHashcode());
-    // TODO: fix this
-    // assertTrue(tester.testIdentityFieldDifferentHashcode());
+    assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 
   /**
@@ -201,7 +209,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
   @Test
   public void testModelXmlTransient() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    
+
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<projectId>"));
     assertFalse(xml.contains("<project>"));

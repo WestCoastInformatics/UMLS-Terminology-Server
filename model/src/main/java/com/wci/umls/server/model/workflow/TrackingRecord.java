@@ -5,8 +5,8 @@ package com.wci.umls.server.model.workflow;
 
 import java.util.Set;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.helpers.HasTerminology;
 
 /**
@@ -15,7 +15,8 @@ import com.wci.umls.server.helpers.HasTerminology;
  * terminology identifiers yet and may merge, move, and split with respect to
  * each other.
  */
-public interface TrackingRecord extends HasLastModified, HasTerminology {
+public interface TrackingRecord extends HasLastModified, HasTerminology,
+    HasProject {
 
   /**
    * Returns the terminology ids.
@@ -86,14 +87,14 @@ public interface TrackingRecord extends HasLastModified, HasTerminology {
    * @param worklistName the worklist
    */
   public void setWorklistName(String worklistName);
-  
+
   /**
    * Returns the orig concept ids.
    *
    * @return the orig concept ids
    */
   public Set<Long> getOrigConceptIds();
-  
+
   /**
    * Sets the orig concept ids.
    *
@@ -101,17 +102,4 @@ public interface TrackingRecord extends HasLastModified, HasTerminology {
    */
   public void setOrigConceptIds(Set<Long> origConceptIds);
 
-  /**
-   * Returns the project.
-   *
-   * @return the project
-   */
-  public Project getProject();
-
-  /**
-   * Sets the project.
-   *
-   * @param project the project
-   */
-  public void setProject(Project project);
 }

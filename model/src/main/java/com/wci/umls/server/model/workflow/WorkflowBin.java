@@ -5,14 +5,14 @@ package com.wci.umls.server.model.workflow;
 
 import java.util.List;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.HasProject;
 
 /**
  * Represents a collection of tracking records that result from the execution of
  * the query in a {@link WorkflowBinDefinition}.
  */
-public interface WorkflowBin extends HasLastModified {
+public interface WorkflowBin extends HasLastModified, HasProject {
 
   /**
    * Gets the tracking records.
@@ -155,17 +155,16 @@ public interface WorkflowBin extends HasLastModified {
   public String getVersion();
 
   /**
-   * Returns the project.
+   * Returns the stats.
    *
-   * @return the project
+   * @return the stats
    */
-  public Project getProject();
+  public List<ClusterTypeStats> getStats();
 
   /**
-   * Sets the project.
+   * Sets the stats.
    *
-   * @param project the project
+   * @param stats the stats
    */
-  public void setProject(Project project);
-
+  public void setStats(List<ClusterTypeStats> stats);
 }

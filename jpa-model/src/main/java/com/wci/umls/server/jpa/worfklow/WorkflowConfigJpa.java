@@ -266,8 +266,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
     int result = 1;
     result = prime * result + (mutuallyExclusive ? 1231 : 1237);
     result = prime * result + ((type == null) ? 0 : type.hashCode());
-    result =
-        prime * result + ((project == null) ? 0 : getProjectId().hashCode());
+    result = prime * result + ((project == null) ? 0 : project.hashCode());
     result =
         prime
             * result

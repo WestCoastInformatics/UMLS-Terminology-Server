@@ -3,6 +3,9 @@
  */
 package com.wci.umls.server.jpa.worfklow;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.model.workflow.ClusterTypeStats;
@@ -14,16 +17,10 @@ import com.wci.umls.server.model.workflow.ClusterTypeStats;
 public class ClusterTypeStatsJpa implements ClusterTypeStats {
 
   /** The all count. */
-  private int all;
-
-  /** The editable count. */
-  private int editable;
-
-  /** The uneditable count. */
-  private int uneditable;
-
-  /** The cluster type. */
   private String clusterType;
+
+  /** The stats. */
+  private Map<String, Integer> stats;
 
   /**
    * Instantiates an empty {@link ClusterTypeStatsJpa}.
@@ -38,46 +35,8 @@ public class ClusterTypeStatsJpa implements ClusterTypeStats {
    * @param clusterTypeStats the cluster type stats
    */
   public ClusterTypeStatsJpa(ClusterTypeStats clusterTypeStats) {
-    all = clusterTypeStats.getAll();
     clusterType = clusterTypeStats.getClusterType();
-    editable = clusterTypeStats.getEditable();
-    uneditable = clusterTypeStats.getUneditable();
-  }
-
-  /* see superclass */
-  @Override
-  public int getAll() {
-    return all;
-  }
-
-  /* see superclass */
-  @Override
-  public void setAll(int all) {
-    this.all = all;
-  }
-
-  /* see superclass */
-  @Override
-  public int getEditable() {
-    return editable;
-  }
-
-  /* see superclass */
-  @Override
-  public void setEditable(int editable) {
-    this.editable = editable;
-  }
-
-  /* see superclass */
-  @Override
-  public int getUneditable() {
-    return uneditable;
-  }
-
-  /* see superclass */
-  @Override
-  public void setUneditable(int uneditable) {
-    this.uneditable = uneditable;
+    stats = new HashMap<>(clusterTypeStats.getStats());
   }
 
   /* see superclass */
@@ -94,13 +53,28 @@ public class ClusterTypeStatsJpa implements ClusterTypeStats {
 
   /* see superclass */
   @Override
+  public Map<String, Integer> getStats() {
+    if (stats == null) {
+      stats = new HashMap<>();
+    }
+    return stats;
+  }
+
+  /* see superclass */
+  @Override
+  public void setStats(Map<String, Integer> stats) {
+    this.stats = stats;
+
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result =
         prime * result + ((clusterType == null) ? 0 : clusterType.hashCode());
-    result = prime * result + editable;
-    result = prime * result + uneditable;
+    result = prime * result + ((stats == null) ? 0 : stats.hashCode());
     return result;
   }
 
@@ -119,9 +93,10 @@ public class ClusterTypeStatsJpa implements ClusterTypeStats {
         return false;
     } else if (!clusterType.equals(other.clusterType))
       return false;
-    if (editable != other.editable)
-      return false;
-    if (uneditable != other.uneditable)
+    if (stats == null) {
+      if (other.stats != null)
+        return false;
+    } else if (!stats.equals(other.stats))
       return false;
     return true;
   }
@@ -129,8 +104,8 @@ public class ClusterTypeStatsJpa implements ClusterTypeStats {
   /* see superclass */
   @Override
   public String toString() {
-    return "ClusterTypeStatsJpa [all=" + all + ", editable=" + editable
-        + ", uneditable=" + uneditable + ", clusterType=" + clusterType + "]";
+    return "ClusterTypeStatsJpa [clusterType=" + clusterType + ", stats="
+        + stats + "]";
   }
 
 }

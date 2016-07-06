@@ -12,6 +12,9 @@ public enum WorkflowBinType {
   MUTUALLY_EXCLUSIVE,
 
   /** Quality assurance. */
-  QUALITY_ASSURANCE;
+  QUALITY_ASSURANCE,
+
+  /** The ad hoc. */
+  AD_HOC;
 
 }

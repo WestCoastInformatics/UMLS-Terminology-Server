@@ -7,11 +7,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.wci.umls.server.helpers.HasStats;
+
 /**
  * Represents a worklist which is a collection of tracking records that
  * participate in workflow.
  */
-public interface Worklist extends Checklist {
+public interface Worklist extends Checklist, HasStats {
 
   /**
    * Gets the group.

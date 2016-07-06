@@ -4,6 +4,8 @@
 package com.wci.umls.server.rest.client;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.client.Client;
@@ -16,35 +18,32 @@ import javax.ws.rs.core.Response.Status.Family;
 
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
-import com.wci.umls.server.helpers.WorkflowBinList;
-import com.wci.umls.server.helpers.WorkflowBinStatsList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
-import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
-import com.wci.umls.server.jpa.helpers.WorkflowBinStatsListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
-import com.wci.umls.server.jpa.worfklow.WorklistStatsJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
+import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
-import com.wci.umls.server.model.workflow.WorklistStats;
 
 /**
  * A client for connecting to a content REST service.
@@ -154,8 +153,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public void removeChecklist(Long checklistId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - remove checklist " + checklistId + ", "
-            + authToken);
+        "Workflow Client - remove checklist " + checklistId + ", " + authToken);
 
     validateNotEmpty(checklistId, "checklistId");
 
@@ -174,6 +172,7 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
   }
+
   /* see superclass */
   @Override
   public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId,
@@ -289,7 +288,7 @@ public class WorkflowClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public TrackingRecordList findAssignedWork(Long projectId, String userName,
-    PfsParameterJpa pfs, String authToken) throws Exception {
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug(
             "Workflow Client - find assigned work - " + projectId + ", "
@@ -297,12 +296,13 @@ public class WorkflowClientRest extends RootClientRest implements
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(userName, "userName");
+    validateNotEmpty(role + "", "role");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
             + "/workflow/records/assigned" + "?projectId=" + projectId
-            + "&userName=" + userName);
+            + "&userName=" + userName + "&role=" + role);
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -325,19 +325,20 @@ public class WorkflowClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public WorklistList findAssignedWorklists(Long projectId, String userName,
-    PfsParameterJpa pfs, String authToken) throws Exception {
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - find assigned worklists - " + projectId + ", "
             + userName);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(userName, "userName");
+    validateNotEmpty(role + "", "role");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
             + "/workflow/worklists/assigned" + "?projectId=" + projectId
-            + "&userName=" + userName);
+            + "&userName=" + userName + "&role=" + role);
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -416,10 +417,9 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility
-        .getGraphForString(resultString, WorklistListJpa.class);
+    return ConfigUtility.getGraphForString(resultString, WorklistListJpa.class);
   }
-  
+
   /* see superclass */
   @Override
   public StringList getWorkflowPaths(String authToken) throws Exception {
@@ -476,39 +476,6 @@ public class WorkflowClientRest extends RootClientRest implements
 
     // converting to object
     return ConfigUtility.getGraphForString(resultString, WorklistJpa.class);
-  }
-
-  /* see superclass */
-  @Override
-  public TrackingRecordList getTrackingRecordsForConcept(Long conceptId,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Client - get tracking record for concept: " + conceptId);
-
-    validateNotEmpty(conceptId, "conceptId");
-
-    final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/records"
-            + "?conceptId=" + conceptId);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
-
-    if (response.getStatus() == 204) {
-      return null;
-    }
-
-    final String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(resultString);
-    }
-
-    // converting to object
-    return ConfigUtility.getGraphForString(resultString,
-        TrackingRecordListJpa.class);
   }
 
   /* see superclass */
@@ -583,8 +550,8 @@ public class WorkflowClientRest extends RootClientRest implements
   public void clearBins(Long projectId, WorkflowBinType type, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - clear bins" + projectId + ", "
-            + type.toString() + ", " + authToken);
+        "Workflow Client - clear bins" + projectId + ", " + type.toString()
+            + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -609,53 +576,29 @@ public class WorkflowClientRest extends RootClientRest implements
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
 
-      Logger.getLogger(getClass()).debug(
-          "Workflow Client - create checklist" + projectId + ", " + workflowBinId + ", "
-              + name + ", " + randomize + ", " + excludeOnWorklist + ", " + query + ", " + authToken);
-
-      validateNotEmpty(projectId, "projectId");
-
-      final Client client = ClientBuilder.newClient();
-      final WebTarget target =
-          client.target(config.getProperty("base.url")
-              + "/workflow/checklist?projectId=" + projectId + "&workflowBinId=" + workflowBinId +
-              "&name=" + name +  (randomize != null ? ("&randomize=" + randomize)
-                  : "") + (excludeOnWorklist != null ? ("&excludeOnWorklist=" + excludeOnWorklist)
-                      : "")
-              + "&query=" + query);
-      final Response response =
-          target.request(MediaType.APPLICATION_XML)
-              .header("Authorization", authToken).post(Entity.json(pfs));
-
-      final String resultString = response.readEntity(String.class);
-      if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-        // n/a
-      } else {
-        throw new Exception(resultString);
-      }
-
-      // converting to object
-      return ConfigUtility
-          .getGraphForString(resultString, ChecklistJpa.class);
-    }
-
-  /* see superclass */
-  @Override
-  public WorkflowBinList findWorkflowBinsForQuery(String query,
-    PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - find workflow bins for query - "  + query);
+        "Workflow Client - create checklist" + projectId + ", " + workflowBinId
+            + ", " + name + ", " + randomize + ", " + excludeOnWorklist + ", "
+            + query + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/bins"
-            + "?query=" + query);
-    final String pfsStr =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
+        client.target(config.getProperty("base.url")
+            + "/workflow/checklist?projectId="
+            + projectId
+            + "&workflowBinId="
+            + workflowBinId
+            + "&name="
+            + name
+            + (randomize != null ? ("&randomize=" + randomize) : "")
+            + (excludeOnWorklist != null
+                ? ("&excludeOnWorklist=" + excludeOnWorklist) : "") + "&query="
+            + query);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+            .header("Authorization", authToken).post(Entity.json(pfs));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -665,8 +608,7 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility
-        .getGraphForString(resultString, WorkflowBinListJpa.class);
+    return ConfigUtility.getGraphForString(resultString, ChecklistJpa.class);
   }
 
   @Override
@@ -684,8 +626,7 @@ public class WorkflowClientRest extends RootClientRest implements
             + "/workflow/epoch/add?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .post(Entity.json(epoch));
+            .header("Authorization", authToken).post(Entity.json(epoch));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -705,8 +646,9 @@ public class WorkflowClientRest extends RootClientRest implements
     String clusterType, int skipClusterCt, int clusterCt, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - create worklist" + projectId + ", " + workflowBinId + ", "
-            + clusterType + ", " + skipClusterCt + ", " + clusterCt + ", " + authToken);
+        "Workflow Client - create worklist" + projectId + ", " + workflowBinId
+            + ", " + clusterType + ", " + skipClusterCt + ", " + clusterCt
+            + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(workflowBinId, "workflowBinId");
@@ -714,9 +656,9 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/worklist?projectId=" + projectId + "&workflowBinId=" + workflowBinId +
-            "&clusterType=" + clusterType + "&skipClusterCt=" + skipClusterCt + 
-            "&clusterCt=" + clusterCt);
+            + "/workflow/worklist?projectId=" + projectId + "&workflowBinId="
+            + workflowBinId + "&clusterType=" + clusterType + "&skipClusterCt="
+            + skipClusterCt + "&clusterCt=" + clusterCt);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).post(Entity.json(pfs));
@@ -729,24 +671,23 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility
-        .getGraphForString(resultString, WorklistJpa.class);
+    return ConfigUtility.getGraphForString(resultString, WorklistJpa.class);
   }
 
   @Override
-  public WorkflowBinStatsList getWorkflowBinStats(Long projectId,
+  public List<WorkflowBin> getWorkflowBins(Long projectId,
     WorkflowBinType type, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - get workflow bin stats" + projectId + ", " + type );
+        "Workflow Client - get workflow bins " + projectId + ", " + type);
 
     validateNotEmpty(projectId, "projectId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bin/stats?projectId=" + projectId + "&type=" + type);
+            + "/workflow/bins?projectId=" + projectId + "&type=" + type);
     final Response response =
-        target.request(MediaType.APPLICATION_XML)
+        target.request(MediaType.APPLICATION_JSON)
             .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
@@ -757,15 +698,19 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility
-        .getGraphForString(resultString, WorkflowBinStatsListJpa.class);
+    final List<WorkflowBinJpa> list =
+        ConfigUtility.getGraphForJson(resultString,
+            new TypeReference<List<WorkflowBinJpa>>() {
+              // n/a
+            });
+    return new ArrayList<WorkflowBin>(list);
   }
 
   @Override
-  public WorklistStats getWorklistStats(Long projectId, Long worklistId,
-    String authToken) throws Exception {
+  public Worklist getWorklist(Long projectId, Long worklistId, String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - get worklist stats" + projectId + ", " + worklistId );
+        "Workflow Client - get worklist stats" + projectId + ", " + worklistId);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(worklistId, "worklistId");
@@ -773,7 +718,8 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/worklist/stats?projectId=" + projectId + "&worklistId=" + worklistId);
+            + "/workflow/worklist?projectId=" + projectId + "&worklistId="
+            + worklistId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -786,16 +732,15 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility
-        .getGraphForString(resultString, WorklistStatsJpa.class);
+    return ConfigUtility.getGraphForString(resultString, WorklistJpa.class);
   }
 
   @Override
   public void clearBin(Long projectId, Long workflowBinId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - clear bin" + projectId + ", "
-            + workflowBinId + ", " + authToken);
+        "Workflow Client - clear bin" + projectId + ", " + workflowBinId + ", "
+            + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(workflowBinId, "workflowBinId");
@@ -803,7 +748,8 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bin/clear?projectId=" + projectId + "&workflowBinId=" + workflowBinId);
+            + "/workflow/bin/clear?projectId=" + projectId + "&workflowBinId="
+            + workflowBinId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -817,11 +763,11 @@ public class WorkflowClientRest extends RootClientRest implements
   }
 
   @Override
-  public void regenerateBin(Long projectId, Long workflowBinId,
-    String authToken) throws Exception {
+  public void regenerateBin(Long projectId, Long workflowBinId, String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - regenerate bin" + projectId + ", "
-            + workflowBinId + ", " + authToken);
+        "Workflow Client - regenerate bin" + projectId + ", " + workflowBinId
+            + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(workflowBinId, "workflowBinId");
@@ -829,7 +775,8 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bins/regenerate?projectId=" + projectId + "&workflowBinId=" + workflowBinId);
+            + "/workflow/bins/regenerate?projectId=" + projectId
+            + "&workflowBinId=" + workflowBinId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -846,18 +793,20 @@ public class WorkflowClientRest extends RootClientRest implements
     Long delay, Boolean sendEmail, String conceptReportType,
     Integer relationshipCt, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - generate concept report" + projectId + ", " + worklistId + ", "
-            + sendEmail + ", " + conceptReportType + ", " + relationshipCt + ", " + authToken);
+        "Workflow Client - generate concept report" + projectId + ", "
+            + worklistId + ", " + sendEmail + ", " + conceptReportType + ", "
+            + relationshipCt + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/report/generate?projectId=" + projectId + "&worklistId=" + worklistId +
-            "&delay=" + delay +  (sendEmail != null ? ("&sendEmail=" + sendEmail)
-                : "") + "&conceptReportType=" + conceptReportType
-            + "&relationshipCt=" + relationshipCt);
+            + "/workflow/report/generate?projectId=" + projectId
+            + "&worklistId=" + worklistId + "&delay=" + delay
+            + (sendEmail != null ? ("&sendEmail=" + sendEmail) : "")
+            + "&conceptReportType=" + conceptReportType + "&relationshipCt="
+            + relationshipCt);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -872,12 +821,12 @@ public class WorkflowClientRest extends RootClientRest implements
     return resultString;
   }
 
-
   @Override
   public String getGeneratedConceptReport(Long projectId, String fileName,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - get generated concept report: " + projectId + ", " + fileName);
+        "Workflow Client - get generated concept report: " + projectId + ", "
+            + fileName);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -913,12 +862,14 @@ public class WorkflowClientRest extends RootClientRest implements
     validateNotEmpty(fileName, "fileName");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(
-        config.getProperty("base.url") + "/workflow/report/remove?projectId="
-            + projectId + "&fileName=" + fileName);
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/report/remove?projectId=" + projectId + "&fileName="
+            + fileName);
 
-    final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).delete();
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).delete();
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
     } else {
@@ -930,15 +881,18 @@ public class WorkflowClientRest extends RootClientRest implements
   public StringList findGeneratedConceptReports(Long projectId, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - find generated concept reports" + projectId + ", " + query);
+        "Workflow Client - find generated concept reports" + projectId + ", "
+            + query);
 
     validateNotEmpty(projectId, "projectId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/report/find?projectId=" + projectId + "&query="
-                + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            + "/workflow/report/find?projectId="
+            + projectId
+            + "&query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
     final Response response =
         target.request(MediaType.APPLICATION_XML)
@@ -952,9 +906,7 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility
-        .getGraphForString(resultString, StringList.class);
+    return ConfigUtility.getGraphForString(resultString, StringList.class);
   }
-
 
 }

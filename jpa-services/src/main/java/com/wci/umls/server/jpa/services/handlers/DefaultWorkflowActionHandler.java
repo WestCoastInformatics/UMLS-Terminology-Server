@@ -8,7 +8,6 @@ import java.util.EnumSet;
 import java.util.Properties;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
@@ -16,6 +15,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -56,20 +56,14 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     PfsParameter pfs, WorkflowService service) throws Exception {
     final StringBuilder sb = new StringBuilder();
 
-    if (project == null) {
-      sb.append("projectId:[* TO *]");
-    } else {
-      sb.append("projectId:" + project.getId());
-    }
-    sb.append(" AND ");
     if (role == null) {
-      sb.append("userRole:[* TO *]");
+      sb.append("role:[* TO *]");
     } else {
-      sb.append("userRole:" + role.name());
+      sb.append("role:" + role.name());
     }
     sb.append(" AND ").append("( NOT worklistName:[* TO *])");
 
-    return service.findTrackingRecordsForQuery(sb.toString(), pfs);
+    return service.findTrackingRecords(project, sb.toString(), pfs);
 
   }
 
@@ -80,37 +74,32 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
     final StringBuilder sb = new StringBuilder();
 
-    if (project == null) {
-      sb.append("projectId:[* TO *]");
-    } else {
-      sb.append("projectId:" + project.getId());
-    }
     sb.append(" AND ");
     if (role == null) {
-      sb.append("userRole:[* TO *]");
+      sb.append("role:[* TO *]");
     } else {
-      sb.append("userRole:" + role.name());
+      sb.append("role:" + role.name());
     }
     sb.append(" AND ").append("(NOT editor:[* TO *])");
 
-    return service.findWorklistsForQuery(sb.toString(), pfs);
+    return service.findWorklists(project, sb.toString(), pfs);
 
   }
 
   /* see superclass */
   @Override
   public ValidationResult validateWorkflowAction(Project project,
-    Worklist worklist, User user, UserRole userRole,
+    Worklist worklist, String userName, UserRole role,
     WorkflowAction workflowAction, WorkflowService service) throws Exception {
     ValidationResult result = new ValidationResultJpa();
 
     // An author cannot do review work
-    if (userRole == UserRole.AUTHOR
+    if (role == UserRole.AUTHOR
         && worklist.getWorkflowStatus() == WorkflowStatus.EDITING_DONE
         && workflowAction == WorkflowAction.ASSIGN) {
       result
           .addError("User does not have permissions to perform this action - "
-              + workflowAction + ", " + user);
+              + workflowAction + ", " + userName);
       return result;
     }
 
@@ -122,13 +111,13 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
         boolean authorFlag =
             worklist.getAuthors().size() == 0
-                && userRole == UserRole.AUTHOR
+                && role == UserRole.AUTHOR
                 && EnumSet.of(WorkflowStatus.NEW).contains(
                     worklist.getWorkflowStatus());
 
         boolean reviewerFlag =
             worklist.getReviewers().size() == 0
-                && userRole == UserRole.REVIEWER
+                && role == UserRole.REVIEWER
                 && EnumSet.of(WorkflowStatus.EDITING_DONE).contains(
                     worklist.getWorkflowStatus());
         flag = authorFlag || reviewerFlag;
@@ -138,16 +127,17 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         // an "assigned" state must be present
         authorFlag =
             worklist.getAuthors().size() == 1
-                && userRole == UserRole.AUTHOR
-                && user.getUserName().equals(worklist.getAuthors().get(0))
-                && EnumSet.of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS,
+                && role == UserRole.AUTHOR
+                && userName.equals(worklist.getAuthors().get(0))
+                && EnumSet.of(WorkflowStatus.NEW,
+                    WorkflowStatus.EDITING_IN_PROGRESS,
                     WorkflowStatus.EDITING_DONE).contains(
                     worklist.getWorkflowStatus());
 
         reviewerFlag =
             worklist.getReviewers().size() == 1
-                && userRole == UserRole.REVIEWER
-                && user.getUserName().equals(worklist.getReviewers().get(0))
+                && role == UserRole.REVIEWER
+                && userName.equals(worklist.getReviewers().get(0))
                 && EnumSet.of(WorkflowStatus.REVIEW_NEW,
                     WorkflowStatus.REVIEW_IN_PROGRESS).contains(
                     worklist.getWorkflowStatus());
@@ -162,12 +152,13 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
       case SAVE:
         // dependent on user role
         authorFlag =
-            userRole == UserRole.AUTHOR
-                && EnumSet.of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS,
+            role == UserRole.AUTHOR
+                && EnumSet.of(WorkflowStatus.NEW,
+                    WorkflowStatus.EDITING_IN_PROGRESS,
                     WorkflowStatus.EDITING_DONE).contains(
                     worklist.getWorkflowStatus());
         reviewerFlag =
-            userRole == UserRole.REVIEWER
+            role == UserRole.REVIEWER
                 && EnumSet.of(WorkflowStatus.REVIEW_NEW,
                     WorkflowStatus.REVIEW_IN_PROGRESS,
                     WorkflowStatus.REVIEW_DONE).contains(
@@ -178,12 +169,12 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
       case FINISH:
         // dependent on project role
         authorFlag =
-            userRole == UserRole.AUTHOR
+            role == UserRole.AUTHOR
                 && EnumSet.of(WorkflowStatus.NEW,
                     WorkflowStatus.EDITING_IN_PROGRESS).contains(
                     worklist.getWorkflowStatus());
         reviewerFlag =
-            userRole == UserRole.REVIEWER
+            role == UserRole.REVIEWER
                 && EnumSet.of(WorkflowStatus.REVIEW_NEW,
                     WorkflowStatus.REVIEW_IN_PROGRESS,
                     WorkflowStatus.REVIEW_DONE).contains(
@@ -197,8 +188,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
     if (!flag) {
       result.addError("Invalid workflowAction for worklist workflow status: "
-          + (user != null ? user.getUserName() : "") + "," + userRole + ", "
-          + workflowAction + ", "
+          + userName + "," + role + ", " + workflowAction + ", "
           + (worklist != null ? worklist.getWorkflowStatus() : "") + ", "
           + (worklist != null ? worklist.getId() : ""));
     }
@@ -209,22 +199,22 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
   /* see superclass */
   @Override
   public Worklist performWorkflowAction(Project project, Worklist worklist,
-    User user, UserRole userRole, WorkflowAction workflowAction,
+    String userName, UserRole role, WorkflowAction workflowAction,
     WorkflowService service) throws Exception {
 
     switch (workflowAction) {
       case ASSIGN:
 
         // Author case
-        if (userRole == UserRole.AUTHOR) {
-          worklist.getAuthors().add(user.getUserName());
+        if (role == UserRole.AUTHOR) {
+          worklist.getAuthors().add(userName);
           worklist.setWorkflowStatus(WorkflowStatus.NEW);
           worklist.getWorkflowStateHistory().put("Assigned", new Date());
         }
 
         // Reviewer case
-        else if (userRole == UserRole.REVIEWER) {
-          worklist.getReviewers().add(user.getUserName());
+        else if (role == UserRole.REVIEWER) {
+          worklist.getReviewers().add(userName);
           worklist.setWorkflowStatus(WorkflowStatus.REVIEW_NEW);
         }
         break;
@@ -236,7 +226,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
             WorkflowStatus.EDITING_DONE).contains(worklist.getWorkflowStatus())) {
 
           worklist.setWorkflowStatus(WorkflowStatus.NEW);
-          worklist.getAuthors().remove(user.getUserName());
+          worklist.getAuthors().remove(userName);
         }
         // For review, it removes the reviewer and sets the status back to
         // EDITING_DONE
@@ -244,7 +234,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
             WorkflowStatus.REVIEW_IN_PROGRESS).contains(
             worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_DONE);
-          worklist.getReviewers().remove(user.getUserName());
+          worklist.getReviewers().remove(userName);
         }
         break;
 
@@ -254,13 +244,13 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
       case SAVE:
         // AUTHOR - NEW becomes EDITING_IN_PROGRESS
-        if (userRole == UserRole.AUTHOR
+        if (role == UserRole.AUTHOR
             && EnumSet.of(WorkflowStatus.NEW).contains(
                 worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_IN_PROGRESS);
         }
         // REVIEWER - REVIEWER_NEW becomes REVIEW_IN_PROGRESS
-        else if (userRole == UserRole.REVIEWER
+        else if (role == UserRole.REVIEWER
             && EnumSet.of(WorkflowStatus.REVIEW_NEW).contains(
                 worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.REVIEW_IN_PROGRESS);
@@ -307,40 +297,31 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
   /* see superclass */
   @Override
   public TrackingRecordList findAssignedWork(Project project, String userName,
-    PfsParameter pfs, WorkflowService service) throws Exception {
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception {
     final StringBuilder sb = new StringBuilder();
 
-    if (project == null) {
-      sb.append("projectId:[* TO *]");
-    } else {
-      sb.append("projectId:" + project.getId());
-    }
     sb.append(" AND ");
     if (userName == null || userName.equals("")) {
-      sb.append("userName:[* TO *]");
+      sb.append("lastModifiedBy:[* TO *]");
     } else {
-      sb.append("userName:" + userName);
+      sb.append("lastModifiedBy:" + userName);
     }
     sb.append(" AND ").append("worklistName:[* TO *]");
 
-    return service.findTrackingRecordsForQuery(sb.toString(), pfs);
+    return service.findTrackingRecords(project, sb.toString(), pfs);
   }
 
   /* see superclass */
   @Override
   public WorklistList findAssignedWorklists(Project project, String userName,
-    PfsParameter pfs, WorkflowService service) throws Exception {
-    final StringBuilder sb = new StringBuilder();
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception {
 
-    if (project == null) {
-      sb.append("projectId:[* TO *]");
-    } else {
-      sb.append("projectId:" + project.getId());
+    if (role == UserRole.AUTHOR) {
+      return service.findWorklists(project, "authors:" + userName, pfs);
+    } else if (role == UserRole.REVIEWER) {
+      return service.findWorklists(project, "reviewers:" + userName, pfs);
     }
-
-    sb.append(" AND ").append(" editor:").append(userName);
-
-    return service.findWorklistsForQuery(sb.toString(), pfs);
+    return new WorklistListJpa();
   }
 
 }

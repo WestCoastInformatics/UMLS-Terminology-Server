@@ -17,7 +17,9 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -33,6 +35,7 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.model.workflow.ClusterTypeStats;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
@@ -112,8 +115,14 @@ public class WorkflowBinJpa implements WorkflowBin {
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
-  
-  
+
+  /**
+   * The stats - intended only for JAXB serialization and reporting, not
+   * persisted. Uses List instead of Map to make serialization easier.
+   */
+  @Transient
+  private List<ClusterTypeStats> stats = new ArrayList<>();
+
   /**
    * Instantiates an empty {@link WorkflowBinJpa}.
    */
@@ -363,7 +372,22 @@ public class WorkflowBinJpa implements WorkflowBin {
     project.setId(projectId);
   }
 
-  
+  /* see superclass */
+  @Override
+  @XmlElement(type = ClusterTypeStatsJpa.class)
+  public List<ClusterTypeStats> getStats() {
+    if (stats == null) {
+      stats = new ArrayList<>();
+    }
+    return stats;
+  }
+
+  /* see superclass */
+  @Override
+  public void setStats(List<ClusterTypeStats> stats) {
+    this.stats = stats;
+  }
+
   /* see superclass */
   @Override
   public int hashCode() {

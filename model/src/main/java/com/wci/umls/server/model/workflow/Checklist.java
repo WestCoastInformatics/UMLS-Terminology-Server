@@ -5,14 +5,14 @@ package com.wci.umls.server.model.workflow;
 
 import java.util.List;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.HasProject;
 
 /**
  * Represents a checklist which is a collection of tracking records without
- * participating in workflow .
+ * participating in workflow.
  */
-public interface Checklist extends HasLastModified {
+public interface Checklist extends HasLastModified, HasProject {
 
   /**
    * Gets the tracking records.
@@ -56,18 +56,5 @@ public interface Checklist extends HasLastModified {
    */
   public void setDescription(String description);
 
-  /**
-   * Returns the project.
-   *
-   * @return the project
-   */
-  public Project getProject();
-
-  /**
-   * Sets the project.
-   *
-   * @param project the project
-   */
-  public void setProject(Project project);
 
 }

@@ -5,14 +5,14 @@ package com.wci.umls.server.model.workflow;
 
 import java.util.List;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.HasProject;
 
 /**
  * Represents a collection of workflow bin definitions of a particular type for
  * a project.
  */
-public interface WorkflowConfig extends HasLastModified {
+public interface WorkflowConfig extends HasLastModified, HasProject {
 
   /**
    * Gets the workflow bin definitions.
@@ -70,17 +70,4 @@ public interface WorkflowConfig extends HasLastModified {
    */
   public void setLastPartitionTime(Long lastPartitionTime);
 
-  /**
-   * Gets the project.
-   *
-   * @return the project
-   */
-  public Project getProject();
-
-  /**
-   * Sets the project.
-   *
-   * @param project the new project
-   */
-  public void setProject(Project project);
 }

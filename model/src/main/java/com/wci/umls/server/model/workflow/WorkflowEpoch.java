@@ -5,15 +5,15 @@ package com.wci.umls.server.model.workflow;
 
 import java.util.List;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.HasProject;
 
 /**
  * Represents an editing cycle during which the workflow system operates.
- * Typical naming convention is the (2-digit) year followed by a letter designation
- * for the release.  For example, 16a.
+ * Typical naming convention is the (2-digit) year followed by a letter
+ * designation for the release. For example, 16a.
  */
-public interface WorkflowEpoch extends HasLastModified {
+public interface WorkflowEpoch extends HasLastModified, HasProject {
 
   /**
    * Gets the name.
@@ -57,17 +57,4 @@ public interface WorkflowEpoch extends HasLastModified {
    */
   public void setWorkflowBins(List<WorkflowBin> workflowBins);
 
-  /**
-   * Returns the project.
-   *
-   * @return the project
-   */
-  public Project getProject();
-
-  /**
-   * Sets the project.
-   *
-   * @param project the project
-   */
-  public void setProject(Project project);
 }
