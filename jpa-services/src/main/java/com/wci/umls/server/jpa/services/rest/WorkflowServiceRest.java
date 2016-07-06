@@ -326,8 +326,9 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void regenerateBin(Long projectId, Long workflowBinId, String authToken)
-    throws Exception;
+   */
+  public WorkflowBin regenerateBin(Long projectId, Long workflowBinId, WorkflowBinType type,
+    String authToken) throws Exception;
 
   /**
    * Generate concept report.

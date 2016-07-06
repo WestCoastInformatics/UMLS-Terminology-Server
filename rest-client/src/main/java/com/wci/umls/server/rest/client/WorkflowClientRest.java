@@ -763,8 +763,8 @@ public class WorkflowClientRest extends RootClientRest implements
   }
 
   @Override
-  public void regenerateBin(Long projectId, Long workflowBinId, String authToken)
-    throws Exception {
+  public WorkflowBin regenerateBin(Long projectId, Long workflowBinId, WorkflowBinType type,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - regenerate bin" + projectId + ", " + workflowBinId
             + ", " + authToken);
@@ -780,12 +780,17 @@ public class WorkflowClientRest extends RootClientRest implements
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
-
+    final String resultString = response.readEntity(String.class);
+    
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
+    
+    // converting to object
+    return ConfigUtility
+        .getGraphForString(resultString, WorkflowBinJpa.class);
   }
 
   @Override

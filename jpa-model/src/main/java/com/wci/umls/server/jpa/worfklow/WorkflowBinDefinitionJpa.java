@@ -30,6 +30,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.BooleanBridge;
 import org.hibernate.search.bridge.builtin.EnumBridge;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
@@ -242,7 +243,21 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   public void setWorkflowConfig(WorkflowConfig workflowConfig) {
     this.workflowConfig = workflowConfig;
   }
+  
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getWorkflowConfigId() {
+    return workflowConfig == null ? null : workflowConfig.getId();
+  }
 
+  @Field()
+  public void setWorkflowConfigId(Long id) {
+    if (workflowConfig == null) {
+      workflowConfig = new WorkflowConfigJpa();
+    }
+    workflowConfig.setId(id);
+  }
+  
   /* see superclass */
   @Override
   public int hashCode() {
