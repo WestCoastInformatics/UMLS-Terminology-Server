@@ -33,12 +33,14 @@ import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistStatsJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
+import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
@@ -817,7 +819,7 @@ public class WorkflowClientRest extends RootClientRest implements
   }
 
   @Override
-  public void regenerateBin(Long projectId, Long workflowBinId,
+  public WorkflowBin regenerateBin(Long projectId, Long workflowBinId, WorkflowBinType type,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - regenerate bin" + projectId + ", "
@@ -833,12 +835,17 @@ public class WorkflowClientRest extends RootClientRest implements
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
-
+    final String resultString = response.readEntity(String.class);
+    
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
+    
+    // converting to object
+    return ConfigUtility
+        .getGraphForString(resultString, WorkflowBinJpa.class);
   }
 
   @Override

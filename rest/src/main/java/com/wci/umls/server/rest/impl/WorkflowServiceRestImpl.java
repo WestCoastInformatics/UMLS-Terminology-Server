@@ -495,180 +495,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     try {
       String userName =
-          authorizeProject(workflowService, projectId, securityService,
-              authToken, "trying to regenerate bins", UserRole.AUTHOR);
+      authorizeProject(workflowService, projectId, securityService,
+          authToken, "trying to regenerate bins", UserRole.AUTHOR);
 
-      workflowService.setLastModifiedBy(userName);
-      Project project = workflowService.getProject(projectId);
+      workflowService.setLastModifiedBy(userName);        
+      clearBins(projectId, type, authToken);
+      
+      List<WorkflowBinDefinition> definitions = workflowService.getWorkflowBinDefinitions();
 
-      WorkflowConfig workflowConfig =
-          workflowService.getWorkflowConfig(projectId, type);
-
-      // concepts seen set
-      Set<Long> conceptsSeen = new HashSet<>();
-
-      // find active worklists
-      Set<Worklist> worklists = new HashSet<>();
-      StringBuilder sb = new StringBuilder();
-      sb.append("projectId:" + project.getId());
-      sb.append(" AND NOT type:READY_FOR_PUBLICATION");
-      worklists.addAll(workflowService
-          .findWorklistsForQuery(sb.toString(), null).getObjects());
-
-      // get tracking records that are on active worklists
-      sb = new StringBuilder();
-      sb.append("projectId:" + project.getId());
-      sb.append(" AND worklist:[* TO *]");
-      TrackingRecordList recordList =
-          workflowService.findTrackingRecordsForQuery(sb.toString(), null);
-
-      // make map of conceptId -> active worklist name
-      // calculate which concepts are already out on worklists
-      Map<Long, String> conceptIdWorklistNameMap = new HashMap<>();
-      for (TrackingRecord trackingRecord : recordList.getObjects()) {
-        for (Long conceptId : trackingRecord.getOrigConceptIds()) {
-          conceptIdWorklistNameMap.put(conceptId,
-              trackingRecord.getWorklistName());
-        }
-      }
-
-      int i = 0;
-      for (WorkflowBinDefinition definition : workflowConfig
-          .getWorkflowBinDefinitions()) {
-
-        WorkflowBin bin = new WorkflowBinJpa();
-        bin.setCreationTime(new Date().getTime());
-        bin.setName(definition.getName());
-        bin.setDescription(definition.getDescription());
-        bin.setEditable(definition.isEditable());
-        bin.setProject(project);
-        bin.setRank(++i);
-        bin.setTerminology(project.getTerminology());
-        bin.setVersion("latest");
-        bin.setTerminologyId("");
-        bin.setTimestamp(new Date());
-        bin.setType(type);
-        workflowService.addWorkflowBin(bin);
-
-        String query = definition.getQuery();
-
-        // execute the query
-        List<Object[]> results = null;
-        switch (definition.getQueryType()) {
-          case HQL:
-            try {
-              results = executeQuery(query, false, workflowService);
-            } catch (java.lang.IllegalArgumentException e) {
-              throw new LocalException(
-                  "Error executing HQL query: " + e.getMessage());
-            }
-            break;
-          case LUCENE:
-            SearchResultList resultList = workflowService.findConceptsForQuery(
-                project.getTerminology(), null, null, query, null);
-            results = new ArrayList<>();
-            for (SearchResult result : resultList.getObjects()) {
-              Object[] objectArray = new Object[1];
-              objectArray[0] = result.getId();
-              objectArray[1] = result.getValue();
-              results.add(objectArray);
-            }
-            break;
-          case SQL:
-            try {
-              results = executeQuery(query, true, workflowService);
-            } catch (javax.persistence.PersistenceException e) {
-              throw new LocalException(
-                  "Error executing SQL query:  " + e.getMessage());
-            } catch (java.lang.IllegalArgumentException e) {
-              throw new LocalException(
-                  "Error executing SQL query, possible invalid parameters (valid parameters are :MAP_PROJECT_ID:, :TIMESTAMP:):  "
-                      + e.getMessage());
-            }
-            break;
-          default:
-            break;
-
-        } // end execute query for each definition
-
-        if (results == null)
-          throw new Exception("Failed to retrieve results for query");
-
-        final Map<Long, Set<Long>> clusterIdConceptIdsMap = new HashMap<>();
-
-        // put query results into map
-        for (final Object[] result : results) {
-          Long clusterId = new Long(result[0].toString());
-          Long componentId = new Long(result[1].toString());
-
-          // skip result entry where the conceptId is already in conceptsSeen
-          // and
-          // workflow config is mutually exclusive
-          if (!conceptsSeen.contains(componentId)
-              || !workflowConfig.isMutuallyExclusive()) {
-            if (clusterIdConceptIdsMap.containsKey(clusterId)) {
-              Set<Long> componentIds = clusterIdConceptIdsMap.get(clusterId);
-              componentIds.add(componentId);
-              clusterIdConceptIdsMap.put(clusterId, componentIds);
-            } else {
-              Set<Long> componentIds = new HashSet<>();
-              componentIds.add(componentId);
-              clusterIdConceptIdsMap.put(clusterId, componentIds);
-            }
-          }
-          if (workflowConfig.isMutuallyExclusive()) {
-            conceptsSeen.add(componentId);
-          }
-        }
-
-        // for each cluster in clusterIdComponentIdsMap create a tracking record
-        Long clusterIdCt = 1L;
-        for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
-          // TODO: handle definition is not editable
-          if (definition.isEditable()) {
-            TrackingRecord record = new TrackingRecordJpa();
-            record.setClusterId(clusterIdCt++);
-            record.setTerminology(project.getTerminology());
-            record.setTimestamp(new Date());
-            record.setVersion("latest");
-            record.setWorkflowBinName(bin.getName());
-            record.setProject(project);
-
-            record.setWorklistName(null);
-            record.setClusterType("");
-
-            for (Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
-              Concept concept = workflowService.getConcept(conceptId);
-              record.getOrigConceptIds().add(conceptId);
-              if (record.getClusterType().equals("")) {
-                for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-                  if (project.getSemanticTypeCategoryMap()
-                      .containsKey(sty.getSemanticType())) {
-                    record.setClusterType(project.getSemanticTypeCategoryMap()
-                        .get(sty.getSemanticType()));
-                    break;
-                  }
-                }
-              }
-              for (Atom atom : concept.getAtoms()) {
-                record.getComponentIds().add(atom.getId());
-              }
-              if (record.getWorklistName() == null) {
-                if (conceptIdWorklistNameMap.containsKey(conceptId)) {
-                  record
-                      .setWorklistName(conceptIdWorklistNameMap.get(conceptId));
-                  break;
-                }
-              }
-            }
-
-            workflowService.addTrackingRecord(record);
-            bin.getTrackingRecords().add(record);
-          }
-        }
-        workflowService.updateWorkflowBin(bin);
-      }
-
+       regenerateBinHelper(workflowService, projectId, null, type, definitions,
+          authToken);
+       
+       
     } catch (Exception e) {
       handleException(e, "trying to regenerate bins");
     } finally {
@@ -1459,10 +1297,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @Override
   @GET
   @Path("/bin/regenerate")
-  @ApiOperation(value = "Regenerate bin", notes = "Regenerate bin")
-  public void regenerateBin(
+  @ApiOperation(value = "Regenerate bin", notes = "Regenerate bin", response = WorkflowBinJpa.class)
+  public WorkflowBin regenerateBin(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin id, e.g. 5", required = true) @QueryParam("workflowBinId") Long workflowBinId,
+    @ApiParam(value = "Workflow bin type", required = true) WorkflowBinType type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1472,16 +1311,46 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     try {
       String userName =
-          authorizeProject(workflowService, projectId, securityService,
-              authToken, "trying to regenerate bin", UserRole.AUTHOR);
+      authorizeProject(workflowService, projectId, securityService,
+          authToken, "trying to regenerate bin", UserRole.AUTHOR);
 
-      workflowService.setLastModifiedBy(userName);
+      workflowService.setLastModifiedBy(userName);  
+  
+      WorkflowBin bin = workflowService.getWorkflowBin(workflowBinId);
+      clearBin(projectId, bin.getId(), authToken);
+      WorkflowConfig workflowConfig =
+          workflowService.getWorkflowConfig(projectId, type);
+
+      List<WorkflowBinDefinition> definitions = workflowService
+          .findWorkflowBinDefinitionsForQuery("name:" + bin.getName()
+              + " AND workflowConfigId:" + workflowConfig.getId());
+
+      return regenerateBinHelper(workflowService, projectId, workflowBinId, type, definitions,
+          authToken);
+    } catch (Exception e) {
+      handleException(e, "trying to regenerate bin");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+  
+  private WorkflowBin regenerateBinHelper(WorkflowServiceJpa workflowService, Long projectId, Long workflowBinId, WorkflowBinType type, 
+    List<WorkflowBinDefinition> definitions, String authToken) throws Exception {
+
+
       Project project = workflowService.getProject(projectId);
 
-      /*
-       * WorkflowConfig workflowConfig =
-       * workflowService.getWorkflowConfig(projectId, type);
-       */
+      
+      WorkflowConfig workflowConfig =
+        workflowService.getWorkflowConfig(projectId, type);
+      WorkflowBin bin = null;
+      if (workflowBinId == null) {
+        bin = new WorkflowBinJpa();
+      } else {
+        bin = workflowService.getWorkflowBin(workflowBinId);
+      }      
 
       // concepts seen set
       Set<Long> conceptsSeen = new HashSet<>();
@@ -1509,31 +1378,26 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           conceptIdWorklistNameMap.put(conceptId,
               trackingRecord.getWorklistName());
         }
-      }
+      }     
 
-      int i = 0;
-      WorkflowBin bin = workflowService.getWorkflowBin(workflowBinId);
-      clearBin(project.getId(), bin.getId(), authToken);
-
-      /*
-       * WorkflowBin bin = new WorkflowBinJpa(); bin.setCreationTime(new
-       * Date().getTime()); bin.setName(definition.getName());
-       * bin.setDescription(definition.getDescription());
-       * bin.setEditable(definition.isEditable()); bin.setProject(project);
-       * bin.setRank(++i); bin.setTerminology(project.getTerminology());
-       * bin.setVersion("latest"); bin.setTerminologyId("");
-       * bin.setTimestamp(new Date()); bin.setType(type);
-       * workflowService.addWorkflowBin(bin);
-       */
-
-      List<WorkflowBinDefinition> definitions = workflowService
-          .findWorkflowBinDefinitionsForQuery("name:" + bin.getName());
-      List<WorkflowConfig> workflowConfigs =
-          workflowService.findWorkflowConfigsForQuery("projectId:" + projectId);
-      WorkflowConfig workflowConfig = workflowConfigs.get(0);
+      int i = 1;
       for (WorkflowBinDefinition definition : definitions) {
         String query = definition.getQuery();
 
+        bin = new WorkflowBinJpa();
+        bin.setCreationTime(new Date().getTime());
+        bin.setName(definition.getName());
+        bin.setDescription(definition.getDescription());
+        bin.setEditable(definition.isEditable());
+        bin.setProject(project);
+        bin.setRank(++i);
+        bin.setTerminology(project.getTerminology());
+        bin.setVersion("latest");
+        bin.setTerminologyId("");
+        bin.setTimestamp(new Date());
+        bin.setType(type);
+        workflowService.addWorkflowBin(bin);
+        
         // execute the query
         List<Object[]> results = null;
         switch (definition.getQueryType()) {
@@ -1650,13 +1514,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         }
         workflowService.updateWorkflowBin(bin);
       }
-
-    } catch (Exception e) {
-      handleException(e, "trying to regenerate bin");
-    } finally {
-      workflowService.close();
-      securityService.close();
-    }
+      return bin;
+      
 
   }
 

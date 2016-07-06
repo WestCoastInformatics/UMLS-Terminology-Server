@@ -16,6 +16,7 @@ import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
+import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
@@ -343,9 +344,10 @@ public interface WorkflowServiceRest {
    * @param projectId the project id
    * @param workflowBinId the workflow bin id
    * @param authToken the auth token
+   * @return TODO
    * @throws Exception the exception
    */
-  public void regenerateBin(Long projectId, Long workflowBinId,
+  public WorkflowBin regenerateBin(Long projectId, Long workflowBinId, WorkflowBinType type,
     String authToken) throws Exception;
 
   /**
