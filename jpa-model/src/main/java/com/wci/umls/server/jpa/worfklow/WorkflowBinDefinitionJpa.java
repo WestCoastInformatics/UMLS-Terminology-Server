@@ -243,13 +243,23 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   public void setWorkflowConfig(WorkflowConfig workflowConfig) {
     this.workflowConfig = workflowConfig;
   }
-  
+
+  /**
+   * Returns the workflow config id.
+   *
+   * @return the workflow config id
+   */
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getWorkflowConfigId() {
     return workflowConfig == null ? null : workflowConfig.getId();
   }
 
+  /**
+   * Sets the workflow config id.
+   *
+   * @param id the workflow config id
+   */
   @Field()
   public void setWorkflowConfigId(Long id) {
     if (workflowConfig == null) {
@@ -257,7 +267,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     }
     workflowConfig.setId(id);
   }
-  
+
   /* see superclass */
   @Override
   public int hashCode() {

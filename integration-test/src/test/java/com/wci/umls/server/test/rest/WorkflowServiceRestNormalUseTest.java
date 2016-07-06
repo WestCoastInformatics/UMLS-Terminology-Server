@@ -9,6 +9,7 @@ package com.wci.umls.server.test.rest;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -19,7 +20,6 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -27,6 +27,7 @@ import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowAction;
+import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
@@ -79,9 +80,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
    *
    * @throws Exception the exception
    */
-  // TODO getting duplicate errors with tests 1&2, but likely due to db being stale
-  // workflow config and workflow bin definitions now getting created in GenerateSampleMojo
-  //@Test
+  // TODO getting duplicate errors with tests 1&2, but likely due to db being
+  // stale
+  // workflow config and workflow bin definitions now getting created in
+  // GenerateSampleMojo
+  // @Test
   public void testNormalUseRestWorkflow001() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
@@ -144,7 +147,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
    *
    * @throws Exception the exception
    */
-  //@Test
+  // @Test
   public void testNormalUseRestWorkflow002() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
@@ -266,9 +269,16 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
-    WorkflowBinList binList =
-        workflowService.findWorkflowBinsForQuery("name:testName", null,
-            authToken);
+    List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(project.getId(),
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    WorkflowBin testNameBin = null;
+    for (final WorkflowBin bin : binList) {
+      if (bin.getName().equals("testName")) {
+        testNameBin = bin;
+        break;
+      }
+    }
 
     // remove any checklists that are created previously
     ChecklistList list =
@@ -287,9 +297,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Checklist checklistOrderByClusterId;
     try {
       checklistOrderByClusterId =
-          workflowService.createChecklist(project.getId(), binList.getObjects()
-              .get(0).getId(), "checklistOrderByClusterId", false, false,
-              "clusterType:chem", pfs, authToken);
+          workflowService.createChecklist(project.getId(), testNameBin.getId(),
+              "checklistOrderByClusterId", false, false, "clusterType:chem",
+              pfs, authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -304,9 +314,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Checklist checklistOrderByRandom;
     try {
       checklistOrderByRandom =
-          workflowService.createChecklist(project.getId(), binList.getObjects()
-              .get(0).getId(), "checklistOrderByRandom", true, false,
-              "clusterType:chem", pfs, authToken);
+          workflowService.createChecklist(project.getId(), testNameBin.getId(),
+              "checklistOrderByRandom", true, false, "clusterType:chem", pfs,
+              authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -345,9 +355,16 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
-    WorkflowBinList binList =
-        workflowService.findWorkflowBinsForQuery("name:testName", null,
-            authToken);
+    List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(project.getId(),
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    WorkflowBin testNameBin = null;
+    for (final WorkflowBin bin : binList) {
+      if (bin.getName().equals("testName")) {
+        testNameBin = bin;
+        break;
+      }
+    }
 
     // Remove any worklists first
     WorklistList worklists =
@@ -363,8 +380,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Worklist worklist;
     try {
       worklist =
-          workflowService.createWorklist(project.getId(), binList.getObjects()
-              .get(0).getId(), "chem", 0, 5, new PfsParameterJpa(), authToken);
+          workflowService.createWorklist(project.getId(), testNameBin.getId(),
+              "chem", 0, 5, new PfsParameterJpa(), authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -403,9 +420,16 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
-    WorkflowBinList binList =
-        workflowService.findWorkflowBinsForQuery("name:testName", null,
-            authToken);
+    List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(project.getId(),
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    WorkflowBin testNameBin = null;
+    for (final WorkflowBin bin : binList) {
+      if (bin.getName().equals("testName")) {
+        testNameBin = bin;
+        break;
+      }
+    }
 
     // Remove any worklists first
     WorklistList worklists =
@@ -421,8 +445,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Worklist addedWorklist;
     try {
       addedWorklist =
-          workflowService.createWorklist(project.getId(), binList.getObjects()
-              .get(0).getId(), "chem", 0, 5, new PfsParameterJpa(), authToken);
+          workflowService.createWorklist(project.getId(), testNameBin.getId(),
+              "chem", 0, 5, new PfsParameterJpa(), authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -556,9 +580,16 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
-    WorkflowBinList binList =
-        workflowService.findWorkflowBinsForQuery("name:testName", null,
-            authToken);
+    List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(project.getId(),
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    WorkflowBin testNameBin = null;
+    for (final WorkflowBin bin : binList) {
+      if (bin.getName().equals("testName")) {
+        testNameBin = bin;
+        break;
+      }
+    }
 
     // Remove any worklists first
     WorklistList worklists =
@@ -574,8 +605,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Worklist worklist;
     try {
       worklist =
-          workflowService.createWorklist(project.getId(), binList.getObjects()
-              .get(0).getId(), "chem", 0, 5, new PfsParameterJpa(), authToken);
+          workflowService.createWorklist(project.getId(), testNameBin.getId(),
+              "chem", 0, 5, new PfsParameterJpa(), authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -630,9 +661,16 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
       throw e;
     }
-    WorkflowBinList binList =
-        workflowService.findWorkflowBinsForQuery("name:testName", null,
-            authToken);
+    List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(project.getId(),
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    WorkflowBin testNameBin = null;
+    for (final WorkflowBin bin : binList) {
+      if (bin.getName().equals("testName")) {
+        testNameBin = bin;
+        break;
+      }
+    }
 
     // Remove any worklists first
     WorklistList worklists =
@@ -648,8 +686,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Worklist worklist;
     try {
       worklist =
-          workflowService.createWorklist(project.getId(), binList.getObjects()
-              .get(0).getId(), "chem", 0, 5, new PfsParameterJpa(), authToken);
+          workflowService.createWorklist(project.getId(), testNameBin.getId(),
+              "chem", 0, 5, new PfsParameterJpa(), authToken);
     } catch (Exception e) {
       workflowService.clearBins(project.getId(),
           WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -657,12 +695,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     }
 
     try {
-      WorkflowBinList binList1 =
-          workflowService.getWorkflowBins(project.getId(),
-              WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-      Worklist worklistStatsList =
-          workflowService.getWorklist(project.getId(), worklist.getId(),
-              authToken);
+      // Verify no error on call
+      workflowService.getWorkflowBins(project.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+      // Verify no error on call
+      workflowService.getWorklist(project.getId(), worklist.getId(), authToken);
     } catch (Exception e) {
       throw e;
     } finally {
