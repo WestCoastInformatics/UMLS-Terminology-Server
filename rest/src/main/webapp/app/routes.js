@@ -55,6 +55,16 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
       reloadOnSearch : false
     });
   }
+  
+  // Workflow View
+  if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('workflow') != -1) {
+    console.debug('Route enabled: workflow');
+    $routeProvider.when('/workflow', {
+      templateUrl : 'app/page/workflow/workflow.html',
+      controller : 'WorkflowCtrl',
+      reloadOnSearch : false
+    });
+  }
 
   // Administrative Page
   if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('admin') != -1) {
