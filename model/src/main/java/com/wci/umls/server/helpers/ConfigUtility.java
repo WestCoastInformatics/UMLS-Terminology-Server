@@ -997,4 +997,18 @@ public class ConfigUtility {
   public static String getMd5(String str) {
     return DigestUtils.md5Hex(str);
   }
+
+  /**
+   * Returns the upload dir.
+   *
+   * @return the upload dir
+   * @throws Exception the exception
+   */
+  public static String getUploadDir() throws Exception {
+    if (ConfigUtility.getConfigProperties().containsKey("upload.dir")) {
+      return ConfigUtility.getConfigProperties().getProperty("upload.dir");
+    }
+    return null;
+  }
+
 }

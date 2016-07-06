@@ -1076,9 +1076,9 @@ public abstract class RootServiceJpa implements RootService {
   public List<LogEntry> findLogEntriesForQuery(final String query,
     final PfsParameter pfs) throws Exception {
 
-    Logger.getLogger(getClass()).info("Root Service - find log Entries "
-        + query + ", " + pfs);    
-    
+    Logger.getLogger(getClass()).info(
+        "Root Service - find log Entries " + query + ", " + pfs);
+
     final StringBuilder sb = new StringBuilder();
     if (query != null && !query.equals("")) {
       sb.append(query);
@@ -1287,4 +1287,5 @@ public abstract class RootServiceJpa implements RootService {
     return results;
 
   }
+
 }

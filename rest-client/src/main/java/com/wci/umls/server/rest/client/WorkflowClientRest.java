@@ -272,7 +272,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bins/regenerate?projectId=" + projectId);
+            + "/workflow/bin/regenerate/all?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).post(Entity.json(type));
@@ -301,7 +301,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/records/assigned" + "?projectId=" + projectId
+            + "/workflow/record/assigned" + "?projectId=" + projectId
             + "&userName=" + userName + "&role=" + role);
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -337,7 +337,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/worklists/assigned" + "?projectId=" + projectId
+            + "/workflow/worklist/assigned" + "?projectId=" + projectId
             + "&userName=" + userName + "&role=" + role);
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -368,7 +368,7 @@ public class WorkflowClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/checklists"
+        client.target(config.getProperty("base.url") + "/workflow/checklist"
             + "?projectId=" + projectId + "&query=" + query);
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -400,7 +400,7 @@ public class WorkflowClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/worklists"
+        client.target(config.getProperty("base.url") + "/workflow/worklist"
             + "?projectId=" + projectId + "&query=" + query);
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -459,10 +459,10 @@ public class WorkflowClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/action"
-            + "?projectId=" + projectId + "&worklistId=" + worklistId
-            + "&action=" + action + "&userName=" + userName + "&userRole="
-            + role);
+        client.target(config.getProperty("base.url")
+            + "/workflow/worklist/action" + "?projectId=" + projectId
+            + "&worklistId=" + worklistId + "&action=" + action + "&userName="
+            + userName + "&userRole=" + role);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -491,7 +491,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/records/available" + "?projectId=" + projectId
+            + "/workflow/record/available" + "?projectId=" + projectId
             + "&userRole=" + role);
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -526,7 +526,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/worklists/available" + "?projectId=" + projectId
+            + "/workflow/worklist/available" + "?projectId=" + projectId
             + "&userRole=" + role);
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -558,7 +558,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bins/clear?projectId=" + projectId);
+            + "/workflow/bin/clear/all?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).post(Entity.json(type));
@@ -586,7 +586,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/checklist?projectId="
+            + "/workflow/checklist/add?projectId="
             + projectId
             + "&workflowBinId="
             + workflowBinId
@@ -656,9 +656,9 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/worklist?projectId=" + projectId + "&workflowBinId="
-            + workflowBinId + "&clusterType=" + clusterType + "&skipClusterCt="
-            + skipClusterCt + "&clusterCt=" + clusterCt);
+            + "/workflow/worklist/add?projectId=" + projectId
+            + "&workflowBinId=" + workflowBinId + "&clusterType=" + clusterType
+            + "&skipClusterCt=" + skipClusterCt + "&clusterCt=" + clusterCt);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).post(Entity.json(pfs));
@@ -685,7 +685,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bins?projectId=" + projectId + "&type=" + type);
+            + "/workflow/bin/all?projectId=" + projectId + "&type=" + type);
     final Response response =
         target.request(MediaType.APPLICATION_JSON)
             .header("Authorization", authToken).get();
@@ -710,16 +710,15 @@ public class WorkflowClientRest extends RootClientRest implements
   public Worklist getWorklist(Long projectId, Long worklistId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - get worklist stats" + projectId + ", " + worklistId);
+        "Workflow Client - get worklist " + projectId + ", " + worklistId);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(worklistId, "worklistId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/workflow/worklist?projectId=" + projectId + "&worklistId="
-            + worklistId);
+        client.target(config.getProperty("base.url") + "/workflow/worklist/"
+            + worklistId + "?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -739,17 +738,16 @@ public class WorkflowClientRest extends RootClientRest implements
   public void clearBin(Long projectId, Long workflowBinId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - clear bin" + projectId + ", " + workflowBinId + ", "
-            + authToken);
+        "Workflow Client - clear bin " + projectId + ", " + workflowBinId
+            + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(workflowBinId, "workflowBinId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/workflow/bin/clear?projectId=" + projectId + "&workflowBinId="
-            + workflowBinId);
+        client.target(config.getProperty("base.url") + "/workflow/bin/"
+            + workflowBinId + "/clear?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -763,8 +761,8 @@ public class WorkflowClientRest extends RootClientRest implements
   }
 
   @Override
-  public WorkflowBin regenerateBin(Long projectId, Long workflowBinId, WorkflowBinType type,
-    String authToken) throws Exception {
+  public WorkflowBin regenerateBin(Long projectId, Long workflowBinId,
+    WorkflowBinType type, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - regenerate bin" + projectId + ", " + workflowBinId
             + ", " + authToken);
@@ -774,23 +772,22 @@ public class WorkflowClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/workflow/bins/regenerate?projectId=" + projectId
+        client.target(config.getProperty("base.url") + "/workflow/bin/"
+            + workflowBinId + "/regenerate?projectId=" + projectId
             + "&workflowBinId=" + workflowBinId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
     final String resultString = response.readEntity(String.class);
-    
+
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
-    
+
     // converting to object
-    return ConfigUtility
-        .getGraphForString(resultString, WorkflowBinJpa.class);
+    return ConfigUtility.getGraphForString(resultString, WorkflowBinJpa.class);
   }
 
   @Override
@@ -806,8 +803,8 @@ public class WorkflowClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/workflow/report/generate?projectId=" + projectId
+        client.target(config.getProperty("base.url") + "/workflow/worklist/"
+            + worklistId + "/report/generate?projectId=" + projectId
             + "&worklistId=" + worklistId + "&delay=" + delay
             + (sendEmail != null ? ("&sendEmail=" + sendEmail) : "")
             + "&conceptReportType=" + conceptReportType + "&relationshipCt="
@@ -837,8 +834,8 @@ public class WorkflowClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/report/get"
-            + "?projectId=" + projectId + "&fileName=" + fileName);
+        client.target(config.getProperty("base.url") + "/workflow/report/"
+            + fileName + "?projectId=" + projectId + "&fileName=" + fileName);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -868,8 +865,8 @@ public class WorkflowClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/workflow/report/remove?projectId=" + projectId + "&fileName="
+        client.target(config.getProperty("base.url") + "/workflow/report/"
+            + fileName + "/remove?projectId=" + projectId + "&fileName="
             + fileName);
 
     final Response response =
@@ -894,7 +891,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/report/find?projectId="
+            + "/workflow/report?projectId="
             + projectId
             + "&query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
