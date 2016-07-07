@@ -38,6 +38,13 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
             role : false
           });
           break;
+        case 'workflow':
+          this.tabs.push({
+            link : 'workflow',
+            label : 'Workflow',
+            role : false
+          });
+          break;
         case 'admin':
           this.tabs.push({
             link : 'admin',
