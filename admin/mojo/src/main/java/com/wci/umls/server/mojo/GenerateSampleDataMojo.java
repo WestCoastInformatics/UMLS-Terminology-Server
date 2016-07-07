@@ -427,10 +427,12 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate all bins");
     // Clear bins
+    workflowService = new WorkflowServiceRestImpl();
     workflowService.clearBins(project1.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
     // Regenerate bins
+    workflowService = new WorkflowServiceRestImpl();
     workflowService.regenerateBins(project1.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 

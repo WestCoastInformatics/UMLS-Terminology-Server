@@ -29,7 +29,7 @@ public class StringClassIdentityJpa implements StringClassIdentity {
   private Long id;
 
   /** The name. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 4000)
   private String name;
 
   /** The name pre. */

@@ -208,7 +208,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO, bridge = @FieldBridge(impl = LongBridge.class)),
       @Field(name = "clusterIdSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })
+  })  
   public Long getClusterId() {
     return clusterId;
   }

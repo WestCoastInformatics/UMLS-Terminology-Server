@@ -9,7 +9,6 @@ package com.wci.umls.server.jpa.meta;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -21,11 +20,7 @@ import com.wci.umls.server.model.meta.SemanticType;
  * JPA and JAXB enabled implementation of {@link SemanticType}.
  */
 @Entity
-@Table(name = "semantic_types", uniqueConstraints = @UniqueConstraint(columnNames = {
-    // id was added because in sample load, NDFRT has two
-    // "semantic types" with the same expanded form (case-insensitive)
-    "expandedForm", "terminology", "version", "id"
-}))
+@Table(name = "semantic_types")
 @Audited
 @XmlRootElement(name = "semanticType")
 public class SemanticTypeJpa extends AbstractAbbreviation implements
