@@ -57,6 +57,12 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   /** The project. */
   private static Long projectId;
 
+  /** The config. */
+  private static WorkflowConfig config;
+
+  /** The definition. */
+  private static WorkflowBinDefinition definition;
+
   /** The umls terminology. */
   private String umlsTerminology = "UMLS";
 
@@ -85,6 +91,29 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // Add project
     project = projectService.addProject((ProjectJpa) project, authToken);
     projectId = project.getId();
+
+    // Create a workflow config
+    config = new WorkflowConfigJpa();
+    config.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
+    config.setMutuallyExclusive(true);
+    config.setProject(project);
+    final WorkflowConfig newConfig =
+        workflowService.addWorkflowConfig(projectId,
+            (WorkflowConfigJpa) config, authToken);
+
+    // Add a workflow definition (as SQL)
+    // TODO: create workflow bin definitions exactly matching NCI-META config
+    // also
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("testName");
+    definition.setDescription("test description");
+    definition
+        .setQuery("select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Amino%';");
+    definition.setEditable(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService.addWorkflowBinDefinition(projectId,
+        (WorkflowBinDefinitionJpa) definition, authToken);
 
     // verify terminology matches
     assertTrue(project.getTerminology().equals(umlsTerminology));
@@ -170,8 +199,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Add workflow bin definition
     WorkflowBinDefinition newDefinition =
-        workflowService.addWorkflowBinDefinition(projectId, newConfig.getId(),
-            definition, authToken);
+        workflowService.addWorkflowBinDefinition(projectId, definition,
+            authToken);
     assertEquals("test name", newDefinition.getName());
     assertEquals("test description", newDefinition.getDescription());
     assertEquals("select * from concepts", newDefinition.getQuery());
@@ -681,6 +710,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   @After
   public void teardown() throws Exception {
 
+    workflowService.removeWorkflowBinDefinition(projectId, definition.getId(),
+        authToken);
+    workflowService.removeWorkflowConfig(projectId, config.getId(), authToken);
     projectService.removeProject(projectId, authToken);
     // logout
     securityService.logout(authToken);

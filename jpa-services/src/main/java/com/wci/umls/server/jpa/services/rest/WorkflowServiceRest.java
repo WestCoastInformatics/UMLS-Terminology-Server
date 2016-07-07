@@ -78,15 +78,13 @@ public interface WorkflowServiceRest {
    * Adds the workflow bin definition.
    *
    * @param projectId the project id
-   * @param workflowConfigId the workflow config id
    * @param binDefinition the bin definition
    * @param authToken the auth token
    * @return the workflow bin definition
    * @throws Exception the exception
    */
   public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId,
-    Long workflowConfigId, WorkflowBinDefinitionJpa binDefinition,
-    String authToken) throws Exception;
+    WorkflowBinDefinitionJpa binDefinition, String authToken) throws Exception;
 
   /**
    * Update workflow bin definition.
@@ -329,8 +327,6 @@ public interface WorkflowServiceRest {
    */
   public List<WorkflowBin> getWorkflowBins(Long projectId,
     WorkflowBinType type, String authToken) throws Exception;
-
-
 
   /**
    * 

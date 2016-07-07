@@ -305,13 +305,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Add a workflow bin definition", notes = "Add a workflow bin definition", response = WorkflowBinDefinitionJpa.class)
   public WorkflowBinDefinition addWorkflowBinDefinition(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow config id, e.g. 1", required = true) @QueryParam("configId") Long configId,
     @ApiParam(value = "Workflow bin definition to add", required = true) WorkflowBinDefinitionJpa binDefinition,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Workflow): /definition/add/" + projectId + " "
-            + configId + " " + binDefinition.getName() + " " + authToken);
+            + binDefinition.getName() + " " + authToken);
 
     final String action = "trying to add workflow bin definition";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -322,10 +321,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           authorizeProject(workflowService, projectId, securityService,
               authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
-
-      final WorkflowConfig workflowConfig =
-          workflowService.getWorkflowConfig(configId);
-      binDefinition.setWorkflowConfig(workflowConfig);
       return workflowService.addWorkflowBinDefinition(binDefinition);
 
     } catch (Exception e) {

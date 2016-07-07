@@ -20,7 +20,6 @@
 package com.wci.umls.server.mojo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -369,7 +368,6 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     //
     getLog().info("Prepare workflow related objects");
     WorkflowServiceRestImpl workflowService = new WorkflowServiceRestImpl();
-    Date startDate = new Date();
 
     // Create a workflow epoch
     // TODO: create an older one and a new one so we can test
@@ -380,7 +378,6 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowEpoch.setName("16a");
     workflowEpoch.setProjectId(project1.getId());
     workflowEpoch.setProject(project1);
-    workflowEpoch.setTimestamp(startDate);
     workflowService
         .addWorkflowEpoch(project1.getId(), workflowEpoch, authToken);
 
@@ -388,52 +385,45 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     // TODO: also add a QA for testing of non-mutually-excuslive
     getLog().info("  Create a ME workflow config");
     workflowService = new WorkflowServiceRestImpl();
-    WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
-    workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
-    workflowConfig.setMutuallyExclusive(true);
-    workflowConfig.setProjectId(project1.getId());
-    workflowConfig.setTimestamp(startDate);
-    workflowConfig.setLastPartitionTime(1L);
+    WorkflowConfigJpa config = new WorkflowConfigJpa();
+    config.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
+    config.setMutuallyExclusive(true);
+    config.setProjectId(project1.getId());
     workflowService = new WorkflowServiceRestImpl();
-    WorkflowConfig addedWorkflowConfig =
-        workflowService.addWorkflowConfig(project1.getId(), workflowConfig,
-            authToken);
+    WorkflowConfig newConfig =
+        workflowService.addWorkflowConfig(project1.getId(), config, authToken);
 
     // Add a workflow definition (as SQL)
     // TODO: create workflow bin definitions exactly matching NCI-META config
     // also
     getLog().info("  Create a workflow definition");
-    WorkflowBinDefinitionJpa workflowBinDefinition =
-        new WorkflowBinDefinitionJpa();
-    workflowBinDefinition.setName("testName");
-    workflowBinDefinition.setDescription("test description");
-    workflowBinDefinition
+    WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
+    definition.setName("testName");
+    definition.setDescription("test description");
+    definition
         .setQuery("select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Amino%';");
-    workflowBinDefinition.setEditable(true);
-    workflowBinDefinition.setQueryType(QueryType.SQL);
-    workflowBinDefinition.setTimestamp(startDate);
-    workflowBinDefinition.setWorkflowConfig(addedWorkflowConfig);
+    definition.setEditable(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
 
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(project1.getId(),
-        addedWorkflowConfig.getId(), workflowBinDefinition, authToken);
+    workflowService.addWorkflowBinDefinition(project1.getId(), definition,
+        authToken);
 
     // Add a second workflow definition
     getLog().info("  Create a second workflow definition");
-    WorkflowBinDefinitionJpa workflowBinDefinition2 =
-        new WorkflowBinDefinitionJpa();
-    workflowBinDefinition2.setName("testName2");
-    workflowBinDefinition2.setDescription("test description2");
-    workflowBinDefinition2
+    WorkflowBinDefinitionJpa definition2 = new WorkflowBinDefinitionJpa();
+    definition2.setName("testName2");
+    definition2.setDescription("test description2");
+    definition2
         .setQuery("select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Acid%';");
-    workflowBinDefinition2.setEditable(true);
-    workflowBinDefinition2.setQueryType(QueryType.SQL);
-    workflowBinDefinition2.setTimestamp(startDate);
-    workflowBinDefinition2.setWorkflowConfig(addedWorkflowConfig);
+    definition2.setEditable(true);
+    definition2.setQueryType(QueryType.SQL);
+    definition2.setWorkflowConfig(newConfig);
 
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(project1.getId(),
-        addedWorkflowConfig.getId(), workflowBinDefinition2, authToken);
+    workflowService.addWorkflowBinDefinition(project1.getId(), definition2,
+        authToken);
 
     // TODO: clear and regenerate all bins
     getLog().info("  Clear and regenerate all bins");

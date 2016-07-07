@@ -176,7 +176,7 @@ public class WorkflowClientRest extends RootClientRest implements
     return ConfigUtility.getGraphForString(resultString,
         WorkflowConfigJpa.class);
   }
-  
+
   /* see superclass */
   @Override
   public void removeWorklist(Long projectId, Long id, String authToken)
@@ -232,21 +232,17 @@ public class WorkflowClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId,
-    Long workflowConfigId, WorkflowBinDefinitionJpa binDefinition,
-    String authToken) throws Exception {
+    WorkflowBinDefinitionJpa binDefinition, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - add workflow bin definition" + projectId + ", "
-            + workflowConfigId + " ," + binDefinition.toString() + ", "
-            + authToken);
+            + binDefinition.toString() + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
-    validateNotEmpty(workflowConfigId, "workflowConfigId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/definition/add?projectId=" + projectId + "&configId="
-            + workflowConfigId);
+            + "/workflow/definition/add?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
