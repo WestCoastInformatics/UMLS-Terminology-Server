@@ -27,7 +27,6 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -319,13 +318,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
       }
     }
     assertNotNull(testNameBin);
-
-    // remove any checklists that are created previously
-    ChecklistList list =
-        workflowService.findChecklists(projectId, null, null, authToken);
-    for (Checklist checklist : list.getObjects()) {
-      workflowService.removeChecklist(projectId, checklist.getId(), authToken);
-    }
 
     //
     // Create checklist with cluster id order tracking records
