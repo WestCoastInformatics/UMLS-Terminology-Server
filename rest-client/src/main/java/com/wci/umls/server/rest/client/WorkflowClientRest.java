@@ -69,7 +69,7 @@ public class WorkflowClientRest extends RootClientRest implements
     WorkflowConfigJpa workflowConfig, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - add workflow config" + projectId + ", "
-            + workflowConfig.toString() + ", " + authToken);
+            + workflowConfig.toString() + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -90,9 +90,8 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
     // converting to object
-    WorkflowConfig v =
-        ConfigUtility.getGraphForString(resultString, WorkflowConfigJpa.class);
-    return v;
+    return ConfigUtility.getGraphForString(resultString,
+        WorkflowConfigJpa.class);
   }
 
   /* see superclass */
@@ -101,7 +100,7 @@ public class WorkflowClientRest extends RootClientRest implements
     WorkflowConfigJpa workflowConfig, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - update workflow config" + projectId + ", "
-            + workflowConfig.toString() + ", " + authToken);
+            + workflowConfig.toString() + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -124,18 +123,18 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public void removeWorkflowConfig(Long workflowConfigId, String authToken)
+  public void removeWorkflowConfig(Long projectId, Long id, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - remove workflow config " + workflowConfigId + ", "
-            + authToken);
+        "Workflow Client - remove workflow config " + id + ", " + projectId);
 
-    validateNotEmpty(workflowConfigId, "workflowConfigId");
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "workflowConfigId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/config/"
-            + workflowConfigId + "/remove");
+        client.target(config.getProperty("base.url") + "/workflow/config/" + id
+            + "/remove?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).delete();
@@ -150,17 +149,74 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public void removeChecklist(Long checklistId, String authToken)
+  public WorkflowConfig getWorkflowConfig(Long projectId, Long id,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - get workflow config " + id + ", " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/config/" + id
+            + "?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        WorkflowConfigJpa.class);
+  }
+  
+  /* see superclass */
+  @Override
+  public void removeWorklist(Long projectId, Long id, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - remove checklist " + checklistId + ", " + authToken);
+        "Workflow Client - remove worklist " + id + ", " + projectId);
 
-    validateNotEmpty(checklistId, "checklistId");
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/worklist/"
+            + id + "/remove?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public void removeChecklist(Long projectId, Long id, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - remove checklist " + id + ", " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/workflow/checklist/"
-            + checklistId + "/remove");
+            + id + "/remove?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).delete();
@@ -214,7 +270,7 @@ public class WorkflowClientRest extends RootClientRest implements
     WorkflowBinDefinitionJpa definition, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - update workflow config" + projectId + ", "
-            + definition.toString() + ", " + authToken);
+            + definition.toString() + ", " + projectId);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
@@ -234,19 +290,19 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  // TODO: why does this include projectId, but removeWorkflowConfig doesn't?
-  public void removeWorkflowBinDefinition(Long projectId,
-    Long workflowBinDefinitionId, String authToken) throws Exception {
+  public void removeWorkflowBinDefinition(Long projectId, Long id,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - remove workflow bin definition "
-            + workflowBinDefinitionId + ", " + authToken);
+        "Workflow Client - remove workflow bin definition " + id + ", "
+            + authToken);
 
-    validateNotEmpty(workflowBinDefinitionId, "workflowBinDefinitionId");
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/workflow/definition/"
-            + workflowBinDefinitionId + "/remove");
+            + id + "/remove?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).delete();
@@ -261,11 +317,43 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
+  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId,
+    Long id, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - get workflow bin definition " + id + ", "
+            + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/definition/"
+            + id + "?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        WorkflowBinDefinitionJpa.class);
+
+  }
+
+  /* see superclass */
+  @Override
   public void regenerateBins(Long projectId, WorkflowBinType type,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - regenerate bins" + projectId + ", "
-            + type.toString() + ", " + authToken);
+            + type.toString() + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -551,7 +639,7 @@ public class WorkflowClientRest extends RootClientRest implements
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - clear bins" + projectId + ", " + type.toString()
-            + ", " + authToken);
+            + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -579,7 +667,7 @@ public class WorkflowClientRest extends RootClientRest implements
     Logger.getLogger(getClass()).debug(
         "Workflow Client - create checklist" + projectId + ", " + workflowBinId
             + ", " + name + ", " + randomize + ", " + excludeOnWorklist + ", "
-            + query + ", " + authToken);
+            + query + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -616,7 +704,7 @@ public class WorkflowClientRest extends RootClientRest implements
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - add workflow epoch" + projectId + ", "
-            + epoch.toString() + ", " + authToken);
+            + epoch.toString() + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -648,7 +736,7 @@ public class WorkflowClientRest extends RootClientRest implements
     Logger.getLogger(getClass()).debug(
         "Workflow Client - create worklist" + projectId + ", " + workflowBinId
             + ", " + clusterType + ", " + skipClusterCt + ", " + clusterCt
-            + ", " + authToken);
+            + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(workflowBinId, "workflowBinId");
@@ -739,7 +827,7 @@ public class WorkflowClientRest extends RootClientRest implements
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - clear bin " + projectId + ", " + workflowBinId
-            + ", " + authToken);
+            + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(workflowBinId, "workflowBinId");
@@ -765,7 +853,7 @@ public class WorkflowClientRest extends RootClientRest implements
     WorkflowBinType type, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - regenerate bin" + projectId + ", " + workflowBinId
-            + ", " + authToken);
+            + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(workflowBinId, "workflowBinId");
@@ -797,7 +885,7 @@ public class WorkflowClientRest extends RootClientRest implements
     Logger.getLogger(getClass()).debug(
         "Workflow Client - generate concept report" + projectId + ", "
             + worklistId + ", " + sendEmail + ", " + conceptReportType + ", "
-            + relationshipCt + ", " + authToken);
+            + relationshipCt + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
 

@@ -172,7 +172,6 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("mutuallyExclusive");
-    tester.include("lastPartitionTime");
     tester.include("type");
 
     assertTrue(tester.testNotNullFields());

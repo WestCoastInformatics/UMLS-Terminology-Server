@@ -154,58 +154,6 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public Worklist addWorklist(WorklistJpa worklist, String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - add worklist" + worklist.toString() + ", "
-            + authToken);
-
-    final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/worklist/add");
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.json(worklist));
-
-    final String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    return ConfigUtility.getGraphForString(resultString, WorklistJpa.class);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeWorklist(Long worklistId, boolean cascade, String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - remove worklist " + worklistId + ", "
-            + authToken);
-
-    validateNotEmpty(worklistId, "worklistId");
-
-    final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/worklist/"
-            + worklistId + "/remove?cascade=" + cascade);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete();
-
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-  }
-
-  /* see superclass */
-  @Override
   public Worklist getWorklist(Long worklistId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(

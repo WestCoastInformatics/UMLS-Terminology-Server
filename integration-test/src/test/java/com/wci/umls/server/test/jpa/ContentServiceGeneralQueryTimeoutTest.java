@@ -15,7 +15,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
@@ -56,10 +55,9 @@ public class ContentServiceGeneralQueryTimeoutTest extends
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     try {
-      SearchResultList list =
-          service.findConceptsForGeneralQuery("",
-              "SELECT c FROM ConceptJpa c WHERE name like '%x%' AND terminology IN"
-                  + " (SELECT b.name FROM AttributeJpa b)", Branch.ROOT, null);
+      service.findConceptsForGeneralQuery("",
+          "SELECT c FROM ConceptJpa c WHERE name like '%x%' AND terminology IN"
+              + " (SELECT b.name FROM AttributeJpa b)", Branch.ROOT, null);
       fail("Timeout should cause an exception");
     } catch (PersistenceException e) {
       // this is expected

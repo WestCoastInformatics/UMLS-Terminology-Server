@@ -88,12 +88,8 @@ public class MetadataServiceRestTest extends IntegrationUnitSupport {
     conceptList = contentService.getAllConcepts("UMLS", "latest", Branch.ROOT);
     Logger.getLogger(MetadataServiceRestTest.class).info(
         "  count = " + conceptList.getTotalCount());
-    if (conceptList.getCount() == 0)
+    if (conceptList.getCount() == 0) {
       throw new Exception("Could not retrieve any concepts for UMLS");
-    if (conceptList.getTotalCount() != 2863
-        && conceptList.getTotalCount() != 2013) {
-      throw new Exception(
-          "Metadata service requires UMLS loaded from the config project data.");
     }
 
     // check SNOMEDCT

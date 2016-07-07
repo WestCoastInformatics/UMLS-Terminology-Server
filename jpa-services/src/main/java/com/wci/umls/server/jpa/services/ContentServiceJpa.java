@@ -2199,9 +2199,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public SearchResultList findConcepts(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
+  public SearchResultList findConcepts(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find concepts " + terminology + "/" + version + "/"
             + query);
@@ -2227,9 +2226,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public SearchResultList findDescriptors(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
+  public SearchResultList findDescriptors(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find descriptors " + terminology + "/" + version
             + "/" + query);
@@ -2536,13 +2534,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     final Query term2 = new TermQuery(new Term("version", version));
     final Query term3 = new TermQuery(new Term("atoms.suppressible", "false"));
     final Query term4 = new TermQuery(new Term("suppressible", "false"));
-    final Query term5 = new TermQuery(new Term("anonymous", "false"));
     final BooleanQuery booleanQuery = new BooleanQuery();
     booleanQuery.add(term1, BooleanClause.Occur.MUST);
     booleanQuery.add(term2, BooleanClause.Occur.MUST);
     booleanQuery.add(term3, BooleanClause.Occur.MUST);
     booleanQuery.add(term4, BooleanClause.Occur.MUST);
-    booleanQuery.add(term5, BooleanClause.Occur.MUST);
+    // Only for concepts
+    if (Concept.class.isAssignableFrom(clazz)) {
+      final Query term5 = new TermQuery(new Term("anonymous", "false"));
+      booleanQuery.add(term5, BooleanClause.Occur.MUST);
+    }
     booleanQuery.add(query, BooleanClause.Occur.MUST);
 
     final FullTextQuery fullTextQuery =
@@ -2954,7 +2955,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   protected <T extends Component> T addComponent(T component) throws Exception {
 
-    
     // handle as a normal "has last modified"
     final T newComponent = addHasLastModified(component);
 
@@ -2995,23 +2995,26 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   protected <T extends Component> void updateComponent(T newComponent)
     throws Exception {
     // Component-specific handling
-    
+
     // check for molecular action flag
     if (isMolecularActionFlag()) {
       final MolecularAction molecularAction = getMolecularAction();
 
-      final T oldComponent = getComponent(newComponent.getId(),
-          (Class<T>) newComponent.getClass());           
-      
-      // Create an atomic action when old value is different from new value.      
-      
-      List<Method> allClassMethods = IndexUtility.getAllAccessorMethods(oldComponent.getClass());
-        
-      for(Method m : allClassMethods){
-        
-        final String oldValue = m.invoke(oldComponent, new Object[] {}).toString();
-        final String newValue = m.invoke(newComponent, new Object[] {}).toString();
-        
+      final T oldComponent =
+          getComponent(newComponent.getId(), (Class<T>) newComponent.getClass());
+
+      // Create an atomic action when old value is different from new value.
+
+      List<Method> allClassMethods =
+          IndexUtility.getAllAccessorMethods(oldComponent.getClass());
+
+      for (Method m : allClassMethods) {
+
+        final String oldValue =
+            m.invoke(oldComponent, new Object[] {}).toString();
+        final String newValue =
+            m.invoke(newComponent, new Object[] {}).toString();
+
         if (!oldValue.equals(newValue)) {
 
           // construct the atomic action
@@ -3736,9 +3739,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public TreePositionList findDescriptorTreePositions(
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
+  public TreePositionList findDescriptorTreePositions(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find descriptor tree positions " + terminology + "/"
             + version + "/" + query);

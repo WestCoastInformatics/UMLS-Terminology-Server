@@ -368,34 +368,6 @@
         </plugins>
       </build>
     </profile>
-    
-    <!-- Run ad hoc operation, specify -Drun.config=... -Dterminology=... -->
-    <profile>
-      <id>AdHocMojo</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.wcinformatics.umls.server</groupId>
-            <artifactId>term-server-admin-mojo</artifactId>
-            <version>${project.version}</version>
-            <executions>
-              <execution>
-                <id>ad-hoc</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>ad-hoc</goal>
-                </goals>
-                <configuration>
-                  <mode>${mode}</mode>
-                  <projectId>${projectId}</projectId>
-                  <componentId>${componentId}</componentId>
-                  <type>${type}</type>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+   
   </profiles>
 </project>

@@ -79,8 +79,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   private boolean mutuallyExclusive;
 
   /** The last partition time. */
-  /** The last partition time. */
-  @Column(nullable = false, unique = false)
+  @Column(nullable = true)
   private Long lastPartitionTime;
 
   /** The workflow bin definitions. */

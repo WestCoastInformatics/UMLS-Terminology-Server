@@ -178,17 +178,19 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @Path("/config/{id}/remove")
   @ApiOperation(value = "Remove a workflow config", notes = "Remove a workflow config")
   public void removeWorkflowConfig(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow config id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /config/remove");
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Workflow): /config/remove " + id + " " + projectId);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
+      // authorize and get user name from the token
       final String userName =
-          authorizeApp(securityService, authToken, "remove workflow config",
-              UserRole.USER);
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "remove workflow config", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
       workflowService.removeWorkflowConfig(id);
@@ -204,10 +206,75 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
+  @GET
+  @Path("/config/{id}")
+  @ApiOperation(value = "Get workflow config", notes = "Gets a workflow config", response = WorkflowConfigJpa.class)
+  public WorkflowConfig getWorkflowConfig(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow config id, e.g. 1", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Workflow): /config/" + id + "  " + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "remove workflow config", UserRole.AUTHOR);
+
+      final WorkflowConfig config = workflowService.getWorkflowConfig(id);
+      if (config != null) {
+        workflowService.handleLazyInit(config);
+      }
+      return config;
+
+    } catch (Exception e) {
+      handleException(e, "trying to get a workflow config");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+
+  }
+
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/worklist/{id}/remove")
+  @ApiOperation(value = "Remove a worklist", notes = "Remove a worklist")
+  public void removeWorklist(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Workflow): /worklist/" + id + "/remove");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "remove workflow config", UserRole.AUTHOR);
+      workflowService.setLastModifiedBy(userName);
+
+      workflowService.removeWorklist(id, true);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove a worklist");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
   @DELETE
   @Path("/checklist/{id}/remove")
   @ApiOperation(value = "Remove a checklist", notes = "Remove a checklist")
   public void removeChecklist(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Checklist id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -217,8 +284,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       final String userName =
-          authorizeApp(securityService, authToken, "remove checklist",
-              UserRole.USER);
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "remove workflow config", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
       workflowService.removeChecklist(id, true);
@@ -360,8 +427,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       final String userName =
-          authorizeApp(securityService, authToken,
-              "remove workflow bin definition", UserRole.USER);
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "remove workflow bin definition", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
       // load the bin definition, get its workflow config. Remove it from
@@ -380,6 +447,41 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       workflowService.close();
       securityService.close();
     }
+
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/definition/{id}")
+  @ApiOperation(value = "Get workflow bin definition", notes = "Gets workflow bin definition")
+  public WorkflowBinDefinition getWorkflowBinDefinition(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow bin definition id, e.g. 1", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Workflow): /definition/" + id + " " + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "get workflow bin definition", UserRole.AUTHOR);
+
+      final WorkflowBinDefinition definition =
+          workflowService.getWorkflowBinDefinition(id);
+      if (definition != null) {
+        workflowService.handleLazyInit(definition);
+      }
+      return definition;
+
+    } catch (Exception e) {
+      handleException(e, "trying to get a workflow bin definition");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
 
   }
 
@@ -441,7 +543,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       workflowService.setLastModifiedBy(userName);
 
       // Set transaction mode
-      workflowService.setTransactionPerOperation(true);
+      workflowService.setTransactionPerOperation(false);
       workflowService.beginTransaction();
 
       // Load the project and workflow config
@@ -1036,12 +1138,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Get the statistics for the worklist", notes = "Gets the statistics for the worklist.", response = WorklistJpa.class)
   public Worklist getWorklist(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Worklist id, e.g. 5", required = false) @PathParam("id") Long worklistId,
+    @ApiParam(value = "Worklist id, e.g. 5", required = false) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /worklist/" + worklistId);
+        "RESTful POST call (Workflow): /worklist/" + id);
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       final String userName =
@@ -1050,7 +1152,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       workflowService.setLastModifiedBy(userName);
 
-      final Worklist worklist = workflowService.getWorklist(worklistId);
+      final Worklist worklist = workflowService.getWorklist(id);
 
       // TODO to be done later
       // compute the stats and add them to the stats object
@@ -1085,12 +1187,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Clear bin", notes = "Clear bin")
   public void clearBin(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin id, e.g. 1", required = true) @PathParam("id") Long workflowBinId,
+    @ApiParam(value = "Workflow bin id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /bin/" + workflowBinId + "/clear ");
+        "RESTful POST call (Workflow): /bin/" + id + "/clear ");
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     try {
@@ -1099,10 +1201,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
               authToken, "trying to clear bin", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
-      workflowService.getWorkflowBin(workflowBinId);
+      workflowService.getWorkflowBin(id);
 
       // remove bins and all of the tracking records in the bin
-      workflowService.removeWorkflowBin(workflowBinId, true);
+      workflowService.removeWorkflowBin(id, true);
 
     } catch (Exception e) {
       handleException(e, "trying to clear bin");
@@ -1119,13 +1221,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Regenerate bin", notes = "Regenerate bin", response = WorkflowBinJpa.class)
   public WorkflowBin regenerateBin(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin id, e.g. 5", required = true) @PathParam("id") Long workflowBinId,
+    @ApiParam(value = "Workflow bin id, e.g. 5", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Workflow bin type", required = true) WorkflowBinType type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /bin/" + workflowBinId + "/regenerate ");
+        "RESTful POST call (Workflow): /bin/" + id + "/regenerate ");
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     try {
       final String userName =
@@ -1139,10 +1241,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       // Read relevant workflow objects
       final Project project = workflowService.getProject(projectId);
-      final WorkflowBin bin = workflowService.getWorkflowBin(workflowBinId);
+      final WorkflowBin bin = workflowService.getWorkflowBin(id);
 
       // Remove the workflow bin
-      workflowService.removeWorkflowBin(workflowBinId, true);
+      workflowService.removeWorkflowBin(id, true);
 
       // Get the bin definitions
       final List<WorkflowBinDefinition> definitions =
@@ -1178,7 +1280,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Generate concept reports for worklist", notes = "Generate concept reports for the specified worklist", response = String.class)
   public String generateConceptReport(
     @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Worklist id, e.g. 5") @PathParam("id") Long worklistId,
+    @ApiParam(value = "Worklist id, e.g. 5") @PathParam("id") Long id,
     @ApiParam(value = "Delay", required = false) @QueryParam("delay") Long delay,
     @ApiParam(value = "Send email, e.g. false", required = false) @QueryParam("sendEmail") Boolean sendEmail,
     @ApiParam(value = "Concept report type", required = true) @QueryParam("conceptReportType") String conceptReportType,
@@ -1186,8 +1288,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /report/" + worklistId
-            + "/report/generate ");
+        "RESTful POST call (Workflow): /report/" + id + "/report/generate ");
     // TODO: parameters not used
     // TODO: how to determine fileName?
 
@@ -1202,7 +1303,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       // Read vars
       final Project project = workflowService.getProject(projectId);
-      final Worklist worklist = workflowService.getWorklist(worklistId);
+      final Worklist worklist = workflowService.getWorklist(id);
       final TrackingRecordList recordList =
           workflowService.findTrackingRecords(project, "worklistName:"
               + worklist.getName(), new PfsParameterJpa());
@@ -1219,7 +1320,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       }
 
       // Construct filename
-      String fileName = worklistId + "_rpt.txt";
+      String fileName = id + "_rpt.txt";
       final String uploadDir = ConfigUtility.getUploadDir();
       File reportsDir = new File(uploadDir + "/" + projectId + "/reports");
       File file = new File(reportsDir, fileName);
@@ -1249,7 +1350,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         final Properties config = ConfigUtility.getConfigProperties();
         ConfigUtility.sendEmail("[Terminology Server] Worklist Concept Report "
             + fileName, config.getProperty("mail.smtp.user"), user.getEmail(),
-            "The worklist concept report " + fileName + " has been successfully generated.", config,
+            "The worklist concept report " + fileName
+                + " has been successfully generated.", config,
             "true".equals(config.get("mail.smtp.auth")));
       }
 
@@ -1536,8 +1638,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         break;
       case LUCENE:
         SearchResultList resultList =
-            workflowService.findConcepts(project.getTerminology(),
-                null, null, query, null);
+            workflowService.findConcepts(project.getTerminology(), null, null,
+                query, null);
         results = new ArrayList<>();
         for (SearchResult result : resultList.getObjects()) {
           Object[] objectArray = new Object[1];
