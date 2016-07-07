@@ -371,6 +371,38 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
+  @DELETE
+  @Path("/epoch/{id}/remove")
+  @ApiOperation(value = "Remove a workflow epoch", notes = "Remove a workflow epoch")
+  public void removeWorkflowEpoch(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow epoch id, e.g. 1", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Workflow): /epoch/remove " + id + " " + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      // authorize and get user name from the token
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "remove workflow epoch", UserRole.AUTHOR);
+      workflowService.setLastModifiedBy(userName);
+
+      workflowService.removeWorkflowEpoch(id);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove a workflow epoch");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
   @POST
   @Path("/definition/update")
   @ApiOperation(value = "Update a workflow bin definition", notes = "Update a workflow bin definition")
@@ -698,7 +730,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Find tracking records for checklist", notes = "Finds tracking records for checklist", response = TrackingRecordListJpa.class)
   public TrackingRecordList findTrackingRecordsForChecklist(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Checklist id, e.g. 5", required = false) @QueryParam("id") Long id,
+    @ApiParam(value = "Checklist id, e.g. 5", required = false) @PathParam("id") Long id,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -722,6 +754,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         query.append("id:" + record.getId());
       }
       query.append(")");
+
+      if (query.toString().equals("()")) {
+        return new TrackingRecordListJpa();
+      }
+
       return workflowService
           .findTrackingRecords(project, query.toString(), pfs);
 
@@ -741,7 +778,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Find records for worklist", notes = "Finds tracking records for worklist", response = TrackingRecordListJpa.class)
   public TrackingRecordList findTrackingRecordsForWorklist(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Worklist id, e.g. 5", required = false) @QueryParam("id") Long id,
+    @ApiParam(value = "Worklist id, e.g. 5", required = false) @PathParam("id") Long id,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -765,6 +802,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         query.append("id:" + record.getId());
       }
       query.append(")");
+
+      if (query.toString().equals("()")) {
+        return new TrackingRecordListJpa();
+      }
+
       return workflowService
           .findTrackingRecords(project, query.toString(), pfs);
 
@@ -784,7 +826,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Find records for workflow bin", notes = "Finds tracking records for workflow bin", response = TrackingRecordListJpa.class)
   public TrackingRecordList findTrackingRecordsForWorkflowBin(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "WorkflowBin id, e.g. 5", required = false) @QueryParam("id") Long id,
+    @ApiParam(value = "WorkflowBin id, e.g. 5", required = false) @PathParam("id") Long id,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -808,6 +850,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         query.append("id:" + record.getId());
       }
       query.append(")");
+
+      if (query.toString().equals("()")) {
+        return new TrackingRecordListJpa();
+      }
+
       return workflowService
           .findTrackingRecords(project, query.toString(), pfs);
 
@@ -1053,7 +1100,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /checklist ");
+        "RESTful POST call (Workflow): /checklist/add " + projectId + ", "
+            + workflowBinId + ", " + name + ", " + randomize);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -1065,8 +1113,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final Project project = workflowService.getProject(projectId);
       final WorkflowBin workflowBin =
           workflowService.getWorkflowBin(workflowBinId);
+
+      // Prep initial query
       final StringBuffer sb = new StringBuffer();
       sb.append("workflowBinName:").append(workflowBin.getName());
+
+      // Handle "exclude on worklist"
       if (excludeOnWorklist) {
         sb.append(" AND ").append("NOT worklistName:[* TO *] ");
       }
@@ -1074,13 +1126,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         sb.append(" AND ").append(query);
       }
 
+      // Handle "randomize"
       if (randomize) {
         pfs.setSortField("RANDOM");
       } else {
         pfs.setSortField("clusterId");
       }
 
-      final TrackingRecordList recordResultList =
+      final TrackingRecordList list =
           workflowService.findTrackingRecords(project, sb.toString(), pfs);
 
       final ChecklistJpa checklist = new ChecklistJpa();
@@ -1089,16 +1142,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       checklist.setProject(project);
       checklist.setTimestamp(new Date());
 
-      final Checklist addedChecklist = workflowService.addChecklist(checklist);
-      for (final TrackingRecord record : recordResultList.getObjects()) {
-        final TrackingRecord checklistRecord = new TrackingRecordJpa(record);
-        checklistRecord.setId(null);
-        workflowService.addTrackingRecord(checklistRecord);
-        addedChecklist.getTrackingRecords().add(checklistRecord);
-        workflowService.updateChecklist(addedChecklist);
+      final Checklist newChecklist = workflowService.addChecklist(checklist);
+      for (final TrackingRecord record : list.getObjects()) {
+        final TrackingRecord copy = new TrackingRecordJpa(record);
+        copy.setId(null);
+        workflowService.addTrackingRecord(copy);
+        newChecklist.getTrackingRecords().add(copy);
       }
+      workflowService.updateChecklist(newChecklist);
 
-      return addedChecklist;
+      return newChecklist;
     } catch (Exception e) {
       handleException(e, "trying to create checklist");
     } finally {
@@ -1123,7 +1176,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /worklist ");
+        "RESTful POST call (Workflow): /worklist/add ");
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -1137,6 +1190,17 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           workflowService.getWorkflowBin(workflowBinId);
       final WorkflowEpoch currentEpoch =
           workflowService.getCurrentWorkflowEpoch(project);
+
+      if (workflowBin == null) {
+        throw new LocalException(
+            "Attempt to create a worklist from a nonexistent bin "
+                + workflowBinId);
+      }
+
+      if (currentEpoch == null) {
+        throw new Exception(
+            "No current workflow epoch exists for this project " + projectId);
+      }
 
       // Compose the worklist name from the current epoch, the bin name,
       // and the max worklist id+1. (e.g. wrk16a_demotions_chem_001)
@@ -1197,18 +1261,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       worklist.setTimestamp(new Date());
       worklist.setWorkflowBinName(workflowBin.getName());
 
-      final Worklist addedWorklist = workflowService.addWorklist(worklist);
+      final Worklist newWorklist = workflowService.addWorklist(worklist);
 
       for (final TrackingRecord record : recordResultList.getObjects()) {
         final TrackingRecord worklistRecord = new TrackingRecordJpa(record);
         worklistRecord.setId(null);
         worklistRecord.setWorklistName(worklistName.toString());
         workflowService.addTrackingRecord(worklistRecord);
-        addedWorklist.getTrackingRecords().add(worklistRecord);
-        workflowService.updateWorklist(addedWorklist);
+        newWorklist.getTrackingRecords().add(worklistRecord);
+        workflowService.updateWorklist(newWorklist);
       }
 
-      return addedWorklist;
+      return newWorklist;
     } catch (Exception e) {
       handleException(e, "trying to create worklist");
     } finally {

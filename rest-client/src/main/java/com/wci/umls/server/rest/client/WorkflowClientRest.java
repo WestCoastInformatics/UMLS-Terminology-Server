@@ -129,7 +129,7 @@ public class WorkflowClientRest extends RootClientRest implements
         "Workflow Client - remove workflow config " + id + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
-    validateNotEmpty(id, "workflowConfigId");
+    validateNotEmpty(id, "id");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
@@ -580,8 +580,13 @@ public class WorkflowClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/checklist"
-            + "?projectId=" + projectId + "&query=" + query);
+        client.target(config.getProperty("base.url")
+            + "/workflow/checklist"
+            + "?projectId="
+            + projectId
+            + "&query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -612,8 +617,13 @@ public class WorkflowClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/worklist"
-            + "?projectId=" + projectId + "&query=" + query);
+        client.target(config.getProperty("base.url")
+            + "/workflow/worklist"
+            + "?projectId="
+            + projectId
+            + "&query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -758,6 +768,7 @@ public class WorkflowClientRest extends RootClientRest implements
     return ConfigUtility.getGraphForString(resultString, WorklistListJpa.class);
   }
 
+  /* see superclass */
   @Override
   public void clearBins(Long projectId, WorkflowBinType type, String authToken)
     throws Exception {
@@ -783,6 +794,7 @@ public class WorkflowClientRest extends RootClientRest implements
 
   }
 
+  /* see superclass */
   @Override
   public Checklist createChecklist(Long projectId, Long workflowBinId,
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
@@ -806,8 +818,11 @@ public class WorkflowClientRest extends RootClientRest implements
             + name
             + (randomize != null ? ("&randomize=" + randomize) : "")
             + (excludeOnWorklist != null
-                ? ("&excludeOnWorklist=" + excludeOnWorklist) : "") + "&query="
-            + query);
+                ? ("&excludeOnWorklist=" + excludeOnWorklist) : "")
+            + "&query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
+
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).post(Entity.json(pfs));
@@ -823,6 +838,7 @@ public class WorkflowClientRest extends RootClientRest implements
     return ConfigUtility.getGraphForString(resultString, ChecklistJpa.class);
   }
 
+  /* see superclass */
   @Override
   public WorkflowEpoch addWorkflowEpoch(Long projectId, WorkflowEpochJpa epoch,
     String authToken) throws Exception {
@@ -848,11 +864,37 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
     // converting to object
-    WorkflowEpoch v =
-        ConfigUtility.getGraphForString(resultString, WorkflowEpochJpa.class);
-    return v;
+    return ConfigUtility
+        .getGraphForString(resultString, WorkflowEpochJpa.class);
   }
 
+  /* see superclass */
+  @Override
+  public void removeWorkflowEpoch(Long projectId, Long id, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - remove workflow epoch " + id + ", " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "epochId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/epoch/" + id
+            + "/remove?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }
+
+  /* see superclass */
   @Override
   public Worklist createWorklist(Long projectId, Long workflowBinId,
     String clusterType, int skipClusterCt, int clusterCt, PfsParameterJpa pfs,
@@ -886,6 +928,7 @@ public class WorkflowClientRest extends RootClientRest implements
     return ConfigUtility.getGraphForString(resultString, WorklistJpa.class);
   }
 
+  /* see superclass */
   @Override
   public List<WorkflowBin> getWorkflowBins(Long projectId,
     WorkflowBinType type, String authToken) throws Exception {
@@ -918,6 +961,7 @@ public class WorkflowClientRest extends RootClientRest implements
     return new ArrayList<WorkflowBin>(list);
   }
 
+  /* see superclass */
   @Override
   public Worklist getWorklist(Long projectId, Long worklistId, String authToken)
     throws Exception {
@@ -946,6 +990,7 @@ public class WorkflowClientRest extends RootClientRest implements
     return ConfigUtility.getGraphForString(resultString, WorklistJpa.class);
   }
 
+  /* see superclass */
   @Override
   public void clearBin(Long projectId, Long workflowBinId, String authToken)
     throws Exception {
@@ -972,6 +1017,7 @@ public class WorkflowClientRest extends RootClientRest implements
 
   }
 
+  /* see superclass */
   @Override
   public WorkflowBin regenerateBin(Long projectId, Long workflowBinId,
     WorkflowBinType type, String authToken) throws Exception {
@@ -1002,6 +1048,7 @@ public class WorkflowClientRest extends RootClientRest implements
     return ConfigUtility.getGraphForString(resultString, WorkflowBinJpa.class);
   }
 
+  /* see superclass */
   @Override
   public String generateConceptReport(Long projectId, Long worklistId,
     Long delay, Boolean sendEmail, String conceptReportType,
@@ -1035,6 +1082,7 @@ public class WorkflowClientRest extends RootClientRest implements
     return resultString;
   }
 
+  /* see superclass */
   @Override
   public String getGeneratedConceptReport(Long projectId, String fileName,
     String authToken) throws Exception {
@@ -1066,6 +1114,7 @@ public class WorkflowClientRest extends RootClientRest implements
     return resultString;
   }
 
+  /* see superclass */
   @Override
   public void removeGeneratedConceptReport(Long projectId, String fileName,
     String authToken) throws Exception {
@@ -1091,6 +1140,7 @@ public class WorkflowClientRest extends RootClientRest implements
     }
   }
 
+  /* see superclass */
   @Override
   public StringList findGeneratedConceptReports(Long projectId, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {

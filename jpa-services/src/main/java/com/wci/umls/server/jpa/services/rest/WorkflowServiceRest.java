@@ -315,6 +315,17 @@ public interface WorkflowServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Removes the workflow epoch.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeWorkflowEpoch(Long projectId, Long id, String authToken)
+    throws Exception;
+
+  /**
    * Creates the worklist.
    *
    * @param projectId the project id

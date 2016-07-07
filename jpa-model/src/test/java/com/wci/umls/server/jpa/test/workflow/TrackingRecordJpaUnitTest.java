@@ -224,8 +224,10 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
+    tester.include("id");
     tester.include("lastModifiedBy");
     tester.include("clusterId");
+    tester.include("clusterIdSort");
     tester.include("clusterType");
     tester.include("terminology");
     tester.include("version");

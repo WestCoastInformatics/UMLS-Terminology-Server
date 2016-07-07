@@ -37,7 +37,7 @@ import com.wci.umls.server.model.workflow.Worklist;
  */
 @Entity
 @Table(name = "worklists", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "name", "workflowBinName"
+    "name", "workflowBinName", "project_id"
 }))
 @Audited
 @Indexed

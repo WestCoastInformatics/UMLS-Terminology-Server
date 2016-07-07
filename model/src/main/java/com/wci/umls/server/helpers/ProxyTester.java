@@ -214,9 +214,9 @@ public class ProxyTester {
     int initializer) throws Exception {
     Object proxy = makeProxy(argType, initializer);
 
-    Logger.getLogger(getClass()).info("  " + set.getName() + " = ");
-    Logger.getLogger(getClass()).info(
-        "  " + set.getName() + " = " + proxy.toString());
+    // Logger.getLogger(getClass()).info("  " + set.getName() + " = ");
+    // Logger.getLogger(getClass()).info(
+    //    "  " + set.getName() + " = " + proxy.toString());
     try {
       set.invoke(o, new Object[] {
         proxy

@@ -1005,10 +1005,11 @@ public class ConfigUtility {
    * @throws Exception the exception
    */
   public static String getUploadDir() throws Exception {
-    if (ConfigUtility.getConfigProperties().containsKey("upload.dir")) {
-      return ConfigUtility.getConfigProperties().getProperty("upload.dir");
+    if (ConfigUtility.getConfigProperties().containsKey("source.data.dir")) {
+      return ConfigUtility.getConfigProperties().getProperty("source.data.dir");
     }
-    return null;
+    throw new Exception(
+        "Unknown upload dir, source.data.dir not set in config file");
   }
 
 }

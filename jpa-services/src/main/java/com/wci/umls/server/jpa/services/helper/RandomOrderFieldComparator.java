@@ -1,5 +1,6 @@
 package com.wci.umls.server.jpa.services.helper;
 
+import java.util.Date;
 import java.util.Random;
 
 import org.apache.lucene.search.FieldCache.Parser;
@@ -8,10 +9,10 @@ import org.apache.lucene.search.FieldComparator;
 /**
  * Helper method to enable lucene search random order results.
  */
-public class RandomOrderFieldComparator extends FieldComparator.IntComparator {
+public class RandomOrderFieldComparator extends FieldComparator.LongComparator {
 
-  /** The random number genreator. */
-  private final Random random = new Random();
+  /** The random number generator. */
+  private final Random random = new Random(new Date().getTime());
 
   /**
    * Instantiates a {@link RandomOrderFieldComparator} from the specified
@@ -23,14 +24,25 @@ public class RandomOrderFieldComparator extends FieldComparator.IntComparator {
    * @param missingValue the missing value
    */
   public RandomOrderFieldComparator(int numHits, String field, Parser parser,
-      Integer missingValue) {
+      Long missingValue) {
     super(numHits, field, parser, missingValue);
   }
 
   /* see superclass */
   @Override
-  public Integer value(int slot) {
+  public Long value(int slot) {
+    return random.nextLong();
+  }
+
+  /* see superclass */
+  @Override
+  public int compare(int slot1, int slot2) {
     return random.nextInt();
   }
 
+  /* see superclass */
+  @Override
+  public int compareBottom(int doc) {
+    return random.nextInt();
+  }
 }
