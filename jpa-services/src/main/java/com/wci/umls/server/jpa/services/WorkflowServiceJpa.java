@@ -381,6 +381,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   public void removeWorkflowBinDefinition(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - remove workflow bin definition " + id);
+
     // Remove the component
     removeHasLastModified(id, WorkflowBinDefinitionJpa.class);
   }

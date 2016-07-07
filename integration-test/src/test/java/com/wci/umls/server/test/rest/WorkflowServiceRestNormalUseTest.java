@@ -97,7 +97,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     config.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
     config.setMutuallyExclusive(true);
     config.setProject(project);
-    final WorkflowConfig newConfig =
+    config =
         workflowService.addWorkflowConfig(projectId,
             (WorkflowConfigJpa) config, authToken);
 
@@ -111,9 +111,10 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         .setQuery("select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Amino%';");
     definition.setEditable(true);
     definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
-    workflowService.addWorkflowBinDefinition(projectId,
-        (WorkflowBinDefinitionJpa) definition, authToken);
+    definition.setWorkflowConfig(config);
+    definition =
+        workflowService.addWorkflowBinDefinition(projectId,
+            (WorkflowBinDefinitionJpa) definition, authToken);
 
     // verify terminology matches
     assertTrue(project.getTerminology().equals(umlsTerminology));
@@ -252,8 +253,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     final List<WorkflowBin> binList2 =
         workflowService.getWorkflowBins(projectId,
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-    assertTrue(binList2.size() > 0);
+    assertEquals(1, binList2.size());
 
+    // Clear bins
+    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
+        authToken);
   }
 
   /**

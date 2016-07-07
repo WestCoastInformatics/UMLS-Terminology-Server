@@ -109,6 +109,17 @@ public interface WorkflowServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Removes the workflow bin.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeWorkflowBin(Long projectId, Long id, String authToken)
+    throws Exception;
+
+  /**
    * Returns the workflow bin definition.
    *
    * @param projectId the project id

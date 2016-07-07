@@ -413,11 +413,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Remove a workflow bin definition", notes = "Remove a workflow bin definition")
   public void removeWorkflowBinDefinition(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin definition id, e.g. 1", required = true) @PathParam("id") Long binDefinitionId,
+    @ApiParam(value = "Workflow bin definition id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Workflow): /definition/remove");
+        "RESTful call (Workflow): /definition/" + id + "/remove");
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -429,15 +429,46 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       // load the bin definition, get its workflow config. Remove it from
       // workflow config, then remove it.
       WorkflowBinDefinition binDefinition =
-          workflowService.getWorkflowBinDefinition(binDefinitionId);
+          workflowService.getWorkflowBinDefinition(id);
 
       WorkflowConfig workflowConfig = binDefinition.getWorkflowConfig();
       workflowConfig.getWorkflowBinDefinitions().remove(binDefinition);
       workflowService.updateWorkflowConfig(workflowConfig);
-      workflowService.removeWorkflowBinDefinition(binDefinitionId);
+      workflowService.removeWorkflowBinDefinition(id);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a workflow bin definition");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/bin/{id}/remove")
+  @ApiOperation(value = "Remove a workflow bin ", notes = "Remove a workflow bin ")
+  public void removeWorkflowBin(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow bin id, e.g. 1", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Workflow): /bin/" + id + "/remove");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "remove workflow bin definition", UserRole.AUTHOR);
+      workflowService.setLastModifiedBy(userName);
+
+      workflowService.removeWorkflowBin(id, true);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove a workflow bin");
     } finally {
       workflowService.close();
       securityService.close();

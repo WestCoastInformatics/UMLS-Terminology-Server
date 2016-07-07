@@ -313,6 +313,33 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
+  public void removeWorkflowBin(Long projectId, Long id,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - remove workflow bin " + id + ", "
+            + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/bin/"
+            + id + "/remove?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
   public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId,
     Long id, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
