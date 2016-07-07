@@ -158,6 +158,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getObjectId() {
     return objectId;

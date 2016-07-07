@@ -45,7 +45,7 @@ import com.wci.umls.server.model.workflow.WorkflowBinType;
  */
 @Entity
 @Table(name = "workflow_bins", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "id"
+    "name", "type", "project_id"
 }))
 @Indexed
 @XmlRootElement(name = "workflowBin")

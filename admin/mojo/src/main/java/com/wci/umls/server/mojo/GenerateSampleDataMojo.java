@@ -376,7 +376,6 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     WorkflowEpochJpa workflowEpoch = new WorkflowEpochJpa();
     workflowEpoch.setActive(true);
     workflowEpoch.setName("16a");
-    workflowEpoch.setProjectId(project1.getId());
     workflowEpoch.setProject(project1);
     workflowService
         .addWorkflowEpoch(project1.getId(), workflowEpoch, authToken);

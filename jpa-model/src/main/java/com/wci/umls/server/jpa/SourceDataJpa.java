@@ -30,6 +30,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
@@ -193,6 +194,7 @@ public class SourceDataJpa implements SourceData {
    *
    * @return the id
    */
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public Long getId() {

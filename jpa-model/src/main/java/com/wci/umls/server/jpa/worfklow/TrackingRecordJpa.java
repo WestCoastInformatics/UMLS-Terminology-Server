@@ -27,6 +27,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
@@ -204,10 +205,12 @@ public class TrackingRecordJpa implements TrackingRecord {
 
   /* see superclass */
   @Override
-  @FieldBridge(impl = LongBridge.class)
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Fields({
+      @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO, bridge = @FieldBridge(impl = LongBridge.class)),
+      @Field(name = "clusterIdSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
   public Long getClusterId() {
-    return clusterId == null ? null : clusterId;
+    return clusterId;
   }
 
   /* see superclass */

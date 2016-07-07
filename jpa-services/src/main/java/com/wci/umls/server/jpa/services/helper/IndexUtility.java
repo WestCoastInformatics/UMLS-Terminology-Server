@@ -495,7 +495,7 @@ public class IndexUtility {
     if (pfsQuery.toString().startsWith(" AND ")) {
       finalQuery = finalQuery.substring(5);
     }
-    Logger.getLogger(IndexUtility.class).info("  query = " + finalQuery);
+    Logger.getLogger(IndexUtility.class).info("  query = " + finalQuery + ", " + pfs);
     luceneQuery = queryParser.parse(finalQuery);
 
     // Validate query terms
@@ -528,10 +528,11 @@ public class IndexUtility {
       if (pfs.getSortField() != null && !pfs.getSortField().isEmpty()
           && pfs.getSortField().equals("RANDOM")) {
 
+        // Randomly sort 
         Sort sort = new Sort(new SortField("", new FieldComparatorSource() {
 
           @Override
-          public FieldComparator<Integer> newComparator(String fieldname,
+          public FieldComparator<Long> newComparator(String fieldname,
             int numHits, int sortPos, boolean reversed) throws IOException {
             return new RandomOrderFieldComparator(numHits, fieldname, null,
                 null);
@@ -574,17 +575,17 @@ public class IndexUtility {
                 + sortFieldName);
           }
 
-          // first check the default name (rendered as ""), if not analyzed, use
-          // this as sort
-          if (nameToAnalyzedMap.get("") != null
-              && nameToAnalyzedMap.get("").equals(false)) {
-            sortFieldStr = sortFieldName;
+          // first, check explicit [SortFieldName]Sort index
+          if (nameToAnalyzedMap.get(sortFieldName + "Sort") != null
+              && !nameToAnalyzedMap.get(sortFieldName + "Sort")) {
+            sortFieldStr = sortFieldName + "Sort";
           }
 
-          // otherwise check explicit [SortFieldName]Sort index
-          else if (nameToAnalyzedMap.get(sortFieldName + "Sort") != null
-              && nameToAnalyzedMap.get(sortFieldName + "Sort").equals(false)) {
-            sortFieldStr = sortFieldName + "Sort";
+          // next check the default name (rendered as ""), if not analyzed, use
+          // this as sort
+          else if (nameToAnalyzedMap.get("") != null
+              && nameToAnalyzedMap.get("").equals(false)) {
+            sortFieldStr = sortFieldName;
           }
 
           // if an indexed sort field could not be found, throw exception
@@ -599,7 +600,9 @@ public class IndexUtility {
 
           // check for LONG fields
           if (sortFieldStr.equals("lastModified")
-              || sortFieldStr.equals("timestamp") || sortFieldStr.equals("id")) {
+              || sortFieldStr.equals("timestamp")
+              || sortFieldStr.toLowerCase().endsWith("id")
+              || sortFieldStr.toLowerCase().endsWith("idsort")) {
             sortField =
                 new SortField(sortFieldStr, SortField.Type.LONG,
                     !pfs.isAscending());
@@ -616,10 +619,7 @@ public class IndexUtility {
           sortFields.add(sortField);
         }
 
-        final SortField[] sfs = new SortField[sortFields.size()];
-        for (int i = 0; i < sortFields.size(); i++) {
-          sfs[i] = sortFields.get(i);
-        }
+        final SortField[] sfs = sortFields.toArray(new SortField[] {});
         fullTextQuery.setSort(new Sort(sfs));
 
       }

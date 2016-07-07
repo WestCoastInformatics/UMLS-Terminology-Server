@@ -85,9 +85,6 @@ public class AdHocMojo extends AbstractMojo {
       ProjectServiceRest projectService = new ProjectServiceRestImpl();
       Project project1 = projectService.getProject(1239550L, authToken);
 
-      
-      
-      
       //
       // Prepare workflow related objects
       //
@@ -105,8 +102,8 @@ public class AdHocMojo extends AbstractMojo {
       workflowEpoch.setProjectId(project1.getId());
       workflowEpoch.setProject(project1);
       workflowEpoch.setTimestamp(startDate);
-      workflowService
-          .addWorkflowEpoch(project1.getId(), workflowEpoch, authToken);
+      workflowService.addWorkflowEpoch(project1.getId(), workflowEpoch,
+          authToken);
 
       // Add a ME bins workflow config for the current project
       // TODO: also add a QA for testing of non-mutually-excuslive
@@ -140,7 +137,7 @@ public class AdHocMojo extends AbstractMojo {
 
       workflowService = new WorkflowServiceRestImpl();
       workflowService.addWorkflowBinDefinition(project1.getId(),
-          addedWorkflowConfig.getId(), workflowBinDefinition, authToken);
+          workflowBinDefinition, authToken);
 
       // Add a second workflow definition
       getLog().info("  Create a second workflow definition");
@@ -157,10 +154,7 @@ public class AdHocMojo extends AbstractMojo {
 
       workflowService = new WorkflowServiceRestImpl();
       workflowService.addWorkflowBinDefinition(project1.getId(),
-          addedWorkflowConfig.getId(), workflowBinDefinition2, authToken);
-      
-      
-      
+          workflowBinDefinition2, authToken);
 
       getLog().info("done ...");
     } catch (Exception e) {

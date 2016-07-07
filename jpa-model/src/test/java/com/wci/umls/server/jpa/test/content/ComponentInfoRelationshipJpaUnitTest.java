@@ -241,7 +241,6 @@ public class ComponentInfoRelationshipJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String xml = ConfigUtility.getStringForGraph(object);
-    System.out.println("XML=" + xml);
     assertTrue(xml.contains("<fromTerminologyId>"));
     assertTrue(xml.contains("<fromTerminology>"));
     assertTrue(xml.contains("<fromVersion>"));

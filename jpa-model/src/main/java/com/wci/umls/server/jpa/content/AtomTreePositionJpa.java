@@ -81,8 +81,8 @@ public class AtomTreePositionJpa extends AbstractTreePosition<Atom>
    * @return the node id
    */
   @XmlElement
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getNodeId() {
     return node == null ? null : node.getId();
   }

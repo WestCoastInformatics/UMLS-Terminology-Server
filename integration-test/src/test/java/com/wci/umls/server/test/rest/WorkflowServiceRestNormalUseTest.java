@@ -12,8 +12,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -28,10 +31,14 @@ import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
+import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.TrackingRecord;
@@ -40,8 +47,10 @@ import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
+import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.services.MetadataService;
 
 /**
  * Implementation of the "Workflow Service REST Normal Use" Test Cases.
@@ -63,8 +72,14 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   /** The definition. */
   private static WorkflowBinDefinition definition;
 
+  /** The epoch. */
+  private static WorkflowEpoch epoch;
+
   /** The umls terminology. */
   private String umlsTerminology = "UMLS";
+
+  /** The umls version. */
+  private String umlsVersion = "latest";
 
   /**
    * Create test fixtures per test.
@@ -87,10 +102,26 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     project.setPublic(true);
     project.setTerminology(umlsTerminology);
     project.setWorkflowPath(ConfigUtility.DEFAULT);
+    // Configure valid categories
+    final List<String> validCategories = new ArrayList<>();
+    validCategories.add("chem");
+    project.setValidCategories(validCategories);
+
+    Map<String, String> semanticTypeCategoryMap = getSemanticTypeCategoryMap();
+    project.setSemanticTypeCategoryMap(semanticTypeCategoryMap);
 
     // Add project
     project = projectService.addProject((ProjectJpa) project, authToken);
     projectId = project.getId();
+
+    // Create an epoch
+    epoch = new WorkflowEpochJpa();
+    epoch.setActive(true);
+    epoch.setName("16a");
+    epoch.setProject(project);
+    epoch =
+        workflowService.addWorkflowEpoch(project.getId(),
+            (WorkflowEpochJpa) epoch, authToken);
 
     // Create a workflow config
     config = new WorkflowConfigJpa();
@@ -302,18 +333,17 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     final PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(5);
+    pfs.setSortField("clusterId");
 
+    // Non-randomize flag picks consecutive tracking records from the bin
     final Checklist checklistOrderByClusterId =
         workflowService.createChecklist(projectId, testNameBin.getId(),
-            "checklistOrderByClusterId", false, false, "clusterType:chem", pfs,
-            authToken);
-    System.out.println("CHECKLIST ID: " + checklistOrderByClusterId.getId());
+            "checklistOrderByClusterId", false, false, null, pfs, authToken);
     // Assert that cluster ids are contiguous and in order
     long i = 0L;
     for (final TrackingRecord r : workflowService
         .findTrackingRecordsForChecklist(projectId,
             checklistOrderByClusterId.getId(), pfs, authToken).getObjects()) {
-      System.out.println("CLUSERID" + r.getClusterId());
       assertEquals(++i, r.getClusterId().longValue());
     }
 
@@ -324,10 +354,10 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
     // Create checklist with random tracking records
     //
+    // Randomize flag picks random tracking records from the bin
     final Checklist checklistOrderByRandom =
         workflowService.createChecklist(projectId, testNameBin.getId(),
-            "checklistOrderByRandom", true, false, "clusterType:chem", pfs,
-            authToken);
+            "checklistOrderByRandom", true, false, null, pfs, authToken);
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
     // Assert that cluster ids are contiguous and in order
@@ -335,13 +365,15 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     for (final TrackingRecord r : workflowService
         .findTrackingRecordsForChecklist(projectId,
             checklistOrderByRandom.getId(), pfs, authToken).getObjects()) {
-      System.out.println("CLUSTERID" + r.getClusterId());
       if (r.getClusterId() > 5) {
         found = true;
         break;
       }
     }
     assertTrue("Expected at least one cluster id not in the first 5", found);
+
+    // TODO: test clusterType:chem
+    // TODO: test excludeOnWorklist...
 
     // Remove checklist
     workflowService.removeChecklist(projectId, checklistOrderByRandom.getId(),
@@ -722,9 +754,54 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     workflowService.removeWorkflowBinDefinition(projectId, definition.getId(),
         authToken);
     workflowService.removeWorkflowConfig(projectId, config.getId(), authToken);
+    workflowService.removeWorkflowEpoch(projectId, epoch.getId(), authToken);
     projectService.removeProject(projectId, authToken);
     // logout
     securityService.logout(authToken);
+  }
+
+  /**
+   * Returns the semantic type category map.
+   *
+   * @return the semantic type category map
+   * @throws Exception the exception
+   */
+  private Map<String, String> getSemanticTypeCategoryMap() throws Exception {
+    final Map<String, String> map = new HashMap<>();
+    final MetadataService service = new MetadataServiceJpa();
+    try {
+      final SemanticTypeList styList =
+          service.getSemanticTypes(umlsTerminology, umlsVersion);
+
+      // Obtain "Chemical" semantic type.
+      String chemStn = null;
+      for (final SemanticType sty : styList.getObjects()) {
+        if (sty.getExpandedForm().equals("Chemical")) {
+          chemStn = sty.getTreeNumber();
+          break;
+        }
+      }
+      if (chemStn == null) {
+        throw new Exception("Unable to find 'Chemical' semantic type");
+      }
+
+      // Assign "chem" categories
+      for (final SemanticType sty : styList.getObjects()) {
+        if (sty.getTreeNumber().startsWith(chemStn)) {
+          map.put(sty.getExpandedForm(), "chem");
+        }
+        // the default is not explicitly rendered
+        // else {
+        // map.put(sty.getExpandedForm(), "nonchem");
+        // }
+      }
+
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
+    return map;
   }
 
 }
