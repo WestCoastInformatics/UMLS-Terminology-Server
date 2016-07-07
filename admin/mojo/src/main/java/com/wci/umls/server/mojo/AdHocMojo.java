@@ -42,8 +42,7 @@ import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 
 /**
- * Goal which generates sample data for the default dev build. This uses REST
- * services directly and not through the client.
+ * Goal which executes operations on the db to create and remove test conditions.
  * 
  * See admin/loader/pom.xml for sample usage
  * 
@@ -53,7 +52,7 @@ import com.wci.umls.server.services.SecurityService;
 public class AdHocMojo extends AbstractMojo {
 
   /**
-   * Mode - for recreating db.
+   * Mode - operation to execute
    * @parameter
    */
   private String mode = null;
