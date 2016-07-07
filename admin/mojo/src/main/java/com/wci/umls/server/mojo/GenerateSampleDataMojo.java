@@ -30,27 +30,36 @@ import org.apache.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
-import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
+import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
+import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.rest.impl.HistoryServiceRestImpl;
+import com.wci.umls.server.rest.impl.IntegrationTestServiceRestImpl;
+import com.wci.umls.server.rest.impl.MetadataServiceRestImpl;
 import com.wci.umls.server.rest.impl.ProjectServiceRestImpl;
 import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.rest.impl.WorkflowServiceRestImpl;
@@ -133,7 +142,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         throw new Exception("Server must not be running to generate data");
       }
 
-      loadSampleData();
+      loadSampleData(authToken);
 
       getLog().info("done ...");
     } catch (Exception e) {
@@ -145,48 +154,48 @@ public class GenerateSampleDataMojo extends AbstractMojo {
   /**
    * Load sample data.
    *
+   * @param authToken the auth token
    * @throws Exception the exception
    */
-  private void loadSampleData() throws Exception {
-
-    // Initialize
+  private void loadSampleData(String authToken) throws Exception {
+    //
+    // // Initialize
     Logger.getLogger(getClass()).info("Authenticate admin user");
     SecurityServiceRest security = new SecurityServiceRestImpl();
     ProjectServiceRest project = new ProjectServiceRestImpl();
-    User admin = security.authenticate("admin", "admin");
 
     //
     // Add admin users
     //
     Logger.getLogger(getClass()).info("Add new admin users");
     UserJpa admin1 = makeUser("admin1", "Admin1");
-    admin1 = (UserJpa) security.addUser(admin1, admin.getAuthToken());
+    admin1 = (UserJpa) security.addUser(admin1, authToken);
     UserJpa admin2 = makeUser("admin3", "Admin2");
-    admin2 = (UserJpa) security.addUser(admin2, admin.getAuthToken());
+    admin2 = (UserJpa) security.addUser(admin2, authToken);
     UserJpa admin3 = makeUser("admin2", "Admin3");
-    admin3 = (UserJpa) security.addUser(admin3, admin.getAuthToken());
+    admin3 = (UserJpa) security.addUser(admin3, authToken);
 
     //
     // Add reviewer users
     //
     Logger.getLogger(getClass()).info("Add new reviewer users");
     UserJpa reviewer1 = makeUser("reviewer1", "Reviewer1");
-    reviewer1 = (UserJpa) security.addUser(reviewer1, admin.getAuthToken());
+    reviewer1 = (UserJpa) security.addUser(reviewer1, authToken);
     UserJpa reviewer2 = makeUser("reviewer2", "Reviewer2");
-    reviewer2 = (UserJpa) security.addUser(reviewer2, admin.getAuthToken());
+    reviewer2 = (UserJpa) security.addUser(reviewer2, authToken);
     UserJpa reviewer3 = makeUser("reviewer3", "Reviewer3");
-    reviewer3 = (UserJpa) security.addUser(reviewer3, admin.getAuthToken());
+    reviewer3 = (UserJpa) security.addUser(reviewer3, authToken);
 
     //
     // Add author users
     //
     Logger.getLogger(getClass()).info("Add new author users");
     UserJpa author1 = makeUser("author1", "Author1");
-    author1 = (UserJpa) security.addUser(author1, admin.getAuthToken());
+    author1 = (UserJpa) security.addUser(author1, authToken);
     UserJpa author2 = makeUser("author2", "Author2");
-    author2 = (UserJpa) security.addUser(author2, admin.getAuthToken());
+    author2 = (UserJpa) security.addUser(author2, authToken);
     UserJpa author3 = makeUser("author3", "Author3");
-    author3 = (UserJpa) security.addUser(author3, admin.getAuthToken());
+    author3 = (UserJpa) security.addUser(author3, authToken);
 
     //
     // Make a project
@@ -200,11 +209,10 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     project1.setPublic(true);
     project1.setTerminology(terminology);
     project1.setWorkflowPath(ConfigUtility.DEFAULT);
-    
+
     // Configure valid categories
     final List<String> validCategories = new ArrayList<>();
     validCategories.add("chem");
-    validCategories.add("nonchem");
     project1.setValidCategories(validCategories);
 
     Map<String, String> semanticTypeCategoryMap = getSemanticTypeCategoryMap();
@@ -214,11 +222,19 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     validationChecks.add("DEFAULT");
     project1.setValidationChecks(validationChecks);
 
-    // TODO: get the default precedence list, may need rest call to add a
-    // add/update/remove prec list
-    // project1.setPrecedenceList(precedenceList);
+    // Handle precedence list
+    MetadataServiceRest metadataService = new MetadataServiceRestImpl();
+    PrecedenceListJpa list =
+        new PrecedenceListJpa(metadataService.getDefaultPrecedenceList(
+            project1.getTerminology(), "latest", authToken));
+    list.setId(null);
+    metadataService = new MetadataServiceRestImpl();
+    list =
+        (PrecedenceListJpa) metadataService.addPrecedenceList(list, authToken);
+    project1.setPrecedenceList(list);
 
-    project1 = (ProjectJpa) project.addProject(project1, admin.getAuthToken());
+    // Add project
+    project1 = (ProjectJpa) project.addProject(project1, authToken);
 
     //
     // Assign project roles
@@ -226,50 +242,151 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     Logger.getLogger(getClass()).info("Assign users to projects");
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(project1.getId(), admin1.getUserName(),
-        UserRole.ADMINISTRATOR.toString(), admin.getAuthToken());
+        UserRole.ADMINISTRATOR.toString(), authToken);
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(project1.getId(), admin2.getUserName(),
-        UserRole.ADMINISTRATOR.toString(), admin.getAuthToken());
+        UserRole.ADMINISTRATOR.toString(), authToken);
 
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(project1.getId(), reviewer1.getUserName(),
-        UserRole.REVIEWER.toString(), admin.getAuthToken());
+        UserRole.REVIEWER.toString(), authToken);
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(project1.getId(), reviewer2.getUserName(),
-        UserRole.REVIEWER.toString(), admin.getAuthToken());
+        UserRole.REVIEWER.toString(), authToken);
 
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(project1.getId(), author1.getUserName(),
-        UserRole.AUTHOR.toString(), admin.getAuthToken());
+        UserRole.AUTHOR.toString(), authToken);
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(project1.getId(), author2.getUserName(),
-        UserRole.AUTHOR.toString(), admin.getAuthToken());
+        UserRole.AUTHOR.toString(), authToken);
 
     //
     // Start editing cycle
     //
+    getLog().info("Start editing cycle");
     final HistoryServiceRestImpl historyService = new HistoryServiceRestImpl();
     historyService.startEditingCycle(nextRelease, terminology, version,
-        admin.getAuthToken());
+        authToken);
 
-    
+    //
+    // Fake some data as needs review
+    //
+    getLog().info("Fake some needs review content");
+    ContentServiceRest contentService = new ContentServiceRestImpl();
+    IntegrationTestServiceRest testService =
+        new IntegrationTestServiceRestImpl();
+
+    // Demotions
+    //
+    // 129247, 129656
+    // 129248, 129657
+    // 129650, 129664
+    //
+    getLog().info("  Add demotions");
+    final Long[] id1s = new Long[] {
+        129247L, 129248L, 129650L
+    };
+    final Long[] id2s = new Long[] {
+        129656L, 129657L, 129664L
+    };
+    for (int i = 0; i < id1s.length; i++) {
+      final ConceptRelationshipJpa rel = new ConceptRelationshipJpa();
+      contentService = new ContentServiceRestImpl();
+      final Concept from =
+          contentService.getConcept(id1s[i], project1.getId(), authToken);
+      contentService = new ContentServiceRestImpl();
+      final Concept to =
+          contentService.getConcept(id2s[i], project1.getId(), authToken);
+      rel.setFrom(from);
+      rel.setTo(to);
+      rel.setRelationshipType("RO");
+      rel.setAdditionalRelationshipType("");
+      rel.setTerminologyId("");
+      rel.setTerminology(project1.getTerminology());
+      rel.setVersion("latest");
+      rel.setWorkflowStatus(WorkflowStatus.DEMOTION);
+      testService = new IntegrationTestServiceRestImpl();
+      testService.addRelationship(rel, authToken);
+    }
+
+    // Status N NCIt concepts (and atoms)
+    getLog().info("  Mark some NCIt concepts as status N");
+    /**
+     * <pre>
+     * create table tbac as select distinct c.id from atoms a,
+     * atomjpa_conceptterminologyids b, concepts c where AtomJpa_id = a.id and
+     * a.terminology='NCI' and c.terminology='UMLS' and c.terminologyId =
+     * conceptTerminologyIds;
+     * </pre>
+     */
+    for (final Long conceptId : new Long[] {
+        2818L, 2821L, 2823L, 2826L, 2827L, 2829L, 2830L, 2831L, 2834L, 2836L,
+        2837L, 2838L
+    }) {
+      contentService = new ContentServiceRestImpl();
+      final ConceptJpa concept =
+          new ConceptJpa(contentService.getConcept(conceptId, project1.getId(),
+              authToken), true);
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateConcept(concept, authToken);
+    }
+
+    // Leftovers
+    getLog().info("  Mark some non-NCIt concepts as status N");
+    /**
+     * <pre>
+     * drop table tbac; 
+     * create table tbac as select distinct c.id from atoms a,
+     * atomjpa_conceptterminologyids b, concepts c where AtomJpa_id = a.id and
+     * a.terminology='NCI' and c.terminology='UMLS' and c.terminologyId =
+     * conceptTerminologyIds;
+     * 
+     * drop table tbac2; 
+     * create table tbac2 as select distinct c.id from atoms
+     * a, atomjpa_conceptterminologyids b, concepts c where AtomJpa_id = a.id
+     * and a.terminology!='NCI' and c.terminology='UMLS' and c.terminologyId =
+     * conceptTerminologyIds;
+     * 
+     * select * from tbac2 a where id not in (select id from tbac);
+     * </pre>
+     */
+    for (final Long conceptId : new Long[] {
+        92907L, 114192L, 68911L, 116076L, 7328L, 7334L, 10252L, 10276L, 10282L
+    }) {
+      contentService = new ContentServiceRestImpl();
+      final ConceptJpa concept =
+          new ConceptJpa(contentService.getConcept(conceptId, project1.getId(),
+              authToken), true);
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateConcept(concept, authToken);
+    }
+
     //
     // Prepare workflow related objects
     //
-
+    getLog().info("Prepare workflow related objects");
     WorkflowServiceRestImpl workflowService = new WorkflowServiceRestImpl();
     Date startDate = new Date();
-    
+
+    // Create a workflow epoch
+    // TODO: create an older one and a new one so we can test
+    // "get currente epoch"
+    getLog().info("  Create an epoch");
     WorkflowEpochJpa workflowEpoch = new WorkflowEpochJpa();
     workflowEpoch.setActive(true);
     workflowEpoch.setName("16a");
     workflowEpoch.setProjectId(project1.getId());
     workflowEpoch.setProject(project1);
     workflowEpoch.setTimestamp(startDate);
-    workflowService.addWorkflowEpoch(project1.getId(), workflowEpoch,
-        admin.getAuthToken());
+    workflowService
+        .addWorkflowEpoch(project1.getId(), workflowEpoch, authToken);
 
-
+    // Add a ME bins workflow config for the current project
+    // TODO: also add a QA for testing of non-mutually-excuslive
+    getLog().info("  Create a ME workflow config");
     workflowService = new WorkflowServiceRestImpl();
     WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
     workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
@@ -277,35 +394,38 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowConfig.setProjectId(project1.getId());
     workflowConfig.setTimestamp(startDate);
     workflowConfig.setLastPartitionTime(1L);
-
-
-    // add the workflow config
     workflowService = new WorkflowServiceRestImpl();
     WorkflowConfig addedWorkflowConfig =
         workflowService.addWorkflowConfig(project1.getId(), workflowConfig,
-            admin.getAuthToken());
+            authToken);
 
+    // Add a workflow definition (as SQL)
+    // TODO: create workflow bin definitions exactly matching NCI-META config
+    // also
+    getLog().info("  Create a workflow definition");
     WorkflowBinDefinitionJpa workflowBinDefinition =
         new WorkflowBinDefinitionJpa();
     workflowBinDefinition.setName("testName");
     workflowBinDefinition.setDescription("test description");
-    workflowBinDefinition.setQuery(
-        "select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Amino%';");
+    workflowBinDefinition
+        .setQuery("select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Amino%';");
     workflowBinDefinition.setEditable(true);
     workflowBinDefinition.setQueryType(QueryType.SQL);
     workflowBinDefinition.setTimestamp(startDate);
     workflowBinDefinition.setWorkflowConfig(addedWorkflowConfig);
-    
+
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(project1.getId(),
-            addedWorkflowConfig.getId(), workflowBinDefinition, admin.getAuthToken());
+        addedWorkflowConfig.getId(), workflowBinDefinition, authToken);
 
+    // Add a second workflow definition
+    getLog().info("  Create a second workflow definition");
     WorkflowBinDefinitionJpa workflowBinDefinition2 =
         new WorkflowBinDefinitionJpa();
     workflowBinDefinition2.setName("testName2");
     workflowBinDefinition2.setDescription("test description2");
-    workflowBinDefinition2.setQuery(
-        "select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Acid%';");
+    workflowBinDefinition2
+        .setQuery("select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Acid%';");
     workflowBinDefinition2.setEditable(true);
     workflowBinDefinition2.setQueryType(QueryType.SQL);
     workflowBinDefinition2.setTimestamp(startDate);
@@ -313,7 +433,18 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(project1.getId(),
-            addedWorkflowConfig.getId(), workflowBinDefinition2, admin.getAuthToken());
+        addedWorkflowConfig.getId(), workflowBinDefinition2, authToken);
+
+    // TODO: clear and regenerate all bins
+    getLog().info("  Clear and regenerate all bins");
+
+    // TODO: create a few checklists from bins (including randomizing)
+    getLog().info("  Create a random checklist");
+
+    getLog().info("  Create a non-random checklist");
+
+    // TODO: create a few worklist from bins
+    getLog().info("  Create a few worklists from the bins");
 
   }
 
@@ -346,9 +477,11 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       for (final SemanticType sty : styList.getObjects()) {
         if (sty.getTreeNumber().startsWith(chemStn)) {
           map.put(sty.getExpandedForm(), "chem");
-        } else {
-          map.put(sty.getExpandedForm(), "nonchem");
         }
+        // the default is not explicitly rendered
+        // else {
+        // map.put(sty.getExpandedForm(), "nonchem");
+        // }
       }
 
     } catch (Exception e) {

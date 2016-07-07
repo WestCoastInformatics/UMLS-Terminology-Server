@@ -151,7 +151,7 @@ public interface ProjectServiceRest {
    * @return the project list
    * @throws Exception the exception
    */
-  public ProjectList findProjectsForQuery(String query, PfsParameterJpa pfs,
+  public ProjectList findProjects(String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
   /**

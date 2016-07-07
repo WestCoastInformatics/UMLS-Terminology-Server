@@ -22,7 +22,9 @@ import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 
 /**
  * Unit testing for {@link WorkflowBinDefinitionJpa}.
@@ -59,6 +61,7 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("workflowConfigId");
     tester.test();
   }
 
@@ -151,6 +154,7 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("editable");
     tester.include("queryType");
+    tester.include("workflowConfigId");
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
 
@@ -163,6 +167,9 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
   public void testModelXmlTransient() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
+    WorkflowConfig config = new WorkflowConfigJpa();
+    config.setId(1L);
+    object.setWorkflowConfig(config);
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<workflowConfigId>"));
     assertFalse(xml.contains("<workflowConfig>"));

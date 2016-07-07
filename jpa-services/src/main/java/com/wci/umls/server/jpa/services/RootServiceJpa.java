@@ -828,6 +828,11 @@ public abstract class RootServiceJpa implements RootService {
         hasLastModified.setLastModifiedBy(getLastModifiedBy());
       }
       hasLastModified.setLastModified(new Date());
+      // Set timestamp if not set
+      if (hasLastModified.getTimestamp() == null) {
+        hasLastModified.setTimestamp(hasLastModified.getLastModified());
+      }
+      
     }
 
     return addObject(hasLastModified);
@@ -1073,7 +1078,7 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public List<LogEntry> findLogEntriesForQuery(final String query,
+  public List<LogEntry> findLogEntries(final String query,
     final PfsParameter pfs) throws Exception {
 
     Logger.getLogger(getClass()).info(

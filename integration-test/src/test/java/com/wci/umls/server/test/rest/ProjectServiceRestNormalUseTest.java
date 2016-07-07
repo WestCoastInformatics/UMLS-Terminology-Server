@@ -38,7 +38,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
   private String mshTerminology = "MSH";
 
   /** The msh version. */
-  private String mshVersion = "2015_2014_09_08";
+  private String mshVersion = "2016_2016_02_26";
 
 
   /**

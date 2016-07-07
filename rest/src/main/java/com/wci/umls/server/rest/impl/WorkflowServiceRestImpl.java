@@ -1536,7 +1536,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         break;
       case LUCENE:
         SearchResultList resultList =
-            workflowService.findConceptsForQuery(project.getTerminology(),
+            workflowService.findConcepts(project.getTerminology(),
                 null, null, query, null);
         results = new ArrayList<>();
         for (SearchResult result : resultList.getObjects()) {

@@ -76,7 +76,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
 
     }
     Logger.getLogger(getClass()).info("  Verify count = 68");
-    assertEquals(68, list.getCount());
+    assertEquals(128, list.getCount());
 
     Logger
         .getLogger(getClass())

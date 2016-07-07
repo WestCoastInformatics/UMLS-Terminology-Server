@@ -377,7 +377,7 @@ public class SecurityClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public UserList findUsersForQuery(String query, PfsParameterJpa pfs,
+  public UserList findUsers(String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Security Client - find users " + query + ", " + pfs);

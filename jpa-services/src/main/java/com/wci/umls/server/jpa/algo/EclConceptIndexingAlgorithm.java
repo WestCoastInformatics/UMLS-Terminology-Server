@@ -278,7 +278,7 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
     do {
       pfs.setStartIndex(pos);
       concepts =
-          contentService.findConceptsForQuery(terminology, version,
+          contentService.findConcepts(terminology, version,
               Branch.ROOT, null, pfs);
 
       // logging content on first retrieval

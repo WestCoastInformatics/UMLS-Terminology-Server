@@ -71,9 +71,8 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public SearchResultList findConcepts(String terminology, String version,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find concepts for general query.
@@ -265,9 +264,8 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public SearchResultList findDescriptors(String terminology, String version,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find descriptors for general query.
@@ -352,7 +350,7 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForQuery(String terminology, String version,
+  public SearchResultList findCodes(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -613,8 +611,8 @@ public interface ContentServiceRest {
    * @return the tree
    * @throws Exception the exception
    */
-  public Tree findConceptTreeForQuery(String terminology, String version,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+  public Tree findConceptTree(String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find descriptor tree for query.
@@ -627,7 +625,7 @@ public interface ContentServiceRest {
    * @return the tree
    * @throws Exception the exception
    */
-  public Tree findDescriptorTreeForQuery(String terminology, String version,
+  public Tree findDescriptorTree(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -641,8 +639,8 @@ public interface ContentServiceRest {
    * @return the tree
    * @throws Exception the exception
    */
-  public Tree findCodeTreeForQuery(String terminology, String version,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+  public Tree findCodeTree(String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Gets the atom subsets.
@@ -997,7 +995,7 @@ public interface ContentServiceRest {
    * @return the components with notes for user
    * @throws Exception the exception
    */
-  public SearchResultList getComponentsWithNotesForQuery(String query,
+  public SearchResultList getComponentsWithNotes(String query,
     PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**

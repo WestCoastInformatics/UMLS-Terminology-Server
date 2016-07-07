@@ -146,7 +146,7 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
       contentService = new ContentServiceJpa();
 
       // concepts must not exist with this terminology/version
-      if (contentService.findConceptsForQuery(sourceData.getTerminology(),
+      if (contentService.findConcepts(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfsParameterJpa())
           .getTotalCount() == 0) {
         return true;

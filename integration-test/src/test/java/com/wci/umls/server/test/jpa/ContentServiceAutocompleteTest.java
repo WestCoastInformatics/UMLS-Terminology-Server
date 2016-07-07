@@ -52,9 +52,9 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
   public void testConceptAutocompleteNormalUse() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
-        service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "lett");
+        service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "lett");
     assertEquals(13, results.getObjects().size());
-    results = service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "let");
+    results = service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "let");
     assertEquals(17, results.getObjects().size());
 
     results = service.autocompleteConcepts("UMLS", "latest", "lett");
@@ -72,13 +72,13 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
   public void testDescriptorAutocompleteNormalUse() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
-        service.autocompleteDescriptors("MSH", "2015_2014_09_08", "dipa");
+        service.autocompleteDescriptors("MSH", "2016_2016_02_26", "dipa");
     assertEquals(7, results.getObjects().size());
-    results = service.autocompleteDescriptors("MSH", "2015_2014_09_08", "dip");
+    results = service.autocompleteDescriptors("MSH", "2016_2016_02_26", "dip");
     assertEquals(7, results.getObjects().size());
-    results = service.autocompleteDescriptors("MSH", "2015_2014_09_08", "di");
+    results = service.autocompleteDescriptors("MSH", "2016_2016_02_26", "di");
     assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteDescriptors("MSH", "2015_2014_09_08", "d");
+    results = service.autocompleteDescriptors("MSH", "2016_2016_02_26", "d");
     assertTrue(results.getObjects().isEmpty());
 
   }
@@ -92,13 +92,13 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
   public void testCodeAutocompleteNormalUse() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
-        service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "lett");
+        service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "lett");
     assertEquals(13, results.getObjects().size());
-    results = service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "let");
+    results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "let");
     assertEquals(17, results.getObjects().size());
-    results = service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "le");
+    results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "le");
     assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "l");
+    results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "l");
     assertTrue(results.getObjects().isEmpty());
 
     results = service.autocompleteCodes("UMLS", "latest", "lett");
@@ -120,13 +120,13 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
   public void testConceptAutocompleteEdgeCases() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
-        service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "le");
+        service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "le");
     assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "l");
+    results = service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "l");
     assertTrue(results.getObjects().isEmpty());
 
     results = service.autocompleteConcepts("UMLS", "latest", "le");
-    assertTrue(results.getObjects().isEmpty());
+    assertEquals(10, results.getObjects().size());
     results = service.autocompleteConcepts("UMLS", "latest", "l");
     assertTrue(results.getObjects().isEmpty());
   }

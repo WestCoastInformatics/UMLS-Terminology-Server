@@ -56,6 +56,9 @@ public class MappingTest extends IntegrationUnitSupport {
 
     // Add MapSet and Mapping
     ContentService contentService = new ContentServiceJpa();
+    contentService.setLastModifiedBy("admin");
+    contentService.setMolecularActionFlag(false);
+
     MapSet mapSet = new MapSetJpa();
     mapSet.setName("Test MapSet");
     mapSet.setMapType("CONCEPT");
@@ -79,7 +82,9 @@ public class MappingTest extends IntegrationUnitSupport {
     assertEquals(mapSet.getName(), "Test MapSet");
     Mapping mapping = new MappingJpa();
     mapping.setAdvice("advice");
+    mapping.setFromTerminologyId("");
     mapping.setFromIdType(IdType.getIdType("CUI"));
+    mapping.setToTerminologyId("");
     mapping.setToIdType(IdType.getIdType("CUI"));
     mapping.setRank("rank");
     mapping.setGroup("subset/group");

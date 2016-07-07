@@ -260,7 +260,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public SearchResultList findConceptsForQuery(String terminology,
+  public SearchResultList findConcepts(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - find concepts "
@@ -380,7 +380,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public SearchResultList findDescriptorsForQuery(String terminology,
+  public SearchResultList findDescriptors(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - find descriptors "
@@ -503,7 +503,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public SearchResultList findCodesForQuery(String terminology, String version,
+  public SearchResultList findCodes(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - find codes "
         + terminology + ", " + version + ", " + query + ", " + pfs);
@@ -1495,7 +1495,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public Tree findConceptTreeForQuery(String terminology, String version,
+  public Tree findConceptTree(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - get concept tree for query " + ", "
@@ -1508,7 +1508,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public Tree findDescriptorTreeForQuery(String terminology, String version,
+  public Tree findDescriptorTree(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - get descriptor tree for query " + ", "
@@ -1521,7 +1521,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public Tree findCodeTreeForQuery(String terminology, String version,
+  public Tree findCodeTree(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - get code tree for query " + ", " + terminology
@@ -2072,7 +2072,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public SearchResultList getComponentsWithNotesForQuery(String query,
+  public SearchResultList getComponentsWithNotes(String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - get components with notes for query");

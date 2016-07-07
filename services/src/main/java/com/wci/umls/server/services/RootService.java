@@ -204,7 +204,7 @@ public interface RootService {
    * @return the list
    * @throws Exception the exception
    */
-  public List<LogEntry> findLogEntriesForQuery(String query, PfsParameter pfs)
+  public List<LogEntry> findLogEntries(String query, PfsParameter pfs)
     throws Exception;
 
   /**

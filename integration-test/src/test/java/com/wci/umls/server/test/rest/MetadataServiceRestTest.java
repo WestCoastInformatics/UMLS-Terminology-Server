@@ -100,7 +100,7 @@ public class MetadataServiceRestTest extends IntegrationUnitSupport {
     Logger.getLogger(MetadataServiceRestTest.class).info(
         "Count SNOMEDCT_US concepts");
     conceptList =
-        contentService.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT);
+        contentService.getAllConcepts("SNOMEDCT_US", "2016_03_01", Branch.ROOT);
     Logger.getLogger(MetadataServiceRestTest.class).info(
         "  count = " + conceptList.getTotalCount());
     if (conceptList.getCount() == 0)
@@ -113,7 +113,7 @@ public class MetadataServiceRestTest extends IntegrationUnitSupport {
     // check MSH
     Logger.getLogger(MetadataServiceRestTest.class).info("Count MSH concepts");
     conceptList =
-        contentService.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT);
+        contentService.getAllConcepts("MSH", "2016_2016_02_26", Branch.ROOT);
     Logger.getLogger(MetadataServiceRestTest.class).info(
         "  count = " + conceptList.getTotalCount());
     if (conceptList.getCount() == 0) {

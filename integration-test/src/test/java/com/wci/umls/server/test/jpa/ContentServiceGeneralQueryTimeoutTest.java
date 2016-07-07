@@ -3,6 +3,10 @@
  */
 package com.wci.umls.server.test.jpa;
 
+import static org.junit.Assert.fail;
+
+import javax.persistence.PersistenceException;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -19,7 +23,8 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working
  */
-public class ContentServiceGeneralQueryTimeoutTest extends IntegrationUnitSupport {
+public class ContentServiceGeneralQueryTimeoutTest extends
+    IntegrationUnitSupport {
 
   /** The service. */
   ContentService service = null;
@@ -50,11 +55,15 @@ public class ContentServiceGeneralQueryTimeoutTest extends IntegrationUnitSuppor
   public void testGeneralQueryTimeout() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    SearchResultList list =
-        service.findConceptsForGeneralQuery("",
-            "SELECT c FROM ConceptJpa c WHERE name like '%x%' AND terminology IN"
-                + " (SELECT b.name FROM AttributeJpa b)", Branch.ROOT, null);
-    Logger.getLogger(getClass()).info(" list = " + list);
+    try {
+      SearchResultList list =
+          service.findConceptsForGeneralQuery("",
+              "SELECT c FROM ConceptJpa c WHERE name like '%x%' AND terminology IN"
+                  + " (SELECT b.name FROM AttributeJpa b)", Branch.ROOT, null);
+      fail("Timeout should cause an exception");
+    } catch (PersistenceException e) {
+      // this is expected
+    }
   }
 
   /**

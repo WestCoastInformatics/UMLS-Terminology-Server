@@ -53,7 +53,7 @@ public class SemanticCategorySearchTest extends IntegrationUnitSupport {
 
     ContentService service = new ContentServiceJpa();
     SearchResultList list =
-        service.findConceptsForQuery("SNOMEDCT_US", "2014_09_01", Branch.ROOT,
+        service.findConcepts("SNOMEDCT_US", "2016_03_01", Branch.ROOT,
             "atoms.nameSort:\"[A-Z].* (disorder)\"", new PfsParameterJpa());
     Logger.getLogger(getClass()).info(" list = " + list);
 

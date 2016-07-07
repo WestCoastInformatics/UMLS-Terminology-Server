@@ -338,7 +338,7 @@ public class ProjectClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public ProjectList findProjectsForQuery(String query, PfsParameterJpa pfs,
+  public ProjectList findProjects(String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     validateNotEmpty(query, "query");
 

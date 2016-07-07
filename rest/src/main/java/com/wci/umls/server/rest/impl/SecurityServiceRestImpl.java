@@ -383,7 +383,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Path("/user/find")
   @ApiOperation(value = "Find user", notes = "Finds a list of all users for the specified query", response = UserListJpa.class)
   @Override
-  public UserList findUsersForQuery(
+  public UserList findUsers(
     @ApiParam(value = "The query", required = false) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
@@ -397,7 +397,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     try {
       authorizeApp(securityService, authToken, "find users", UserRole.VIEWER);
 
-      final UserList list = securityService.findUsersForQuery(query, pfs);
+      final UserList list = securityService.findUsers(query, pfs);
       for (final User user : list.getObjects()) {
         user.setUserPreferences(null);
       }

@@ -67,17 +67,17 @@ public class ComputePreferredNameHandlerTest extends IntegrationUnitSupport {
     // Retrieve concept 728.10 (ICD9CM) from the content service.
     ContentService contentService = new ContentServiceJpa();
     Concept icdConcept =
-        contentService.getConcept("421529006", "SNOMEDCT_US", "2014_09_01",
+        contentService.getConcept("421529006", "SNOMEDCT_US", "2016_03_01",
             Branch.ROOT);
 
     // test compute preferred name
     String pn =
         handlerService.computePreferredName(icdConcept.getAtoms(),
             contentService
-                .getDefaultPrecedenceList("SNOMEDCT_US", "2014_09_01"));
+                .getDefaultPrecedenceList("SNOMEDCT_US", "2016_03_01"));
     Logger.getLogger(getClass()).info(pn);
-    assertEquals(pn,
-        "ADC - Acquired immune deficiency syndrome dementia complex");
+    assertEquals("Dementia associated with acquired immunodeficiency syndrome",
+        pn);
 
     // Test that the first one is the preferred one
     pn =
@@ -85,10 +85,10 @@ public class ComputePreferredNameHandlerTest extends IntegrationUnitSupport {
             .sortByPreference(
                 icdConcept.getAtoms(),
                 contentService.getDefaultPrecedenceList("SNOMEDCT_US",
-                    "2014_09_01")).iterator().next().getName();
+                    "2016_03_01")).iterator().next().getName();
     Logger.getLogger(getClass()).info(pn);
-    assertEquals(pn,
-        "ADC - Acquired immune deficiency syndrome dementia complex");
+    assertEquals("Dementia associated with acquired immunodeficiency syndrome",
+        pn);
   }
 
   /*
