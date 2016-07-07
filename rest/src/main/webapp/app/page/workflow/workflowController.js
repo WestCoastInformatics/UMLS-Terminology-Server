@@ -19,9 +19,9 @@ tsApp.controller('WorkflowCtrl', [
     // Handle resetting tabs on "back" button
     tabService.setSelectedTabByLabel('Workflow');
 
-    // the currently viewed terminology (set by default or user)
     $scope.user = securityService.getUser();
-    $scope.workflow = workflowService.getModel();
+    $scope.binTypeOptions = ['MUTUALLY_EXCLUSIVE', 'AD_HOC'];
+    $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
 
     // Configure tab and accordion
     $scope.configureTab = function() {
@@ -41,9 +41,11 @@ tsApp.controller('WorkflowCtrl', [
       }*/
 
       // Handle users with user preferences
-      else if ($scope.user.userPreferences) {
+      if ($scope.user.userPreferences) {
         $scope.configureTab();
       }
+      
+      $scope.getBins(1239500, 'MUTUALLY_EXCLUSIVE');
     };
 
     //
@@ -57,4 +59,19 @@ tsApp.controller('WorkflowCtrl', [
       }
     });
 
+    
+    $scope.setRole = function() {
+      $scope.user.userPreferences.binType = $scope.currentBinType;
+      securityService.updateUserPreferences($scope.user.userPreferences);
+      //projectService.fireProjectChanged($scope.project);
+    };
+    
+    $scope.getBins = function(projectId, type) {
+      console.debug('getBins', projectId, type);
+
+      workflowService.getWorkflowBins(projectId, type).then(function(response) {
+        $scope.bins = response;
+      });
+    };
+    
   } ]);

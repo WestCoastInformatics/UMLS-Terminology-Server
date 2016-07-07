@@ -409,7 +409,26 @@ tsApp
           return deferred.promise;
         };
         
-        
+        // get all workflow bins
+        this.getWorkflowBins = function(projectId, type) {
+          var deferred = $q.defer();
+
+          // Get projects
+          gpService.increment();
+          $http.get(workflowUrl + 'bin/all?projectId=' + projectId + '&type=' + type).then(
+          // success
+          function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };        
        
         // get tracking records for concept
         this.performWorkflowAction = function(projectId, worklistId,
@@ -434,5 +453,64 @@ tsApp
           });
           return deferred.promise;
         };
+          
+          // Create a checklist
+          this.createChecklist = function(projectId, workflowBinId, name, randomize, excludeOnWorklist, query, pfs) {
+
+            console.debug('createChecklist', projectId, workflowBinId, name, randomize, excludeOnWorklist, query, pfs);
+            // Setup deferred
+            var deferred = $q.defer();
+
+            // Make POST call
+            gpService.increment();
+            $http.post(workflowUrl + 'checklist/add?projectId=' + projectId + 
+              '&workflowBinId=' + workflowBinId + '&name=' + name + '&randomize=' + randomize +
+              '&excludeOnWorklist=' + excludeOnWorklist + 
+              '&query=' + query,
+              utilService.prepPfs(pfs)).then(
+            // success
+            function(response) {
+              console.debug('  output = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+
+            return deferred.promise;
+          };         
+
+          // Create a worklist
+          this.createWorklist = function(projectId, workflowBinId, clusterType, skipClusterCt, clusterCt, pfs) {
+
+            console.debug('createWorklist', projectId, workflowBinId, clusterType, skipClusterCt, clusterCt, pfs);
+            // Setup deferred
+            var deferred = $q.defer();
+
+            // Make POST call
+            gpService.increment();
+            $http.post(workflowUrl + 'worklist/add?projectId=' + projectId + 
+              '&workflowBinId=' + workflowBinId + '&clusterType=' + clusterType + '&skipClusterCt=' + skipClusterCt +
+              '&clusterCt=' + clusterCt,
+              utilService.prepPfs(pfs)).then(
+            // success
+            function(response) {
+              console.debug('  output = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+
+            return deferred.promise;
+          };         
         // end
       } ]);
