@@ -313,19 +313,18 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public void removeWorkflowBin(Long projectId, Long id,
-    String authToken) throws Exception {
+  public void removeWorkflowBin(Long projectId, Long id, String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - remove workflow bin " + id + ", "
-            + authToken);
+        "Workflow Client - remove workflow bin " + id + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(id, "id");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/workflow/bin/"
-            + id + "/remove?projectId=" + projectId);
+        client.target(config.getProperty("base.url") + "/workflow/bin/" + id
+            + "/remove?projectId=" + projectId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).delete();
@@ -337,7 +336,7 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
   }
-  
+
   /* see superclass */
   @Override
   public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId,
@@ -414,6 +413,108 @@ public class WorkflowClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url")
             + "/workflow/record/assigned" + "?projectId=" + projectId
             + "&userName=" + userName + "&role=" + role);
+    final String pfsStr =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        TrackingRecordListJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public TrackingRecordList findTrackingRecordsForChecklist(Long projectId,
+    Long id, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find tracking records for checklist " + id + ", "
+            + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/checklist/"
+            + id + "/records?projectId=" + projectId);
+    final String pfsStr =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        TrackingRecordListJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public TrackingRecordList findTrackingRecordsForWorklist(Long projectId,
+    Long id, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find tracking records for worklist " + id + ", "
+            + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/worklist/"
+            + id + "/records?projectId=" + projectId);
+    final String pfsStr =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        TrackingRecordListJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public TrackingRecordList findTrackingRecordsForWorkflowBin(Long projectId,
+    Long id, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find tracking records for workflow bin " + id + ", "
+            + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/bin/" + id
+            + "/records?projectId=" + projectId);
     final String pfsStr =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);

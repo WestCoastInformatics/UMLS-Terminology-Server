@@ -181,6 +181,45 @@ public interface WorkflowServiceRest {
     PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
+   * Find tracking records for checklist.
+   *
+   * @param projectId the project id
+   * @param checklistId the checklist id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tracking record list
+   * @throws Exception the exception
+   */
+  public TrackingRecordList findTrackingRecordsForChecklist(Long projectId,
+    Long checklistId, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Find tracking records for worklist.
+   *
+   * @param projectId the project id
+   * @param worklistId the worklist id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tracking record list
+   * @throws Exception the exception
+   */
+  public TrackingRecordList findTrackingRecordsForWorklist(Long projectId,
+    Long worklistId, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Find tracking records for workflow bin.
+   *
+   * @param projectId the project id
+   * @param workflowBinId the workflow bin id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tracking record list
+   * @throws Exception the exception
+   */
+  public TrackingRecordList findTrackingRecordsForWorkflowBin(Long projectId,
+    Long workflowBinId, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
    * Find assigned worklists.
    *
    * @param projectId the project id

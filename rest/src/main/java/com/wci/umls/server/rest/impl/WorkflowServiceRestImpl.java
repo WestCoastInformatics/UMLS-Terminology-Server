@@ -694,6 +694,135 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
+  @Path("/checklist/{id}/records")
+  @ApiOperation(value = "Find tracking records for checklist", notes = "Finds tracking records for checklist", response = TrackingRecordListJpa.class)
+  public TrackingRecordList findTrackingRecordsForChecklist(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Checklist id, e.g. 5", required = false) @QueryParam("id") Long id,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Workflow): /checklist/" + id + "/records");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "trying to find records for checklist", UserRole.AUTHOR);
+
+      final Project project = workflowService.getProject(projectId);
+      final Checklist checklist = workflowService.getChecklist(id);
+      // Compose query of all of the tracking record ids
+      StringBuffer query = new StringBuffer();
+      query.append("(");
+      for (final TrackingRecord record : checklist.getTrackingRecords()) {
+        if (query.toString().length() > 1) {
+          query.append(" OR ");
+        }
+        query.append("id:" + record.getId());
+      }
+      query.append(")");
+      return workflowService
+          .findTrackingRecords(project, query.toString(), pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find records for checklist ");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/workist/{id}/records")
+  @ApiOperation(value = "Find records for worklist", notes = "Finds tracking records for worklist", response = TrackingRecordListJpa.class)
+  public TrackingRecordList findTrackingRecordsForWorklist(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Worklist id, e.g. 5", required = false) @QueryParam("id") Long id,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Workflow): /worklist/" + id + "/records");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "trying to find records for worklist", UserRole.AUTHOR);
+
+      final Project project = workflowService.getProject(projectId);
+      final Worklist worklist = workflowService.getWorklist(id);
+      // Compose query of all of the tracking record ids
+      StringBuffer query = new StringBuffer();
+      query.append("(");
+      for (final TrackingRecord record : worklist.getTrackingRecords()) {
+        if (query.toString().length() > 1) {
+          query.append(" OR ");
+        }
+        query.append("id:" + record.getId());
+      }
+      query.append(")");
+      return workflowService
+          .findTrackingRecords(project, query.toString(), pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find records for worklist ");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/bin/{id}/records")
+  @ApiOperation(value = "Find records for workflow bin", notes = "Finds tracking records for workflow bin", response = TrackingRecordListJpa.class)
+  public TrackingRecordList findTrackingRecordsForWorkflowBin(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "WorkflowBin id, e.g. 5", required = false) @QueryParam("id") Long id,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Workflow): /bin/" + id + "/records");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "trying to find records for workflow bin", UserRole.AUTHOR);
+
+      final Project project = workflowService.getProject(projectId);
+      final WorkflowBin bin = workflowService.getWorkflowBin(id);
+      // Compose query of all of the tracking record ids
+      StringBuffer query = new StringBuffer();
+      query.append("(");
+      for (final TrackingRecord record : bin.getTrackingRecords()) {
+        if (query.toString().length() > 1) {
+          query.append(" OR ");
+        }
+        query.append("id:" + record.getId());
+      }
+      query.append(")");
+      return workflowService
+          .findTrackingRecords(project, query.toString(), pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find records for bin ");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  @POST
   @Path("/worklist/assigned")
   @ApiOperation(value = "Find assigned worklists", notes = "Finds worklists assigned for work", response = WorklistListJpa.class)
   public WorklistList findAssignedWorklists(

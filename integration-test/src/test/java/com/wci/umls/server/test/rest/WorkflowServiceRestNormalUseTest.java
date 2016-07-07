@@ -309,8 +309,10 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
             authToken);
     // Assert that cluster ids are contiguous and in order
     long i = 0L;
-    for (final TrackingRecord r : checklistOrderByClusterId
-        .getTrackingRecords()) {
+    for (final TrackingRecord r : workflowService
+        .findTrackingRecordsForChecklist(projectId,
+            checklistOrderByClusterId.getId(), pfs, authToken).getObjects()) {
+      System.out.println("CLUSERID" + r.getClusterId());
       assertEquals(++i, r.getClusterId().longValue());
     }
 
@@ -329,8 +331,10 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         authToken);
     // Assert that cluster ids are contiguous and in order
     boolean found = false;
-    for (final TrackingRecord r : checklistOrderByClusterId
-        .getTrackingRecords()) {
+    for (final TrackingRecord r : workflowService
+        .findTrackingRecordsForChecklist(projectId,
+            checklistOrderByRandom.getId(), pfs, authToken).getObjects()) {
+      System.out.println("CLUSTERID" + r.getClusterId());
       if (r.getClusterId() > 5) {
         found = true;
         break;

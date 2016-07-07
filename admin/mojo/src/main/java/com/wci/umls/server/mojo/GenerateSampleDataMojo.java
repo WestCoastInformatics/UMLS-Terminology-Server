@@ -425,8 +425,15 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowService.addWorkflowBinDefinition(project1.getId(), definition2,
         authToken);
 
-    // TODO: clear and regenerate all bins
+    // Clear and regenerate all bins
     getLog().info("  Clear and regenerate all bins");
+    // Clear bins
+    workflowService.clearBins(project1.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+    // Regenerate bins
+    workflowService.regenerateBins(project1.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
     // TODO: create a few checklists from bins (including randomizing)
     getLog().info("  Create a random checklist");
