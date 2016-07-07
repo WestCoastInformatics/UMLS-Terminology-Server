@@ -114,7 +114,7 @@ tsApp
           // Add workflow bin Definition
           gpService.increment();
           $http.post(workflowUrl + 'definition/add?projectId=' + projectId + 
-            '&configId=' workflowConfigId, workflowBinDefinition).then(
+            '&configId=' + workflowConfigId, workflowBinDefinition).then(
           // success
           function(response) {
             console.debug('  workflowBinDefinition = ', response.data);
@@ -361,6 +361,32 @@ tsApp
           return deferred.promise;
         };
         
+        // Finds generated concept reports
+        this.findGeneratedConceptReports = function(projectId, query, pfs) {
+
+          console.debug('findGeneratedConceptReports', projectId, query, pfs);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+          $http.post(workflowUrl + 'report?projectId=' + projectId + '&query=' + query,
+            utilService.prepPfs(pfs)).then(
+          // success
+          function(response) {
+            console.debug('  output = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        };
         
         // get tracking records for concept
         this.getTrackingRecordsForConcept = function(conceptId) {
