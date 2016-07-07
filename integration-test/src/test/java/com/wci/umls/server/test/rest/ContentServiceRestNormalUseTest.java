@@ -55,13 +55,13 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   private String snomedTerminology = "SNOMEDCT_US";
 
   /** The snomed version. */
-  private String snomedVersion = "2014_09_01";
+  private String snomedVersion = "2016_03_01";
 
   /** The msh terminology. */
   private String mshTerminology = "MSH";
 
   /** The msh version. */
-  private String mshVersion = "2015_2014_09_08";
+  private String mshVersion = "2016_2016_02_26";
 
   /** The umls terminology. */
   private String umlsTerminology = "UMLS";
@@ -96,7 +96,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Test MSH concept
 
     Logger.getLogger(getClass()).info(
-        "TEST - " + "M0028634, MSH, 2015_2014_09_08, " + authToken);
+        "TEST - " + "M0028634, MSH, 2016_2016_02_26, " + authToken);
     Concept c =
         contentService.getConcept("M0028634", mshTerminology, mshVersion, null,
             authToken);
@@ -125,7 +125,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // Test SNOMEDCT_US concept
     Logger.getLogger(getClass()).info(
-        "TEST - " + "40667002, SNOMEDCT, 2014_09_01, " + authToken);
+        "TEST - " + "40667002, SNOMEDCT, 2016_03_01, " + authToken);
     c =
         contentService.getConcept("40667002", snomedTerminology, snomedVersion, null,
             authToken);
@@ -195,7 +195,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
-        "TEST - " + "D019226, MSH, 2015_2014_09_08, " + authToken);
+        "TEST - " + "D019226, MSH, 2016_2016_02_26, " + authToken);
     Descriptor d =
         contentService.getDescriptor("D019226", mshTerminology, mshVersion, null,
             authToken);
@@ -230,7 +230,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
-        "TEST - " + "D019226, MSH, 2015_2014_09_08, " + authToken);
+        "TEST - " + "D019226, MSH, 2016_2016_02_26, " + authToken);
     Code c =
         contentService
             .getCode("D019226", mshTerminology, mshVersion, null, authToken);
@@ -240,7 +240,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // Test SNOMEDCT_US concept
     Logger.getLogger(getClass()).info(
-        "TEST - " + "40667002, SNOMEDCT, 2014_09_01, " + authToken);
+        "TEST - " + "40667002, SNOMEDCT, 2016_03_01, " + authToken);
     c =
         contentService.getCode("40667002", snomedTerminology, snomedVersion, null,
             authToken);
@@ -455,7 +455,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "care", null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -468,7 +468,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query with spaces, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "heart disease", null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -482,7 +482,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
     searchResults =
         contentService
-            .findConceptsForQuery(
+            .findConcepts(
                 snomedTerminology,
                 snomedVersion,
                 "heart disease AND obsolete:false AND suppressible:false AND published:true",
@@ -499,7 +499,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("  Simple query, sorted on name");
     pfs.setSortField("name");
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -516,7 +516,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         "  Simple query, sorted on name, descending order");
     pfs.setAscending(false);
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -538,7 +538,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(5);
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -558,7 +558,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(5);
     pfs.setMaxResults(5);
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -576,7 +576,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs = new PfsParameterJpa();
     pfs.setQueryRestriction("terminologyId:169559003");
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -594,7 +594,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs = new PfsParameterJpa();
     pfs.setActiveOnly(true);
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "care", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -610,7 +610,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             null, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -629,7 +629,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             null, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -647,7 +647,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "disease", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -668,7 +668,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+        contentService.findConcepts(snomedTerminology, snomedVersion,
             "disease", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -695,7 +695,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptors(mshTerminology, mshVersion,
             query, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -709,7 +709,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("  Simple query, sort by name");
     pfs.setSortField("name");
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptors(mshTerminology, mshVersion,
             query, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -726,7 +726,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         "  Simple query, sort by name, descending");
     pfs.setAscending(false);
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptors(mshTerminology, mshVersion,
             query, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -748,7 +748,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(5);
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptors(mshTerminology, mshVersion,
             query, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -768,7 +768,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(5);
     pfs.setMaxResults(5);
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptors(mshTerminology, mshVersion,
             query, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -786,7 +786,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs = new PfsParameterJpa();
     pfs.setQueryRestriction("terminologyId:C118284");
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptors(mshTerminology, mshVersion,
             query, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -804,7 +804,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // No query, ia active only
     Logger.getLogger(getClass()).info("  No query, active only");
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion, "",
+        contentService.findDescriptors(mshTerminology, mshVersion, "",
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -817,7 +817,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion, "",
+        contentService.findDescriptors(mshTerminology, mshVersion, "",
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -834,7 +834,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion, "",
+        contentService.findDescriptors(mshTerminology, mshVersion, "",
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -848,7 +848,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion, "",
+        contentService.findDescriptors(mshTerminology, mshVersion, "",
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -866,7 +866,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptors(mshTerminology, mshVersion,
             "disease", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -884,7 +884,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptors(mshTerminology, mshVersion,
             "disease", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -907,7 +907,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Simple query, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
+        contentService.findCodes(mshTerminology, mshVersion, query,
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -921,7 +921,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("  Simple query, sort by name");
     pfs.setSortField("name");
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
+        contentService.findCodes(mshTerminology, mshVersion, query,
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -938,7 +938,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         "  Simple query, sort by name, descending");
     pfs.setAscending(false);
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
+        contentService.findCodes(mshTerminology, mshVersion, query,
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -960,7 +960,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(5);
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
+        contentService.findCodes(mshTerminology, mshVersion, query,
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -980,7 +980,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(5);
     pfs.setMaxResults(5);
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
+        contentService.findCodes(mshTerminology, mshVersion, query,
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -998,7 +998,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs = new PfsParameterJpa();
     pfs.setQueryRestriction("terminologyId:C118284");
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
+        contentService.findCodes(mshTerminology, mshVersion, query,
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -1015,7 +1015,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // No query, is active only
     Logger.getLogger(getClass()).info("  No query, active only");
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfs,
+        contentService.findCodes(mshTerminology, mshVersion, "", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -1028,7 +1028,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfs,
+        contentService.findCodes(mshTerminology, mshVersion, "", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -1045,7 +1045,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfs,
+        contentService.findCodes(mshTerminology, mshVersion, "", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -1059,7 +1059,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "disease",
+        contentService.findCodes(mshTerminology, mshVersion, "disease",
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -1077,7 +1077,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "disease",
+        contentService.findCodes(mshTerminology, mshVersion, "disease",
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
@@ -1687,7 +1687,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     /** Find concepts with hql query */
     Logger.getLogger(getClass()).info(
-        "TEST1 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+        "TEST1 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2016_03_01, "
             + authToken);
     SearchResultList sml =
         contentService.findConceptsForGeneralQuery("",
@@ -1699,7 +1699,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(20);
     Logger.getLogger(getClass()).info(
-        "TEST2 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+        "TEST2 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2016_03_01, "
             + pfs + authToken);
     sml =
         contentService.findConceptsForGeneralQuery("",
@@ -1712,7 +1712,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         .getLogger(getClass())
         .info(
             "TEST3 - "
-                + "name:amino, SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+                + "name:amino, SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2016_03_01, "
                 + authToken);
     sml =
         contentService.findConceptsForGeneralQuery("name:amino",
@@ -1722,7 +1722,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     /** Find concepts in lucene query */
     Logger.getLogger(getClass()).info(
-        "TEST4 - " + "name:amino, SNOMEDCT_US, 2014_09_01, " + authToken);
+        "TEST4 - " + "name:amino, SNOMEDCT_US, 2016_03_01, " + authToken);
     sml =
         contentService.findConceptsForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
@@ -1731,7 +1731,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     /** Find descriptors with hql query */
     Logger.getLogger(getClass()).info(
-        "TEST5 - " + "SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2014_09_01, "
+        "TEST5 - " + "SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2016_03_01, "
             + authToken);
     sml =
         contentService.findDescriptorsForGeneralQuery("",
@@ -1743,7 +1743,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(20);
     Logger.getLogger(getClass()).info(
-        "TEST6 - " + "SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2014_09_01, "
+        "TEST6 - " + "SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2016_03_01, "
             + pfs + authToken);
     sml =
         contentService.findDescriptorsForGeneralQuery("",
@@ -1756,7 +1756,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         .getLogger(getClass())
         .info(
             "TEST7 - "
-                + "name:amino, SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2014_09_01, "
+                + "name:amino, SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2016_03_01, "
                 + authToken);
     sml =
         contentService.findDescriptorsForGeneralQuery("name:amino",
@@ -1766,7 +1766,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     /** Find descriptors in lucene query */
     Logger.getLogger(getClass()).info(
-        "TEST8 - " + "name:amino, SNOMEDCT_US, 2014_09_01, " + authToken);
+        "TEST8 - " + "name:amino, SNOMEDCT_US, 2016_03_01, " + authToken);
     sml =
         contentService.findDescriptorsForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
@@ -1775,7 +1775,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     /** Find codes with hql query */
     Logger.getLogger(getClass()).info(
-        "TEST9 - " + "SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
+        "TEST9 - " + "SELECT c FROM CodeJpa c, SNOMEDCT_US, 2016_03_01, "
             + authToken);
     sml =
         contentService.findCodesForGeneralQuery("", "SELECT c FROM CodeJpa c",
@@ -1787,7 +1787,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(20);
     Logger.getLogger(getClass()).info(
-        "TEST10 - " + "SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
+        "TEST10 - " + "SELECT c FROM CodeJpa c, SNOMEDCT_US, 2016_03_01, "
             + pfs + authToken);
     sml =
         contentService.findCodesForGeneralQuery("", "SELECT c FROM CodeJpa c",
@@ -1798,7 +1798,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     /** Find codes in intersection of lucene and hql queries */
     Logger.getLogger(getClass()).info(
         "TEST11 - "
-            + "name:amino, SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
+            + "name:amino, SELECT c FROM CodeJpa c, SNOMEDCT_US, 2016_03_01, "
             + authToken);
     sml =
         contentService.findCodesForGeneralQuery("name:amino",
@@ -1808,7 +1808,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     /** Find codes in lucene query */
     Logger.getLogger(getClass()).info(
-        "TEST12 - " + "name:amino, SNOMEDCT_US, 2014_09_01, " + authToken);
+        "TEST12 - " + "name:amino, SNOMEDCT_US, 2016_03_01, " + authToken);
     sml =
         contentService.findCodesForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
@@ -1922,7 +1922,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // tree lookup, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
     Tree tree =
-        contentService.findConceptTreeForQuery(snomedTerminology,
+        contentService.findConceptTree(snomedTerminology,
             snomedVersion, "vitamin", new PfsParameterJpa(), authToken);
 
     Logger.getLogger(getClass()).info("    Result: " + tree);
@@ -1937,7 +1937,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setMaxResults(3);
     Logger.getLogger(getClass()).info("  Simple query, limit to 3");
     tree =
-        contentService.findConceptTreeForQuery(snomedTerminology,
+        contentService.findConceptTree(snomedTerminology,
             snomedVersion, "vitamin", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    total leaf count = " + tree.getLeafNodes().size());
@@ -1953,7 +1953,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setMaxResults(10);
     Logger.getLogger(getClass()).info("  Simple query, limit to 3");
     tree =
-        contentService.findConceptTreeForQuery(snomedTerminology,
+        contentService.findConceptTree(snomedTerminology,
             snomedVersion, "a*", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    total leaf count = " + tree.getLeafNodes().size());
@@ -1978,7 +1978,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // tree lookup, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
     Tree tree =
-        contentService.findDescriptorTreeForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptorTree(mshTerminology, mshVersion,
             "pneumonia", new PfsParameterJpa(), authToken);
     Logger.getLogger(getClass()).info(
         "    total leaf count = " + tree.getLeafNodes().size());
@@ -1995,7 +1995,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setMaxResults(3);
     Logger.getLogger(getClass()).info("  Simple query, limit to 3");
     tree =
-        contentService.findDescriptorTreeForQuery(mshTerminology, mshVersion,
+        contentService.findDescriptorTree(mshTerminology, mshVersion,
             "pneumonia", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    total leaf count = " + tree.getLeafNodes().size());
@@ -2059,9 +2059,9 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
-        "TEST - " + "447562003, SNOMEDCT_US, _2014_09_01, " + authToken);
+        "TEST - " + "447562003, SNOMEDCT_US, _2016_03_01, " + authToken);
     MapSet c =
-        contentService.getMapSet("447562003", "SNOMEDCT_US", "_2014_09_01",
+        contentService.getMapSet("447562003", "SNOMEDCT_US", "_2016_03_01",
             authToken);
     // Validate the concept returned
     assertNotNull(c);
@@ -2072,7 +2072,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertFalse(c.isSuppressible());
     assertEquals(1, c.getAttributes().size());
     assertEquals("SNOMEDCT_US", c.getTerminology());
-    assertEquals("_2014_09_01", c.getVersion());
+    assertEquals("_2016_03_01", c.getVersion());
     assertEquals("447562003", c.getTerminologyId());
     assertEquals("loader", c.getLastModifiedBy());
   }
@@ -2086,9 +2086,9 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
-        "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
+        "TEST - " + "SNOMEDCT_US, _2016_03_01, " + authToken);
     MapSetList c =
-        contentService.getMapSets("SNOMEDCT_US", "_2014_09_01", authToken);
+        contentService.getMapSets("SNOMEDCT_US", "_2016_03_01", authToken);
     // Validate the concept returned
     assertNotNull(c);
     assertEquals(c.getObjects().size(), 1);
@@ -2103,10 +2103,10 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
-        "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
+        "TEST - " + "SNOMEDCT_US, _2016_03_01, " + authToken);
     MappingList c =
         contentService.findMappingsForMapSet("447562003", "SNOMEDCT_US",
-            "_2014_09_01", "", new PfsParameterJpa(), authToken);
+            "_2016_03_01", "", new PfsParameterJpa(), authToken);
 
     // Validate the concept returned
     assertNotNull(c);

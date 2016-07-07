@@ -368,7 +368,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public ProjectList findProjectsForQuery(String query, PfsParameter pfs)
+  public ProjectList findProjects(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "Project Service - find projects " + "/" + query);

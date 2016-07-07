@@ -39,7 +39,7 @@ public interface SourceDataServiceRest {
    * @return the source data file list
    * @throws Exception the exception
    */
-  public SourceDataFileList findSourceDataFilesForQuery(String query,
+  public SourceDataFileList findSourceDataFiles(String query,
     PfsParameter pfsParameter, String authToken) throws Exception;
 
   /**
@@ -81,7 +81,7 @@ public interface SourceDataServiceRest {
    * @return the source data source data list
    * @throws Exception the exception
    */
-  public SourceDataList findSourceDataForQuery(String query,
+  public SourceDataList findSourceData(String query,
     PfsParameter pfsParameter, String authToken) throws Exception;
 
   /**

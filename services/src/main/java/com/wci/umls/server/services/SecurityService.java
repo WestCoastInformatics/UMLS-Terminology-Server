@@ -145,7 +145,7 @@ public interface SecurityService extends RootService {
    * @return the user list
    * @throws Exception the exception
    */
-  public UserList findUsersForQuery(String query, PfsParameter pfs) throws Exception;
+  public UserList findUsers(String query, PfsParameter pfs) throws Exception;
 
 
 }

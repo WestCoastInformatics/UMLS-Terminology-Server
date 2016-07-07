@@ -388,7 +388,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public UserList findUsersForQuery(String query, PfsParameter pfs)
+  public UserList findUsers(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "Security Service - find users " + query + ", pfs= " + pfs);

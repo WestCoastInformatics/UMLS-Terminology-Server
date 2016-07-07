@@ -88,19 +88,15 @@ public class MetadataServiceRestTest extends IntegrationUnitSupport {
     conceptList = contentService.getAllConcepts("UMLS", "latest", Branch.ROOT);
     Logger.getLogger(MetadataServiceRestTest.class).info(
         "  count = " + conceptList.getTotalCount());
-    if (conceptList.getCount() == 0)
+    if (conceptList.getCount() == 0) {
       throw new Exception("Could not retrieve any concepts for UMLS");
-    if (conceptList.getTotalCount() != 2863
-        && conceptList.getTotalCount() != 2013) {
-      throw new Exception(
-          "Metadata service requires UMLS loaded from the config project data.");
     }
 
     // check SNOMEDCT
     Logger.getLogger(MetadataServiceRestTest.class).info(
         "Count SNOMEDCT_US concepts");
     conceptList =
-        contentService.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT);
+        contentService.getAllConcepts("SNOMEDCT_US", "2016_03_01", Branch.ROOT);
     Logger.getLogger(MetadataServiceRestTest.class).info(
         "  count = " + conceptList.getTotalCount());
     if (conceptList.getCount() == 0)
@@ -113,7 +109,7 @@ public class MetadataServiceRestTest extends IntegrationUnitSupport {
     // check MSH
     Logger.getLogger(MetadataServiceRestTest.class).info("Count MSH concepts");
     conceptList =
-        contentService.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT);
+        contentService.getAllConcepts("MSH", "2016_2016_02_26", Branch.ROOT);
     Logger.getLogger(MetadataServiceRestTest.class).info(
         "  count = " + conceptList.getTotalCount());
     if (conceptList.getCount() == 0) {

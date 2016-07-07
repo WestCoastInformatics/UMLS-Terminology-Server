@@ -87,7 +87,7 @@ public class SourceDataRemoverMojo extends SourceDataMojo {
          * SourceDataServiceJpa(); try {
          * 
          * SourceData sourceData = null; List<SourceData> data = sdService
-         * .findSourceDatasForQuery( "nameSort:\"" + getName(terminology,
+         * .findSourceDatas( "nameSort:\"" + getName(terminology,
          * version) + "\"", null) .getObjects(); if (data.size() == 1) {
          * sourceData = data.get(0); } else if (data.size() == 0) { // no source
          * data, proceed } else { throw new Exception(

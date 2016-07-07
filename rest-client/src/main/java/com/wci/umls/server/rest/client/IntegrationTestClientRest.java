@@ -17,9 +17,11 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.Worklist;
 
 /**
@@ -48,29 +50,54 @@ public class IntegrationTestClientRest extends RootClientRest implements
     Logger.getLogger(getClass()).debug(
         "Integration Test Client - add concept" + concept);
 
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
         client.target(config.getProperty("base.url") + "/test/concept/add");
 
-    String conceptString =
+    final String conceptString =
         ConfigUtility.getStringForGraph(concept == null ? new ConceptJpa()
             : concept);
-    Response response =
+    final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).put(Entity.xml(conceptString));
 
-    String resultString = response.readEntity(String.class);
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception("Unexpected status - " + response.getStatus());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, ConceptJpa.class);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void updateConcept(ConceptJpa concept, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Integration Test Client - update concept" + concept);
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/test/concept/update");
+
+    final String conceptString =
+        ConfigUtility.getStringForGraph(concept == null ? new ConceptJpa()
+            : concept);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).put(Entity.xml(conceptString));
+
+    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(resultString);
     }
 
-    // converting to object
-    ConceptJpa result =
-        ConfigUtility.getGraphForString(resultString, ConceptJpa.class);
-
-    return result;
   }
 
   /* see superclass */
@@ -79,15 +106,11 @@ public class IntegrationTestClientRest extends RootClientRest implements
     Logger.getLogger(getClass()).debug(
         "Integration Test Client - remove concept " + id);
     validateNotEmpty(id, "id");
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
         client.target(config.getProperty("base.url") + "/test/concept/remove/"
             + id);
-
-    if (id == null)
-      return;
-
-    Response response =
+    final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).delete();
 
@@ -100,58 +123,33 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public Worklist addWorklist(WorklistJpa worklist, String authToken)
-    throws Exception {
+  public ConceptRelationship addRelationship(
+    ConceptRelationshipJpa relationship, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Integration Test Client - add worklist" + worklist.toString() + ", "
-            + authToken);
+        "Integration Test Client - add relationship" + relationship);
 
-    Client client = ClientBuilder.newClient();
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client
+            .target(config.getProperty("base.url") + "/test/relationship/add");
 
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/worklist/add");
-
-    Response response =
+    final String relString =
+        ConfigUtility.getStringForGraph(relationship == null
+            ? new ConceptRelationshipJpa() : relationship);
+    final Response response =
         target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.json(worklist));
+            .header("Authorization", authToken).put(Entity.xml(relString));
 
-    String resultString = response.readEntity(String.class);
+    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
-      throw new Exception(response.toString());
+      throw new Exception("Unexpected status - " + response.getStatus());
     }
 
     // converting to object
-    Worklist v =
-        ConfigUtility.getGraphForString(resultString, WorklistJpa.class);
-    return v;
-  }
-
-  /* see superclass */
-  @Override
-  public void removeWorklist(Long worklistId, boolean cascade, String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - remove worklist " + worklistId + ", "
-            + authToken);
-
-    validateNotEmpty(worklistId, "worklistId");
-
-    Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/test/worklist/" + worklistId + "/remove?cascade=" + cascade);
-
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete();
-
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
+    return ConfigUtility.getGraphForString(resultString,
+        ConceptRelationshipJpa.class);
   }
 
   /* see superclass */
@@ -163,12 +161,11 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
     validateNotEmpty(worklistId, "worklistId");
 
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
         client.target(config.getProperty("base.url") + "/test/worklist/"
-            /*+ "?worklistId="*/ + worklistId);
-
-    Response response =
+            + worklistId);
+    final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
 
@@ -176,7 +173,7 @@ public class IntegrationTestClientRest extends RootClientRest implements
       return null;
     }
 
-    String resultString = response.readEntity(String.class);
+    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {

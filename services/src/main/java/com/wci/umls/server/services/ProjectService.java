@@ -90,7 +90,7 @@ public interface ProjectService extends RootService {
    * @return the project list
    * @throws Exception the exception
    */
-  public ProjectList findProjectsForQuery(String query, PfsParameter pfs)
+  public ProjectList findProjects(String query, PfsParameter pfs)
     throws Exception;
 
 

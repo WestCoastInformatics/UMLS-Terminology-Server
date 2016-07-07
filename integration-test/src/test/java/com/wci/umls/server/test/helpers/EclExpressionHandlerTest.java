@@ -242,11 +242,11 @@ public class EclExpressionHandlerTest {
     PfsParameter pfs = new PfsParameterJpa();
     pfs.setExpression("< 91723000");
     SearchResultList results =
-        contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT,
+        contentService.findConcepts("SNOMEDCT", "latest", Branch.ROOT,
             null, pfs);
     assertTrue(results.getTotalCount() == 1512);
     results =
-        contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT,
+        contentService.findConcepts("SNOMEDCT", "latest", Branch.ROOT,
             "joint", pfs);
     assertTrue(results.getTotalCount() == 56);
 

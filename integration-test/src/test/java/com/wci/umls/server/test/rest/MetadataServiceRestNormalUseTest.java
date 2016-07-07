@@ -82,11 +82,11 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
           break;
         case "SNOMEDCT_US":
           foundSnomedct = true;
-          assertTrue(terminology.getVersion().equals("2014_09_01"));
+          assertTrue(terminology.getVersion().equals("2016_03_01"));
           break;
         case "MSH":
           foundMsh = true;
-          assertTrue(terminology.getVersion().equals("2015_2014_09_08"));
+          assertTrue(terminology.getVersion().equals("2016_2016_02_26"));
           break;
         default:
           // ignore other terminologies, only three above are assumed
@@ -128,11 +128,11 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
           break;
         case "SNOMEDCT_US":
           foundSnomedct = true;
-          assertTrue(terminology.getVersion().equals("2014_09_01"));
+          assertTrue(terminology.getVersion().equals("2016_03_01"));
           break;
         case "MSH":
           foundMsh = true;
-          assertTrue(terminology.getVersion().equals("2015_2014_09_08"));
+          assertTrue(terminology.getVersion().equals("2016_2016_02_26"));
           break;
         default:
           // ignore other terminologies, only three above are assumed
@@ -159,11 +159,11 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
     // test SNOMED metadata
     assertTrue(testSnomedMetadata(metadataService.getAllMetadata("SNOMEDCT_US",
-        "2014_09_01", authToken)));
+        "2016_03_01", authToken)));
 
     // test MSH metadata
     assertTrue(testMshMetadata(metadataService.getAllMetadata("MSH",
-        "2015_2014_09_08", authToken)));
+        "2016_2016_02_26", authToken)));
   }
 
   /**
@@ -203,7 +203,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
     // test UMLS metadata
     Terminology snomed =
-        metadataService.getTerminology("SNOMEDCT_US", "2014_09_01", authToken);
+        metadataService.getTerminology("SNOMEDCT_US", "2016_03_01", authToken);
     assertEquals("loader", snomed.getLastModifiedBy());
     assertTrue(snomed.isAssertsRelDirection());
     assertTrue(snomed.isCurrent());
@@ -211,10 +211,10 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertNull(snomed.getEndDate());
     assertNull(snomed.getStartDate());
     assertEquals(IdType.CONCEPT, snomed.getOrganizingClassType());
-    assertEquals("US Edition of SNOMED CT, 2014_09_01",
+    assertEquals("US Edition of SNOMED CT, 2016_03_01",
         snomed.getPreferredName());
     assertEquals("SNOMEDCT_US", snomed.getTerminology());
-    assertEquals("2014_09_01", snomed.getVersion());
+    assertEquals("2016_03_01", snomed.getVersion());
 
     assertEquals("SNOMEDCT_US", snomed.getRootTerminology().getTerminology());
     // Because of XML Transient
@@ -230,7 +230,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
     // test MSH metadata
     Terminology msh =
-        metadataService.getTerminology("MSH", "2015_2014_09_08", authToken);
+        metadataService.getTerminology("MSH", "2016_2016_02_26", authToken);
     assertEquals("loader", msh.getLastModifiedBy());
     assertFalse(msh.isAssertsRelDirection());
     assertTrue(msh.isCurrent());
@@ -238,10 +238,10 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertNull(msh.getEndDate());
     assertNull(msh.getStartDate());
     assertEquals(IdType.DESCRIPTOR, msh.getOrganizingClassType());
-    assertEquals("Medical Subject Headings, 2015_2014_09_08",
+    assertEquals("Medical Subject Headings, 2016_2016_02_26",
         msh.getPreferredName());
     assertEquals("MSH", msh.getTerminology());
-    assertEquals("2015_2014_09_08", msh.getVersion());
+    assertEquals("2016_2016_02_26", msh.getVersion());
 
     assertEquals("MSH", msh.getRootTerminology().getTerminology());
     // Because of XML Transient
@@ -283,7 +283,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertEquals("DEFAULT", precedence.getName());
 
     precedence =
-        metadataService.getDefaultPrecedenceList("MSH", "2015_2014_09_08",
+        metadataService.getDefaultPrecedenceList("MSH", "2016_2016_02_26",
             authToken);
     // assertEquals("loader", precedence.getLastModifiedBy());
     assertEquals("UMLS", precedence.getTerminology());

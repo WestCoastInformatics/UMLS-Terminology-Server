@@ -123,7 +123,7 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
 
   /* see superclass */
   @Override
-  public SourceDataList findSourceDatasForQuery(String query, PfsParameter pfs)
+  public SourceDataList findSourceDatas(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "SourceData Service - find searchDatas " + query);
@@ -209,7 +209,7 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
    */
   /* see superclass */
   @Override
-  public SourceDataFileList findSourceDataFilesForQuery(String query,
+  public SourceDataFileList findSourceDataFiles(String query,
     PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
         "SourceDataFile Service - find searchDataFiles " + query);

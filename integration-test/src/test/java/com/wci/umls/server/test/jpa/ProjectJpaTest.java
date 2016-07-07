@@ -21,6 +21,7 @@ import org.junit.Test;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -102,6 +103,7 @@ public class ProjectJpaTest extends IntegrationUnitSupport {
       validCategories.add("category1");
       validCategories.add("category2");
       project.setValidCategories(validCategories);
+      project.setWorkflowPath(ConfigUtility.DEFAULT);
 
       Project addedProject = projectService.addProject(project);
       Logger.getLogger(getClass()).info(project);

@@ -29,7 +29,7 @@ public class SearchHandlerTest {
     final ContentService contentService = new ContentServiceJpa();
 
     final SearchResultList c =
-        contentService.findConceptsForQuery("SNOMEDCT_US", "20140731",
+        contentService.findConcepts("SNOMEDCT_US", "20140731",
             Branch.ROOT, "\"Dermoid\" tumor", new PfsParameterJpa());
 
     for (final SearchResult sr : c.getObjects()) {

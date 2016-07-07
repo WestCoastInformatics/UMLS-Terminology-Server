@@ -53,7 +53,7 @@ public class FindDescriptorsByStringQueryTest extends ExampleSupport {
     // Find descriptors using a simple query
     Logger.getLogger(getClass()).info("Find descriptors for 'aspirin'");
     SearchResultList list =
-        contentClient.findDescriptorsForQuery(terminology, version, "aspirin",
+        contentClient.findDescriptors(terminology, version, "aspirin",
             null, authToken);
     for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
@@ -63,7 +63,7 @@ public class FindDescriptorsByStringQueryTest extends ExampleSupport {
     Logger.getLogger(getClass()).info(
         "Find descriptors for 'gestational diabetes'");
     list =
-        contentClient.findDescriptorsForQuery(terminology, version,
+        contentClient.findDescriptors(terminology, version,
             "gestational diabetes", null, authToken);
     for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
@@ -78,7 +78,7 @@ public class FindDescriptorsByStringQueryTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findDescriptorsForQuery(terminology, version, "ge*",
+        contentClient.findDescriptors(terminology, version, "ge*",
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -94,7 +94,7 @@ public class FindDescriptorsByStringQueryTest extends ExampleSupport {
     pfs.setMaxResults(10);
     pfs.setSortField("name");
     list =
-        contentClient.findDescriptorsForQuery(terminology, version, "ge*",
+        contentClient.findDescriptors(terminology, version, "ge*",
             pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());

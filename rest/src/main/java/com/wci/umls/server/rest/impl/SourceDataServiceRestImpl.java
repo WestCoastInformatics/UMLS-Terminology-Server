@@ -307,7 +307,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
   @GET
   @Path("/find")
   @ApiOperation(value = "Query source data files", notes = "Returns list of details for uploaded files returned by query", response = StringList.class)
-  public SourceDataFileList findSourceDataFilesForQuery(
+  public SourceDataFileList findSourceDataFiles(
     @ApiParam(value = "String query, e.g. SNOMEDCT", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Paging/filtering/sorting object", required = false) PfsParameter pfsParameter,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
@@ -320,7 +320,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "search for source data files",
           UserRole.USER);
 
-      return service.findSourceDataFilesForQuery(query, pfsParameter);
+      return service.findSourceDataFiles(query, pfsParameter);
 
     } catch (Exception e) {
       handleException(e, "search for source data files");
@@ -460,7 +460,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
   @GET
   @Path("/data/find")
   @ApiOperation(value = "Query source data files", notes = "Returns list of details for uploaded files returned by query", response = StringList.class)
-  public SourceDataList findSourceDataForQuery(
+  public SourceDataList findSourceData(
     @ApiParam(value = "String query, e.g. SNOMEDCT", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Paging/filtering/sorting object", required = false) PfsParameter pfsParameter,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
@@ -474,7 +474,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
           UserRole.USER);
 
       final SourceDataList list =
-          service.findSourceDatasForQuery(query, pfsParameter);
+          service.findSourceDatas(query, pfsParameter);
 
       // lazy initialize source data files
       for (final SourceData sd : list.getObjects()) {
@@ -772,7 +772,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
       }
 
       final List<LogEntry> entries =
-          projectService.findLogEntriesForQuery(query, pfs);
+          projectService.findLogEntries(query, pfs);
 
       final StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {

@@ -339,7 +339,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
             + " AND projectAnyRole:" + projectId);
 
       }
-      final UserList list = securityService.findUsersForQuery(query, pfs);
+      final UserList list = securityService.findUsers(query, pfs);
       // lazy initialize with blank user prefs
       for (final User user : list.getObjects()) {
         user.setUserPreferences(null);
@@ -407,7 +407,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       } else {
         pfs.setQueryRestriction("NOT projectAnyRole:" + projectId);
       }
-      final UserList list = securityService.findUsersForQuery(query, pfs);
+      final UserList list = securityService.findUsers(query, pfs);
       // lazy initialize with blank user prefs
       for (final User user : list.getObjects()) {
         user.setUserPreferences(null);
@@ -446,7 +446,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       sb.append("userRoleMap:" + user + UserRole.REVIEWER).append(" OR ");
       sb.append("userRoleMap:" + user + UserRole.AUTHOR).append(")");
       final ProjectList list =
-          projectService.findProjectsForQuery(sb.toString(),
+          projectService.findProjects(sb.toString(),
               new PfsParameterJpa());
       return list.getTotalCount() != 0;
 
@@ -525,7 +525,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/projects")
   @ApiOperation(value = "Finds projects", notes = "Finds projects for the specified query", response = ProjectListJpa.class)
-  public ProjectList findProjectsForQuery(
+  public ProjectList findProjects(
     @ApiParam(value = "Query", required = false) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
@@ -538,7 +538,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     try {
       authorizeApp(securityService, authToken, "find projects", UserRole.VIEWER);
 
-      return projectService.findProjectsForQuery(query, pfs);
+      return projectService.findProjects(query, pfs);
     } catch (Exception e) {
       handleException(e, "trying to get projects ");
       return null;
@@ -596,7 +596,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       }
 
       final List<LogEntry> entries =
-          projectService.findLogEntriesForQuery(query, pfs);
+          projectService.findLogEntries(query, pfs);
 
       StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {
@@ -673,7 +673,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       }
 
       final List<LogEntry> entries =
-          projectService.findLogEntriesForQuery(query, pfs);
+          projectService.findLogEntries(query, pfs);
 
       StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {

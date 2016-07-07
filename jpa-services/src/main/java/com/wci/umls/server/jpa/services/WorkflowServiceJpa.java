@@ -173,6 +173,20 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
 
   /* see superclass */
   @Override
+  public void handleLazyInit(WorkflowConfig config) {
+    for (final WorkflowBinDefinition def : config.getWorkflowBinDefinitions()) {
+      handleLazyInit(def);
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void handleLazyInit(WorkflowBinDefinition definition) {
+    definition.getWorkflowConfig().getType().toString();
+  }
+
+  /* see superclass */
+  @Override
   public WorkflowEpoch addWorkflowEpoch(WorkflowEpoch workflowEpoch)
     throws Exception {
 
@@ -367,6 +381,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   public void removeWorkflowBinDefinition(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Service - remove workflow bin definition " + id);
+
     // Remove the component
     removeHasLastModified(id, WorkflowBinDefinitionJpa.class);
   }

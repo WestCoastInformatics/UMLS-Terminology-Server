@@ -7,24 +7,24 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
@@ -69,9 +69,9 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Concept): /add " + concept);
+        "RESTful call PUT (TEST): /add " + concept);
 
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       final String authUser =
           authorizeApp(securityService, authToken, "add concept",
@@ -80,12 +80,47 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
       contentService.setMolecularActionFlag(false);
 
       // Add concept
-      Concept newConcept = contentService.addConcept(concept);
-
+      final Concept newConcept = contentService.addConcept(concept);
       return newConcept;
     } catch (Exception e) {
       handleException(e, "trying to add a concept");
       return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/concept/update")
+  @ApiOperation(value = "Update concept", notes = "Updates the concept", response = ConceptJpa.class)
+  public void updateConcept(
+    @ApiParam(value = "Concept, e.g. newConcept", required = true) ConceptJpa concept,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (TEST): /update " + concept);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String authUser =
+          authorizeApp(securityService, authToken, "update concept",
+              UserRole.ADMINISTRATOR);
+      contentService.setLastModifiedBy(authUser);
+      contentService.setMolecularActionFlag(false);
+
+      if (concept.getId() == null) {
+        throw new Exception("Only a concept that exists can be udpated: "
+            + concept);
+      }
+      // Update concept
+      contentService.updateConcept(concept);
+
+    } catch (Exception e) {
+      handleException(e, "trying to update a concept");
     } finally {
       contentService.close();
       securityService.close();
@@ -103,9 +138,9 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call DELETE (Concept): /remove/" + id);
+        "RESTful call DELETE (TEST): /remove/" + id);
 
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       String authUser =
           authorizeApp(securityService, authToken, "remove concept",
@@ -115,8 +150,6 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
       // Create service and configure transaction scope
       contentService.removeConcept(id);
-
-      contentService.addLogEntry(authUser, id, id, "REMOVE concept " + id);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a concept");
@@ -129,71 +162,35 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
-  @Path("/worklist/add")
-  @ApiOperation(value = "Add a worklist", notes = "Add a worklist", response = WorklistJpa.class)
-  public Worklist addWorklist(
-    @ApiParam(value = "Worklist to add", required = true) WorklistJpa worklist,
+  @PUT
+  @Path("/relationship/add")
+  @ApiOperation(value = "Add new relationship", notes = "Creates a new relationship", response = ConceptRelationshipJpa.class)
+  public ConceptRelationship addRelationship(
+    @ApiParam(value = "ConceptRelationship", required = true) ConceptRelationshipJpa relationship,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Integration Test): /config/add/"
-            + worklist.toString() + " " + authToken);
+        "RESTful call PUT (TEST): /relationship/add " + relationship);
 
-    String action = "trying to add worklist";
-
-    WorkflowService workflowService = new WorkflowServiceJpa();
-
+    final ContentService contentService = new ContentServiceJpa();
     try {
-
       final String authUser =
-          authorizeProject(workflowService, worklist.getProjectId(),
-              securityService, authToken, action, UserRole.AUTHOR);
+          authorizeApp(securityService, authToken, "add relationship",
+              UserRole.ADMINISTRATOR);
+      contentService.setLastModifiedBy(authUser);
+      contentService.setMolecularActionFlag(false);
 
-      workflowService.setLastModifiedBy(authUser);
-      return workflowService.addWorklist(worklist);
-
+      // Add relationship
+      final ConceptRelationship newRel =
+          (ConceptRelationship) contentService.addRelationship(relationship);
+      return newRel;
     } catch (Exception e) {
-      handleException(e, "trying to add worklist");
+      handleException(e, "trying to add a relationship");
       return null;
     } finally {
-      workflowService.close();
+      contentService.close();
       securityService.close();
     }
-
-  }
-
-  /* see superclass */
-  @Override
-  @DELETE
-  @Path("/worklist/{id}/remove")
-  @ApiOperation(value = "Remove a worklist", notes = "Remove a worklist")
-  public void removeWorklist(
-    @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long worklistId,
-      @ApiParam(value = "Cascade flag, e.g. false", required = true) @QueryParam("cascade") boolean cascade,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Integration Test): /worklist/" + worklistId + "/remove");
-
-    WorkflowService workflowService = new WorkflowServiceJpa();
-    try {
-
-      final String authUser =
-          authorizeApp(securityService, authToken, "remove worklist",
-              UserRole.USER);
-
-      workflowService.setLastModifiedBy(authUser);
-        workflowService.removeWorklist(worklistId, cascade);
-    } catch (Exception e) {
-
-      handleException(e, "trying to remove a worklist");
-    } finally {
-      workflowService.close();
-      securityService.close();
-    }
-
   }
 
   /* see superclass */
@@ -221,6 +218,5 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     }
     return null;
   }
-
 
 }

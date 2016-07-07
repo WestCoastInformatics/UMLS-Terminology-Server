@@ -151,12 +151,12 @@ public class RrfUmlsLoadAndUnloadTest {
 
     // Test a non-UMLS terminology too
     Assert.assertEquals(3903,
-        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
+        service.getAllConcepts("SNOMEDCT_US", "2016_03_01", Branch.ROOT)
             .getCount());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("SNOMEDCT_US", "2014_09_01",
+            + service.getComponentStats("SNOMEDCT_US", "2016_03_01",
                 Branch.ROOT));
 
     service.close();
@@ -168,7 +168,7 @@ public class RrfUmlsLoadAndUnloadTest {
     Assert.assertNotNull(historyService.getReleaseInfo("UMLS", "latest"));
     // also, release infos should exist for other SABs.
     Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US",
-        "2014_09_01"));
+        "2016_03_01"));
     historyService.close();
     historyService.closeFactory();
 
@@ -348,7 +348,7 @@ public class RrfUmlsLoadAndUnloadTest {
     p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("terminology", "MSH");
-    p.setProperty("version", "2015_2014_09_08");
+    p.setProperty("version", "2016_2016_02_26");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -360,17 +360,17 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no MSH contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT)
+        service.getAllConcepts("MSH", "2016_2016_02_26", Branch.ROOT)
             .getCount());
     Assert.assertEquals(0,
-        service.getAllDescriptors("MSH", "2015_2014_09_08", Branch.ROOT)
+        service.getAllDescriptors("MSH", "2016_2016_02_26", Branch.ROOT)
             .getCount());
     Assert.assertEquals(0,
-        service.getAllCodes("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
+        service.getAllCodes("MSH", "2016_2016_02_26", Branch.ROOT).getCount());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("MSH", "2015_2014_09_08", Branch.ROOT));
+            + service.getComponentStats("MSH", "2016_2016_02_26", Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -396,7 +396,7 @@ public class RrfUmlsLoadAndUnloadTest {
     p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("terminology", "SNOMEDCT_US");
-    p.setProperty("version", "2014_09_01");
+    p.setProperty("version", "2016_03_01");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -408,13 +408,13 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no SNOMEDCT_US contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
+        service.getAllConcepts("SNOMEDCT_US", "2016_03_01", Branch.ROOT)
             .getCount());
 
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("SNOMEDCT_US", "2014_09_01",
+            + service.getComponentStats("SNOMEDCT_US", "2016_03_01",
                 Branch.ROOT));
     service.close();
     service.closeFactory();

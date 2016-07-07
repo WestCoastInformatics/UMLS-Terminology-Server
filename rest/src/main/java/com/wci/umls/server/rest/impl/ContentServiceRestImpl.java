@@ -1090,7 +1090,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/concept/{terminology}/{version}")
   @ApiOperation(value = "Find concepts matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultListJpa.class)
-  public SearchResultList findConceptsForQuery(
+  public SearchResultList findConcepts(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
@@ -1112,7 +1112,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Empty queries return all results
       final SearchResultList sr =
-          contentService.findConceptsForQuery(terminology, version,
+          contentService.findConcepts(terminology, version,
               Branch.ROOT, queryStr, pfs);
       return sr;
 
@@ -1341,7 +1341,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/descriptor/{terminology}/{version}")
   @ApiOperation(value = "Find descriptors matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultListJpa.class)
-  public SearchResultList findDescriptorsForQuery(
+  public SearchResultList findDescriptors(
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
@@ -1363,7 +1363,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Empty queries return all results
       final SearchResultList sr =
-          contentService.findDescriptorsForQuery(terminology, version,
+          contentService.findDescriptors(terminology, version,
               Branch.ROOT, queryStr, pfs);
       return sr;
 
@@ -1543,7 +1543,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/code/{terminology}/{version}")
   @ApiOperation(value = "Find codes matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultListJpa.class)
-  public SearchResultList findCodesForQuery(
+  public SearchResultList findCodes(
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
@@ -1565,7 +1565,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Empty queries returns all results
       final SearchResultList sr =
-          contentService.findCodesForQuery(terminology, version, Branch.ROOT,
+          contentService.findCodes(terminology, version, Branch.ROOT,
               queryStr, pfs);
       return sr;
 
@@ -2808,7 +2808,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/concept/{terminology}/{version}/trees")
   @ApiOperation(value = "Find concept trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = TreeJpa.class)
-  public Tree findConceptTreeForQuery(
+  public Tree findConceptTree(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
@@ -2828,7 +2828,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findConceptTreePositionsForQuery(terminology, version,
+          contentService.findConceptTreePositions(terminology, version,
               Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
@@ -2894,7 +2894,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/descriptor/{terminology}/{version}/trees")
   @ApiOperation(value = "Find descriptor trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = TreeJpa.class)
-  public Tree findDescriptorTreeForQuery(
+  public Tree findDescriptorTree(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
@@ -2914,7 +2914,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findDescriptorTreePositionsForQuery(terminology,
+          contentService.findDescriptorTreePositions(terminology,
               version, Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
@@ -2981,7 +2981,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/code/{terminology}/{version}/trees")
   @ApiOperation(value = "Find code trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = TreeJpa.class)
-  public Tree findCodeTreeForQuery(
+  public Tree findCodeTree(
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @PathParam("query") String query,
@@ -3000,7 +3000,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findCodeTreePositionsForQuery(terminology, version,
+          contentService.findCodeTreePositions(terminology, version,
               Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
@@ -3264,7 +3264,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get tree positions where ancestor path is empty
       rootTreePositions =
-          contentService.findConceptTreePositionsForQuery(terminology, version,
+          contentService.findConceptTreePositions(terminology, version,
               Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
 
       Tree rootTree = null;
@@ -3352,7 +3352,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get tree positions where ancestor path is empty
       rootTreePositions =
-          contentService.findDescriptorTreePositionsForQuery(terminology,
+          contentService.findDescriptorTreePositions(terminology,
               version, Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
 
       Tree rootTree = null;
@@ -3441,7 +3441,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get tree positions where ancestor path is empty
       rootTreePositions =
-          contentService.findCodeTreePositionsForQuery(terminology, version,
+          contentService.findCodeTreePositions(terminology, version,
               Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
 
       Tree rootTree = null;
@@ -4170,7 +4170,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Path("/component/notes")
   @ApiOperation(value = "Get components annotated by a user", notes = "Gets user favorites for a terminology and version", response = String.class)
   @Override
-  public SearchResultList getComponentsWithNotesForQuery(
+  public SearchResultList getComponentsWithNotes(
     @ApiParam(value = "Query text", required = false) @QueryParam("query") String query,
     @ApiParam(value = "Paging/filtering/sorting object", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
@@ -4193,7 +4193,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get concept notes for this user with no paging
       final NoteList conceptNotes =
-          contentService.findConceptNotesForQuery(query, pfsUser);
+          contentService.findConceptNotes(query, pfsUser);
 
       for (final Note note : conceptNotes.getObjects()) {
         final ConceptNoteJpa conceptNote = (ConceptNoteJpa) note;
@@ -4212,7 +4212,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get descriptor notes for this user with no paging
       final NoteList descriptorNotes =
-          contentService.findDescriptorNotesForQuery(query, pfsUser);
+          contentService.findDescriptorNotes(query, pfsUser);
 
       for (final Note note : descriptorNotes.getObjects()) {
         final DescriptorNoteJpa descriptorNote = (DescriptorNoteJpa) note;
@@ -4231,7 +4231,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get code notes for this user with no paging
       final NoteList codeNotes =
-          contentService.findCodeNotesForQuery(query, pfsUser);
+          contentService.findCodeNotes(query, pfsUser);
       results
           .setTotalCount(results.getTotalCount() + codeNotes.getTotalCount());
       for (final Note note : codeNotes.getObjects()) {

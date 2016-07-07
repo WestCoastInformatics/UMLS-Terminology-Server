@@ -19,32 +19,30 @@
  */
 package com.wci.umls.server.mojo;
 
-import java.util.List;
+import java.util.Date;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
+import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
+import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
-import com.wci.umls.server.rest.impl.IntegrationTestServiceRestImpl;
-import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
+import com.wci.umls.server.rest.impl.ProjectServiceRestImpl;
 import com.wci.umls.server.rest.impl.WorkflowServiceRestImpl;
-import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 
 /**
- * Goal which executes operations on the db to create and remove test conditions.
+ * Goal which performs an ad hoc task.
  * 
- * See admin/loader/pom.xml for sample usage
+ * See admin/db/pom.xml for sample usage
  * 
  * @goal ad-hoc
  * @phase package
@@ -52,34 +50,7 @@ import com.wci.umls.server.services.SecurityService;
 public class AdHocMojo extends AbstractMojo {
 
   /**
-   * Mode - operation to execute
-   * @parameter
-   */
-  private String mode = null;
-  
-  /**
-   * Project id
-   * @parameter
-   */
-  private Long projectId = null;
-  
-  /**
-   * Id for operation, i.e. worklist or checklist id
-   * @parameter
-   */
-  private Long componentId = null;
-  
-  /**
-   * WorkflowBinType - for determining workflow bin 
-   * @parameter
-   */
-  private WorkflowBinType type = null;
-
-
-
-  /**
-   * Instantiates a {@link AdHocMojo} from the specified
-   * parameters.
+   * Instantiates a {@link AdHocMojo} from the specified parameters.
    */
   public AdHocMojo() {
     // do nothing
@@ -88,32 +59,108 @@ public class AdHocMojo extends AbstractMojo {
   /* see superclass */
   @Override
   public void execute() throws MojoFailureException {
-    getLog().info("Ad hoc mojo");
 
     try {
 
-      getLog().info("Ad hoc mojo");
-      getLog().info("  mode = " + mode);
-      getLog().info("  projectId = " + projectId);
-      getLog().info("  componentId = " + componentId);
-      getLog().info("  type = " + type);
+      getLog().info("Ad Hoc Mojo");
 
+      // Handle creating the database if the mode parameter is set
       final Properties properties = ConfigUtility.getConfigProperties();
 
       // authenticate
       final SecurityService service = new SecurityServiceJpa();
-      service.authenticate(properties.getProperty("admin.user"),
+      final String authToken =
+          service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
       service.close();
 
       boolean serverRunning = ConfigUtility.isServerActive();
       getLog().info(
           "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
-      if (!serverRunning) {
-        throw new Exception("Server must be running to run operation");
+      if (serverRunning) {
+        throw new Exception("Server must not be running to generate data");
       }
 
-      executeAction();
+      // Perform operations here
+      ProjectServiceRest projectService = new ProjectServiceRestImpl();
+      Project project1 = projectService.getProject(1239550L, authToken);
+
+      
+      
+      
+      //
+      // Prepare workflow related objects
+      //
+      getLog().info("Prepare workflow related objects");
+      WorkflowServiceRestImpl workflowService = new WorkflowServiceRestImpl();
+      Date startDate = new Date();
+
+      // Create a workflow epoch
+      // TODO: create an older one and a new one so we can test
+      // "get currente epoch"
+      getLog().info("  Create an epoch");
+      WorkflowEpochJpa workflowEpoch = new WorkflowEpochJpa();
+      workflowEpoch.setActive(true);
+      workflowEpoch.setName("16a");
+      workflowEpoch.setProjectId(project1.getId());
+      workflowEpoch.setProject(project1);
+      workflowEpoch.setTimestamp(startDate);
+      workflowService
+          .addWorkflowEpoch(project1.getId(), workflowEpoch, authToken);
+
+      // Add a ME bins workflow config for the current project
+      // TODO: also add a QA for testing of non-mutually-excuslive
+      getLog().info("  Create a ME workflow config");
+      workflowService = new WorkflowServiceRestImpl();
+      WorkflowConfigJpa workflowConfig = new WorkflowConfigJpa();
+      workflowConfig.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
+      workflowConfig.setMutuallyExclusive(true);
+      workflowConfig.setProjectId(project1.getId());
+      workflowConfig.setTimestamp(startDate);
+      workflowConfig.setLastPartitionTime(1L);
+      workflowService = new WorkflowServiceRestImpl();
+      WorkflowConfig addedWorkflowConfig =
+          workflowService.addWorkflowConfig(project1.getId(), workflowConfig,
+              authToken);
+
+      // Add a workflow definition (as SQL)
+      // TODO: create workflow bin definitions exactly matching NCI-META config
+      // also
+      getLog().info("  Create a workflow definition");
+      WorkflowBinDefinitionJpa workflowBinDefinition =
+          new WorkflowBinDefinitionJpa();
+      workflowBinDefinition.setName("testName");
+      workflowBinDefinition.setDescription("test description");
+      workflowBinDefinition
+          .setQuery("select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Amino%';");
+      workflowBinDefinition.setEditable(true);
+      workflowBinDefinition.setQueryType(QueryType.SQL);
+      workflowBinDefinition.setTimestamp(startDate);
+      workflowBinDefinition.setWorkflowConfig(addedWorkflowConfig);
+
+      workflowService = new WorkflowServiceRestImpl();
+      workflowService.addWorkflowBinDefinition(project1.getId(),
+          addedWorkflowConfig.getId(), workflowBinDefinition, authToken);
+
+      // Add a second workflow definition
+      getLog().info("  Create a second workflow definition");
+      WorkflowBinDefinitionJpa workflowBinDefinition2 =
+          new WorkflowBinDefinitionJpa();
+      workflowBinDefinition2.setName("testName2");
+      workflowBinDefinition2.setDescription("test description2");
+      workflowBinDefinition2
+          .setQuery("select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Acid%';");
+      workflowBinDefinition2.setEditable(true);
+      workflowBinDefinition2.setQueryType(QueryType.SQL);
+      workflowBinDefinition2.setTimestamp(startDate);
+      workflowBinDefinition2.setWorkflowConfig(addedWorkflowConfig);
+
+      workflowService = new WorkflowServiceRestImpl();
+      workflowService.addWorkflowBinDefinition(project1.getId(),
+          addedWorkflowConfig.getId(), workflowBinDefinition2, authToken);
+      
+      
+      
 
       getLog().info("done ...");
     } catch (Exception e) {
@@ -121,62 +168,5 @@ public class AdHocMojo extends AbstractMojo {
       throw new MojoFailureException("Unexpected exception:", e);
     }
   }
-
-  /**
-   * Load sample data.
-   *
-   * @throws Exception the exception
-   */
-  private void executeAction() throws Exception {
-
-    // Initialize
-    Logger.getLogger(getClass()).info("Authenticate admin user");
-    SecurityServiceRest security = new SecurityServiceRestImpl();
-    User admin = security.authenticate("admin", "admin");
-    final ProjectService projectService = new ProjectServiceJpa();
-    Project project = null;
-    if (projectId != null) {
-      project = projectService.getProject(projectId);
-    } else {
-      project = projectService.getProjects().getObjects().get(0);
-    }
-    projectService.close();
-
-    WorkflowServiceRestImpl workflowService = new WorkflowServiceRestImpl();
-    
-    List<WorkflowBin> bins = workflowService.getWorkflowBins(projectId, type, admin.getAuthToken());
-    
-
-    if (mode.equals("RegenerateBins")) {
-      try {
-        workflowService.regenerateBins(project.getId(),
-            WorkflowBinType.MUTUALLY_EXCLUSIVE, admin.getAuthToken());
-      } catch (Exception e) {
-        workflowService.clearBins(project.getId(),
-            WorkflowBinType.MUTUALLY_EXCLUSIVE, admin.getAuthToken());
-        throw e;
-      }
-    } else if (mode.equals("ClearBins")) {
-      workflowService.clearBins(project.getId(), WorkflowBinType.MUTUALLY_EXCLUSIVE, 
-          admin.getAuthToken());
-    } else if (mode.equals("CreateChecklist")) {
-      PfsParameterJpa pfs = new PfsParameterJpa();
-      pfs.setMaxResults(5);
-      workflowService.createChecklist(project.getId(), bins.get(0).getId(),
-              "checklistOrderByClusterId", false, false, "clusterType:chem",
-              pfs, admin.getAuthToken());
-    } else if (mode.equals("RemoveChecklist")) {
-      workflowService.removeChecklist(componentId, admin.getAuthToken());
-    } else if (mode.equals("CreateWorklist")) {
-      workflowService.createWorklist(project.getId(), bins.get(0).getId(),
-              "chem", 0, 5, new PfsParameterJpa(), admin.getAuthToken());
-    } else if (mode.equals("RemoveWorklist")) {
-      IntegrationTestServiceRestImpl integrationTestService = new IntegrationTestServiceRestImpl();
-      integrationTestService.removeWorklist(componentId, true, admin.getAuthToken());
-    }
-    
-
-  }
-
 
 }

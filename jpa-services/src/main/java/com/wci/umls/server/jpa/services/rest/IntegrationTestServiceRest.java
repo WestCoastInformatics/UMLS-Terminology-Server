@@ -7,8 +7,9 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.Worklist;
 
 /**
@@ -29,6 +30,16 @@ public interface IntegrationTestServiceRest {
     throws Exception;
 
   /**
+   * Update concept.
+   *
+   * @param concept the concept
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateConcept(ConceptJpa concept, String authToken)
+    throws Exception;
+
+  /**
    * Removes the concept.
    *
    * @param conceptId the concept id
@@ -36,27 +47,18 @@ public interface IntegrationTestServiceRest {
    * @throws Exception the exception
    */
   public void removeConcept(Long conceptId, String authToken) throws Exception;
-  
+
   /**
-   * Adds the worklist.
+   * Adds the relationship.
    *
-   * @param worklist the worklist
+   * @param relationship the relationship
    * @param authToken the auth token
-   * @return the worklist
+   * @return the concept relationship
    * @throws Exception the exception
    */
-  public Worklist addWorklist(WorklistJpa worklist, String authToken) throws Exception;
-  
-  /**
-   * Removes the worklist.
-   *
-   * @param worklistId the worklist id
-   * @param cascade the cascade flag
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
-  public void removeWorklist(Long worklistId, boolean cascade, String authToken) throws Exception;
-  
+  public ConceptRelationship addRelationship(
+    ConceptRelationshipJpa relationship, String authToken) throws Exception;
+
   /**
    * Returns the worklist.
    *
@@ -65,8 +67,7 @@ public interface IntegrationTestServiceRest {
    * @return the worklist
    * @throws Exception the exception
    */
-  public Worklist getWorklist(Long worklistId, String authToken) throws Exception;
-
-
+  public Worklist getWorklist(Long worklistId, String authToken)
+    throws Exception;
 
 }

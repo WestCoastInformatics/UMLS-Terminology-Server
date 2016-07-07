@@ -25,7 +25,8 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working
  */
-public class ContentServiceTreePositionFromTreeTest extends IntegrationUnitSupport {
+public class ContentServiceTreePositionFromTreeTest extends
+    IntegrationUnitSupport {
 
   /** The service. */
   ContentService service = null;
@@ -45,6 +46,8 @@ public class ContentServiceTreePositionFromTreeTest extends IntegrationUnitSuppo
   @Before
   public void setup() throws Exception {
     service = new ContentServiceJpa();
+    service.setLastModifiedBy("admin");
+    service.setMolecularActionFlag(false);
   }
 
   /**
@@ -59,7 +62,7 @@ public class ContentServiceTreePositionFromTreeTest extends IntegrationUnitSuppo
     // Start by obtaining tree positions for a concept
     TreePositionList list =
         service.findTreePositionsForConcept("10944007", "SNOMEDCT_US",
-            "2014_09_01", Branch.ROOT, new PfsParameterJpa());
+            "2016_03_01", Branch.ROOT, new PfsParameterJpa());
 
     TreePosition<? extends ComponentHasAttributesAndName> treepos =
         list.getObjects().get(0);

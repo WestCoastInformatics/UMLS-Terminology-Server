@@ -148,7 +148,7 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
       contentService = new ContentServiceJpa();
 
       // concepts must exist with this terminology/version
-      if (contentService.findConceptsForQuery(sourceData.getTerminology(),
+      if (contentService.findConcepts(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfsParameterJpa())
           .getTotalCount() > 0) {
         return true;

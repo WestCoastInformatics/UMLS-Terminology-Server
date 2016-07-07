@@ -27,8 +27,8 @@ import com.wci.umls.server.services.UmlsIdentityService;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class UmlsIdentityLoaderAlgorithm
-    extends AbstractTerminologyLoaderAlgorithm {
+public class UmlsIdentityLoaderAlgorithm extends
+    AbstractTerminologyLoaderAlgorithm {
 
   /**
    * Instantiates an empty {@link UmlsIdentityLoaderAlgorithm}.
@@ -58,8 +58,9 @@ public class UmlsIdentityLoaderAlgorithm
       if (new File(getInputPath(), "attributeIdentity.txt").exists()) {
         logInfo("  Load attribute identity");
 
-        final BufferedReader in = new BufferedReader(
-            new FileReader(new File(getInputPath(), "attributeIdentity.txt")));
+        final BufferedReader in =
+            new BufferedReader(new FileReader(new File(getInputPath(),
+                "attributeIdentity.txt")));
         String line;
         int ct = 0;
         while ((line = in.readLine()) != null) {
@@ -95,8 +96,9 @@ public class UmlsIdentityLoaderAlgorithm
           .exists()) {
         logInfo("  Load semanticType identity");
 
-        final BufferedReader in = new BufferedReader(new FileReader(
-            new File(getInputPath(), "semanticTypeComponentIdentity.txt")));
+        final BufferedReader in =
+            new BufferedReader(new FileReader(new File(getInputPath(),
+                "semanticTypeComponentIdentity.txt")));
         String line;
         int ct = 0;
         while ((line = in.readLine()) != null) {
@@ -112,9 +114,9 @@ public class UmlsIdentityLoaderAlgorithm
           identity.setTerminology(fields[2]);
           identity.setSemanticType(fields[3]);
           service.addSemanticTypeComponentIdentity(identity);
-        }
-        if (++ct % commitCt == 0) {
-          service.commitClearBegin();
+          if (++ct % commitCt == 0) {
+            service.commitClearBegin();
+          }
         }
         service.commitClearBegin();
         in.close();
@@ -124,12 +126,13 @@ public class UmlsIdentityLoaderAlgorithm
       //
       // Handle AtomIdentity
       // id|stringClassId|terminology|terminologyId|termType|codeId|conceptId|descriptorId
-      // 
+      //
       if (new File(getInputPath(), "atomIdentity.txt").exists()) {
         logInfo("  Load atom identity");
 
-        final BufferedReader in = new BufferedReader(
-            new FileReader(new File(getInputPath(), "atomIdentity.txt")));
+        final BufferedReader in =
+            new BufferedReader(new FileReader(new File(getInputPath(),
+                "atomIdentity.txt")));
         String line;
         int ct = 0;
         while ((line = in.readLine()) != null) {
@@ -161,11 +164,12 @@ public class UmlsIdentityLoaderAlgorithm
       // Handle StringClassIdentity
       // id|language|name
       //
-      if (new File(getInputPath(), "stringIdentity.txt").exists()) {
+      if (new File(getInputPath(), "stringClassIdentity.txt").exists()) {
         logInfo("  Load string identity");
 
-        final BufferedReader in = new BufferedReader(
-            new FileReader(new File(getInputPath(), "stringIdentity.txt")));
+        final BufferedReader in =
+            new BufferedReader(new FileReader(new File(getInputPath(),
+                "stringClassIdentity.txt")));
         String line;
         int ct = 0;
         while ((line = in.readLine()) != null) {
@@ -195,8 +199,9 @@ public class UmlsIdentityLoaderAlgorithm
       if (new File(getInputPath(), "lexicalClassIdentity.txt").exists()) {
         logInfo("  Load lexicalClass identity");
 
-        final BufferedReader in = new BufferedReader(new FileReader(
-            new File(getInputPath(), "lexicalClassIdentity.txt")));
+        final BufferedReader in =
+            new BufferedReader(new FileReader(new File(getInputPath(),
+                "lexicalClassIdentity.txt")));
         String line;
         int ct = 0;
         while ((line = in.readLine()) != null) {

@@ -132,6 +132,20 @@ public interface WorkflowService extends ProjectService {
   public void handleLazyInit(Worklist worklist);
 
   /**
+   * Handle lazy init.
+   *
+   * @param config the config
+   */
+  public void handleLazyInit(WorkflowConfig config);
+
+  /**
+   * Handle lazy init.
+   *
+   * @param definition the definition
+   */
+  public void handleLazyInit(WorkflowBinDefinition definition);
+
+  /**
    * Add workflow epoch.
    *
    * @param workflowEpoch the workflow epoch

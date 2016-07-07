@@ -591,7 +591,7 @@ public interface ContentService extends MetadataService {
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findConceptTreePositionsForQuery(String terminology,
+  public TreePositionList findConceptTreePositions(String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception;
 
@@ -621,9 +621,9 @@ public interface ContentService extends MetadataService {
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findDescriptorTreePositionsForQuery(
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception;
+  public TreePositionList findDescriptorTreePositions(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find tree positions for code.
@@ -651,7 +651,7 @@ public interface ContentService extends MetadataService {
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findCodeTreePositionsForQuery(String terminology,
+  public TreePositionList findCodeTreePositions(String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception;
 
@@ -972,9 +972,8 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
+  public SearchResultList findConcepts(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
    * Autocomplete concepts.
@@ -999,9 +998,8 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
+  public SearchResultList findDescriptors(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
    * Autocomplete descriptors.
@@ -1026,7 +1024,7 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForQuery(String terminology, String version,
+  public SearchResultList findCodes(String terminology, String version,
     String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
@@ -1429,39 +1427,39 @@ public interface ContentService extends MetadataService {
    *
    * @param luceneQuery the lucene query
    * @param jqlQuery the jql query
-   * @param rOOT the r oot
+   * @param branch the branch
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findCodesForGeneralQuery(String luceneQuery,
-    String jqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+    String jqlQuery, String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Find concepts for general query.
    *
    * @param luceneQuery the lucene query
    * @param jqlQuery the jql query
-   * @param rOOT the r oot
+   * @param branch the branch
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
-    String jqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+    String jqlQuery, String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Find descriptors for general query.
    *
    * @param luceneQuery the lucene query
    * @param jqlQuery the jql query
-   * @param rOOT the r oot
+   * @param branch the branch
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
-    String jqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+    String jqlQuery, String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Gets the tree for tree position.
@@ -1784,7 +1782,7 @@ public interface ContentService extends MetadataService {
    * @return the note list
    * @throws Exception the exception
    */
-  public NoteList findCodeNotesForQuery(String query, PfsParameter pfs)
+  public NoteList findCodeNotes(String query, PfsParameter pfs)
     throws Exception;
 
   /**
@@ -1795,7 +1793,7 @@ public interface ContentService extends MetadataService {
    * @return the note list
    * @throws Exception the exception
    */
-  public NoteList findDescriptorNotesForQuery(String query, PfsParameter pfs)
+  public NoteList findDescriptorNotes(String query, PfsParameter pfs)
     throws Exception;
 
   /**
@@ -1806,7 +1804,7 @@ public interface ContentService extends MetadataService {
    * @return the note list
    * @throws Exception the exception
    */
-  public NoteList findConceptNotesForQuery(String query, PfsParameter pfs)
+  public NoteList findConceptNotes(String query, PfsParameter pfs)
     throws Exception;
 
   /**
