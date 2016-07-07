@@ -20,13 +20,15 @@ tsApp.controller('WorkflowCtrl', [
     tabService.setSelectedTabByLabel('Workflow');
 
     $scope.user = securityService.getUser();
+    // TODO: this list should be dynamic
     $scope.binTypeOptions = ['MUTUALLY_EXCLUSIVE', 'AD_HOC'];
     $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
+    $scope.projectId = 1239500;
 
     // Configure tab and accordion
     $scope.configureTab = function() {
       $scope.user.userPreferences.lastTab = '/workflow';
-      securityService.updateUserPreferences($scope.user.userPreferences);
+      //securityService.updateUserPreferences($scope.user.userPreferences);
     };
 
     //
@@ -35,17 +37,12 @@ tsApp.controller('WorkflowCtrl', [
 
     $scope.initialize = function() {
 
-      // If terminology is blank, then redirect to /content to set a terminology
-      /*if (!$scope.metadata.terminologies) {
-        $location.path("/content");
-      }*/
-
       // Handle users with user preferences
       if ($scope.user.userPreferences) {
         $scope.configureTab();
       }
       
-      $scope.getBins(1239500, 'MUTUALLY_EXCLUSIVE');
+      $scope.getBins($scope.projectId, $scope.currentBinType);
     };
 
     //
@@ -59,13 +56,15 @@ tsApp.controller('WorkflowCtrl', [
       }
     });
 
+    // Set the bin type
+    $scope.setBinType = function(binType) {
+      $scope.currentBinType = binType;
+      //$scope.user.userPreferences.binType = $scope.currentBinType;
+      //securityService.updateUserPreferences($scope.user.userPreferences);
+      $scope.getBins($scope.projectId, binType);
+    }
     
-    $scope.setRole = function() {
-      $scope.user.userPreferences.binType = $scope.currentBinType;
-      securityService.updateUserPreferences($scope.user.userPreferences);
-      //projectService.fireProjectChanged($scope.project);
-    };
-    
+    // Retrieve all bins with project and type
     $scope.getBins = function(projectId, type) {
       console.debug('getBins', projectId, type);
 
@@ -74,4 +73,9 @@ tsApp.controller('WorkflowCtrl', [
       });
     };
     
+    // Convert date to a string
+    $scope.toDate = function(lastModified) {
+      return utilService.toDate(lastModified);
+
+    };
   } ]);

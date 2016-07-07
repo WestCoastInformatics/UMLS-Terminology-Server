@@ -5,8 +5,7 @@
     <!-- Accordion -->
     <uib-accordion> 
     
-    <!-- A1 - Bins --> <uib-accordion-group>
-    <uib-accordion-heading>
+    <!-- A1 - Bins --> <uib-accordion-group> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Bins">Bins</span>
     </h5>
@@ -14,70 +13,51 @@
     <div class="row m10">
       <div class="col-md-12 col-xs-12">
         <select ng-model="currentBinType" ng-show="binTypeOptions.length > 1"
-          ng-options="item for item in binTypeOptions" ng-change="setBinType();"></select>
+          ng-options="item for item in binTypeOptions" ng-change="setBinType(currentBinType);"></select>
       </div>
       <div class="col-md-12 col-xs-12">
-      
         <uib-pagination items-per-page="pageSizes.general" max-size="5"
           boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
           next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-          ng-show="searchResults.totalCount > pageSizes.general"
-          total-items="searchResults.totalCount" ng-model="searchParams.page"
-          ng-change="findComponents(false)"></uib-pagination>
-          
+          ng-show="bins.totalCount > pageSizes.general"
+          total-items="bins.totalCount" ng-model="searchParams.page"
+          ng-change="findBins(false)"></uib-pagination>
         <table class="table table-hover" style="margin-top: 10px;"
-          ng-show="searchResults.results.length > 0">
+          ng-show="bins.length > 0">
           <thead class="table-select-row">
-          <tr>
-            <th class="col-md-3 col-xs-3"
-              ng-click="setSortField('bins','name')">Name<span
-                ng-bind="getSortIndicator('bins','name')"></span></th>
-            <th class="col-md-2 col-xs-2">Dates</th>
-            <th class="col-md-7 col-xs-7">Stats</th>
-          </tr>
+            <tr>
+              <th class="col-md-3 col-xs-3">Name</th>
+              <th class="col-md-4 col-xs-4">Dates</th>
+              <th class="col-md-1 col-xs-1">Cluster</th>
+              <th class="col-md-1 col-xs-1">All</th>
+              <th class="col-md-1 col-xs-1">Uneditable</th>
+              <th class="col-md-1 col-xs-1">Editable</th>
+              <th class="col-md-1 col-xs-1">Actions</th>
+            </tr>
           </thead>
-          <tbody>
-            <tr ng-repeat="searchResult in searchResults.results">
-
-      <td rowspan="4">{{searchResults.rank}}{{searchResults.name}}</td>
-      <td rowspan="4">{{searchResults.creationTime}},{{searchResults.lastModified}}</td>
-      <td>Headers</td>
-      <td>All</td>
-      <td>Uneditable</td>
-      <td>Editable</td>
-      <td>Actions</td>
-    </tr><tr>
-      <td>All (cluster type)</td>
-      <td>1</td>
-      <td>2</td>
-      <td>3</td>
-      <td>Refresh Counts</td>
-    </tr><tr>
-      <td>Chem (cluster type)</td>
-      <td>4</td>
-      <td>5</td>
-      <td>6</td>
-      <td>Add checklist/worklist
-      <i
-                ng-click="addChecklist(project); $event.stopPropagation()"
-                title="Add Checklist" class="noul glyphicon glyphicon-check"></i><i
-                ng-click="addWorklist(project); $event.stopPropagation()"
+          <tbody ng-repeat="bin in bins">
+            <tr>
+              <td rowspan="3">{{bin.rank}}&nbsp;{{bin.name}}</td>
+              <td rowspan="3">Created: {{toDate(bin.creationTime)}}
+                <br />Modified: {{toDate(bin.lastModified)}}</td>
+            </tr>
+            <tr ng-repeat="stats in bin.stats">
+              <td>{{ stats.clusterType }}</td>
+              <td>{{ stats.stats.all }}</td>
+              <td>{{ stats.stats.uneditable }}</td>
+              <td>{{ stats.stats.editable }}</td>
+              <td><i
+                ng-click="addChecklist(); $event.stopPropagation()"
+                title="Add Checklist" class="noul glyphicon glyphicon-check"></i>&nbsp;<i
+                ng-click="addWorklist(); $event.stopPropagation()"
                 title="Add Worklist" class="noul glyphicon glyphicon-list-alt"></i></td>
-    </tr><tr>
-      <td>Nonchem (cluster type)</td>
-      <td>7</td>
-      <td>8</td>
-      <td>9</td>
-      <td>Add checklist/worklist</td>
-
             </tr>
           </tbody>
         </table>
-      
       </div>
     </div>
     </uib-accordion-group> 
-    
+      
     <!-- A2 - Worklists --> <uib-accordion-group> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Worklists">Worklists</span>
