@@ -72999,7 +72999,6 @@
 6397935|ENG|Typhoid Vaccine Live Oral|
 6397936|ENG|USP Model Guidelines, 2004|
 6397937|ENG|USP Medicare Model Guidelines|
-6397937|ENG|USP Model Guidelines|
 6397938|ENG|USPMG_2004|
 6397939|ENG|USPMG|
 6397942|ENG|Valganciclovir Hydrochloride|

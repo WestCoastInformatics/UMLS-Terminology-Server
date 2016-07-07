@@ -307,6 +307,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         workflowService.createChecklist(projectId, testNameBin.getId(),
             "checklistOrderByClusterId", false, false, "clusterType:chem", pfs,
             authToken);
+    System.out.println("CHECKLIST ID: " + checklistOrderByClusterId.getId());
     // Assert that cluster ids are contiguous and in order
     long i = 0L;
     for (final TrackingRecord r : workflowService
