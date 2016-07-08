@@ -1298,7 +1298,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       authorizeProject(workflowService, projectId, securityService, authToken,
-          "trying to get workflow bin stats", UserRole.AUTHOR);
+          "trying to get workflow bins", UserRole.AUTHOR);
       final Project project = workflowService.getProject(projectId);
       final List<WorkflowBin> bins =
           workflowService.getWorkflowBins(project, type);

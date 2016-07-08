@@ -16,16 +16,12 @@
           ng-options="item for item in binTypeOptions" ng-change="setBinType(currentBinType);"></select>
       </div>
       <div class="col-md-12 col-xs-12">
-        <uib-pagination items-per-page="pageSizes.general" max-size="5"
-          boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
-          next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-          ng-show="bins.totalCount > pageSizes.general"
-          total-items="bins.totalCount" ng-model="searchParams.page"
-          ng-change="findBins(false)"></uib-pagination>
+        
         <table class="table table-hover" style="margin-top: 10px;"
           ng-show="bins.length > 0">
           <thead class="table-select-row">
-            <tr>
+            <tr>                
+              <th class="col-md-1 col-xs-1">Rank</th>
               <th class="col-md-3 col-xs-3">Name</th>
               <th class="col-md-4 col-xs-4">Dates</th>
               <th class="col-md-1 col-xs-1">Cluster</th>
@@ -37,7 +33,8 @@
           </thead>
           <tbody ng-repeat="bin in bins">
             <tr>
-              <td rowspan="3">{{bin.rank}}&nbsp;{{bin.name}}</td>
+              <td rowspan="3">{{bin.rank}}</td>
+              <td rowspan="3">{{bin.name}}</td>
               <td rowspan="3">Created: {{toDate(bin.creationTime)}}
                 <br />Modified: {{toDate(bin.lastModified)}}</td>
             </tr>

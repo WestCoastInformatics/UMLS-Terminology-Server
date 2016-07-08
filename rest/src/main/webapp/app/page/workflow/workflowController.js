@@ -25,6 +25,8 @@ tsApp.controller('WorkflowCtrl', [
     $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
     $scope.projectId = 1239500;
 
+
+    
     // Configure tab and accordion
     $scope.configureTab = function() {
       $scope.user.userPreferences.lastTab = '/workflow';
@@ -70,12 +72,16 @@ tsApp.controller('WorkflowCtrl', [
 
       workflowService.getWorkflowBins(projectId, type).then(function(response) {
         $scope.bins = response;
+        $scope.bins.totalCount = $scope.bins.length;
       });
     };
+
     
     // Convert date to a string
     $scope.toDate = function(lastModified) {
       return utilService.toDate(lastModified);
-
     };
+    
+
+    
   } ]);
