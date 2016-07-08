@@ -1,11 +1,67 @@
 <!-- Controlled by WorkflowCtrl (in workflowController.js)  -->
 <div class="row">
-
-  
   <!-- Workflow -->
-  <div class="col-md-12 col-xs-12" >
-    Page reserved for Workflow operations.
-
-
+  <div class="col-md-12 col-xs-12">
+    <!-- Accordion -->
+    <uib-accordion> 
+    
+    <!-- A1 - Bins --> <uib-accordion-group> <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Workflow Bins">Bins</span>
+    </h5>
+    </uib-accordion-heading>
+    <div class="row m10">
+      <div class="col-md-12 col-xs-12">
+        <select ng-model="currentBinType" ng-show="binTypeOptions.length > 1"
+          ng-options="item for item in binTypeOptions" ng-change="setBinType(currentBinType);"></select>
+      </div>
+      <div class="col-md-12 col-xs-12">
+        <uib-pagination items-per-page="pageSizes.general" max-size="5"
+          boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
+          next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+          ng-show="bins.totalCount > pageSizes.general"
+          total-items="bins.totalCount" ng-model="searchParams.page"
+          ng-change="findBins(false)"></uib-pagination>
+        <table class="table table-hover" style="margin-top: 10px;"
+          ng-show="bins.length > 0">
+          <thead class="table-select-row">
+            <tr>
+              <th class="col-md-3 col-xs-3">Name</th>
+              <th class="col-md-4 col-xs-4">Dates</th>
+              <th class="col-md-1 col-xs-1">Cluster</th>
+              <th class="col-md-1 col-xs-1">All</th>
+              <th class="col-md-1 col-xs-1">Uneditable</th>
+              <th class="col-md-1 col-xs-1">Editable</th>
+              <th class="col-md-1 col-xs-1">Actions</th>
+            </tr>
+          </thead>
+          <tbody ng-repeat="bin in bins">
+            <tr>
+              <td rowspan="3">{{bin.rank}}&nbsp;{{bin.name}}</td>
+              <td rowspan="3">Created: {{toDate(bin.creationTime)}}
+                <br />Modified: {{toDate(bin.lastModified)}}</td>
+            </tr>
+            <tr ng-repeat="stats in bin.stats">
+              <td>{{ stats.clusterType }}</td>
+              <td>{{ stats.stats.all }}</td>
+              <td>{{ stats.stats.uneditable }}</td>
+              <td>{{ stats.stats.editable }}</td>
+              <td><i
+                ng-click="addChecklist(); $event.stopPropagation()"
+                title="Add Checklist" class="noul glyphicon glyphicon-check"></i>&nbsp;<i
+                ng-click="addWorklist(); $event.stopPropagation()"
+                title="Add Worklist" class="noul glyphicon glyphicon-list-alt"></i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </uib-accordion-group> 
+      
+    <!-- A2 - Worklists --> <uib-accordion-group> <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Workflow Worklists">Worklists</span>
+    </h5>
+    </uib-accordion-heading> </uib-accordion-group> </uib-accordion>
   </div>
 </div>

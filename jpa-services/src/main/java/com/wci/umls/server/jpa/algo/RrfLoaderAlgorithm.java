@@ -449,7 +449,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     umlsIdentityLoaderAlgo = new UmlsIdentityLoaderAlgorithm();
     umlsIdentityLoaderAlgo.setTerminology(getTerminology());
     umlsIdentityLoaderAlgo.setInputPath(getInputPath());
-    umlsIdentityLoaderAlgo.compute();
+    //umlsIdentityLoaderAlgo.compute();
     umlsIdentityLoaderAlgo.close();
 
     // Final logging messages
