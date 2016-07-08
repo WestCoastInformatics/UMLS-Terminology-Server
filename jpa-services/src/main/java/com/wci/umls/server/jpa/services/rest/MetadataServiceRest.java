@@ -44,7 +44,7 @@ public interface MetadataServiceRest {
    * @throws Exception if anything goes wrong
    */
 
-  public TerminologyList getTerminologies(String authToken) throws Exception;
+  public TerminologyList getCurrentTerminologies(String authToken) throws Exception;
 
   /**
    * Gets the terminology information for a terminology.

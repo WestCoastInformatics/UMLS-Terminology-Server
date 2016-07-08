@@ -68,7 +68,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public WorkflowConfig addWorkflowConfig(Long projectId,
     WorkflowConfigJpa workflowConfig, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - add workflow config" + projectId + ", "
+        "Workflow Client - add workflow config " + projectId + ", "
             + workflowConfig.toString() + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
@@ -99,7 +99,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public void updateWorkflowConfig(Long projectId,
     WorkflowConfigJpa workflowConfig, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - update workflow config" + projectId + ", "
+        "Workflow Client - update workflow config " + projectId + ", "
             + workflowConfig.toString() + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
@@ -234,7 +234,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId,
     WorkflowBinDefinitionJpa binDefinition, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - add workflow bin definition" + projectId + ", "
+        "Workflow Client - add workflow bin definition " + projectId + ", "
             + binDefinition.toString() + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
@@ -265,7 +265,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public void updateWorkflowBinDefinition(Long projectId,
     WorkflowBinDefinitionJpa definition, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - update workflow config" + projectId + ", "
+        "Workflow Client - update workflow config " + projectId + ", "
             + definition.toString() + ", " + projectId);
 
     final Client client = ClientBuilder.newClient();
@@ -374,7 +374,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public void regenerateBins(Long projectId, WorkflowBinType type,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - regenerate bins" + projectId + ", "
+        "Workflow Client - regenerate bins " + projectId + ", "
             + type.toString() + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
@@ -773,7 +773,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public void clearBins(Long projectId, WorkflowBinType type, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - clear bins" + projectId + ", " + type.toString()
+        "Workflow Client - clear bins " + projectId + ", " + type.toString()
             + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
@@ -801,7 +801,7 @@ public class WorkflowClientRest extends RootClientRest implements
     PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - create checklist" + projectId + ", " + workflowBinId
+        "Workflow Client - create checklist " + projectId + ", " + workflowBinId
             + ", " + name + ", " + randomize + ", " + excludeOnWorklist + ", "
             + query + ", " + projectId);
 
@@ -843,7 +843,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public WorkflowEpoch addWorkflowEpoch(Long projectId, WorkflowEpochJpa epoch,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - add workflow epoch" + projectId + ", "
+        "Workflow Client - add workflow epoch " + projectId + ", "
             + epoch.toString() + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
@@ -897,12 +897,10 @@ public class WorkflowClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public Worklist createWorklist(Long projectId, Long workflowBinId,
-    String clusterType, int skipClusterCt, int clusterCt, PfsParameterJpa pfs,
-    String authToken) throws Exception {
+    String clusterType, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - create worklist" + projectId + ", " + workflowBinId
-            + ", " + clusterType + ", " + skipClusterCt + ", " + clusterCt
-            + ", " + projectId);
+        "Workflow Client - create worklist " + projectId + ", " + workflowBinId
+            + ", " + clusterType + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(workflowBinId, "workflowBinId");
@@ -911,8 +909,8 @@ public class WorkflowClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url")
             + "/workflow/worklist/add?projectId=" + projectId
-            + "&workflowBinId=" + workflowBinId + "&clusterType=" + clusterType
-            + "&skipClusterCt=" + skipClusterCt + "&clusterCt=" + clusterCt);
+            + "&workflowBinId=" + workflowBinId
+            + (clusterType == null ? "" : "&clusterType=" + clusterType));
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).post(Entity.json(pfs));
@@ -1022,7 +1020,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public WorkflowBin regenerateBin(Long projectId, Long workflowBinId,
     WorkflowBinType type, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - regenerate bin" + projectId + ", " + workflowBinId
+        "Workflow Client - regenerate bin " + projectId + ", " + workflowBinId
             + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
@@ -1054,7 +1052,7 @@ public class WorkflowClientRest extends RootClientRest implements
     Long delay, Boolean sendEmail, String conceptReportType,
     Integer relationshipCt, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - generate concept report" + projectId + ", "
+        "Workflow Client - generate concept report " + projectId + ", "
             + worklistId + ", " + sendEmail + ", " + conceptReportType + ", "
             + relationshipCt + ", " + projectId);
 
@@ -1087,7 +1085,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public String getGeneratedConceptReport(Long projectId, String fileName,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - get generated concept report: " + projectId + ", "
+        "Workflow Client - get generated concept report " + projectId + ", "
             + fileName);
 
     validateNotEmpty(projectId, "projectId");
@@ -1127,8 +1125,8 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/workflow/report/"
-            + fileName + "/remove?projectId=" + projectId + "&fileName="
-            + fileName);
+            + URLEncoder.encode(fileName, "UTF-8") + "/remove?projectId="
+            + projectId);
 
     final Response response =
         target.request(MediaType.APPLICATION_XML)
@@ -1145,7 +1143,7 @@ public class WorkflowClientRest extends RootClientRest implements
   public StringList findGeneratedConceptReports(Long projectId, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - find generated concept reports" + projectId + ", "
+        "Workflow Client - find generated concept reports " + projectId + ", "
             + query);
 
     validateNotEmpty(projectId, "projectId");

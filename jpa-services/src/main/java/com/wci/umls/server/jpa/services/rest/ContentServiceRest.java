@@ -156,7 +156,7 @@ public interface ContentServiceRest {
    * @return the subset members for atom
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForAtom(String terminologyId,
+  public SubsetMemberList getAtomSubsetMembers(String terminologyId,
     String terminology, String version, String authToken) throws Exception;
 
   /**
@@ -169,7 +169,7 @@ public interface ContentServiceRest {
    * @return the subset members for concept
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForConcept(String terminologyId,
+  public SubsetMemberList getConceptSubsetMembers(String terminologyId,
     String terminology, String version, String authToken) throws Exception;
 
   /**
@@ -184,7 +184,7 @@ public interface ContentServiceRest {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
+  public RelationshipList findConceptDeepRelationships(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String filter,
     String authToken) throws Exception;
 
@@ -200,7 +200,7 @@ public interface ContentServiceRest {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForDescriptor(String terminologyId,
+  public RelationshipList findDescriptorRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
@@ -216,7 +216,7 @@ public interface ContentServiceRest {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForCode(String terminologyId,
+  public RelationshipList findCodeRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
@@ -232,7 +232,7 @@ public interface ContentServiceRest {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForConcept(String terminologyId,
+  public RelationshipList findConceptRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
@@ -249,9 +249,9 @@ public interface ContentServiceRest {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForComponentInfo(
-    String terminologyId, String terminology, String version, IdType type,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+  public RelationshipList findComponentInfoRelationships(String terminologyId,
+    String terminology, String version, IdType type, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find descriptors for query.
@@ -819,7 +819,7 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForMapSet(String mapSetId, String terminology,
+  public MappingList findMappings(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
@@ -835,9 +835,9 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForConcept(String mapSetId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+  public MappingList findConceptMappings(String mapSetId, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Find mappings for code.
@@ -851,9 +851,9 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForCode(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+  public MappingList findCodeMappings(String terminologyId, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Find mappings for descriptor.
@@ -867,7 +867,7 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForDescriptor(String terminologyId,
+  public MappingList findDescriptorMappings(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
@@ -1008,8 +1008,8 @@ public interface ContentServiceRest {
    * @return the molecular actions for concept
    * @throws Exception the exception
    */
-  public MolecularActionList findMolecularActionsForConcept(Long conceptId,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+  public MolecularActionList findMolecularActions(Long conceptId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find atomic actions.

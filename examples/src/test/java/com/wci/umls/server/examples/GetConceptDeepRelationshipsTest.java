@@ -65,7 +65,7 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
 
     // Loading all relationships for the concept
     RelationshipList list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -73,7 +73,7 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
 
     // Loading all deep relationships for the concept
     list =
-        contentClient.findDeepRelationshipsForConcept(terminologyId,
+        contentClient.findConceptDeepRelationships(terminologyId,
             terminology, version, null, null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -88,7 +88,7 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findDeepRelationshipsForConcept(terminologyId,
+        contentClient.findConceptDeepRelationships(terminologyId,
             terminology, version, pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());

@@ -41,7 +41,7 @@ public class MetadataServiceRestDegenerateUseTest extends
   public void testDegenerateUseRestMetadata001() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     try {
-      metadataService.getTerminologies("InvalidAuthToken");
+      metadataService.getCurrentTerminologies("InvalidAuthToken");
       fail("Getting all terminology/version pairs without authorization token succeeded.");
     } catch (Exception e) {
       // do nothing

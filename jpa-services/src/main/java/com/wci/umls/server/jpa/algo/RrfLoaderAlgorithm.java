@@ -1723,7 +1723,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // In case MAPSETVSAB was set first, strip off the RSAB part and use the
         // rest as the version
         if (mapSet.getVersion() != null) {
-          mapSet.setVersion(mapSet.getVersion().substring(atv.length()));
+          final String version = mapSet.getVersion().substring(atv.length());
+          mapSet.setVersion(version.startsWith("_") ? version.substring(1)
+              : version);
         }
       }
 

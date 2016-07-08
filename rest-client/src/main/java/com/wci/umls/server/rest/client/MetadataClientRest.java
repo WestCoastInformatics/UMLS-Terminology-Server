@@ -97,7 +97,7 @@ public class MetadataClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public TerminologyList getTerminologies(String authToken) throws Exception {
+  public TerminologyList getCurrentTerminologies(String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata Client - get all terminologyies versions");
     Client client = ClientBuilder.newClient();

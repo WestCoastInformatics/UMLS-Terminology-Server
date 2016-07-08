@@ -2424,7 +2424,7 @@
 11739034|01 03 2016 ct edition snomed us|
 11739123|administration concept foundation metadata reference rout set|
 11739318|administration reference rout set|
-11739512|01 09 2010 2014 icd10 map snomedct us|
+11739512|01 03 2010 2016 icd10 map snomedct us|
 11739513|01 03 2016 snomedct us|
 11739689|extension snomedct subset us|
 1174449|dppao|

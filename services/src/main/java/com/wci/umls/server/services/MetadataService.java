@@ -134,6 +134,14 @@ public interface MetadataService extends ProjectService, Configurable {
   public TerminologyList getTerminologies() throws Exception;
 
   /**
+   * Returns the current terminologies.
+   *
+   * @return the current terminologies
+   * @throws Exception the exception
+   */
+  public TerminologyList getCurrentTerminologies() throws Exception;
+
+  /**
    * Returns the all metadata.
    * 
    * @param terminology the terminology

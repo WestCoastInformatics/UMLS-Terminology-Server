@@ -61,8 +61,8 @@ public class ContentServiceTreePositionFromTreeTest extends
 
     // Start by obtaining tree positions for a concept
     TreePositionList list =
-        service.findTreePositionsForConcept("10944007", "SNOMEDCT_US",
-            "2016_03_01", Branch.ROOT, new PfsParameterJpa());
+        service.findConceptTreePositions("10944007", "SNOMEDCT_US",
+            "2016_03_01", Branch.ROOT, null, new PfsParameterJpa());
 
     TreePosition<? extends ComponentHasAttributesAndName> treepos =
         list.getObjects().get(0);

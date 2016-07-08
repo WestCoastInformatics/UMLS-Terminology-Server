@@ -23378,7 +23378,7 @@
 14587083|ENG|Route of administration reference set (foundation metadata concept)|
 14587084|ENG|Route of administration reference set|
 14587085|ENG|SNOMED Clinical Terms US Edition, September 1, 2014|
-14587087|ENG|SNOMEDCT_US_2014_09_01 to ICD10_2010 Mappings|
+14587087|ENG|SNOMEDCT_US_2016_03_01 to ICD10_2010 Mappings|
 14587089|ENG|SNOMEDCT_US_2016_03_01|
 1458709|ENG|muscle aches|
 1458717|ENG|epigastric pain|

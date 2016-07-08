@@ -494,9 +494,6 @@ public class ContentClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
 
-    if (resultString.isEmpty()) {
-      return null;
-    }
     // converting to object
     return ConfigUtility.getGraphForString(resultString, CodeJpa.class);
   }
@@ -851,7 +848,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public SubsetMemberList getSubsetMembersForConcept(String terminologyId,
+  public SubsetMemberList getConceptSubsetMembers(String terminologyId,
     String terminology, String version, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - get subset members for concept "
@@ -881,7 +878,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public SubsetMemberList getSubsetMembersForAtom(String terminologyId,
+  public SubsetMemberList getAtomSubsetMembers(String terminologyId,
     String terminology, String version, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - get subset members for atom " + terminologyId
@@ -1161,7 +1158,7 @@ public class ContentClientRest extends RootClientRest
    */
   /* see superclass */
   @Override
-  public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
+  public RelationshipList findConceptDeepRelationships(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String filter,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -1194,7 +1191,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public RelationshipList findRelationshipsForConcept(String terminologyId,
+  public RelationshipList findConceptRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -1214,7 +1211,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public RelationshipList findRelationshipsForComponentInfo(
+  public RelationshipList findComponentInfoRelationships(
     String terminologyId, String terminology, String version, IdType type,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -1250,7 +1247,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public RelationshipList findRelationshipsForDescriptor(String terminologyId,
+  public RelationshipList findDescriptorRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -1266,7 +1263,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public RelationshipList findRelationshipsForCode(String terminologyId,
+  public RelationshipList findCodeRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -1321,7 +1318,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public MappingList findMappingsForConcept(String terminologyId,
+  public MappingList findConceptMappings(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -1340,7 +1337,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public MappingList findMappingsForCode(String terminologyId,
+  public MappingList findCodeMappings(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -1359,7 +1356,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public MappingList findMappingsForDescriptor(String terminologyId,
+  public MappingList findDescriptorMappings(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -1778,7 +1775,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public MappingList findMappingsForMapSet(String mapSetId, String terminology,
+  public MappingList findMappings(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass())
@@ -2099,7 +2096,7 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public MolecularActionList findMolecularActionsForConcept(Long conceptId,
+  public MolecularActionList findMolecularActions(Long conceptId,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass())

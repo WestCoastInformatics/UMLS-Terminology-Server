@@ -35,15 +35,15 @@ public class ReportServiceJpa extends HistoryServiceJpa implements
   public String getConceptReport(Project project, Concept concept)
     throws Exception {
 
-    StringBuffer sb = new StringBuffer();
+    final StringBuffer sb = new StringBuffer();
     sb.append("\n").append("CN# ");
     sb.append(concept.getId()).append(" ");
     sb.append(concept.getName()).append("\n");
 
     // get all concept terminology ids associated with the atoms in this concept
-    List<String> conceptTerminologyIds = new ArrayList<>();
-    for (Atom atom : concept.getAtoms()) {
-      String conceptTerminologyId =
+    final List<String> conceptTerminologyIds = new ArrayList<>();
+    for (final Atom atom : concept.getAtoms()) {
+      final String conceptTerminologyId =
           atom.getConceptTerminologyIds().get(concept.getTerminology());
       if (conceptTerminologyId != null && !conceptTerminologyId.equals("")
           && !conceptTerminologyIds.contains(conceptTerminologyId)) {
@@ -56,12 +56,12 @@ public class ReportServiceJpa extends HistoryServiceJpa implements
     sb.append("CUI ");
     sb.append(concept.getTerminologyId()).append("\t");
     sb.append("Concept Status is " + concept.getWorkflowStatus()).append("\n");
-    for (String id : conceptTerminologyIds) {
+    for (final String id : conceptTerminologyIds) {
       sb.append(id).append("\n");
     }
 
     sb.append("STY ");
-    for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+    for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
       sb.append(sty.getSemanticType()).append("\t");
       sb.append(sty.getWorkflowStatus().toString().substring(0, 1))
           .append("\n");
@@ -69,7 +69,7 @@ public class ReportServiceJpa extends HistoryServiceJpa implements
 
     sb.append("ATOMS").append("\n");
 
-    for (Atom atom : concept.getAtoms()) {
+    for (final Atom atom : concept.getAtoms()) {
       sb.append("\t").append("\t");
       sb.append(atom.getWorkflowStatus().toString().substring(0, 1))
           .append(" ");

@@ -159,6 +159,12 @@
       <artifactId>swagger-jersey2-jaxrs_2.10</artifactId>
     </dependency>
 
+    <!-- Commons IO -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
   </dependencies>
 
   <!-- Always build, use dev configuration by default -->
