@@ -62,7 +62,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
 
     // Loading all relationships for the concept
     RelationshipList list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -76,7 +76,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -112,7 +112,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
 
     // Loading all relationships for the concept
     RelationshipList list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -126,7 +126,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());

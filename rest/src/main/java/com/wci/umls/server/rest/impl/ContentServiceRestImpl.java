@@ -1112,8 +1112,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Empty queries return all results
       final SearchResultList sr =
-          contentService.findConcepts(terminology, version,
-              Branch.ROOT, queryStr, pfs);
+          contentService.findConcepts(terminology, version, Branch.ROOT,
+              queryStr, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1363,8 +1363,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Empty queries return all results
       final SearchResultList sr =
-          contentService.findDescriptors(terminology, version,
-              Branch.ROOT, queryStr, pfs);
+          contentService.findDescriptors(terminology, version, Branch.ROOT,
+              queryStr, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1565,8 +1565,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Empty queries returns all results
       final SearchResultList sr =
-          contentService.findCodes(terminology, version, Branch.ROOT,
-              queryStr, pfs);
+          contentService.findCodes(terminology, version, Branch.ROOT, queryStr,
+              pfs);
       return sr;
 
     } catch (Exception e) {
@@ -2079,7 +2079,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @GET
   @Path("/concept/{terminology}/{version}/{terminologyId}/members")
   @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given concept id", response = SubsetMemberListJpa.class)
-  public SubsetMemberList getSubsetMembersForConcept(
+  public SubsetMemberList getConceptSubsetMembers(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
@@ -2095,7 +2095,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve subset members for the concept", UserRole.VIEWER);
 
       final SubsetMemberList list =
-          contentService.getSubsetMembersForConcept(terminologyId, terminology,
+          contentService.getConceptSubsetMembers(terminologyId, terminology,
               version, Branch.ROOT);
 
       for (final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
@@ -2129,7 +2129,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @GET
   @Path("/aui/{terminology}/{version}/{terminologyId}/members")
   @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given atom id", response = SubsetMemberListJpa.class)
-  public SubsetMemberList getSubsetMembersForAtom(
+  public SubsetMemberList getAtomSubsetMembers(
     @ApiParam(value = "Atom terminology id, e.g. 102751015", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Atom version, e.g. latest", required = true) @PathParam("version") String version,
@@ -2145,7 +2145,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve subset members for the atom", UserRole.VIEWER);
 
       final SubsetMemberList list =
-          contentService.getSubsetMembersForAtom(terminologyId, terminology,
+          contentService.getAtomSubsetMembers(terminologyId, terminology,
               version, Branch.ROOT);
 
       for (final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
@@ -2183,7 +2183,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id", response = RelationshipListJpa.class)
-  public RelationshipList findRelationshipsForConcept(
+  public RelationshipList findConceptRelationships(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2203,8 +2203,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the concept", UserRole.VIEWER);
 
       final RelationshipList list =
-          contentService.findRelationshipsForConcept(terminologyId,
-              terminology, version, Branch.ROOT, queryStr, false, pfs);
+          contentService.findConceptRelationships(terminologyId, terminology,
+              version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
       for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
@@ -2285,7 +2285,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/relationships/deep")
   @ApiOperation(value = "Get deep relationships with this terminologyId", notes = "Get the relationships for the concept and also for any other atoms, concepts, descirptors, or codes in its graph for the specified concept id", response = RelationshipListJpa.class)
-  public RelationshipList findDeepRelationshipsForConcept(
+  public RelationshipList findConceptDeepRelationships(
     @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
@@ -2302,7 +2302,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken,
           "retrieve deep relationships for the concept", UserRole.VIEWER);
 
-      return contentService.findDeepRelationshipsForConcept(terminologyId,
+      return contentService.findConceptDeepRelationships(terminologyId,
           terminology, version, Branch.ROOT, query, false, pfs);
 
     } catch (Exception e) {
@@ -2332,7 +2332,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id", response = RelationshipListJpa.class)
-  public RelationshipList findRelationshipsForDescriptor(
+  public RelationshipList findDescriptorRelationships(
     @ApiParam(value = "Descriptor terminology id, e.g. D042033", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
@@ -2352,7 +2352,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the descriptor", UserRole.VIEWER);
 
       final RelationshipList list =
-          contentService.findRelationshipsForDescriptor(terminologyId,
+          contentService.findDescriptorRelationships(terminologyId,
               terminology, version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
@@ -2390,7 +2390,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given code id", response = RelationshipListJpa.class)
-  public RelationshipList findRelationshipsForCode(
+  public RelationshipList findCodeRelationships(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2410,7 +2410,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the code", UserRole.VIEWER);
 
       final RelationshipList list =
-          contentService.findRelationshipsForCode(terminologyId, terminology,
+          contentService.findCodeRelationships(terminologyId, terminology,
               version, Branch.ROOT, queryStr, false, pfs);
 
       for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
@@ -2660,8 +2660,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve trees for the concept ", UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findTreePositionsForConcept(terminologyId,
-              terminology, version, Branch.ROOT, pfs);
+          contentService.findConceptTreePositions(terminologyId, terminology,
+              version, Branch.ROOT, null, pfs);
 
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
@@ -2714,8 +2714,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve trees for the descriptor ", UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findTreePositionsForDescriptor(terminologyId,
-              terminology, version, Branch.ROOT, pfs);
+          contentService.findDescriptorTreePositions(terminologyId,
+              terminology, version, Branch.ROOT, null, pfs);
 
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
@@ -2770,8 +2770,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findTreePositionsForCode(terminologyId, terminology,
-              version, Branch.ROOT, pfs);
+          contentService.findCodeTreePositions(terminologyId, terminology,
+              version, Branch.ROOT, null, pfs);
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
@@ -2828,7 +2828,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findConceptTreePositions(terminology, version,
+          contentService.findConceptTreePositions(null, terminology, version,
               Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
@@ -2914,7 +2914,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findDescriptorTreePositions(terminology,
+          contentService.findDescriptorTreePositions(null, terminology,
               version, Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
@@ -3000,7 +3000,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findCodeTreePositions(terminology, version,
+          contentService.findCodeTreePositions(null, terminology, version,
               Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
@@ -3264,7 +3264,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get tree positions where ancestor path is empty
       rootTreePositions =
-          contentService.findConceptTreePositions(terminology, version,
+          contentService.findConceptTreePositions(null, terminology, version,
               Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
 
       Tree rootTree = null;
@@ -3352,7 +3352,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get tree positions where ancestor path is empty
       rootTreePositions =
-          contentService.findDescriptorTreePositions(terminology,
+          contentService.findDescriptorTreePositions(null, terminology,
               version, Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
 
       Tree rootTree = null;
@@ -3441,7 +3441,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get tree positions where ancestor path is empty
       rootTreePositions =
-          contentService.findCodeTreePositions(terminology, version,
+          contentService.findCodeTreePositions(null, terminology, version,
               Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
 
       Tree rootTree = null;
@@ -3511,7 +3511,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/mapset/{mapSetId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated mapset", response = MappingListJpa.class)
-  public MappingList findMappingsForMapSet(
+  public MappingList findMappings(
     @ApiParam(value = "MapSet terminology id, e.g. 341823003", required = true) @PathParam("mapSetId") String mapSetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -3533,7 +3533,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       final MapSet mapSet =
           contentService.getMapSet(mapSetId, terminology, version, Branch.ROOT);
       final MappingList mappingList =
-          contentService.findMappingsForMapSet(mapSet.getId(), query, pfs);
+          contentService.findMappings(mapSet.getId(), query, pfs);
       for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
@@ -3564,7 +3564,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/concept/{terminologyId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated concept", response = MappingListJpa.class)
-  public MappingList findMappingsForConcept(
+  public MappingList findConceptMappings(
     @ApiParam(value = "Concept terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -3584,7 +3584,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "find mappings", UserRole.VIEWER);
 
       final MappingList mappingList =
-          contentService.findMappingsForConcept(terminologyId, terminology,
+          contentService.findConceptMappings(terminologyId, terminology,
               version, Branch.ROOT, query, pfs);
       for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
@@ -3616,7 +3616,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/code/{terminologyId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated code", response = MappingListJpa.class)
-  public MappingList findMappingsForCode(
+  public MappingList findCodeMappings(
     @ApiParam(value = "Code terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -3636,8 +3636,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "find mappings", UserRole.VIEWER);
 
       final MappingList mappingList =
-          contentService.findMappingsForCode(terminologyId, terminology,
-              version, Branch.ROOT, query, pfs);
+          contentService.findCodeMappings(terminologyId, terminology, version,
+              Branch.ROOT, query, pfs);
       for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
@@ -3668,7 +3668,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/descriptor/{terminologyId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated descriptor", response = MappingListJpa.class)
-  public MappingList findMappingsForDescriptor(
+  public MappingList findDescriptorMappings(
     @ApiParam(value = "Descriptor terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -3688,7 +3688,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "find mappings", UserRole.VIEWER);
 
       final MappingList mappingList =
-          contentService.findMappingsForDescriptor(terminologyId, terminology,
+          contentService.findDescriptorMappings(terminologyId, terminology,
               version, Branch.ROOT, query, pfs);
       for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
@@ -4230,8 +4230,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       }
 
       // get code notes for this user with no paging
-      final NoteList codeNotes =
-          contentService.findCodeNotes(query, pfsUser);
+      final NoteList codeNotes = contentService.findCodeNotes(query, pfsUser);
       results
           .setTotalCount(results.getTotalCount() + codeNotes.getTotalCount());
       for (final Note note : codeNotes.getObjects()) {
@@ -4301,7 +4300,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/component/{type}/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given component info id", response = RelationshipListJpa.class)
-  public RelationshipList findRelationshipsForComponentInfo(
+  public RelationshipList findComponentInfoRelationships(
     @ApiParam(value = "Component info terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Component info terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Component info version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -4322,7 +4321,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the component info", UserRole.VIEWER);
 
       final RelationshipList list =
-          contentService.findRelationshipsForComponentInfo(terminologyId,
+          contentService.findComponentInfoRelationships(terminologyId,
               terminology, version, type, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
@@ -4359,7 +4358,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/actions/molecular")
   @ApiOperation(value = "Get molecular actions for a concept", notes = "Get molecular actions for a concept", response = MolecularActionListJpa.class)
-  public MolecularActionList findMolecularActionsForConcept(
+  public MolecularActionList findMolecularActions(
     @ApiParam(value = "The concept id, e.g. 1", required = true) @QueryParam("conceptId") Long conceptId,
     @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
     @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
@@ -4410,7 +4409,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "The molecularActionId id, e.g. 1", required = true) @QueryParam("molecularActionId") Long molecularActionId,
     @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
     @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken) throws Exception {
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful call POST (Content): /actions/atomic " + molecularActionId
             + ", " + query);

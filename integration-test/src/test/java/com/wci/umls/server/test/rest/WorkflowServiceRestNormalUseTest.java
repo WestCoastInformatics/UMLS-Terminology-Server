@@ -29,7 +29,6 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.StringList;
-import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -163,31 +162,34 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
     // Create workflow config
     //
+    Logger.getLogger(getClass()).debug("  Add workflow config");
     final WorkflowConfigJpa config = new WorkflowConfigJpa();
-    config.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
+    config.setType(WorkflowBinType.QUALITY_ASSURANCE);
     config.setMutuallyExclusive(true);
     config.setProjectId(projectId);
 
     // Add workflow config
     WorkflowConfig newConfig =
         workflowService.addWorkflowConfig(projectId, config, authToken);
-    assertEquals(WorkflowBinType.MUTUALLY_EXCLUSIVE, newConfig.getType());
+    Logger.getLogger(getClass()).debug("    config = " + newConfig);
+    assertEquals(WorkflowBinType.QUALITY_ASSURANCE, newConfig.getType());
     assertTrue(newConfig.isMutuallyExclusive());
     assertEquals(adminUser, newConfig.getLastModifiedBy());
     assertEquals(projectId, newConfig.getProject().getId());
 
     // Update workflow config
-    newConfig.setType(WorkflowBinType.QUALITY_ASSURANCE);
+    Logger.getLogger(getClass()).debug("  Update workflow config");
     newConfig.setMutuallyExclusive(false);
     workflowService.updateWorkflowConfig(projectId,
         (WorkflowConfigJpa) newConfig, authToken);
     newConfig =
         workflowService.getWorkflowConfig(projectId, newConfig.getId(),
             authToken);
-    assertEquals(WorkflowBinType.QUALITY_ASSURANCE, newConfig.getType());
+    Logger.getLogger(getClass()).debug("    config = " + config);
     assertFalse(newConfig.isMutuallyExclusive());
 
     // Remove the workflow config
+    Logger.getLogger(getClass()).debug("  Remove workflow config");
     workflowService.removeWorkflowConfig(projectId, newConfig.getId(),
         authToken);
     try {
@@ -209,37 +211,30 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   public void testAddAndRemoveWorkflowBinDefinition() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    // Create workflow config
-    final WorkflowConfigJpa config = new WorkflowConfigJpa();
-    config.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
-    config.setMutuallyExclusive(true);
-    config.setProjectId(projectId);
-
-    // Add workflow config
-    final WorkflowConfig newConfig =
-        workflowService.addWorkflowConfig(projectId, config, authToken);
-
     // Create workflow bin definition
+    Logger.getLogger(getClass()).debug("  Add workflow bin definition");
     final WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
     definition.setName("test name");
     definition.setDescription("test description");
     definition.setQuery("select * from concepts");
     definition.setEditable(true);
     definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
+    definition.setWorkflowConfig(config);
 
     // Add workflow bin definition
     WorkflowBinDefinition newDefinition =
         workflowService.addWorkflowBinDefinition(projectId, definition,
             authToken);
+    Logger.getLogger(getClass()).debug("    definition = " + newDefinition);
     assertEquals("test name", newDefinition.getName());
     assertEquals("test description", newDefinition.getDescription());
     assertEquals("select * from concepts", newDefinition.getQuery());
     assertTrue(newDefinition.isEditable());
     assertEquals(QueryType.SQL, newDefinition.getQueryType());
-    assertEquals(newConfig.getId(), newDefinition.getWorkflowConfig().getId());
+    assertEquals(config.getId(), newDefinition.getWorkflowConfig().getId());
 
     // Update workflow bin definition
+    Logger.getLogger(getClass()).debug("  Update workflow bin definition");
     newDefinition.setEditable(false);
     newDefinition.setDescription("test description2");
     workflowService.updateWorkflowBinDefinition(projectId,
@@ -247,16 +242,14 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     newDefinition =
         workflowService.getWorkflowBinDefinition(projectId,
             newDefinition.getId(), authToken);
+    Logger.getLogger(getClass()).debug("    definition = definition");
     assertFalse(newDefinition.isEditable());
     assertEquals("test description2", newDefinition.getDescription());
 
     // Remove workflow bin definition
+    Logger.getLogger(getClass()).debug("  Remove workflow bin definition");
     workflowService.removeWorkflowBinDefinition(projectId,
         newDefinition.getId(), authToken);
-
-    // Remove workflow config
-    workflowService.removeWorkflowConfig(projectId, newConfig.getId(),
-        authToken);
 
   }
 
@@ -270,6 +263,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
     final List<WorkflowBin> binList =
@@ -286,6 +280,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     assertEquals(1, binList2.size());
 
     // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
   }
@@ -300,6 +295,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 
@@ -307,6 +303,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     workflowService.regenerateBins(projectId,
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
+    Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final List<WorkflowBin> binList =
         workflowService.getWorkflowBins(projectId,
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -317,11 +314,13 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         break;
       }
     }
+    Logger.getLogger(getClass()).debug("    testNameBin = " + testNameBin);
     assertNotNull(testNameBin);
 
     //
     // Create checklist with cluster id order tracking records
     //
+    Logger.getLogger(getClass()).debug("  Create checklist in order");
     final PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(5);
@@ -331,6 +330,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     final Checklist checklistOrderByClusterId =
         workflowService.createChecklist(projectId, testNameBin.getId(),
             "checklistOrderByClusterId", false, false, null, pfs, authToken);
+    Logger.getLogger(getClass()).debug(
+        "    checklist = " + checklistOrderByClusterId);
     // Assert that cluster ids are contiguous and in order
     long i = 0L;
     for (final TrackingRecord r : workflowService
@@ -340,6 +341,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     }
 
     // Remove checklist
+    Logger.getLogger(getClass()).debug("  Remove checklist");
     workflowService.removeChecklist(projectId,
         checklistOrderByClusterId.getId(), authToken);
 
@@ -347,16 +349,18 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // Create checklist with random tracking records
     //
     // Randomize flag picks random tracking records from the bin
+    Logger.getLogger(getClass()).debug("  Create checklist in random order");
     final Checklist checklistOrderByRandom =
         workflowService.createChecklist(projectId, testNameBin.getId(),
             "checklistOrderByRandom", true, false, null, pfs, authToken);
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    Logger.getLogger(getClass()).debug(
+        "    checklist = " + checklistOrderByRandom);
     // Assert that cluster ids are contiguous and in order
     boolean found = false;
     for (final TrackingRecord r : workflowService
         .findTrackingRecordsForChecklist(projectId,
             checklistOrderByRandom.getId(), pfs, authToken).getObjects()) {
+      // If the first 5 get randomly picked, this won't work
       if (r.getClusterId() > 5) {
         found = true;
         break;
@@ -368,9 +372,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // TODO: test excludeOnWorklist...
 
     // Remove checklist
+    Logger.getLogger(getClass()).debug("  Remove checklist");
     workflowService.removeChecklist(projectId, checklistOrderByRandom.getId(),
         authToken);
     // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 
@@ -386,6 +392,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 
@@ -394,6 +401,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
     // get test name bin
+    Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final List<WorkflowBin> binList =
         workflowService.getWorkflowBins(projectId,
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -404,29 +412,26 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         break;
       }
     }
+    Logger.getLogger(getClass()).debug("    testNameBin = " + testNameBin);
     assertNotNull(testNameBin);
-
-    // Remove any worklists first
-    final WorklistList worklists =
-        workflowService.findWorklists(projectId, "projectId:" + projectId,
-            null, authToken);
-    for (final Worklist worklist : worklists.getObjects()) {
-      workflowService.removeWorklist(projectId, worklist.getId(), authToken);
-    }
 
     //
     // Create worklist
     //
+    Logger.getLogger(getClass()).debug("  Create worklist");
     final Worklist worklist =
         workflowService.createWorklist(projectId, testNameBin.getId(), "chem",
-            0, 5, new PfsParameterJpa(), authToken);
+            new PfsParameterJpa(), authToken);
+    Logger.getLogger(getClass()).debug("    worklist = " + worklist);
 
     // TODO: assert something about this
 
     // Remove the worklist
+    Logger.getLogger(getClass()).debug("  Remove worklist");
     workflowService.removeWorklist(projectId, worklist.getId(), authToken);
 
     // clear bins
+    Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 
@@ -442,6 +447,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 
@@ -449,6 +455,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     workflowService.regenerateBins(projectId,
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
+    Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final List<WorkflowBin> binList =
         workflowService.getWorkflowBins(projectId,
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -459,121 +466,122 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         break;
       }
     }
+    Logger.getLogger(getClass()).debug("    testNameBin = " + testNameBin);
     assertNotNull(testNameBin);
-
-    // Remove any worklists first
-    final WorklistList worklists =
-        workflowService.findWorklists(projectId, "projectId:" + projectId,
-            null, authToken);
-    for (final Worklist worklist : worklists.getObjects()) {
-      workflowService.removeWorklist(projectId, worklist.getId(), authToken);
-    }
 
     //
     // Create worklist
     //
-    final Worklist addedWorklist =
+    Logger.getLogger(getClass()).debug("  Create worklist");
+    final PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(5);
+    final Worklist worklist =
         workflowService.createWorklist(projectId, testNameBin.getId(), "chem",
-            0, 5, new PfsParameterJpa(), authToken);
+            pfs, authToken);
+    Logger.getLogger(getClass()).debug("    worklist = " + worklist);
 
     //
     // Test perform workflow action
     //
 
+    Logger.getLogger(getClass()).debug("  Walk worklist through workflow");
     // Assign
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.AUTHOR, WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.NEW);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.NEW);
 
     // Unassign
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.AUTHOR, WorkflowAction.UNASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.NEW);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.NEW);
 
     // Assign again
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.AUTHOR, WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.NEW);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.NEW);
 
     // Save
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.AUTHOR, WorkflowAction.SAVE, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.EDITING_IN_PROGRESS);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.EDITING_IN_PROGRESS);
 
     // Unassign
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.AUTHOR, WorkflowAction.UNASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.NEW);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.NEW);
 
     // Assign again
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.AUTHOR, WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.NEW);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.NEW);
 
     // Finish
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.AUTHOR, WorkflowAction.FINISH, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
 
     // Assign for review
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.REVIEWER, WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
 
     // Unassign for review
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.REVIEWER, WorkflowAction.UNASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
 
     // Assign for review again
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.REVIEWER, WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
 
     // Save
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.REVIEWER, WorkflowAction.SAVE, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.REVIEW_IN_PROGRESS);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.REVIEW_IN_PROGRESS);
 
     // Unassign for review
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.REVIEWER, WorkflowAction.UNASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.EDITING_DONE);
 
     // Assign for review again
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.REVIEWER, WorkflowAction.ASSIGN, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.REVIEW_NEW);
 
     // Finish review
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.REVIEW_DONE);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.REVIEW_DONE);
 
     // Finalize work
-    workflowService.performWorkflowAction(projectId, addedWorklist.getId(),
+    workflowService.performWorkflowAction(projectId, worklist.getId(),
         authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
-    assertTrue(integrationTestService.getWorklist(addedWorklist.getId(),
-        authToken).getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION);
+    assertTrue(integrationTestService.getWorklist(worklist.getId(), authToken)
+        .getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION);
 
     // clean up
-    workflowService.removeWorklist(projectId, addedWorklist.getId(), authToken);
+    Logger.getLogger(getClass()).debug("  Remove worklist");
+    workflowService.removeWorklist(projectId, worklist.getId(), authToken);
 
     // clear bins
+    Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 
@@ -589,6 +597,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 
@@ -596,6 +605,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     workflowService.regenerateBins(projectId,
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
+    Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final List<WorkflowBin> binList =
         workflowService.getWorkflowBins(projectId,
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -606,38 +616,51 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         break;
       }
     }
+    Logger.getLogger(getClass()).debug("    testNameBin = " + testNameBin);
     assertNotNull(testNameBin);
-
-    // Remove any worklists first
-    final WorklistList worklists =
-        workflowService.findWorklists(projectId, "projectId:" + projectId,
-            null, authToken);
-    for (Worklist worklist : worklists.getObjects()) {
-      workflowService.removeWorklist(projectId, worklist.getId(), authToken);
-    }
 
     //
     // Create worklist
     //
+    Logger.getLogger(getClass()).debug("  Create worklists");
+    final PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(5);
     final Worklist worklist =
         workflowService.createWorklist(projectId, testNameBin.getId(), "chem",
-            0, 5, new PfsParameterJpa(), authToken);
+            pfs, authToken);
+    Logger.getLogger(getClass()).debug("    worklist = " + worklist);
+
+    pfs.setStartIndex(5);
+    pfs.setMaxResults(5);
+    final Worklist worklist2 =
+        workflowService.createWorklist(projectId, testNameBin.getId(), "chem",
+            pfs, authToken);
+    Logger.getLogger(getClass()).debug("    worklist2 = " + worklist2);
 
     // Generate concept report
-    String reportFileName =
+    Logger.getLogger(getClass()).debug("  Generate concept reports");
+    final String reportFileName =
         workflowService.generateConceptReport(projectId, worklist.getId(), 1L,
             false, "", 0, authToken);
+    Logger.getLogger(getClass()).debug("    report = " + reportFileName);
 
-    // Obtain the report
-    String reportContents =
-        workflowService.getGeneratedConceptReport(projectId, reportFileName,
-            authToken);
-    assertTrue(reportContents.contains("ATOMS"));
+    // Generate concept report
+    final String reportFileName2 =
+        workflowService.generateConceptReport(projectId, worklist2.getId(), 1L,
+            false, "", 0, authToken);
+    Logger.getLogger(getClass()).debug("    report2 = " + reportFileName2);
 
-    // Find the report
+    // Find reports
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(1);
+    Logger.getLogger(getClass()).debug("  Find reports " + pfs);
     final StringList list =
-        workflowService.findGeneratedConceptReports(projectId, ".txt",
-            new PfsParameterJpa(), authToken);
+        workflowService.findGeneratedConceptReports(projectId, ".txt", pfs,
+            authToken);
+    Logger.getLogger(getClass()).debug("    reports = " + list);
+    assertEquals(1, list.getObjects().size());
+    assertEquals(2, list.getTotalCount());
     boolean found = false;
     for (final String rpt : list.getObjects()) {
       if (rpt.equals(reportFileName)) {
@@ -647,8 +670,19 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     }
     assertTrue(found);
 
+    // Get the report
+    Logger.getLogger(getClass()).debug("  Get the first report");
+    final String report =
+        workflowService.getGeneratedConceptReport(projectId, reportFileName,
+            authToken);
+    Logger.getLogger(getClass()).debug("    report = " + report);
+    assertTrue(report.contains("ATOMS"));
+
     // Remove the report (and verify it is gone)
+    Logger.getLogger(getClass()).debug("  Remove the reports");
     workflowService.removeGeneratedConceptReport(projectId, reportFileName,
+        authToken);
+    workflowService.removeGeneratedConceptReport(projectId, reportFileName2,
         authToken);
     final StringList list2 =
         workflowService.findGeneratedConceptReports(projectId, ".txt",
@@ -663,9 +697,12 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     assertTrue(!found);
 
     // Remove worklist
+    Logger.getLogger(getClass()).debug("  Remove worklists");
     workflowService.removeWorklist(projectId, worklist.getId(), authToken);
+    workflowService.removeWorklist(projectId, worklist2.getId(), authToken);
 
     // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 
@@ -681,6 +718,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 
@@ -688,6 +726,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     workflowService.regenerateBins(projectId,
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
+    Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final List<WorkflowBin> binList =
         workflowService.getWorkflowBins(projectId,
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -698,37 +737,41 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         break;
       }
     }
+    Logger.getLogger(getClass()).debug("    testNameBin = " + testNameBin);
     assertNotNull(testNameBin);
-
-    // Remove any worklists first
-    final WorklistList worklists =
-        workflowService.findWorklists(projectId, "projectId:" + projectId,
-            null, authToken);
-    for (final Worklist worklist : worklists.getObjects()) {
-      workflowService.removeWorklist(projectId, worklist.getId(), authToken);
-    }
 
     //
     // Create worklist
     //
+    Logger.getLogger(getClass()).debug("  Create worklist");
+    final PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(5);
     final Worklist worklist =
         workflowService.createWorklist(projectId, testNameBin.getId(), "chem",
-            0, 5, new PfsParameterJpa(), authToken);
+            pfs, authToken);
+    Logger.getLogger(getClass()).debug("    worklist = " + worklist);
 
     // Get workflow bins
+    Logger.getLogger(getClass()).debug("  Get workflow bins");
     final List<WorkflowBin> list =
         workflowService.getWorkflowBins(projectId,
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    Logger.getLogger(getClass()).debug("    list = " + list);
     // TODO: test stats (editable/uneditable)
 
+    Logger.getLogger(getClass()).debug("  Get worklist with stats");
     final Worklist worklist2 =
         workflowService.getWorklist(projectId, worklist.getId(), authToken);
+    Logger.getLogger(getClass()).debug("    worklist = " + worklist2);
     // TODO: test stats
 
     // Remove worklist
+    Logger.getLogger(getClass()).debug("  Remove worklist");
     workflowService.removeWorklist(projectId, worklist.getId(), authToken);
 
     // clear bins
+    Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
 

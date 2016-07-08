@@ -534,7 +534,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public SubsetMemberList getSubsetMembersForAtom(String atomId,
+  public SubsetMemberList getAtomSubsetMembers(String atomId,
     String terminology, String version, String branch) {
     Logger.getLogger(getClass()).debug(
         "Content Service - get subset members for atom " + atomId + "/"
@@ -570,7 +570,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public SubsetMemberList getSubsetMembersForConcept(String conceptId,
+  public SubsetMemberList getConceptSubsetMembers(String conceptId,
     String terminology, String version, String branch) {
     Logger.getLogger(getClass()).debug(
         "Content Service - get subset members for concept " + conceptId + "/"
@@ -3132,7 +3132,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public RelationshipList findRelationshipsForConcept(String conceptId,
+  public RelationshipList findConceptRelationships(String conceptId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -3146,7 +3146,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public RelationshipList findRelationshipsForComponentInfo(
+  public RelationshipList findComponentInfoRelationships(
     String componentInfoId, String terminology, String version, IdType type,
     String branch, String query, boolean inverseFlag, PfsParameter pfs)
     throws Exception {
@@ -3166,7 +3166,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     "unchecked"
   })
   @Override
-  public RelationshipList findDeepRelationshipsForConcept(String conceptId,
+  public RelationshipList findConceptDeepRelationships(String conceptId,
     String terminology, String version, String branch, String filter,
     boolean inverseFlag, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -3325,7 +3325,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public RelationshipList findRelationshipsForDescriptor(String descriptorId,
+  public RelationshipList findDescriptorRelationships(String descriptorId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -3341,7 +3341,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public RelationshipList findRelationshipsForCode(String codeId,
+  public RelationshipList findCodeRelationships(String codeId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -3463,43 +3463,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       getGraphResolutionHandler(terminology).resolve(mapping);
     }
     return results;
-
-  }
-
-  /* see superclass */
-  @Override
-  public TreePositionList findTreePositionsForConcept(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - find tree positions for concept " + terminologyId
-            + "/" + terminology + "/" + version);
-    return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        "", pfs, ConceptTreePositionJpa.class);
-  }
-
-  /* see superclass */
-  @Override
-  public TreePositionList findTreePositionsForDescriptor(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - find tree positionss for descriptor "
-            + terminologyId + "/" + terminology + "/" + version);
-    return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        "", pfs, DescriptorTreePositionJpa.class);
-  }
-
-  /* see superclass */
-  @Override
-  public TreePositionList findTreePositionsForCode(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - find tree positions for code " + terminologyId + "/"
-            + terminology + "/" + version);
-    return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        "", pfs, CodeTreePositionJpa.class);
 
   }
 
@@ -3727,38 +3690,38 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public TreePositionList findConceptTreePositions(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
+  public TreePositionList findConceptTreePositions(String terminologyId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - find concept tree positions " + terminology + "/"
-            + version + "/" + query);
-    return findTreePositionsHelper(null, terminology, version, branch, query,
-        pfs, ConceptTreePositionJpa.class);
+        "Content Service - find concept tree positions " + terminologyId + "/"
+            + terminology + "/" + version + "/" + query);
+    return findTreePositionsHelper(terminologyId, terminology, version, branch,
+        query, pfs, ConceptTreePositionJpa.class);
   }
 
   /* see superclass */
   @Override
-  public TreePositionList findDescriptorTreePositions(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
+  public TreePositionList findDescriptorTreePositions(String terminologyId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - find descriptor tree positions " + terminology + "/"
-            + version + "/" + query);
-    return findTreePositionsHelper(null, terminology, version, branch, query,
-        pfs, DescriptorTreePositionJpa.class);
+        "Content Service - find descriptor tree positions " + terminologyId
+            + "/" + terminology + "/" + version + "/" + query);
+    return findTreePositionsHelper(terminologyId, terminology, version, branch,
+        query, pfs, DescriptorTreePositionJpa.class);
   }
 
   /* see superclass */
   @Override
-  public TreePositionList findCodeTreePositions(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
+  public TreePositionList findCodeTreePositions(String terminologyId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - find code tree positions " + terminology + "/"
-            + version + "/" + query);
-    return findTreePositionsHelper(null, terminology, version, branch, query,
-        pfs, CodeTreePositionJpa.class);
+        "Content Service - find code tree positions " + terminologyId + "/"
+            + terminology + "/" + version + "/" + query);
+    return findTreePositionsHelper(terminologyId, terminology, version, branch,
+        query, pfs, CodeTreePositionJpa.class);
   }
 
   /* see superclass */
@@ -4078,8 +4041,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     "unchecked"
   })
   @Override
-  public MappingList findMappingsForMapSet(Long mapSetId, String query,
-    PfsParameter pfs) throws Exception {
+  public MappingList findMappings(Long mapSetId, String query, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find mappings " + mapSetId + ", query=" + query);
 
@@ -4105,9 +4068,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public MappingList findMappingsForConcept(String conceptId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
+  public MappingList findConceptMappings(String conceptId, String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find mappings for concept " + conceptId + "/"
             + terminology + "/" + version + "/" + branch + "/" + query);
@@ -4118,7 +4081,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public MappingList findMappingsForCode(String codeId, String terminology,
+  public MappingList findCodeMappings(String codeId, String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -4131,7 +4094,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public MappingList findMappingsForDescriptor(String descriptorId,
+  public MappingList findDescriptorMappings(String descriptorId,
     String terminology, String version, String branch, String query,
     PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(

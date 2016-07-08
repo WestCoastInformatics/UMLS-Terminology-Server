@@ -381,6 +381,9 @@ public class ConfigUtility {
   @SuppressWarnings("unchecked")
   public static <T> T getGraphForString(String xml, Class<T> graphClass)
     throws JAXBException {
+    if (ConfigUtility.isEmpty(xml)) {
+      return null;
+    }
     JAXBContext context = JAXBContext.newInstance(graphClass);
     Unmarshaller unmarshaller = context.createUnmarshaller();
     return (T) unmarshaller.unmarshal(new StreamSource(new StringReader(xml)));
@@ -397,6 +400,9 @@ public class ConfigUtility {
    */
   public static <T> T getGraphForJson(String json, Class<T> graphClass)
     throws Exception {
+    if (ConfigUtility.isEmpty(json)) {
+      return null;
+    }
     InputStream in =
         new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
     ObjectMapper mapper = new ObjectMapper();
@@ -421,6 +427,9 @@ public class ConfigUtility {
    */
   public static <T> T getGraphForJson(String json, TypeReference<T> typeRef)
     throws Exception {
+    if (ConfigUtility.isEmpty(json)) {
+      return null;
+    }
     InputStream in =
         new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
     ObjectMapper mapper = new ObjectMapper();

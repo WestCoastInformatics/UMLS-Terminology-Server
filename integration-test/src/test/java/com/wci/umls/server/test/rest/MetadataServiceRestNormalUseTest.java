@@ -65,7 +65,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
   public void testNormalUseRestMetadata001() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    TerminologyList termList = metadataService.getTerminologies(authToken);
+    TerminologyList termList = metadataService.getCurrentTerminologies(authToken);
     Logger.getLogger(getClass()).debug("  data = " + termList);
 
     // flags for whether UMLS, SNOMEDCT_US, and MSH were found

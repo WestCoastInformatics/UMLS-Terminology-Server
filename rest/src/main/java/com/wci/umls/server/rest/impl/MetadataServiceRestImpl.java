@@ -249,8 +249,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/terminology/terminologies")
-  @ApiOperation(value = "Get all terminologies and all their versions", notes = "Gets the list of all terminologies and all of their versions", response = TerminologyListJpa.class)
-  public TerminologyList getTerminologies(
+  @ApiOperation(value = "Get current terminologies", notes = "Gets the list of current terminologies", response = TerminologyListJpa.class)
+  public TerminologyList getCurrentTerminologies(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -264,7 +264,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "get terminologies",
           UserRole.VIEWER);
 
-      final TerminologyList results = metadataService.getTerminologies();
+      final TerminologyList results = metadataService.getCurrentTerminologies();
       for (final Terminology terminology : results.getObjects()) {
         metadataService.getGraphResolutionHandler(terminology.getTerminology())
             .resolve(terminology);

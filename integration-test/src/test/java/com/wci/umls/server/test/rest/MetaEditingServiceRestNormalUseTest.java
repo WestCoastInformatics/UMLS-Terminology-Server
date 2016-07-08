@@ -160,7 +160,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list = contentService
-        .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+        .findMolecularActions(c.getId(), null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -232,7 +232,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+    list = contentService.findMolecularActions(c.getId(), null, pfs,
         authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
@@ -283,7 +283,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+    list = contentService.findMolecularActions(c.getId(), null, pfs,
         authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
@@ -392,7 +392,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list = contentService
-        .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+        .findMolecularActions(c.getId(), null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -481,7 +481,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+    list = contentService.findMolecularActions(c.getId(), null, pfs,
         authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
@@ -529,7 +529,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+    list = contentService.findMolecularActions(c.getId(), null, pfs,
         authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
@@ -645,7 +645,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list = contentService
-        .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+        .findMolecularActions(c.getId(), null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -742,7 +742,7 @@ public class MetaEditingServiceRestNormalUseTest
      pfs.setSortField("lastModified");
      pfs.setAscending(false);
      list = contentService
-     .findMolecularActionsForConcept(c.getId(), null, pfs, authToken);
+     .findMolecularActions(c.getId(), null, pfs, authToken);
      assertTrue(list.getCount() > 0);
      ma = list.getObjects().get(0);
      assertNotNull(ma);
@@ -791,7 +791,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = contentService.findMolecularActionsForConcept(c.getId(), null, pfs,
+    list = contentService.findMolecularActions(c.getId(), null, pfs,
         authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);

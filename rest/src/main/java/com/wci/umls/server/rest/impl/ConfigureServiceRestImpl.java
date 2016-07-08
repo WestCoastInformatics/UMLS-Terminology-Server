@@ -96,7 +96,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
   public boolean isConfigured() throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (History): /configure/configured");
+        "RESTful call (Configure): /configure/configured");
 
     try {
       String configFileName = ConfigUtility.getLocalConfigFile();
@@ -126,7 +126,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Configuration parameters as JSON string", required = true) HashMap<String, String> parameters)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (History): /configure/configure with parameters "
+        "RESTful call (Configure): /configure/configure with parameters "
             + parameters.toString());
 
     // NOTE: Configure calls do not require authorization
@@ -278,7 +278,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (History): /configure/destroy");
+        "RESTful call (Configure): /configure/destroy");
 
     // NOTE: Configure calls do not require authorization
 

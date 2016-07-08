@@ -1,9 +1,7 @@
 package com.wci.umls.server.rest.impl;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +24,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
@@ -1167,11 +1166,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @Path("/worklist/add")
   @ApiOperation(value = "Create worklist", notes = "Create worklist", response = WorklistJpa.class)
   public Worklist createWorklist(
-    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin id, e.g. 5", required = false) @QueryParam("workflowBinId") Long workflowBinId,
+    @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow bin id, e.g. 5", required = true) @QueryParam("workflowBinId") Long workflowBinId,
     @ApiParam(value = "Cluster type", required = false) @QueryParam("clusterType") String clusterType,
-    @ApiParam(value = "Skip this number of clusters, e.g. 3", required = true) @QueryParam("skipClusterCt") int skipClusterCt,
-    @ApiParam(value = "Max number of clusters in worklist, e.g. 30", required = true) @QueryParam("clusterCt") int clusterCt,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1210,14 +1207,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       if (clusterType.equals("chem"))
         worklistName.append("chem").append("_");
 
-      // findWorklists with matching project id, epoch name and bin name and
-      // cluster type
+      // Obtain the next worklist number for this naming scheme
       final PfsParameter worklistQueryPfs = new PfsParameterJpa();
       worklistQueryPfs.setStartIndex(0);
       worklistQueryPfs.setMaxResults(1);
       worklistQueryPfs.setSortField("name");
       worklistQueryPfs.setAscending(false);
-
       final StringBuffer query = new StringBuffer();
       query
           .append("name:")
@@ -1239,17 +1234,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       sb.append("workflowBinName:").append(workflowBin.getName());
       sb.append(" AND ").append("NOT worklistName:[* TO *] ");
       sb.append(" AND ").append("clusterType:").append(clusterType);
-      if (pfs.getQueryRestriction() != null
-          && !pfs.getQueryRestriction().equals("")) {
-        sb.append(" AND ").append(pfs.getQueryRestriction());
-      }
 
-      pfs.setSortField("clusterId");
-      pfs.setStartIndex(skipClusterCt);
-      pfs.setMaxResults(clusterCt);
-
+      final PfsParameter localPfs =
+          pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
+      // Always work in clusterId order
+      localPfs.setSortField("clusterId");
       final TrackingRecordList recordResultList =
-          workflowService.findTrackingRecords(project, sb.toString(), pfs);
+          workflowService.findTrackingRecords(project, sb.toString(), localPfs);
 
       final WorklistJpa worklist = new WorklistJpa();
       worklist.setName(worklistName.toString());
@@ -1269,8 +1260,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         worklistRecord.setWorklistName(worklistName.toString());
         workflowService.addTrackingRecord(worklistRecord);
         newWorklist.getTrackingRecords().add(worklistRecord);
-        workflowService.updateWorklist(newWorklist);
       }
+      workflowService.updateWorklist(newWorklist);
 
       return newWorklist;
     } catch (Exception e) {
@@ -1508,8 +1499,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Workflow): /report/" + id + "/report/generate ");
-    // TODO: parameters not used
-    // TODO: how to determine fileName?
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     final ReportServiceJpa reportService = new ReportServiceJpa();
@@ -1523,9 +1512,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       // Read vars
       final Project project = workflowService.getProject(projectId);
       final Worklist worklist = workflowService.getWorklist(id);
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setSortField("clusterId");
       final TrackingRecordList recordList =
           workflowService.findTrackingRecords(project, "worklistName:"
-              + worklist.getName(), new PfsParameterJpa());
+              + worklist.getName(), pfs);
 
       for (final TrackingRecord record : recordList.getObjects()) {
         for (final Long conceptId : record.getOrigConceptIds()) {
@@ -1539,10 +1530,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       }
 
       // Construct filename
-      String fileName = id + "_rpt.txt";
+      final String fileName = worklist.getName() + "_rpt.txt";
       final String uploadDir = ConfigUtility.getUploadDir();
-      File reportsDir = new File(uploadDir + "/" + projectId + "/reports");
-      File file = new File(reportsDir, fileName);
+      final File reportsDir =
+          new File(uploadDir + "/" + projectId + "/reports");
+      final File file = new File(reportsDir, fileName);
       if (file.exists()) {
         throw new Exception("Worklist report file already exists - "
             + file.getAbsolutePath());
@@ -1560,6 +1552,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       final BufferedWriter out = new BufferedWriter(new FileWriter(file));
       out.write(conceptReport.toString());
+      out.flush();
       out.close();
 
       // If sendEmail, handle sending email - to the email for the user who
@@ -1599,25 +1592,34 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Workflow): /report " + projectId + ", " + query);
 
-    // TODO; deal with pfs
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     StringList stringList = new StringList();
     List<String> matchingFiles = new ArrayList<>();
     try {
       final String uploadDir = ConfigUtility.getUploadDir();
-      String filePath = uploadDir + "/" + projectId + "/report/";
-      File dir = new File(filePath);
+      final String filePath = uploadDir + "/" + projectId + "/reports";
+      final File dir = new File(filePath);
       if (!dir.exists()) {
         throw new Exception("No reports exist for path " + filePath);
       }
-      for (String file : dir.list()) {
-        if (file.contains(query)) {
+      int i = 0;
+      for (final String file : dir.list()) {
+        i++;
+        if (ConfigUtility.isEmpty(query) || file.contains(query)) {
           matchingFiles.add(file);
         }
       }
       Collections.sort(matchingFiles);
-      stringList.setObjects(matchingFiles);
-      stringList.setTotalCount(matchingFiles.size());
+      if (pfs != null && pfs.getStartIndex() == -1) {
+        stringList.setObjects(matchingFiles);
+      } else {
+        // Or get a substring
+        stringList.setObjects(matchingFiles.subList(
+            pfs.getStartIndex(),
+            Math.min((pfs.getStartIndex() + pfs.getMaxResults()),
+                matchingFiles.size() - 1)));
+      }
+      stringList.setTotalCount(i);
       return stringList;
 
     } catch (Exception e) {
@@ -1645,32 +1647,22 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         "RESTful POST call (Workflow): /report/" + fileName);
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
-    BufferedReader reader = null;
-
     try {
       final String uploadDir = ConfigUtility.getUploadDir();
-      String filePath = uploadDir + "/" + projectId + "/report/" + fileName;
-      File file = new File(filePath);
+      final String filePath =
+          uploadDir + "/" + projectId + "/reports/" + fileName;
+      final File file = new File(filePath);
       if (!file.exists()) {
         throw new Exception("No report exists for path " + filePath);
       }
-      reader = new BufferedReader(new FileReader(file));
-      String line = null;
-      StringBuilder stringBuilder = new StringBuilder();
-      String ls = System.getProperty("line.separator");
+      // Return file contents
 
-      while ((line = reader.readLine()) != null) {
-        stringBuilder.append(line);
-        stringBuilder.append(ls);
-      }
-
-      return stringBuilder.toString();
+      return FileUtils.readFileToString(file, "UTF-8");
 
     } catch (Exception e) {
       handleException(e, e.getMessage()
           + ". Trying to find generated concept report.");
     } finally {
-      reader.close();
       workflowService.close();
       securityService.close();
     }
@@ -1680,7 +1672,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @DELETE
-  @Path("/report/{filename}/remove")
+  @Path("/report/{fileName}/remove")
   @ApiOperation(value = "Get generated concept report", notes = "Get generated concept report", response = String.class)
   public void removeGeneratedConceptReport(
     @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
@@ -1693,12 +1685,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
     try {
       final String uploadDir = ConfigUtility.getUploadDir();
-      String filePath = uploadDir + "/" + projectId + "/report/" + fileName;
-      File file = new File(filePath);
-      if (!file.exists()) {
-        throw new Exception("No report exists for path " + filePath);
-      }
-      file.delete();
+      final String filePath =
+          uploadDir + "/" + projectId + "/reports/" + fileName;
+      FileUtils.forceDelete(new File(filePath));
     } catch (Exception e) {
       handleException(e, e.getMessage()
           + ". Trying to remove generated concept report.");

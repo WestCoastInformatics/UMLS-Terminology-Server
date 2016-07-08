@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.HasTerminologyId;
-import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -115,32 +114,33 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   /* see superclass */
   @Override
   public void resolveEmpty(Concept concept) {
-    concept.setAtoms(new ArrayList<Atom>());
-    concept.setSemanticTypes(new ArrayList<SemanticTypeComponent>());
-    concept.setDefinitions(new ArrayList<Definition>());
-    concept.setAttributes(new ArrayList<Attribute>());
-    concept.setRelationships(new ArrayList<ConceptRelationship>());
-    concept.setMembers(new ArrayList<ConceptSubsetMember>());
-    concept.setNotes(new ArrayList<Note>());
+    concept.setAtoms(new ArrayList<>());
+    concept.setSemanticTypes(new ArrayList<>());
+    concept.setDefinitions(new ArrayList<>());
+    concept.setAttributes(new ArrayList<>());
+    concept.setRelationships(new ArrayList<>());
+    concept.setMembers(new ArrayList<>());
+    concept.setNotes(new ArrayList<>());
+    concept.setComponentHistory(new ArrayList<>());
   }
 
   /* see superclass */
   @Override
   public void resolveEmpty(Descriptor descriptor) {
-    descriptor.setAtoms(new ArrayList<Atom>());
-    descriptor.setDefinitions(new ArrayList<Definition>());
-    descriptor.setAttributes(new ArrayList<Attribute>());
-    descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
-    descriptor.setNotes(new ArrayList<Note>());
+    descriptor.setAtoms(new ArrayList<>());
+    descriptor.setDefinitions(new ArrayList<>());
+    descriptor.setAttributes(new ArrayList<>());
+    descriptor.setRelationships(new ArrayList<>());
+    descriptor.setNotes(new ArrayList<>());
   }
 
   /* see superclass */
   @Override
   public void resolveEmpty(Code code) {
-    code.setAtoms(new ArrayList<Atom>());
-    code.setAttributes(new ArrayList<Attribute>());
-    code.setRelationships(new ArrayList<CodeRelationship>());
-    code.setNotes(new ArrayList<Note>());
+    code.setAtoms(new ArrayList<>());
+    code.setAttributes(new ArrayList<>());
+    code.setRelationships(new ArrayList<>());
+    code.setNotes(new ArrayList<>());
   }
 
   /* see superclass */
@@ -281,7 +281,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       code.setRelationships(new ArrayList<CodeRelationship>());
 
       // user annotations -- lazy initialize
-      // code.getNotes().size();
+      code.getNotes().size();
 
     } else if (code == null) {
       throw new Exception("Cannot resolve a null code.");

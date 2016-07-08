@@ -331,16 +331,13 @@ public interface WorkflowServiceRest {
    * @param projectId the project id
    * @param workflowBinId the workflow bin id
    * @param clusterType the cluster type
-   * @param skipClusterCt the skip cluster ct
-   * @param clusterCt the cluster ct
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the worklist
    * @throws Exception the exception
    */
   public Worklist createWorklist(Long projectId, Long workflowBinId,
-    String clusterType, int skipClusterCt, int clusterCt, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+    String clusterType, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Removes the worklist.

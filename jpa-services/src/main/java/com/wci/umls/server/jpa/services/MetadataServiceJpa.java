@@ -418,6 +418,22 @@ public class MetadataServiceJpa extends ProjectServiceJpa implements
   }
 
   /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public TerminologyList getCurrentTerminologies() throws Exception {
+    Logger.getLogger(getClass()).info("Metadata service - get terminologies ");
+    javax.persistence.Query query =
+        manager.createQuery("SELECT t FROM TerminologyJpa t WHERE current = 1");
+
+    List<Terminology> results = query.getResultList();
+    TerminologyList list = new TerminologyListJpa();
+    list.setObjects(results);
+    list.setTotalCount(results.size());
+
+    return list;
+  }
+
+  /* see superclass */
   @Override
   public RelationshipTypeList getRelationshipTypes(String terminology,
     String version) throws Exception {

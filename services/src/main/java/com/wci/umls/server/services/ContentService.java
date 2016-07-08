@@ -188,7 +188,7 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @return the subset members for atom
    */
-  public SubsetMemberList getSubsetMembersForAtom(String atomId,
+  public SubsetMemberList getAtomSubsetMembers(String atomId,
     String terminology, String version, String branch);
 
   /**
@@ -200,7 +200,7 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @return the subset members for concept
    */
-  public SubsetMemberList getSubsetMembersForConcept(String conceptId,
+  public SubsetMemberList getConceptSubsetMembers(String conceptId,
     String terminology, String version, String branch);
 
   /**
@@ -216,7 +216,7 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForConcept(String conceptId,
+  public RelationshipList findConceptRelationships(String conceptId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
@@ -233,7 +233,7 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findDeepRelationshipsForConcept(String conceptId,
+  public RelationshipList findConceptDeepRelationships(String conceptId,
     String terminology, String version, String branch, String filter,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
@@ -250,7 +250,7 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForDescriptor(String descriptorId,
+  public RelationshipList findDescriptorRelationships(String descriptorId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
@@ -267,7 +267,7 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForCode(String codeId,
+  public RelationshipList findCodeRelationships(String codeId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
@@ -572,47 +572,19 @@ public interface ContentService extends MetadataService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findTreePositionsForConcept(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find concept tree positions for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
    * @param query the query
    * @param pfs the pfs
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findConceptTreePositions(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find tree positions for descriptor.
-   *
-   * @param descriptorId the descriptor id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findTreePositionsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
+  public TreePositionList findConceptTreePositions(String terminologyId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find descriptor tree positions for query.
    *
+   * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
@@ -621,28 +593,14 @@ public interface ContentService extends MetadataService {
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findDescriptorTreePositions(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find tree positions for code.
-   *
-   * @param codeId the code id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findTreePositionsForCode(String codeId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
+  public TreePositionList findDescriptorTreePositions(String terminologyId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find code tree positions for query.
    *
+   * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
@@ -651,9 +609,9 @@ public interface ContentService extends MetadataService {
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findCodeTreePositions(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
+  public TreePositionList findCodeTreePositions(String terminologyId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find descendant descriptors.
@@ -1612,8 +1570,8 @@ public interface ContentService extends MetadataService {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForMapSet(Long mapSetId, String query,
-    PfsParameter pfs) throws Exception;
+  public MappingList findMappings(Long mapSetId, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Add map set.
@@ -1686,9 +1644,9 @@ public interface ContentService extends MetadataService {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForConcept(String conceptId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception;
+  public MappingList findConceptMappings(String conceptId, String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find mappings for code.
@@ -1702,7 +1660,7 @@ public interface ContentService extends MetadataService {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForCode(String codeId, String terminology,
+  public MappingList findCodeMappings(String codeId, String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception;
 
@@ -1718,7 +1676,7 @@ public interface ContentService extends MetadataService {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForDescriptor(String descriptorId,
+  public MappingList findDescriptorMappings(String descriptorId,
     String terminology, String version, String branch, String query,
     PfsParameter pfs) throws Exception;
 
@@ -1821,7 +1779,7 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForComponentInfo(
+  public RelationshipList findComponentInfoRelationships(
     String componentInfoId, String terminology, String version, IdType type,
     String branch, String query, boolean inverseFlag, PfsParameter pfs)
     throws Exception;
