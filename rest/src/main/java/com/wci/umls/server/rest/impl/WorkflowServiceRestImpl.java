@@ -1299,7 +1299,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final Map<String, Integer> typeEditableMap = new HashMap<>();
       for (final WorkflowBin bin : bins) {
         for (final TrackingRecord record : bin.getTrackingRecords()) {
-          final String clusterType = record.getClusterType();
+          String clusterType = record.getClusterType();
+          if (clusterType.isEmpty()) {
+            clusterType = "default";
+          }
+
           // Initialize map
           if (!typeUneditableMap.containsKey(clusterType)) {
             typeUneditableMap.put(clusterType, 0);
@@ -1315,9 +1319,24 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             typeEditableMap.put(clusterType,
                 typeEditableMap.get(clusterType) + 1);
           }
+
+          // compute "all" cluster type
+          if (!typeUneditableMap.containsKey("all")) {
+            typeUneditableMap.put("all", 0);
+            typeEditableMap.put("all", 0);
+          }
+          typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
+          typeEditableMap.put("all", typeEditableMap.get("all") + 1);
+
         }
         // Now extract cluster types and add statistics
         for (final String clusterType : typeUneditableMap.keySet()) {
+
+          // Skip "all" if there is only one cluster type
+          if (typeUneditableMap.keySet().size() == 2
+              && clusterType.equals("all")) {
+            continue;
+          }
           // Add statistics
           ClusterTypeStats stats = new ClusterTypeStatsJpa();
           stats.setClusterType(clusterType);

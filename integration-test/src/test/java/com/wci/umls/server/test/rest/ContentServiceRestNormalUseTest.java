@@ -2065,7 +2065,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         contentService.getMapSets("SNOMEDCT_US", "2016_03_01", authToken);
     // Validate the concept returned
     assertNotNull(c);
-    assertEquals(0, c.getObjects().size());
+    assertEquals(1, c.getObjects().size());
   }
 
   /**

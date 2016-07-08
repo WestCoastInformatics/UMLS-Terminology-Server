@@ -460,7 +460,7 @@ public class WorkflowBinJpa implements WorkflowBin {
         + ", name=" + name + ", description=" + description
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
         + ", version=" + version + ", type=" + type + ", rank=" + rank
-        + ", editable=" + editable + ", creationTime=" + creationTime + "]";
+        + ", editable=" + editable + ", creationTime=" + creationTime + ", stats=" +stats +"]";
   }
 
 }
