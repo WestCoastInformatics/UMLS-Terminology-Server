@@ -67,6 +67,7 @@ public class UserImplUnitTest extends ModelUnitSupport {
     tester.include("applicationRole");
     tester.include("email");
     tester.include("name");
+    tester.include("team");
     tester.include("userName");
 
     assertTrue(tester.testIdentityFieldEquals());
