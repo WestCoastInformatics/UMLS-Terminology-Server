@@ -11,8 +11,7 @@ import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PrecedenceList;
 
 /**
- * Represents an project with users, roles, and configuration for
- * editing.
+ * Represents an project with users, roles, and configuration for editing.
  */
 public interface Project extends HasId {
 
@@ -57,6 +56,22 @@ public interface Project extends HasId {
    * @param isPublic the new public
    */
   public void setPublic(boolean isPublic);
+
+  /**
+   * Indicates whether or not the project is team based. This can be used, for
+   * example in review to ensure that members of different teams review each
+   * others work.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isTeamBased();
+
+  /**
+   * Sets the team based.
+   *
+   * @param teamBased the team based
+   */
+  public void setTeamBased(boolean teamBased);
 
   /**
    * Returns the last modified.
@@ -185,11 +200,11 @@ public interface Project extends HasId {
   public void setValidCategories(List<String> validCategories);
 
   /**
-   * Gets the semantic type category map.  This is used primarily to
-   * identify "chem" and "nonchem" by semantic type value.  There may be
-   * other categories desired or needed by the workflow environment
-   * for repartitioning.  For UMLS editing, the "chem" semantic
-   * types will be "Chemical" and all of its descenants.
+   * Gets the semantic type category map. This is used primarily to identify
+   * "chem" and "nonchem" by semantic type value. There may be other categories
+   * desired or needed by the workflow environment for repartitioning. For UMLS
+   * editing, the "chem" semantic types will be "Chemical" and all of its
+   * descenants.
    *
    * @return the semantic type category map
    */
@@ -200,15 +215,16 @@ public interface Project extends HasId {
    *
    * @param semanticTypeCategoryMap the semantic type category map
    */
-  public void setSemanticTypeCategoryMap(Map<String, String> semanticTypeCategoryMap);
-  
+  public void setSemanticTypeCategoryMap(
+    Map<String, String> semanticTypeCategoryMap);
+
   /**
    * Returns the workflow path.
    *
    * @return the workflow path
    */
   public String getWorkflowPath();
-  
+
   /**
    * Sets the workflow path.
    *

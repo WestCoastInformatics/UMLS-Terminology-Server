@@ -32,6 +32,13 @@ public interface User {
   public String getName();
 
   /**
+   * Sets the name.
+   *
+   * @param fullName the name
+   */
+  public void setName(String fullName);
+
+  /**
    * Returns the email.
    *
    * @return the email
@@ -60,11 +67,18 @@ public interface User {
   public void setUserName(String userName);
 
   /**
-   * Sets the name.
+   * Returns the team.
    *
-   * @param fullName the name
+   * @return the team
    */
-  public void setName(String fullName);
+  public String getTeam();
+
+  /**
+   * Sets the team.
+   *
+   * @param team the team
+   */
+  public void setTeam(String team);
 
   /**
    * Sets the email.

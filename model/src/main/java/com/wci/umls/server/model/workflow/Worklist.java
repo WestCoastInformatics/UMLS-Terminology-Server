@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.workflow;
 
@@ -14,20 +14,6 @@ import com.wci.umls.server.helpers.HasStats;
  * participate in workflow.
  */
 public interface Worklist extends Checklist, HasStats {
-
-  /**
-   * Gets the group.
-   *
-   * @return the group
-   */
-  public String getWorklistGroup();
-
-  /**
-   * Sets the group.
-   *
-   * @param group the new group
-   */
-  public void setWorklistGroup(String group);
 
   /**
    * Returns the workflow bin.
@@ -84,6 +70,20 @@ public interface Worklist extends Checklist, HasStats {
    * @param reviewers the reviewers
    */
   public void setReviewers(List<String> reviewers);
+
+  /**
+   * Returns the team.
+   *
+   * @return the team
+   */
+  public String getTeam();
+
+  /**
+   * Sets the team.
+   *
+   * @param team the team
+   */
+  public void setTeam(String team);
 
   /**
    * Gets the workflow status.

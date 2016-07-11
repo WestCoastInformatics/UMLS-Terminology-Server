@@ -108,6 +108,7 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("branch");
     tester.include("public");
+    tester.include("teamBased");
     tester.include("userRoleMap");
     tester.include("feedbackEmail");
 
@@ -177,6 +178,7 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("description");
     tester.include("isPublic");
+    tester.include("teamBased");
     tester.include("terminology");
     tester.include("semanticTypeCategoryMap");
     tester.include("workflowPath");

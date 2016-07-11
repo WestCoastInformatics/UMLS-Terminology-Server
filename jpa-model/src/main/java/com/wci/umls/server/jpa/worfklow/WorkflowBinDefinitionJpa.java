@@ -84,9 +84,13 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   @Column(nullable = false)
   private QueryType queryType;
 
-  /** The editable. */
+  /** The editable flag. */
   @Column(nullable = false)
   private boolean editable;
+
+  /** The required flag. */
+  @Column(nullable = false)
+  private boolean required;
 
   /** The workflow config. */
   @ManyToOne(targetEntity = WorkflowConfigJpa.class, optional = false)
@@ -115,6 +119,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     query = def.getQuery();
     queryType = def.getQueryType();
     editable = def.isEditable();
+    required = def.isRequired();
     workflowConfig = def.getWorkflowConfig();
   }
 
@@ -206,6 +211,19 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     this.editable = editable;
   }
 
+  @Override
+  @FieldBridge(impl = BooleanBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isRequired() {
+    return required;
+  }
+
+  /* see superclass */
+  @Override
+  public void setRequired(boolean required) {
+    this.required = required;
+  }
+
   /* see superclass */
   @Override
   public String getQuery() {
@@ -276,6 +294,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (editable ? 1231 : 1237);
+    result = prime * result + (required ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((query == null) ? 0 : query.hashCode());
     result = prime * result + ((queryType == null) ? 0 : queryType.hashCode());
@@ -298,6 +317,8 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     } else if (!description.equals(other.description))
       return false;
     if (editable != other.editable)
+      return false;
+    if (required != other.required)
       return false;
     if (name == null) {
       if (other.name != null)
@@ -324,7 +345,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
         + lastModified + ", lastModifiedBy=" + lastModifiedBy + ", timestamp="
         + timestamp + ", name=" + name + ", description=" + description
         + ", query=" + query + ", queryType=" + queryType + ", editable="
-        + editable + "]";
+        + editable + ", required=" + required + "]";
   }
 
 }

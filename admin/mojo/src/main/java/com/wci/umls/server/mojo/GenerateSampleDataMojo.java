@@ -370,18 +370,25 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     WorkflowServiceRestImpl workflowService = new WorkflowServiceRestImpl();
 
     // Create a workflow epoch
-    // TODO: create an older one and a new one so we can test
-    // "get currente epoch"
-    getLog().info("  Create an epoch");
+    getLog().info("  Create epoch 15a");
     WorkflowEpochJpa workflowEpoch = new WorkflowEpochJpa();
+    workflowEpoch.setActive(true);
+    workflowEpoch.setName("15a");
+    workflowEpoch.setProject(project1);
+    workflowService
+        .addWorkflowEpoch(project1.getId(), workflowEpoch, authToken);
+
+    getLog().info("  Create epoch 16a");
+    workflowEpoch = new WorkflowEpochJpa();
     workflowEpoch.setActive(true);
     workflowEpoch.setName("16a");
     workflowEpoch.setProject(project1);
     workflowService
         .addWorkflowEpoch(project1.getId(), workflowEpoch, authToken);
 
+    //
     // Add a ME bins workflow config for the current project
-    // TODO: also add a QA for testing of non-mutually-excuslive
+    //
     getLog().info("  Create a ME workflow config");
     workflowService = new WorkflowServiceRestImpl();
     WorkflowConfigJpa config = new WorkflowConfigJpa();
@@ -392,11 +399,76 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     WorkflowConfig newConfig =
         workflowService.addWorkflowConfig(project1.getId(), config, authToken);
 
-    // Add a workflow definition (as SQL)
-    // TODO: create workflow bin definitions exactly matching NCI-META config
-    // also
-    getLog().info("  Create a workflow definition");
+    // Add workflow definitions
+    // demotions
+    getLog().info("  Add 'demotions' workflow bin definition");
     WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
+    definition.setName("demotions");
+    definition
+        .setDescription("Clustered concepts that failed insertion merges.  Must be either related or merged.");
+    definition.setQuery("select from_id clusterId, from_id conceptId "
+        + "from concept_relationships "
+        + "where terminology=:terminology and workflowStatus = '"
+        + WorkflowStatus.DEMOTION + "' union "
+        + "select from_id, to_id from concept_relationships "
+        + "where terminology=:terminology and workflowStatus = '"
+        + WorkflowStatus.DEMOTION + "' " + "order by 1");
+    definition.setEditable(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(project1.getId(), definition,
+        authToken);
+
+    // norelease
+    getLog().info("  Add 'norelease' workflow bin definition");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("norelease");
+    definition.setDescription("Concepts where all atoms are unreleasable.");
+    definition.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a, concepts_atoms b, atoms c "
+        + "where a.terminology=:terminology and a.id = b.concepts_id "
+        + "and b.atoms_id = c.id and c.publishable = 0 "
+        + "and not exists (select * from concepts_atoms d, atoms e "
+        + " where a.id = d.concepts_id and d.atoms_id = e.id "
+        + " and e.publishable = 1);");
+    definition.setEditable(false);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(project1.getId(), definition,
+        authToken);
+
+    // norelease
+    getLog().info("  Add 'reviewed' workflow bin definition");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("reviewed");
+    definition.setDescription("Concepts that do not require review.");
+    definition.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a " + "where a.terminology=:terminology "
+        + "a.workflowStatus != 'NEEDS_REVIEW'");
+    definition.setEditable(false);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(project1.getId(), definition,
+        authToken);
+    //
+    // Add a QA bins workflow config for the current project
+    //
+    getLog().info("  Create a ME workflow config");
+    workflowService = new WorkflowServiceRestImpl();
+    config = new WorkflowConfigJpa();
+    config.setType(WorkflowBinType.QUALITY_ASSURANCE);
+    config.setMutuallyExclusive(true);
+    config.setProjectId(project1.getId());
+    workflowService = new WorkflowServiceRestImpl();
+    newConfig =
+        workflowService.addWorkflowConfig(project1.getId(), config, authToken);
+
+    // Add a workflow definition (as SQL)
+    getLog().info("  Create a workflow definition");
+    definition = new WorkflowBinDefinitionJpa();
     definition.setName("testName");
     definition.setDescription("test description");
     definition
@@ -409,23 +481,9 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowService.addWorkflowBinDefinition(project1.getId(), definition,
         authToken);
 
-    // Add a second workflow definition
-    getLog().info("  Create a second workflow definition");
-    WorkflowBinDefinitionJpa definition2 = new WorkflowBinDefinitionJpa();
-    definition2.setName("testName2");
-    definition2.setDescription("test description2");
-    definition2
-        .setQuery("select distinct c.id clusterId, c.id conceptId from concepts c where c.name like '%Acid%';");
-    definition2.setEditable(true);
-    definition2.setQueryType(QueryType.SQL);
-    definition2.setWorkflowConfig(newConfig);
-
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(project1.getId(), definition2,
-        authToken);
-
     // Clear and regenerate all bins
-    getLog().info("  Clear and regenerate all bins");
+    // TODO: also for QA bins
+    getLog().info("  Clear and regenerate ME bins");
     // Clear bins
     workflowService = new WorkflowServiceRestImpl();
     workflowService.clearBins(project1.getId(),
