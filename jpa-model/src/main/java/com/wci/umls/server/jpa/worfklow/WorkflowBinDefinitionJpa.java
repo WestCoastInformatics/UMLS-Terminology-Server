@@ -211,6 +211,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     this.editable = editable;
   }
 
+  /* see superclass */
   @Override
   @FieldBridge(impl = BooleanBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)

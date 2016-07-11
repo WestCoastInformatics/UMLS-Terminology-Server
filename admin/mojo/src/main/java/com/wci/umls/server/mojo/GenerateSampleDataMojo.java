@@ -414,6 +414,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "where terminology=:terminology and workflowStatus = '"
         + WorkflowStatus.DEMOTION + "' " + "order by 1");
     definition.setEditable(true);
+    definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
@@ -433,6 +434,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + " where a.id = d.concepts_id and d.atoms_id = e.id "
         + " and e.publishable = 1);");
     definition.setEditable(false);
+    definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
@@ -448,11 +450,13 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "from concepts a " + "where a.terminology=:terminology "
         + "a.workflowStatus != 'NEEDS_REVIEW'");
     definition.setEditable(false);
+    definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(project1.getId(), definition,
         authToken);
+
     //
     // Add a QA bins workflow config for the current project
     //

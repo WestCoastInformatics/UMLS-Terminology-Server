@@ -115,7 +115,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
 
   /**

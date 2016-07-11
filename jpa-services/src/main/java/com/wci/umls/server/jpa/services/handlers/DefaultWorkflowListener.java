@@ -5,7 +5,7 @@ package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.Properties;
 
-import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -131,7 +131,7 @@ public class DefaultWorkflowListener implements WorkflowListener {
 
   @Override
   public void relationshipChanged(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship,
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
     Action action) throws Exception {
     // n/a
 

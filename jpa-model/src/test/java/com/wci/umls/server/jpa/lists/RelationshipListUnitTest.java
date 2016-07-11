@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.Relationship;
 @SuppressWarnings("rawtypes")
 public class RelationshipListUnitTest
     extends
-    AbstractListUnit<Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> {
+    AbstractListUnit<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> {
 
   /** The list test fixture . */
   private RelationshipList list;

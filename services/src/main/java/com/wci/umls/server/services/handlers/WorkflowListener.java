@@ -3,8 +3,8 @@
  */
 package com.wci.umls.server.services.handlers;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Configurable;
-import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -98,7 +98,6 @@ public interface WorkflowListener extends Configurable {
    */
   public void conceptChanged(Concept concept, Action action) throws Exception;
 
-
   /**
    * Component history changed.
    *
@@ -106,7 +105,8 @@ public interface WorkflowListener extends Configurable {
    * @param action the action
    * @throws Exception the exception
    */
-  public void componentHistoryChanged(ComponentHistory componentHistory, Action action) throws Exception;
+  public void componentHistoryChanged(ComponentHistory componentHistory,
+    Action action) throws Exception;
 
   /**
    * Descriptor of atom changed.
@@ -184,7 +184,7 @@ public interface WorkflowListener extends Configurable {
    * @throws Exception the exception
    */
   public void relationshipChanged(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship,
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
     Action action) throws Exception;
 
   /**
@@ -204,7 +204,7 @@ public interface WorkflowListener extends Configurable {
    * @param action the action
    */
   public void subsetChanged(Subset subset, Action action);
-  
+
   /**
    * Mapping changed.
    *
@@ -212,7 +212,7 @@ public interface WorkflowListener extends Configurable {
    * @param action the action
    */
   public void mappingChanged(Mapping mapping, Action action);
-  
+
   /**
    * Map set changed.
    *
