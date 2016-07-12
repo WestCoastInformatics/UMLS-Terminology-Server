@@ -3,8 +3,8 @@
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
-import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
@@ -13,7 +13,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  * @param <S> the "from" object type
  * @param <T> the "to" object type
  */
-public interface Relationship<S extends HasTerminologyId, T extends HasTerminologyId>
+public interface Relationship<S extends ComponentInfo, T extends ComponentInfo>
     extends ComponentHasAttributes, HasAlternateTerminologyIds {
 
   /**

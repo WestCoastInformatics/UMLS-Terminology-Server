@@ -9,7 +9,6 @@ package com.wci.umls.server.services;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -743,8 +742,8 @@ public interface ContentService extends MetadataService {
    * @return the relationship
    * @throws Exception the exception
    */
-  public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> addRelationship(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> addRelationship(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
 
   /**
@@ -754,7 +753,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public void updateRelationship(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
 
   /**
@@ -766,7 +765,7 @@ public interface ContentService extends MetadataService {
    */
   public void removeRelationship(
     Long id,
-    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
   /**
@@ -1293,12 +1292,12 @@ public interface ContentService extends MetadataService {
    * @return the relationship
    * @throws Exception the exception
    */
-  public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> getRelationship(
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
     String terminologyId,
     String terminology,
     String version,
     String branch,
-    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
   /**
@@ -1315,7 +1314,7 @@ public interface ContentService extends MetadataService {
     String terminologyId,
     String terminology,
     String version,
-    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
   /**
@@ -1326,9 +1325,9 @@ public interface ContentService extends MetadataService {
    * @return the relationship
    * @throws Exception the exception
    */
-  public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> getRelationship(
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
     Long id,
-    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
   /**

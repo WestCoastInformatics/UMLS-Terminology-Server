@@ -1721,6 +1721,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
    *
    * @param query the query
    * @param nativeFlag the native flag
+   * @param params the params
    * @param workflowService the workflow service
    * @return the list
    * @throws Exception the exception
@@ -1729,7 +1730,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       "unchecked", "static-method"
   })
   private List<Object[]> executeQuery(String query, boolean nativeFlag,
-    WorkflowServiceJpa workflowService) throws Exception {
+    Map<String, String> params, WorkflowServiceJpa workflowService)
+    throws Exception {
 
     // check for sql query errors -- throw as local exception
     // this is used to propagate errors back to user when testing queries
@@ -1776,6 +1778,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       jpaQuery = workflowService.getEntityManager().createNativeQuery(query);
     } else {
       jpaQuery = workflowService.getEntityManager().createQuery(query);
+    }
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        jpaQuery.setParameter(key, params.get(key));
+      }
     }
     return jpaQuery.getResultList();
   }
@@ -1853,11 +1860,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
     // execute the query
     final String query = definition.getQuery();
+    final Map<String, String> params = new HashMap<>();
+    params.put("terminology", project.getTerminology());
+
     List<Object[]> results = null;
     switch (definition.getQueryType()) {
       case HQL:
         try {
-          results = executeQuery(query, false, workflowService);
+          results = executeQuery(query, false, params, workflowService);
         } catch (java.lang.IllegalArgumentException e) {
           throw new LocalException("Error executing HQL query: "
               + e.getMessage());
@@ -1877,7 +1887,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         break;
       case SQL:
         try {
-          results = executeQuery(query, true, workflowService);
+          results = executeQuery(query, true, params, workflowService);
         } catch (javax.persistence.PersistenceException e) {
           throw new LocalException("Error executing SQL query:  "
               + e.getMessage());

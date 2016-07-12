@@ -106,7 +106,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("project");
     tester.include("authors");
     tester.include("reviewers");
-    tester.include("worklistGroup");
+    tester.include("team");
     tester.include("workflowBinName");
 
     tester.proxy(List.class, 1, l1);
@@ -196,7 +196,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("projectId");
     tester.include("lastModifiedBy");
-    tester.include("worklistGroup");
+    tester.include("team");
     tester.include("workflowStatus");
     tester.include("workflowBinName");
 

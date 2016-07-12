@@ -104,6 +104,10 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Column(nullable = false)
   private boolean editable;
 
+  /** The required. */
+  @Column(nullable = false)
+  private boolean required;
+
   /** The tracking records. */
   @OneToMany(targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
@@ -149,6 +153,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     type = bin.getType();
     rank = bin.getRank();
     editable = bin.isEditable();
+    required = bin.isRequired();
     creationTime = bin.getCreationTime();
     project = bin.getProject();
     if (deepCopy) {
@@ -267,6 +272,20 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Override
   public void setEditable(boolean editable) {
     this.editable = editable;
+  }
+
+  /* see superclass */
+  @Override
+  @FieldBridge(impl = BooleanBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isRequired() {
+    return required;
+  }
+
+  /* see superclass */
+  @Override
+  public void setRequired(boolean required) {
+    this.required = required;
   }
 
   /* see superclass */
@@ -396,6 +415,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (editable ? 1231 : 1237);
+    result = prime * result + (required ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + rank;
     result =
@@ -424,6 +444,8 @@ public class WorkflowBinJpa implements WorkflowBin {
     } else if (!description.equals(other.description))
       return false;
     if (editable != other.editable)
+      return false;
+    if (required != other.required)
       return false;
     if (name == null) {
       if (other.name != null)
@@ -460,7 +482,8 @@ public class WorkflowBinJpa implements WorkflowBin {
         + ", name=" + name + ", description=" + description
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
         + ", version=" + version + ", type=" + type + ", rank=" + rank
-        + ", editable=" + editable + ", creationTime=" + creationTime + ", stats=" +stats +"]";
+        + ", editable=" + editable + ", required=" + required
+        + ", creationTime=" + creationTime + ", stats=" + stats + "]";
   }
 
 }

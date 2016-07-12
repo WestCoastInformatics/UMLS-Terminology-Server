@@ -25,6 +25,9 @@ public class UserImpl implements User {
   /** The name. */
   private String name;
 
+  /** The team. */
+  private String team;
+
   /** The email. */
   private String email;
 
@@ -55,6 +58,7 @@ public class UserImpl implements User {
   public UserImpl(User user) {
     userName = user.getUserName();
     name = user.getName();
+    team = user.getTeam();
     email = user.getEmail();
     applicationRole = user.getApplicationRole();
     authToken = user.getAuthToken();
@@ -83,6 +87,18 @@ public class UserImpl implements User {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  /* see superclass */
+  @Override
+  public String getTeam() {
+    return team;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTeam(String team) {
+    this.team = team;
   }
 
   /* see superclass */
@@ -142,6 +158,7 @@ public class UserImpl implements User {
             + ((applicationRole == null) ? 0 : applicationRole.hashCode());
     result = prime * result + ((email == null) ? 0 : email.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((team == null) ? 0 : team.hashCode());
     result = prime * result + ((userName == null) ? 0 : userName.hashCode());
     return result;
   }
@@ -167,6 +184,11 @@ public class UserImpl implements User {
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
+      return false;
+    if (team == null) {
+      if (other.team != null)
+        return false;
+    } else if (!team.equals(other.team))
       return false;
     if (userName == null) {
       if (other.userName != null)

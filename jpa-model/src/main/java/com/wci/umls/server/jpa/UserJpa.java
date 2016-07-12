@@ -64,12 +64,16 @@ public class UserJpa implements User {
   private Long id;
 
   /** The user name. */
-  @Column(nullable = false, unique = true, length = 250)
+  @Column(nullable = false, unique = true)
   private String userName;
 
   /** The name. */
-  @Column(nullable = false, length = 250)
+  @Column(nullable = false)
   private String name;
+
+  /** The team. */
+  @Column(nullable = true)
+  private String team;
 
   /** The email. */
   @Column(nullable = false)
@@ -113,6 +117,7 @@ public class UserJpa implements User {
     this.id = user.getId();
     this.userName = user.getUserName();
     this.name = user.getName();
+    this.team = user.getTeam();
     this.email = user.getEmail();
     this.applicationRole = user.getApplicationRole();
     this.authToken = user.getAuthToken();
@@ -160,6 +165,18 @@ public class UserJpa implements User {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getTeam() {
+    return team;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTeam(String team) {
+    this.team = team;
   }
 
   /* see superclass */
@@ -211,6 +228,7 @@ public class UserJpa implements User {
     result = prime * result + ((authToken == null) ? 0 : authToken.hashCode());
     result = prime * result + ((email == null) ? 0 : email.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((team == null) ? 0 : team.hashCode());
     result = prime * result + ((userName == null) ? 0 : userName.hashCode());
     return result;
   }
@@ -242,6 +260,11 @@ public class UserJpa implements User {
         return false;
     } else if (!name.equals(other.name))
       return false;
+    if (team == null) {
+      if (other.team != null)
+        return false;
+    } else if (!team.equals(other.team))
+      return false;
     if (userName == null) {
       if (other.userName != null)
         return false;
@@ -267,8 +290,8 @@ public class UserJpa implements User {
   @Override
   public String toString() {
     return "UserJpa [id=" + id + ", userName=" + userName + ", name=" + name
-        + ", email=" + email + ", applicationRole=" + applicationRole
-        + ", authToken=" + authToken + "]";
+        + ", team=" + team + ", email=" + email + ", applicationRole="
+        + applicationRole + ", authToken=" + authToken + "]";
   }
 
   /*

@@ -25,7 +25,6 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
@@ -449,7 +448,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     umlsIdentityLoaderAlgo = new UmlsIdentityLoaderAlgorithm();
     umlsIdentityLoaderAlgo.setTerminology(getTerminology());
     umlsIdentityLoaderAlgo.setInputPath(getInputPath());
-    //umlsIdentityLoaderAlgo.compute();
+    // umlsIdentityLoaderAlgo.compute();
     umlsIdentityLoaderAlgo.close();
 
     // Final logging messages
@@ -1115,7 +1114,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAT);
     // make set of all atoms that got an additional attribute
     final Set<Atom> modifiedAtoms = new HashSet<>();
-    final Set<Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> modifiedRelationships =
+    final Set<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> modifiedRelationships =
         new HashSet<>();
     final Set<Code> modifiedCodes = new HashSet<>();
     final Set<Descriptor> modifiedDescriptors = new HashSet<>();
@@ -1212,7 +1211,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         addAttribute(att, atom);
       } else if (fields[4].equals("RUI")) {
         // Get the relationship for the RUI
-        final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship =
+        System.out.println("line=" + line);
+        final Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship =
             getRelationship(relationshipMap.get(fields[3]), null);
         relationship.getAttributes().add(att);
         addAttribute(att, relationship);
@@ -1291,7 +1291,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           updateAtom(a);
         }
         modifiedAtoms.clear();
-        for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> r : modifiedRelationships) {
+        for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> r : modifiedRelationships) {
           updateRelationship(r);
         }
         modifiedRelationships.clear();
@@ -1390,7 +1390,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       updateAtom(a);
     }
     modifiedAtoms.clear();
-    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> r : modifiedRelationships) {
+    for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> r : modifiedRelationships) {
       updateRelationship(r);
     }
     modifiedRelationships.clear();
@@ -2286,7 +2286,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private void setRelationshipFields(
     final String[] fields,
-    final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
+    final Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
     relationship.setTimestamp(releaseVersionDate);
     relationship.setLastModified(releaseVersionDate);

@@ -86,8 +86,12 @@ public class ProjectJpa implements Project {
   private String description;
 
   /** Whether this project is viewable by public roles. */
-  @Column(unique = false, nullable = false)
+  @Column(nullable = false)
   private boolean isPublic = false;
+
+  /** The team based. */
+  @Column(nullable = false)
+  private boolean teamBased = false;
 
   /** The terminology. */
   @Column(nullable = false)
@@ -155,6 +159,7 @@ public class ProjectJpa implements Project {
     name = project.getName();
     description = project.getDescription();
     isPublic = project.isPublic();
+    teamBased = project.isTeamBased();
     terminology = project.getTerminology();
     branch = project.getBranch();
     userRoleMap = project.getUserRoleMap();
@@ -251,6 +256,18 @@ public class ProjectJpa implements Project {
   @Override
   public void setPublic(boolean isPublic) {
     this.isPublic = isPublic;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isTeamBased() {
+    return teamBased;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTeamBased(boolean teamBased) {
+    this.teamBased = teamBased;
   }
 
   /* see superclass */
@@ -401,6 +418,7 @@ public class ProjectJpa implements Project {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (isPublic ? 1231 : 1237);
+    result = prime * result + (teamBased ? 1231 : 1237);
     result =
         prime * result
             + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
@@ -438,6 +456,8 @@ public class ProjectJpa implements Project {
     } else if (!description.equals(other.description))
       return false;
     if (isPublic != other.isPublic)
+      return false;
+    if (teamBased != other.teamBased)
       return false;
     if (name == null) {
       if (other.name != null)

@@ -123,6 +123,29 @@ if ($status != 0) then
 	exit 1
 endif
 
+#
+# Relationship Identity
+#  id|terminology|terminologyId|type|additionalType|fromId|fromType|fromTerminology|toId|toType|toTerminology
+#
+
+# make inverseRui.txt
+/bin/rm -f relationshipIdentity.txt inverseRui.txt mrrel.txt rel.txt rela.txt
+grep inverse MRDOC.RRF  | grep 'REL|' | cut -d\| -f 2,4,5 | sort -t\| -k 1,1 -o rel.txt
+grep inverse MRDOC.RRF  | grep 'RELA|' | cut -d\| -f 2,4,5 | sort -t\| -k 1,1 -o rela.txt
+lib/inverseRui.pl MRREL.RRF | sort -t\| -k 2,2 -o mrrel.txt
+join -t\| -j 2 -o 1.1 2.1 mrrel.txt mrrel.txt | perl -ne 'chop; @_ = split /\|/; print "$_\n" if $_[0] ne $_[1];' | sort -u -o inverseRui.txt
+/bin/rm -f mrrel.txt rel.txt rela.txt
+
+# C0000039|A0016511|AUI|SY|C0000039|A1317687|AUI|permuted_term_of|R28482429||MSH|MSH|||N||
+#
+echo "  Compute relationship identity for MRREL"
+lib/mrrel.pl MRREL.RRF > relationshipIdentity.txt
+if ($status != 0) then
+	echo "ERROR handling MRREL.RRF"
+	exit 1
+endif
+/bin/rm -f inverseRui.txt mrrel.txt rel.txt rela.txt
+
 echo "------------------------------------------"
 echo "Finished ...`/bin/date`"
 echo "------------------------------------------"

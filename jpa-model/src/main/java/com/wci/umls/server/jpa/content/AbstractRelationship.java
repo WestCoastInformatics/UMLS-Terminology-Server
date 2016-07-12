@@ -15,7 +15,7 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
@@ -32,7 +32,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
     DescriptorRelationshipJpa.class, AtomRelationshipJpa.class,
     ComponentInfoRelationshipJpa.class
 })
-public abstract class AbstractRelationship<S extends HasTerminologyId, T extends HasTerminologyId>
+public abstract class AbstractRelationship<S extends ComponentInfo, T extends ComponentInfo>
     extends AbstractComponentHasAttributes implements Relationship<S, T> {
 
   /** The relationship type. */

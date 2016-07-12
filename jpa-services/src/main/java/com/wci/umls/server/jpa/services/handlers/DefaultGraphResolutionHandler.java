@@ -6,7 +6,7 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -186,7 +186,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   /* see superclass */
   @Override
   public void resolve(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
     if (relationship != null) {
       if (relationship.getFrom() != null) {
