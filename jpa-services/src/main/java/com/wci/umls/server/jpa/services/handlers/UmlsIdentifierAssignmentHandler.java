@@ -13,6 +13,7 @@ import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
 import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
+import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
 import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
@@ -38,6 +39,7 @@ import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
+import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 import com.wci.umls.server.model.meta.StringClassIdentity;
 import com.wci.umls.server.services.UmlsIdentityService;
@@ -298,8 +300,62 @@ public class UmlsIdentifierAssignmentHandler
   public String getTerminologyId(
     Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
     throws Exception {
-    // TODO
-    return "";
+
+    if (!relationship.isPublishable()) {
+      return "";
+    }
+
+    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    try {
+      // Create RelationshipIdentity and populate from the relationship.
+      final RelationshipIdentity identity = new RelationshipIdentityJpa();
+      identity.setId(relationship.getId());
+      identity.setTerminology(relationship.getTerminology());
+      identity.setTerminologyId(relationship.getTerminologyId());
+      identity.setRelationshipType(relationship.getRelationshipType());
+      identity.setAdditionalRelationshipType(relationship.getAdditionalRelationshipType());
+      identity.setFromId(relationship.getFrom().getTerminologyId());
+      identity.setFromTerminology(relationship.getFrom().getTerminology());
+      //TODO: Update FromType once Brian has updated other stuff
+      //identity.setFromType(relationship.getFrom().getType());
+      identity.setToId(relationship.getTo().getTerminologyId());
+      identity.setToTerminology(relationship.getTo().getTerminology());
+      //TODO: Update ToType once Brian has updated other stuff
+      //identity.setToType(relationship.getTo().getType());
+      
+
+      final RelationshipIdentity identity2 =
+          service.getRelationshipIdentity(identity);
+
+      // Reuse existing id
+      if (identity2 != null) {
+        return convertId(identity2.getId(), "RUI");
+      }
+      // else generate a new one and add it
+      else {
+        
+        final RelationshipIdentity inverseIdentity = service.getInverseRelationshipIdentity(identity.getId());
+        //TODO: construct inverse identity (use the service)
+        // Block between getting next id and saving the id value
+        synchronized (this) {
+          // Get next id
+          final Long nextId = service.getNextRelationshipId();
+          // TODO: get next id for inverse
+          // TODO: set id and inverseID for both
+          // TODO: add both
+          // Add new identity object
+          identity.setId(nextId);
+          service.addRelationshipIdentity(identity);
+          // still do this
+          return convertId(nextId, "RUI");
+        }
+      }
+
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
   }
 
   /* see superclass */

@@ -20,6 +20,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 
@@ -257,4 +258,76 @@ public class MetaEditingClientRest extends RootClientRest implements
         ValidationResultJpa.class);
   }
 
+  /* see superclass */
+  @Override
+  public ValidationResult addRelationship(Long projectId, Long conceptId,
+    Long lastModified, ConceptRelationshipJpa relationship, boolean overrideWarnings, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "MetaEditing Client - add relationship to concept " + projectId + ", "
+            + conceptId + ", " + relationship.toString() + ", " + lastModified + ", "
+            + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/meta/relationship/add?projectId=" + projectId + "&conceptId="
+            + conceptId + "&lastModified=" + lastModified
+            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.json(relationship));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+  }
+
+  @Override
+  public ValidationResult removeRelationship(Long projectId, Long conceptId,
+    Long lastModified, Long relationshipId, boolean overrideWarnings, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "MetaEditing Client - remove relationship from concept " + projectId + ", "
+            + conceptId + ", " + relationshipId + ", " + lastModified + ", "
+            + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/meta/relationship/remove/"
+            + relationshipId + "?projectId=" + projectId + "&conceptId=" + conceptId
+            + "&lastModified=" + lastModified
+            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(null);
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+  }
+  
+  
 }

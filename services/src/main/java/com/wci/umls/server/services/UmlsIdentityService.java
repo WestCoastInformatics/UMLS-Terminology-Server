@@ -9,13 +9,14 @@ package com.wci.umls.server.services;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
+import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 import com.wci.umls.server.model.meta.StringClassIdentity;
 
 /**
  * Represents a service used by Metathesaurus editing for assigning identifiers.
  */
-public interface UmlsIdentityService extends RootService {
+public interface UmlsIdentityService extends MetadataService {
 
   /**
    * Gets the attribute identity.
@@ -215,8 +216,8 @@ public interface UmlsIdentityService extends RootService {
    * @return the string identity
    * @throws Exception the exception
    */
-  public StringClassIdentity getStringClassIdentity(StringClassIdentity identity)
-    throws Exception;
+  public StringClassIdentity getStringClassIdentity(
+    StringClassIdentity identity) throws Exception;
 
   /**
    * Adds the string identity.
@@ -225,8 +226,8 @@ public interface UmlsIdentityService extends RootService {
    * @return the string identity
    * @throws Exception the exception
    */
-  public StringClassIdentity addStringClassIdentity(StringClassIdentity stringIdentity)
-    throws Exception;
+  public StringClassIdentity addStringClassIdentity(
+    StringClassIdentity stringIdentity) throws Exception;
 
   /**
    * Update string identity.
@@ -298,6 +299,71 @@ public interface UmlsIdentityService extends RootService {
    * @throws Exception the exception
    */
   public void removeLexicalClassIdentity(Long lexicalClassIdentityId)
+    throws Exception;
+
+  /**
+   * Returns the relationship identity.
+   *
+   * @param id the id
+   * @return the relationship identity
+   * @throws Exception the exception
+   */
+  public RelationshipIdentity getRelationshipIdentity(Long id) throws Exception;
+
+  /**
+   * Returns the next relationship id.
+   *
+   * @return the next relationship id
+   * @throws Exception the exception
+   */
+  public Long getNextRelationshipId() throws Exception;
+
+  /**
+   * Returns the relationship identity.
+   *
+   * @param identity the identity
+   * @return the relationship identity
+   * @throws Exception the exception
+   */
+  public RelationshipIdentity getRelationshipIdentity(
+    RelationshipIdentity identity) throws Exception;
+
+  /**
+   * Returns the inverse relationship identity.
+   *
+   * @param id the id
+   * @return the inverse relationship identity
+   * @throws Exception the exception
+   */
+  public RelationshipIdentity getInverseRelationshipIdentity(Long id)
+    throws Exception;
+
+  /**
+   * Adds the relationship identity.
+   *
+   * @param relationshipIdentity the relationship identity
+   * @return the relationship identity
+   * @throws Exception the exception
+   */
+  public RelationshipIdentity addRelationshipIdentity(
+    RelationshipIdentity relationshipIdentity) throws Exception;
+
+  /**
+   * Update relationship identity.
+   *
+   * @param relationshipIdentity the relationship identity
+   * @throws Exception the exception
+   */
+  public void updateRelationshipIdentity(
+    RelationshipIdentity relationshipIdentity) throws Exception;
+
+  /**
+   * Removes the relationship identity.
+   *
+   * @param relationshipIdentityId the relationship identity id
+   * @throws Exception the exception
+   */
+  public void removeRelationshipIdentity(Long relationshipIdentityId)
     throws Exception;
 
 }
