@@ -77,10 +77,16 @@ public class MetaEditingServiceRestNormalUseTest
   @Before
   public void setup() throws Exception {
 
+    Logger.getLogger(getClass()).debug("TESTTEST - adminUser is:" + adminUser);
+    Logger.getLogger(getClass()).debug("TESTTEST - adminPassword is:" + adminPassword);
+    
     // authentication (admin for editing permissions)
     authToken =
         securityService.authenticate(adminUser, adminPassword).getAuthToken();
 
+    Logger.getLogger(getClass()).debug("TESTTEST - authToken is:" + authToken);
+    
+    
     // ensure there is a concept associated with the project
     ProjectList projects = projectService.getProjects(authToken);
     assertTrue(projects.getCount() > 0);

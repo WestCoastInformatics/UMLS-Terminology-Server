@@ -315,13 +315,10 @@ public class UmlsIdentifierAssignmentHandler
       identity.setAdditionalRelationshipType(relationship.getAdditionalRelationshipType());
       identity.setFromId(relationship.getFrom().getTerminologyId());
       identity.setFromTerminology(relationship.getFrom().getTerminology());
-      //TODO: Update FromType once Brian has updated other stuff
-      //identity.setFromType(relationship.getFrom().getType());
+      identity.setFromType(relationship.getFrom().getType());
       identity.setToId(relationship.getTo().getTerminologyId());
       identity.setToTerminology(relationship.getTo().getTerminology());
-      //TODO: Update ToType once Brian has updated other stuff
-      //identity.setToType(relationship.getTo().getType());
-      
+      identity.setToType(relationship.getTo().getType());
 
       final RelationshipIdentity identity2 =
           service.getRelationshipIdentity(identity);
@@ -333,19 +330,26 @@ public class UmlsIdentifierAssignmentHandler
       // else generate a new one and add it
       else {
         
-        final RelationshipIdentity inverseIdentity = service.getInverseRelationshipIdentity(identity.getId());
-        //TODO: construct inverse identity (use the service)
-        // Block between getting next id and saving the id value
+        final RelationshipIdentity inverseIdentity = service.createInverseRelationshipIdentity(identity);
+         // Block between getting next id and saving the id value
         synchronized (this) {
-          // Get next id
+          // Get next id and inverse ID
           final Long nextId = service.getNextRelationshipId();
-          // TODO: get next id for inverse
-          // TODO: set id and inverseID for both
-          // TODO: add both
-          // Add new identity object
+          //TODO confirm this gives different number.  If not, add 1 to nextId;
+          final Long nextIdInverse = service.getNextRelationshipId();
+          
+          //Set ID and inverse IDs for both relationship and its inverse
           identity.setId(nextId);
+          identity.setInverseId(nextIdInverse);
+
+          inverseIdentity.setId(nextIdInverse);
+          inverseIdentity.setInverseId(nextId);
+
+          // Add new identity objects
+          service.addRelationshipIdentity(inverseIdentity);
           service.addRelationshipIdentity(identity);
-          // still do this
+          
+          // return ID for called relationship (inverse can get called later)
           return convertId(nextId, "RUI");
         }
       }

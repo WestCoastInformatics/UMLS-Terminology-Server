@@ -493,26 +493,26 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public RelationshipIdentity getInverseRelationshipIdentity(Long id)
+  public RelationshipIdentity createInverseRelationshipIdentity(RelationshipIdentity identity)
     throws Exception {
     Logger.getLogger(getClass())
-        .debug("Umls Identity Service - get relationship identity " + id);
-    //Lookup the existing relationship, and create its inverse
-    RelationshipIdentity rel = getObject(id, RelationshipIdentity.class);
+        .debug("Umls Identity Service - creating inverse of relationship identity " + identity);
+
+    //Create an inverse of the relationship    
+    Terminology term = getObject(Long.parseLong(identity.getTerminologyId()),Terminology.class);
     
-    Terminology term = getObject(Long.parseLong(rel.getTerminologyId()),Terminology.class);
+    RelationshipIdentity inverseIdentity = identity;
+    inverseIdentity.setId(null);
+    inverseIdentity.setFromId(identity.getFromId());
+    inverseIdentity.setFromTerminology(identity.getFromTerminology());
+    inverseIdentity.setFromType(identity.getFromType());
+    inverseIdentity.setToId(identity.getToId());
+    inverseIdentity.setToTerminology(identity.getToTerminology());
+    inverseIdentity.setToType(identity.getToType());
+    inverseIdentity.setRelationshipType(getRelationshipType(identity.getRelationshipType(), term.getTerminology(), term.getVersion()).getInverse().getAbbreviation());
+    //TODO same thing for additionalRelationshipType
     
-    RelationshipIdentity inverseRel = rel;
-    inverseRel.setId(null);
-    inverseRel.setFromId(rel.getFromId());
-    inverseRel.setFromTerminology(rel.getFromTerminology());
-    inverseRel.setFromType(rel.getFromType());
-    inverseRel.setToId(rel.getToId());
-    inverseRel.setToTerminology(rel.getToTerminology());
-    inverseRel.setToType(rel.getToType());
-    inverseRel.setRelationshipType(getRelationshipType(rel.getRelationshipType(), term.getTerminology(), term.getVersion()).getInverse().getAbbreviation());
-    
-    return inverseRel;
+    return inverseIdentity;
   }  
   
   /* see superclass */

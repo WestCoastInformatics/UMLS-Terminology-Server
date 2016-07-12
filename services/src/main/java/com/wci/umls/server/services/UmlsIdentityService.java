@@ -329,14 +329,14 @@ public interface UmlsIdentityService extends MetadataService {
     RelationshipIdentity identity) throws Exception;
 
   /**
-   * Returns the inverse relationship identity.
+   * Creates the inverse relationship identity.
    *
-   * @param id the id
-   * @return the inverse relationship identity
+   * @param identity the identity
+   * @return the relationship identity
    * @throws Exception the exception
    */
-  public RelationshipIdentity getInverseRelationshipIdentity(Long id)
-    throws Exception;
+  public RelationshipIdentity createInverseRelationshipIdentity(
+    RelationshipIdentity identity) throws Exception;
 
   /**
    * Adds the relationship identity.
