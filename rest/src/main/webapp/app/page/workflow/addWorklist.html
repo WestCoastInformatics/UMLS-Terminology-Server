@@ -1,0 +1,46 @@
+<div class="modal-header">
+  <h4>Create Worklist</h4>
+</div>
+
+<div class="modal-body">
+  <div class="row">
+    <table class="table">
+      <tr>
+        <td>
+          <b>Cluster Count</b>
+        </td>
+        <td>         
+          <input ng-model="clusterCt" size="5" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Start Index</b>
+        </td>
+        <td>         
+          <input ng-model="skipClusterCt" size="5" />
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div ng-show="errors.length > 0" class="row">
+    <table class="table">
+      <tr>
+        <td>
+          <div class="alert alert-danger alert-error"
+            ng-repeat="error in errors">
+            {{error}}
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+
+<div class="modal-footer">
+  <button class="btn btn-primary"
+    ng-click="createWorklist(clusterCt, skipClusterCt);">Add</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

@@ -17,4 +17,6 @@ public enum WorkflowBinType {
   /** The ad hoc. */
   AD_HOC;
 
+  
+
 }
