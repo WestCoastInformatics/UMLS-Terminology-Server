@@ -290,6 +290,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         129656L, 129657L, 129664L
     };
     for (int i = 0; i < id1s.length; i++) {
+      // Add demotion
       final ConceptRelationshipJpa rel = new ConceptRelationshipJpa();
       contentService = new ContentServiceRestImpl();
       final Concept from =
@@ -307,7 +308,20 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       rel.setWorkflowStatus(WorkflowStatus.DEMOTION);
       testService = new IntegrationTestServiceRestImpl();
       testService.addRelationship(rel, authToken);
-      // TODO: make inverse rel too
+
+      // Add inverse demotion too
+      final ConceptRelationshipJpa rel2 = new ConceptRelationshipJpa();
+      contentService = new ContentServiceRestImpl();
+      rel2.setFrom(to);
+      rel2.setTo(from);
+      rel2.setRelationshipType("RO");
+      rel2.setAdditionalRelationshipType("");
+      rel2.setTerminologyId("");
+      rel2.setTerminology(project1.getTerminology());
+      rel2.setVersion("latest");
+      rel2.setWorkflowStatus(WorkflowStatus.DEMOTION);
+      testService = new IntegrationTestServiceRestImpl();
+      testService.addRelationship(rel2, authToken);
     }
 
     // Status N NCIt concepts (and atoms)
@@ -410,11 +424,10 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         .setDescription("Clustered concepts that failed insertion merges.  Must be either related or merged.");
     definition.setQuery("select from_id clusterId, from_id conceptId "
         + "from concept_relationships "
-        + "where terminology = :terminology and workflowStatus = '"
-        + WorkflowStatus.DEMOTION + "' union "
-        + "select from_id, to_id from concept_relationships "
-        + "where terminology = :terminology and workflowStatus = '"
-        + WorkflowStatus.DEMOTION + "' " + "order by 1");
+        + "where terminology = :terminology and workflowStatus = 'DEMOTION' "
+        + " union select from_id, to_id from concept_relationships "
+        + "where terminology = :terminology and workflowStatus = 'DEMOTION' "
+        + "order by 1");
     definition.setEditable(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);

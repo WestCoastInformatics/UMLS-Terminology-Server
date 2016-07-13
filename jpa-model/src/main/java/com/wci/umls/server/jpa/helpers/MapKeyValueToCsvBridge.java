@@ -22,15 +22,15 @@ public class MapKeyValueToCsvBridge implements StringBridge {
       Map<?, ?> map = (Map<?, ?>) value;
       Iterator<? extends Map.Entry<?, ?>> it = map.entrySet().iterator();
       while (it.hasNext()) {
-        String key = it.next().getKey().toString();
-        String v = it.next().getValue().toString();
+        Map.Entry<?, ?> entry = it.next();
+        String key = entry.getKey().toString();
+        String v = entry.getValue().toString();
         buf.append(key).append("=").append(v);
         if (it.hasNext())
           buf.append(" ");
       }
       return buf.toString();
-      
-      
+
     }
     return null;
   }
