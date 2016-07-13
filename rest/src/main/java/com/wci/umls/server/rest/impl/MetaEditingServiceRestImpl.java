@@ -3,7 +3,10 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.HeaderParam;
@@ -25,7 +28,6 @@ import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
@@ -115,8 +117,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final List<Concept> conceptList = initialize(contentService, project,
+          conceptId, null, userName, action, lastModified, validationResult);
+
+      Concept concept = conceptList.get(0);
 
       //
       // Check prerequisites
@@ -236,8 +240,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+
+      final List<Concept> conceptList = initialize(contentService, project,
+          conceptId, null, userName, action, lastModified, validationResult);
+
+      Concept concept = conceptList.get(0);
 
       //
       // Check prerequisites
@@ -339,8 +346,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final List<Concept> conceptList = initialize(contentService, project,
+          conceptId, null, userName, action, lastModified, validationResult);
+
+      Concept concept = conceptList.get(0);
+
       //
       // Check prerequisites
       //
@@ -470,8 +480,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final List<Concept> conceptList = initialize(contentService, project,
+          conceptId, null, userName, action, lastModified, validationResult);
+
+      Concept concept = conceptList.get(0);
 
       //
       // Check prerequisites
@@ -572,8 +584,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final List<Concept> conceptList = initialize(contentService, project,
+          conceptId, null, userName, action, lastModified, validationResult);
+
+      Concept concept = conceptList.get(0);
+
       //
       // Check prerequisites
       //
@@ -708,8 +723,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final List<Concept> conceptList = initialize(contentService, project,
+          conceptId, null, userName, action, lastModified, validationResult);
+
+      Concept concept = conceptList.get(0);
 
       //
       // Check prerequisites
@@ -808,11 +825,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
-      final Concept toConcept =
-          initialize(contentService, project, relationship.getTo().getId(),
-              userName, action, lastModified, validationResult);
+      final List<Concept> conceptList = initialize(contentService, project,
+          conceptId, relationship.getTo().getId(), userName, action,
+          lastModified, validationResult);
+
+      Concept concept = conceptList.get(0);
+      Concept toConcept = conceptList.get(1);
+
       //
       // Check prerequisites
       //
@@ -875,17 +894,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ConceptRelationshipJpa newRelationship =
           (ConceptRelationshipJpa) contentService.addRelationship(relationship);
 
-      // construct inverse rel
-      // TODO - check if relationship accurately copies
-      // TODO move this to ContentServiceJpa
+      // construct inverse relationship
       ConceptRelationshipJpa inverseRelationship =
-          new ConceptRelationshipJpa(newRelationship, false);
-      inverseRelationship.setFrom(relationship.getTo());
-      inverseRelationship.setTo(relationship.getFrom());
-      inverseRelationship.setRelationshipType(contentService
-          .getRelationshipType(relationship.getRelationshipType(),
-              relationship.getTerminology(), relationship.getVersion())
-          .getInverse().getAbbreviation());
+          (ConceptRelationshipJpa) contentService
+              .createInverseConceptRelationship(newRelationship);
 
       // pass to handler.getTerminologyId
       final String inverseAltId = handler.getTerminologyId(inverseRelationship);
@@ -963,6 +975,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     // Instantiate services
     final ContentService contentService = new ContentServiceJpa();
 
+    //TODO: actually look up second conceptId somehow.
+    Long conceptId2 = 0L;
+    
     try {
 
       // Authorize project role, get userName
@@ -974,8 +989,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final Concept concept = initialize(contentService, project, conceptId,
-          userName, action, lastModified, validationResult);
+      final List<Concept> conceptList =
+          initialize(contentService, project, conceptId, conceptId2, userName,
+              action, lastModified, validationResult);
+
+      Concept concept = conceptList.get(0);
+      Concept toConcept = conceptList.get(1);
 
       //
       // Check prerequisites
@@ -993,6 +1012,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       if (relationship == null) {
         throw new LocalException("Relationship to remove does not exist");
       }
+      
+      // Exists check for inverse Relationshop
+      //TODO - relationshopId is the wrong value. Need to get relationship Id from inverseRelationship
+      ConceptRelationship inverseRelationship = null;
+      for (final ConceptRelationship atr : toConcept.getRelationships()) {
+        if (atr.getId().equals(relationshipId)) {
+          inverseRelationship = atr;
+        }
+      }
+      if (inverseRelationship == null) {
+        throw new LocalException("Relationship to remove does not exist");
+      }      
 
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
@@ -1011,6 +1042,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       contentService.updateConcept(concept);
 
+      toConcept.getRelationships().remove(inverseRelationship);
+      toConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      contentService.updateConcept(toConcept);
+      
+      
       // remove the relationship component
       // TODO note sure about this
       contentService.removeRelationship(relationship.getId(),
@@ -1059,6 +1095,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    * @param contentService the content service
    * @param project the project
    * @param conceptId the concept id
+   * @param conceptId2 the concept id 2
    * @param userName the user name
    * @param actionType the action type
    * @param lastModified the last modified
@@ -1067,44 +1104,70 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  //TODO - update to take a second, optional conceptId, and return a list of Concept objects
-  private Concept initialize(ContentService contentService, Project project,
-    Long conceptId, String userName, String actionType, long lastModified,
-    ValidationResult result) throws Exception {
+  private List<Concept> initialize(ContentService contentService,
+    Project project, Long conceptId, Long conceptId2, String userName,
+    String actionType, long lastModified, ValidationResult result)
+    throws Exception {
 
     // Set transaction mode and start transaction
     contentService.setTransactionPerOperation(false);
     contentService.beginTransaction();
 
-    Concept concept;
-    //Put concept and secondary concept in a list, sort, and then...
-    //TODO - put this synchronized in a for loop, for all passed in concepts
-    synchronized (conceptId.toString().intern()) {
+    List<Concept> conceptList = new ArrayList<Concept>();
 
-      // retrieve the concept
-      concept = contentService.getConcept(conceptId);
+    List<Long> conceptIdList = new ArrayList<Long>();
+    conceptIdList.add(conceptId);
+    if (conceptId2 != null) {
+      conceptIdList.add(conceptId2);
+    }
 
-      // Verify concept exists
-      if (concept == null) {
-        throw new Exception("Concept does not exist " + conceptId);
+    Collections.sort(conceptIdList);
+
+    Concept mainConcept = null;
+    Concept secondaryConcept = null;
+
+    for (final Long i : conceptIdList) {
+      Concept tempConcept;
+
+      synchronized (i.toString().intern()) {
+
+        // retrieve the concept
+        tempConcept = contentService.getConcept(conceptId);
+
+        // Verify concept exists
+        if (tempConcept == null) {
+          throw new Exception("Concept does not exist " + i);
+        }
+
+        if (i == conceptId) {
+          mainConcept = tempConcept;
+        }
+        if (i == conceptId2) {
+          secondaryConcept = tempConcept;
+        }
+
+        // Fail if already locked - this is secondary protection
+        if (contentService.isObjectLocked(tempConcept)) {
+          throw new Exception("Fatal error: concept is locked");
+        }
+
+        // lock the concept via JPA
+        contentService.lockObject(tempConcept);
+
+        // add the concept to the list
+        conceptList.add(tempConcept);
+
       }
-
-      // Fail if already locked - this is secondary protection
-      if (contentService.isObjectLocked(concept)) {
-        throw new Exception("Fatal error: concept is locked");
-      }
-
-      // lock the concept via JPA
-      contentService.lockObject(concept);
-
     }
 
     // construct the molecular action
     final MolecularAction molecularAction = new MolecularActionJpa();
-    molecularAction.setTerminology(concept.getTerminology());
-    molecularAction.setTerminologyId(concept.getTerminologyId());
-    //TODO TerminologyId2 - set if secondary concept not null
-    molecularAction.setVersion(concept.getVersion());
+    molecularAction.setTerminology(mainConcept.getTerminology());
+    molecularAction.setTerminologyId(mainConcept.getTerminologyId());
+    if (conceptId2 != null) {
+      molecularAction.setTerminologyId2(secondaryConcept.getTerminologyId());
+    }
+    molecularAction.setVersion(mainConcept.getVersion());
     molecularAction.setName(actionType);
     molecularAction.setTimestamp(new Date());
 
@@ -1122,17 +1185,17 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     contentService.setMolecularAction(newMolecularAction);
 
     // throw exception on terminology mismatch
-    if (!concept.getTerminology().equals(project.getTerminology())) {
+    if (!mainConcept.getTerminology().equals(project.getTerminology())) {
       throw new Exception("Project and concept terminologies do not match");
     }
 
-    if (concept.getLastModified().getTime() != lastModified) {
+    if (mainConcept.getLastModified().getTime() != lastModified) {
       throw new LocalException(
           "Concept has changed since last read, please refresh and try again");
     }
 
-    // Return concept
-    return new ConceptJpa(concept, true);
+    // Return concept list
+    return conceptList;
   }
 
 }

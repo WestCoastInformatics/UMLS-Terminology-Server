@@ -142,6 +142,6 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult removeRelationship(Long projectId, Long conceptId,
-    Long timestamp, Long relationshipId,
-    boolean overrideWarnings, String authToken) throws Exception;
+    Long timestamp, Long relationshipId, boolean overrideWarnings,
+    String authToken) throws Exception;
 }
