@@ -13,8 +13,22 @@ import com.wci.umls.server.model.content.Component;
  *
  * @param <T> the
  */
-public interface ChangeEvent<T extends Component>
-    extends HasName, HasLastModified {
+public interface ChangeEvent<T extends Component> extends HasName,
+    HasLastModified {
+
+  /**
+   * Returns the session id.
+   *
+   * @return the session id
+   */
+  public String getSessionId();
+
+  /**
+   * Sets the session id.
+   *
+   * @param sessionId the session id
+   */
+  public void setSessionId(String sessionId);
 
   /**
    * Returns the type.

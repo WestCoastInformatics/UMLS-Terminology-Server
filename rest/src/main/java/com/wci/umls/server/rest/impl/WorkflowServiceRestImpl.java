@@ -1367,24 +1367,25 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             typeUneditableMap.put(clusterType, 0);
             typeEditableMap.put(clusterType, 0);
           }
-          // Increment uneditable
-          if (ConfigUtility.isEmpty(record.getWorklistName())) {
-            typeUneditableMap.put(clusterType,
-                typeUneditableMap.get(clusterType) + 1);
-          }
-          // Otherwise increment editable
-          else {
-            typeEditableMap.put(clusterType,
-                typeEditableMap.get(clusterType) + 1);
-          }
-
           // compute "all" cluster type
           if (!typeUneditableMap.containsKey("all")) {
             typeUneditableMap.put("all", 0);
             typeEditableMap.put("all", 0);
           }
-          typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
-          // typeEditableMap.put("all", typeEditableMap.get("all") + 1);
+
+          // Increment uneditable
+          if (ConfigUtility.isEmpty(record.getWorklistName())) {
+            typeUneditableMap.put(clusterType,
+                typeUneditableMap.get(clusterType) + 1);
+            typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
+          }
+
+          // Otherwise increment editable
+          else {
+            typeEditableMap.put(clusterType,
+                typeEditableMap.get(clusterType) + 1);
+            typeEditableMap.put("all", typeEditableMap.get("all") + 1);
+          }
 
         }
         // Now extract cluster types and add statistics

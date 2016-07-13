@@ -84,6 +84,7 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
     tester.include("name");
+    tester.include("sessionId");
     tester.include("type");
     tester.include("oldValue");
     tester.include("newValue");

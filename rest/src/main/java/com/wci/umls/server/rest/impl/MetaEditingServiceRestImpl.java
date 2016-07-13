@@ -191,7 +191,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponentJpa> event =
-          new ChangeEventJpa<SemanticTypeComponentJpa>(action,
+          new ChangeEventJpa<SemanticTypeComponentJpa>(action, authToken,
               IdType.SEMANTIC_TYPE.toString(), null, newSemanticType, concept);
       sendChangeEvent(event);
 
@@ -297,7 +297,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponentJpa> event =
-          new ChangeEventJpa<SemanticTypeComponentJpa>(action,
+          new ChangeEventJpa<SemanticTypeComponentJpa>(action, authToken,
               IdType.SEMANTIC_TYPE.toString(),
               (SemanticTypeComponentJpa) semanticTypeComponent, null, concept);
       sendChangeEvent(event);
@@ -434,7 +434,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Websocket notification
       final ChangeEvent<AttributeJpa> event =
-          new ChangeEventJpa<AttributeJpa>(action, IdType.ATTRIBUTE.toString(),
+          new ChangeEventJpa<AttributeJpa>(action,  authToken,IdType.ATTRIBUTE.toString(),
               null, newAttribute, concept);
       sendChangeEvent(event);
 
@@ -544,7 +544,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Websocket notification
       final ChangeEvent<AttributeJpa> event =
-          new ChangeEventJpa<AttributeJpa>(action, IdType.ATTRIBUTE.toString(),
+          new ChangeEventJpa<AttributeJpa>(action,  authToken,IdType.ATTRIBUTE.toString(),
               (AttributeJpa) attribute, null, concept);
       sendChangeEvent(event);
 
@@ -683,7 +683,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Websocket notification
       final ChangeEvent<AtomJpa> event =
-          new ChangeEventJpa<AtomJpa>(action, IdType.ATOM.toString(), null,
+          new ChangeEventJpa<AtomJpa>(action,  authToken,IdType.ATOM.toString(), null,
               newAtom, concept);
       sendChangeEvent(event);
 
@@ -787,7 +787,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Websocket notification
       final ChangeEvent<AtomJpa> event =
-          new ChangeEventJpa<AtomJpa>(action, IdType.ATTRIBUTE.toString(),
+          new ChangeEventJpa<AtomJpa>(action, authToken, IdType.ATTRIBUTE.toString(),
               (AtomJpa) atom, null, concept);
       sendChangeEvent(event);
 
