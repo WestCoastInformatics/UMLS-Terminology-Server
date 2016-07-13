@@ -34,8 +34,8 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * 
  * If a component already has an SCTID, it keeps it.
  */
-public class UuidHashIdentifierAssignmentHandler implements
-    IdentifierAssignmentHandler {
+public class UuidHashIdentifierAssignmentHandler
+    implements IdentifierAssignmentHandler {
 
   /* see superclass */
   @Override
@@ -102,8 +102,8 @@ public class UuidHashIdentifierAssignmentHandler implements
   /* see superclass */
   @Override
   public String getTerminologyId(LexicalClass lexicalClass) throws Exception {
-    return TerminologyUtility.getUuid(
-        lexicalClass.getNormalizedName().toString()).toString();
+    return TerminologyUtility
+        .getUuid(lexicalClass.getNormalizedName().toString()).toString();
   }
 
   /* see superclass */
@@ -161,6 +161,24 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
+  @Override
+  public String getInverseTerminologyId(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception {
+    //TODO: Lookup inverse rel type
+    StringBuilder hashKey = new StringBuilder();
+    // terminologyId, terminology, relType, additionalRelType, group,
+    // component.terminologyId
+    hashKey.append(relationship.getTerminology())
+        .append(relationship.getTerminologyId())
+        .append(relationship.getRelationshipType())
+        .append(relationship.getAdditionalRelationshipType())
+        .append(relationship.getGroup())
+        .append(relationship.getTo().getTerminologyId())
+        .append(relationship.getFrom().getTerminologyId());
+    return TerminologyUtility.getUuid(hashKey.toString()).toString();
+  }
+
   /* see superclass */
   @Override
   public String getTerminologyId(
@@ -204,8 +222,8 @@ public class UuidHashIdentifierAssignmentHandler implements
     Concept concept) throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // value, concept
-    hashKey.append(semanticTypeComponent.getSemanticType()).append(
-        concept.getTerminologyId());
+    hashKey.append(semanticTypeComponent.getSemanticType())
+        .append(concept.getTerminologyId());
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 

@@ -360,6 +360,52 @@ public class UmlsIdentifierAssignmentHandler
       service.close();
     }
   }
+  
+  /* see superclass */
+  @Override
+  public String getInverseTerminologyId(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception {
+
+    if (!relationship.isPublishable()) {
+      return "";
+    }
+
+    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    try {
+      // Create RelationshipIdentity and populate from the relationship.
+      final RelationshipIdentity identity = new RelationshipIdentityJpa();
+      identity.setId(relationship.getId());
+      identity.setTerminology(relationship.getTerminology());
+      identity.setTerminologyId(relationship.getTerminologyId());
+      identity.setRelationshipType(relationship.getRelationshipType());
+      identity.setAdditionalRelationshipType(relationship.getAdditionalRelationshipType());
+      identity.setFromId(relationship.getFrom().getTerminologyId());
+      identity.setFromTerminology(relationship.getFrom().getTerminology());
+      identity.setFromType(relationship.getFrom().getType());
+      identity.setToId(relationship.getTo().getTerminologyId());
+      identity.setToTerminology(relationship.getTo().getTerminology());
+      identity.setToType(relationship.getTo().getType());
+
+      final RelationshipIdentity inverseIdentity = service.createInverseRelationshipIdentity(identity);
+      
+      final RelationshipIdentity identity2 =
+          service.getRelationshipIdentity(inverseIdentity);
+
+      // Reuse existing id
+      if (identity2 != null) {
+        return convertId(identity2.getId(), "RUI");
+      }
+      // else generate a new one and add it
+      else {
+        throw new Exception ("Unexpected missing inverse of relationship " + relationship);
+      }
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
+  }  
 
   /* see superclass */
   @Override

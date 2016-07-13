@@ -4242,10 +4242,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String query, boolean inverseFlag, PfsParameter pfs,
     Class<? extends Relationship> clazz) throws Exception {
 
-    if (terminologyId == null || terminologyId.isEmpty()) {
-      throw new Exception("Terminology id is required");
-    }
-
     final RelationshipList results = new RelationshipListJpa();
 
     // Prepare the query string
@@ -4257,12 +4253,27 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // add id/terminology/version constraints based on inverse flag
     if (inverseFlag == true) {
-      finalQuery.append("toTerminologyId:" + terminologyId
-          + " AND toTerminology:" + terminology + " AND toVersion:" + version);
+      if (terminologyId != null) {
+        finalQuery.append("toTerminologyId:" + terminologyId);
+      }
+      if (!finalQuery.toString().isEmpty()) {
+        finalQuery.append(" AND ");
+      }
+      if (terminology != null && version != null) {
+        finalQuery.append("toTerminology:" + terminology + " AND toVersion:"
+            + version);
+      }
     } else {
-      finalQuery
-          .append("fromTerminologyId:" + terminologyId + " AND fromTerminology:"
-              + terminology + " AND fromVersion:" + version);
+      if (terminologyId != null) {
+        finalQuery.append("fromTerminologyId:" + terminologyId);
+      }
+      if (!finalQuery.toString().isEmpty()) {
+        finalQuery.append(" AND ");
+      }
+      if (terminology != null && version != null) {
+        finalQuery.append("fromTerminology:" + terminology
+            + " AND fromVersion:" + version);
+      }
     }
 
     final SearchHandler searchHandler = getSearchHandler(terminology);

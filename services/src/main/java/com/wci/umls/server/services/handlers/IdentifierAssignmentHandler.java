@@ -118,6 +118,17 @@ public interface IdentifierAssignmentHandler extends Configurable {
     throws Exception;
 
   /**
+   * Returns the inverse terminology id.
+   *
+   * @param relationship the relationship
+   * @return the inverse terminology id
+   * @throws Exception the exception
+   */
+  public String getInverseTerminologyId(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception;
+
+  /**
    * Returns the terminology id.
    *
    * @param relationship the relationship

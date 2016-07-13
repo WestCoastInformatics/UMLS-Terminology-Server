@@ -22,7 +22,9 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
@@ -43,6 +45,7 @@ import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.IdType;
@@ -427,8 +430,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent<AttributeJpa> event =
-          new ChangeEventJpa<AttributeJpa>(action,  authToken,IdType.ATTRIBUTE.toString(),
-              null, newAttribute, concept);
+          new ChangeEventJpa<AttributeJpa>(action, authToken,
+              IdType.ATTRIBUTE.toString(), null, newAttribute, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -458,8 +461,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
     Logger.getLogger(getClass())
         .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
             + conceptId + "/remove for user " + authToken + " with id "
@@ -534,9 +535,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<AttributeJpa> event =
-          new ChangeEventJpa<AttributeJpa>(action,  authToken,IdType.ATTRIBUTE.toString(),
-              (AttributeJpa) attribute, null, concept);
+      final ChangeEvent<AttributeJpa> event = new ChangeEventJpa<AttributeJpa>(
+          action, authToken, IdType.ATTRIBUTE.toString(),
+          (AttributeJpa) attribute, null, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -672,9 +673,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<AtomJpa> event =
-          new ChangeEventJpa<AtomJpa>(action,  authToken,IdType.ATOM.toString(), null,
-              newAtom, concept);
+      final ChangeEvent<AtomJpa> event = new ChangeEventJpa<AtomJpa>(action,
+          authToken, IdType.ATOM.toString(), null, newAtom, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -778,8 +778,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent<AtomJpa> event =
-          new ChangeEventJpa<AtomJpa>(action, authToken, IdType.ATTRIBUTE.toString(),
-              (AtomJpa) atom, null, concept);
+          new ChangeEventJpa<AtomJpa>(action, authToken,
+              IdType.ATTRIBUTE.toString(), (AtomJpa) atom, null, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -937,7 +937,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent<ConceptRelationshipJpa> event =
-          new ChangeEventJpa<ConceptRelationshipJpa>(action,
+          new ChangeEventJpa<ConceptRelationshipJpa>(action, authToken,
               IdType.RELATIONSHIP.toString(), null, newRelationship, concept);
       sendChangeEvent(event);
 
@@ -955,6 +955,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+  @SuppressWarnings("rawtypes")
   @Override
   @POST
   @Path("/relationship/remove/{id}")
@@ -980,9 +981,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     // Instantiate services
     final ContentService contentService = new ContentServiceJpa();
 
-    //TODO: actually look up second conceptId somehow.
+    // TODO: actually look up second conceptId somehow.
     Long conceptId2 = 0L;
-    
+
     try {
 
       // Authorize project role, get userName
@@ -1017,18 +1018,31 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       if (relationship == null) {
         throw new LocalException("Relationship to remove does not exist");
       }
-      
+
       // Exists check for inverse Relationshop
-      //TODO - relationshopId is the wrong value. Need to get relationship Id from inverseRelationship
-      ConceptRelationship inverseRelationship = null;
-      for (final ConceptRelationship atr : toConcept.getRelationships()) {
-        if (atr.getId().equals(relationshipId)) {
-          inverseRelationship = atr;
-        }
+      // TODO - relationshopId is the wrong value. Need to get relationship Id
+      // from inverseRelationship
+
+      // Assign alternateTerminologyId
+      final IdentifierAssignmentHandler handler = contentService
+          .getIdentifierAssignmentHandler(concept.getTerminology());
+
+      String inverseRui = handler.getInverseTerminologyId(relationship);
+      RelationshipList relList = contentService.findConceptRelationships(
+          toConcept.getTerminologyId(), toConcept.getTerminology(),
+          toConcept.getVersion(), Branch.ROOT, "alternateTerminologyIds:\""
+              + toConcept.getTerminology() + " " + inverseRui + "\"",
+          false, null);
+
+      if (relList.getCount() != 1) {
+        throw new Exception(
+            "Unexepected inverse Relationship count " + relList.getCount());
       }
-      if (inverseRelationship == null) {
-        throw new LocalException("Relationship to remove does not exist");
-      }      
+
+      ConceptRelationship inverseRelationship = null;
+      for (final Relationship rel : relList.getObjects()) {
+        inverseRelationship = (ConceptRelationship) rel;
+      }
 
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
@@ -1044,30 +1058,33 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // remove the relationship type component from the concept and update
       concept.getRelationships().remove(relationship);
-      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      contentService.updateConcept(concept);
 
-      toConcept.getRelationships().remove(inverseRelationship);
-      toConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      contentService.updateConcept(toConcept);
-      
-      
       // remove the relationship component
-      // TODO note sure about this
       contentService.removeRelationship(relationship.getId(),
           relationship.getClass());
+      
+      // remove the inverse relationship type component from the concept and update
+      toConcept.getRelationships().remove(inverseRelationship);
 
+      // remove the inverse relationship component
+      contentService.removeRelationship(inverseRelationship.getId(),
+          inverseRelationship.getClass());
+
+      contentService.updateConcept(toConcept);
+
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      contentService.updateConcept(concept);      
+      
       // log the REST call
       contentService.addLogEntry(userName, projectId, conceptId,
-          action + " " + relationship.getName() + " from concept "
-              + concept.getTerminologyId());
+          action + " " + relationship);
 
       // commit (also adds the molecular action and removes the lock)
       contentService.commit();
 
       // Websocket notification
       final ChangeEvent<ConceptRelationshipJpa> event =
-          new ChangeEventJpa<ConceptRelationshipJpa>(action,
+          new ChangeEventJpa<ConceptRelationshipJpa>(action, authToken,
               IdType.RELATIONSHIP.toString(),
               (ConceptRelationshipJpa) relationship, null, concept);
       sendChangeEvent(event);

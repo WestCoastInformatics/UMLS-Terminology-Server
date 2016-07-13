@@ -97,6 +97,13 @@ public class DefaultIdentifierAssignmentHandler implements
     throws Exception {
     return relationship.getTerminologyId();
   }
+  
+  @Override
+  public String getInverseTerminologyId(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception {
+    return relationship.getTerminologyId();
+  }
 
   /* see superclass */
   @Override
