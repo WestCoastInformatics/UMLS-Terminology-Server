@@ -1834,7 +1834,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           "Workflow bin definition query must contain the term FROM");
 
     String selectSubStr =
-        query.substring(0, query.toUpperCase().indexOf("FROM"));
+        query.substring(0, query.toUpperCase().indexOf(" FROM "));
 
     if (!selectSubStr.contains("clusterId"))
       throw new LocalException(
@@ -1852,7 +1852,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     }
     if (params != null) {
       for (final String key : params.keySet()) {
-        jpaQuery.setParameter(key, params.get(key));
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
       }
     }
     return jpaQuery.getResultList();
@@ -1964,7 +1966,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
               + e.getMessage());
         } catch (java.lang.IllegalArgumentException e) {
           throw new LocalException(
-              "Error executing SQL query, possible invalid parameters (valid parameters are :MAP_PROJECT_ID:, :TIMESTAMP:):  "
+              "Error executing SQL query, possible invalid parameters - "
                   + e.getMessage());
         }
         break;

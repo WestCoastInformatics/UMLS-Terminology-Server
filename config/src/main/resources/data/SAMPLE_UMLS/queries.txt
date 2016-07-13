@@ -1,0 +1,14 @@
+# This file defines queries in an easy more readable way
+# for configuring the system.  The file has a record format
+# with the query name and then formatted query with a separator
+name=demotions
+select distinct from_id clusterId, from_id conceptId
+from concept_relationships "
+where terminology = :terminology and workflowStatus = 'DEMOTION'
+and from_id < to_id
+union
+select from_id, to_id from concept_relationships "
+where terminology = :terminology and workflowStatus = 'DEMOTION'
+and from_id < to_id
+order by 1
+----

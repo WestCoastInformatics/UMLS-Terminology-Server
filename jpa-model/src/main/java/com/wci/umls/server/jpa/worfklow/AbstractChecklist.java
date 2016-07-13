@@ -233,6 +233,22 @@ public abstract class AbstractChecklist implements Checklist {
     this.trackingRecords = records;
   }
 
+  /**
+   * Returns the concept ids. For indexing ONLY.
+   *
+   * @return the concept ids
+   */
+  @Field(name = "conceptIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  private String getConceptIds() {
+    final StringBuilder sb = new StringBuilder();
+    for (final TrackingRecord r : getTrackingRecords()) {
+      for (final Long conceptId : r.getOrigConceptIds()) {
+        sb.append(conceptId).append(" ");
+      }
+    }
+    return sb.toString();
+  }
+
   /* see superclass */
   @Override
   public int hashCode() {

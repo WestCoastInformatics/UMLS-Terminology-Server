@@ -307,6 +307,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       rel.setWorkflowStatus(WorkflowStatus.DEMOTION);
       testService = new IntegrationTestServiceRestImpl();
       testService.addRelationship(rel, authToken);
+      // TODO: make inverse rel too
     }
 
     // Status N NCIt concepts (and atoms)
@@ -383,6 +384,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowEpoch.setActive(true);
     workflowEpoch.setName("16a");
     workflowEpoch.setProject(project1);
+    workflowService = new WorkflowServiceRestImpl();
     workflowService
         .addWorkflowEpoch(project1.getId(), workflowEpoch, authToken);
 
@@ -408,10 +410,10 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         .setDescription("Clustered concepts that failed insertion merges.  Must be either related or merged.");
     definition.setQuery("select from_id clusterId, from_id conceptId "
         + "from concept_relationships "
-        + "where terminology=:terminology and workflowStatus = '"
+        + "where terminology = :terminology and workflowStatus = '"
         + WorkflowStatus.DEMOTION + "' union "
         + "select from_id, to_id from concept_relationships "
-        + "where terminology=:terminology and workflowStatus = '"
+        + "where terminology = :terminology and workflowStatus = '"
         + WorkflowStatus.DEMOTION + "' " + "order by 1");
     definition.setEditable(true);
     definition.setRequired(true);
@@ -428,7 +430,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setDescription("Concepts where all atoms are unreleasable.");
     definition.setQuery("select a.id clusterId, a.id conceptId "
         + "from concepts a, concepts_atoms b, atoms c "
-        + "where a.terminology=:terminology and a.id = b.concepts_id "
+        + "where a.terminology = :terminology and a.id = b.concepts_id "
         + "and b.atoms_id = c.id and c.publishable = 0 "
         + "and not exists (select * from concepts_atoms d, atoms e "
         + " where a.id = d.concepts_id and d.atoms_id = e.id "
@@ -447,7 +449,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setName("reviewed");
     definition.setDescription("Concepts that do not require review.");
     definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a " + "where a.terminology=:terminology "
+        + "from concepts a " + "where a.terminology = :terminology "
         + "a.workflowStatus != 'NEEDS_REVIEW'");
     definition.setEditable(false);
     definition.setRequired(true);

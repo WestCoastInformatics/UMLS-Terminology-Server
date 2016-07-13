@@ -88,7 +88,7 @@ public class QuerySearchHandler extends DefaultSearchHandler {
 
     // check for proper format for insertion into reports
 
-    if (query.toUpperCase().indexOf("FROM") == -1)
+    if (query.toUpperCase().indexOf(" FROM ") == -1)
       throw new LocalException(
           "Workflow bin definition query must contain the term FROM");
 
@@ -97,7 +97,9 @@ public class QuerySearchHandler extends DefaultSearchHandler {
       jpaQuery = manager.createNativeQuery(query);
       if (params != null) {
         for (final String key : params.keySet()) {
-          jpaQuery.setParameter(key, params.get(key));
+          if (query.contains(":" + key)) {
+            jpaQuery.setParameter(key, params.get(key));
+          }
         }
       }
     } else {

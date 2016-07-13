@@ -20,7 +20,6 @@ import com.wci.umls.server.model.workflow.Checklist;
 @XmlRootElement(name = "checklist")
 public class ChecklistJpa extends AbstractChecklist {
 
-  
   /**
    * Instantiates an empty {@link ChecklistJpa}.
    */
