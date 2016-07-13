@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -43,6 +44,7 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
@@ -290,6 +292,17 @@ public class ProjectJpa implements Project {
     this.userRoleMap = userRoleMap;
   }
 
+  /* see superclass */
+  public List<String> getTeams() {
+    return getUserRoleMap().keySet().stream()
+        .filter(u -> ConfigUtility.isEmpty(u.getTeam())).map(u -> u.getTeam())
+        .collect(Collectors.toList());
+  }
+
+  /* see superclass */
+  public void setTeams(List<String> teams) {
+    // n/a - just for JAXB.
+  }
   /* see superclass */
   @Override
   public String getBranch() {

@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
@@ -40,6 +41,7 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
@@ -794,8 +796,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         return new TrackingRecordListJpa();
       }
 
-      return workflowService
-          .findTrackingRecords(project, query.toString(), pfs);
+      final TrackingRecordList list =
+          workflowService.findTrackingRecords(project, query.toString(), pfs);
+      for (final TrackingRecord record : list.getObjects()) {
+        lookupTrackingRecordConcepts(record, workflowService);
+      }
+
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to find records for checklist ");
@@ -804,6 +811,40 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
     return null;
+  }
+
+  /**
+   * Lookup tracking record concepts.
+   *
+   * @param record the record
+   * @param service the service
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void lookupTrackingRecordConcepts(TrackingRecord record,
+    WorkflowService service) throws Exception {
+    StringBuffer query = new StringBuffer();
+
+    // Bail if no atom components.
+    if (record.getComponentIds().size() == 0) {
+      return;
+    }
+
+    // Create a query
+    for (final Long id : record.getComponentIds()) {
+      if (query.toString().length() > 1) {
+        query.append(" OR ");
+      }
+      query.append("atoms.id:" + id);
+    }
+
+    // add concepts
+    for (final SearchResult result : service.findConcepts(
+        record.getTerminology(), null, Branch.ROOT, query.toString(), null)
+        .getObjects()) {
+      record.getConcepts().add(new ConceptJpa(result));
+    }
+
   }
 
   /* see superclass */
@@ -842,8 +883,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         return new TrackingRecordListJpa();
       }
 
-      return workflowService
-          .findTrackingRecords(project, query.toString(), pfs);
+      final TrackingRecordList list =
+          workflowService.findTrackingRecords(project, query.toString(), pfs);
+      for (final TrackingRecord record : list.getObjects()) {
+        lookupTrackingRecordConcepts(record, workflowService);
+      }
+
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to find records for worklist ");
@@ -890,8 +936,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         return new TrackingRecordListJpa();
       }
 
-      return workflowService
-          .findTrackingRecords(project, query.toString(), pfs);
+      final TrackingRecordList list =
+          workflowService.findTrackingRecords(project, query.toString(), pfs);
+      for (final TrackingRecord record : list.getObjects()) {
+        lookupTrackingRecordConcepts(record, workflowService);
+      }
+
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to find records for bin ");
@@ -1960,12 +2011,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         }
         break;
       case LUCENE:
-        SearchResultList resultList =
+        final PfsParameter pfs = new PfsParameterJpa();
+        pfs.setQueryRestriction(query);
+        final SearchResultList resultList =
             workflowService.findConcepts(project.getTerminology(), null, null,
-                query, null);
+                null, pfs);
         results = new ArrayList<>();
-        for (SearchResult result : resultList.getObjects()) {
-          Object[] objectArray = new Object[1];
+        for (final SearchResult result : resultList.getObjects()) {
+          final Object[] objectArray = new Object[1];
           objectArray[0] = result.getId();
           objectArray[1] = result.getValue();
           results.add(objectArray);
@@ -1995,19 +2048,19 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
     // put query results into map
     for (final Object[] result : results) {
-      Long clusterId = new Long(result[0].toString());
-      Long componentId = new Long(result[1].toString());
+      final Long clusterId = Long.parseLong(result[0].toString());
+      final Long componentId = Long.parseLong(result[1].toString());
 
       // skip result entry where the conceptId is already in conceptsSeen
       // and workflow config is mutually exclusive
       if (!conceptsSeen.contains(componentId)
           || !definition.getWorkflowConfig().isMutuallyExclusive()) {
         if (clusterIdConceptIdsMap.containsKey(clusterId)) {
-          Set<Long> componentIds = clusterIdConceptIdsMap.get(clusterId);
+          final Set<Long> componentIds = clusterIdConceptIdsMap.get(clusterId);
           componentIds.add(componentId);
           clusterIdConceptIdsMap.put(clusterId, componentIds);
         } else {
-          Set<Long> componentIds = new HashSet<>();
+          final Set<Long> componentIds = new HashSet<>();
           componentIds.add(componentId);
           clusterIdConceptIdsMap.put(clusterId, componentIds);
         }
@@ -2020,26 +2073,30 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     // Set the raw cluster count
     bin.setClusterCt(clusterIdConceptIdsMap.size());
 
-    // for each cluster in clusterIdComponentIdsMap create a tracking record if editable bin
+    // for each cluster in clusterIdComponentIdsMap create a tracking record if
+    // editable bin
     if (definition.isEditable()) {
       int clusterIdCt = 1;
       for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
 
-        // If definition is editable
-        TrackingRecord record = new TrackingRecordJpa();
+        // Create the tracking record
+        final TrackingRecord record = new TrackingRecordJpa();
         record.setClusterId(clusterIdCt++);
         record.setTerminology(project.getTerminology());
         record.setTimestamp(new Date());
         record.setVersion("latest");
         record.setWorkflowBinName(bin.getName());
         record.setProject(project);
-
         record.setWorklistName(null);
         record.setClusterType("");
 
+        // Load the concept ids involved
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
-          Concept concept = workflowService.getConcept(conceptId);
+          final Concept concept = workflowService.getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
+
+          // Set cluster type if a concept has an STY associated with a cluster
+          // type in th eproject
           if (record.getClusterType().equals("")) {
             for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
               if (project.getSemanticTypeCategoryMap().containsKey(
@@ -2050,13 +2107,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
               }
             }
           }
+          // Add all atom ids as component ids
           for (final Atom atom : concept.getAtoms()) {
             record.getComponentIds().add(atom.getId());
           }
+
+          // Set the worklist name
           if (record.getWorklistName() == null) {
             if (conceptIdWorklistNameMap.containsKey(conceptId)) {
               record.setWorklistName(conceptIdWorklistNameMap.get(conceptId));
-              break;
             }
           }
         }

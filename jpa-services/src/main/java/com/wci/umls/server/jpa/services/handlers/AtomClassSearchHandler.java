@@ -132,10 +132,11 @@ public class AtomClassSearchHandler implements SearchHandler {
 
     // Construct the universal terminology conditions
     StringBuilder terminologyClause = new StringBuilder();
-    if (terminology != null && !terminology.equals("") && version != null
-        && !version.equals("")) {
-      terminologyClause.append(" AND terminology:" + terminology
-          + " AND version:" + version);
+    if (terminology != null && !terminology.equals("")) {
+      terminologyClause.append(" AND terminology:" + terminology);
+    }
+    if (version != null && !version.equals("")) {
+      terminologyClause.append(" AND version:" + version);
     }
 
     // Build a combined query with an OR between parsed tokens and exact match
@@ -246,7 +247,9 @@ public class AtomClassSearchHandler implements SearchHandler {
     StringBuilder finalQuery = new StringBuilder();
     if (fixedQuery.isEmpty()) {
       // Just use PFS and skip the leading "AND"
-      finalQuery.append(terminologyClause.substring(5));
+      if (terminologyClause.length() > 0) {
+        finalQuery.append(terminologyClause.substring(5));
+      }
     } else if (parsedQuery.contains(" OR ")) {
       // Use parens
       finalQuery.append("(").append(parsedQuery).append(")")

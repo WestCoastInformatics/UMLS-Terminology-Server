@@ -2281,18 +2281,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // declare search handler
     SearchHandler searchHandler = null;
 
-    if (pfs.getExpression() != null && !pfs.getExpression().isEmpty()) {
+    if (localPfs.getExpression() != null && !localPfs.getExpression().isEmpty()) {
 
       // get the results
       ExpressionHandler exprHandler =
           getExpressionHandler(terminology, version);
-      exprResults = exprHandler.resolve(pfs.getExpression());
+      exprResults = exprHandler.resolve(localPfs.getExpression());
 
       // if results found, constuct a query restriction
       if (exprResults.getCount() > 0) {
         String exprQueryRestr =
-            (pfs.getQueryRestriction() != null
-                && !pfs.getQueryRestriction().isEmpty() ? " AND " : "")
+            (localPfs.getQueryRestriction() != null
+                && !localPfs.getQueryRestriction().isEmpty() ? " AND " : "")
                 + "terminologyId:(";
         for (final SearchResult exprResult : exprResults.getObjects()) {
           exprQueryRestr += exprResult.getTerminologyId() + " ";
@@ -2301,7 +2301,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         exprQueryRestr =
             exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")^"
                 + exprResults.getCount();
-        localPfs.setQueryRestriction((pfs.getQueryRestriction() != null ? pfs
+        localPfs.setQueryRestriction((localPfs.getQueryRestriction() != null ? localPfs
             .getQueryRestriction() : "") + exprQueryRestr);
       }
     }

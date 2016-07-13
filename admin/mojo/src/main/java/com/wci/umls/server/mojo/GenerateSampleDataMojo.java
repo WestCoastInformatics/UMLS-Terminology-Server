@@ -461,12 +461,10 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("reviewed");
     definition.setDescription("Concepts that do not require review.");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a where a.terminology = :terminology "
-        + "and a.workflowStatus != 'NEEDS_REVIEW'");
+    definition.setQuery("(NOT workflowStatus:NEEDS_REVIEW)");
     definition.setEditable(false);
     definition.setRequired(false);
-    definition.setQueryType(QueryType.SQL);
+    definition.setQueryType(QueryType.LUCENE);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(project1.getId(), definition,

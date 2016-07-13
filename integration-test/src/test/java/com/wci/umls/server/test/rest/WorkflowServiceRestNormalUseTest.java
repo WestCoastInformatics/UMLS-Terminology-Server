@@ -303,6 +303,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
                   bin.getId(), null, authToken));
     }
 
+    // TODO: test mutually exclusives vs not
+    // TODO: test "editable" vs. not
+    
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,

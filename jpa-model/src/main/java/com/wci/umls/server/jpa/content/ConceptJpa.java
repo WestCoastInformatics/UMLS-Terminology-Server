@@ -27,6 +27,7 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
@@ -123,10 +124,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       for (final Definition definition : concept.getDefinitions()) {
         getDefinitions().add(new DefinitionJpa(definition, deepCopy));
       }
-      for (final ConceptRelationship relationship : concept
-          .getRelationships()) {
-        getRelationships()
-            .add(new ConceptRelationshipJpa(relationship, deepCopy));
+      for (final ConceptRelationship relationship : concept.getRelationships()) {
+        getRelationships().add(
+            new ConceptRelationshipJpa(relationship, deepCopy));
       }
       for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         getSemanticTypes().add(new SemanticTypeComponentJpa(sty));
@@ -135,6 +135,19 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
         getMembers().add(new ConceptSubsetMemberJpa(member, deepCopy));
       }
     }
+  }
+
+  /**
+   * Instantiates a {@link ConceptJpa} from the specified parameters.
+   *
+   * @param result the result
+   */
+  public ConceptJpa(SearchResult result) {
+    setName(result.getValue());
+    setId(result.getId());
+    setTerminology(result.getTerminology());
+    setTerminologyId(result.getTerminologyId());
+    setVersion(result.getVersion());
   }
 
   /**
