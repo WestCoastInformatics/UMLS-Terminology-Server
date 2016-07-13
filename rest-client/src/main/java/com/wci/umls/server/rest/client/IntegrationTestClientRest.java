@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response.Status.Family;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
@@ -119,6 +120,31 @@ public class IntegrationTestClientRest extends RootClientRest implements
     } else {
       throw new Exception("Unexpected status - " + response.getStatus());
     }
+  }
+
+  /* see superclass */
+  @Override
+  public void updateAtom(AtomJpa atom, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Integration Test Client - update atom" + atom);
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/test/atom/update");
+
+    final String atomString =
+        ConfigUtility.getStringForGraph(atom == null ? new AtomJpa() : atom);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).put(Entity.xml(atomString));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
   }
 
   /* see superclass */

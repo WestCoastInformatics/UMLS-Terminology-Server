@@ -265,12 +265,13 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // TEST ADDING BIN
     Logger.getLogger(getClass()).info("    Add  workflow bin definition");
     WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
-    definition.setName("reviewed");
-    definition.setDescription("Concepts that do not require review.");
-    definition.setQuery("(NOT workflowStatus:NEEDS_REVIEW)");
-    definition.setEditable(false);
-    definition.setRequired(false);
-    definition.setQueryType(QueryType.LUCENE);
+    definition.setName("leftovers");
+    definition.setDescription("SNOMEDCT_US.");
+    definition.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a where a.workflowStatus = 'NEEDS_REVIEW'");
+    definition.setEditable(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
     definition =
         (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
@@ -294,7 +295,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     assertEquals(2, binList2.size());
     for (final WorkflowBin bin : binList2) {
       Logger.getLogger(getClass()).debug(
-          "    bin = " + bin.getName() + ", + " + bin.getClusterCt());
+          "    bin = " + bin.getName() + ", " + bin.getClusterCt());
       workflowService.findTrackingRecordsForWorkflowBin(projectId, bin.getId(),
           null, authToken);
       Logger.getLogger(getClass()).debug(
@@ -305,7 +306,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // TODO: test mutually exclusives vs not
     // TODO: test "editable" vs. not
-    
+    // TODO: test SQL, HQL, LUCENE
+
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
@@ -403,6 +405,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // TODO: test clusterType:chem
     // TODO: test excludeOnWorklist...
 
+    // TODO: test getting the tracking records and concepts
     // Remove checklist
     Logger.getLogger(getClass()).debug("  Remove checklist");
     workflowService.removeChecklist(projectId, checklistOrderByRandom.getId(),
@@ -458,6 +461,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // TODO: assert something about this
 
+    // TODO: test getting the tracknig records/concepts
     // Remove the worklist
     Logger.getLogger(getClass()).debug("  Remove worklist");
     workflowService.removeWorklist(projectId, worklist.getId(), authToken);

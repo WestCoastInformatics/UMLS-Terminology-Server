@@ -12,8 +12,10 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.model.content.Relationship;
@@ -186,6 +188,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;

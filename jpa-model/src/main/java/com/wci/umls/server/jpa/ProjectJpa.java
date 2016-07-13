@@ -292,17 +292,26 @@ public class ProjectJpa implements Project {
     this.userRoleMap = userRoleMap;
   }
 
-  /* see superclass */
+  /**
+   * Returns the teams. Just for JAXB.
+   *
+   * @return the teams
+   */
   public List<String> getTeams() {
     return getUserRoleMap().keySet().stream()
         .filter(u -> ConfigUtility.isEmpty(u.getTeam())).map(u -> u.getTeam())
         .collect(Collectors.toList());
   }
 
-  /* see superclass */
+  /**
+   * Sets the teams.
+   *
+   * @param teams the teams
+   */
   public void setTeams(List<String> teams) {
     // n/a - just for JAXB.
   }
+
   /* see superclass */
   @Override
   public String getBranch() {
