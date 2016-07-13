@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -236,7 +237,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     return null;
 
   }
-  
+
   /* see superclass */
   @Override
   @GET
@@ -255,8 +256,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           "remove workflow config", UserRole.AUTHOR);
 
       final Project project = workflowService.getProject(projectId);
-      final List<WorkflowConfig> configs = workflowService.getWorkflowConfigs(project);
-      for(WorkflowConfig config : configs) {
+      final List<WorkflowConfig> configs =
+          workflowService.getWorkflowConfigs(project);
+      for (WorkflowConfig config : configs) {
         workflowService.handleLazyInit(config);
       }
       return configs;
@@ -997,10 +999,26 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       authorizeProject(workflowService, projectId, securityService, authToken,
           action, UserRole.AUTHOR);
 
-      // TODO: compute cluster and concept count stats
-      return workflowService.findWorklists(
-          workflowService.getProject(projectId), query, pfs);
+      // find worklists
+      final WorklistList list =
+          workflowService.findWorklists(workflowService.getProject(projectId),
+              query, pfs);
 
+      // Compute "cluster" and "concept" counts
+      for (final Worklist worklist : list.getObjects()) {
+        worklist.getStats().put("clusterCt",
+            worklist.getTrackingRecords().size());
+        // Add up orig concepts size from all tracking records
+        worklist.getStats().put(
+            "conceptCt",
+            worklist
+                .getTrackingRecords()
+                .stream()
+                .collect(
+                    Collectors.summingInt(w -> w.getOrigConceptIds().size())));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find worklists");
       return null;
@@ -1366,7 +1384,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             typeEditableMap.put("all", 0);
           }
           typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
-          //typeEditableMap.put("all", typeEditableMap.get("all") + 1);
+          // typeEditableMap.put("all", typeEditableMap.get("all") + 1);
 
         }
         // Now extract cluster types and add statistics
@@ -1423,10 +1441,20 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       final Worklist worklist = workflowService.getWorklist(id);
 
+      worklist.getStats()
+          .put("clusterCt", worklist.getTrackingRecords().size());
+      // Add up orig concepts size from all tracking records
+      worklist
+          .getStats()
+          .put(
+              "conceptCt",
+              worklist
+                  .getTrackingRecords()
+                  .stream()
+                  .collect(
+                      Collectors.summingInt(w -> w.getOrigConceptIds().size())));
       // TODO to be done later
       // compute the stats and add them to the stats object
-      // conceptCt
-      // clusterCt
       // n_actions -1 - molecular action search by concept ids on worklist
       // n_approved -1 - "APPROVE_CONCEPT" molecular actions
       // n_approved_by_editor -1 - "APPROVE_CONCEPT" molecular actions with
