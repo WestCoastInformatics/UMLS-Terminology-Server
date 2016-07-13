@@ -12,6 +12,8 @@
     </uib-accordion-heading>
     <div class="row m10">
       <div class="col-md-12 col-xs-12">
+        <select ng-model="currentProject" ng-show="projects.length > 1"
+          ng-options="item for item in projectOptions" ng-change="setProject(currentProject);"></select>
         <select ng-model="currentBinType" ng-show="binTypeOptions.length > 1"
           ng-options="item for item in binTypeOptions" ng-change="setBinType(currentBinType);"></select>
       </div>
@@ -33,9 +35,11 @@
           </thead>
           <tbody ng-repeat="bin in bins">
             <tr>
-              <td rowspan="3">{{bin.rank}}</td>
-              <td rowspan="3">{{bin.name}}</td>
-              <td rowspan="3">Created: {{toDate(bin.creationTime)}}
+              <td rowspan="4">{{bin.rank}}</td>
+              <td rowspan="4"><i
+                ng-click="showInfo(); $event.stopPropagation()"
+                title="Information" class="noul glyphicon glyphicon-question-sign"></i>&nbsp;{{bin.name}}</td>
+              <td rowspan="4">Created: {{toDate(bin.creationTime)}}
                 <br />Modified: {{toDate(bin.lastModified)}}</td>
             </tr>
             <tr ng-repeat="stats in bin.stats">
@@ -44,9 +48,9 @@
               <td>{{ stats.stats.uneditable }}</td>
               <td>{{ stats.stats.editable }}</td>
               <td><i
-                ng-click="addChecklist(); $event.stopPropagation()"
+                ng-click="openCreateChecklistModal(bin); $event.stopPropagation()"
                 title="Add Checklist" class="noul glyphicon glyphicon-check"></i>&nbsp;<i
-                ng-click="addWorklist(); $event.stopPropagation()"
+                ng-click="openCreateWorklistModal(bin, stats.clusterType); $event.stopPropagation()"
                 title="Add Worklist" class="noul glyphicon glyphicon-list-alt"></i></td>
             </tr>
           </tbody>
@@ -59,6 +63,8 @@
     <h5>
       <span uib-tooltip="Workflow Worklists">Worklists</span>
     </h5>
-    </uib-accordion-heading> </uib-accordion-group> </uib-accordion>
+    </uib-accordion-heading> 
+    <div worklist-table value='AVAILABLE' project="currentProject"/>
+    </uib-accordion-group> </uib-accordion>
   </div>
 </div>

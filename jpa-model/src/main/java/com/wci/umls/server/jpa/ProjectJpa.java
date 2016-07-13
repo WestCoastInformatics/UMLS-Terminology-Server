@@ -44,7 +44,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.PrecedenceList;
-import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.UserMapUserNameBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleBridge;
@@ -346,7 +346,7 @@ public class ProjectJpa implements Project {
   }
 
   /* see superclass */
-  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
   @Field(name = "semanticTypeCategoryMap", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
   public Map<String, String> getSemanticTypeCategoryMap() {

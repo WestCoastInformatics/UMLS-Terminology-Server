@@ -58,6 +58,20 @@ public interface Worklist extends Checklist, HasStats {
   public List<String> getAuthors();
 
   /**
+   * Returns the authoring time.
+   *
+   * @return the authoring time
+   */
+  public Long getAuthorTime();
+
+  /**
+   * Sets the authoring time.
+   *
+   * @param authoringTime the authoring time
+   */
+  public void setAuthorTime(Long authoringTime);
+
+  /**
    * Returns the reviewers.
    *
    * @return the reviewers
@@ -70,6 +84,20 @@ public interface Worklist extends Checklist, HasStats {
    * @param reviewers the reviewers
    */
   public void setReviewers(List<String> reviewers);
+
+  /**
+   * Returns the reviewer time.
+   *
+   * @return the reviewer time
+   */
+  public Long getReviewerTime();
+
+  /**
+   * Sets the reviewer time.
+   *
+   * @param authoringTime the reviewer time
+   */
+  public void setReviewerTime(Long authoringTime);
 
   /**
    * Returns the team.

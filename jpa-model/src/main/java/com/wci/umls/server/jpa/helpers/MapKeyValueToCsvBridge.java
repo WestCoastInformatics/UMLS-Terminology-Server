@@ -26,7 +26,7 @@ public class MapKeyValueToCsvBridge implements StringBridge {
         String v = it.next().getValue().toString();
         buf.append(key).append("=").append(v);
         if (it.hasNext())
-          buf.append(", ");
+          buf.append(" ");
       }
       return buf.toString();
       

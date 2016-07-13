@@ -21,8 +21,8 @@ import com.wci.umls.server.model.actions.ChangeEvent;
  * @param <T> the type
  */
 @XmlRootElement(name = "change")
-public class ChangeEventJpa<T extends AbstractComponent>
-    implements ChangeEvent<T> {
+public class ChangeEventJpa<T extends AbstractComponent> implements
+    ChangeEvent<T> {
 
   /** The id. */
   private Long id;
@@ -38,6 +38,9 @@ public class ChangeEventJpa<T extends AbstractComponent>
 
   /** The name. */
   private String name;
+
+  /** The session id. */
+  private String sessionId;
 
   /** The type. */
   private String type;
@@ -69,6 +72,7 @@ public class ChangeEventJpa<T extends AbstractComponent>
     lastModified = event.getLastModified();
     lastModifiedBy = event.getLastModifiedBy();
     name = event.getName();
+    sessionId = event.getSessionId();
     type = event.getType();
     oldValue = event.getOldValue();
     newValue = event.getNewValue();
@@ -79,13 +83,14 @@ public class ChangeEventJpa<T extends AbstractComponent>
    * Instantiates a {@link ChangeEventJpa} from the specified parameters.
    *
    * @param name the name
+   * @param sessionId the session id
    * @param type the type
    * @param oldValue the old value
    * @param newValue the new value
    * @param container the container
    */
-  public ChangeEventJpa(String name, String type, T oldValue, T newValue,
-      ComponentInfo container) {
+  public ChangeEventJpa(String name, String sessionId, String type, T oldValue,
+      T newValue, ComponentInfo container) {
     if (newValue != null) {
       id = newValue.getId();
       timestamp = newValue.getTimestamp();
@@ -98,6 +103,7 @@ public class ChangeEventJpa<T extends AbstractComponent>
       lastModifiedBy = oldValue.getLastModifiedBy();
     }
     this.name = name;
+    this.sessionId = sessionId;
     this.type = type;
     this.oldValue = oldValue;
     this.newValue = newValue;
@@ -166,6 +172,18 @@ public class ChangeEventJpa<T extends AbstractComponent>
 
   /* see superclass */
   @Override
+  public String getSessionId() {
+    return sessionId;
+  }
+
+  /* see superclass */
+  @Override
+  public void setSessionId(String sessionId) {
+    this.sessionId = sessionId;
+  }
+
+  /* see superclass */
+  @Override
   public String getType() {
     return type;
   }
@@ -202,7 +220,7 @@ public class ChangeEventJpa<T extends AbstractComponent>
 
   /* see superclass */
   @Override
-  @XmlElement(type=ComponentInfoJpa.class)  
+  @XmlElement(type = ComponentInfoJpa.class)
   public ComponentInfo getContainer() {
     return container;
   }
@@ -219,6 +237,7 @@ public class ChangeEventJpa<T extends AbstractComponent>
     final int prime = 31;
     int result = 1;
     result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((sessionId == null) ? 0 : sessionId.hashCode());
     result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
     result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -240,6 +259,11 @@ public class ChangeEventJpa<T extends AbstractComponent>
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
+      return false;
+    if (sessionId == null) {
+      if (other.sessionId != null)
+        return false;
+    } else if (!sessionId.equals(other.sessionId))
       return false;
     if (newValue == null) {
       if (other.newValue != null)
@@ -269,9 +293,9 @@ public class ChangeEventJpa<T extends AbstractComponent>
   public String toString() {
     return "ChangeEventJpa [id=" + id + ", timestamp=" + timestamp
         + ", lastModified=" + lastModified + ", lastModifiedBy="
-        + lastModifiedBy + ", name=" + name + ", type=" + type + ", oldValue="
-        + oldValue + ", newValue=" + newValue + ", container=" + container
-        + "]";
+        + lastModifiedBy + ", name=" + name + ", sessionId=" + sessionId
+        + ", type=" + type + ", oldValue=" + oldValue + ", newValue="
+        + newValue + ", container=" + container + "]";
   }
 
 }

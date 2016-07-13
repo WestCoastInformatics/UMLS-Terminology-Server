@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -226,6 +227,41 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         workflowService.handleLazyInit(config);
       }
       return config;
+
+    } catch (Exception e) {
+      handleException(e, "trying to get a workflow config");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/config/all")
+  @ApiOperation(value = "Get workflow configs", notes = "Gets a workflow configs", response = WorkflowConfigJpa.class, responseContainer = "List")
+  public List<WorkflowConfig> getWorkflowConfigs(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Workflow): /config/all" + "  " + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "remove workflow config", UserRole.AUTHOR);
+
+      final Project project = workflowService.getProject(projectId);
+      final List<WorkflowConfig> configs =
+          workflowService.getWorkflowConfigs(project);
+      for (WorkflowConfig config : configs) {
+        workflowService.handleLazyInit(config);
+      }
+      return configs;
 
     } catch (Exception e) {
       handleException(e, "trying to get a workflow config");
@@ -963,9 +999,26 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       authorizeProject(workflowService, projectId, securityService, authToken,
           action, UserRole.AUTHOR);
 
-      return workflowService.findWorklists(
-          workflowService.getProject(projectId), query, pfs);
+      // find worklists
+      final WorklistList list =
+          workflowService.findWorklists(workflowService.getProject(projectId),
+              query, pfs);
 
+      // Compute "cluster" and "concept" counts
+      for (final Worklist worklist : list.getObjects()) {
+        worklist.getStats().put("clusterCt",
+            worklist.getTrackingRecords().size());
+        // Add up orig concepts size from all tracking records
+        worklist.getStats().put(
+            "conceptCt",
+            worklist
+                .getTrackingRecords()
+                .stream()
+                .collect(
+                    Collectors.summingInt(w -> w.getOrigConceptIds().size())));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find worklists");
       return null;
@@ -1233,7 +1286,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final StringBuffer sb = new StringBuffer();
       sb.append("workflowBinName:").append(workflowBin.getName());
       sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-      sb.append(" AND ").append("clusterType:").append(clusterType);
+      if (!clusterType.equals("all")) {
+        sb.append(" AND ").append("clusterType:").append(clusterType);
+      }
+      if (clusterType.equals("default")) {
+        sb.append(" AND NOT ").append("clusterType:chem");
+      }
 
       final PfsParameter localPfs =
           pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
@@ -1309,24 +1367,25 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             typeUneditableMap.put(clusterType, 0);
             typeEditableMap.put(clusterType, 0);
           }
-          // Increment uneditable
-          if (ConfigUtility.isEmpty(record.getWorklistName())) {
-            typeUneditableMap.put(clusterType,
-                typeUneditableMap.get(clusterType) + 1);
-          }
-          // Otherwise increment editable
-          else {
-            typeEditableMap.put(clusterType,
-                typeEditableMap.get(clusterType) + 1);
-          }
-
           // compute "all" cluster type
           if (!typeUneditableMap.containsKey("all")) {
             typeUneditableMap.put("all", 0);
             typeEditableMap.put("all", 0);
           }
-          typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
-          typeEditableMap.put("all", typeEditableMap.get("all") + 1);
+
+          // Increment uneditable
+          if (ConfigUtility.isEmpty(record.getWorklistName())) {
+            typeUneditableMap.put(clusterType,
+                typeUneditableMap.get(clusterType) + 1);
+            typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
+          }
+
+          // Otherwise increment editable
+          else {
+            typeEditableMap.put(clusterType,
+                typeEditableMap.get(clusterType) + 1);
+            typeEditableMap.put("all", typeEditableMap.get("all") + 1);
+          }
 
         }
         // Now extract cluster types and add statistics
@@ -1383,6 +1442,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       final Worklist worklist = workflowService.getWorklist(id);
 
+      worklist.getStats()
+          .put("clusterCt", worklist.getTrackingRecords().size());
+      // Add up orig concepts size from all tracking records
+      worklist
+          .getStats()
+          .put(
+              "conceptCt",
+              worklist
+                  .getTrackingRecords()
+                  .stream()
+                  .collect(
+                      Collectors.summingInt(w -> w.getOrigConceptIds().size())));
       // TODO to be done later
       // compute the stats and add them to the stats object
       // n_actions -1 - molecular action search by concept ids on worklist
@@ -1763,7 +1834,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           "Workflow bin definition query must contain the term FROM");
 
     String selectSubStr =
-        query.substring(0, query.toUpperCase().indexOf("FROM"));
+        query.substring(0, query.toUpperCase().indexOf(" FROM "));
 
     if (!selectSubStr.contains("clusterId"))
       throw new LocalException(
@@ -1781,7 +1852,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     }
     if (params != null) {
       for (final String key : params.keySet()) {
-        jpaQuery.setParameter(key, params.get(key));
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
       }
     }
     return jpaQuery.getResultList();
@@ -1893,7 +1966,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
               + e.getMessage());
         } catch (java.lang.IllegalArgumentException e) {
           throw new LocalException(
-              "Error executing SQL query, possible invalid parameters (valid parameters are :MAP_PROJECT_ID:, :TIMESTAMP:):  "
+              "Error executing SQL query, possible invalid parameters - "
                   + e.getMessage());
         }
         break;

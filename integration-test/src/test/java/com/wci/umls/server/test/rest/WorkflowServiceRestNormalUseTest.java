@@ -262,6 +262,27 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   public void testClearAndRegenerateBins() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
+    // TEST ADDING BIN
+    Logger.getLogger(getClass()).info(
+        "    Add 'demotions' workflow bin definition");
+    WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
+    definition.setName("norelease");
+    definition.setDescription("Concepts where all atoms are unreleasable.");
+    definition.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a, concepts_atoms b, atoms c "
+        + "where a.terminology = :terminology and a.id = b.concepts_id "
+        + "and b.atoms_id = c.id and c.publishable = 0 "
+        + "and not exists (select * from concepts_atoms d, atoms e "
+        + " where a.id = d.concepts_id and d.atoms_id = e.id "
+        + " and e.publishable = 1);");
+    definition.setEditable(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(config);
+    definition =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition, authToken);
+
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
@@ -277,12 +298,26 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     final List<WorkflowBin> binList2 =
         workflowService.getWorkflowBins(projectId,
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-    assertEquals(1, binList2.size());
+    assertEquals(2, binList2.size());
+    for (final WorkflowBin bin : binList2) {
+      Logger.getLogger(getClass()).debug("    bin = " + bin.getName());
+      workflowService.findTrackingRecordsForWorkflowBin(projectId, bin.getId(),
+          null, authToken);
+      Logger.getLogger(getClass()).debug(
+          "      records = "
+              + workflowService.findTrackingRecordsForWorkflowBin(projectId,
+                  bin.getId(), null, authToken));
+    }
 
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
         authToken);
+
+    // Remove the definition
+    workflowService.removeWorkflowBinDefinition(projectId, definition.getId(),
+        authToken);
+
   }
 
   /**

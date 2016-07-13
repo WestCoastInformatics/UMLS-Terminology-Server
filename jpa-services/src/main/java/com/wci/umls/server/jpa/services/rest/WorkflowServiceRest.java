@@ -476,4 +476,15 @@ public interface WorkflowServiceRest {
    */
   public Worklist getWorklist(Long projectId, Long worklistId, String authToken)
     throws Exception;
+
+  /**
+   * Returns the workflow configs.
+   *
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the workflow configs
+   * @throws Exception the exception
+   */
+  public List<WorkflowConfig> getWorkflowConfigs(Long projectId, String authToken)
+    throws Exception;
 }

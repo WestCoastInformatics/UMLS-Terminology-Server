@@ -361,6 +361,33 @@ tsApp
           return deferred.promise;
         };
         
+        // Finds worklists
+        this.findWorklists = function(projectId, query, pfs) {
+
+          console.debug('findWorklists', projectId, query, pfs);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+          $http.post(workflowUrl + 'worklist?projectId=' + projectId ,
+            utilService.prepPfs(pfs)).then(
+          // success
+          function(response) {
+            console.debug('  output = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        };
+        
         // Finds generated concept reports
         this.findGeneratedConceptReports = function(projectId, query, pfs) {
 
@@ -430,6 +457,27 @@ tsApp
           return deferred.promise;
         };        
        
+        // get all workflow configs
+        this.getWorkflowConfigs = function(projectId) {
+          var deferred = $q.defer();
+
+          // Get projects
+          gpService.increment();
+          $http.get(workflowUrl + 'config/all?projectId=' + projectId).then(
+          // success
+          function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };        
+        
         // get tracking records for concept
         this.performWorkflowAction = function(projectId, worklistId,
           userName, role, action) {
@@ -485,17 +533,17 @@ tsApp
           };         
 
           // Create a worklist
-          this.createWorklist = function(projectId, workflowBinId, clusterType, skipClusterCt, clusterCt, pfs) {
+          this.createWorklist = function(projectId, workflowBinId, clusterType, pfs) {
 
-            console.debug('createWorklist', projectId, workflowBinId, clusterType, skipClusterCt, clusterCt, pfs);
+            console.debug('createWorklist', projectId, workflowBinId, clusterType, pfs);
             // Setup deferred
             var deferred = $q.defer();
 
+            
             // Make POST call
             gpService.increment();
             $http.post(workflowUrl + 'worklist/add?projectId=' + projectId + 
-              '&workflowBinId=' + workflowBinId + '&clusterType=' + clusterType + '&skipClusterCt=' + skipClusterCt +
-              '&clusterCt=' + clusterCt,
+              '&workflowBinId=' + workflowBinId + '&clusterType=' + clusterType,
               utilService.prepPfs(pfs)).then(
             // success
             function(response) {

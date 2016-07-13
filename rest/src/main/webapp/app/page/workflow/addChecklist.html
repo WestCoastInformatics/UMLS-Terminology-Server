@@ -1,0 +1,65 @@
+<div class="modal-header">
+  <h4>Create Checklist</h4>
+</div>
+
+<div class="modal-body">
+  <div class="row">
+    <table class="table">
+      <tr>
+        <td>
+          <b>Name</b>
+        </td>
+        <td>
+          <input ng-model="checklist.name" size="40" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Description</b>
+        </td>
+        <td>
+          <textarea rows="4" cols="40" ng-model="checklist.description"
+            placeholder="Basic description of the checklist"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <input type="checkbox" ng-model="checklist.randomize">
+        </td>
+        <td>
+          <b>Random order</b>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <input type="checkbox" ng-model="checklist.excludeOnWorklist">
+        </td>
+        <td>
+          <b>Exclude records on worklists</b>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div ng-show="errors.length > 0" class="row">
+    <table class="table">
+      <tr>
+        <td>
+          <div class="alert alert-danger alert-error"
+            ng-repeat="error in errors">
+            {{error}}
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+
+<div class="modal-footer">
+  <button class="btn btn-primary"
+    ng-click="createChecklist(checklist);">Add</button>
+<!--   <button ng-show="action == 'Edit'" class="btn btn-primary"
+    ng-click="submitProject(checklist);">Save</button> -->
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

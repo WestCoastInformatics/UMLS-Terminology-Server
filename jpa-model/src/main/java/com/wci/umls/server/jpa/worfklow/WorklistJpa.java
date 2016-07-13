@@ -67,9 +67,17 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Column(nullable = false)
   private WorkflowStatus workflowStatus;
 
-  /** The number. */
+  /** The number, also the last part of the name. */
   @Column(nullable = false)
   private int number;
+
+  /** The author time. */
+  @Column(nullable = true)
+  private Long authorTime;
+
+  /** The reviewer time. */
+  @Column(nullable = true)
+  private Long reviewerTime;
 
   /** The workflow state history. */
   @ElementCollection
@@ -103,6 +111,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     workflowStatus = worklist.getWorkflowStatus();
     workflowBinName = worklist.getWorkflowBinName();
     number = worklist.getNumber();
+    authorTime = worklist.getAuthorTime();
+    reviewerTime = worklist.getReviewerTime();
     if (deepCopy) {
       workflowStateHistory = worklist.getWorkflowStateHistory();
     }
@@ -118,6 +128,30 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Override
   public void setNumber(int number) {
     this.number = number;
+  }
+
+  /* see superclass */
+  @Override
+  public Long getAuthorTime() {
+    return authorTime;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAuthorTime(Long authorTime) {
+    this.authorTime = authorTime;
+  }
+
+  /* see superclass */
+  @Override
+  public Long getReviewerTime() {
+    return authorTime;
+  }
+
+  /* see superclass */
+  @Override
+  public void setReviewerTime(Long reviewerTime) {
+    this.reviewerTime = reviewerTime;
   }
 
   /* see superclass */
@@ -207,6 +241,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     this.workflowBinName = workflowBin;
   }
 
+  /* see superclass */
   @Override
   public Map<String, Integer> getStats() {
     if (stats == null) {
@@ -215,6 +250,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     return stats;
   }
 
+  /* see superclass */
   @Override
   public void setStats(Map<String, Integer> stats) {
     this.stats = stats;
@@ -273,7 +309,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     return "WorklistJpa [authors=" + authors + ", reviewers=" + reviewers
         + ", team=" + team + ", workflowBin=" + workflowBinName
         + ", workflowStatus=" + workflowStatus + ", number=" + number + ", "
-        + "workflowStateHistory=" + workflowStateHistory + "]";
+        + ", authorTime=" + authorTime + ", reviewerTime=" + reviewerTime
+        + ", workflowStateHistory=" + workflowStateHistory + "]";
   }
 
 }

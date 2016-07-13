@@ -186,7 +186,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponentJpa> event =
-          new ChangeEventJpa<SemanticTypeComponentJpa>(action,
+          new ChangeEventJpa<SemanticTypeComponentJpa>(action, authToken,
               IdType.SEMANTIC_TYPE.toString(), null, newSemanticType, concept);
       sendChangeEvent(event);
 
@@ -293,7 +293,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponentJpa> event =
-          new ChangeEventJpa<SemanticTypeComponentJpa>(action,
+          new ChangeEventJpa<SemanticTypeComponentJpa>(action, authToken,
               IdType.SEMANTIC_TYPE.toString(),
               (SemanticTypeComponentJpa) semanticTypeComponent, null, concept);
       sendChangeEvent(event);
@@ -426,8 +426,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<AttributeJpa> event = new ChangeEventJpa<AttributeJpa>(
-          action, IdType.ATTRIBUTE.toString(), null, newAttribute, concept);
+      final ChangeEvent<AttributeJpa> event =
+          new ChangeEventJpa<AttributeJpa>(action,  authToken,IdType.ATTRIBUTE.toString(),
+              null, newAttribute, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -457,6 +458,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
     Logger.getLogger(getClass())
         .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
             + conceptId + "/remove for user " + authToken + " with id "
@@ -532,7 +535,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent<AttributeJpa> event =
-          new ChangeEventJpa<AttributeJpa>(action, IdType.ATTRIBUTE.toString(),
+          new ChangeEventJpa<AttributeJpa>(action,  authToken,IdType.ATTRIBUTE.toString(),
               (AttributeJpa) attribute, null, concept);
       sendChangeEvent(event);
 
@@ -669,8 +672,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<AtomJpa> event = new ChangeEventJpa<AtomJpa>(action,
-          IdType.ATOM.toString(), null, newAtom, concept);
+      final ChangeEvent<AtomJpa> event =
+          new ChangeEventJpa<AtomJpa>(action,  authToken,IdType.ATOM.toString(), null,
+              newAtom, concept);
       sendChangeEvent(event);
 
       return validationResult;
@@ -773,8 +777,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<AtomJpa> event = new ChangeEventJpa<AtomJpa>(action,
-          IdType.ATTRIBUTE.toString(), (AtomJpa) atom, null, concept);
+      final ChangeEvent<AtomJpa> event =
+          new ChangeEventJpa<AtomJpa>(action, authToken, IdType.ATTRIBUTE.toString(),
+              (AtomJpa) atom, null, concept);
       sendChangeEvent(event);
 
       return validationResult;
