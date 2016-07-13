@@ -37,14 +37,14 @@ public interface TrackingRecord extends HasLastModified, HasTerminology,
    *
    * @return the cluster id
    */
-  public Long getClusterId();
+  public int getClusterId();
 
   /**
    * Sets the cluster id.
    *
    * @param clusterId the cluster id
    */
-  public void setClusterId(Long clusterId);
+  public void setClusterId(int clusterId);
 
   /**
    * Returns the cluster type.

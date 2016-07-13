@@ -449,7 +449,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + " where a.id = d.concepts_id and d.atoms_id = e.id "
         + " and e.publishable = 1);");
     definition.setEditable(false);
-    definition.setRequired(true);
+    definition.setRequired(false);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
@@ -462,10 +462,10 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setName("reviewed");
     definition.setDescription("Concepts that do not require review.");
     definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a " + "where a.terminology = :terminology "
-        + "a.workflowStatus != 'NEEDS_REVIEW'");
+        + "from concepts a where a.terminology = :terminology "
+        + "and a.workflowStatus != 'NEEDS_REVIEW'");
     definition.setEditable(false);
-    definition.setRequired(true);
+    definition.setRequired(false);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();

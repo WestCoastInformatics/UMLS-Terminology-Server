@@ -141,6 +141,20 @@ public interface WorkflowBin extends HasLastModified, HasProject {
   public void setCreationTime(Long creationTime);
 
   /**
+   * Returns the cluster count.
+   *
+   * @return the cluster count
+   */
+  public int getClusterCt();
+
+  /**
+   * Sets the cluster count.
+   *
+   * @param clusterCt the cluster count
+   */
+  public void setClusterCt(int clusterCt);
+
+  /**
    * Gets the terminology.
    *
    * @return the terminology

@@ -2275,7 +2275,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     SearchResultList exprResults = null;
 
     // construct local pfs
-    PfsParameter localPfs = new PfsParameterJpa(pfs);
+    PfsParameter localPfs =
+        pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
 
     // declare search handler
     SearchHandler searchHandler = null;

@@ -1356,7 +1356,20 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final Map<String, Integer> typeUneditableMap = new HashMap<>();
       final Map<String, Integer> typeEditableMap = new HashMap<>();
       for (final WorkflowBin bin : bins) {
-        for (final TrackingRecord record : bin.getTrackingRecords()) {
+        final List<TrackingRecord> list = bin.getTrackingRecords();
+
+        // If no tracking records, get the raw cluster ct
+        if (list.size() == 0) {
+          final ClusterTypeStats stats = new ClusterTypeStatsJpa();
+          stats.setClusterType("all");
+          stats.getStats().put("all", bin.getClusterCt());
+          bin.getStats().add(stats);
+
+          // skip the next section in this case
+          continue;
+        }
+
+        for (final TrackingRecord record : list) {
           String clusterType = record.getClusterType();
           if (clusterType.isEmpty()) {
             clusterType = "default";
@@ -2004,11 +2017,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       }
     }
 
-    // for each cluster in clusterIdComponentIdsMap create a tracking record
-    Long clusterIdCt = 1L;
-    for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
-      // TODO: handle definition is not editable
-      if (definition.isEditable()) {
+    // Set the raw cluster count
+    bin.setClusterCt(clusterIdConceptIdsMap.size());
+
+    // for each cluster in clusterIdComponentIdsMap create a tracking record if editable bin
+    if (definition.isEditable()) {
+      int clusterIdCt = 1;
+      for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
+
+        // If definition is editable
         TrackingRecord record = new TrackingRecordJpa();
         record.setClusterId(clusterIdCt++);
         record.setTerminology(project.getTerminology());
@@ -2020,7 +2037,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         record.setWorklistName(null);
         record.setClusterType("");
 
-        for (Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
+        for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           Concept concept = workflowService.getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
           if (record.getClusterType().equals("")) {
@@ -2033,7 +2050,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
               }
             }
           }
-          for (Atom atom : concept.getAtoms()) {
+          for (final Atom atom : concept.getAtoms()) {
             record.getComponentIds().add(atom.getId());
           }
           if (record.getWorklistName() == null) {

@@ -116,6 +116,10 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Column(nullable = false)
   private Long creationTime = null;
 
+  /** The cluster count. Needed for "uneditable" bins. */
+  @Column(nullable = false)
+  private int clusterCt = 0;
+
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
@@ -155,6 +159,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     editable = bin.isEditable();
     required = bin.isRequired();
     creationTime = bin.getCreationTime();
+    clusterCt = bin.getClusterCt();
     project = bin.getProject();
     if (deepCopy) {
       trackingRecords = new ArrayList<>(bin.getTrackingRecords());
@@ -311,6 +316,18 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Override
   public void setCreationTime(Long creationTime) {
     this.creationTime = creationTime;
+  }
+
+  /* see superclass */
+  @Override
+  public int getClusterCt() {
+    return clusterCt;
+  }
+
+  /* see superclass */
+  @Override
+  public void setClusterCt(int clusterCt) {
+    this.clusterCt = clusterCt;
   }
 
   /* see superclass */

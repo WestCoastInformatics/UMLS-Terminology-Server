@@ -31,6 +31,7 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.IntegerBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
@@ -75,7 +76,7 @@ public class TrackingRecordJpa implements TrackingRecord {
 
   /** The cluster id. */
   @Column(nullable = false)
-  private Long clusterId;
+  private int clusterId;
 
   /** The cluster type. */
   @Column(nullable = false)
@@ -206,16 +207,16 @@ public class TrackingRecordJpa implements TrackingRecord {
   /* see superclass */
   @Override
   @Fields({
-      @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO, bridge = @FieldBridge(impl = LongBridge.class)),
+      @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO, bridge = @FieldBridge(impl = IntegerBridge.class)),
       @Field(name = "clusterIdSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })  
-  public Long getClusterId() {
+  })
+  public int getClusterId() {
     return clusterId;
   }
 
   /* see superclass */
   @Override
-  public void setClusterId(Long clusterId) {
+  public void setClusterId(int clusterId) {
     this.clusterId = clusterId;
   }
 
@@ -336,7 +337,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((clusterId == null) ? 0 : clusterId.hashCode());
+    result = prime * result + clusterId;
     result =
         prime * result + ((clusterType == null) ? 0 : clusterType.hashCode());
     result =
@@ -365,10 +366,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     if (getClass() != obj.getClass())
       return false;
     TrackingRecordJpa other = (TrackingRecordJpa) obj;
-    if (clusterId == null) {
-      if (other.clusterId != null)
-        return false;
-    } else if (!clusterId.equals(other.clusterId))
+    if (clusterId != other.clusterId)
       return false;
     if (clusterType == null) {
       if (other.clusterType != null)

@@ -263,21 +263,14 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // TEST ADDING BIN
-    Logger.getLogger(getClass()).info(
-        "    Add 'demotions' workflow bin definition");
+    Logger.getLogger(getClass()).info("    Add  workflow bin definition");
     WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
-    definition.setName("norelease");
-    definition.setDescription("Concepts where all atoms are unreleasable.");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a, concepts_atoms b, atoms c "
-        + "where a.terminology = :terminology and a.id = b.concepts_id "
-        + "and b.atoms_id = c.id and c.publishable = 0 "
-        + "and not exists (select * from concepts_atoms d, atoms e "
-        + " where a.id = d.concepts_id and d.atoms_id = e.id "
-        + " and e.publishable = 1);");
-    definition.setEditable(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
+    definition.setName("reviewed");
+    definition.setDescription("Concepts that do not require review.");
+    definition.setQuery("(NOT workflowStatus:NEEDS_REVIEW)");
+    definition.setEditable(false);
+    definition.setRequired(false);
+    definition.setQueryType(QueryType.LUCENE);
     definition.setWorkflowConfig(config);
     definition =
         (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
@@ -300,7 +293,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
     assertEquals(2, binList2.size());
     for (final WorkflowBin bin : binList2) {
-      Logger.getLogger(getClass()).debug("    bin = " + bin.getName());
+      Logger.getLogger(getClass()).debug(
+          "    bin = " + bin.getName() + ", + " + bin.getClusterCt());
       workflowService.findTrackingRecordsForWorkflowBin(projectId, bin.getId(),
           null, authToken);
       Logger.getLogger(getClass()).debug(
@@ -368,11 +362,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug(
         "    checklist = " + checklistOrderByClusterId);
     // Assert that cluster ids are contiguous and in order
-    long i = 0L;
+    int i = 0;
     for (final TrackingRecord r : workflowService
         .findTrackingRecordsForChecklist(projectId,
             checklistOrderByClusterId.getId(), pfs, authToken).getObjects()) {
-      assertEquals(++i, r.getClusterId().longValue());
+      assertEquals(++i, r.getClusterId());
     }
 
     // Remove checklist
