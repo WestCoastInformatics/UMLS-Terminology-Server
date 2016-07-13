@@ -963,6 +963,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       authorizeProject(workflowService, projectId, securityService, authToken,
           action, UserRole.AUTHOR);
 
+      // TODO: compute cluster and concept count stats
       return workflowService.findWorklists(
           workflowService.getProject(projectId), query, pfs);
 
@@ -1385,6 +1386,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       // TODO to be done later
       // compute the stats and add them to the stats object
+      // conceptCt
+      // clusterCt
       // n_actions -1 - molecular action search by concept ids on worklist
       // n_approved -1 - "APPROVE_CONCEPT" molecular actions
       // n_approved_by_editor -1 - "APPROVE_CONCEPT" molecular actions with
