@@ -236,6 +236,40 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     return null;
 
   }
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/config/all")
+  @ApiOperation(value = "Get workflow configs", notes = "Gets a workflow configs", response = WorkflowConfigJpa.class, responseContainer = "List")
+  public List<WorkflowConfig> getWorkflowConfigs(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Workflow): /config/all" + "  " + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "remove workflow config", UserRole.AUTHOR);
+
+      final Project project = workflowService.getProject(projectId);
+      final List<WorkflowConfig> configs = workflowService.getWorkflowConfigs(project);
+      for(WorkflowConfig config : configs) {
+        workflowService.handleLazyInit(config);
+      }
+      return configs;
+
+    } catch (Exception e) {
+      handleException(e, "trying to get a workflow config");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+
+  }
 
   /* see superclass */
   @Override
@@ -1233,7 +1267,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final StringBuffer sb = new StringBuffer();
       sb.append("workflowBinName:").append(workflowBin.getName());
       sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-      sb.append(" AND ").append("clusterType:").append(clusterType);
+      if (!clusterType.equals("all")) {
+        sb.append(" AND ").append("clusterType:").append(clusterType);
+      }
+      if (clusterType.equals("default")) {
+        sb.append(" AND NOT ").append("clusterType:chem");
+      }
 
       final PfsParameter localPfs =
           pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
@@ -1326,7 +1365,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             typeEditableMap.put("all", 0);
           }
           typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
-          typeEditableMap.put("all", typeEditableMap.get("all") + 1);
+          //typeEditableMap.put("all", typeEditableMap.get("all") + 1);
 
         }
         // Now extract cluster types and add statistics

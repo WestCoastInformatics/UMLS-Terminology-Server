@@ -312,6 +312,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
             composeQuery(project, ""), "", WorkflowConfigJpa.class,
             WorkflowConfigJpa.class, null, totalCt, manager);
     return new ArrayList<WorkflowConfig>(results);
+    
   }
 
   /* see superclass */
@@ -748,7 +749,8 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   @SuppressWarnings("static-method")
   private String composeQuery(Project project, String query) throws Exception {
     final StringBuilder localQuery = new StringBuilder();
-    localQuery.append(query);
+    if (query!= null && !query.equals("null"))
+      localQuery.append(query);
     if (!ConfigUtility.isEmpty(query)) {
       localQuery.append(" AND ");
     }

@@ -958,6 +958,39 @@ public class WorkflowClientRest extends RootClientRest implements
             });
     return new ArrayList<WorkflowBin>(list);
   }
+  
+  /* see superclass */
+  @Override
+  public List<WorkflowConfig> getWorkflowConfigs(Long projectId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - get workflow configs " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/config/all?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_JSON)
+            .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    final List<WorkflowConfigJpa> list =
+        ConfigUtility.getGraphForJson(resultString,
+            new TypeReference<List<WorkflowConfigJpa>>() {
+              // n/a
+            });
+    return new ArrayList<WorkflowConfig>(list);
+  }
 
   /* see superclass */
   @Override

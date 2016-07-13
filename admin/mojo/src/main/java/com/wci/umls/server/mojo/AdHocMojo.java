@@ -83,7 +83,7 @@ public class AdHocMojo extends AbstractMojo {
 
       // Perform operations here
       ProjectServiceRest projectService = new ProjectServiceRestImpl();
-      Project project1 = projectService.getProject(1239550L, authToken);
+      Project project1 = projectService.getProject(1239500L, authToken);
 
       //
       // Prepare workflow related objects
@@ -155,6 +155,19 @@ public class AdHocMojo extends AbstractMojo {
       workflowService = new WorkflowServiceRestImpl();
       workflowService.addWorkflowBinDefinition(project1.getId(),
           workflowBinDefinition2, authToken);
+
+      
+      // Clear and regenerate all bins
+      getLog().info("  Clear and regenerate all bins");
+      // Clear bins
+      workflowService = new WorkflowServiceRestImpl();
+      workflowService.clearBins(project1.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+      // Regenerate bins
+      workflowService = new WorkflowServiceRestImpl();
+      workflowService.regenerateBins(project1.getId(),
+          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
       getLog().info("done ...");
     } catch (Exception e) {
