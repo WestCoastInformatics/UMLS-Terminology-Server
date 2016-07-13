@@ -6,7 +6,7 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -158,7 +158,7 @@ public class SnomedctGraphResolutionHandler extends
   /* see superclass */
   @Override
   public void resolve(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
     cacheProperties();
     if (relationship != null) {

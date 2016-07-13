@@ -18,7 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -66,7 +66,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
     RelationshipList list =
         service.findConceptDeepRelationships("C0000097", "UMLS", "latest",
             Branch.ROOT, null, false, new PfsParameterJpa());
-    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
+    for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()
@@ -89,7 +89,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
     list =
         service.findConceptDeepRelationships("C0000097", "UMLS", "latest",
             Branch.ROOT, null, false, pfs);
-    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
+    for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()
@@ -100,18 +100,18 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
     }
     // Test 10 objects
     assertEquals(10, list.getCount());
-    List<Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> list2 =
+    List<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> list2 =
         new ArrayList<>(list.getObjects());
 
     // Test sort ordering by relationship type
     Collections
         .sort(
             list2,
-            new Comparator<Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>>() {
+            new Comparator<Relationship<? extends ComponentInfo, ? extends ComponentInfo>>() {
               @Override
               public int compare(
-                Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> o1,
-                Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> o2) {
+                Relationship<? extends ComponentInfo, ? extends ComponentInfo> o1,
+                Relationship<? extends ComponentInfo, ? extends ComponentInfo> o2) {
                 return o1.getRelationshipType().compareTo(
                     o2.getRelationshipType());
               }

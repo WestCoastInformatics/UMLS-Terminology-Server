@@ -3,8 +3,8 @@
  */
 package com.wci.umls.server.services.handlers;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Configurable;
-import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
@@ -111,7 +111,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @throws Exception the exception
    */
   public void resolve(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
 
   /**

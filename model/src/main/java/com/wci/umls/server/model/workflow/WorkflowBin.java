@@ -99,6 +99,20 @@ public interface WorkflowBin extends HasLastModified, HasProject {
   public void setEditable(boolean editable);
 
   /**
+   * Checks if is required for release.
+   *
+   * @return true, if is required
+   */
+  public boolean isRequired();
+
+  /**
+   * Sets the required flag.
+   *
+   * @param required the new required flag
+   */
+  public void setRequired(boolean required);
+
+  /**
    * Gets the terminology id.
    *
    * @return the terminology id

@@ -108,6 +108,7 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
 
     tester.include("description");
     tester.include("editable");
+    tester.include("required");
     tester.include("name");
     tester.include("rank");
     tester.include("type");
@@ -180,6 +181,7 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     tester.include("type");
     tester.include("rank");
     tester.include("editable");
+    tester.include("required");
     tester.include("creationTime");
 
     assertTrue(tester.testNotNullFields());
@@ -205,6 +207,7 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("type");
     tester.include("editable");
+    tester.include("required");
     tester.include("terminologyId");
     tester.include("terminology");
     tester.include("version");

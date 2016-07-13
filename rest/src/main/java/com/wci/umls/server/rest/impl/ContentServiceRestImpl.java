@@ -26,7 +26,6 @@ import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
@@ -2207,7 +2206,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
-      for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
+      for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -2356,7 +2355,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               terminology, version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
-      for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
+      for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -2413,7 +2412,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.findCodeRelationships(terminologyId, terminology,
               version, Branch.ROOT, queryStr, false, pfs);
 
-      for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
+      for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -4325,7 +4324,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               terminology, version, type, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
-      for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : list
+      for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }

@@ -9,7 +9,6 @@ import java.util.Properties;
 
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
 import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
@@ -296,7 +295,7 @@ public class UmlsIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
     // TODO
     return "";

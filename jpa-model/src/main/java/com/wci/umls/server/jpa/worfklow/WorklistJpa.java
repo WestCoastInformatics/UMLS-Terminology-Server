@@ -54,9 +54,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @CollectionTable(name = "worklist_reviewers")
   private List<String> reviewers = new ArrayList<>();
 
-  /** The group. */
+  /** The team (e.g. worklist group). */
   @Column(nullable = true)
-  private String worklistGroup;
+  private String team;
 
   /** The workflow bin. */
   @Column(nullable = true)
@@ -99,7 +99,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     super(worklist, deepCopy);
     authors = worklist.getAuthors();
     reviewers = worklist.getReviewers();
-    worklistGroup = worklist.getWorklistGroup();
+    team = worklist.getTeam();
     workflowStatus = worklist.getWorkflowStatus();
     workflowBinName = worklist.getWorkflowBinName();
     number = worklist.getNumber();
@@ -184,14 +184,14 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getWorklistGroup() {
-    return worklistGroup;
+  public String getTeam() {
+    return team;
   }
 
   /* see superclass */
   @Override
-  public void setWorklistGroup(String group) {
-    this.worklistGroup = group;
+  public void setTeam(String team) {
+    this.team = team;
   }
 
   /* see superclass */
@@ -230,9 +230,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     result =
         prime * result
             + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
-    result =
-        prime * result
-            + ((worklistGroup == null) ? 0 : worklistGroup.hashCode());
+    result = prime * result + ((team == null) ? 0 : team.hashCode());
     return result;
   }
 
@@ -261,10 +259,10 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
         return false;
     } else if (!workflowBinName.equals(other.workflowBinName))
       return false;
-    if (worklistGroup == null) {
-      if (other.worklistGroup != null)
+    if (team == null) {
+      if (other.team != null)
         return false;
-    } else if (!worklistGroup.equals(other.worklistGroup))
+    } else if (!team.equals(other.team))
       return false;
     return true;
   }
@@ -273,9 +271,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Override
   public String toString() {
     return "WorklistJpa [authors=" + authors + ", reviewers=" + reviewers
-        + ", worklistGroup=" + worklistGroup + ", workflowBin="
-        + workflowBinName + ", workflowStatus=" + workflowStatus + ", number="
-        + number + ", " + "workflowStateHistory=" + workflowStateHistory + "]";
+        + ", team=" + team + ", workflowBin=" + workflowBinName
+        + ", workflowStatus=" + workflowStatus + ", number=" + number + ", "
+        + "workflowStateHistory=" + workflowStateHistory + "]";
   }
 
 }

@@ -74,6 +74,7 @@ public class UserJpaUnitTest extends ModelUnitSupport {
     tester.include("email");
     tester.include("authToken");
     tester.include("name");
+    tester.include("team");
     tester.include("userName");
 
     assertTrue(tester.testIdentityFieldEquals());
@@ -154,6 +155,7 @@ public class UserJpaUnitTest extends ModelUnitSupport {
     assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
     tester.include("userName");
+    tester.include("team");
     tester.include("email");
     tester.include("applicationrole");
     tester.include("namesort");

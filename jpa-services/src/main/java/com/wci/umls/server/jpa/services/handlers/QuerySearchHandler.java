@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -25,8 +27,11 @@ public class QuerySearchHandler extends DefaultSearchHandler {
     EntityManager manager) throws Exception {
 
     if (query.toLowerCase().startsWith("select")) {
+      final Map<String, String> params = new HashMap<>();
+      params.put("terminology", terminology);
+      params.put("version", version);
       return executeQuery(query, literalField.equals(QueryType.SQL), clazz,
-          manager);
+          params, manager);
     } else {
       return super.getQueryResults(terminology, version, branch, query,
           literalField, fieldNamesKey, clazz, pfs, totalCt, manager);
@@ -46,6 +51,7 @@ public class QuerySearchHandler extends DefaultSearchHandler {
    * @param query the query
    * @param nativeFlag the native flag
    * @param clazz the clazz
+   * @param params the params
    * @param manager the manager
    * @return the list
    * @throws Exception the exception
@@ -54,7 +60,8 @@ public class QuerySearchHandler extends DefaultSearchHandler {
       "unchecked", "static-method"
   })
   private <T extends HasId> List<T> executeQuery(String query,
-    boolean nativeFlag, Class<T> clazz, EntityManager manager) throws Exception {
+    boolean nativeFlag, Class<T> clazz, Map<String, String> params,
+    EntityManager manager) throws Exception {
 
     // check for sql query errors -- throw as local exception
     // this is used to propagate errors back to user when testing queries
@@ -88,8 +95,18 @@ public class QuerySearchHandler extends DefaultSearchHandler {
     javax.persistence.Query jpaQuery = null;
     if (nativeFlag) {
       jpaQuery = manager.createNativeQuery(query);
+      if (params != null) {
+        for (final String key : params.keySet()) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
     } else {
       jpaQuery = manager.createQuery(query);
+      if (params != null) {
+        for (final String key : params.keySet()) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
     }
     return jpaQuery.getResultList();
   }

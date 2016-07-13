@@ -34,7 +34,6 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.HasTerminologyId;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -1515,16 +1514,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> getRelationship(
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
     Long id,
-    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationship " + id);
     if (relationshipClass != null) {
       return getComponent(id, relationshipClass);
     } else {
-      Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel =
+      Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel =
           getComponent(id, ConceptRelationshipJpa.class);
       if (rel == null) {
         rel = getComponent(id, AtomRelationshipJpa.class);
@@ -1546,12 +1545,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminologyId,
     String terminology,
     String version,
-    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships " + terminologyId + "/"
             + terminology + "/" + version);
-    List<Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationships =
+    List<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationships =
         null;
     if (relationshipClass != null) {
       relationships =
@@ -1588,12 +1587,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> getRelationship(
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
     String terminologyId,
     String terminology,
     String version,
     String branch,
-    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationship " + terminologyId + "/"
@@ -1602,7 +1601,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       return getComponent(terminologyId, terminology, version, branch,
           relationshipClass);
     }
-    final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel =
+    final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel =
         getComponent(terminologyId, terminology, version, branch,
             ConceptRelationshipJpa.class);
     if (rel == null) {
@@ -1622,8 +1621,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> addRelationship(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel)
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> addRelationship(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - add relationship " + rel);
@@ -1647,7 +1646,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /* see superclass */
   @Override
   public void updateRelationship(
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - update relationship " + rel);
@@ -1658,7 +1657,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
         @SuppressWarnings("unchecked")
-        Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel2 =
+        Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel2 =
             getComponent(rel.getId(), rel.getClass());
         if (!idHandler.getTerminologyId(rel).equals(
             idHandler.getTerminologyId(rel2))) {
@@ -1679,13 +1678,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public void removeRelationship(
     Long id,
-    Class<? extends Relationship<? extends HasTerminologyId, ? extends HasTerminologyId>> relationshipClass)
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - remove relationship " + id);
     // Remove the component
-    Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel =
-        null;
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel = null;
     if (relationshipClass != null) {
       removeComponent(id, relationshipClass);
     } else {
@@ -3407,7 +3405,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
-    for (final Relationship<? extends HasTerminologyId, ? extends HasTerminologyId> rel : results
+    for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : results
         .getObjects()) {
       getGraphResolutionHandler(terminology).resolve(rel);
     }
