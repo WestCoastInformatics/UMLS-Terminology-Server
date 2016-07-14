@@ -18,7 +18,7 @@ import com.wci.umls.server.model.meta.LexicalClassIdentity;
  */
 @Entity
 @Table(name = "lexical_class_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "normalizedNameHash", "id"
+    "normalizedNameHash"
 }))
 @XmlRootElement(name = "lexicalClassIdentity")
 public class LexicalClassIdentityJpa implements LexicalClassIdentity {
