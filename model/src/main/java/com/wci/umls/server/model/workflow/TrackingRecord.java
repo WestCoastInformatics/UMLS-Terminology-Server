@@ -39,14 +39,14 @@ public interface TrackingRecord extends HasLastModified, HasTerminology,
    *
    * @return the cluster id
    */
-  public int getClusterId();
+  public Long getClusterId();
 
   /**
    * Sets the cluster id.
    *
    * @param clusterId the cluster id
    */
-  public void setClusterId(int clusterId);
+  public void setClusterId(Long clusterId);
 
   /**
    * Returns the cluster type.
@@ -105,9 +105,9 @@ public interface TrackingRecord extends HasLastModified, HasTerminology,
   public void setOrigConceptIds(Set<Long> origConceptIds);
 
   /**
-   * Returns the concepts. 
-   * This uses a list to make the unit test easier to manage.
-   * Multiple collections of the same type with different objects is messy.
+   * Returns the concepts. This uses a list to make the unit test easier to
+   * manage. Multiple collections of the same type with different objects is
+   * messy.
    *
    * @return the concepts
    */

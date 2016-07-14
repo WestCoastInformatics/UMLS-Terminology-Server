@@ -95,7 +95,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
   private final String version = "latest";
 
   /** The next release. */
-  //private final String nextRelease = "2016AB";
+  // private final String nextRelease = "2016AB";
 
   /**
    * Instantiates a {@link GenerateSampleDataMojo} from the specified
@@ -552,65 +552,68 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowService.addWorkflowBinDefinition(project1.getId(), definition,
         authToken);
 
-    // //
-    // // Add a QA bins workflow config for the current project
-    // //
-    // getLog().info("  Create a QA workflow config");
-    // workflowService = new WorkflowServiceRestImpl();
-    // config = new WorkflowConfigJpa();
-    // config.setType(WorkflowBinType.QUALITY_ASSURANCE);
-    // config.setMutuallyExclusive(true);
-    // config.setProjectId(project1.getId());
-    // workflowService = new WorkflowServiceRestImpl();
-    // newConfig =
-    // workflowService.addWorkflowConfig(project1.getId(), config, authToken);
     //
-    // // SCUI "merge" bins
-    // for (final String terminology : new String[] {
-    // "nci", "rxnorm", "cbo"
-    // }) {
-    // getLog().info(
-    // "    Add '" + terminology + "_merge' workflow bin definition");
-    // definition = new WorkflowBinDefinitionJpa();
-    // definition.setName(terminology + "_merge");
-    // definition.setDescription("Merged " + terminology.toUpperCase()
-    // + " SCUIs, including merged PTs");
-    // definition.setQuery("select a.id clusterId, a.id conceptId "
-    // + "from concepts a, concepts_atoms b, atoms c "
-    // + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
-    // + "  and c.terminology='" + terminology.toUpperCase() + "'  "
-    // + "group by a.id having count(distinct c.conceptId)>1");
-    // definition.setEditable(true);
-    // definition.setQueryType(QueryType.SQL);
-    // definition.setWorkflowConfig(newConfig);
-    // workflowService = new WorkflowServiceRestImpl();
-    // workflowService.addWorkflowBinDefinition(project1.getId(), definition,
-    // authToken);
-    // }
+    // Add a QA bins workflow config for the current project
     //
-    // // SDUI "merge" bins
-    // for (final String terminology : new String[] {
-    // "mdr", "pdq"
-    // }) {
-    // getLog().info(
-    // "    Add '" + terminology + "_merge' workflow bin definition");
-    // definition = new WorkflowBinDefinitionJpa();
-    // definition.setName(terminology + "_merge");
-    // definition.setDescription("Merged " + terminology.toUpperCase()
-    // + " SCUIs, including merged PTs");
-    // definition.setQuery("select a.id clusterId, a.id conceptId "
-    // + "from concepts a, concepts_atoms b, atoms c "
-    // + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
-    // + "  and c.terminology='" + terminology.toUpperCase() + "'  "
-    // + "group by a.id having count(distinct c.conceptId)>1");
-    // definition.setEditable(true);
-    // definition.setQueryType(QueryType.SQL);
-    // definition.setWorkflowConfig(newConfig);
-    // workflowService = new WorkflowServiceRestImpl();
-    // workflowService.addWorkflowBinDefinition(project1.getId(), definition,
-    // authToken);
-    // }
-    //
+    getLog().info("  Create a QA workflow config");
+    workflowService = new WorkflowServiceRestImpl();
+    config = new WorkflowConfigJpa();
+    config.setType(WorkflowBinType.QUALITY_ASSURANCE);
+    config.setMutuallyExclusive(false);
+    config.setProjectId(project1.getId());
+    workflowService = new WorkflowServiceRestImpl();
+    newConfig =
+        workflowService.addWorkflowConfig(project1.getId(), config, authToken);
+
+    // SCUI "merge" bins
+    for (final String terminology : new String[] {
+        "nci", "rxnorm", "cbo"
+    }) {
+      getLog().info(
+          "    Add '" + terminology + "_merge' workflow bin definition");
+      definition = new WorkflowBinDefinitionJpa();
+      definition.setName(terminology + "_merge");
+      definition.setDescription("Merged " + terminology.toUpperCase()
+          + " SCUIs, including merged PTs");
+      definition.setQuery("select a.id clusterId, a.id conceptId "
+          + "from concepts a, concepts_atoms b, atoms c "
+          + "where and a.terminology = :terminology "
+          + "  and a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
+          + "group by a.id having count(distinct c.conceptId)>1");
+      definition.setEditable(true);
+      definition.setRequired(true);
+      definition.setQueryType(QueryType.SQL);
+      definition.setWorkflowConfig(newConfig);
+      workflowService = new WorkflowServiceRestImpl();
+      workflowService.addWorkflowBinDefinition(project1.getId(), definition,
+          authToken);
+    }
+
+    // SDUI "merge" bins
+    for (final String terminology : new String[] {
+        "mdr", "pdq"
+    }) {
+      getLog().info(
+          "    Add '" + terminology + "_merge' workflow bin definition");
+      definition = new WorkflowBinDefinitionJpa();
+      definition.setName(terminology + "_merge");
+      definition.setDescription("Merged " + terminology.toUpperCase()
+          + " SCUIs, including merged PTs");
+      definition.setQuery("select a.id clusterId, a.id conceptId "
+          + "from concepts a, concepts_atoms b, atoms c "
+          + "where a.terminology = :terminology "
+          + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
+          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
+          + "group by a.id having count(distinct c.conceptId)>1");
+      definition.setEditable(true);
+      definition.setRequired(false);
+      definition.setQueryType(QueryType.SQL);
+      definition.setWorkflowConfig(newConfig);
+      workflowService = new WorkflowServiceRestImpl();
+      workflowService.addWorkflowBinDefinition(project1.getId(), definition,
+          authToken);
+    }
 
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate ME bins");
@@ -624,24 +627,24 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowService.regenerateBins(project1.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
-    // // Clear and regenerate all bins
-    // getLog().info("  Clear and regenerate QA bins");
-    // // Clear bins
-    // workflowService = new WorkflowServiceRestImpl();
-    // workflowService.clearBins(project1.getId(),
-    // WorkflowBinType.QUALITY_ASSURANCE, authToken);
-    //
-    // // Regenerate bins
-    // workflowService = new WorkflowServiceRestImpl();
-    // workflowService.regenerateBins(project1.getId(),
-    // WorkflowBinType.QUALITY_ASSURANCE, authToken);
+    // Clear and regenerate all bins
+    getLog().info("  Clear and regenerate QA bins");
+    // Clear bins
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.clearBins(project1.getId(),
+        WorkflowBinType.QUALITY_ASSURANCE, authToken);
+
+    // Regenerate bins
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.regenerateBins(project1.getId(),
+        WorkflowBinType.QUALITY_ASSURANCE, authToken);
 
     // TODO: create a few checklists from bins (including randomizing)
     getLog().info("  Create a random checklist");
 
     getLog().info("  Create a non-random checklist");
 
-    // TODO: create a few worklist from bins
+    // TODO: create a few worklist from bins - chem, nonchem
     getLog().info("  Create a few worklists from the bins");
 
   }

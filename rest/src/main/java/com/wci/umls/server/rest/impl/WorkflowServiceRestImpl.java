@@ -1898,11 +1898,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     String selectSubStr =
         query.substring(0, query.toUpperCase().indexOf(" FROM "));
 
-    if (!selectSubStr.contains("clusterId"))
+    if (nativeFlag && !selectSubStr.contains("clusterId"))
       throw new LocalException(
           "Workflow bin definition query must return column result with name of 'clusterId'");
 
-    if (!selectSubStr.contains("conceptId"))
+    if (nativeFlag && !selectSubStr.contains("conceptId"))
       throw new LocalException(
           "Workflow bin definition query must return column result with name of 'conceptId'");
 
@@ -1978,8 +1978,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     WorkflowBinDefinition definition, int rank, Set<Long> conceptsSeen,
     Map<Long, String> conceptIdWorklistNameMap,
     WorkflowServiceJpa workflowService) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Regenreate bin " + definition.getName());
+    Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
 
     // Create the workflow bin
     final WorkflowBin bin = new WorkflowBinJpa();
@@ -2001,10 +2000,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     final Map<String, String> params = new HashMap<>();
     params.put("terminology", project.getTerminology());
 
-    Logger.getLogger(getClass()).debug("  query = " + definition.getQuery());
     List<Object[]> results = null;
     switch (definition.getQueryType()) {
-      case HQL:
+      case JQL:
         try {
           results = executeQuery(query, false, params, workflowService);
         } catch (java.lang.IllegalArgumentException e) {
@@ -2047,7 +2045,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       throw new Exception("Failed to retrieve results for query");
 
     final Map<Long, Set<Long>> clusterIdConceptIdsMap = new HashMap<>();
-    Logger.getLogger(getClass()).debug("  results = " + results.size());
+    Logger.getLogger(getClass()).info("  results = " + results.size());
 
     // put query results into map
     for (final Object[] result : results) {
@@ -2075,13 +2073,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
     // Set the raw cluster count
     bin.setClusterCt(clusterIdConceptIdsMap.size());
-    Logger.getLogger(getClass()).debug(
+    Logger.getLogger(getClass()).info(
         "  clusters = " + clusterIdConceptIdsMap.size());
 
     // for each cluster in clusterIdComponentIdsMap create a tracking record if
     // editable bin
     if (definition.isEditable()) {
-      int clusterIdCt = 1;
+      long clusterIdCt = 1L;
       for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
 
         // Create the tracking record

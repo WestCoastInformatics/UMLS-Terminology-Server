@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -29,6 +30,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -131,8 +133,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
             (WorkflowConfigJpa) config, authToken);
 
     // Add a workflow definition (as SQL)
-    // TODO: create workflow bin definitions exactly matching NCI-META config
-    // also
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("testName");
     definition.setDescription("test description");
@@ -262,13 +262,16 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   public void testClearAndRegenerateBins() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    // TEST ADDING BIN
-    Logger.getLogger(getClass()).info("    Add  workflow bin definition");
+    // Add a required SQL bin definition
+    Logger.getLogger(getClass()).info("    Add required SQL bin definition");
     WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
-    definition.setName("leftovers");
-    definition.setDescription("SNOMEDCT_US.");
+    definition.setName("testSQL");
+    definition.setDescription("Test SQL.");
     definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a where a.workflowStatus = 'NEEDS_REVIEW'");
+        + "from concepts a, concepts_atoms b, atoms c "
+        + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+        + "  and a.terminology = :terminology and c.terminology='NCI' "
+        + "  and c.workflowStatus = 'NEEDS_REVIEW'");
     definition.setEditable(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
@@ -277,44 +280,247 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
             projectId, definition, authToken);
 
-    // Clear bins
-    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
-    final List<WorkflowBin> binList =
-        workflowService.getWorkflowBins(projectId,
-            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-    assertEquals(0, binList.size());
+    // Add a required JQL bin definition
+    Logger.getLogger(getClass()).info("    Add required JQL bin definition");
+    WorkflowBinDefinitionJpa definition2 = new WorkflowBinDefinitionJpa();
+    definition2.setName("testJQL");
+    definition2.setDescription("Test JQL.");
+    definition2.setQuery("select a.id, a.id from ConceptJpa a "
+        + "where a.terminology = :terminology "
+        + "  and a.workflowStatus = 'NEEDS_REVIEW'");
+    definition2.setEditable(true);
+    definition2.setRequired(true);
+    definition2.setQueryType(QueryType.JQL);
+    definition2.setWorkflowConfig(config);
+    definition2 =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition2, authToken);
+
+    // Add a required LUCENE bin definition
+    Logger.getLogger(getClass()).info("    Add required LUCENE bin definition");
+    WorkflowBinDefinitionJpa definition3 = new WorkflowBinDefinitionJpa();
+    definition3.setName("testLUCENE");
+    definition3.setDescription("Test LUCENE.");
+    definition3.setQuery("atoms.terminology:AIR");
+    definition3.setEditable(true);
+    definition3.setRequired(true);
+    definition3.setQueryType(QueryType.LUCENE);
+    definition3.setWorkflowConfig(config);
+    definition3 =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition3, authToken);
 
     // Regenerate bins
     workflowService.regenerateBins(projectId,
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    final List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(projectId,
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    assertEquals(4, binList.size());
+
+    for (final WorkflowBin bin : binList) {
+      Logger.getLogger(getClass()).debug(
+          "    bin = " + bin.getName() + ", " + bin.getClusterCt());
+      assertTrue(bin.getClusterCt() > 0);
+      final PfsParameterJpa pfs = new PfsParameterJpa();
+      pfs.setStartIndex(0);
+      pfs.setMaxResults(10);
+      final TrackingRecordList list =
+          workflowService.findTrackingRecordsForWorkflowBin(projectId,
+              bin.getId(), pfs, authToken);
+      assertTrue(list.getCount() > 0);
+
+    }
+
+    // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
+    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
+        authToken);
     final List<WorkflowBin> binList2 =
         workflowService.getWorkflowBins(projectId,
             WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-    assertEquals(2, binList2.size());
-    for (final WorkflowBin bin : binList2) {
-      Logger.getLogger(getClass()).debug(
-          "    bin = " + bin.getName() + ", " + bin.getClusterCt());
-      workflowService.findTrackingRecordsForWorkflowBin(projectId, bin.getId(),
-          null, authToken);
-      Logger.getLogger(getClass()).debug(
-          "      records = "
-              + workflowService.findTrackingRecordsForWorkflowBin(projectId,
-                  bin.getId(), null, authToken));
-    }
-
-    // TODO: test mutually exclusives vs not
-    // TODO: test "editable" vs. not
-    // TODO: test SQL, HQL, LUCENE
-
-    // Clear bins
-    Logger.getLogger(getClass()).debug("  Clear bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    assertEquals(0, binList2.size());
 
     // Remove the definition
     workflowService.removeWorkflowBinDefinition(projectId, definition.getId(),
+        authToken);
+    workflowService.removeWorkflowBinDefinition(projectId, definition2.getId(),
+        authToken);
+    workflowService.removeWorkflowBinDefinition(projectId, definition3.getId(),
+        authToken);
+
+  }
+
+  /**
+   * Test regenerating a mutually exclusive bin.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testMutuallyExclusive() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Add a required SQL bin definition
+    Logger.getLogger(getClass()).info("    Add required SQL bin definition");
+    WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
+    definition.setName("testSQL");
+    definition.setDescription("Test SQL.");
+    definition.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a, concepts_atoms b, atoms c "
+        + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+        + "  and a.terminology = :terminology and c.terminology='NCI' "
+        + "  and c.workflowStatus = 'NEEDS_REVIEW'");
+    definition.setEditable(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(config);
+    definition =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition, authToken);
+
+    // Add same SQL definition
+    Logger.getLogger(getClass()).info("    Add same SQL definition");
+    WorkflowBinDefinitionJpa definition2 = new WorkflowBinDefinitionJpa();
+    definition2.setName("testSQL2");
+    definition2.setDescription("Test SQL2.");
+    definition2.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a, concepts_atoms b, atoms c "
+        + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+        + "  and a.terminology = :terminology and c.terminology='NCI' "
+        + "  and c.workflowStatus = 'NEEDS_REVIEW'");
+    definition2.setEditable(true);
+    definition2.setRequired(true);
+    definition2.setQueryType(QueryType.SQL);
+    definition2.setWorkflowConfig(config);
+    definition2 =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition2, authToken);
+
+    // Regenerate bins
+    workflowService.regenerateBins(projectId,
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    final List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(projectId,
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    assertEquals(3, binList.size());
+
+    int testSqlCt = -1;
+    int testSql2Ct = -1;
+    for (final WorkflowBin bin : binList) {
+      if (bin.getName().equals("testSQL")) {
+        testSqlCt = bin.getClusterCt();
+      }
+      if (bin.getName().equals("testSQL2")) {
+        testSql2Ct = bin.getClusterCt();
+      }
+    }
+    assertTrue(testSqlCt != testSql2Ct);
+    assertEquals(0, testSql2Ct);
+
+    // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
+    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
+        authToken);
+    final List<WorkflowBin> binList2 =
+        workflowService.getWorkflowBins(projectId,
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    assertEquals(0, binList2.size());
+
+    // Remove the definition
+    workflowService.removeWorkflowBinDefinition(projectId, definition.getId(),
+        authToken);
+    workflowService.removeWorkflowBinDefinition(projectId, definition2.getId(),
+        authToken);
+
+  }
+
+  /**
+   * Test regenerating a non-mutually exclusive bin.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNotMutuallyExclusive() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Update workflow config to be not mutually exclusive
+    Logger.getLogger(getClass()).debug("  Update workflow config");
+    config.setMutuallyExclusive(false);
+    workflowService.updateWorkflowConfig(projectId, (WorkflowConfigJpa) config,
+        authToken);
+    config =
+        workflowService.getWorkflowConfig(projectId, config.getId(), authToken);
+    assertFalse(config.isMutuallyExclusive());
+
+    // Add a required SQL bin definition
+    Logger.getLogger(getClass()).info("    Add required SQL bin definition");
+    WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
+    definition.setName("testSQL");
+    definition.setDescription("Test SQL.");
+    definition.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a, concepts_atoms b, atoms c "
+        + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+        + "  and a.terminology = :terminology and c.terminology='NCI' "
+        + "  and c.workflowStatus = 'NEEDS_REVIEW'");
+    definition.setEditable(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(config);
+    definition =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition, authToken);
+
+    // Add same SQL definition
+    Logger.getLogger(getClass()).info("    Add same SQL definition");
+    WorkflowBinDefinitionJpa definition2 = new WorkflowBinDefinitionJpa();
+    definition2.setName("testSQL2");
+    definition2.setDescription("Test SQL2.");
+    definition2.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a, concepts_atoms b, atoms c "
+        + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+        + "  and a.terminology = :terminology and c.terminology='NCI' "
+        + "  and c.workflowStatus = 'NEEDS_REVIEW'");
+    definition2.setEditable(true);
+    definition2.setRequired(true);
+    definition2.setQueryType(QueryType.SQL);
+    definition2.setWorkflowConfig(config);
+    definition2 =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition2, authToken);
+
+    // Regenerate bins
+    workflowService.regenerateBins(projectId,
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    final List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(projectId,
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    assertEquals(3, binList.size());
+
+    int testSqlCt = -1;
+    int testSql2Ct = -1;
+    for (final WorkflowBin bin : binList) {
+      if (bin.getName().equals("testSQL")) {
+        testSqlCt = bin.getClusterCt();
+      }
+      if (bin.getName().equals("testSQL2")) {
+        testSql2Ct = bin.getClusterCt();
+      }
+    }
+    assertEquals(testSqlCt, testSql2Ct);
+
+    // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
+    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
+        authToken);
+    final List<WorkflowBin> binList2 =
+        workflowService.getWorkflowBins(projectId,
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    assertEquals(0, binList2.size());
+
+    // Remove the definition
+    workflowService.removeWorkflowBinDefinition(projectId, definition.getId(),
+        authToken);
+    workflowService.removeWorkflowBinDefinition(projectId, definition2.getId(),
         authToken);
 
   }
@@ -327,11 +533,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   @Test
   public void testChecklists() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    // Clear bins
-    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
 
     // Regenerate gins
     workflowService.regenerateBins(projectId,
@@ -361,6 +562,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     pfs.setSortField("clusterId");
 
     // Non-randomize flag picks consecutive tracking records from the bin
+    Logger.getLogger(getClass())
+        .debug("  Create checklist in cluster id order");
     final Checklist checklistOrderByClusterId =
         workflowService.createChecklist(projectId, testNameBin.getId(),
             "checklistOrderByClusterId", false, false, null, pfs, authToken);
@@ -371,7 +574,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     for (final TrackingRecord r : workflowService
         .findTrackingRecordsForChecklist(projectId,
             checklistOrderByClusterId.getId(), pfs, authToken).getObjects()) {
-      assertEquals(++i, r.getClusterId());
+      // The tracking record should have at least one concept too
+      assertTrue(r.getConcepts().size() > 0);
+      assertEquals(new Long(++i), r.getClusterId());
     }
 
     // Remove checklist
@@ -394,6 +599,8 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     for (final TrackingRecord r : workflowService
         .findTrackingRecordsForChecklist(projectId,
             checklistOrderByRandom.getId(), pfs, authToken).getObjects()) {
+      // The tracking record should have at least one concept too
+      assertTrue(r.getConcepts().size() > 0);
       // If the first 5 get randomly picked, this won't work
       if (r.getClusterId() > 5) {
         found = true;
@@ -402,14 +609,13 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     }
     assertTrue("Expected at least one cluster id not in the first 5", found);
 
-    // TODO: test clusterType:chem
-    // TODO: test excludeOnWorklist...
-
-    // TODO: test getting the tracking records and concepts
     // Remove checklist
-    Logger.getLogger(getClass()).debug("  Remove checklist");
+    Logger.getLogger(getClass()).debug("  Remove checklists");
+    workflowService.removeChecklist(projectId,
+        checklistOrderByClusterId.getId(), authToken);
     workflowService.removeChecklist(projectId, checklistOrderByRandom.getId(),
         authToken);
+
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
@@ -425,11 +631,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   @Test
   public void testWorklists() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    // clear bins
-    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
 
     // regenerate bins
     workflowService.regenerateBins(projectId,
@@ -481,11 +682,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   @Test
   public void testPerformWorkflowAction() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    // Clear bins
-    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
 
     // Regenerate bins
     workflowService.regenerateBins(projectId,
@@ -632,11 +828,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   public void testGeneratingConceptReport() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    // Clear bins
-    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
-
     // Regenerate bins
     workflowService.regenerateBins(projectId,
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
@@ -752,11 +943,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   @Test
   public void testWorkflowStatistics() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    // Clear bins
-    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
 
     // Regenerate bins
     workflowService.regenerateBins(projectId,
@@ -875,4 +1061,177 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     return map;
   }
 
+  /**
+   * Test regenerating an editable bin - it should have tracking records.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testEditableBinExclusive() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Add a editable bin definition
+    Logger.getLogger(getClass()).info(
+        "    Add required editable bin definition");
+    WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
+    definition.setName("testEditable");
+    definition.setDescription("Test Editable.");
+    definition.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a, concepts_atoms b, atoms c "
+        + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+        + "  and a.terminology = :terminology and c.terminology='NCI' "
+        + "  and c.workflowStatus = 'NEEDS_REVIEW'");
+    definition.setEditable(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(config);
+    definition =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition, authToken);
+
+    // Add same not-editable definition
+    Logger.getLogger(getClass()).info("    Add same nonEditable definition");
+    WorkflowBinDefinitionJpa definition2 = new WorkflowBinDefinitionJpa();
+    definition2.setName("testNonEditable");
+    definition2.setDescription("Test NonEditable.");
+    definition2.setQuery("atoms.terminology:AIR");
+    definition2.setEditable(false);
+    definition2.setRequired(true);
+    definition2.setQueryType(QueryType.LUCENE);
+    definition2.setWorkflowConfig(config);
+    definition2 =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition2, authToken);
+
+    // Regenerate bins
+    workflowService.regenerateBins(projectId,
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    final List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(projectId,
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    assertEquals(3, binList.size());
+
+    boolean found1 = false;
+    boolean found2 = false;
+    for (final WorkflowBin bin : binList) {
+      if (bin.getName().equals("testEditable")) {
+        // Find tracking records for workflow bin should return records
+        final TrackingRecordList list =
+            workflowService.findTrackingRecordsForWorkflowBin(projectId,
+                bin.getId(), null, authToken);
+        assertTrue(list.getCount() > 0);
+        assertTrue(bin.getClusterCt() > 0);
+        found1 = true;
+      }
+      if (bin.getName().equals("testNonEditable")) {
+        final TrackingRecordList list =
+            workflowService.findTrackingRecordsForWorkflowBin(projectId,
+                bin.getId(), null, authToken);
+        assertFalse(list.getCount() > 0);
+        assertTrue(bin.getClusterCt() > 0);
+        found2 = true;
+      }
+    }
+    assertTrue(found1);
+    assertTrue(found2);
+
+    // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
+    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
+        authToken);
+    final List<WorkflowBin> binList2 =
+        workflowService.getWorkflowBins(projectId,
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    assertEquals(0, binList2.size());
+
+    // Remove the definition
+    workflowService.removeWorkflowBinDefinition(projectId, definition.getId(),
+        authToken);
+    workflowService.removeWorkflowBinDefinition(projectId, definition2.getId(),
+        authToken);
+
+  }
+
+  /**
+   * Test create/find/delete worklist.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testWorklistChecklist() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // regenerate bins
+    workflowService.regenerateBins(projectId,
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+    // get test name bin
+    Logger.getLogger(getClass()).debug("  Find testName workflow bin");
+    final List<WorkflowBin> binList =
+        workflowService.getWorkflowBins(projectId,
+            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    WorkflowBin testNameBin = null;
+    for (final WorkflowBin bin : binList) {
+      if (bin.getName().equals("testName")) {
+        testNameBin = bin;
+        break;
+      }
+    }
+    Logger.getLogger(getClass()).debug("    testNameBin = " + testNameBin);
+    assertNotNull(testNameBin);
+
+    //
+    // Create worklist
+    //
+    Logger.getLogger(getClass()).debug("  Create worklist");
+    final PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(5);
+    final Worklist worklist =
+        workflowService.createWorklist(projectId, testNameBin.getId(), "chem",
+            pfs, authToken);
+    Logger.getLogger(getClass()).debug("    worklist = " + worklist);
+    final TrackingRecordList list =
+        workflowService.findTrackingRecordsForWorklist(projectId,
+            worklist.getId(), null, authToken);
+    assertEquals(5, list.getCount());
+
+    // Make a checklist and exclude stuff on worklist.
+    Logger.getLogger(getClass()).debug("  Create checklist");
+    final Checklist checklist =
+        workflowService.createChecklist(projectId, testNameBin.getId(),
+            "checklistWorklist", false, true, "", pfs, authToken);
+    final TrackingRecordList list2 =
+        workflowService.findTrackingRecordsForChecklist(projectId,
+            checklist.getId(), null, authToken);
+    assertEquals(5, list2.getCount());
+
+    // Assert that none of the cluster ids are in common
+    Logger.getLogger(getClass()).debug(
+        "  Verify checklist does not overlap with worklist");
+    final List<Long> worklistIds =
+        list.getObjects().stream().map(r -> r.getClusterId())
+            .collect(Collectors.toList());
+    final List<Long> checklistIds =
+        list2.getObjects().stream().map(r -> r.getClusterId())
+            .collect(Collectors.toList());
+    assertEquals(5, worklistIds.size());
+    assertEquals(5, checklistIds.size());
+    final List<Long> minusIds = new ArrayList<Long>(worklistIds);
+    minusIds.removeAll(checklistIds);
+    assertEquals(5, minusIds.size());
+
+    // Remove the worklist
+    Logger.getLogger(getClass()).debug("  Remove worklist");
+    workflowService.removeWorklist(projectId, worklist.getId(), authToken);
+
+    Logger.getLogger(getClass()).debug("  Remove checklist");
+    workflowService.removeChecklist(projectId, checklist.getId(), authToken);
+
+    // clear bins
+    Logger.getLogger(getClass()).debug("  Clear bins");
+    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
+        authToken);
+
+  }
 }
