@@ -86,8 +86,8 @@ tsApp
               $scope.ioExportHandlers = [];
 
               // Worklist Changed handler
-              $scope.$on('worklist:worklistChanged', function(event, data) {
-                console.debug('on worklist:worklistChanged', data);
+              $scope.$on('workflow:worklistChanged', function(event, data) {
+                console.debug('on workflow:worklistChanged', data);
                 $scope.getWorklists();
               });
 
@@ -127,7 +127,7 @@ tsApp
 
                 if ($scope.value == 'PUBLISHED' || $scope.value == 'BETA') {
                   pfs.queryRestriction = 'workflowStatus:' + $scope.value;
-                  worklistService.findWorklistsForQuery($scope.paging['worklist'].filter, pfs).then(
+                  workflowService.findWorklistsForQuery($scope.paging['worklist'].filter, pfs).then(
                     function(data) {
                       $scope.worklists = data.worklists;
                       $scope.worklists.totalCount = data.totalCount;
@@ -136,9 +136,9 @@ tsApp
                     });
                 }
 
-                if ($scope.value == 'AVAILABLE' /*&& $scope.projects.role == 'AUTHOR'*/) {
+                if ($scope.value == 'Worklist' /*&& $scope.projects.role == 'AUTHOR'*/) {
                   pfs.queryRestriction = $scope.paging['worklist'].filter;
-                  workflowService.findWorklists($scope.project,
+                  workflowService.findWorklists($scope.project.id,
                     //$scope.user.userName, pfs).then(function(data) {
                     $scope.query, pfs).then(function(data) {
                     $scope.worklists = data.worklists;
@@ -219,7 +219,7 @@ tsApp
                     + $scope.project.id
                     + ' AND revision:false AND (workflowStatus:READY_FOR_PUBLICATION OR workflowStatus:BETA  OR workflowStatus:PUBLISHED)';
                   pfs.latestOnly = $scope.showLatest;
-                  worklistService.findWorklistsForQuery($scope.paging['worklist'].filter, pfs).then(
+                  workflowService.findWorklistsForQuery($scope.paging['worklist'].filter, pfs).then(
                     function(data) {
                       $scope.worklists = data.worklists;
                       $scope.worklists.totalCount = data.totalCount;
@@ -276,7 +276,7 @@ tsApp
                 if ($scope.value == 'PUBLISHED' || $scope.value == 'BETA') {
                   workflowStatus = $scope.value;
                 }
-                worklistService.getFilters(projectId, workflowStatus).then(
+                workflowService.getFilters(projectId, workflowStatus).then(
                 // Success
                 function(data) {
                   $scope.filters = data.keyValuePairs;
@@ -325,7 +325,7 @@ tsApp
                   }
                 }
 
-                worklistService.findWorklistMembersForQuery(worklist.id, $scope.paging['member'].filter,
+                workflowService.findWorklistMembersForQuery(worklist.id, $scope.paging['member'].filter,
                   pfs).then(
                 // Success
                 function(data) {
@@ -335,33 +335,22 @@ tsApp
 
               };
 
-              // Get $scope.worklistReleaseInfo
-              $scope.getWorklistReleaseInfo = function(worklist) {
-                $scope.worklistReleaseInfo = null;
-                var pfs = {
-                  startIndex : -1,
-                  maxResults : 10,
-                  sortField : null,
-                  ascending : null,
-                  queryRestriction : null
-                };
-                releaseService.findWorklistReleasesForQuery(worklist.id, null, pfs).then(
-                  function(data) {
-                    $scope.worklistReleaseInfo = data.releaseInfos[0];
-                  });
-              };
 
               // optimizes the definition
               $scope.optimizeDefinition = function(worklist) {
-                worklistService.optimizeDefinition(worklist.id).then(function() {
-                  worklistService.fireWorklistChanged(worklist);
+                workflowService.optimizeDefinition(worklist.id).then(function() {
+                  workflowService.fireWorklistChanged(worklist);
                 });
               };
 
+              // Convert time to a string
+              $scope.toTime = function(editingTime) {
+                return utilService.toTime(editingTime);
+              };
+              
               // Convert date to a string
               $scope.toDate = function(lastModified) {
                 return utilService.toDate(lastModified);
-
               };
 
               // Convert date to a string
@@ -448,7 +437,6 @@ tsApp
                 $scope.selected.worklist = worklist;
                 $scope.selected.terminology = worklist.terminology;
                 $scope.selected.version = worklist.version;
-                $scope.getWorklistReleaseInfo(worklist);
                 $scope.getMembers(worklist);
                 $scope.getStandardDescriptionTypes(worklist.terminology, worklist.version);
               };
@@ -475,7 +463,7 @@ tsApp
 
               // Remove a worklist
               $scope.removeWorklist = function(worklist) {
-                workflowService.findAllAssignedWorklists($scope.project.id, {
+               /* workflowService.findAllAssignedWorklists($scope.project.id, {
                   startIndex : 0,
                   maxResults : 1,
                   queryRestriction : 'worklistId:' + worklist.id
@@ -486,15 +474,15 @@ tsApp
                       && !$window
                         .confirm('The worklist is assigned, are you sure you want to proceed?')) {
                       return;
-                    }
-                    $scope.removeWorklistHelper(worklist);
-                  });
+                    }*/
+                    $scope.removeWorklistHelper($scope.project.id, worklist);
+                  //});
               };
 
               // Helper for removing a refest
-              $scope.removeWorklistHelper = function(worklist) {
+              $scope.removeWorklistHelper = function(projectId, worklist) {
 
-                worklistService.findWorklistMembersForQuery(worklist.id, '', {
+                /*workflowService.findWorklistMembersForQuery(worklist.id, '', {
                   startIndex : 0,
                   maxResults : 1
                 }).then(
@@ -504,18 +492,18 @@ tsApp
                         .confirm('The worklist has members, are you sure you want to proceed.')) {
                         return;
                       }
-                    }
-                    worklistService.removeWorklist(worklist.id).then(function() {
+                    }*/
+                    workflowService.removeWorklist(projectId, worklist.id).then(function() {
                       $scope.selected.worklist = null;
-                      worklistService.fireWorklistChanged();
+                      workflowService.fireWorklistChanged(worklist);
                     });
-                  });
+                  //});
               };
 
               // Remove worklist member
               $scope.removeWorklistMember = function(worklist, member) {
 
-                worklistService.removeWorklistMember(member.id).then(
+                workflowService.removeWorklistMember(member.id).then(
                 // Success
                 function() {
                   $scope.selected.concept = null;
@@ -525,7 +513,7 @@ tsApp
               // Remove worklist inclusion
               $scope.removeWorklistInclusion = function(worklist, member) {
 
-                worklistService.removeWorklistMember(member.id).then(
+                workflowService.removeWorklistMember(member.id).then(
                 // Success
                 function() {
                   $scope.handleWorkflow(worklist);
@@ -535,7 +523,7 @@ tsApp
               // Adds a worklist exclusion and refreshes member
               // list with current PFS settings
               $scope.addWorklistExclusion = function(worklist, member) {
-                worklistService.addWorklistExclusion(worklist, member.conceptId, false).then(function() {
+                workflowService.addWorklistExclusion(worklist, member.conceptId, false).then(function() {
                   $scope.handleWorkflow(worklist);
                 });
 
@@ -543,7 +531,7 @@ tsApp
 
               // Remove worklist exclusion and refreshes members
               $scope.removeWorklistExclusion = function(worklist, member) {
-                worklistService.removeWorklistExclusion(member.id).then(function() {
+                workflowService.removeWorklistExclusion(member.id).then(function() {
                   $scope.handleWorkflow(worklist);
                 });
 
@@ -561,7 +549,7 @@ tsApp
                   && (worklist.workflowStatus == 'NEW' || worklist.workflowStatus == 'READY_FOR_PUBLICATION')) {
                   $scope.performWorkflowAction(worklist, 'SAVE', $scope.user.userName);
                 } else {
-                  worklistService.fireWorklistChanged(worklist);
+                  workflowService.fireWorklistChanged(worklist);
                 }
               };
 
@@ -570,14 +558,14 @@ tsApp
 
                 workflowService.performWorkflowAction($scope.project.id, worklist.id, userName,
                   $scope.projects.role, action).then(function(data) {
-                  worklistService.fireWorklistChanged(data);
+                  workflowService.fireWorklistChanged(data);
                 });
               };
 
               // Removes all worklist members
               $scope.removeAllWorklistMembers = function(worklist) {
-                worklistService.removeAllWorklistMembers(worklist.id).then(function(data) {
-                  worklistService.fireWorklistChanged(worklist);
+                workflowService.removeAllWorklistMembers(worklist.id).then(function(data) {
+                  workflowService.fireWorklistChanged(worklist);
                 });
               };
 
@@ -591,11 +579,11 @@ tsApp
               $scope.cancelAction = function(worklist) {
                 $scope.cancelling = true;
                 if (worklist.stagingType == 'IMPORT') {
-                  worklistService.cancelImportMembers(worklist.id).then(
+                  workflowService.cancelImportMembers(worklist.id).then(
                   // Success
                   function() {
                     $scope.cancelling = false;
-                    worklistService.fireWorklistChanged(worklist);
+                    workflowService.fireWorklistChanged(worklist);
                   },
                   // Error
                   function() {
@@ -604,7 +592,7 @@ tsApp
                 }
                 if (worklist.stagingType == 'MIGRATION') {
 
-                  worklistService.cancelMigration(worklist.id).then(
+                  workflowService.cancelMigration(worklist.id).then(
                   // Success
                   function(data) {
                     // Some local management of worklist state to avoid
@@ -618,7 +606,7 @@ tsApp
                       startLookup(worklist);
                     }
                     $scope.cancelling = false;
-                    // worklistService.fireWorklistChanged($scope.worklist);
+                    // workflowService.fireWorklistChanged($scope.worklist);
                   },
                   // Error
                   function() {
@@ -631,7 +619,7 @@ tsApp
                   // Success
                   function() {
                     $scope.cancelling = false;
-                    worklistService.fireWorklistChanged(worklist);
+                    workflowService.fireWorklistChanged(worklist);
                   },
                   // Error
                   function() {
@@ -643,10 +631,10 @@ tsApp
               // cancelling a release given the staged worklist
               $scope.cancelActionForStaged = function(worklist) {
                 if (worklist.workflowStatus == 'BETA') {
-                  worklistService.getOriginForStagedWorklistId(worklist.id).then(
+                  workflowService.getOriginForStagedWorklistId(worklist.id).then(
                   // Success
                   function(data) {
-                    worklistService.getWorklist(data).then(
+                    workflowService.getWorklist(data).then(
                     // Success
                     function(data) {
                       $scope.cancelAction(data);
@@ -657,7 +645,7 @@ tsApp
 
               // Start lookup again - not $scope because modal must access it
               function startLookup(worklist) {
-                worklistService.startLookup(worklist.id).then(
+                workflowService.startLookup(worklist.id).then(
                 // Success
                 function(data) {
                   $scope.worklistLookupProgress[worklist.id] = 1;
@@ -672,7 +660,7 @@ tsApp
 
               // Refresh lookup progress
               $scope.refreshLookupProgress = function(worklist) {
-                worklistService.getLookupProgress(worklist.id).then(
+                workflowService.getLookupProgress(worklist.id).then(
                 // Success
                 function(data) {
                   if (data === "100" || data == 100) {
@@ -813,7 +801,7 @@ tsApp
                     $scope.warnings = {};
                     $scope.warningFlag = false;
                     for (var i = 0; i < $scope.newClauses.length; i++) {
-                      worklistService
+                      workflowService
                         .countExpression($scope.newClauses[i].value, worklist.terminology,
                           worklist.version)
                         .then(
@@ -853,7 +841,7 @@ tsApp
                       return;
                     }
                   }
-                  worklistService
+                  workflowService
                     .isExpressionValid(clause.value, worklist.terminology, worklist.version)
                     .then(
                       // Success - add worklist
@@ -864,7 +852,7 @@ tsApp
                           $scope.newClause = null;
                           $scope.warnings = {};
                           $scope.warningFlag = false;
-                          worklistService
+                          workflowService
                             .countExpression(clause.value, worklist.terminology, worklist.version)
                             .then(
                               // Success - count expression
@@ -895,7 +883,7 @@ tsApp
                 $scope.save = function(worklist) {
                   worklist.definitionClauses = $scope.newClauses;
                   $scope.warnings = [];
-                  worklistService.updateWorklist(worklist).then(
+                  workflowService.updateWorklist(worklist).then(
                   // Success - add worklist
                   function(data) {
                     $uibModalInstance.close(worklist);
@@ -980,11 +968,11 @@ tsApp
                 $scope.removeNote = function(object, note) {
 
                   if ($scope.type == 'Worklist') {
-                    worklistService.removeWorklistNote(object.id, note.id).then(
+                    workflowService.removeWorklistNote(object.id, note.id).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
-                      worklistService.getWorklist(object.id).then(function(data) {
+                      workflowService.getWorklist(object.id).then(function(data) {
                         object.notes = data.notes;
                         $scope.getPagedNotes();
                       },
@@ -998,11 +986,11 @@ tsApp
                       handleError($scope.errors, data);
                     });
                   } else if ($scope.type == 'Member') {
-                    worklistService.removeWorklistMemberNote(object.id, note.id).then(
+                    workflowService.removeWorklistMemberNote(object.id, note.id).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
-                      worklistService.getMember(object.id).then(function(data) {
+                      workflowService.getMember(object.id).then(function(data) {
                         object.notes = data.notes;
                         $scope.getPagedNotes();
                       },
@@ -1022,11 +1010,11 @@ tsApp
                 $scope.submitNote = function(object, text) {
 
                   if ($scope.type == 'Worklist') {
-                    worklistService.addWorklistNote(object.id, text).then(
+                    workflowService.addWorklistNote(object.id, text).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
-                      worklistService.getWorklist(object.id).then(function(data) {
+                      workflowService.getWorklist(object.id).then(function(data) {
                         object.notes = data.notes;
                         $scope.getPagedNotes();
                       },
@@ -1040,12 +1028,12 @@ tsApp
                       handleError($scope.errors, data);
                     });
                   } else if ($scope.type == 'Member') {
-                    worklistService.addWorklistMemberNote(object.worklistId, object.id, text).then(
+                    workflowService.addWorklistMemberNote(object.worklistId, object.id, text).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
 
-                      worklistService.getMember(object.id).then(function(data) {
+                      workflowService.getMember(object.id).then(function(data) {
                         object.notes = data.notes;
                         $scope.getPagedNotes();
                       },
@@ -1156,7 +1144,7 @@ tsApp
 
                 // Assign worklist id
                 $scope.assignWorklistTerminologyId = function(worklist) {
-                  worklistService.assignWorklistTerminologyId(worklist.projectId, worklist).then(
+                  workflowService.assignWorklistTerminologyId(worklist.projectId, worklist).then(
                   // success
                   function(data) {
                     worklist.terminologyId = data;
@@ -1196,7 +1184,7 @@ tsApp
                         $scope.warnings = [];
                       }
 
-                      worklistService.cloneWorklist(worklist.project.id, worklist).then(
+                      workflowService.cloneWorklist(worklist.project.id, worklist).then(
                       // Success - clone worklist
                       function(data) {
                         var newWorklist = data;
@@ -1254,7 +1242,7 @@ tsApp
                   if (loperation == 'Import') {
                     $scope.handleWorkflow(data);
                   } else {
-                    worklistService.fireWorklistChanged(data);
+                    workflowService.fireWorklistChanged(data);
                   }
                 });
               };
@@ -1302,11 +1290,11 @@ tsApp
                 // Handle export
                 $scope.export = function(file) {
                   if (type == 'Definition') {
-                    worklistService.exportDefinition($scope.worklist, $scope.selectedIoHandler.id,
+                    workflowService.exportDefinition($scope.worklist, $scope.selectedIoHandler.id,
                       $scope.selectedIoHandler.fileTypeFilter);
                   }
                   if (type == 'Worklist Members') {
-                    worklistService.exportMembers($scope.worklist, $scope.selectedIoHandler.id,
+                    workflowService.exportMembers($scope.worklist, $scope.selectedIoHandler.id,
                       $scope.selectedIoHandler.fileTypeFilter);
                   }
                   $uibModalInstance.close(worklist);
@@ -1316,7 +1304,7 @@ tsApp
                 $scope.import = function(file) {
 
                   if (type == 'Definition') {
-                    worklistService.importDefinition($scope.worklist.id, $scope.selectedIoHandler.id,
+                    workflowService.importDefinition($scope.worklist.id, $scope.selectedIoHandler.id,
                       file).then(
                     // Success - close dialog
                     function(data) {
@@ -1329,7 +1317,7 @@ tsApp
                   }
 
                   if (type == 'Worklist Members') {
-                    worklistService.beginImportMembers($scope.worklist.id, $scope.selectedIoHandler.id)
+                    workflowService.beginImportMembers($scope.worklist.id, $scope.selectedIoHandler.id)
                       .then(
 
                         // Success
@@ -1341,7 +1329,7 @@ tsApp
                           } else {
 
                             // If there are no errors, finish import
-                            worklistService.finishImportMembers($scope.worklist.id,
+                            workflowService.finishImportMembers($scope.worklist.id,
                               $scope.selectedIoHandler.id, file).then(
                             // Success - close dialog
                             function(data) {
@@ -1369,7 +1357,7 @@ tsApp
                 $scope.continueImport = function(file) {
 
                   if (type == 'Worklist Members') {
-                    worklistService.finishImportMembers($scope.worklist.id,
+                    workflowService.finishImportMembers($scope.worklist.id,
                       $scope.selectedIoHandler.id, file).then(
                     // Success - close dialog
                     function(data) {
@@ -1390,7 +1378,7 @@ tsApp
                 $scope.cancel = function() {
                   // If there are lingering errors, cancel the import
                   if ($scope.errors.length > 0 && type == 'Worklist Members') {
-                    worklistService.cancelImportMembers($scope.worklist.id);
+                    workflowService.cancelImportMembers($scope.worklist.id);
                   }
                   // dismiss the dialog
                   $uibModalInstance.dismiss('cancel');
@@ -1425,17 +1413,17 @@ tsApp
                 modalInstance.result.then(
                 // Success
                 function(data) {
-                  worklistService.fireWorklistChanged(data);
+                  workflowService.fireWorklistChanged(data);
                 });
               };
 
               // Open release process modal given staged worklist
               $scope.openReleaseProcessModalForStaged = function(worklist) {
 
-                worklistService.getOriginForStagedWorklistId(worklist.id).then(
+                workflowService.getOriginForStagedWorklistId(worklist.id).then(
                 // Success
                 function(data) {
-                  worklistService.getWorklist(data).then(
+                  workflowService.getWorklist(data).then(
                   // Success
                   function(data) {
                     $scope.openReleaseProcessModal(data);
@@ -1496,7 +1484,7 @@ tsApp
                   // Success
                   function(data) {
                     $scope.validationResult = data;
-                    worklistService.fireWorklistChanged(worklist);
+                    workflowService.fireWorklistChanged(worklist);
                   },
                   // Error
                   function(data) {
@@ -1595,7 +1583,7 @@ tsApp
                 modalInstance.result.then(
                 // Success
                 function(data) {
-                  worklistService.fireWorklistChanged(data);
+                  workflowService.fireWorklistChanged(data);
                 });
               };
 
@@ -1638,7 +1626,7 @@ tsApp
 
                       // Add a note as well
                       if ($scope.note) {
-                        worklistService.addWorklistNote(worklist.id, $scope.note).then(
+                        workflowService.addWorklistNote(worklist.id, $scope.note).then(
                         // Success
                         function(data) {
                           $uibModalInstance.close(worklist);
@@ -1668,7 +1656,7 @@ tsApp
                     function(data) {
                       // Add a note as well
                       if ($scope.note) {
-                        worklistService.addWorklistNote(worklist.id, $scope.note).then(
+                        workflowService.addWorklistNote(worklist.id, $scope.note).then(
                         // Success - add note
                         function(data) {
                           $uibModalInstance.close(worklist);
@@ -1703,7 +1691,7 @@ tsApp
                         function(data) {
                           // Add a note as well
                           if ($scope.note) {
-                            worklistService.addWorklistNote(worklist.id, $scope.note).then(
+                            workflowService.addWorklistNote(worklist.id, $scope.note).then(
                             // Success - add note
                             function(data) {
                               $uibModalInstance.close(worklist);
@@ -1847,7 +1835,7 @@ tsApp
 
                 // find member and add if not exists
                 function includeMember(worklist, conceptId) {
-                  worklistService.findWorklistMembersForQuery(worklist.id, 'conceptId:' + conceptId, {
+                  workflowService.findWorklistMembersForQuery(worklist.id, 'conceptId:' + conceptId, {
                     startIndex : 0,
                     maxResults : 1
                   }).then(
@@ -1863,7 +1851,7 @@ tsApp
                         moduleId : worklist.moduleId,
                         worklistId : worklist.id
                       };
-                      worklistService.addWorklistMember(member).then(
+                      workflowService.addWorklistMember(member).then(
                       // Success
                       function(data) {
                         $scope.added.push(conceptId);
@@ -1895,7 +1883,7 @@ tsApp
 
                 // validation
                 function removeMember(worklist, conceptId) {
-                  worklistService.findWorklistMembersForQuery(worklist.id, 'conceptId:' + conceptId, {
+                  workflowService.findWorklistMembersForQuery(worklist.id, 'conceptId:' + conceptId, {
                     startIndex : 0,
                     maxResults : 1
                   }).then(
@@ -1907,7 +1895,7 @@ tsApp
                     } else {
 
                       var memberId = data.members[0].id;
-                      worklistService.removeWorklistMember(memberId).then(
+                      workflowService.removeWorklistMember(memberId).then(
                       // Success
                       function(data) {
                         $scope.removed.push(conceptId);
@@ -1978,7 +1966,7 @@ tsApp
                 modalInstance.result.then(
                 // Success
                 function(data) {
-                  worklistService.fireWorklistChanged(data);
+                  workflowService.fireWorklistChanged(data);
                 });
               };
 
@@ -2041,7 +2029,7 @@ tsApp
 
                 // Assign worklist id
                 $scope.assignWorklistTerminologyId = function(worklist) {
-                  worklistService.assignWorklistTerminologyId(project.id, worklist).then(
+                  workflowService.assignWorklistTerminologyId(project.id, worklist).then(
                   // success
                   function(data) {
                     worklist.terminologyId = data;
@@ -2098,7 +2086,7 @@ tsApp
                         }
 
                         // Success - validate worklist
-                        worklistService.addWorklist(worklist).then(
+                        workflowService.addWorklist(worklist).then(
                         // Success - add worklist
                         function(data) {
                           var newWorklist = data;
@@ -2199,7 +2187,7 @@ tsApp
 
                 // Assign worklist id
                 $scope.assignWorklistTerminologyId = function(worklist) {
-                  worklistService.assignWorklistTerminologyId(project.id, worklist).then(
+                  workflowService.assignWorklistTerminologyId(project.id, worklist).then(
                   // success
                   function(data) {
                     worklist.terminologyId = data;
@@ -2238,7 +2226,7 @@ tsApp
                       }
 
                       // Success - validate worklist
-                      worklistService.updateWorklist(worklist).then(
+                      workflowService.updateWorklist(worklist).then(
                       // Success - update worklist
                       function(data) {
                         $uibModalInstance.close(worklist);

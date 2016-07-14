@@ -61,10 +61,22 @@
       
     <!-- A2 - Worklists --> <uib-accordion-group> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Workflow Worklists">Worklists</span>
+      <span uib-tooltip="Workflow Worklists">Worklists**</span>
     </h5>
     </uib-accordion-heading> 
-    <div worklist-table value='AVAILABLE' project="currentProject"/>
-    </uib-accordion-group> </uib-accordion>
+    <div worklist-table value='Worklist' project="currentProject"/>
+    </uib-accordion-group>
+
+     <!-- A3 - Checklists -->  <uib-accordion-group> <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Workflow Worklists">Checklists*</span>
+    </h5>
+    </uib-accordion-heading> 
+    <div worklist-table value='Worklist' project="currentProject"/>
+    </uib-accordion-group>
+     
+     
+     </uib-accordion> 
   </div>
+  **
 </div>

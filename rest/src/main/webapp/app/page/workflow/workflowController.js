@@ -22,9 +22,10 @@ tsApp.controller('WorkflowCtrl', [
     tabService.setSelectedTabByLabel('Workflow');
 
     $scope.user = securityService.getUser();
-    $scope.binTypeOptions = []; // = ['MUTUALLY_EXCLUSIVE', 'AD_HOC'];
+    $scope.binTypeOptions = []; 
     $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
-    $scope.currentProject = 1239500;
+    // TODO: need to bootstrap this
+    $scope.currentProject = {id : 1239500};
     $scope.projects;
 
 
@@ -50,6 +51,7 @@ tsApp.controller('WorkflowCtrl', [
         // success
         function(data) {
 
+          $scope.projects = data;
           $scope.projects = data;
           $scope.currentProject = $scope.projects.projects[0];
 
