@@ -913,26 +913,26 @@ public class MetaEditingServiceRestNormalUseTest
     relationship = null;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
       if (rel.getRelationshipType().equals("RN")
-          && rel.getTo().getId() == 7335) {
+          && rel.getTo().getTerminologyId().equals("C0002073")) {
         relationship = (ConceptRelationshipJpa) rel;
       }
     }
     assertNotNull(relationship);
 
     // retrieve the to concept and check relationships
-    c2 = contentService.getConcept(concept.getId(), project.getId(), authToken);
-
+    c2 = contentService.getConcept(concept2.getId(), project.getId(), authToken);
+    
     relList = contentService.findConceptRelationships(c2.getTerminologyId(),
         c2.getTerminology(), c2.getVersion(), null, null, authToken);
 
-    relationship = null;
+    ConceptRelationshipJpa relationship2 = null;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
-      if (rel.getRelationshipType().equals("RN")
-          && rel.getTo().getId() == 7335) {
-        relationship = (ConceptRelationshipJpa) rel;
+      if (rel.getFrom().getTerminologyId().equals("C0002073")
+          && rel.getTo().getTerminologyId().equals("C0000294")) {
+        relationship2 = (ConceptRelationshipJpa) rel;
       }
     }
-    assertNotNull(relationship);
+    assertNotNull(relationship2);
 
     // verify that alternate ID was created and is correctly formed.
     assertNotNull(
@@ -977,7 +977,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify the log entry exists
     String logEntry =
         projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("ADD_RELATIONSHIP " + relationship.getName()));
+    assertTrue(logEntry.contains("ADD_RELATIONSHIP " + relationship));
 
     //
     // Add second relationship (also ensures alternateTerminologyId increments
@@ -990,17 +990,17 @@ public class MetaEditingServiceRestNormalUseTest
 
     // construct a relationship not present on concept (here, RelationshipType
     // RB to Concept CUI C0065642,ConceptId 88009 (set in setup).
-    ConceptRelationshipJpa relationship2 = new ConceptRelationshipJpa();
-    relationship2.setBranch(Branch.ROOT);
-    relationship2.setRelationshipType("RB");
-    relationship2.setAdditionalRelationshipType("");
-    relationship2.setFrom(c);
-    relationship2.setTo(c3);
-    relationship2.setTerminologyId("TestId");
-    relationship2.setTerminology(umlsTerminology);
-    relationship2.setVersion(umlsVersion);
-    relationship2.setTimestamp(new Date());
-    relationship2.setPublishable(true);
+    ConceptRelationshipJpa relationship3 = new ConceptRelationshipJpa();
+    relationship3.setBranch(Branch.ROOT);
+    relationship3.setRelationshipType("RB");
+    relationship3.setAdditionalRelationshipType("");
+    relationship3.setFrom(c);
+    relationship3.setTo(c3);
+    relationship3.setTerminologyId("TestId");
+    relationship3.setTerminology(umlsTerminology);
+    relationship3.setVersion(umlsVersion);
+    relationship3.setTimestamp(new Date());
+    relationship3.setPublishable(true);
 
     //
     // add the second relationship to the concept
@@ -1008,7 +1008,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the relationship to the concept
     v = metaEditingService.addRelationship(project.getId(), c.getId(),
-        c.getLastModified().getTime(), relationship2, false, authToken);
+        c.getLastModified().getTime(), relationship3, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check to make sure both relationships are still
@@ -1021,39 +1021,30 @@ public class MetaEditingServiceRestNormalUseTest
         c.getTerminology(), c.getVersion(), null, null, authToken);
 
     relationship = null;
-    relationship2 = null;
+    relationship3 = null;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
       if (rel.getRelationshipType().equals("RN")
-          && rel.getTo().getId() == 7335) {
+          && rel.getTo().getTerminologyId().equals("C0002073")) {
         relationship = (ConceptRelationshipJpa) rel;
       }
-      // if (rel.getRelationshipType().equals("RB")) {
-      // System.out.println(
-      // "TESTTEST - here is a relationship that has a type of RB: " + rel);
-      // System.out.println(
-      // "TESTTEST - here is a the toConcept for that relationship: "
-      // + rel.getTo());
-      // System.out.println("TESTTEST - and here is the toConcept's ID: "
-      // + rel.getTo().getId());
-      // }
       if (rel.getRelationshipType().equals("RB")
-          && rel.getTo().getId() == 88009) {
-        relationship2 = (ConceptRelationshipJpa) rel;
+          && rel.getTo().getTerminologyId().equals("C0065642")) {
+        relationship3 = (ConceptRelationshipJpa) rel;
       }
     }
     assertNotNull(relationship);
-    assertNotNull(relationship2);
+    assertNotNull(relationship3);
 
     // verify that alternate ID was created and is correctly formed.
     assertNotNull(
-        relationship2.getAlternateTerminologyIds().get(umlsTerminology));
-    assertTrue(relationship2.getAlternateTerminologyIds().get(umlsTerminology)
+        relationship3.getAlternateTerminologyIds().get(umlsTerminology));
+    assertTrue(relationship3.getAlternateTerminologyIds().get(umlsTerminology)
         .startsWith("R"));
 
     // verify that relationship2's alternate ID is different from the first one
     assertNotSame(
         relationship.getAlternateTerminologyIds().get(umlsTerminology),
-        relationship2.getAlternateTerminologyIds().get(umlsTerminology));
+        relationship3.getAlternateTerminologyIds().get(umlsTerminology));
 
     // verify the molecular action exists
     pfs = new PfsParameterJpa();
@@ -1076,18 +1067,18 @@ public class MetaEditingServiceRestNormalUseTest
 
     atomicActions = contentService
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
-    assertEquals(1, atomicActions.size());
+    assertEquals(2, atomicActions.size());
     assertEquals("RELATIONSHIP", atomicActions.get(0).getIdType().toString());
     assertNull(atomicActions.get(0).getOldValue());
     assertNotNull(atomicActions.get(0).getNewValue());
-    assertEquals("RElATIONSHIP", atomicActions.get(1).getIdType().toString());
-    assertNotNull(atomicActions.get(1).getOldValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(1).getIdType().toString());
+    assertNull(atomicActions.get(1).getOldValue());
     assertNotNull(atomicActions.get(1).getNewValue());
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
     assertTrue(
-        logEntry.contains("ADD_RELATIONSHIP " + relationship2.getName()));
+        logEntry.contains("ADD_RELATIONSHIP " + relationship3));
 
     //
     // Test removal
@@ -1105,7 +1096,8 @@ public class MetaEditingServiceRestNormalUseTest
     boolean relationshipPresent = false;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
       if (rel.getRelationshipType().equals("RN")
-          && rel.getTo().getId() == 7335) {
+          && rel.getTo().getTerminologyId().equals("C0002073") && 
+          rel.getFrom().getId().equals(c.getId())) {
         relationshipPresent = true;
       }
     }
@@ -1123,25 +1115,29 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
-    // Verify that one atomic action exists for remove Relationship
+    // Verify that two atomic actions exist for remove Relationship and inverse
     pfs.setAscending(true);
 
     atomicActions = contentService
         .findAtomicActions(ma.getId(), null, null, authToken).getObjects();
-    assertEquals(1, atomicActions.size());
+    assertEquals(2, atomicActions.size());
     assertEquals("RELATIONSHIP", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
     assertNull(atomicActions.get(0).getNewValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(1).getIdType().toString());
+    assertNotNull(atomicActions.get(1).getOldValue());
+    assertNull(atomicActions.get(1).getNewValue());
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("REMOVE_ATTRIBUTE " + relationship.getName()));
+    //Substringing relationship because removing it alters the lastModified
+    assertTrue(logEntry.contains("REMOVE_RELATIONSHIP " + relationship.toString().substring(0, 80)));
 
     // remove the second relationship from the concept (assume verification of
     // MA,
     // atomic actions, and log entry since we just tested those)
     v = metaEditingService.removeRelationship(project.getId(), c.getId(),
-        c.getLastModified().getTime(), relationship2.getId(), false, authToken);
+        c.getLastModified().getTime(), relationship3.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check relationships
@@ -1150,14 +1146,15 @@ public class MetaEditingServiceRestNormalUseTest
     relList = contentService.findConceptRelationships(c.getTerminologyId(),
         c.getTerminology(), c.getVersion(), null, null, authToken);
 
-    boolean relationship2Present = false;
+    boolean relationship3Present = false;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
       if (rel.getRelationshipType().equals("RB")
-          && rel.getTo().getId() == 88009) {
-        relationship2Present = true;
+          && rel.getTo().getTerminologyId().equals("C0065642") && 
+          rel.getFrom().getId().equals(c.getId())) {
+        relationship3Present = true;
       }
     }
-    assertTrue(!relationship2Present);
+    assertTrue(!relationship3Present);
 
   }
 

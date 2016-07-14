@@ -811,7 +811,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful POST call (MetaEditing): /relationship/" + projectId
             + "/" + conceptId + "/add for user " + authToken
-            + " with relationship value " + relationship.getName());
+            + " with relationship value " + relationship);
 
     // Prep reusable variables
     final String action = "ADD_RELATIONSHIP";
@@ -840,7 +840,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       Concept concept = conceptList.get(0);
       Concept toConcept = conceptList.get(1);
-      
+
       //
       // Check prerequisites
       //
@@ -872,8 +872,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Duplicate check
       for (final ConceptRelationship a : concept.getRelationships()) {
         if (a.equals(relationship)) {
-          throw new LocalException(
-              "Duplicate relationship - " + relationship.getName());
+          throw new LocalException("Duplicate relationship - " + relationship);
         }
       }
 
@@ -921,17 +920,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // add the relationship and set the last modified by
       concept.getRelationships().add(newRelationship);
-      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       toConcept.getRelationships().add(newInverseRelationship);
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
       // update the concept
-      contentService.updateConcept(concept);
       contentService.updateConcept(toConcept);
+      contentService.updateConcept(concept);
 
       // log the REST calls
-      contentService.addLogEntry(userName, projectId, conceptId,
-          action + " " + newRelationship.getName() + " to concept "
-              + concept.getTerminologyId());
+      contentService.addLogEntry(userName, projectId, conceptId, action + " "
+          + newRelationship + " to concept " + concept.getTerminologyId());
 
       // commit (also removes the lock)
       contentService.commit();
@@ -982,8 +980,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     // Instantiate services
     final ContentService contentService = new ContentServiceJpa();
 
-    // TODO: actually look up second conceptId somehow.
-    Long conceptId2 = 0L;
+    // Look up ToConcept Id
+    final Long conceptId2 = contentService
+        .getRelationship(relationshipId, ConceptRelationshipJpa.class).getTo()
+        .getId();
 
     try {
 
@@ -1020,9 +1020,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         throw new LocalException("Relationship to remove does not exist");
       }
 
-      // Exists check for inverse Relationshop
-      // TODO - relationshopId is the wrong value. Need to get relationship Id
-      // from inverseRelationship
+      // Exists check for inverse Relationship
 
       // Assign alternateTerminologyId
       final IdentifierAssignmentHandler handler = contentService
@@ -1035,14 +1033,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
               + toConcept.getTerminology() + " " + inverseRui + "\"",
           false, null);
 
-      if (relList.getCount() != 1) {
-        throw new Exception(
-            "Unexepected inverse Relationship count " + relList.getCount());
-      }
-
       ConceptRelationship inverseRelationship = null;
       for (final Relationship rel : relList.getObjects()) {
-        inverseRelationship = (ConceptRelationship) rel;
+        if (rel.getTo().getId() == relationship.getFrom().getId()
+            && rel.getFrom().getId() == relationship.getTo().getId()) {
+          if (inverseRelationship != null) {
+            throw new Exception(
+                "Unexepected more than a single inverse relationship for relationship - "
+                    + relationship);
+          }
+
+          inverseRelationship = (ConceptRelationship) rel;
+        }
       }
 
       // if prerequisites fail, return validation result
@@ -1093,7 +1095,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       return validationResult;
 
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       handleException(e, action);
       return null;
     } finally {

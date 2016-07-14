@@ -3826,10 +3826,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         final String newValue =
             m.invoke(newComponent, new Object[] {}).toString();
         
-        if(m.getName().equals("getWorkflowStatus")){
-          System.out.println("Looky here!");
-        }
-        
         if (!oldValue.equals(newValue)) {
 
           // construct the atomic action
