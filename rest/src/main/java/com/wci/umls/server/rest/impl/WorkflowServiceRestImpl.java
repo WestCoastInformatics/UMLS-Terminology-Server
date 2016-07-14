@@ -850,7 +850,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/workist/{id}/records")
+  @Path("/worklist/{id}/records")
   @ApiOperation(value = "Find records for worklist", notes = "Finds tracking records for worklist", response = TrackingRecordListJpa.class)
   public TrackingRecordList findTrackingRecordsForWorklist(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,

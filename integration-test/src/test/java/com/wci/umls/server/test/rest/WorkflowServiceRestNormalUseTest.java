@@ -579,11 +579,6 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
       assertEquals(new Long(++i), r.getClusterId());
     }
 
-    // Remove checklist
-    Logger.getLogger(getClass()).debug("  Remove checklist");
-    workflowService.removeChecklist(projectId,
-        checklistOrderByClusterId.getId(), authToken);
-
     //
     // Create checklist with random tracking records
     //
@@ -611,10 +606,10 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Remove checklist
     Logger.getLogger(getClass()).debug("  Remove checklists");
-    workflowService.removeChecklist(projectId,
-        checklistOrderByClusterId.getId(), authToken);
     workflowService.removeChecklist(projectId, checklistOrderByRandom.getId(),
         authToken);
+    workflowService.removeChecklist(projectId,
+        checklistOrderByClusterId.getId(), authToken);
 
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
@@ -1074,7 +1069,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testEditableBinExclusive() throws Exception {
+  public void testEditableBin() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Add a editable bin definition
