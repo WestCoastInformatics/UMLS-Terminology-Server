@@ -185,7 +185,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     UserJpa admin3 = (UserJpa) security.getUser("admin3", authToken);
     if (admin3 == null) {
       admin3 = makeUser("admin3", "Admin3");
-      admin3 = (UserJpa) security.addUser(admin1, authToken);
+      admin3 = (UserJpa) security.addUser(admin3, authToken);
     }
 
     //
@@ -205,7 +205,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     UserJpa reviewer3 = (UserJpa) security.getUser("reviewer3", authToken);
     if (reviewer3 == null) {
       reviewer3 = makeUser("reviewer3", "Reviewer3");
-      reviewer3 = (UserJpa) security.addUser(reviewer1, authToken);
+      reviewer3 = (UserJpa) security.addUser(reviewer3, authToken);
     }
 
     //
@@ -225,7 +225,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     UserJpa author3 = (UserJpa) security.getUser("author3", authToken);
     if (author3 == null) {
       author3 = makeUser("author3", "Author3");
-      author3 = (UserJpa) security.addUser(author1, authToken);
+      author3 = (UserJpa) security.addUser(author3, authToken);
     }
     //
     // Make a project
