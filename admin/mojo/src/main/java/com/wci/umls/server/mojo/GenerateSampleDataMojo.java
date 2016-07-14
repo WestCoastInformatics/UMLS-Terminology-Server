@@ -566,8 +566,9 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         workflowService.addWorkflowConfig(project1.getId(), config, authToken);
 
     // SCUI "merge" bins
+    getLog().info("    Add required SCUI merge bins");
     for (final String terminology : new String[] {
-        "nci", "rxnorm", "cbo"
+      "nci"
     }) {
       getLog().info(
           "    Add '" + terminology + "_merge' workflow bin definition");
@@ -590,9 +591,25 @@ public class GenerateSampleDataMojo extends AbstractMojo {
           authToken);
     }
 
-    // SDUI "merge" bins
+    // nci_sub_split
+    getLog().info("    Add nci_sub_split bin");
+
+    // sct_sepfnpt
+    // cdsty_coc
+    // multsty
+    // styisa
+    // sfo_lfo
+    // deleted_cui
+    //
+
+    //
+    // Non-required
+    //
+
+    // SCUI "merge" bins
+    getLog().info("    Add non-required SCUI merge bins");
     for (final String terminology : new String[] {
-        "mdr", "pdq"
+        "rxnorm", "cbo"
     }) {
       getLog().info(
           "    Add '" + terminology + "_merge' workflow bin definition");
@@ -602,8 +619,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
           + " SCUIs, including merged PTs");
       definition.setQuery("select a.id clusterId, a.id conceptId "
           + "from concepts a, concepts_atoms b, atoms c "
-          + "where a.terminology = :terminology "
-          + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
+          + "where and a.terminology = :terminology "
+          + "  and a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
           + "  and c.terminology='" + terminology.toUpperCase() + "'  "
           + "group by a.id having count(distinct c.conceptId)>1");
       definition.setEditable(true);
@@ -614,6 +631,30 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       workflowService.addWorkflowBinDefinition(project1.getId(), definition,
           authToken);
     }
+
+    // sct_sepfnpt
+    getLog().info("    Add sct_sepfnpt");
+    // rxnorm_split
+    // nci_pdq_merge
+    // nci_sct_merge
+    // ambig_no_ncimth_pn
+    // ambig_no_mth_pn
+    // ambig_no_rel
+    // pn_pn_ambig
+    // multiple_pn
+    // pn_no_ambig
+    // ambig_pn
+    // pn_orphan
+    // cdsty_coc
+    // nosty
+    // multsty
+    // styisa
+    // cbo_chem
+    // go_chem
+    // mdr_chem
+    // true_orphan
+    // sfo_lfo
+    // deleted_cui_split
 
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate ME bins");
@@ -627,6 +668,13 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowService.regenerateBins(project1.getId(),
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
+    // TODO: create
+    // 1. obtain bins
+    // 2. Make 2 worklists of size 10 from demotions/nci/snomed/leftovers
+    // 3. Make a checklist of size 10 from each one, exclude on worklist
+    // 4. Make a random checklist of size 10 from each one
+    // 5. Make an in-order checklist of size 10 from each one
+
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate QA bins");
     // Clear bins
@@ -638,14 +686,6 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowService = new WorkflowServiceRestImpl();
     workflowService.regenerateBins(project1.getId(),
         WorkflowBinType.QUALITY_ASSURANCE, authToken);
-
-    // TODO: create a few checklists from bins (including randomizing)
-    getLog().info("  Create a random checklist");
-
-    getLog().info("  Create a non-random checklist");
-
-    // TODO: create a few worklist from bins - chem, nonchem
-    getLog().info("  Create a few worklists from the bins");
 
   }
 

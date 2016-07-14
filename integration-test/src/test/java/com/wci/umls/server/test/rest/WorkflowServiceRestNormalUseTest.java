@@ -659,10 +659,17 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         workflowService.createWorklist(projectId, testNameBin.getId(), "chem",
             new PfsParameterJpa(), authToken);
     Logger.getLogger(getClass()).debug("    worklist = " + worklist);
+    Logger.getLogger(getClass()).debug("    worklist = " + worklist);
+    assertTrue(worklist.getName().startsWith("wrk"));
+    final TrackingRecordList list =
+        workflowService.findTrackingRecordsForWorklist(projectId,
+            worklist.getId(), null, authToken);
+    for (final TrackingRecord record : list.getObjects()) {
+      assertEquals("chem", record.getClusterType());
+      assertTrue(record.getConcepts().size() > 0);
+    }
+    assertEquals(5, list.getCount());
 
-    // TODO: assert something about this
-
-    // TODO: test getting the tracknig records/concepts
     // Remove the worklist
     Logger.getLogger(getClass()).debug("  Remove worklist");
     workflowService.removeWorklist(projectId, worklist.getId(), authToken);
