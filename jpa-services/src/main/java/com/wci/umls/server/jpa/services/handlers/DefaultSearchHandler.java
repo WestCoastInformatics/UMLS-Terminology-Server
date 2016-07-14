@@ -60,7 +60,7 @@ public class DefaultSearchHandler implements SearchHandler {
     }
     escapedQuery = "\"" + QueryParserBase.escape(escapedQuery) + "\"";
 
-    // A slash character indicats a regex in lucene, fix that
+    // A slash character indicates a regex in lucene, fix that
     final String fixedQuery = query == null ? "" : query.replaceAll("\\/", " ");
 
     // Build a combined query with an OR between query typed and exact match

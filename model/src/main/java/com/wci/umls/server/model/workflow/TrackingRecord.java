@@ -3,11 +3,13 @@
  */
 package com.wci.umls.server.model.workflow;
 
+import java.util.List;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.helpers.HasTerminology;
+import com.wci.umls.server.model.content.Concept;
 
 /**
  * Represents a tracking record for editing a cluster of concepts. The
@@ -102,4 +104,19 @@ public interface TrackingRecord extends HasLastModified, HasTerminology,
    */
   public void setOrigConceptIds(Set<Long> origConceptIds);
 
+  /**
+   * Returns the concepts. This uses a list to make the unit test easier to
+   * manage. Multiple collections of the same type with different objects is
+   * messy.
+   *
+   * @return the concepts
+   */
+  public List<Concept> getConcepts();
+
+  /**
+   * Sets the concepts.
+   *
+   * @param concept the concepts
+   */
+  public void setConcepts(List<Concept> concept);
 }

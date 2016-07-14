@@ -28,6 +28,7 @@ import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.AnalyzerDefs;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -35,6 +36,7 @@ import org.hibernate.search.annotations.Parameter;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.model.content.Atom;
@@ -173,6 +175,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;

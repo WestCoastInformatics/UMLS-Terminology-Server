@@ -30,6 +30,7 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
@@ -386,6 +387,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;

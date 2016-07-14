@@ -6,6 +6,7 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.Concept;
@@ -47,6 +48,16 @@ public interface IntegrationTestServiceRest {
    * @throws Exception the exception
    */
   public void removeConcept(Long conceptId, String authToken) throws Exception;
+
+  /**
+   * Update atom.
+   *
+   * @param atom the atom
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateAtom(AtomJpa atom, String authToken)
+    throws Exception;
 
   /**
    * Adds the relationship.

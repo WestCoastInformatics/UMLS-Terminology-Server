@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
@@ -96,7 +97,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
   @Override
   @PUT
   @Path("/concept/update")
-  @ApiOperation(value = "Update concept", notes = "Updates the concept", response = ConceptJpa.class)
+  @ApiOperation(value = "Update concept", notes = "Updates the concept")
   public void updateConcept(
     @ApiParam(value = "Concept, e.g. newConcept", required = true) ConceptJpa concept,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -153,6 +154,42 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
     } catch (Exception e) {
       handleException(e, "trying to remove a concept");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/atom/update")
+  @ApiOperation(value = "Update atom", notes = "Updates the atom")
+  public void updateAtom(
+    @ApiParam(value = "Atom, e.g. new atom", required = true) AtomJpa atom,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (TEST): /update " + atom);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String authUser =
+          authorizeApp(securityService, authToken, "update atom",
+              UserRole.ADMINISTRATOR);
+      contentService.setLastModifiedBy(authUser);
+      contentService.setMolecularActionFlag(false);
+
+      if (atom.getId() == null) {
+        throw new Exception("Only a concept that exists can be udpated: "
+            + atom);
+      }
+      // Update atom
+      contentService.updateAtom(atom);
+
+    } catch (Exception e) {
+      handleException(e, "trying to update a atom");
     } finally {
       contentService.close();
       securityService.close();

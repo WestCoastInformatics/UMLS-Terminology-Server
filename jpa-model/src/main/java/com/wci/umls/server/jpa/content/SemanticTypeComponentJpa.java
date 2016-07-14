@@ -14,9 +14,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -77,6 +79,7 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;

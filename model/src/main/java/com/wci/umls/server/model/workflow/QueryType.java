@@ -8,13 +8,13 @@ package com.wci.umls.server.model.workflow;
  */
 public enum QueryType {
 
-  /**  The hql. */
-  HQL,
+  /**  The jql type. */
+  JQL,
 
-  /**  The sql. */
+  /**  The sql type. */
   SQL,
 
-  /**  The lucene. */
+  /**  The lucene type. */
   LUCENE;
 
 }
