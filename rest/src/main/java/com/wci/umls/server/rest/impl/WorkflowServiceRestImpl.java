@@ -295,6 +295,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
               authToken, "remove workflow config", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
+      // TODO: remove worklistName from any tracking records in the corresponding bin
       workflowService.removeWorklist(id, true);
 
     } catch (Exception e) {
