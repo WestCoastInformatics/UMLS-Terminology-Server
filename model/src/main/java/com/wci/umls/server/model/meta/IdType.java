@@ -95,14 +95,7 @@ public enum IdType {
    * @throws Exception the exception
    */
   public static IdType getIdType(Component component) throws Exception {
-    final String type = component.getClass().getName().toUpperCase();
-    for (final IdType value : IdType.values()) {
-      final String valueStr = value.toString().replaceAll("_", "");
-      if (type.contains(valueStr)) {
-        return value;
-      }
-    }
-    throw new Exception("Unable to determine IdType " + type);
+    return getIdType(component.getClass());
   }
 
   /**
@@ -116,6 +109,9 @@ public enum IdType {
   public static <T extends Component> IdType getIdType(Class<T> clazz)
     throws Exception {
     final String type = clazz.getName().toUpperCase();
+    if (type.contains("RELATIONSHIP")){
+      return RELATIONSHIP;
+    }
     for (final IdType value : IdType.values()) {
       final String valueStr = value.toString().replaceAll("_", "");
       if (type.contains(valueStr)) {

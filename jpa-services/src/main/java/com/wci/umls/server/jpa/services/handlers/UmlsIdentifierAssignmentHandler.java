@@ -86,6 +86,12 @@ public class UmlsIdentifierAssignmentHandler
       if (p.containsKey("sui.prefix")) {
         prefixMap.put("SUI", p.getProperty("sui.prefix"));
       }
+      if (p.containsKey("rui.length")) {
+        lengthMap.put("RUI", Integer.valueOf(p.getProperty("rui.length")));
+      }
+      if (p.containsKey("rui.prefix")) {
+        prefixMap.put("RUI", p.getProperty("rui.prefix"));
+      }
     }
   }
 

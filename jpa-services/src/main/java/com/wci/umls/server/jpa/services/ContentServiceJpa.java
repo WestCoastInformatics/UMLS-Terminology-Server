@@ -1993,12 +1993,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
       // TODO - check if relationship accurately copies
       ConceptRelationship inverseRelationship =
           new ConceptRelationshipJpa(relationship, false);
+      inverseRelationship.setId(null);
       inverseRelationship.setFrom(relationship.getTo());
       inverseRelationship.setTo(relationship.getFrom());
       inverseRelationship.setRelationshipType(
           getRelationshipType(relationship.getRelationshipType(),
               relationship.getTerminology(), relationship.getVersion())
                   .getInverse().getAbbreviation());
+      inverseRelationship.setAssertedDirection(false);
 
       return inverseRelationship;
     } else {
@@ -3822,7 +3824,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
             m.invoke(oldComponent, new Object[] {}).toString();
         final String newValue =
             m.invoke(newComponent, new Object[] {}).toString();
-
+        
+        if(m.getName().equals("getWorkflowStatus")){
+          System.out.println("Looky here!");
+        }
+        
         if (!oldValue.equals(newValue)) {
 
           // construct the atomic action

@@ -2,6 +2,8 @@ package com.wci.umls.server.jpa.actions;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,6 +21,7 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.actions.AtomicAction;
@@ -61,6 +64,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /** The type. */
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private IdType idType;
 
   /** The molecular action. */
@@ -145,6 +149,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl=EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getIdType() {
     return idType;

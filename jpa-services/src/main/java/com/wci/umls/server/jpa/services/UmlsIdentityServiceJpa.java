@@ -13,7 +13,6 @@ import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 import com.wci.umls.server.model.meta.StringClassIdentity;
-import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.UmlsIdentityService;
 
 /**
@@ -493,14 +492,16 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public RelationshipIdentity createInverseRelationshipIdentity(RelationshipIdentity identity)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Umls Identity Service - creating inverse of relationship identity " + identity);
+  public RelationshipIdentity createInverseRelationshipIdentity(
+    RelationshipIdentity identity) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Umls Identity Service - creating inverse of relationship identity "
+            + identity);
 
-    //Create an inverse of the relationship    
-    Terminology term = getObject(Long.parseLong(identity.getTerminologyId()),Terminology.class);
-    
+    // Create an inverse of the relationship
+    String version =
+        getTerminologyLatestVersion(identity.getTerminology()).getVersion();
+
     RelationshipIdentity inverseIdentity = identity;
     inverseIdentity.setId(null);
     inverseIdentity.setFromId(identity.getFromId());
@@ -509,12 +510,21 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     inverseIdentity.setToId(identity.getToId());
     inverseIdentity.setToTerminology(identity.getToTerminology());
     inverseIdentity.setToType(identity.getToType());
-    inverseIdentity.setRelationshipType(getRelationshipType(identity.getRelationshipType(), term.getTerminology(), term.getVersion()).getInverse().getAbbreviation());
-    //TODO same thing for additionalRelationshipType
-    
+    inverseIdentity
+        .setRelationshipType(getRelationshipType(identity.getRelationshipType(),
+            identity.getTerminology(), version).getInverse().getAbbreviation());
+    if (!identity.getAdditionalRelationshipType().equals("")){
+    inverseIdentity.setAdditionalRelationshipType(
+        getAdditionalRelationshipType(identity.getRelationshipType(),
+            identity.getTerminology(), version).getInverse().getAbbreviation());
+    }
+    else {
+      inverseIdentity.setAdditionalRelationshipType("");
+    }
+
     return inverseIdentity;
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public Long getNextRelationshipId() throws Exception {
@@ -560,7 +570,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       query.setParameter("relationshipType", identity.getRelationshipType());
       query.setParameter("additionalRelationshipType",
           identity.getAdditionalRelationshipType());
-      query.setParameter("fromId ", identity.getFromId());
+      query.setParameter("fromId", identity.getFromId());
       query.setParameter("fromType", identity.getFromType());
       query.setParameter("fromTerminology", identity.getFromTerminology());
       query.setParameter("toId", identity.getToId());

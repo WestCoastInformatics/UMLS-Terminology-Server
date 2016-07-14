@@ -30,6 +30,7 @@ import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
@@ -635,7 +636,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action (contentService will create atomic actions for CRUD
       // operations)
       //
-
+      atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       // Assign alternateTerminologyId
       final IdentifierAssignmentHandler handler = contentService
           .getIdentifierAssignmentHandler(concept.getTerminology());
@@ -830,13 +831,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
+      System.out.println("The conceptId is " + conceptId
+          + ", and the toConcept ID is " + relationship.getTo().getId());
+
       final List<Concept> conceptList = initialize(contentService, project,
           conceptId, relationship.getTo().getId(), userName, action,
           lastModified, validationResult);
 
       Concept concept = conceptList.get(0);
       Concept toConcept = conceptList.get(1);
-
+      
       //
       // Check prerequisites
       //
@@ -867,7 +871,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Duplicate check
       for (final ConceptRelationship a : concept.getRelationships()) {
-        if (a.getName().equals(relationship.getName())) {
+        if (a.equals(relationship)) {
           throw new LocalException(
               "Duplicate relationship - " + relationship.getName());
         }
@@ -887,6 +891,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // operations)
       //
 
+      relationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       // Assign alternateTerminologyId
       final IdentifierAssignmentHandler handler = contentService
           .getIdentifierAssignmentHandler(concept.getTerminology());
@@ -927,10 +932,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.addLogEntry(userName, projectId, conceptId,
           action + " " + newRelationship.getName() + " to concept "
               + concept.getTerminologyId());
-      contentService.addLogEntry(userName, projectId,
-          relationship.getTo().getId(),
-          action + " " + newInverseRelationship.getName() + " to concept "
-              + toConcept.getTerminologyId());
 
       // commit (also removes the lock)
       contentService.commit();
@@ -1062,8 +1063,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // remove the relationship component
       contentService.removeRelationship(relationship.getId(),
           relationship.getClass());
-      
-      // remove the inverse relationship type component from the concept and update
+
+      // remove the inverse relationship type component from the concept and
+      // update
       toConcept.getRelationships().remove(inverseRelationship);
 
       // remove the inverse relationship component
@@ -1073,8 +1075,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       contentService.updateConcept(toConcept);
 
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      contentService.updateConcept(concept);      
-      
+      contentService.updateConcept(concept);
+
       // log the REST call
       contentService.addLogEntry(userName, projectId, conceptId,
           action + " " + relationship);
@@ -1139,7 +1141,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
     List<Long> conceptIdList = new ArrayList<Long>();
     conceptIdList.add(conceptId);
-    if (conceptId2 != null) {
+    if (conceptId2 != null && !(conceptId.equals(conceptId2))) {
       conceptIdList.add(conceptId2);
     }
 
@@ -1153,8 +1155,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       synchronized (i.toString().intern()) {
 
+        System.out.println("TESTTEST - conceptId is " + i);
+
         // retrieve the concept
-        tempConcept = contentService.getConcept(conceptId);
+        tempConcept = contentService.getConcept(i);
 
         // Verify concept exists
         if (tempConcept == null) {
@@ -1170,16 +1174,19 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
         // Fail if already locked - this is secondary protection
         if (contentService.isObjectLocked(tempConcept)) {
-          throw new Exception("Fatal error: concept is locked");
+          throw new Exception("Fatal error: concept is locked " + i);
         }
 
         // lock the concept via JPA
         contentService.lockObject(tempConcept);
 
         // add the concept to the list
-        conceptList.add(tempConcept);
+        conceptList.add(new ConceptJpa(tempConcept, true));
 
       }
+    }
+    if (secondaryConcept == null) {
+      secondaryConcept = mainConcept;
     }
 
     // construct the molecular action
