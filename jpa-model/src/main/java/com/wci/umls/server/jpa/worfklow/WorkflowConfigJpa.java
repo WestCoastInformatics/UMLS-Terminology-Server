@@ -46,7 +46,7 @@ import com.wci.umls.server.model.workflow.WorkflowConfig;
  */
 @Entity
 @Table(name = "workflow_configs", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "project_id", "type"
+    "project_id", "type", "id"
 }))
 @Indexed
 @XmlRootElement(name = "workflowConfig")

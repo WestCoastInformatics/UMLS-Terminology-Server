@@ -54,6 +54,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
   @Enumerated(EnumType.STRING)
   private IdType fromType;
 
+  /** The from terminology. */
   @Column(nullable = false)
   private String fromTerminology;
 
@@ -66,10 +67,11 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
   @Enumerated(EnumType.STRING)
   private IdType toType;
 
+  /** The to terminology. */
   @Column(nullable = false)
   private String toTerminology;
 
-  /**  The inverse id. */
+  /** The inverse id. */
   @Column(nullable = false)
   private Long inverseId;
 
@@ -249,22 +251,29 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((additionalRelationshipType == null) ? 0
-        : additionalRelationshipType.hashCode());
+    result =
+        prime
+            * result
+            + ((additionalRelationshipType == null) ? 0
+                : additionalRelationshipType.hashCode());
     result = prime * result + ((fromId == null) ? 0 : fromId.hashCode());
-    result = prime * result
-        + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
+    result =
+        prime * result
+            + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
     result = prime * result + ((fromType == null) ? 0 : fromType.hashCode());
     result = prime * result + ((inverseId == null) ? 0 : inverseId.hashCode());
-    result = prime * result
-        + ((relationshipType == null) ? 0 : relationshipType.hashCode());
+    result =
+        prime * result
+            + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((toId == null) ? 0 : toId.hashCode());
-    result = prime * result
-        + ((toTerminology == null) ? 0 : toTerminology.hashCode());
+    result =
+        prime * result
+            + ((toTerminology == null) ? 0 : toTerminology.hashCode());
     result = prime * result + ((toType == null) ? 0 : toType.hashCode());
     return result;
   }
