@@ -40,7 +40,6 @@ import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -70,8 +69,10 @@ public class MetaEditingServiceRestNormalUseTest
    */
   private ConceptJpa concept;
 
+  /**  The concept 2. */
   private ConceptJpa concept2;
 
+  /**  The concept 3. */
   private ConceptJpa concept3;
 
   /**
@@ -83,15 +84,9 @@ public class MetaEditingServiceRestNormalUseTest
   @Before
   public void setup() throws Exception {
 
-    Logger.getLogger(getClass()).debug("TESTTEST - adminUser is:" + adminUser);
-    Logger.getLogger(getClass())
-        .debug("TESTTEST - adminPassword is:" + adminPassword);
-
     // authentication (admin for editing permissions)
     authToken =
         securityService.authenticate(adminUser, adminPassword).getAuthToken();
-
-    Logger.getLogger(getClass()).debug("TESTTEST - authToken is:" + authToken);
 
     // ensure there is a concept associated with the project
     ProjectList projects = projectService.getProjects(authToken);
@@ -683,9 +678,6 @@ public class MetaEditingServiceRestNormalUseTest
     List<AtomicAction> atomicActions = contentService
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
 
-    System.out.println(
-        "TESTTEST: Here are the atomic actions for addAtom:" + atomicActions);
-
     assertEquals(2, atomicActions.size());
     assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
     assertNull(atomicActions.get(0).getOldValue());
@@ -855,33 +847,6 @@ public class MetaEditingServiceRestNormalUseTest
   }
 
   /**
-   * Teardown.
-   *
-   * @throws Exception the exception
-   */
-  @Override
-  @After
-  public void teardown() throws Exception {
-
-    // Copy existing concept to avoid messing with actual database data.
-    IntegrationTestClientRest testService =
-        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-    testService.removeConcept(concept.getId(), authToken);
-
-    testService =
-        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-    testService.removeConcept(concept2.getId(), authToken);
-
-    testService =
-        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-    testService.removeConcept(concept3.getId(), authToken);
-
-    // logout
-    securityService.logout(authToken);
-
-  }
-
-  /**
    * Test add and remove relationship to concept.
    *
    * @throws Exception the exception
@@ -911,7 +876,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(c2);
 
     Concept c3 =
-        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+        contentService.getConcept(concept3.getId(), project.getId(), authToken);
     assertNotNull(c3);
 
     // construct a relationship not present on concept (here, RelationshipType
@@ -932,30 +897,33 @@ public class MetaEditingServiceRestNormalUseTest
     // Test addition
     //
 
-    System.out.println(
-        "TESTTEST - workflow status before add " + c.getWorkflowStatus());
-
     // add the relationship to the concept
     ValidationResult v =
         metaEditingService.addRelationship(project.getId(), c.getId(),
             c.getLastModified().getTime(), relationship, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
-    // retrieve the concept and check relationships
+    // retrieve the source concept and check relationships
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
-
-    System.out.println(
-        "TESTTEST - workflow status after add " + c.getWorkflowStatus());
-
-    System.out.println("TESTTEST - here is a the concept returned: " + c);
-    System.out.println("TESTTEST - here are the concept's relationships: "
-        + contentService.findConceptRelationships(c.getTerminologyId(),
-            c.getTerminology(), c.getVersion(), null, null, authToken));
-    // query string: "relationshipType:RN AND toId:7335 AND fromId:" + c.getId()
 
     RelationshipList relList =
         contentService.findConceptRelationships(c.getTerminologyId(),
             c.getTerminology(), c.getVersion(), null, null, authToken);
+
+    relationship = null;
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getRelationshipType().equals("RN")
+          && rel.getTo().getId() == 7335) {
+        relationship = (ConceptRelationshipJpa) rel;
+      }
+    }
+    assertNotNull(relationship);
+
+    // retrieve the to concept and check relationships
+    c2 = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    relList = contentService.findConceptRelationships(c2.getTerminologyId(),
+        c2.getTerminology(), c2.getVersion(), null, null, authToken);
 
     relationship = null;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
@@ -978,8 +946,6 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     MolecularActionList list =
         contentService.findMolecularActions(c.getId(), null, pfs, authToken);
-    System.out.println(
-        "TESTTEST - Here are the molecular actions: " + list.toString());
 
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -1048,12 +1014,12 @@ public class MetaEditingServiceRestNormalUseTest
     // retrieve the concept and check to make sure both relationships are still
     // there
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
-    c2 = contentService.getConcept(concept2.getId(), project.getId(), authToken);
-    
-    relList =
-        contentService.findConceptRelationships(c.getTerminologyId(),
-            c.getTerminology(), c.getVersion(), null, null, authToken);    
-    
+    c2 = contentService.getConcept(concept2.getId(), project.getId(),
+        authToken);
+
+    relList = contentService.findConceptRelationships(c.getTerminologyId(),
+        c.getTerminology(), c.getVersion(), null, null, authToken);
+
     relationship = null;
     relationship2 = null;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
@@ -1061,15 +1027,15 @@ public class MetaEditingServiceRestNormalUseTest
           && rel.getTo().getId() == 7335) {
         relationship = (ConceptRelationshipJpa) rel;
       }
-      if (rel.getRelationshipType().equals("RB")) {
-        System.out.println(
-            "TESTTEST - here is a relationship that has a type of RB: " + rel);
-        System.out.println(
-            "TESTTEST - here is a the toConcept for that relationship: "
-                + rel.getTo());
-        System.out.println("TESTTEST - and here is the toConcept's ID: "
-            + rel.getTo().getId());
-      }
+      // if (rel.getRelationshipType().equals("RB")) {
+      // System.out.println(
+      // "TESTTEST - here is a relationship that has a type of RB: " + rel);
+      // System.out.println(
+      // "TESTTEST - here is a the toConcept for that relationship: "
+      // + rel.getTo());
+      // System.out.println("TESTTEST - and here is the toConcept's ID: "
+      // + rel.getTo().getId());
+      // }
       if (rel.getRelationshipType().equals("RB")
           && rel.getTo().getId() == 88009) {
         relationship2 = (ConceptRelationshipJpa) rel;
@@ -1101,9 +1067,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
-    // Verify that TWO atomic actions exists for add relationship (Concept
-    // Workflow
-    // Status for FROM concept was already set during previous addition, but
+    // Verify that TWO atomic actions exists the two add relationships (Concept
+    // Workflow Status for FROM concept was already set during previous
+    // addition, and Workflow Status for To Concept is not affected.
     // different TO concept will also be updated
     pfs.setSortField("idType");
     pfs.setAscending(true);
@@ -1114,7 +1080,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals("RELATIONSHIP", atomicActions.get(0).getIdType().toString());
     assertNull(atomicActions.get(0).getOldValue());
     assertNotNull(atomicActions.get(0).getNewValue());
-    assertEquals(atomicActions.get(1).getIdType().toString(), "CONCEPT");
+    assertEquals("RElATIONSHIP", atomicActions.get(1).getIdType().toString());
     assertNotNull(atomicActions.get(1).getOldValue());
     assertNotNull(atomicActions.get(1).getNewValue());
 
@@ -1133,11 +1099,13 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    relList = contentService.findConceptRelationships(c.getTerminologyId(),
+        c.getTerminology(), c.getVersion(), null, null, authToken);
 
     boolean relationshipPresent = false;
-    for (ConceptRelationship r : c.getRelationships()) {
-      if (r.getRelationshipType().equals("RN")
-          && r.getTo().getTerminologyId().equals("7335")) {
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getRelationshipType().equals("RN")
+          && rel.getTo().getId() == 7335) {
         relationshipPresent = true;
       }
     }
@@ -1179,14 +1147,44 @@ public class MetaEditingServiceRestNormalUseTest
     // retrieve the concept and check relationships
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
+    relList = contentService.findConceptRelationships(c.getTerminologyId(),
+        c.getTerminology(), c.getVersion(), null, null, authToken);
+
     boolean relationship2Present = false;
-    for (ConceptRelationship r : c.getRelationships()) {
-      if (r.getRelationshipType().equals("RB")
-          && r.getTo().getTerminologyId().equals("88009")) {
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getRelationshipType().equals("RB")
+          && rel.getTo().getId() == 88009) {
         relationship2Present = true;
       }
     }
     assertTrue(!relationship2Present);
+
+  }
+
+  /**
+   * Teardown.
+   *
+   * @throws Exception the exception
+   */
+  @Override
+  @After
+  public void teardown() throws Exception {
+
+    // Copy existing concept to avoid messing with actual database data.
+    IntegrationTestClientRest testService =
+        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+    testService.removeConcept(concept.getId(), authToken);
+
+    testService =
+        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+    testService.removeConcept(concept2.getId(), authToken);
+
+    testService =
+        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+    testService.removeConcept(concept3.getId(), authToken);
+
+    // logout
+    securityService.logout(authToken);
 
   }
 

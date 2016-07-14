@@ -1155,8 +1155,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       synchronized (i.toString().intern()) {
 
-        System.out.println("TESTTEST - conceptId is " + i);
-
         // retrieve the concept
         tempConcept = contentService.getConcept(i);
 
