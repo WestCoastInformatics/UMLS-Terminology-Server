@@ -1211,7 +1211,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         addAttribute(att, atom);
       } else if (fields[4].equals("RUI")) {
         // Get the relationship for the RUI
-        System.out.println("line=" + line);
         final Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship =
             getRelationship(relationshipMap.get(fields[3]), null);
         relationship.getAttributes().add(att);
