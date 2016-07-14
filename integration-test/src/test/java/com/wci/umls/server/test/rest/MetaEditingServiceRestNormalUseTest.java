@@ -934,11 +934,11 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertNotNull(relationship2);
 
-    // verify that alternate ID was created and is correctly formed.
-    assertNotNull(
-        relationship.getAlternateTerminologyIds().get(umlsTerminology));
-    assertTrue(relationship.getAlternateTerminologyIds().get(umlsTerminology)
-        .startsWith("R"));
+    // verify that alternate ID was created and is correctly formed - RUI assignment was moved to release time.
+//    assertNotNull(
+//        relationship.getAlternateTerminologyIds().get(umlsTerminology));
+//    assertTrue(relationship.getAlternateTerminologyIds().get(umlsTerminology)
+//        .startsWith("R"));
 
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -1035,16 +1035,16 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(relationship);
     assertNotNull(relationship3);
 
-    // verify that alternate ID was created and is correctly formed.
-    assertNotNull(
-        relationship3.getAlternateTerminologyIds().get(umlsTerminology));
-    assertTrue(relationship3.getAlternateTerminologyIds().get(umlsTerminology)
-        .startsWith("R"));
+    // verify that alternate ID was created and is correctly formed - RUI assignment was moved to release time.
+//    assertNotNull(
+//        relationship3.getAlternateTerminologyIds().get(umlsTerminology));
+//    assertTrue(relationship3.getAlternateTerminologyIds().get(umlsTerminology)
+//        .startsWith("R"));
 
-    // verify that relationship2's alternate ID is different from the first one
-    assertNotSame(
-        relationship.getAlternateTerminologyIds().get(umlsTerminology),
-        relationship3.getAlternateTerminologyIds().get(umlsTerminology));
+    // verify that relationship2's alternate ID is different from the first one - RUI assignment was moved to release time.
+//    assertNotSame(
+//        relationship.getAlternateTerminologyIds().get(umlsTerminology),
+//        relationship3.getAlternateTerminologyIds().get(umlsTerminology));
 
     // verify the molecular action exists
     pfs = new PfsParameterJpa();

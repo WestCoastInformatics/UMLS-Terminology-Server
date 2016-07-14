@@ -891,13 +891,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
 
       relationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      // Assign alternateTerminologyId
-      final IdentifierAssignmentHandler handler = contentService
-          .getIdentifierAssignmentHandler(concept.getTerminology());
-
-      final String altId = handler.getTerminologyId(relationship);
-      relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
-          altId);
+      // Assign alternateTerminologyId - this was moved to release time.
+//      final IdentifierAssignmentHandler handler = contentService
+//          .getIdentifierAssignmentHandler(concept.getTerminology());
+//
+//      final String altId = handler.getTerminologyId(relationship);
+//      relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
+//          altId);
 
       // set the relationship component last modified
       final ConceptRelationshipJpa newRelationship =
@@ -908,10 +908,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           (ConceptRelationshipJpa) contentService
               .createInverseConceptRelationship(newRelationship);
 
-      // pass to handler.getTerminologyId
-      final String inverseAltId = handler.getTerminologyId(inverseRelationship);
-      inverseRelationship.getAlternateTerminologyIds()
-          .put(concept.getTerminology(), inverseAltId);
+      // pass to handler.getTerminologyId - this was moved to release time.
+//      final String inverseAltId = handler.getTerminologyId(inverseRelationship);
+//      inverseRelationship.getAlternateTerminologyIds()
+//          .put(concept.getTerminology(), inverseAltId);
 
       // set the relationship component last modified
       final ConceptRelationshipJpa newInverseRelationship =
@@ -1022,15 +1022,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Exists check for inverse Relationship
 
-      // Assign alternateTerminologyId
-      final IdentifierAssignmentHandler handler = contentService
-          .getIdentifierAssignmentHandler(concept.getTerminology());
-
-      String inverseRui = handler.getInverseTerminologyId(relationship);
       RelationshipList relList = contentService.findConceptRelationships(
           toConcept.getTerminologyId(), toConcept.getTerminology(),
-          toConcept.getVersion(), Branch.ROOT, "alternateTerminologyIds:\""
-              + toConcept.getTerminology() + " " + inverseRui + "\"",
+          toConcept.getVersion(), Branch.ROOT, "fromId:"
+              + toConcept.getId() + " AND toId:" + concept.getId(),
           false, null);
 
       ConceptRelationship inverseRelationship = null;

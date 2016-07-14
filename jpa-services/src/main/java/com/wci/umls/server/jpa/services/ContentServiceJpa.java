@@ -2148,17 +2148,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - add relationship " + rel);
-    // Assign id
-    IdentifierAssignmentHandler idHandler = null;
-    if (assignIdentifiersFlag) {
-      idHandler = getIdentifierAssignmentHandler(rel.getTerminology());
-      if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + rel.getTerminology());
-      }
-      String id = idHandler.getTerminologyId(rel);
-      rel.setTerminologyId(id);
-    }
+    // Assign id - this was moved to Release time.
+//    IdentifierAssignmentHandler idHandler = null;
+//    if (assignIdentifiersFlag) {
+//      idHandler = getIdentifierAssignmentHandler(rel.getTerminology());
+//      if (idHandler == null) {
+//        throw new Exception(
+//            "Unable to find id handler for " + rel.getTerminology());
+//      }
+//      String id = idHandler.getTerminologyId(rel);
+//      rel.setTerminologyId(id);
+//    }
 
     // Add component
     return addComponent(rel);
@@ -2179,24 +2179,24 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - update relationship " + rel);
 
-    // Id assignment should not change
-    final IdentifierAssignmentHandler idHandler =
-        getIdentifierAssignmentHandler(rel.getTerminology());
-    if (assignIdentifiersFlag) {
-      if (!idHandler.allowIdChangeOnUpdate()) {
-        @SuppressWarnings("unchecked")
-        Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel2 =
-            getComponent(rel.getId(), rel.getClass());
-        if (!idHandler.getTerminologyId(rel)
-            .equals(idHandler.getTerminologyId(rel2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
-        }
-      } else {
-        // set attribute id on update
-        rel.setTerminologyId(idHandler.getTerminologyId(rel));
-      }
-    }
+    // Id assignment should not change - Id assignment was moved to release time.
+//    final IdentifierAssignmentHandler idHandler =
+//        getIdentifierAssignmentHandler(rel.getTerminology());
+//    if (assignIdentifiersFlag) {
+//      if (!idHandler.allowIdChangeOnUpdate()) {
+//        @SuppressWarnings("unchecked")
+//        Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel2 =
+//            getComponent(rel.getId(), rel.getClass());
+//        if (!idHandler.getTerminologyId(rel)
+//            .equals(idHandler.getTerminologyId(rel2))) {
+//          throw new Exception(
+//              "Update cannot be used to change object identity.");
+//        }
+//      } else {
+//        // set attribute id on update
+//        rel.setTerminologyId(idHandler.getTerminologyId(rel));
+//      }
+//    }
     // update component
     updateComponent(rel);
 
