@@ -12,6 +12,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
 import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
+import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
 import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
@@ -37,6 +38,7 @@ import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
+import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 import com.wci.umls.server.model.meta.StringClassIdentity;
 import com.wci.umls.server.services.UmlsIdentityService;
@@ -83,6 +85,12 @@ public class UmlsIdentifierAssignmentHandler
       }
       if (p.containsKey("sui.prefix")) {
         prefixMap.put("SUI", p.getProperty("sui.prefix"));
+      }
+      if (p.containsKey("rui.length")) {
+        lengthMap.put("RUI", Integer.valueOf(p.getProperty("rui.length")));
+      }
+      if (p.containsKey("rui.prefix")) {
+        prefixMap.put("RUI", p.getProperty("rui.prefix"));
       }
     }
   }
@@ -297,9 +305,113 @@ public class UmlsIdentifierAssignmentHandler
   public String getTerminologyId(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
-    // TODO
-    return "";
+
+    if (!relationship.isPublishable()) {
+      return "";
+    }
+
+    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    try {
+      // Create RelationshipIdentity and populate from the relationship.
+      final RelationshipIdentity identity = new RelationshipIdentityJpa();
+      identity.setId(relationship.getId());
+      identity.setTerminology(relationship.getTerminology());
+      identity.setTerminologyId(relationship.getTerminologyId());
+      identity.setRelationshipType(relationship.getRelationshipType());
+      identity.setAdditionalRelationshipType(relationship.getAdditionalRelationshipType());
+      identity.setFromId(relationship.getFrom().getTerminologyId());
+      identity.setFromTerminology(relationship.getFrom().getTerminology());
+      identity.setFromType(relationship.getFrom().getType());
+      identity.setToId(relationship.getTo().getTerminologyId());
+      identity.setToTerminology(relationship.getTo().getTerminology());
+      identity.setToType(relationship.getTo().getType());
+
+      final RelationshipIdentity identity2 =
+          service.getRelationshipIdentity(identity);
+
+      // Reuse existing id
+      if (identity2 != null) {
+        return convertId(identity2.getId(), "RUI");
+      }
+      // else generate a new one and add it
+      else {
+        
+        final RelationshipIdentity inverseIdentity = service.createInverseRelationshipIdentity(identity);
+         // Block between getting next id and saving the id value
+        synchronized (this) {
+          // Get next id and inverse ID
+          final Long nextId = service.getNextRelationshipId();
+          //TODO confirm this gives different number.  If not, add 1 to nextId;
+          final Long nextIdInverse = service.getNextRelationshipId();
+          
+          //Set ID and inverse IDs for both relationship and its inverse
+          identity.setId(nextId);
+          identity.setInverseId(nextIdInverse);
+
+          inverseIdentity.setId(nextIdInverse);
+          inverseIdentity.setInverseId(nextId);
+
+          // Add new identity objects
+          service.addRelationshipIdentity(inverseIdentity);
+          service.addRelationshipIdentity(identity);
+          
+          // return ID for called relationship (inverse can get called later)
+          return convertId(nextId, "RUI");
+        }
+      }
+
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
   }
+  
+  /* see superclass */
+  @Override
+  public String getInverseTerminologyId(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception {
+
+    if (!relationship.isPublishable()) {
+      return "";
+    }
+
+    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    try {
+      // Create RelationshipIdentity and populate from the relationship.
+      final RelationshipIdentity identity = new RelationshipIdentityJpa();
+      identity.setId(relationship.getId());
+      identity.setTerminology(relationship.getTerminology());
+      identity.setTerminologyId(relationship.getTerminologyId());
+      identity.setRelationshipType(relationship.getRelationshipType());
+      identity.setAdditionalRelationshipType(relationship.getAdditionalRelationshipType());
+      identity.setFromId(relationship.getFrom().getTerminologyId());
+      identity.setFromTerminology(relationship.getFrom().getTerminology());
+      identity.setFromType(relationship.getFrom().getType());
+      identity.setToId(relationship.getTo().getTerminologyId());
+      identity.setToTerminology(relationship.getTo().getTerminology());
+      identity.setToType(relationship.getTo().getType());
+
+      final RelationshipIdentity inverseIdentity = service.createInverseRelationshipIdentity(identity);
+      
+      final RelationshipIdentity identity2 =
+          service.getRelationshipIdentity(inverseIdentity);
+
+      // Reuse existing id
+      if (identity2 != null) {
+        return convertId(identity2.getId(), "RUI");
+      }
+      // else generate a new one and add it
+      else {
+        throw new Exception ("Unexpected missing inverse of relationship " + relationship);
+      }
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
+  }  
 
   /* see superclass */
   @Override

@@ -39,6 +39,7 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.ComponentHasDefinitions;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.GeneralConceptAxiom;
@@ -288,8 +289,8 @@ public interface ContentService extends MetadataService {
    * @return the descriptors
    * @throws Exception the exception
    */
-  public DescriptorList getDescriptors(String terminologyId,
-    String terminology, String version) throws Exception;
+  public DescriptorList getDescriptors(String terminologyId, String terminology,
+    String version) throws Exception;
 
   /**
    * Gets the descriptor.
@@ -763,8 +764,7 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeRelationship(
-    Long id,
+  public void removeRelationship(Long id,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
@@ -809,8 +809,7 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeTransitiveRelationship(
-    Long id,
+  public void removeTransitiveRelationship(Long id,
     Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
     throws Exception;
 
@@ -913,8 +912,7 @@ public interface ContentService extends MetadataService {
    * @param memberClass the member class
    * @throws Exception the exception
    */
-  public void removeSubsetMember(
-    Long id,
+  public void removeSubsetMember(Long id,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1026,7 +1024,8 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @return the all codes
    */
-  public CodeList getAllCodes(String terminology, String version, String branch);
+  public CodeList getAllCodes(String terminology, String version,
+    String branch);
 
   /**
    * Gets the all subsets.
@@ -1269,8 +1268,8 @@ public interface ContentService extends MetadataService {
    * @return the definitions
    * @throws Exception the exception
    */
-  public DefinitionList getDefinitions(String terminologyId,
-    String terminology, String version) throws Exception;
+  public DefinitionList getDefinitions(String terminologyId, String terminology,
+    String version) throws Exception;
 
   /**
    * Gets the definition.
@@ -1293,10 +1292,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
-    String terminologyId,
-    String terminology,
-    String version,
-    String branch,
+    String terminologyId, String terminology, String version, String branch,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
@@ -1310,10 +1306,8 @@ public interface ContentService extends MetadataService {
    * @return the relationships
    * @throws Exception the exception
    */
-  public RelationshipList getRelationships(
-    String terminologyId,
-    String terminology,
-    String version,
+  public RelationshipList getRelationships(String terminologyId,
+    String terminology, String version,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
@@ -1331,6 +1325,16 @@ public interface ContentService extends MetadataService {
     throws Exception;
 
   /**
+   * Creates the inverse concept relationship.
+   *
+   * @param relationship the relationship
+   * @return the concept relationship
+   * @throws Exception the exception
+   */
+  public ConceptRelationship createInverseConceptRelationship(
+    ConceptRelationship relationship) throws Exception;
+
+  /**
    * Get subset member.
    *
    * @param terminologyId the terminology id
@@ -1342,10 +1346,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    String terminologyId,
-    String terminology,
-    String version,
-    String branch,
+    String terminologyId, String terminology, String version, String branch,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1359,10 +1360,8 @@ public interface ContentService extends MetadataService {
    * @return the subset members
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembers(
-    String terminologyId,
-    String terminology,
-    String version,
+  public SubsetMemberList getSubsetMembers(String terminologyId,
+    String terminology, String version,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1628,8 +1627,8 @@ public interface ContentService extends MetadataService {
    * @return the map sets
    * @throws Exception the exception
    */
-  public MapSetList getMapSets(String terminology, String version, String branch)
-    throws Exception;
+  public MapSetList getMapSets(String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Find mappings for concept.
@@ -1778,9 +1777,8 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findComponentInfoRelationships(
-    String componentInfoId, String terminology, String version, IdType type,
-    String branch, String query, boolean inverseFlag, PfsParameter pfs)
-    throws Exception;
+  public RelationshipList findComponentInfoRelationships(String componentInfoId,
+    String terminology, String version, IdType type, String branch,
+    String query, boolean inverseFlag, PfsParameter pfs) throws Exception;
 
 }

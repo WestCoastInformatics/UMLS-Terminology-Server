@@ -30,9 +30,10 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
@@ -220,7 +221,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
   @Field(name = "conceptTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getConceptTerminologyIds() {
     if (conceptTerminologyIds == null) {
@@ -386,6 +387,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;
@@ -400,7 +402,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {

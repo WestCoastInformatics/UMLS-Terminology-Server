@@ -76,7 +76,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   private String description;
 
   /** The query. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 4000)
   private String query;
 
   /** The query type. */

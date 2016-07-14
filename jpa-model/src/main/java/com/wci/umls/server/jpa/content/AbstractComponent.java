@@ -18,8 +18,10 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -118,6 +120,7 @@ public abstract class AbstractComponent implements Component {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getId() {
     return this.id;

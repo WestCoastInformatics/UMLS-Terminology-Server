@@ -9,6 +9,7 @@ package com.wci.umls.server.jpa.services.rest;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 
 /**
@@ -111,4 +112,36 @@ public interface MetaEditingServiceRest {
   public ValidationResult removeAtom(Long projectId, Long conceptId,
     Long timestamp, Long atomId, boolean overrideWarnings, String authToken)
     throws Exception;
+
+  /**
+   * Adds the relationship.
+   *
+   * @param projectId the project id
+   * @param conceptId the from concept id
+   * @param timestamp the timestamp
+   * @param relationship the relationship
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult addRelationship(Long projectId, Long conceptId,
+    Long timestamp, ConceptRelationshipJpa relationship,
+    boolean overrideWarnings, String authToken) throws Exception;
+
+  /**
+   * Removes the relationship.
+   *
+   * @param projectId the project id
+   * @param conceptId the from concept id
+   * @param timestamp the timestamp
+   * @param relationshipId the relationship id
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult removeRelationship(Long projectId, Long conceptId,
+    Long timestamp, Long relationshipId, boolean overrideWarnings,
+    String authToken) throws Exception;
 }

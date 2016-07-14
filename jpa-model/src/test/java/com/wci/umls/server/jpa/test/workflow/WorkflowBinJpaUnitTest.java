@@ -183,6 +183,7 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     tester.include("editable");
     tester.include("required");
     tester.include("creationTime");
+    tester.include("clusterCt");
 
     assertTrue(tester.testNotNullFields());
   }

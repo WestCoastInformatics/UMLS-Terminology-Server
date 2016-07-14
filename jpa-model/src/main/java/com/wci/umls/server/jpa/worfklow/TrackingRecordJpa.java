@@ -3,8 +3,10 @@
  */
 package com.wci.umls.server.jpa.worfklow;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -19,6 +21,8 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -35,7 +39,9 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 
 /**
@@ -101,6 +107,10 @@ public class TrackingRecordJpa implements TrackingRecord {
   @ElementCollection
   @CollectionTable(name = "orig_concept_ids")
   private Set<Long> origConceptIds = new HashSet<>();
+
+  /** The concepts. */
+  @Transient
+  private List<Concept> concepts = new ArrayList<>();
 
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
@@ -189,6 +199,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     this.componentIds = componentIds;
   }
 
+  /* see superclass */
   @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   @Override
   public Set<Long> getOrigConceptIds() {
@@ -198,6 +209,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     return origConceptIds;
   }
 
+  /* see superclass */
   @Override
   public void setOrigConceptIds(Set<Long> origConceptIds) {
     this.origConceptIds = origConceptIds;
@@ -205,10 +217,26 @@ public class TrackingRecordJpa implements TrackingRecord {
 
   /* see superclass */
   @Override
+  @XmlElement(type = ConceptJpa.class)
+  public List<Concept> getConcepts() {
+    if (concepts == null) {
+      concepts = new ArrayList<>();
+    }
+    return concepts;
+  }
+
+  /* see superclass */
+  @Override
+  public void setConcepts(List<Concept> concepts) {
+    this.concepts = concepts;
+  }
+
+  /* see superclass */
+  @Override
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO, bridge = @FieldBridge(impl = LongBridge.class)),
       @Field(name = "clusterIdSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })  
+  })
   public Long getClusterId() {
     return clusterId;
   }
@@ -332,6 +360,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     this.worklistName = worklist;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -356,6 +385,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

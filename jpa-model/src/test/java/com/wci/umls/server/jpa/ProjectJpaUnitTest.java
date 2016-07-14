@@ -91,6 +91,7 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("precedenceList");
+    tester.exclude("teams");
     tester.test();
   }
 

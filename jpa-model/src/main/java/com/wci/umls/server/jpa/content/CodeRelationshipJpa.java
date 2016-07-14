@@ -27,7 +27,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 
@@ -332,7 +332,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
 
   /* see superclass */
   @Override
-  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {

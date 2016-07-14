@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
@@ -145,7 +146,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<TrackingRecordJpa> luceneResults =
-        searchHandler.getQueryResults(null, null, "",
+        searchHandler.getQueryResults(null, null, Branch.ROOT,
             composeQuery(project, query), "", TrackingRecordJpa.class,
             TrackingRecordJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
