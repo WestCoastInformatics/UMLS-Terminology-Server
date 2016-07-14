@@ -1364,6 +1364,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final Worklist newWorklist = workflowService.addWorklist(worklist);
 
       for (final TrackingRecord record : recordResultList.getObjects()) {
+        // Set worklist name of bin's copy of tracking record
+        record.setWorklistName(worklistName.toString());
+        workflowService.updateTrackingRecord(record);
+        // Reuse bins tracking record for worklist
         final TrackingRecord worklistRecord = new TrackingRecordJpa(record);
         worklistRecord.setId(null);
         worklistRecord.setWorklistName(worklistName.toString());
@@ -1438,7 +1442,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           }
 
           // Increment uneditable
-          if (ConfigUtility.isEmpty(record.getWorklistName())) {
+          if (!ConfigUtility.isEmpty(record.getWorklistName())) {
             typeUneditableMap.put(clusterType,
                 typeUneditableMap.get(clusterType) + 1);
             typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
