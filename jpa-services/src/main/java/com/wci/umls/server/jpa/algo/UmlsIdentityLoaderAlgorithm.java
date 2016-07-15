@@ -43,6 +43,7 @@ public class UmlsIdentityLoaderAlgorithm extends
   /* see superclass */
   @Override
   public void compute() throws Exception {
+
     logInfo("Umls Identity Loader");
     logInfo("  terminology = " + getTerminology());
     logInfo("  inputPath = " + getInputPath());
@@ -51,7 +52,7 @@ public class UmlsIdentityLoaderAlgorithm extends
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
       service.setTransactionPerOperation(false);
-      service.beginTransaction();
+      service.beginTransaction();      
 
       //
       // Handle AttributeIdentity
@@ -225,7 +226,7 @@ public class UmlsIdentityLoaderAlgorithm extends
         logInfo("    count = " + ct);
       }
       
-
+      
       //
       // Handle RelationshipIdentity
       // id|terminology|terminologyId|type|additionalType|fromId|fromType|fromTerminology|toId|toType|toTerminology|inverseId
@@ -243,6 +244,8 @@ public class UmlsIdentityLoaderAlgorithm extends
             in.close();
             return;
           }
+          logInfo(line);
+
           final String[] fields = FieldedStringTokenizer.split(line, "|");
           final RelationshipIdentity identity = new RelationshipIdentityJpa();
           identity.setId(Long.valueOf(fields[0]));
@@ -257,6 +260,7 @@ public class UmlsIdentityLoaderAlgorithm extends
           identity.setToType(IdType.valueOf(fields[9]));
           identity.setToTerminology(fields[10]);
           identity.setInverseId(Long.valueOf(fields[11]));
+          service.addRelationshipIdentity(identity);
           if (++ct % commitCt == 0) {
             service.commitClearBegin();
           }
