@@ -330,4 +330,43 @@ public class MetaEditingClientRest extends RootClientRest implements
   }
   
   
+
+  /* see superclass */
+  @Override
+  public ValidationResult mergeConcepts(Long projectId, Long conceptId,
+    Long lastModified, Long conceptId2, boolean overrideWarnings, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "MetaEditing Client - merge concept " + conceptId + " with concept "
+            + conceptId2 + ", " + lastModified + ", "
+            + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+    validateNotEmpty(conceptId2, "conceptId2");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/meta/concept/merge?projectId=" + projectId + "&conceptId="
+            + conceptId + "&conceptId2="
+                + conceptId2 + "&lastModified=" + lastModified
+            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.json(null));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+  }  
+  
 }

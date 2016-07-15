@@ -962,7 +962,6 @@ public class MetaEditingServiceRestNormalUseTest
 
     List<AtomicAction> atomicActions = contentService
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
-    System.out.println("Here are the atomic actions: " + atomicActions);
     assertEquals(3, atomicActions.size());
     assertEquals(atomicActions.get(0).getIdType().toString(), "CONCEPT");
     assertNotNull(atomicActions.get(0).getOldValue());

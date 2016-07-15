@@ -363,7 +363,6 @@ public class UmlsIdentifierAssignmentHandler
           // Update the identity objects with the true InverseId
           identity.setInverseId(nextIdInverse);          
           service.updateRelationshipIdentity(identity);
-
           
           // return ID for called relationship (inverse can get called later)
           return convertId(nextId, "RUI");
