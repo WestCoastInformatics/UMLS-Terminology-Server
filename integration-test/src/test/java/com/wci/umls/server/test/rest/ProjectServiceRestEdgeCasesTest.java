@@ -52,7 +52,7 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCasesRestProject001() throws Exception {
+  public void testAddRemoveProject() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Get all projects and choose the first one.
@@ -77,6 +77,7 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
     project2.setDescription("Sample");
     project2.setName("Sample");
     project2.setTerminology("UMLS");
+    project2.setWorkflowPath("DEFAULT");
 
     project2 = (ProjectJpa) projectService.addProject(project2, adminAuthToken);
 

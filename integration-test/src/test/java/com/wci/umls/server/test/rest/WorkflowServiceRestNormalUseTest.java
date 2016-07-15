@@ -9,8 +9,8 @@ package com.wci.umls.server.test.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -192,13 +192,10 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("  Remove workflow config");
     workflowService.removeWorkflowConfig(projectId, newConfig.getId(),
         authToken);
-    try {
-      workflowService
-          .getWorkflowConfig(projectId, newConfig.getId(), authToken);
-      fail("Expected exception.");
-    } catch (Exception e) {
-      // do nothing
-    }
+    WorkflowConfig config2 =
+        workflowService.getWorkflowConfig(projectId, newConfig.getId(),
+            authToken);
+    assertNull(config2);
 
   }
 
@@ -650,10 +647,12 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // Create worklist
     //
     Logger.getLogger(getClass()).debug("  Create worklist");
+    final PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(5);
     final Worklist worklist =
         workflowService.createWorklist(projectId, testNameBin.getId(), "chem",
-            new PfsParameterJpa(), authToken);
-    Logger.getLogger(getClass()).debug("    worklist = " + worklist);
+            pfs, authToken);
     Logger.getLogger(getClass()).debug("    worklist = " + worklist);
     assertTrue(worklist.getName().startsWith("wrk"));
     final TrackingRecordList list =
