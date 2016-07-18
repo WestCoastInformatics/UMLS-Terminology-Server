@@ -740,14 +740,13 @@ public interface ContentService extends MetadataService {
   /**
    * Move atoms.
    *
-   * @param survivingConcept the surviving concept
-   * @param deadConcept the dead concept
-   * @param deadAtoms the dead atoms
-   * @return the list
+   * @param toConcept the to concept
+   * @param fromConcept the from concept
+   * @param fromAtoms the from atoms
    * @throws Exception the exception
    */
-  public List<Atom> moveAtoms(Concept survivingConcept, Concept deadConcept,
-    List<Atom> deadAtoms) throws Exception;
+  public void moveAtoms(Concept toConcept, Concept fromConcept,
+    List<Atom> fromAtoms) throws Exception;
 
   /**
    * Add relationship.

@@ -69,10 +69,10 @@ public class MetaEditingServiceRestNormalUseTest
    */
   private ConceptJpa concept;
 
-  /**  The concept 2. */
+  /** The concept 2. */
   private ConceptJpa concept2;
 
-  /**  The concept 3. */
+  /** The concept 3. */
   private ConceptJpa concept3;
 
   /**
@@ -635,7 +635,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test addition
     //
 
-    // add the attribute to the concept
+    // add the atom to the concept
     ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
         c.getLastModified().getTime(), atom, false, authToken);
     assertTrue(v.getErrors().isEmpty());
@@ -700,7 +700,7 @@ public class MetaEditingServiceRestNormalUseTest
     // startDate.
     startDate = DateUtils.round(new Date(), Calendar.SECOND);
 
-    // construct a second attribute not present on concept (here, 17
+    // construct a second atom not present on concept (here, 17
     // Oxosteroids)
     AtomJpa atom2 = new AtomJpa();
     atom2.setBranch(Branch.ROOT);
@@ -920,8 +920,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(relationship);
 
     // retrieve the to concept and check relationships
-    c2 = contentService.getConcept(concept2.getId(), project.getId(), authToken);
-    
+    c2 = contentService.getConcept(concept2.getId(), project.getId(),
+        authToken);
+
     relList = contentService.findConceptRelationships(c2.getTerminologyId(),
         c2.getTerminology(), c2.getVersion(), null, null, authToken);
 
@@ -934,11 +935,12 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertNotNull(relationship2);
 
-    // verify that alternate ID was created and is correctly formed - RUI assignment was moved to release time.
-//    assertNotNull(
-//        relationship.getAlternateTerminologyIds().get(umlsTerminology));
-//    assertTrue(relationship.getAlternateTerminologyIds().get(umlsTerminology)
-//        .startsWith("R"));
+    // verify that alternate ID was created and is correctly formed - RUI
+    // assignment was moved to release time.
+    // assertNotNull(
+    // relationship.getAlternateTerminologyIds().get(umlsTerminology));
+    // assertTrue(relationship.getAlternateTerminologyIds().get(umlsTerminology)
+    // .startsWith("R"));
 
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -1034,16 +1036,18 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(relationship);
     assertNotNull(relationship3);
 
-    // verify that alternate ID was created and is correctly formed - RUI assignment was moved to release time.
-//    assertNotNull(
-//        relationship3.getAlternateTerminologyIds().get(umlsTerminology));
-//    assertTrue(relationship3.getAlternateTerminologyIds().get(umlsTerminology)
-//        .startsWith("R"));
+    // verify that alternate ID was created and is correctly formed - RUI
+    // assignment was moved to release time.
+    // assertNotNull(
+    // relationship3.getAlternateTerminologyIds().get(umlsTerminology));
+    // assertTrue(relationship3.getAlternateTerminologyIds().get(umlsTerminology)
+    // .startsWith("R"));
 
-    // verify that relationship2's alternate ID is different from the first one - RUI assignment was moved to release time.
-//    assertNotSame(
-//        relationship.getAlternateTerminologyIds().get(umlsTerminology),
-//        relationship3.getAlternateTerminologyIds().get(umlsTerminology));
+    // verify that relationship2's alternate ID is different from the first one
+    // - RUI assignment was moved to release time.
+    // assertNotSame(
+    // relationship.getAlternateTerminologyIds().get(umlsTerminology),
+    // relationship3.getAlternateTerminologyIds().get(umlsTerminology));
 
     // verify the molecular action exists
     pfs = new PfsParameterJpa();
@@ -1076,8 +1080,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(
-        logEntry.contains("ADD_RELATIONSHIP " + relationship3));
+    assertTrue(logEntry.contains("ADD_RELATIONSHIP " + relationship3));
 
     //
     // Test removal
@@ -1095,8 +1098,8 @@ public class MetaEditingServiceRestNormalUseTest
     boolean relationshipPresent = false;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
       if (rel.getRelationshipType().equals("RN")
-          && rel.getTo().getTerminologyId().equals("C0002073") && 
-          rel.getFrom().getId().equals(c.getId())) {
+          && rel.getTo().getTerminologyId().equals("C0002073")
+          && rel.getFrom().getId().equals(c.getId())) {
         relationshipPresent = true;
       }
     }
@@ -1129,8 +1132,9 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    //Substringing relationship because removing it alters the lastModified
-    assertTrue(logEntry.contains("REMOVE_RELATIONSHIP " + relationship.toString().substring(0, 80)));
+    // Substringing relationship because removing it alters the lastModified
+    assertTrue(logEntry.contains(
+        "REMOVE_RELATIONSHIP " + relationship.toString().substring(0, 80)));
 
     // remove the second relationship from the concept (assume verification of
     // MA,
@@ -1148,12 +1152,277 @@ public class MetaEditingServiceRestNormalUseTest
     boolean relationship3Present = false;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
       if (rel.getRelationshipType().equals("RB")
-          && rel.getTo().getTerminologyId().equals("C0065642") && 
-          rel.getFrom().getId().equals(c.getId())) {
+          && rel.getTo().getTerminologyId().equals("C0065642")
+          && rel.getFrom().getId().equals(c.getId())) {
         relationship3Present = true;
       }
     }
     assertTrue(!relationship3Present);
+
+  }
+
+  /**
+   * Test merge concepts.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testMergeConcepts() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass())
+        .info("TEST - Merge concept CONCEPTID into concept CONCEPTID2, "
+            + umlsTerminology + ", " + umlsVersion + authToken);
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // get the fromConcept, toConcept, and relatedConcept
+    Concept toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(toC);
+    Concept fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+    assertNotNull(fromC);
+    Concept relatedC =
+        contentService.getConcept(concept3.getId(), project.getId(), authToken);
+    assertNotNull(relatedC);
+
+    //
+    // Create and add atoms to the to and from Concepts
+    //
+    AtomJpa atom = new AtomJpa();
+    atom.setBranch(Branch.ROOT);
+    atom.setName("DCB");
+    atom.setTerminologyId("TestId");
+    atom.setTerminology(umlsTerminology);
+    atom.setVersion(umlsVersion);
+    atom.setTimestamp(new Date());
+    atom.setPublishable(true);
+    atom.setCodeId("C44314");
+    atom.setConceptId("M0023181");
+    atom.getConceptTerminologyIds().put(toC.getTerminology(),
+        toC.getTerminologyId());
+    atom.setDescriptorId("");
+    atom.setLanguage("ENG");
+    atom.setTermType("AB");
+    atom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    // add the atom to the concept
+    ValidationResult v = metaEditingService.addAtom(project.getId(),
+        toC.getId(), toC.getLastModified().getTime(), atom, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    AtomJpa atom2 = new AtomJpa();
+    atom2.setBranch(Branch.ROOT);
+    atom2.setName("17 Oxosteroids");
+    atom2.setTerminologyId("TestId");
+    atom2.setTerminology(umlsTerminology);
+    atom2.setVersion(umlsVersion);
+    atom2.setTimestamp(new Date());
+    atom2.setPublishable(true);
+    atom2.setCodeId("D015068");
+    atom2.setConceptId("M0023181");
+    atom.getConceptTerminologyIds().put(fromC.getTerminology(),
+        fromC.getTerminologyId());
+    atom2.setDescriptorId("D015068");
+    atom2.setLanguage("ENG");
+    atom2.setTermType("PM");
+    atom2.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    v = metaEditingService.addAtom(project.getId(), fromC.getId(),
+        fromC.getLastModified().getTime(), atom2, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+
+    //
+    // Create and add semantic types to the to and from Concepts
+    //
+    SemanticTypeComponentJpa semanticType = new SemanticTypeComponentJpa();
+    semanticType.setBranch(Branch.ROOT);
+    semanticType.setSemanticType("Lipid");
+    semanticType.setTerminologyId("TestId");
+    semanticType.setTerminology(umlsTerminology);
+    semanticType.setVersion(umlsVersion);
+    semanticType.setTimestamp(new Date());
+    semanticType.setPublishable(true);
+
+    // Add semantic type to both to and from Concepts, to test when same
+    // semantic type is present on both
+    v = metaEditingService.addSemanticType(project.getId(), toC.getId(),
+        toC.getLastModified().getTime(), semanticType, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    v = metaEditingService.addSemanticType(project.getId(), fromC.getId(),
+        fromC.getLastModified().getTime(), semanticType, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+
+    SemanticTypeComponentJpa semanticType2 = new SemanticTypeComponentJpa();
+    semanticType2.setBranch(Branch.ROOT);
+    semanticType2.setSemanticType("Enzyme");
+    semanticType2.setTerminologyId("TestId");
+    semanticType2.setTerminology(umlsTerminology);
+    semanticType2.setVersion(umlsVersion);
+    semanticType2.setTimestamp(new Date());
+    semanticType2.setPublishable(true);
+
+    // Add semanticType2 to from Concept only, to test when same it gets moveed
+    // over
+    v = metaEditingService.addSemanticType(project.getId(), fromC.getId(),
+        fromC.getLastModified().getTime(), semanticType2, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+
+    //
+    // Create and add relationships to the to and from Concepts, and to a third
+    // concept
+    //
+    ConceptRelationshipJpa relationship = new ConceptRelationshipJpa();
+    relationship.setBranch(Branch.ROOT);
+    relationship.setRelationshipType("RN");
+    relationship.setAdditionalRelationshipType("");
+    relationship.setFrom(fromC);
+    relationship.setTo(toC);
+    relationship.setTerminologyId("TestId");
+    relationship.setTerminology(umlsTerminology);
+    relationship.setVersion(umlsVersion);
+    relationship.setTimestamp(new Date());
+    relationship.setPublishable(true);
+
+    v = metaEditingService.addRelationship(project.getId(), fromC.getId(),
+        fromC.getLastModified().getTime(), relationship, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+    toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    ConceptRelationshipJpa relationship2 = new ConceptRelationshipJpa();
+    relationship2.setBranch(Branch.ROOT);
+    relationship2.setRelationshipType("RB");
+    relationship2.setAdditionalRelationshipType("");
+    relationship2.setFrom(fromC);
+    relationship2.setTo(relatedC);
+    relationship2.setTerminologyId("TestId");
+    relationship2.setTerminology(umlsTerminology);
+    relationship2.setVersion(umlsVersion);
+    relationship2.setTimestamp(new Date());
+    relationship2.setPublishable(true);
+
+    v = metaEditingService.addRelationship(project.getId(), fromC.getId(),
+        fromC.getLastModified().getTime(), relationship2, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+    relatedC =
+        contentService.getConcept(concept3.getId(), project.getId(), authToken);
+
+    // Now that the concepts are all set up, merge them.
+    v = metaEditingService.mergeConcepts(project.getId(), toC.getId(),
+        toC.getLastModified().getTime(), fromC.getId(), false, false, false,
+        authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    relatedC =
+        contentService.getConcept(concept3.getId(), project.getId(), authToken);
+
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list =
+        contentService.findMolecularActions(toC.getId(), null, pfs, authToken);
+    assertTrue(list.getCount() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertTrue(ma.getTerminologyId().equals(toC.getTerminologyId()));
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Verify that atomic actions exists for moving atoms,
+    // adding/removing Semantic Types, and for adding/removing Relationships
+    // 1 for Atom move
+    // 1 for fromConcept deletion
+    // 6 for Relationships (four deletions, and two creations)
+    // 3 for Semantic Types (two deletions, one creation)
+    pfs.setSortField("idType");
+    pfs.setAscending(true);
+
+    List<AtomicAction> atomicActions = contentService
+        .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
+    assertEquals(11, atomicActions.size());
+    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    assertNotNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+    assertEquals(atomicActions.get(1).getIdType().toString(), "CONCEPT");
+    assertNotNull(atomicActions.get(1).getOldValue());
+    assertNull(atomicActions.get(1).getNewValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(2).getIdType().toString());
+    assertEquals("RELATIONSHIP", atomicActions.get(3).getIdType().toString());
+    assertEquals("RELATIONSHIP", atomicActions.get(4).getIdType().toString());
+    assertEquals("RELATIONSHIP", atomicActions.get(5).getIdType().toString());
+    assertEquals("RELATIONSHIP", atomicActions.get(6).getIdType().toString());
+    assertEquals("RELATIONSHIP", atomicActions.get(7).getIdType().toString());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(8).getIdType().toString());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(9).getIdType().toString());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(10).getIdType().toString());
+
+    // Verify the log entry exists
+    String logEntry =
+        projectService.getLog(project.getId(), toC.getId(), 1, authToken);
+    assertTrue(logEntry.contains("MERGE"));
+
+
+    // Remove all of the atoms, semantic types, and relationships (and re-create
+    // Concept2) so teardown can succesfully remove the concept.
+    List<Atom> toAtomList = toC.getAtoms();
+    for (Atom atm : toAtomList) {
+      metaEditingService.removeAtom(project.getId(), toC.getId(),
+          toC.getLastModified().getTime(), atm.getId(), false, authToken);
+      toC = contentService.getConcept(concept.getId(), project.getId(),
+          authToken);
+    }
+    List<SemanticTypeComponent> toStyList = toC.getSemanticTypes();
+    for (SemanticTypeComponent sty : toStyList) {
+      metaEditingService.removeSemanticType(project.getId(), toC.getId(),
+          toC.getLastModified().getTime(), sty.getId(), false, authToken);
+      toC = contentService.getConcept(concept.getId(), project.getId(),
+          authToken);
+    }
+    RelationshipList relList =
+        contentService.findConceptRelationships(toC.getTerminologyId(),
+            toC.getTerminology(), toC.getVersion(), null, null, authToken);
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getRelationshipType().equals("RB")
+          && rel.getTo().getTerminologyId().equals("C0065642")
+          && rel.getFrom().getId().equals(toC.getId())) {
+
+        metaEditingService.removeRelationship(project.getId(), toC.getId(),
+            toC.getLastModified().getTime(), rel.getId(), false, authToken);
+        toC = contentService.getConcept(concept.getId(), project.getId(),
+            authToken);
+      }
+    }
+
+    concept2 = new ConceptJpa(contentService.getConcept("C0002073",
+        umlsTerminology, umlsVersion, null, authToken), false);
+    concept2.setId(null);
+    concept2.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+    concept2 = (ConceptJpa) testService.addConcept(concept2, authToken);
 
   }
 

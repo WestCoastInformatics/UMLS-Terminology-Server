@@ -1977,43 +1977,39 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public List<Atom> moveAtoms(Concept survivingConcept, Concept deadConcept,
-    List<Atom> deadAtoms) throws Exception {
+  public void moveAtoms(Concept toConcept, Concept fromConcept,
+    List<Atom> fromAtoms) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - move atoms " + deadAtoms + " from concept "
-            + deadConcept + " to concept " + survivingConcept);
+        .debug("Content Service - move atoms " + fromAtoms + " from concept "
+            + fromConcept + " to concept " + toConcept);
 
-    List<Atom> survivingAtoms = new ArrayList<Atom>();
-    // For all atoms from deadConcept, create a new atom with the
-    // survivingConcepts information, and remove old atom
-    for (Atom atm : deadAtoms) {
-      Atom newAtom = new AtomJpa(atm, true);
-      newAtom.setConceptId(survivingConcept.getTerminologyId());
-      survivingAtoms.add(newAtom);
-      removeComponent(atm.getId(), AtomJpa.class);
-    }
+    // for each atom, remove from fromConcept and add toConcept
+    for (Atom atm : fromAtoms) {
+      toConcept.getAtoms().add(atm);
+      fromConcept.getAtoms().remove(atm);
 
-    for (Atom atom : survivingAtoms) {
-      // Assign id
-      IdentifierAssignmentHandler idHandler = null;
-      if (assignIdentifiersFlag) {
-        idHandler = getIdentifierAssignmentHandler(atom.getTerminology());
-        if (idHandler == null) {
-          throw new Exception(
-              "Unable to find id handler for " + atom.getTerminology());
-        }
-        atom.setTerminologyId(idHandler.getTerminologyId(atom));
+      // check for molecular action flag
+      if (isMolecularActionFlag()) {
+        // Create an atomic action for each atom move
+        final MolecularAction molecularAction = getMolecularAction();
+
+        // construct the atomic action
+
+        final AtomicAction atomicAction = new AtomicActionJpa();
+        atomicAction.setField("concept");
+        atomicAction.setIdType(IdType.getIdType(atm));
+        atomicAction.setMolecularAction(molecularAction);
+        atomicAction.setOldValue(fromConcept.getId().toString());
+        atomicAction.setNewValue(toConcept.getId().toString());
+        atomicAction.setObjectId(atm.getId());
+
+        // persist the atomic action and add the persisted version to the
+        // molecular action
+        final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
+
+        molecularAction.getAtomicActions().add(newAtomicAction);
       }
-      if (assignIdentifiersFlag && idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + atom.getTerminology());
-      }
-
-      // Add component
-      addComponent(atom);
     }
-    
-    return survivingAtoms;
   }
 
   /**
@@ -2031,7 +2027,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .debug("Content Service - create inverse of concept relationship "
             + relationship);
     if (relationship != null) {
-      // TODO - check if relationship accurately copies
       ConceptRelationship inverseRelationship =
           new ConceptRelationshipJpa(relationship, false);
       inverseRelationship.setId(null);
@@ -4006,7 +4001,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .debug("Content Service - find relationships for concept " + conceptId
             + "/" + terminology + "/" + version + "/" + branch + "/" + query
             + "/" + inverseFlag);
-
+    
     return findRelationshipsForComponentHelper(conceptId, terminology, version,
         branch, query, inverseFlag, pfs, ConceptRelationshipJpa.class);
   }

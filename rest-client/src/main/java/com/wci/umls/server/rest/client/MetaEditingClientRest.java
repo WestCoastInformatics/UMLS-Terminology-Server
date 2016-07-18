@@ -27,8 +27,8 @@ import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 /**
  * A client for connecting to a content REST service.
  */
-public class MetaEditingClientRest extends RootClientRest implements
-    MetaEditingServiceRest {
+public class MetaEditingClientRest extends RootClientRest
+    implements MetaEditingServiceRest {
 
   /** The config. */
   private Properties config = null;
@@ -46,25 +46,23 @@ public class MetaEditingClientRest extends RootClientRest implements
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
     Long lastModified, SemanticTypeComponentJpa semanticTypeComponent,
     boolean overrideWarnings, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "MetaEditing Client - add semantic type to concept" + projectId + ", "
-            + conceptId + ", " + semanticTypeComponent.toString() + ", "
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - add semantic type to concept" + projectId
+            + ", " + conceptId + ", " + semanticTypeComponent.toString() + ", "
             + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/meta/sty/add?projectId=" + projectId + "&conceptId="
-            + conceptId + "&lastModified=" + lastModified
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/meta/sty/add?projectId=" + projectId
+            + "&conceptId=" + conceptId + "&lastModified=" + lastModified
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .post(Entity.json(semanticTypeComponent));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken)
+        .post(Entity.json(semanticTypeComponent));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -82,24 +80,22 @@ public class MetaEditingClientRest extends RootClientRest implements
   public ValidationResult removeSemanticType(Long projectId, Long conceptId,
     Long lastModified, Long semanticTypeComponentId, boolean overrideWarnings,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "MetaEditing Client - remove semantic type from concept " + projectId
-            + ", " + conceptId + ", " + semanticTypeComponentId + ", "
-            + lastModified + ", " + overrideWarnings + ", " + authToken);
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - remove semantic type from concept "
+            + projectId + ", " + conceptId + ", " + semanticTypeComponentId
+            + ", " + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/meta/sty/remove/"
-            + semanticTypeComponentId + "?projectId=" + projectId
-            + "&conceptId=" + conceptId + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/sty/remove/" + semanticTypeComponentId + "?projectId="
+        + projectId + "&conceptId=" + conceptId + "&lastModified="
+        + lastModified + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(null);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(null);
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -119,24 +115,22 @@ public class MetaEditingClientRest extends RootClientRest implements
   public ValidationResult addAttribute(Long projectId, Long conceptId,
     Long lastModified, AttributeJpa attribute, boolean overrideWarnings,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "MetaEditing Client - add attribute to concept " + projectId + ", "
-            + conceptId + ", " + attribute.toString() + ", " + lastModified
-            + ", " + overrideWarnings + ", " + authToken);
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - add attribute to concept " + projectId
+            + ", " + conceptId + ", " + attribute.toString() + ", "
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/meta/attribute/add?projectId=" + projectId + "&conceptId="
-            + conceptId + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/attribute/add?projectId=" + projectId + "&conceptId="
+        + conceptId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.json(attribute));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(attribute));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -155,25 +149,22 @@ public class MetaEditingClientRest extends RootClientRest implements
   public ValidationResult removeAttribute(Long projectId, Long conceptId,
     Long lastModified, Long attributeId, boolean overrideWarnings,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "MetaEditing Client - remove attribute from concept " + projectId
-            + ", " + conceptId + ", " + attributeId + ", " + lastModified
-            + ", " + overrideWarnings + ", " + authToken);
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - remove attribute from concept " + projectId
+            + ", " + conceptId + ", " + attributeId + ", " + lastModified + ", "
+            + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client
-            .target(config.getProperty("base.url") + "/meta/attribute/remove/"
-                + attributeId + "?projectId=" + projectId + "&conceptId="
-                + conceptId + "&lastModified=" + lastModified
-                + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/attribute/remove/" + attributeId + "?projectId=" + projectId
+        + "&conceptId=" + conceptId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(null);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(null);
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -192,8 +183,8 @@ public class MetaEditingClientRest extends RootClientRest implements
   public ValidationResult addAtom(Long projectId, Long conceptId,
     Long lastModified, AtomJpa atom, boolean overrideWarnings, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "MetaEditing Client - add atom to concept " + projectId + ", "
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - add atom to concept " + projectId + ", "
             + conceptId + ", " + atom.toString() + ", " + lastModified + ", "
             + overrideWarnings + ", " + authToken);
 
@@ -201,15 +192,13 @@ public class MetaEditingClientRest extends RootClientRest implements
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/meta/atom/add?projectId=" + projectId + "&conceptId="
-            + conceptId + "&lastModified=" + lastModified
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/meta/atom/add?projectId=" + projectId
+            + "&conceptId=" + conceptId + "&lastModified=" + lastModified
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.json(atom));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(atom));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -227,24 +216,22 @@ public class MetaEditingClientRest extends RootClientRest implements
   public ValidationResult removeAtom(Long projectId, Long conceptId,
     Long lastModified, Long atomId, boolean overrideWarnings, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "MetaEditing Client - remove atom from concept " + projectId + ", "
-            + conceptId + ", " + atomId + ", " + lastModified + ", "
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - remove atom from concept " + projectId
+            + ", " + conceptId + ", " + atomId + ", " + lastModified + ", "
             + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/meta/atom/remove/"
-            + atomId + "?projectId=" + projectId + "&conceptId=" + conceptId
-            + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/atom/remove/" + atomId + "?projectId=" + projectId
+        + "&conceptId=" + conceptId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(null);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(null);
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -261,26 +248,24 @@ public class MetaEditingClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public ValidationResult addRelationship(Long projectId, Long conceptId,
-    Long lastModified, ConceptRelationshipJpa relationship, boolean overrideWarnings, String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "MetaEditing Client - add relationship to concept " + projectId + ", "
-            + conceptId + ", " + relationship.toString() + ", " + lastModified + ", "
-            + overrideWarnings + ", " + authToken);
+    Long lastModified, ConceptRelationshipJpa relationship,
+    boolean overrideWarnings, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - add relationship to concept " + projectId
+            + ", " + conceptId + ", " + relationship.toString() + ", "
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/meta/relationship/add?projectId=" + projectId + "&conceptId="
-            + conceptId + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/relationship/add?projectId=" + projectId + "&conceptId="
+        + conceptId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.json(relationship));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(relationship));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -296,26 +281,24 @@ public class MetaEditingClientRest extends RootClientRest implements
 
   @Override
   public ValidationResult removeRelationship(Long projectId, Long conceptId,
-    Long lastModified, Long relationshipId, boolean overrideWarnings, String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "MetaEditing Client - remove relationship from concept " + projectId + ", "
-            + conceptId + ", " + relationshipId + ", " + lastModified + ", "
-            + overrideWarnings + ", " + authToken);
+    Long lastModified, Long relationshipId, boolean overrideWarnings,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - remove relationship from concept "
+            + projectId + ", " + conceptId + ", " + relationshipId + ", "
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/meta/relationship/remove/"
-            + relationshipId + "?projectId=" + projectId + "&conceptId=" + conceptId
-            + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/relationship/remove/" + relationshipId + "?projectId="
+        + projectId + "&conceptId=" + conceptId + "&lastModified="
+        + lastModified + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(null);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(null);
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -328,17 +311,16 @@ public class MetaEditingClientRest extends RootClientRest implements
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
   }
-  
-  
 
   /* see superclass */
   @Override
   public ValidationResult mergeConcepts(Long projectId, Long conceptId,
-    Long lastModified, Long conceptId2, boolean overrideWarnings, String authToken)
+    Long lastModified, Long conceptId2, boolean overrideWarnings,
+    boolean makeDemotions, boolean unapproveContent, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "MetaEditing Client - merge concept " + conceptId + " with concept "
-            + conceptId2 + ", " + lastModified + ", "
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - merge concept " + conceptId
+            + " with concept " + conceptId2 + ", " + lastModified + ", "
             + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
@@ -346,16 +328,15 @@ public class MetaEditingClientRest extends RootClientRest implements
     validateNotEmpty(conceptId2, "conceptId2");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/meta/concept/merge?projectId=" + projectId + "&conceptId="
-            + conceptId + "&conceptId2="
-                + conceptId2 + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/concept/merge?projectId=" + projectId + "&conceptId="
+        + conceptId + "&lastModified=" + lastModified + "&conceptId2="
+        + conceptId2 + (overrideWarnings ? "&overrideWarnings=true" : "")
+        + (makeDemotions ? "&makeDemotions=true" : "")
+        + (unapproveContent ? "&unapproveContent=true" : ""));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.json(null));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(null));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -367,6 +348,6 @@ public class MetaEditingClientRest extends RootClientRest implements
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
-  }  
-  
+  }
+
 }
