@@ -169,7 +169,7 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
     tester = new IndexedFieldTester(object);
     tester.include("name");
     tester.include("projectId");
-    tester.include("lastModifiedBy");
+    tester.include("lastModified");
     tester.include("lastModifiedBy");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());

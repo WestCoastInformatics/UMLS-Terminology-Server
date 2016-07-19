@@ -19,28 +19,8 @@
  */
 package com.wci.umls.server.mojo;
 
-import java.util.Properties;
-
-import org.apache.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
-
-import com.wci.umls.server.Project;
-import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.algo.UmlsIdentityLoaderAlgorithm;
-import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
-import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
-import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
-import com.wci.umls.server.model.workflow.WorkflowBinType;
-import com.wci.umls.server.rest.impl.ProjectServiceRestImpl;
-import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
-import com.wci.umls.server.rest.impl.WorkflowServiceRestImpl;
-import com.wci.umls.server.services.SecurityService;
 
 /**
  * Goal which performs an ad hoc task.
@@ -66,41 +46,12 @@ public class AdHocMojo extends AbstractMojo {
   }
 
   /* see superclass */
-  @SuppressWarnings("unused")
   @Override
   public void execute() throws MojoFailureException {
 
     try {
 
       getLog().info("Ad Hoc Mojo");
-
-      System.out.println("TESTTEST - You've made it into the Mojo.");
-      
-      UmlsIdentityLoaderAlgorithm loader = new UmlsIdentityLoaderAlgorithm();
-
-      System.out.println("TESTTEST - You've made it past the loader instantiation.");
-      
-      
-      loader.setTerminology(terminology);
-      loader.setInputPath("C:/Users/rwood/workspace/UMLS-Terminology-Server/config/src/main/resources/data/SAMPLE_UMLS");
-
-      System.out.println("TESTTEST - You've made it past passing in the terminology and path.");      
-      WorkflowServiceRest workflowService = new WorkflowServiceRestImpl();
-
-      // Get project
-      Project project1 = (ProjectJpa) project.getProject(1239500L,
-      authToken);
-      // Clear and regenerate all bins
-      getLog().info("  Clear and regenerate ME bins");
-      // Clear bins
-      workflowService = new WorkflowServiceRestImpl();
-      workflowService.clearBins(project1.getId(),
-          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-
-      // Regenerate bins
-      workflowService = new WorkflowServiceRestImpl();
-      workflowService.regenerateBins(project1.getId(),
-          WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
       getLog().info("done ...");
     } catch (Exception e) {

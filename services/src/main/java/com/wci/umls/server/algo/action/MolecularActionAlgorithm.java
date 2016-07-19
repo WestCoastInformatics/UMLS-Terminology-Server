@@ -57,6 +57,8 @@ public interface MolecularActionAlgorithm extends Algorithm {
 
   /**
    * Sets the change status flag.
+   *
+   * @param changeStatusFlag the change status flag
    */
   public void setChangeStatusFlag(boolean changeStatusFlag);
 
