@@ -6,6 +6,8 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import java.util.List;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
@@ -163,4 +165,22 @@ public interface MetaEditingServiceRest {
     Long timestamp, Long conceptId2, boolean overrideWarnings,
     boolean makeDemotions, boolean unapproveContent, String authToken)
     throws Exception;
+
+  /**
+   * Move atoms.
+   *
+   * @param projectId the project id
+   * @param fromConceptId the from concept id
+   * @param timestamp the timestamp
+   * @param toConceptId the to concept id
+   * @param atomIds the atom ids
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult moveAtoms(Long projectId, Long fromConceptId,
+    Long timestamp, Long toConceptId, List<Long> atomIds,
+    boolean overrideWarnings, String authToken) throws Exception;
+
 }

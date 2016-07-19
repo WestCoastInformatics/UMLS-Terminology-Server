@@ -1391,6 +1391,177 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/concept/move")
+  @ApiOperation(value = "Move atoms from concept to concept", notes = "Move atoms from concept to concept on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult moveAtoms(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("fromConceptId") Long fromConceptId,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Concept id, e.g. 3", required = true) @QueryParam("toConceptId") Long toConceptId,
+    @ApiParam(value = "Atoms to move", required = true) List<Long> atomIds,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /concept/move/" + projectId + "/"
+            + fromConceptId + "/move atoms for user " + authToken + " to concept "
+            + toConceptId);
+
+    // Prep reusable variables
+    final String action = "MOVE";
+    final ValidationResult validationResult = new ValidationResultJpa();
+
+    // Instantiate services
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, action, UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = contentService.getProject(projectId);
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      final List<Concept> conceptList =
+          initialize(contentService, project, fromConceptId, toConceptId, userName,
+              action, lastModified, validationResult);
+
+      //Order may have been changed in initialize 
+      Concept toConcept = null;
+      Concept fromConcept = null;
+      for (Concept cpt : conceptList){
+        if  (cpt.getId() == fromConceptId)
+        {fromConcept = cpt;}
+        if  (cpt.getId() == toConceptId)
+        {toConcept = cpt;}
+      }
+
+      if (toConcept==null || fromConcept==null)
+      {
+        throw new LocalException(
+            "Initialize was unable to correctly load one of the concepts");
+      }
+      
+      // Make copy of toConcept and fromConcept before changes, to pass into
+      // change event
+      Concept toConceptPreUpdates = new ConceptJpa(toConcept, false);
+      Concept fromConceptPreUpdates = new ConceptJpa(fromConcept, false);
+
+      //
+      // Check prerequisites
+      //
+
+      // Perform action specific validation - n/a
+
+      // Metadata referential integrity checking
+      
+      // Same concept check
+      if (fromConceptId == toConceptId) {
+        throw new LocalException("Cannot move atoms from concept " + fromConceptId
+            + " to concept " + toConceptId + " - identical concept.");
+      }
+
+      // Populate move-atom list, and exists check
+      List<Atom> moveAtoms = new ArrayList<>();
+      
+      for (final Atom atm : fromConcept.getAtoms()) {
+        if (atomIds.contains(atm.getId())) {
+          moveAtoms.add(atm);
+        }
+      }  
+      
+      if (!(moveAtoms.size()==atomIds.size())) {
+        throw new LocalException("Atom to move not found on from Concept");
+      }    
+      
+      //TODO - check with Brian if this is required
+      //contentService.validateMerge(project, toConcept, fromConcept);
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concepts and closes transaction
+        contentService.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the actions (contentService will create atomic actions
+      // for CRUD
+      // operations)
+      //
+
+      // Add each listed atom from fromConcept to toConcept, delete from
+      // fromConcept, and set to NEEDS_REVIEW
+      contentService.moveAtoms(toConcept, fromConcept, moveAtoms);
+
+      for (Atom atm : moveAtoms){
+        atm.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
+
+
+      toConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      fromConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+      // update the to concept, and delete the from concept
+      contentService.updateConcept(toConcept);
+      contentService.updateConcept(fromConcept);
+      
+      
+      // log the REST calls
+      contentService.addLogEntry(userName, projectId, fromConceptId, action + " "
+          + atomIds + " from Concept " + fromConcept.getId() + " to concept " + toConcept.getId());
+
+      // commit (also removes the lock)
+      contentService.commit();
+
+      // Re-read from and toConcept
+      Concept fromConceptPostUpdates =
+          contentService.getConcept(fromConcept.getId());
+      Concept toConceptPostUpdates =
+          contentService.getConcept(toConcept.getId());
+
+      // Resolve all four concepts with graphresolutionhandler.resolve(concept)
+      // below
+      GraphResolutionHandler graphHandler =
+          contentService.getGraphResolutionHandler(toConcept.getTerminology());
+      graphHandler.resolve(fromConceptPreUpdates);
+      graphHandler.resolve(fromConceptPostUpdates);
+      graphHandler.resolve(toConceptPreUpdates);
+      graphHandler.resolve(toConceptPostUpdates);
+
+      // Websocket notification - one each for the updating the from and toConcept
+      final ChangeEvent<ConceptJpa> event =
+          new ChangeEventJpa<ConceptJpa>(action, authToken,
+              IdType.CONCEPT.toString(), (ConceptJpa) toConceptPreUpdates,
+              (ConceptJpa) toConceptPostUpdates, null);
+      sendChangeEvent(event);
+
+      final ChangeEvent<ConceptJpa> event2 = new ChangeEventJpa<ConceptJpa>(
+          action, authToken, IdType.CONCEPT.toString(),
+          (ConceptJpa) fromConceptPreUpdates, (ConceptJpa) fromConceptPostUpdates, null);
+      sendChangeEvent(event2);
+
+      return validationResult;
+
+    } catch (Exception e) {
+
+      handleException(e, action);
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }  
+  
   /**
    * Helper function to:
    * 

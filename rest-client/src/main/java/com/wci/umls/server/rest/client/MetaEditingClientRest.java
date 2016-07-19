@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.client.Client;
@@ -23,6 +24,7 @@ import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
+import com.wci.umls.server.model.content.Atom;
 
 /**
  * A client for connecting to a content REST service.
@@ -349,5 +351,42 @@ public class MetaEditingClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
   }
+  
+  /* see superclass */
+  @Override
+  public ValidationResult moveAtoms(Long projectId, Long fromConceptId,
+    Long lastModified, Long toConceptId, List<Long> atomIds, boolean overrideWarnings,
+    String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - move atoms "+ atomIds +" from concept " + fromConceptId
+            + " to concept " + toConceptId + ", " + lastModified + ", "
+            + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(fromConceptId, "fromConceptId");
+    validateNotEmpty(toConceptId, "toConceptId");
+    validateNotEmpty(atomIds.toString(), "atoms");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/concept/move?projectId=" + projectId + "&fromConceptId="
+        + fromConceptId + "&lastModified=" + lastModified + "&toConceptId="
+        + toConceptId + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(atomIds));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+  }  
 
 }
