@@ -571,7 +571,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     // 3. Make a checklist of size 10 from each one, exclude on worklist
     // 4. Make a random checklist of size 10 from each one
     // 5. Make an in-order checklist of size 10 from each one
-
+    // 6. march a worklist through some changes to show the other worklist dates.
     //
     // Add a QA bins workflow config for the current project
     //
