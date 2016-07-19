@@ -11,6 +11,7 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
 import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
+import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
 import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
@@ -18,6 +19,7 @@ import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
+import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 import com.wci.umls.server.model.meta.StringClassIdentity;
 import com.wci.umls.server.services.ContentService;
@@ -41,6 +43,7 @@ public class UmlsIdentityLoaderAlgorithm extends
   /* see superclass */
   @Override
   public void compute() throws Exception {
+
     logInfo("Umls Identity Loader");
     logInfo("  terminology = " + getTerminology());
     logInfo("  inputPath = " + getInputPath());
@@ -49,7 +52,7 @@ public class UmlsIdentityLoaderAlgorithm extends
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
       service.setTransactionPerOperation(false);
-      service.beginTransaction();
+      service.beginTransaction();      
 
       //
       // Handle AttributeIdentity
@@ -222,6 +225,50 @@ public class UmlsIdentityLoaderAlgorithm extends
         service.commitClearBegin();
         logInfo("    count = " + ct);
       }
+      
+      
+      //
+      // Handle RelationshipIdentity
+      // id|terminology|terminologyId|type|additionalType|fromId|fromType|fromTerminology|toId|toType|toTerminology|inverseId
+      //
+      if (new File(getInputPath(), "relationshipIdentity.txt").exists()) {
+        logInfo("  Load relationship identity");
+
+        final BufferedReader in =
+            new BufferedReader(new FileReader(new File(getInputPath(),
+                "relationshipIdentity.txt")));
+        String line;
+        int ct = 0;
+        while ((line = in.readLine()) != null) {
+          if (isCancelled()) {
+            in.close();
+            return;
+          }
+          logInfo(line);
+
+          final String[] fields = FieldedStringTokenizer.split(line, "|");
+          final RelationshipIdentity identity = new RelationshipIdentityJpa();
+          identity.setId(Long.valueOf(fields[0]));
+          identity.setTerminology(fields[1]);
+          identity.setTerminologyId(fields[2]);
+          identity.setRelationshipType(fields[3]);
+          identity.setAdditionalRelationshipType(fields[4]);
+          identity.setFromId(fields[5]);
+          identity.setFromType(IdType.valueOf(fields[6]));
+          identity.setFromTerminology(fields[7]);
+          identity.setToId(fields[8]);
+          identity.setToType(IdType.valueOf(fields[9]));
+          identity.setToTerminology(fields[10]);
+          identity.setInverseId(Long.valueOf(fields[11]));
+          service.addRelationshipIdentity(identity);
+          if (++ct % commitCt == 0) {
+            service.commitClearBegin();
+          }
+        }
+        in.close();
+        service.commitClearBegin();
+        logInfo("    count = " + ct);
+      }      
 
       service.commit();
       fireProgressEvent(0, "Finished...");

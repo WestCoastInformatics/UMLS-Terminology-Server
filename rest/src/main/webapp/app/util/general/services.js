@@ -162,6 +162,16 @@ tsApp
           }
         };
 
+        // Convert seconds to hour/min string
+        this.toTime = function(d) {
+          d = Number(d);
+          if (d == 0)
+            return "";
+          var h = Math.floor(d / 3600);
+          var m = Math.floor(d % 3600 / 60);
+          return ((h + ":" + (m < 10 ? "0" : "") ) + m);
+        }
+        
         // Convert date to a string
         this.toDate = function(lastModified) {
           var date = new Date(lastModified);

@@ -12,9 +12,10 @@ tsApp
       'securityService',
       'projectService',
       'workflowService',
+      'reportService',
       'validationService',
       function($uibModal, $window, $sce, $interval, utilService, securityService, projectService,
-        workflowService, validationService) {
+        workflowService, reportService, validationService) {
         console.debug('configure worklistTable directive');
         return {
           restrict : 'A',
@@ -39,23 +40,18 @@ tsApp
               $scope.userProjectsInfo = projectService.getUserProjectsInfo();
               $scope.selected = {
                 worklist : null,
-                member : null,
+                record : null,
                 concept : null,
                 terminology : null,
                 version : null
               };
-              $scope.worklistReleaseInfo = null;
               $scope.worklists = null;
-              $scope.worklistLookupProgress = {};
-              $scope.lookupInterval = null;
               //$scope.project = null;
-              $scope.cancelling = null;
-              $scope.showLatest = true;
               $scope.filters = [];
                            
 
               // Page metadata
-              $scope.memberTypes = [ 'Member', 'Exclusion', 'Inclusion', 'Active', 'Retired' ];
+              $scope.recordTypes = [ 'N', 'R' ];
 
               // Used for project admin to know what users are assigned to
               // something.
@@ -69,25 +65,21 @@ tsApp
               $scope.paging['worklist'] = {
                 page : 1,
                 filter : '',
-                sortField : $scope.value == 'ASSIGNED' ? 'worklistName' : 'name',
+                sortField : 'lastModified',
                 ascending : null
               };
-              $scope.paging['member'] = {
+              $scope.paging['record'] = {
                 page : 1,
                 filter : '',
                 typeFilter : '',
-                sortField : $scope.value == 'PUBLISHED' || $scope.value == 'BETA' ? 'conceptName'
-                  : 'lastModified',
+                sortField : 'clusterId',
                 ascending : true
               };
 
 
-              $scope.ioImportHandlers = [];
-              $scope.ioExportHandlers = [];
-
               // Worklist Changed handler
-              $scope.$on('worklist:worklistChanged', function(event, data) {
-                console.debug('on worklist:worklistChanged', data);
+              $scope.$on('workflow:worklistChanged', function(event, data) {
+                console.debug('on workflow:worklistChanged', data);
                 $scope.getWorklists();
               });
 
@@ -125,20 +117,9 @@ tsApp
                   queryRestriction : null
                 };
 
-                if ($scope.value == 'PUBLISHED' || $scope.value == 'BETA') {
-                  pfs.queryRestriction = 'workflowStatus:' + $scope.value;
-                  worklistService.findWorklistsForQuery($scope.paging['worklist'].filter, pfs).then(
-                    function(data) {
-                      $scope.worklists = data.worklists;
-                      $scope.worklists.totalCount = data.totalCount;
-                      $scope.stats.count = $scope.worklists.totalCount;
-                      $scope.reselect();
-                    });
-                }
-
-                if ($scope.value == 'AVAILABLE' /*&& $scope.projects.role == 'AUTHOR'*/) {
+                if ($scope.value == 'Worklist' /*&& $scope.projects.role == 'AUTHOR'*/) {
                   pfs.queryRestriction = $scope.paging['worklist'].filter;
-                  workflowService.findWorklists($scope.project,
+                  workflowService.findWorklists($scope.project.id,
                     //$scope.user.userName, pfs).then(function(data) {
                     $scope.query, pfs).then(function(data) {
                     $scope.worklists = data.worklists;
@@ -147,88 +128,20 @@ tsApp
                     //$scope.reselect();
                   });
                 }
-               /* if ($scope.value == 'AVAILABLE' && $scope.projects.role == 'REVIEWER') {
+                if ($scope.value == 'Checklist' /*&& $scope.projects.role == 'AUTHOR'*/) {
                   pfs.queryRestriction = $scope.paging['worklist'].filter;
-                  workflowService.findAvailableReviewWork($scope.project.id,
-                    $scope.user.userName, pfs).then(function(data) {
-                    $scope.worklists = data.worklists;
+                  workflowService.findChecklists($scope.project.id,
+                    //$scope.user.userName, pfs).then(function(data) {
+                    $scope.query, pfs).then(function(data) {
+                    $scope.worklists = data.checklists;
                     $scope.worklists.totalCount = data.totalCount;
-                    $scope.stats.count = $scope.worklists.totalCount;
-                    $scope.reselect();
+                    //$scope.stats.count = $scope.worklists.totalCount;
+                    //$scope.reselect();
                   });
                 }
-                if ($scope.value == 'AVAILABLE' && $scope.projects.role == 'ADMIN') {
-                  pfs.queryRestriction = $scope.paging['worklist'].filter;
-                  workflowService.findAllAvailableWorklists($scope.project.id, pfs).then(
-                    function(data) {
-                      $scope.worklists = data.worklists;
-                      $scope.worklists.totalCount = data.totalCount;
-                      $scope.stats.count = $scope.worklists.totalCount;
-                      $scope.reselect();
-                    });
-                }
-                if ($scope.value == 'ASSIGNED' && $scope.projects.role == 'ADMIN') {
-                  pfs.queryRestriction = $scope.paging['worklist'].filter;
-                  workflowService
-                    .findAllAssignedWorklists($scope.project.id, pfs)
-                    .then(
-                      // Success
-                      function(data) {
-                        $scope.worklists = $scope.getWorklistsFromRecords(data.records);
-                        $scope.worklists.totalCount = data.totalCount;
-                        $scope.stats.count = $scope.worklists.totalCount;
-                        // get worklist tracking records in order to get worklist
-                        // authors
-                        for (var i = 0; i < data.records.length; i++) {
-                          if (data.records[i].authors.length > 0) {
-                            $scope.worklistAuthorsMap[data.records[i].worklist.id] = data.records[i].authors;
-                          }
-                          if (data.records[i].reviewers.length > 0) {
-                            $scope.worklistReviewersMap[data.records[i].worklist.id] = data.records[i].reviewers;
-                          }
-                        }
-                        $scope.reselect();
-                      });
-                }
-                if ($scope.value == 'ASSIGNED' && $scope.projects.role == 'AUTHOR') {
-                  pfs.queryRestriction = $scope.paging['worklist'].filter;
-                  workflowService.findAssignedEditingWorklists($scope.project.id,
-                    $scope.user.userName, pfs).then(
-                  // Success
-                  function(data) {
-                    $scope.worklists = $scope.getWorklistsFromRecords(data.records);
-                    $scope.worklists.totalCount = data.totalCount;
-                    $scope.stats.count = $scope.worklists.totalCount;
-                    $scope.reselect();
-                  });
-                }
-                if ($scope.value == 'ASSIGNED' && $scope.projects.role == 'REVIEWER') {
-                  pfs.queryRestriction = $scope.paging['worklist'].filter;
-                  workflowService.findAssignedReviewWorklists($scope.project.id,
-                    $scope.user.userName, pfs).then(
-                  // Success
-                  function(data) {
-                    $scope.worklists = $scope.getWorklistsFromRecords(data.records);
-                    $scope.worklists.totalCount = data.totalCount;
-                    $scope.stats.count = $scope.worklists.totalCount;
-                    $scope.reselect();
-                  });
-                }
-                if ($scope.value == 'RELEASE') {
-                  pfs.queryRestriction = 'projectId:'
-                    + $scope.project.id
-                    + ' AND revision:false AND (workflowStatus:READY_FOR_PUBLICATION OR workflowStatus:BETA  OR workflowStatus:PUBLISHED)';
-                  pfs.latestOnly = $scope.showLatest;
-                  worklistService.findWorklistsForQuery($scope.paging['worklist'].filter, pfs).then(
-                    function(data) {
-                      $scope.worklists = data.worklists;
-                      $scope.worklists.totalCount = data.totalCount;
-                      $scope.stats.count = $scope.worklists.totalCount;
-                      $scope.reselect();
-                    });
-                }
-*/
               };
+              
+              
               // Convert an array of tracking records to an array of worklists.
               $scope.getWorklistsFromRecords = function(records) {
                 var worklists = new Array();
@@ -276,92 +189,75 @@ tsApp
                 if ($scope.value == 'PUBLISHED' || $scope.value == 'BETA') {
                   workflowStatus = $scope.value;
                 }
-                worklistService.getFilters(projectId, workflowStatus).then(
+                workflowService.getFilters(projectId, workflowStatus).then(
                 // Success
                 function(data) {
                   $scope.filters = data.keyValuePairs;
                 });
               };
 
-              // Get $scope.metadata.descriptionTypes
-              $scope.getStandardDescriptionTypes = function(terminology, version) {
-                projectService.getStandardDescriptionTypes(terminology, version).then(
-                // Success
-                function(data) {
-                  // Populate 'selected' for worklistTable.html
-                  // and metadata for addMember.html
-                  $scope.selected.descriptionTypes = data.types;
-                  $scope.metadata.descriptionTypes = data.types;
-                });
-              };
 
-              // Get $scope.members
-              $scope.getMembers = function(worklist) {
+              // Get $scope.records
+              $scope.getRecords = function(worklist) {
 
                 var pfs = {
-                  startIndex : ($scope.paging['member'].page - 1) * $scope.pageSize,
+                  startIndex : ($scope.paging['record'].page - 1) * $scope.pageSize,
                   maxResults : $scope.pageSize,
-                  sortField : $scope.paging['member'].sortField,
-                  ascending : $scope.paging['member'].ascending == null ? false
-                    : $scope.paging['member'].ascending,
+                  sortField : $scope.paging['record'].sortField,
+                  ascending : $scope.paging['record'].ascending == null ? false
+                    : $scope.paging['record'].ascending,
                   queryRestriction : null
                 };
 
-                if ($scope.paging['member'].typeFilter) {
-                  var value = $scope.paging['member'].typeFilter;
+                if ($scope.paging['record'].typeFilter) {
+                  var value = $scope.paging['record'].typeFilter;
 
                   // Handle inactive
-                  if (value == 'Retired') {
-                    pfs.queryRestriction = 'conceptActive:false';
-                  } else if (value == 'Active') {
-                    pfs.queryRestriction = 'conceptActive:true';
+                  if (value == 'N') {
+                    pfs.queryRestriction = 'workflowStatus:NEEDS_REVIEW';
+                  } else if (value == 'R') {
+                    pfs.queryRestriction = 'workflowStatus:READY_FOR_PUBLICATION';
                   }
 
-                  else {
-                    // Handle member type
-
-                    value = value.replace(' ', '_').toUpperCase();
-                    pfs.queryRestriction = 'memberType:' + value;
-                  }
                 }
 
-                worklistService.findWorklistMembersForQuery(worklist.id, $scope.paging['member'].filter,
-                  pfs).then(
-                // Success
-                function(data) {
-                  worklist.members = data.members;
-                  worklist.members.totalCount = data.totalCount;
-                });
+                if ($scope.value == 'Worklist') {
 
-              };
-
-              // Get $scope.worklistReleaseInfo
-              $scope.getWorklistReleaseInfo = function(worklist) {
-                $scope.worklistReleaseInfo = null;
-                var pfs = {
-                  startIndex : -1,
-                  maxResults : 10,
-                  sortField : null,
-                  ascending : null,
-                  queryRestriction : null
-                };
-                releaseService.findWorklistReleasesForQuery(worklist.id, null, pfs).then(
+                  workflowService.findTrackingRecordsForWorklist(worklist.projectId, worklist.id,
+                    pfs).then(
+                  // Success
                   function(data) {
-                    $scope.worklistReleaseInfo = data.releaseInfos[0];
+                    worklist.records = data.worklists;
+                    worklist.records.totalCount = data.totalCount;
                   });
+                } else if ($scope.value == 'Checklist') {
+                  workflowService.findTrackingRecordsForChecklist(worklist.projectId, worklist.id,
+                    pfs).then(
+                  // Success
+                  function(data) {
+                    worklist.records = data.worklists;
+                    worklist.records.totalCount = data.totalCount;
+                  });
+                }
+
               };
+
 
               // optimizes the definition
               $scope.optimizeDefinition = function(worklist) {
-                worklistService.optimizeDefinition(worklist.id).then(function() {
-                  worklistService.fireWorklistChanged(worklist);
+                workflowService.optimizeDefinition(worklist.id).then(function() {
+                  workflowService.fireWorklistChanged(worklist);
                 });
               };
 
+              // Convert time to a string
+              $scope.toTime = function(editingTime) {
+                return utilService.toTime(editingTime);
+              };
+              
               // Convert date to a string
               $scope.toDate = function(lastModified) {
                 return utilService.toDate(lastModified);
-
               };
 
               // Convert date to a string
@@ -419,8 +315,8 @@ tsApp
                 if (table === 'worklist') {
                   $scope.getWorklists();
                 }
-                if (table === 'member') {
-                  $scope.getMembers(object);
+                if (table === 'record') {
+                  $scope.getRecords(object);
                 }
               };
 
@@ -443,39 +339,35 @@ tsApp
               };
 
               // Selects a worklist (setting $scope.selected.worklist).
-              // Looks up current release info and members.
+              // Looks up current release info and records.
               $scope.selectWorklist = function(worklist) {
                 $scope.selected.worklist = worklist;
                 $scope.selected.terminology = worklist.terminology;
                 $scope.selected.version = worklist.version;
-                $scope.getWorklistReleaseInfo(worklist);
-                $scope.getMembers(worklist);
-                $scope.getStandardDescriptionTypes(worklist.terminology, worklist.version);
+                $scope.selected.concept = null;
+                $scope.getRecords(worklist);
               };
 
-              // Selects a member (setting $scope.selected.member)
-              $scope.selectMember = function(member) {
-                $scope.selected.member = member;
-                // Set the concept for display in concept-info
+              // Selects a concept (setting $scope.selected.concept)
+              $scope.selectConcept = function(concept) {
+                // Set the concept for display
                 $scope.selected.concept = {
-                  terminologyId : member.conceptId,
-                  terminology : member.terminology,
-                  version : member.version
+                  terminologyId : concept.terminologyId,
+                  terminology : concept.terminology,
+                  version : concept.version,
+                  id : concept.id
                 };
-
+                reportService.getConceptReport($scope.project.id, $scope.selected.concept.id).then(
+                // Success
+                function(data) {
+                  $scope.selected.concept.report = data;
+                });
               };
 
-              // Member type style
-              $scope.getMemberStyle = function(member) {
-                if (member.memberType == 'MEMBER') {
-                  return '';
-                }
-                return member.memberType.replace('_STAGED', '');
-              };
 
               // Remove a worklist
               $scope.removeWorklist = function(worklist) {
-                workflowService.findAllAssignedWorklists($scope.project.id, {
+               /* workflowService.findAllAssignedWorklists($scope.project.id, {
                   startIndex : 0,
                   maxResults : 1,
                   queryRestriction : 'worklistId:' + worklist.id
@@ -486,68 +378,43 @@ tsApp
                       && !$window
                         .confirm('The worklist is assigned, are you sure you want to proceed?')) {
                       return;
-                    }
-                    $scope.removeWorklistHelper(worklist);
-                  });
+                    }*/
+                    $scope.removeWorklistHelper($scope.project.id, worklist);
+                  //});
               };
 
               // Helper for removing a refest
-              $scope.removeWorklistHelper = function(worklist) {
+              $scope.removeWorklistHelper = function(projectId, worklist) {
 
-                worklistService.findWorklistMembersForQuery(worklist.id, '', {
+                /*workflowService.findWorklistMembersForQuery(worklist.id, '', {
                   startIndex : 0,
                   maxResults : 1
                 }).then(
                   function(data) {
-                    if (data.members.length == 1) {
+                    if (data.records.length == 1) {
                       if (!$window
-                        .confirm('The worklist has members, are you sure you want to proceed.')) {
+                        .confirm('The worklist has records, are you sure you want to proceed.')) {
                         return;
                       }
-                    }
-                    worklistService.removeWorklist(worklist.id).then(function() {
+                    }*/
+                    workflowService.removeWorklist(projectId, worklist.id).then(function() {
                       $scope.selected.worklist = null;
-                      worklistService.fireWorklistChanged();
+                      workflowService.fireWorklistChanged(worklist);
                     });
-                  });
+                  //});
               };
 
-              // Remove worklist member
-              $scope.removeWorklistMember = function(worklist, member) {
+              // Remove worklist record
+              $scope.removeWorklistRecord = function(worklist, record) {
 
-                worklistService.removeWorklistMember(member.id).then(
+                workflowService.removeWorklistRecord(record.id).then(
                 // Success
                 function() {
                   $scope.selected.concept = null;
                   $scope.handleWorkflow(worklist);
                 });
               };
-              // Remove worklist inclusion
-              $scope.removeWorklistInclusion = function(worklist, member) {
-
-                worklistService.removeWorklistMember(member.id).then(
-                // Success
-                function() {
-                  $scope.handleWorkflow(worklist);
-                });
-              };
-
-              // Adds a worklist exclusion and refreshes member
-              // list with current PFS settings
-              $scope.addWorklistExclusion = function(worklist, member) {
-                worklistService.addWorklistExclusion(worklist, member.conceptId, false).then(function() {
-                  $scope.handleWorkflow(worklist);
-                });
-
-              };
-
-              // Remove worklist exclusion and refreshes members
-              $scope.removeWorklistExclusion = function(worklist, member) {
-                worklistService.removeWorklistExclusion(member.id).then(function() {
-                  $scope.handleWorkflow(worklist);
-                });
-
-              };
+ 
 
               // Unassign worklist from user
               $scope.unassign = function(worklist, userName) {
@@ -561,7 +428,7 @@ tsApp
                   && (worklist.workflowStatus == 'NEW' || worklist.workflowStatus == 'READY_FOR_PUBLICATION')) {
                   $scope.performWorkflowAction(worklist, 'SAVE', $scope.user.userName);
                 } else {
-                  worklistService.fireWorklistChanged(worklist);
+                  workflowService.fireWorklistChanged(worklist);
                 }
               };
 
@@ -570,135 +437,18 @@ tsApp
 
                 workflowService.performWorkflowAction($scope.project.id, worklist.id, userName,
                   $scope.projects.role, action).then(function(data) {
-                  worklistService.fireWorklistChanged(data);
+                  workflowService.fireWorklistChanged(data);
                 });
               };
 
-              // Removes all worklist members
-              $scope.removeAllWorklistMembers = function(worklist) {
-                worklistService.removeAllWorklistMembers(worklist.id).then(function(data) {
-                  worklistService.fireWorklistChanged(worklist);
+              // Removes all worklist records
+              $scope.removeAllWorklistRecords = function(worklist) {
+                workflowService.removeAllWorklistRecords(worklist.id).then(function(data) {
+                  workflowService.fireWorklistChanged(worklist);
                 });
               };
 
-              // Exports a release artifact (and begins the
-              // download)
-              $scope.exportReleaseArtifact = function(artifact) {
-                releaseService.exportReleaseArtifact(artifact);
-              };
 
-              // Directive scoped method for cancelling an import/migration
-              $scope.cancelAction = function(worklist) {
-                $scope.cancelling = true;
-                if (worklist.stagingType == 'IMPORT') {
-                  worklistService.cancelImportMembers(worklist.id).then(
-                  // Success
-                  function() {
-                    $scope.cancelling = false;
-                    worklistService.fireWorklistChanged(worklist);
-                  },
-                  // Error
-                  function() {
-                    $scope.cancelling = false;
-                  });
-                }
-                if (worklist.stagingType == 'MIGRATION') {
-
-                  worklistService.cancelMigration(worklist.id).then(
-                  // Success
-                  function(data) {
-                    // Some local management of worklist state to avoid
-                    // a million callbacks to the server while
-                    // startLookup is running
-                    worklist.staged = false;
-                    worklist.stagingType = null;
-                    // If INTENSIONAL, we need to re-look up old/not/new members
-                    if (worklist.type == 'INTENSIONAL') {
-                      worklist.lookupInProgress = true;
-                      startLookup(worklist);
-                    }
-                    $scope.cancelling = false;
-                    // worklistService.fireWorklistChanged($scope.worklist);
-                  },
-                  // Error
-                  function() {
-                    $scope.cancelling = false;
-                  });
-
-                }
-                if (worklist.stagingType == 'BETA') {
-                  releaseService.cancelWorklistRelease(worklist.id).then(
-                  // Success
-                  function() {
-                    $scope.cancelling = false;
-                    worklistService.fireWorklistChanged(worklist);
-                  },
-                  // Error
-                  function() {
-                    $scope.cancelling = false;
-                  });
-                }
-              };
-
-              // cancelling a release given the staged worklist
-              $scope.cancelActionForStaged = function(worklist) {
-                if (worklist.workflowStatus == 'BETA') {
-                  worklistService.getOriginForStagedWorklistId(worklist.id).then(
-                  // Success
-                  function(data) {
-                    worklistService.getWorklist(data).then(
-                    // Success
-                    function(data) {
-                      $scope.cancelAction(data);
-                    });
-                  });
-                }
-              };
-
-              // Start lookup again - not $scope because modal must access it
-              function startLookup(worklist) {
-                worklistService.startLookup(worklist.id).then(
-                // Success
-                function(data) {
-                  $scope.worklistLookupProgress[worklist.id] = 1;
-                  // Start if not already running
-                  if (!$scope.lookupInterval) {
-                    $scope.lookupInterval = $interval(function() {
-                      $scope.refreshLookupProgress(worklist);
-                    }, 2000);
-                  }
-                });
-              }
-
-              // Refresh lookup progress
-              $scope.refreshLookupProgress = function(worklist) {
-                worklistService.getLookupProgress(worklist.id).then(
-                // Success
-                function(data) {
-                  if (data === "100" || data == 100) {
-                    worklist.lookupInProgress = false;
-                  }
-                  $scope.worklistLookupProgress[worklist.id] = data;
-                  // If all lookups in progress are at 100%, stop interval
-                  var found = true;
-                  for ( var key in $scope.worklistLookupProgress) {
-                    if ($scope.worklistLookupProgress[key] < 100) {
-                      found = false;
-                      break;
-                    }
-                  }
-                  if (found) {
-                    $interval.cancel($scope.lookupInterval);
-                    $scope.lookupInterval = null;
-                  }
-
-                },
-                // Error
-                function(data) {
-                  // Cancel automated lookup on error
-                  $interval.cancel($scope.lookupInterval);
-                });
-              };
               // Get the most recent note for display
               $scope.getLatestNote = function(worklist) {
                 if (worklist && worklist.notes && worklist.notes.length > 0) {
@@ -719,201 +469,6 @@ tsApp
               //
               // MODALS
               //
-
-              // Definition clauses modal
-              $scope.openDefinitionClausesModal = function(lworklist, lvalue) {
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/definitionClauses.html',
-                  controller : DefinitionClausesModalCtrl,
-                  backdrop : 'static',
-                  resolve : {
-                    worklist : function() {
-                      return lworklist;
-                    },
-                    value : function() {
-                      return lvalue;
-                    }
-                  }
-                });
-
-                modalInstance.result.then(
-                // Success
-                function(data) {
-                  $scope.handleWorkflow(data);
-                });
-
-              };
-
-              // Definition clauses controller
-              var DefinitionClausesModalCtrl = function($scope, $uibModalInstance, worklist, value) {
-                console.debug('Entered definition clauses modal control', worklist, value);
-
-                $scope.worklist = worklist;
-                $scope.value = value;
-                $scope.newClause = null;
-
-                // Paging parameters
-                $scope.newClauses = angular.copy($scope.worklist.definitionClauses);
-                $scope.pageSize = 5;
-                $scope.pagedClauses = [];
-                $scope.paging = {};
-                $scope.paging['clauses'] = {
-                  page : 1,
-                  filter : '',
-                  typeFilter : '',
-                  sortField : 'lastModified',
-                  ascending : true
-                };
-                $scope.warnings = {};
-                $scope.warningFlag = false;
-                $scope.errors = [];
-
-                // Indicate whether a clause is in a warning condition
-                $scope.isWarning = function(value) {
-                  return $scope.warnings[value];
-                };
-
-                // Get paged clauses (assume all are loaded)
-                $scope.getPagedClauses = function() {
-                  $scope.pagedClauses = utilService.getPagedArray($scope.newClauses
-                    .sort(utilService.sort_by('negated')), $scope.paging['clauses'],
-                    $scope.pageSize);
-                };
-
-                // identify whether defintion has changed
-                $scope.isDefinitionDirty = function() {
-                  if ($scope.newClauses.length != $scope.worklist.definitionClauses.length) {
-                    return true;
-                  }
-
-                  // Compare scope.worklist.definitionClauses to newClauses
-                  for (var i = 0; i < $scope.newClauses.length; i++) {
-                    if ($scope.newClauses[i].value != $scope.worklist.definitionClauses[i].value) {
-                      return true;
-                    }
-                    if ($scope.newClauses[i].negated != $scope.worklist.definitionClauses[i].negated) {
-                      return true;
-                    }
-                  }
-                  return false;
-                };
-
-                // remove clause
-                $scope.removeClause = function(worklist, clause) {
-                  for (var i = 0; i < $scope.newClauses.length; i++) {
-                    var index = $scope.newClauses.indexOf(clause);
-                    if (index != -1) {
-                      $scope.newClauses.splice(index, 1);
-                    }
-                  }
-                  $scope.getPagedClauses();
-
-                  // reset the warnings based on remaining clauses
-                  if ($scope.warnings.length > 0) {
-                    $scope.warnings = {};
-                    $scope.warningFlag = false;
-                    for (var i = 0; i < $scope.newClauses.length; i++) {
-                      worklistService
-                        .countExpression($scope.newClauses[i].value, worklist.terminology,
-                          worklist.version)
-                        .then(
-                          // Success - count expression
-                          function(data) {
-                            var count = data;
-                            if (count >= 20000) {
-                              $scope.warnings[$scope.newClauses[i].value] = 'Definition clause resolves to '
-                                + count + ' members.';
-                              $scope.warningFlag = true;
-                            }
-                          },
-                          // Error - count expression
-                          function(data) {
-                            handleError($scope.errors, data);
-                          });
-                    }
-                  }
-                };
-
-                // add new clause
-                $scope.addClause = function(worklist, clause) {
-                  $scope.errors = [];
-
-                  // Confirm clauses are unique, skip if not
-                  for (var i = 0; i < $scope.newClauses.length; i++) {
-                    if ($scope.newClauses[i].value == clause.value) {
-                      $scope.errors[0] = 'Duplicate definition clause';
-                      return;
-                    }
-                    if ($scope.newClauses[i].value.indexOf("MINUS") != -1) {
-                      $scope.errors[0] = 'Definition clause may not contain MINUS';
-                      return;
-                    }
-                    if ($scope.newClauses[i].value.indexOf(" OR ") != -1) {
-                      $scope.errors[0] = 'Definition clause may not contain OR';
-                      return;
-                    }
-                  }
-                  worklistService
-                    .isExpressionValid(clause.value, worklist.terminology, worklist.version)
-                    .then(
-                      // Success - add worklist
-                      function(data) {
-                        if (data == 'true') {
-                          $scope.newClauses.push(clause);
-                          $scope.getPagedClauses();
-                          $scope.newClause = null;
-                          $scope.warnings = {};
-                          $scope.warningFlag = false;
-                          worklistService
-                            .countExpression(clause.value, worklist.terminology, worklist.version)
-                            .then(
-                              // Success - count expression
-                              function(data) {
-                                var count = data;
-                                if (count >= 20000) {
-                                  $scope.warnings[$scope.newClauses[i].value] = 'Definition clause resolves to '
-                                    + count + ' members.';
-                                  $scope.warningFlag = true;
-                                }
-                              },
-                              // Error - count expression
-                              function(data) {
-                                handleError($scope.errors, data);
-                              });
-                        } else {
-                          $scope.errors[0] = 'Submitted definition clause is invalid';
-                          return;
-                        }
-                      },
-                      // Error - add worklist
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                };
-
-                // Save worklist
-                $scope.save = function(worklist) {
-                  worklist.definitionClauses = $scope.newClauses;
-                  $scope.warnings = [];
-                  worklistService.updateWorklist(worklist).then(
-                  // Success - add worklist
-                  function(data) {
-                    $uibModalInstance.close(worklist);
-                  },
-                  // Error - add worklist
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-                };
-
-                // Dismiss modal
-                $scope.cancel = function() {
-                  $uibModalInstance.dismiss('cancel');
-                };
-
-                // initialize modal
-                $scope.getPagedClauses();
-              };
 
               // Notes modal
               $scope.openNotesModal = function(lobject, ltype) {
@@ -980,11 +535,11 @@ tsApp
                 $scope.removeNote = function(object, note) {
 
                   if ($scope.type == 'Worklist') {
-                    worklistService.removeWorklistNote(object.id, note.id).then(
+                    workflowService.removeWorklistNote(object.id, note.id).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
-                      worklistService.getWorklist(object.id).then(function(data) {
+                      workflowService.getWorklist(object.id).then(function(data) {
                         object.notes = data.notes;
                         $scope.getPagedNotes();
                       },
@@ -997,12 +552,12 @@ tsApp
                     function(data) {
                       handleError($scope.errors, data);
                     });
-                  } else if ($scope.type == 'Member') {
-                    worklistService.removeWorklistMemberNote(object.id, note.id).then(
+                  } else if ($scope.type == 'Record') {
+                    workflowService.removeWorklistRecordNote(object.id, note.id).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
-                      worklistService.getMember(object.id).then(function(data) {
+                      workflowService.getRecord(object.id).then(function(data) {
                         object.notes = data.notes;
                         $scope.getPagedNotes();
                       },
@@ -1022,11 +577,11 @@ tsApp
                 $scope.submitNote = function(object, text) {
 
                   if ($scope.type == 'Worklist') {
-                    worklistService.addWorklistNote(object.id, text).then(
+                    workflowService.addWorklistNote(object.id, text).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
-                      worklistService.getWorklist(object.id).then(function(data) {
+                      workflowService.getWorklist(object.id).then(function(data) {
                         object.notes = data.notes;
                         $scope.getPagedNotes();
                       },
@@ -1039,13 +594,13 @@ tsApp
                     function(data) {
                       handleError($scope.errors, data);
                     });
-                  } else if ($scope.type == 'Member') {
-                    worklistService.addWorklistMemberNote(object.worklistId, object.id, text).then(
+                  } else if ($scope.type == 'Record') {
+                    workflowService.addWorklistRecordNote(object.worklistId, object.id, text).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
 
-                      worklistService.getMember(object.id).then(function(data) {
+                      workflowService.getRecord(object.id).then(function(data) {
                         object.notes = data.notes;
                         $scope.getPagedNotes();
                       },
@@ -1075,491 +630,13 @@ tsApp
                 $scope.getPagedNotes();
               };
 
-              // Clone Worklist modal
-              $scope.openCloneWorklistModal = function(lworklist) {
-                console.debug('cloneWorklistModal ', lworklist);
-
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/editWorklist.html',
-                  controller : CloneWorklistModalCtrl,
-                  backdrop : 'static',
-                  resolve : {
-                    worklist : function() {
-                      return lworklist;
-                    },
-                    metadata : function() {
-                      return $scope.metadata;
-                    },
-                    filters : function() {
-                      return $scope.filters;
-                    },
-                    projects : function() {
-                      return $scope.projects;
-                    }
-                  }
-                });
-
-                modalInstance.result.then(
-                // Success
-                function(data) {
-                  $scope.handleWorkflow(data);
-                });
-
-              };
-
-              // Clone Worklist controller
-              var CloneWorklistModalCtrl = function($scope, $uibModalInstance, worklist, filters,
-                metadata, projects) {
-                console.debug('Entered clone worklist modal control', worklist, projects);
-
-                $scope.action = 'Clone';
-                $scope.projects = projects;
-                $scope.metadata = metadata;
-                $scope.filters = filters;
-                $scope.versions = metadata.versions[worklist.terminology].sort().reverse();
-                // Copy worklist and clear terminology id
-                $scope.worklist = JSON.parse(JSON.stringify(worklist));
-                $scope.worklist.terminologyId = null;
-                $scope.modules = [];
-                $scope.errors = [];
-
-                // Handler for project change
-                $scope.projectSelected = function(project) {
-                  $scope.worklist.namespace = project.namespace;
-                  $scope.worklist.moduleId = project.moduleId;
-                };
-
-                // Get $scope.modules
-                $scope.getModules = function() {
-                  projectService.getModules($scope.worklist.terminology, $scope.worklist.version).then(
-                  // Success
-                  function(data) {
-                    $scope.modules = data.concepts;
-                  });
-                };
-
-                // Initialize modules if terminology/version set
-                if ($scope.worklist.terminology && $scope.worklist.version) {
-                  $scope.getModules();
-                }
-
-                // Handle terminology selected
-                $scope.terminologySelected = function(terminology) {
-                  $scope.versions = $scope.metadata.versions[terminology].sort().reverse();
-                  $scope.getModules();
-                };
-
-                // Handle version selected
-                $scope.versionSelected = function(version) {
-                  $scope.getModules();
-                };
-
-                // Assign worklist id
-                $scope.assignWorklistTerminologyId = function(worklist) {
-                  worklistService.assignWorklistTerminologyId(worklist.projectId, worklist).then(
-                  // success
-                  function(data) {
-                    worklist.terminologyId = data;
-                  },
-                  // error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-                };
-
-                // Submit worklist
-                $scope.submitWorklist = function(worklist) {
-
-                  if (!worklist.project) {
-                    $scope.errors[0] = 'A project must be chosen from the picklist.';
-                    return;
-                  }
-                  // validate worklist before cloning it
-                  validationService.validateWorklist(worklist).then(
-                    function(data) {
-
-                      // If there are errors, make them available and stop.
-                      if (data.errors && data.errors.length > 0) {
-                        $scope.errors = data.errors;
-                        return;
-                      } else {
-                        $scope.errors = [];
-                      }
-
-                      // if $scope.warnings is empty, and data.warnings is not,
-                      // show warnings and stop
-                      if (data.warnings && data.warnings.length > 0
-                        && $scope.warnings.join() !== data.warnings.join()) {
-                        $scope.warnings = data.warnings;
-                        return;
-                      } else {
-                        $scope.warnings = [];
-                      }
-
-                      worklistService.cloneWorklist(worklist.project.id, worklist).then(
-                      // Success - clone worklist
-                      function(data) {
-                        var newWorklist = data;
-                        $uibModalInstance.close(newWorklist);
-                      },
-                      // Error - clone worklist
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                    },
-                    // Error - validate
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-                };
-
-                // Dismiss modal
-                $scope.cancel = function() {
-                  $uibModalInstance.dismiss('cancel');
-                };
-
-              };
-
-              // Import/Export modal
-              $scope.openImportExportModal = function(lworklist, loperation, ltype) {
-                console.debug('exportModal ', lworklist);
-
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/importExport.html',
-                  controller : ImportExportModalCtrl,
-                  backdrop : 'static',
-                  resolve : {
-                    worklist : function() {
-                      return lworklist;
-                    },
-                    operation : function() {
-                      return loperation;
-                    },
-                    type : function() {
-                      return ltype;
-                    },
-                    ioHandlers : function() {
-                      if (loperation == 'Import') {
-                        return $scope.metadata.importHandlers;
-                      } else {
-                        return $scope.metadata.exportHandlers;
-                      }
-                    }
-                  }
-                });
-
-                modalInstance.result.then(
-                // Success
-                function(data) {
-                  if (loperation == 'Import') {
-                    $scope.handleWorkflow(data);
-                  } else {
-                    worklistService.fireWorklistChanged(data);
-                  }
-                });
-              };
-
-              // Import/Export controller
-              var ImportExportModalCtrl = function($scope, $uibModalInstance, worklist, operation,
-                type, ioHandlers) {
-                console.debug('Entered import export modal control', worklist.id, ioHandlers,
-                  operation, type);
-
-                $scope.worklist = worklist;
-                $scope.ioHandlers = [];
-
-                // Skip "with name" handlers if user is not logged in
-                // IHTSDO-specific, may be able make this more data driven
-                for (var i = 0; i < ioHandlers.length; i++) {
-                  if (!securityService.isLoggedIn()
-                    && ioHandlers[i].name.toLowerCase().indexOf('with name') != -1) {
-                    continue;
-                  }
-                  $scope.ioHandlers.push(ioHandlers[i]);
-                }
-
-                $scope.selectedIoHandler = null;
-                for (var i = 0; i < ioHandlers.length; i++) {
-
-                  // Choose first one if only one
-                  if ($scope.selectedIoHandler == null) {
-                    $scope.selectedIoHandler = ioHandlers[i];
-                  }
-                  // choose 'rf2' as default otherwise
-                  // IHTSDO-specific, may be able make this more data driven
-                  if (ioHandlers[i].name.endsWith('RF2')) {
-                    $scope.selectedIoHandler = ioHandlers[i];
-                  }
-                }
-                $scope.type = type;
-                $scope.operation = operation;
-                $scope.comments = [];
-                $scope.warnings = [];
-                $scope.errors = [];
-                $scope.importStarted = false;
-                $scope.importFinished = false;
-
-                // Handle export
-                $scope.export = function(file) {
-                  if (type == 'Definition') {
-                    worklistService.exportDefinition($scope.worklist, $scope.selectedIoHandler.id,
-                      $scope.selectedIoHandler.fileTypeFilter);
-                  }
-                  if (type == 'Worklist Members') {
-                    worklistService.exportMembers($scope.worklist, $scope.selectedIoHandler.id,
-                      $scope.selectedIoHandler.fileTypeFilter);
-                  }
-                  $uibModalInstance.close(worklist);
-                };
-
-                // Handle import
-                $scope.import = function(file) {
-
-                  if (type == 'Definition') {
-                    worklistService.importDefinition($scope.worklist.id, $scope.selectedIoHandler.id,
-                      file).then(
-                    // Success - close dialog
-                    function(data) {
-                      $uibModalInstance.close(worklist);
-                    },
-                    // Failure - show error
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-                  }
-
-                  if (type == 'Worklist Members') {
-                    worklistService.beginImportMembers($scope.worklist.id, $scope.selectedIoHandler.id)
-                      .then(
-
-                        // Success
-                        function(data) {
-                          $scope.importStarted = true;
-                          // data is a validation result, check for errors
-                          if (data.errors.length > 0) {
-                            $scope.errors = data.errors;
-                          } else {
-
-                            // If there are no errors, finish import
-                            worklistService.finishImportMembers($scope.worklist.id,
-                              $scope.selectedIoHandler.id, file).then(
-                            // Success - close dialog
-                            function(data) {
-                              $scope.importFinished = true;
-                              $scope.comments = data.comments;
-                              $scope.warnings = data.warnings;
-                              $scope.errors = data.errors;
-                              startLookup(worklist);
-                            },
-                            // Failure - show error
-                            function(data) {
-                              handleError($scope.errors, data);
-                            });
-                          }
-                        },
-
-                        // Failure - show error, clear global error
-                        function(data) {
-                          handleError($scope.errors, data);
-                        });
-                  }
-                };
-
-                // Handle continue import
-                $scope.continueImport = function(file) {
-
-                  if (type == 'Worklist Members') {
-                    worklistService.finishImportMembers($scope.worklist.id,
-                      $scope.selectedIoHandler.id, file).then(
-                    // Success - close dialog
-                    function(data) {
-                      $scope.importFinished = true;
-                      $scope.comments = data.comments;
-                      $scope.warnings = data.warnings;
-                      $scope.errors = data.errors;
-                      startLookup(worklist);
-                    },
-                    // Failure - show error
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-                  }
-                };
-
-                // Dismiss modal
-                $scope.cancel = function() {
-                  // If there are lingering errors, cancel the import
-                  if ($scope.errors.length > 0 && type == 'Worklist Members') {
-                    worklistService.cancelImportMembers($scope.worklist.id);
-                  }
-                  // dismiss the dialog
-                  $uibModalInstance.dismiss('cancel');
-                };
-
-                $scope.close = function() {
-                  // close the dialog and reload worklists
-                  $uibModalInstance.close(worklist);
-                };
-              };
-
-              // Release Process modal
-              $scope.openReleaseProcessModal = function(lworklist) {
-                console.debug('releaseProcessModal ', lworklist);
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/release.html',
-                  controller : ReleaseProcessModalCtrl,
-                  backdrop : 'static',
-                  resolve : {
-                    worklist : function() {
-                      return lworklist;
-                    },
-                    ioHandlers : function() {
-                      return $scope.metadata.exportHandlers;
-                    },
-                    utilService : function() {
-                      return utilService;
-                    }
-                  }
-                });
-
-                modalInstance.result.then(
-                // Success
-                function(data) {
-                  worklistService.fireWorklistChanged(data);
-                });
-              };
-
-              // Open release process modal given staged worklist
-              $scope.openReleaseProcessModalForStaged = function(worklist) {
-
-                worklistService.getOriginForStagedWorklistId(worklist.id).then(
-                // Success
-                function(data) {
-                  worklistService.getWorklist(data).then(
-                  // Success
-                  function(data) {
-                    $scope.openReleaseProcessModal(data);
-                  });
-                });
-              };
-
-              // Release Process controller
-              var ReleaseProcessModalCtrl = function($scope, $uibModalInstance, worklist, ioHandlers,
-                utilService) {
-                console.debug('Entered release process modal', worklist.id, ioHandlers);
-
-                $scope.worklist = worklist;
-                $scope.ioHandlers = ioHandlers;
-                $scope.selectedIoHandler = $scope.ioHandlers[0];
-                $scope.releaseInfo = [];
-                $scope.validationResult = null;
-                $scope.format = 'yyyyMMdd';
-                $scope.releaseDate = utilService.toSimpleDate($scope.worklist.effectiveTime);
-                $scope.status = {
-                  opened : false
-                };
-                $scope.errors = [];
-
-                if (worklist.stagingType == 'BETA') {
-                  releaseService.resumeRelease(worklist.id).then(
-                  // Success
-                  function(data) {
-                    $scope.stagedWorklist = data;
-                  },
-                  // Error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-                }
-
-                // Begin release
-                $scope.beginWorklistRelease = function(worklist) {
-
-                  releaseService.beginWorklistRelease(worklist.id,
-                    utilService.toSimpleDate(worklist.effectiveTime)).then(
-                  // Success
-                  function(data) {
-                    $scope.releaseInfo = data;
-                    $scope.worklist.inPublicationProcess = true;
-                  },
-                  // Error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-
-                };
-
-                // Validate release
-                $scope.validateWorklistRelease = function(worklist) {
-
-                  releaseService.validateWorklistRelease(worklist.id).then(
-                  // Success
-                  function(data) {
-                    $scope.validationResult = data;
-                    worklistService.fireWorklistChanged(worklist);
-                  },
-                  // Error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-                };
-
-                // Initiate Beta
-                $scope.betaWorklistRelease = function(worklist) {
-                  // clear validation result
-                  $scope.validationResult = null;
-                  releaseService.betaWorklistRelease(worklist.id, $scope.selectedIoHandler.id).then(
-                  // Success
-                  function(data) {
-                    $scope.stagedWorklist = data;
-                  },
-                  // Error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-                };
-
-                // Finish the release
-                $scope.finishWorklistRelease = function(worklist) {
-
-                  releaseService.finishWorklistRelease(worklist.id, $scope.selectedIoHandler.id).then(
-                  // Success
-                  function(data) {
-                    $uibModalInstance.close(worklist);
-                  },
-                  // Error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-                };
-
-                // Cancel release process and dismiss modal
-                $scope.cancel = function() {
-                  releaseService.cancelWorklistRelease($scope.worklist.id).then(
-                  // Success
-                  function(data) {
-                    $uibModalInstance.close($scope.worklist);
-                  });
-                };
-
-                // Close the window - to return later
-                $scope.close = function() {
-                  $uibModalInstance.close($scope.worklist);
-                };
-
-                $scope.open = function($event) {
-                  $scope.status.opened = true;
-                };
-
-                $scope.format = 'yyyyMMdd';
-              };
 
               // Assign worklist modal
               $scope.openAssignWorklistModal = function(lworklist, laction, lrole) {
                 console.debug('openAssignWorklistModal ', lworklist, laction);
 
                 var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/assignWorklist.html',
+                  templateUrl : 'app/page/workflow/assignWorklist.html',
                   controller : AssignWorklistModalCtrl,
                   backdrop : 'static',
                   resolve : {
@@ -1573,7 +650,7 @@ tsApp
                       return $scope.user;
                     },
                     assignedUsers : function() {
-                      return $scope.projects.assignedUsers;
+                      return lworklist.authors;
                     },
                     project : function() {
                       return $scope.project;
@@ -1581,9 +658,9 @@ tsApp
                     role : function() {
                       if (lrole) {
                         return lrole;
-                      } else {
+                      } /*else {
                         return $scope.projects.role;
-                      }
+                      }*/
                     },
                     tinymceOptions : function() {
                       return utilService.tinymceOptions;
@@ -1595,7 +672,7 @@ tsApp
                 modalInstance.result.then(
                 // Success
                 function(data) {
-                  worklistService.fireWorklistChanged(data);
+                  workflowService.fireWorklistChanged(data);
                 });
               };
 
@@ -1638,7 +715,7 @@ tsApp
 
                       // Add a note as well
                       if ($scope.note) {
-                        worklistService.addWorklistNote(worklist.id, $scope.note).then(
+                        workflowService.addWorklistNote(worklist.id, $scope.note).then(
                         // Success
                         function(data) {
                           $uibModalInstance.close(worklist);
@@ -1668,7 +745,7 @@ tsApp
                     function(data) {
                       // Add a note as well
                       if ($scope.note) {
-                        worklistService.addWorklistNote(worklist.id, $scope.note).then(
+                        workflowService.addWorklistNote(worklist.id, $scope.note).then(
                         // Success - add note
                         function(data) {
                           $uibModalInstance.close(worklist);
@@ -1703,7 +780,7 @@ tsApp
                         function(data) {
                           // Add a note as well
                           if ($scope.note) {
-                            worklistService.addWorklistNote(worklist.id, $scope.note).then(
+                            workflowService.addWorklistNote(worklist.id, $scope.note).then(
                             // Success - add note
                             function(data) {
                               $uibModalInstance.close(worklist);
@@ -1790,479 +867,6 @@ tsApp
                 // initialize
                 $scope.getLog();
               };
-
-              // Add Worklist Member List modal
-              $scope.openAddWorklistMemberListModal = function() {
-                console.debug('openAddWorklistMemberListModal ');
-
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/addMemberList.html',
-                  controller : AddWorklistMemberListModalCtrl,
-                  backdrop : 'static',
-                  resolve : {
-                    worklist : function() {
-                      return $scope.selected.worklist;
-                    }
-                  }
-                });
-
-                modalInstance.result.then(
-                // Success
-                function(data) {
-                  $scope.handleWorkflow(data);
-                });
-              };
-
-              // Add Worklist Member List controller
-              var AddWorklistMemberListModalCtrl = function($scope, $uibModalInstance, worklist) {
-                console.debug('Entered add worklist member list modal control', worklist);
-
-                $scope.worklistMemberList = '';
-                $scope.worklist = worklist;
-                $scope.memberIdList = '';
-                $scope.ids = [];
-                $scope.added = [];
-                $scope.exists = [];
-                $scope.removed = [];
-                $scope.notExists = [];
-                $scope.errors = [];
-                $scope.warnings = [];
-                $scope.comments = [];
-
-                // Used for enabling/disabling in UI
-                $scope.hasResults = function() {
-                  return $scope.added.length > 0 || $scope.removed.length > 0
-                    || $scope.exists.length > 0 || $scope.notExists.length > 0;
-                };
-
-                // Add members in the list
-                $scope.includeMembers = function() {
-                  $scope.errors = [];
-                  $scope.ids = getIds($scope.memberIdList);
-                  for (var i = 0; i < $scope.ids.length; i++) {
-                    var conceptId = $scope.ids[i];
-                    includeMember(worklist, conceptId);
-                  }
-                };
-
-                // find member and add if not exists
-                function includeMember(worklist, conceptId) {
-                  worklistService.findWorklistMembersForQuery(worklist.id, 'conceptId:' + conceptId, {
-                    startIndex : 0,
-                    maxResults : 1
-                  }).then(
-                  // Success
-                  function(data) {
-                    if (data.members.length > 0) {
-                      $scope.exists.push(conceptId);
-                    } else {
-                      var member = {
-                        active : true,
-                        conceptId : conceptId,
-                        memberType : 'MEMBER',
-                        moduleId : worklist.moduleId,
-                        worklistId : worklist.id
-                      };
-                      worklistService.addWorklistMember(member).then(
-                      // Success
-                      function(data) {
-                        $scope.added.push(conceptId);
-                      },
-                      // Error
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                    }
-                  },
-                  // Error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-
-                }
-
-                // Exclude members in list
-                $scope.excludeMembers = function() {
-                  $scope.errors = [];
-                  $scope.ids = getIds($scope.memberIdList);
-                  var notExists = new Array();
-                  var removed = new Array();
-                  for (var i = 0; i < $scope.ids.length; i++) {
-                    var conceptId = $scope.ids[i];
-                    removeMember(worklist, conceptId);
-                  }
-                };
-
-                // validation
-                function removeMember(worklist, conceptId) {
-                  worklistService.findWorklistMembersForQuery(worklist.id, 'conceptId:' + conceptId, {
-                    startIndex : 0,
-                    maxResults : 1
-                  }).then(
-                  // Success
-                  function(data) {
-
-                    if (data.members.length == 0) {
-                      $scope.notExists.push(conceptId);
-                    } else {
-
-                      var memberId = data.members[0].id;
-                      worklistService.removeWorklistMember(memberId).then(
-                      // Success
-                      function(data) {
-                        $scope.removed.push(conceptId);
-                      },
-                      // Error
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                    }
-                  },
-                  // Error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-                }
-
-                // Get the ids from the value
-                function getIds(value) {
-                  // Split on punctuation
-                  var list = $scope.memberIdList.split(/[\s;,\.]/);
-
-                  var result = new Array();
-                  // remove empty stuff
-                  for (var i = 0; i < list.length; i++) {
-                    if (list[i]) {
-                      result.push(list[i]);
-                    }
-                  }
-                  return result;
-                }
-
-                // Dismiss modal
-                $scope.close = function() {
-                  $uibModalInstance.close(worklist);
-                };
-
-                // Dismiss modal
-                $scope.cancel = function() {
-                  $uibModalInstance.dismiss('cancel');
-                };
-
-              };
-
-              // Add Worklist modal
-              $scope.openAddWorklistModal = function() {
-                console.debug('openAddWorklistModal ');
-
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/editWorklist.html',
-                  controller : AddWorklistModalCtrl,
-                  backdrop : 'static',
-                  resolve : {
-                    metadata : function() {
-                      return $scope.metadata;
-                    },
-                    filters : function() {
-                      return $scope.filters;
-                    },
-                    project : function() {
-                      return $scope.project;
-                    },
-                    projects : function() {
-                      return $scope.projects;
-                    }
-                  }
-                });
-
-                modalInstance.result.then(
-                // Success
-                function(data) {
-                  worklistService.fireWorklistChanged(data);
-                });
-              };
-
-              // Add Worklist controller
-              var AddWorklistModalCtrl = function($scope, $uibModalInstance, metadata, filters,
-                project, projects) {
-                console.debug('Entered add worklist modal control', metadata);
-
-                $scope.action = 'Add';
-                $scope.definition = null;
-                $scope.metadata = metadata;
-                $scope.filters = filters;
-                $scope.project = project;
-                $scope.projects = projects;
-                $scope.versions = metadata.versions[$scope.project.terminology].sort().reverse();
-                $scope.clause = {
-                  value : null
-                };
-                $scope.worklist = {
-                  workflowPath : metadata.workflowPaths[0],
-                  version : $scope.versions[0],
-                  namespace : $scope.project.namespace,
-                  moduleId : $scope.project.moduleId,
-                  organization : $scope.project.organization,
-                  terminology : $scope.project.terminology,
-                  feedbackEmail : $scope.project.feedbackEmail,
-                  type : metadata.worklistTypes[0],
-                  definitionClauses : [],
-                  project : $scope.project
-                };
-                $scope.modules = [];
-                $scope.errors = [];
-                $scope.warnings = [];
-
-                // Get $scope.modules
-                $scope.getModules = function() {
-                  projectService.getModules($scope.worklist.terminology, $scope.worklist.version).then(
-                  // Success
-                  function(data) {
-                    $scope.modules = data.concepts;
-                  });
-                };
-
-                // Initialize modules if terminology/version set
-                if ($scope.worklist.terminology && $scope.worklist.version) {
-                  $scope.getModules();
-                }
-
-                // Handle terminology selected
-                $scope.terminologySelected = function(terminology) {
-                  $scope.versions = metadata.versions[terminology].sort().reverse();
-                  $scope.worklist.version = $scope.versions[0];
-                  $scope.getModules();
-                };
-
-                // Handle version selected
-                $scope.versionSelected = function(version) {
-                  $scope.getModules();
-                };
-
-                // Assign worklist id
-                $scope.assignWorklistTerminologyId = function(worklist) {
-                  worklistService.assignWorklistTerminologyId(project.id, worklist).then(
-                  // success
-                  function(data) {
-                    worklist.terminologyId = data;
-                  },
-                  // error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-                };
-
-                // Add worklist
-                $scope.submitWorklist = function(worklist) {
-
-                  worklist.projectId = project.id;
-                  // Setup definition if configured
-                  if (worklist.type == 'EXTENSIONAL') {
-                    $scope.clause = null;
-                  }
-                  if ($scope.clause && $scope.clause.value) {
-                    worklist.definitionClauses = [ {
-                      value : $scope.clause.value,
-                      negated : false
-                    } ];
-                  }
-
-                  // validate worklist before adding it
-                  validationService
-                    .validateWorklist(worklist)
-                    .then(
-                      function(data) {
-
-                        // If there are errors, make them available and stop.
-                        if (data.errors && data.errors.length > 0) {
-                          $scope.errors = data.errors;
-                          return;
-                        } else {
-                          $scope.errors = [];
-                        }
-
-                        // if $scope.warnings is empty, and data.warnings is
-                        // not,
-                        // show warnings and stop
-                        if (data.warnings && data.warnings.length > 0
-                          && $scope.warnings.join() !== data.warnings.join()) {
-                          $scope.warnings = data.warnings;
-                          return;
-                        } else {
-                          $scope.warnings = [];
-                        }
-
-                        if (!worklist.name || !worklist.description || !worklist.moduleId) {
-                          $scope.errors[0] = 'Worklist name, description and moduleId must not be empty.';
-                          return;
-                        }
-
-                        // Success - validate worklist
-                        worklistService.addWorklist(worklist).then(
-                        // Success - add worklist
-                        function(data) {
-                          var newWorklist = data;
-                          $uibModalInstance.close(newWorklist);
-                        },
-                        // Error - add worklist
-                        function(data) {
-                          handleError($scope.errors, data);
-                        });
-
-                      },
-                      // Error - validate worklist
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                };
-
-                // Dismiss modal
-                $scope.cancel = function() {
-                  $uibModalInstance.dismiss('cancel');
-                };
-
-              };
-
-              // Edit worklist modal
-              $scope.openEditWorklistModal = function(lworklist) {
-                console.debug('openEditWorklistModal ');
-
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/editWorklist.html',
-                  controller : EditWorklistModalCtrl,
-                  backdrop : 'static',
-                  resolve : {
-                    worklist : function() {
-                      return lworklist;
-                    },
-                    metadata : function() {
-                      return $scope.metadata;
-                    },
-                    filters : function() {
-                      return $scope.filters;
-                    },
-                    project : function() {
-                      return $scope.project;
-                    },
-                    projects : function() {
-                      return $scope.projects;
-                    }
-                  }
-                });
-
-                modalInstance.result.then(
-                // Success
-                function(data) {
-                  // handle workflow advancement
-                  $scope.handleWorkflow(data);
-                });
-              };
-
-              // Edit worklist controller
-              var EditWorklistModalCtrl = function($scope, $uibModalInstance, worklist, metadata,
-                filters, project, projects) {
-                console.debug('Entered edit worklist modal control');
-
-                $scope.action = 'Edit';
-                $scope.worklist = worklist;
-                $scope.filters = filters;
-                $scope.project = project;
-                $scope.worklist.project = project;
-                $scope.projects = projects;
-                $scope.metadata = metadata;
-                $scope.versions = $scope.metadata.versions[worklist.terminology].sort().reverse();
-                $scope.modules = [];
-                $scope.errors = [];
-
-                // Get $scope.modules
-                $scope.getModules = function() {
-                  projectService.getModules($scope.worklist.terminology, $scope.worklist.version).then(
-                  // Success
-                  function(data) {
-                    $scope.modules = data.concepts;
-                  });
-                }; // Initialize modules if terminology/version set
-                if ($scope.worklist.terminology && $scope.worklist.version) {
-                  $scope.getModules();
-                }
-
-                // Handle terminology selected
-                $scope.terminologySelected = function(terminology) {
-                  $scope.versions = $scope.metadata.versions[terminology].sort().reverse();
-                  $scope.getModules();
-                };
-
-                // Handle version selected
-                $scope.versionSelected = function(version) {
-                  $scope.getModules();
-                };
-
-                // Assign worklist id
-                $scope.assignWorklistTerminologyId = function(worklist) {
-                  worklistService.assignWorklistTerminologyId(project.id, worklist).then(
-                  // success
-                  function(data) {
-                    worklist.terminologyId = data;
-                  },
-                  // error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-                };
-
-                // Update worklist
-                $scope.submitWorklist = function(worklist) {
-
-                  worklist.projectId = worklist.project.id;
-
-                  // Validate worklist
-                  validationService.validateWorklist(worklist).then(
-                    function(data) {
-
-                      // If there are errors, make them available and stop.
-                      if (data.errors && data.errors.length > 0) {
-                        $scope.errors = data.errors;
-                        return;
-                      } else {
-                        $scope.errors = [];
-                      }
-
-                      // if $scope.warnings is empty, and data.warnings is not,
-                      // show warnings and stop
-                      if (data.warnings && data.warnings.length > 0
-                        && $scope.warnings.join() !== data.warnings.join()) {
-                        $scope.warnings = data.warnings;
-                        return;
-                      } else {
-                        $scope.warnings = [];
-                      }
-
-                      // Success - validate worklist
-                      worklistService.updateWorklist(worklist).then(
-                      // Success - update worklist
-                      function(data) {
-                        $uibModalInstance.close(worklist);
-                      },
-                      // Error - update worklist
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-
-                    },
-                    // Error - validate worklist
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-
-                };
-
-                // Dismiss modal
-                $scope.cancel = function() {
-                  $uibModalInstance.dismiss('cancel');
-                };
-
-              };
-
 
               // end
 

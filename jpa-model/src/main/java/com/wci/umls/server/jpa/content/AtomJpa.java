@@ -166,7 +166,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     conceptTerminologyIds = new HashMap<>(atom.getConceptTerminologyIds());
     alternateTerminologyIds = new HashMap<>(atom.getAlternateTerminologyIds());
     descriptorId = atom.getDescriptorId();
-    conceptId = atom.getDescriptorId();
+    conceptId = atom.getConceptId();
     language = atom.getLanguage();
     lexicalClassId = atom.getLexicalClassId();
     stringClassId = atom.getStringClassId();

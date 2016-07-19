@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.meta;
 
 import javax.persistence.Column;
@@ -10,15 +13,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 
 /**
- * JPA and JAXB enabled implementation of {@link SemanticTypeComponentIdentity}
+ * JPA and JAXB enabled implementation of {@link SemanticTypeComponentIdentity}.
  */
 @Entity
 @Table(name = "sty_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "conceptTerminologyId", "terminology", "id"
+    "conceptTerminologyId", "semanticType", "terminology"
 }))
 @XmlRootElement(name = "styIdentity")
-public class SemanticTypeComponentIdentityJpa implements
-    SemanticTypeComponentIdentity {
+public class SemanticTypeComponentIdentityJpa
+    implements SemanticTypeComponentIdentity {
 
   /** The id. */
   @Id
@@ -64,7 +67,8 @@ public class SemanticTypeComponentIdentityJpa implements
    *
    * @param identity the identity
    */
-  public SemanticTypeComponentIdentityJpa(SemanticTypeComponentIdentity identity) {
+  public SemanticTypeComponentIdentityJpa(
+      SemanticTypeComponentIdentity identity) {
     super();
     id = identity.getId();
     terminology = identity.getTerminology();
@@ -113,11 +117,8 @@ public class SemanticTypeComponentIdentityJpa implements
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime
-            * result
-            + ((conceptTerminologyId == null) ? 0 : conceptTerminologyId
-                .hashCode());
+    result = prime * result + ((conceptTerminologyId == null) ? 0
+        : conceptTerminologyId.hashCode());
     result =
         prime * result + ((semanticType == null) ? 0 : semanticType.hashCode());
     result =

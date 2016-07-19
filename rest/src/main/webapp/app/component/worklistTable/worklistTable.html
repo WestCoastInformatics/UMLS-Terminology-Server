@@ -40,341 +40,85 @@
         <span ng-hide="showLatest" title="Click to show only most recent">All</span>
       </button>
 
-      <!-- Admins shouldn't add projects -->
-      <h4 ng-show="value == 'AVAILABLE' && worklists.totalCount == 0">
-        <span style="float: right;">
-          <button ng-click="openAddWorklistModal(); $event.stopPropagation()"
-            title="Add worklist" class="btn btn-xs btn-primary">Add
-            Worklist</button>
-        </span>
-      </h4>
     </div>
-{{worklists.totalCount}}
     <!-- Basic Worklist info -->
     <span ng-show="worklists.totalCount == 0" style="display: block;"
       class="alert alert-warning">No worklists.</span>
     <table ng-show="worklists.totalCount > 0" class="table">
       <thead class="table-select-row">
         <tr>
-          <th class="col-md-2 col-xs-2"><span
-              ng-click="setSortField('worklist','terminologyId')">
-              Worklist Id
-              <span ng-bind="getSortIndicator('worklist','terminologyId')"></span>
+          <!-- Worklist number header -->
+          <th class="col-md-1 col-xs-1"><span
+              ng-click="setSortField('worklist','number')">
+              <span ng-bind="getSortIndicator('worklist','number')"></span>
             </span></th>
-          <th class="col-md-4 col-xs-4"><span
+            
+          <!-- Worklist name header -->
+          <th class="col-md-5 col-xs-5"><span
               ng-click="setSortField('worklist','name')">
               Name
               <span ng-bind="getSortIndicator('worklist','name')"></span>
-            </span> / <span ng-show="isDirectory() || value == 'RELEASE'">
-              <span ng-click="setSortField('worklist','effectiveTime')">
-                Effective Time
-                <span ng-bind="getSortIndicator('worklist','effectiveTime')"></span>
-              </span>
-            </span> <span ng-show="!isDirectory() && value != 'RELEASE'">
+            </span> / 
               <span ng-click="setSortField('worklist','lastModified')">
                 Last Modified
                 <span ng-bind="getSortIndicator('worklist','lastModified')"></span>
-              </span>
             </span></th>
 
-          <!-- PUBLISHED/BETA -->
-          <th ng-show="isDirectory()" class="col-md-2 col-xs-2"><span
+          <!-- Author/Reviewer Time header -->
+          <th ng-show="value == 'Worklist'" class="col-md-3 col-xs-3"><span
               ng-click="setSortField('worklist','moduleId')">
-              Module
+              Editor
               <span ng-bind="getSortIndicator('worklist','moduleId')"></span>
-            </span> / <span title="Organization"
-              ng-click="setSortField('worklist','organization')">
-              Org.
-              <span ng-bind="getSortIndicator('worklist','organization')"></span>
-            </span></th>
-          <th ng-show="isDirectory()" class="col-md-3 col-xs-3"><span
-              ng-click="setSortField('worklist','terminology')">
-              Terminology
-              <span ng-bind="getSortIndicator('worklist','terminology')"></span>
-            </span> / <span ng-click="setSortField('worklist','domain')">
-              Domain
-              <span ng-bind="getSortIndicator('worklist','domain')"></span>
+            </span> / <span title="Group">Group
+            </span> / <span title="Time">Time
             </span></th>
 
-          <!-- NOT PUBLISHED/BETA -->
-          <th ng-show="!isDirectory()" class="col-md-3 col-xs-3"><span
-              title="Module" ng-click="setSortField('worklist','moduleId')">
-              Mod.
-              <span ng-bind="getSortIndicator('worklist','moduleId')"></span>
-            </span> / <span title="Terminology"
-              ng-click="setSortField('worklist','terminology')">
-              Term.
-              <span ng-bind="getSortIndicator('worklist','terminology')"></span>
-            </span> / <span ng-click="setSortField('worklist','domain')">
-              Domain
-              <span ng-bind="getSortIndicator('worklist','domain')"></span>
-            </span> <span ng-show="projects.role == 'ADMIN' || value == 'RELEASE'">
-              /
-              <span ng-click="setSortField('worklist','workflowStatus')">
-                Status</span>
+          <!-- Workflow Status header -->
+          <th class="col-md-1 col-xs-1"><span
+              ng-click="setSortField('worklist','workflowStatus')">
+              Status
               <span ng-bind="getSortIndicator('worklist','workflowStatus')"></span>
             </span></th>
 
-          <th class="col-md-1 col-xs-1"><span
-              ng-click="setSortField('worklist','type')">
-              Type
-              <span ng-bind="getSortIndicator('worklist','type')"></span>
-            </span></th>
-
           <!-- Actions header -->
-
-          <!-- PUBLISHED/BETA : no actions row -->
-
-          <!-- not PUBLISHED/BETA -->
-          <th class="col-md-2 col-xs-2" ng-show="!isDirectory()"><span
-              ng-show="value == 'AVAILABLE'" style="float: right;">
-              <button ng-click="openAddWorklistModal();" title="Add worklist"
-                class="btn btn-xs btn-primary">Add</button>
-            </span></th>
+          <th class="col-md-2 col-xs-2" ">Actions</th>
 
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="worklist in worklists" ng-click="selectWorklist(worklist);"
           ng-class="{selected: worklist.id == selected.worklist.id}">
-          <td style="word-break: break-word;">{{worklist.terminologyId}}</td>
+          <td style="word-break: break-word;">{{worklist.number}}</td>
+          
           <td>
             {{worklist.name}}
-            <span ng-show="worklist.effectiveTime">
-              <br />{{toSimpleDate(worklist.effectiveTime)}}
-            </span>
-            <span ng-show="!worklist.effectiveTime">
+            <span>
               <br />{{toDate(worklist.lastModified)}}
-              <span ng-show="projects.role == 'ADMIN'">
-                <br />{{worklist.lastModifiedBy}}
-              </span>
             </span>
           </td>
 
-          <!-- PUBLISHED/BETA -->
-          <td ng-show="isDirectory()">
-            <span style="word-break: break-word;"> {{worklist.moduleId}}</span>
-            <span flag-icon obj="worklist"></span>
-            <!-- Mobile friendly line-break -->
-            <br class="visible-xs-inline" />
-            <span> {{worklist.organization}} </span>
+          <td ng-show="value == 'Worklist'">
+            <span style="word-break: break-word;"> {{worklist.authors[0]}}</span> <br/>
+            <span> {{worklist.team}} </span> <br/>
+            <span> {{toTime(worklist.authorTime)}} </span>
           </td>
-          <td ng-show="isDirectory()">
-            <span>{{getTerminologyName(worklist.terminology)}}
-              {{worklist.version}} </span>
-            <br />
-            <span ng-show="worklist.domain">{{worklist.domain}} </span>
-            <span ng-show="!worklist.domain" class="md-grey">
-              <small>no domain specified</small>
-            </span>
-          </td>
-
-          <!-- not PUBLISHED/BETA -->
-          <td ng-show="!isDirectory()">
-            <span style="word-break: break-word;"> {{worklist.moduleId}}</span>
-            <span flag-icon obj="worklist"></span>
-            <br />
-            <span>{{getTerminologyName(worklist.terminology)}}
-              {{worklist.version}} </span>
-            <br />
-            <span ng-show="worklist.domain">{{worklist.domain}} </span>
-            <span ng-show="!worklist.domain" class="md-grey">
-              <small>no domain specified</small>
-            </span>
-            <span ng-show="projects.role == 'ADMIN' || value == 'RELEASE'">
-              <br />{{worklist.workflowStatus}}
-            </span>
-          </td>
-
 
           <td>
-            <span worklist-type-icon worklist="worklist"></span>
+            {{worklist.workflowStatus}}
           </td>
 
-          <!-- AVAILABLE actions -->
-          <td class="nobreak" ng-show="value == 'AVAILABLE'">
-            <i ng-click="openEditWorklistModal(worklist); $event.stopPropagation()"
-              title="Edit" class="noul material-icons md-18">edit</i>
+          <!--  actions -->
+          <td class="nobreak">
             <i title="Remove" ng-show="!worklist.staged"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
               class="noul material-icons md-18">delete</i>
 
-            <!-- Assign as non-admin -->
-            <i ng-show="projects.role != 'ADMIN'"
+
+            <i  ng-show="value == 'Worklist'"
               ng-click="openAssignWorklistModal(worklist,'ASSIGN'); $event.stopPropagation()"
               title="Assign" class="noul material-icons md-18">assignment_ind</i>
 
-            <!-- Assign as admin -->
-            <i
-              ng-show="projects.role == 'ADMIN' && worklist.workflowStatus == 'NEW'"
-              ng-click="openAssignWorklistModal(worklist,'ASSIGN','AUTHOR'); $event.stopPropagation()"
-              title="Assign" class="noul material-icons md-18">assignment_ind</i>
-            <i
-              ng-show="projects.role == 'ADMIN' && worklist.workflowStatus != 'NEW'"
-              ng-click="openAssignWorklistModal(worklist,'ASSIGN','REVIEWER'); $event.stopPropagation()"
-              title="Assign" class="noul material-icons md-18">assignment_ind</i>
-
-
-            <!-- As author/reviewer, reassign back to author -->
-            <i
-              ng-show="projects.role != 'AUTHOR' && worklist.workflowStatus != 'NEW'"
-              confirm="Are you sure you want to unassign the worklist ({{worklist.name}})?"
-              ng-click="openAssignWorklistModal(worklist,'REASSIGN'); $event.stopPropagation()"
-              title="Reassign back to author" class="noul material-icons md-18">assignment_returned</i>
-
-            <!-- As admin/reviewer, unassign completely and return back to pool-->
-            <i
-              confirm="Are you sure you want to unassign the worklist ({{worklist.name}})?"
-              ng-show="projects.role == 'ADMIN' && worklist.workflowStatus != 'NEW'"
-              ng-click="unassign(worklist,user.userName); $event.stopPropagation()"
-              title="Unassign" class="noul material-icons md-18">assignment_return</i>
-
-
-            <i ng-show="worklist.type != 'EXTERNAL'"
-              ng-show="projects.role != 'ADMIN'"
-              ng-click="openCloneWorklistModal(worklist); $event.stopPropagation()"
-              title="Clone" class="noul material-icons md-18">content_copy</i>
-
-            <!-- ASSIGNED ADMIN actions -->
-          <td class="nobreak"
-            ng-show="value == 'ASSIGNED' && projects.role == 'ADMIN'">
-            <i ng-show="!worklist.staged"
-              confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
-              ng-click="removeWorklist(worklist); $event.stopPropagation()"
-              title="Remove" class="noul material-icons md-18">delete</i>
-
-            <span ng-repeat="author in worklistAuthorsMap[worklist.id]">
-              <!-- Only unassign if there are no reviewers -->
-              <i
-                confirm="Are you sure you want to unassign the worklist ({{worklist.name}})?"
-                ng-show="!worklistReviewersMap[worklist.id]"
-                title="Unassign author: {{author}}"
-                ng-click="unassign(worklist, author);"
-                class="noul material-icons md-18">assignment_return</i>
-              <i ng-show="worklistReviewersMap[worklist.id]"
-                title="Author: {{author}}, unassign reviewer first"
-                class="md-grey material-icons md-18">assignment_return</i>
-            </span>
-            <span ng-repeat="reviewer in worklistReviewersMap[worklist.id]">
-              <i title="Unassign reviewer: {{reviewer}}"
-                confirm="Are you sure you want to unassign the worklist ({{worklist.name}})?"
-                ng-click="unassign(worklist, reviewer);"
-                class="noul material-icons md-18">assignment_return</i>
-            </span>
-          </td>
-
-          <!-- ASSIGNED non-ADMIN actions -->
-          <td class="nobreak"
-            ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN'">
-            <i ng-click="openEditWorklistModal(worklist); $event.stopPropagation()"
-              title="Edit" class="noul material-icons md-18">edit</i>
-            <i ng-show="!worklist.staged"
-              confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
-              ng-click="removeWorklist(worklist); $event.stopPropagation()"
-              title="Remove" class="noul material-icons md-18">delete</i>
-            <i
-              confirm="Are you sure you want to unassign the worklist ({{worklist.name}})?"
-              ng-click="unassign(worklist, user.userName);" title="Unassign"
-              class="noul material-icons md-18">assignment_return</i>
-            <i ng-show="projects.role == 'REVIEWER'"
-              confirm="Are you sure you want to reassign the worklist ({{worklist.name}})?"
-              ng-click="openAssignWorklistModal(worklist,'UNASSIGN-REASSIGN'); $event.stopPropagation()"
-              title="Reassign back to author" class="noul material-icons md-18">assignment_returned</i>
-            <i confirm="Are you sure you want to finalize editing/review?"
-              ng-show="worklist.workflowStatus.indexOf('IN_PROGRESS') != -1 || worklist.workflowStatus=='REVIEW_NEW'"
-              ng-click="performWorkflowAction(worklist, 'FINISH', user.userName)"
-              title="Finish" class="noul material-icons md-18">done</i>
-            <i ng-show="worklist.workflowStatus == 'REVIEW_DONE'"
-              ng-click="performWorkflowAction(worklist, 'FINISH', user.userName)"
-              title="Mark ready for publication"
-              class="noul material-icons md-18">open_in_new</i>
-
-            <!-- Cancel buttons if migration in progress -->
-            <span ng-show="worklist.stagingType == 'IMPORT'">
-              <br />
-              <button class="btn btn-xs btn-warning" ng-disabled="cancelling"
-                ng-click="cancelAction(worklist); "
-                title="Click to cancel failed import">Cancel Import</button>
-            </span>
-            <span ng-show="worklist.stagingType == 'MIGRATION'">
-              <br />
-              <button class="btn btn-xs btn-warning" ng-disabled="cancelling"
-                ng-click="cancelAction(worklist)"
-                title="Click to cancel migration">Cancel Migration</button>
-            </span>
-
-            <!-- Refresh/start buttons if lookup in progress -->
-            <span
-              ng-show="worklist.lookupInProgress && worklistLookupProgress[worklist.id] == -1">
-              <br />
-              <button class="btn btn-xs btn-warning"
-                ng-click="startLookup(worklist)" title="Click to restart lookup">Restart
-                Lookup</button>
-            </span>
-            <span
-              ng-show="worklist.lookupInProgress && worklistLookupProgress[worklist.id] > -1 && worklistLookupProgress[worklist.id] < 100">
-              <br />
-              <button class="btn btn-xs btn-warning"
-                ng-click="refreshLookupProgress(worklist)"
-                title="Click to refresh lookup progress">
-                Refresh
-                <span ng-show="worklistLookupProgress[worklist.id]">
-                  {{worklistLookupProgress[worklist.id]}}%</span>
-              </button>
-            </span>
-          </td>
-
-          <!-- RELEASE actions -->
-          <td class="nobreak" ng-show="value == 'RELEASE'">
-
-            <i
-              ng-show="worklist.workflowStatus != 'PUBLISHED' && worklist.workflowStatus != 'BETA'"
-              ng-click="openEditWorklistModal(worklist); $event.stopPropagation()"
-              title="Edit" class="noul material-icons md-18">edit</i>
-            <i
-              confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
-              ng-show="projects.role == 'ADMIN' && !worklist.staged && !worklist.inPublicationProcess && (worklist.workflowStatus == 'PUBLISHED' || worklist.workflowStatus == 'READY_FOR_PUBLICATION')"
-              ng-click="removeWorklist(worklist); $event.stopPropagation()"
-              title="Remove" class="noul material-icons md-18">delete</i>
-
-            <i ng-show="worklist.workflowStatus == 'READY_FOR_PUBLICATION'"
-              ng-click="openAssignWorklistModal(worklist,'ASSIGN','AUTHOR'); $event.stopPropagation()"
-              title="Assign" class="noul material-icons md-18">assignment_ind</i>
-
-            <!-- only if READY_FOR_PUBLICATION -->
-
-            <i
-              ng-show="worklist.workflowStatus == 'READY_FOR_PUBLICATION' && !worklist.inPublicationProcess"
-              ng-click="openReleaseProcessModal(worklist); $event.stopPropagation()"
-              title="Start release process" class="noul material-icons md-18">open_in_new</i>
-            <i
-              ng-show="worklist.workflowStatus == 'READY_FOR_PUBLICATION' && 
-                        worklist.inPublicationProcess"
-              ng-click="openReleaseProcessModal(worklist); $event.stopPropagation()"
-              title="Continue release processing"
-              class="noul material-icons md-18">open_in_new</i>
-            <i
-              ng-show="worklist.workflowStatus == 'BETA' && 
-                        worklist.inPublicationProcess"
-              ng-click="openReleaseProcessModalForStaged(worklist); $event.stopPropagation()"
-              title="Continue release processing"
-              class="noul material-icons md-18">open_in_new</i>
-
-            <span
-              ng-show="worklist.workflowStatus == 'READY_FOR_PUBLICATION' && 
-                        worklist.inPublicationProcess">
-              <br />
-              <button class="btn btn-xs btn-warning" ng-disabled="cancelling"
-                ng-click="cancelAction(worklist); $event.stopPropagation()"
-                title="Click to cancel release process">Cancel Release</button>
-            </span>
-            <span ng-show="worklist.workflowStatus == 'BETA'">
-              <br />
-              <button class="btn btn-xs btn-warning" ng-disabled="cancelling"
-                ng-click="cancelActionForStaged(worklist); $event.stopPropagation()"
-                title="Click to cancel release process">Cancel Release</button>
-            </span>
           </td>
         </tr>
       </tbody>
@@ -385,7 +129,7 @@
   <!-- R1C2 -->
   <div class="col-md-6 col-xs-12">
 
-    <!-- Details, Releases, Members -->
+    <!-- Details, Releases, Records -->
     <span ng-show="!selected.worklist && worklists.length > 0"
       class="alert alert-warning">Select a worklist to see details</span>
 
@@ -394,24 +138,7 @@
       <!-- Worklist Details -->
       <h4>{{selected.worklist.name}}</h4>
       <table class="table">
-        <tbody>
-
-          <!-- Actions only for PUBLISHED/BETA, otherwise they are inline in the table -->
-          <tr
-            ng-show="(isDirectory()) && (selected.worklist.feedbackEmail || (userProjectsInfo.anyRole && selected.worklist.type != 'EXTERNAL')) ">
-            <td>
-              <b>Actions</b>
-            </td>
-            <td class="nobreak" ng-show="selected.worklist.feedbackEmail">
-              <i ng-show="selected.worklist.feedbackEmail"
-                ng-click="openFeedbackModal(selected.worklist); $event.stopPropagation()"
-                title="Submit feedback" class="noul material-icons md-18">speaker_notes</i>
-              <i
-                ng-show="userProjectsInfo.anyRole && selected.worklist.type != 'EXTERNAL'"
-                ng-click="openCloneWorklistModal(selected.worklist); $event.stopPropagation()"
-                title="Clone" class="noul material-icons md-18">content_copy</i>
-            </td>
-          </tr>
+        <tbody>          
 
           <tr>
             <td>
@@ -419,203 +146,40 @@
             </td>
             <td>{{selected.worklist.description}}</td>
           </tr>
-          <tr ng-show="!isDirectory()">
+ 
+          <tr>
             <td>
-              <b>Notes</b>
+              <b>Workflow Bin</b>
             </td>
+            <td>{{selected.worklist.workflowBinName}}</td>
+          </tr>
+          
+          <tr>
             <td>
-              <div ng-show="selected.worklist.notes.length > 0" class="truncate">
-                <span ng-bind-html="getLatestNote(selected.worklist)"></span>
-                <span ng-show="selected.worklist.notes.length > 1">
-                  <br />{{selected.worklist.notes.length-1}} more...
-                </span>
-              </div>
-              <div>
-                <i ng-show="selected.worklist.notes.length > 0"
-                  ng-click="openNotesModal(selected.worklist, 'Worklist'); $event.stopPropagation()"
-                  title="Edit worklist notes" class="noul material-icons md-18">assignment</i>
-                <i ng-show="selected.worklist.notes.length == 0"
-                  title="Add worklist note (no notes yet)"
-                  ng-click="openNotesModal(selected.worklist, 'Worklist'); $event.stopPropagation()"
-                  class="md-grey material-icons md-18">assignment</i>
-                <i ng-click="openLogModal()" title="Retrieve log"
-                  class="noul material-icons md-18">event_note</i>
-              </div>
+              <b>Group</b>
             </td>
+            <td>{{selected.worklist.worklistGroup}}</td>
           </tr>
           <tr>
             <td>
-              <b>Worklist Id</b>
+              <b>Concept/Cluster Counts</b>
             </td>
-            <td>{{selected.worklist.terminologyId}}</td>
+            <td>{{selected.worklist.stats.conceptCt}}/{{selected.worklist.stats.clusterCt}}</td>
           </tr>
+          <!-- TODO: make dates dynamic in table based on workflowStateHistory keys -->
           <tr>
             <td>
-              <b>Module Id</b>
+              <b>Create date</b>
             </td>
-            <td>
-              {{selected.worklist.moduleId}}
-              <span flag-icon obj="selected.worklist"></span>
-            </td>
+            <td>{{toDate(selected.worklist.timestamp)}}</td>
           </tr>
-          <tr>
-            <td>
-              <b>Namespace</b>
-            </td>
-            <td>{{selected.worklist.namespace}}</td>
-          </tr>
-          <tr>
-            <td>
-              <b>Organization</b>
-            </td>
-            <td>{{selected.worklist.organization}}</td>
-          </tr>
-          <tr ng-show="selected.worklist.domain">
-            <td>
-              <b>Domain</b>
-            </td>
-            <td>{{selected.worklist.domain}}</td>
-          </tr>
-          <tr ng-show="selected.worklist.effectiveTime">
-            <td>
-              <b>Effective Time</b>
-            </td>
-            <td>{{toSimpleDate(selected.worklist.effectiveTime)}}</td>
-          </tr>
-          <tr>
-            <td>
-              <b>Terminology</b>
-            </td>
-            <td>
-              {{getTerminologyName(selected.worklist.terminology)}}
-              {{selected.worklist.version}}
-              <i
-                ng-click="openMigrationModal(selected.worklist, 'Migration'); $event.stopPropagation()"
-                ng-show="selected.worklist.stagingType == null && value == 'ASSIGNED'"
-                title="Migration" class="noul material-icons md-18">find_replace</i>
 
-              <i
-                ng-click="openMigrationModal(selected.worklist, 'Migration'); $event.stopPropagation()"
-                ng-show="selected.worklist.stagingType == 'MIGRATION' && value == 'ASSIGNED'"
-                title="Resume migration" class="noul material-icons md-18">play_arrow</i>
-
-            </td>
-          </tr>
-          <tr ng-show="selected.worklist.type == 'INTENSIONAL'">
-            <td>
-              <b>Definition</b>
-            </td>
-            <td>
-
-              <!-- For ADMIN -->
-              <i ng-show="projects.role == 'ADMIN'"
-                uib-tooltip="Switch to AUTHOR or REVIWER for more actions"
-                tooltip-placement="left-top"
-                class="md-grey material-icons md-18">info</i>
-
-              <!-- edit/view/optimize definition -->
-              <i ng-show="value != 'ASSIGNED'"
-                ng-click="openDefinitionClausesModal(selected.worklist, value);$event.stopPropagation()"
-                title="View definition, assign worklist to edit"
-                class="noul material-icons md-18">list</i>
-              <i ng-show="value == 'AVAILABLE'"
-                title="Assign worklist to edit definition"
-                class="md-grey material-icons md-18">edit</i>
-              <i ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN'"
-                ng-click="openDefinitionClausesModal(selected.worklist, value);$event.stopPropagation()"
-                title="Edit definition" class="noul material-icons md-18">edit</i>
-              <i ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN'"
-                confirm="Remove redundant definition clauses, and invalid inclusions/exclusions."
-                ng-click="optimizeDefinition(selected.worklist);$event.stopPropagation()"
-                title="Optimize definition" class="noul material-icons md-18">compare_arrows</i>
-
-              <!-- Export -->
-              <i
-                ng-click="openImportExportModal(selected.worklist, 'Export', 'Definition');$event.stopPropagation()"
-                title="Export definition" class="noul material-icons md-18">file_download</i>
-              <!-- Import -->
-              <i ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN'"
-                confirm="The worklist already has a definition, importing will override it. Do you want to continue?"
-                confirm-if="selected.worklist.definitionClauses.length>0"
-                ng-click="openImportExportModal(selected.worklist, 'Import', 'Definition');$event.stopPropagation()"
-                title="Import definition" class="noul material-icons md-18">file_upload</i>
-              <i ng-show="value == 'AVAILABLE' && projects.role != 'ADMIN'"
-                title="To import a definition, assign the worklist"
-                class="md-grey material-icons md-18">file_upload</i>
-
-
-              <div style="max-height: 200px; overflow-y: scroll;">
-                <table class="table">
-                  <tbody>
-                    <tr ng-repeat="clause in getOrderedDefinitionClauses()">
-                      <td>
-                        <div definition-clause clause="clause"
-                          allow-negation=true mode="view"></div>
-                      <td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </td>
-          </tr>
-          <tr ng-show="selected.worklist.type == 'EXTERNAL'">
-            <td>
-              <b>External Url</b>
-            </td>
-            <td>
-              <a href="{{selected.worklist.externalUrl}}">{{selected.worklist.externalUrl}}</a>
-            </td>
-          </tr>
-          <tr ng-show="worklistReleaseInfo && !worklistReleaseInfo.planned">
-            <td ng-show="worklistReleaseInfo.published">
-              <b>RELEASED</b>
-            </td>
-            <td
-              ng-show="worklistReleaseInfo && !worklistReleaseInfo.published && !worklistReleaseInfo.planned">
-              <b>BETA</b>
-            </td>
-            <td>{{worklistReleaseInfo.name}}
-          </tr>
-          <tr ng-show="!worklistReleaseInfo">
-            <td>Not yet released</td>
-            <td>&nbsp;</td>
-          </tr>
         </tbody>
       </table>
 
     </div>
 
-    <!-- release info -->
-    <div class="col-md-12 col-xs-12">
-      <span
-        ng-show="selected.worklist && worklistReleaseInfo && !worklistReleaseInfo.artifacts"
-        class="alert alert-warning">Release has no associated artifacts</span>
-      <div class="col-md-12 col-xs-12">
-        <table
-          ng-show="selected.worklist && worklistReleaseInfo && worklistReleaseInfo.artifacts && worklistReleaseInfo.artifacts.length>0"
-          class="table">
-          <thead>
-            <tr>
-              <th class="col-md-6 col-xs-6">Release File</th>
-              <th class="col-md-6 col-xs-6">Timestamp</th>
-              <th style="width: 1%; word-wrap: nowrap"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              ng-repeat="artifact in worklistReleaseInfo.artifacts | orderBy:'artifact.name'">
-              <td style="word-break: break-word;">{{artifact.name}}</td>
-              <td>{{toShortDate(artifact.timestamp)}}</td>
-              <td>
-                <i ng-click="exportReleaseArtifact(artifact)"
-                  title="Export {{artifact.name}}"
-                  class="noul material-icons md-18">file_download</i>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+
     <!-- End R1C2 -->
   </div>
 
@@ -634,67 +198,15 @@
 
     <div class="col-md-12 col-xs-12">
       <h4 ng-show="selected.worklist">
-        Worklist Members
-        <span ng-show="selected.worklist.members.totalCount>0">
-          ({{selected.worklist.members.totalCount}})</span>
+        {{value}} Clusters
+        <span ng-show="selected.worklist.records.totalCount>0">
+          ({{selected.worklist.records.totalCount}})</span>
 
-        <span style="float: right;">
-          <i ng-show="projects.role == 'ADMIN'"
-            uib-tooltip="Switch to AUTHOR or REVIWER for more actions"
-            tooltip-placement="left-top" class="md-grey material-icons md-18">info</i>
-
-          <!-- Export -->
-          <i
-            ng-click="openImportExportModal(selected.worklist, 'Export', 'Worklist Members'); "
-            title="Export worklist members" class="noul material-icons md-18">file_download</i>
-          <!-- Import -->
-          <i
-            ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN' && selected.worklist.type == 'EXTENSIONAL'"
-            ng-click="openImportExportModal(selected.worklist, 'Import', 'Worklist Members'); "
-            title="Import worklist members" class="noul material-icons md-18">file_upload</i>
-          <i
-            ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN' && selected.worklist.type != 'EXTENSIONAL'"
-            title="Import only suppored for extensional worklist"
-            class="md-grey material-icons md-18">file_upload</i>
-
-          <!-- Add member list -->
-          <i
-            ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN' && selected.worklist.type == 'EXTENSIONAL'"
-            ng-click="openAddWorklistMemberListModal();"
-            title="Add/remove worklist member list"
-            class="noul material-icons md-18">playlist_add</i>
-
-          <!-- Add member -->
-          <i ng-show="value == 'AVAILABLE'"
-            title="Add members - only when worklist is assigned"
-            class="md-grey material-icons md-18">add</i>
-
-          <i
-            ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN' && selected.worklist.type == 'EXTENSIONAL'"
-            ng-click="openAddMemberModal(selected.worklist);"
-            title="Add member(s)" class="noul material-icons md-18">add</i>
-
-          <i
-            ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN' && selected.worklist.type == 'INTENSIONAL'"
-            ng-click="openAddMemberModal(selected.worklist);"
-            title="Add inclusion(s)" class="noul material-icons md-18">add</i>
-
-
-          <!-- Remove all members -->
-          <i
-            ng-show="value == 'ASSIGNED' && projects.role != 'ADMIN' && selected.worklist.type == 'EXTENSIONAL' && selected.worklist.members.length > 0"
-            confirm="Are you sure you want to remove all the members of the worklist ({{selected.worklist.name}})?"
-            ng-click="removeAllWorklistMembers(selected.worklist); "
-            title="Remove all members" class="noul material-icons md-18">delete</i>
-        </span>
       </h4>
       <span
-        ng-show="selected.worklist && !paging['member'].filter && !paging['member'].typeFilter && selected.worklist.members.totalCount == 0">
+        ng-show="selected.worklist && !paging['record'].filter && !paging['record'].typeFilter && selected.worklist.records.totalCount == 0">
         <br />
-        <span ng-show="value !='AVAILABLE'" class="alert alert-warning">Worklist
-          has no members</span>
-        <span ng-show="value =='AVAILABLE'" class="alert alert-warning">No
-          members, assign worklist to edit</span>
+        <span class="alert alert-warning">Worklist has no records</span>
       </span>
 
       <div>
@@ -702,126 +214,72 @@
           <uib-pagination items-per-page="pageSize" max-size="5"
             boundary-links="true" class="pagination-xs" previous-text="&lsaquo;"
             next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-            ng-show="selected.worklist.members.totalCount > pageSize"
-            total-items="selected.worklist.members.totalCount"
-            ng-model="paging['member'].page"
-            ng-change="getMembers(selected.worklist)"></uib-pagination>
+            ng-show="selected.worklist.records.totalCount > pageSize"
+            total-items="selected.worklist.records.totalCount"
+            ng-model="paging['record'].page"
+            ng-change="getRecords(selected.worklist)"></uib-pagination>
 
           <input class="input-filter" placeholder="Search"
-            ng-show="selected.worklist.members.totalCount > pageSize || paging['member'].filter"
-            type="text" ng-model="paging['member'].filter"
+            ng-show="selected.worklist.records.totalCount > pageSize || paging['record'].filter"
+            type="text" ng-model="paging['record'].filter"
             ng-model-options="{ debounce: 300 }"
-            ng-change="getMembers(selected.worklist)">
+            ng-change="getRecords(selected.worklist)">
 
           <button class="btn btn-xs btn-warning"
-            ng-show="paging['member'].filter"
-            ng-click="paging['member'].filter = ''; getMembers(selected.worklist)"
+            ng-show="paging['record'].filter"
+            ng-click="paging['record'].filter = ''; getRecords(selected.worklist)"
             title="Click to clear filter text">Clear</button>
 
         </span>
 
         <table
-          ng-show="selected.worklist.members.totalCount > 0 || paging['member'].filter || paging['member'].typeFilter"
+          ng-show="selected.worklist.records.totalCount > 0 || paging['record'].filter || paging['record'].typeFilter"
           class="table">
           <thead class="table-select-row">
             <tr>
-              <th class="col-md-3 col-xs-3"
-                ng-click="setSortField('member','conceptId', selected.worklist)">Concept
-                Id<span ng-bind="getSortIndicator('member','conceptId')"></span>
-              </th>
-              <th class="col-md-5 col-xs-5"
-                ng-click="setSortField('member','conceptName', selected.worklist)">Name<span
-                  ng-bind="getSortIndicator('member','conceptName')"></span>
-              </th>
-              <th ng-show="!isDirectory() && value != 'RELEASE'"
-                class="col-md-2 col-xs-2"
-                ng-click="setSortField('member','lastModified', selected.worklist)">Last
-                Modified<span
-                  ng-bind="getSortIndicator('member','lastModified')"></span>
-              </th>
-              <th ng-show="isDirectory() || value == 'RELEASE'"
-                class="col-md-2 col-xs-2"
-                ng-click="setSortField('member','effectiveTime', selected.worklist)">Effective
-                Time<span ng-bind="getSortIndicator('member','effectiveTime')"></span>
-              </th>
-              <th class="col-md-2 col-xs-2"><select
-                title="Filter by member type" style="width: 80px;"
-                ng-model="paging['member'].typeFilter"
-                ng-options="item for item in memberTypes"
-                ng-change="getMembers(selected.worklist)">
+              <th class="col-md-1 col-xs-1">Cluster</th>
+              <th class="col-md-1 col-xs-1"><select
+                title="Filter by record status" style="width: 40px;"
+                ng-model="paging['record'].typeFilter"
+                ng-options="item for item in recordTypes"
+                ng-change="getRecords(selected.worklist)">
                   <option value="">All</option>
               </select></th>
-              <th ng-show="value == 'ASSIGNED'">Actions</th>
+              <th class="col-md-2 col-xs-2">Concept Id</th>
+              <th class="col-md-5 col-xs-5">Concept Name</th>
+              <th class="col-md-2 col-xs-2">Last Modified</th>
             </tr>
           </thead>
-          <tbody>
-            <tr ng-repeat="member in selected.worklist.members"
-              ng-click="selectMember(member);"
-              ng-class="{selected : member.id == selected.member.id}">
-              <td>{{member.conceptId}}</td>
-              <td ng-class="getMemberStyle(member)">
-                {{member.conceptName}}
-                <span name-info name="member.conceptName"> </span>
-              </td>
-              <td ng-show="!isDirectory() && value != 'RELEASE'">
-                {{toDate(member.lastModified)}}<br />{{member.lastModifiedBy}}
-              </td>
-              <td ng-show="isDirectory() || value == 'RELEASE'">{{toSimpleDate(member.effectiveTime)}}</td>
-              <td>
-                <button class="btn btn-xs btn-primary"
-                  ng-show="member.memberType == 'MEMBER'" uib-tooltip="Member">M</button>
-                <button class="btn btn-xs btn-danger"
-                  ng-show="member.memberType == 'EXCLUSION'"
-                  uib-tooltip="Exclusion">X</button>
+          <tbody ng-repeat="record in selected.worklist.records">
+            <tr>
+              <td rowspan="3">{{record.clusterId}}</td>
+              <td rowspan="3"><button class="btn btn-xs btn-danger"
+                  ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
+                  uib-tooltip="Needs review">N</button>
                 <button class="btn btn-xs btn-success"
-                  ng-show="member.memberType == 'INCLUSION'"
-                  uib-tooltip="Inclusion">I</button>
-                <button class="btn btn-xs retired"
-                  ng-show="!member.conceptActive" uib-tooltip="Retired">R</button>
+                  ng-show="record.workflowStatus == 'READY_FOR_PUBLICATION'"
+                  uib-tooltip="Ready for publication">R</button></td>
+            </tr>
+            <tr  ng-click="selectConcept(concept);"
+              ng-class="{selected : record.id == selected.record.id}"
+              ng-repeat="concept in record.concepts" 
+              ng-style="{'color': concept.workflowStatus == 'NEEDS_REVIEW' ? 'red' : 'black'}">
+              <td>
+                {{concept.id}}
               </td>
-              <!-- ASSIGNED actions -->
-              <td class="nobreak" ng-show="value == 'ASSIGNED'">
-
-                <i
-                  confirm="Are you sure you want to remove the inclusion ({{member.conceptName}})?"
-                  ng-show="selected.worklist.type == 'INTENSIONAL' && projects.role != 'ADMIN' && member.memberType =='INCLUSION'"
-                  ng-click="removeWorklistInclusion(selected.worklist,member); $event.stopPropagation()"
-                  title="Remove inclusion" class="noul material-icons md-18">delete</i>
-
-                <i
-                  confirm="Are you sure you want to remove the member ({{member.conceptName}})?"
-                  ng-show="selected.worklist.type == 'EXTENSIONAL' && projects.role != 'ADMIN'"
-                  ng-click="removeWorklistMember(selected.worklist,member); $event.stopPropagation()"
-                  title="Remove" class="noul material-icons md-18">delete</i>
-
-                <i
-                  ng-show="selected.worklist.type == 'INTENSIONAL' && projects.role != 'ADMIN' && member.memberType == 'EXCLUSION'"
-                  ng-click="removeWorklistExclusion(selected.worklist,member);  $event.stopPropagation()"
-                  title="Remove exclusion" class="noul material-icons md-18">delete</i>
-
-                <i
-                  ng-show="selected.worklist.type == 'INTENSIONAL' && projects.role != 'ADMIN' && member.memberType == 'MEMBER'"
-                  ng-click="addWorklistExclusion(selected.worklist, member); $event.stopPropagation()"
-                  title="Add exclusion" class="noul material-icons md-18">remove_circle_outline</i>
-
-                <i
-                  ng-click="openNotesModal(member, 'Member'); $event.stopPropagation()"
-                  ng-show="member.notes.length > 0" title="Edit member notes"
-                  class="noul material-icons md-18">assignment</i>
-
-                <i
-                  ng-click="openNotesModal(member, 'Member'); $event.stopPropagation()"
-                  ng-show="member.notes.length == 0"
-                  title="Add member notes (no notes yet)"
-                  class="md-grey material-icons md-18">assignment</i>
+              <td>
+                {{concept.name}}
               </td>
+              <td>
+                {{toDate(record.concepts[0].lastModified)}}<br />{{record.concepts[0].lastModifiedBy}}
+              </td> 
             </tr>
           </tbody>
         </table>
         <span
-          ng-show="paging['member'].filter && selected.worklist.members.totalCount == 0"
+          ng-show="paging['record'].filter && selected.worklist.records.totalCount == 0"
           class="alert alert-warning">
-          <br />No worklist members matching filter
+          <br />No worklist records matching filter
         </span>
 
       </div>
@@ -831,11 +289,12 @@
 
   <!-- R2C2 -->
   <div class="col-md-6 col-xs-12">
-
-
-    <div ng-show="selected.member" concept-info data="selected" value="value"
-      role="projects.role" handle-workflow="handleWorkflow(selected.worklist)"></div>
-
+    <h4 ng-show="selected.concept">
+        Concept Report
+    </h4>
+    <pre ng-show="selected.concept">
+    {{selected.concept.report}}
+    </pre>
 
     <!-- End R2C2 -->
   </div>

@@ -13,11 +13,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.model.meta.AtomIdentity;
 
 /**
- * JPA and JAXB enabled implementation of {@link AtomIdentity}
+ * JPA and JAXB enabled implementation of {@link AtomIdentity}.
  */
 @Entity
 @Table(name = "atom_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "stringClassId", "terminology", "termType", "id"
+    "codeId", "conceptId", "descriptorId", "stringClassId", "termType",
+    "terminology", "terminologyId"
 }))
 @XmlRootElement(name = "atomIdentity")
 public class AtomIdentityJpa implements AtomIdentity {
@@ -114,52 +115,62 @@ public class AtomIdentityJpa implements AtomIdentity {
     this.terminology = terminology;
   }
 
+  /* see superclass */
   @Override
   public String getStringClassId() {
     return stringClassId;
   }
 
+  /* see superclass */
   @Override
   public void setStringClassId(String stringClassId) {
     this.stringClassId = stringClassId;
   }
 
+  /* see superclass */
   @Override
   public String getTermType() {
     return termType;
   }
 
+  /* see superclass */
   @Override
   public void setTermType(String termType) {
     this.termType = termType;
   }
 
+  /* see superclass */
   @Override
   public String getCodeId() {
     return codeId;
   }
 
+  /* see superclass */
   @Override
   public void setCodeId(String codeId) {
     this.codeId = codeId;
 
   }
 
+  /* see superclass */
   @Override
   public String getConceptId() {
     return conceptId;
   }
 
+  /* see superclass */
   @Override
   public void setConceptId(String conceptId) {
     this.conceptId = conceptId;
   }
 
+  /* see superclass */
   @Override
   public String getDescriptorId() {
     return descriptorId;
   }
 
+  /* see superclass */
   @Override
   public void setDescriptorId(String descriptorId) {
     this.descriptorId = descriptorId;

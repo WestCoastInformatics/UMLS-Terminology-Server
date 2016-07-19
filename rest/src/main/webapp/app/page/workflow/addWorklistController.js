@@ -1,5 +1,6 @@
     // Create worklist controller
-    var CreateWorklistModalCtrl = function($scope, $uibModalInstance, workflowService, user, projectId, binId, clusterType) {
+    var CreateWorklistModalCtrl = function($scope, $uibModalInstance, workflowService, utilService, 
+      user, projectId, binId, clusterType) {
 
       $scope.worklist = {};
 
@@ -20,6 +21,7 @@
           // Success
           function(data) {
             $uibModalInstance.close();
+            workflowService.fireWorklistChanged(data);
           },
           // Error
           function(data) {
