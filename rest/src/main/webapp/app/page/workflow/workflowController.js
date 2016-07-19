@@ -183,13 +183,6 @@ tsApp.controller('WorkflowCtrl', [
         }
 
       }
-      /*if (clusterType && clusterType != 'all') {
-        
-        if (pfs.queryRestriction != null)
-          pfs.queryRestriction += ' AND clusterType:' + clusterType;
-        else
-          pfs.queryRestriction = 'clusterType:' + clusterType;
-      }*/
 
         workflowService.findTrackingRecordsForWorkflowBin(bin.projectId, bin.id,
           pfs).then(
@@ -280,7 +273,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(project) {
-       
+        $scope.getBins($scope.currentProject.id, $scope.currentBinType);
       });
     };
 

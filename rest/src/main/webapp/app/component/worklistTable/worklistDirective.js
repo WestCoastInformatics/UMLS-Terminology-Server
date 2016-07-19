@@ -100,13 +100,9 @@ tsApp
               $scope.setProject = function(project) {
                 $scope.project = project;
                 $scope.getWorklists();
-                $scope.getFilters();
-                // $scope.projects.role already updated
               };
 
               // Get $scope.worklists
-              // Logic for this depends on the $scope.value and
-              // $scope.projects.role
               $scope.getWorklists = function() {
                 var pfs = {
                   startIndex : ($scope.paging['worklist'].page - 1) * $scope.pageSize,
@@ -117,83 +113,22 @@ tsApp
                   queryRestriction : null
                 };
 
-                if ($scope.value == 'Worklist' /*&& $scope.projects.role == 'AUTHOR'*/) {
+                if ($scope.value == 'Worklist') {
                   pfs.queryRestriction = $scope.paging['worklist'].filter;
                   workflowService.findWorklists($scope.project.id,
-                    //$scope.user.userName, pfs).then(function(data) {
                     $scope.query, pfs).then(function(data) {
                     $scope.worklists = data.worklists;
                     $scope.worklists.totalCount = data.totalCount;
-                    //$scope.stats.count = $scope.worklists.totalCount;
-                    //$scope.reselect();
                   });
                 }
-                if ($scope.value == 'Checklist' /*&& $scope.projects.role == 'AUTHOR'*/) {
+                if ($scope.value == 'Checklist') {
                   pfs.queryRestriction = $scope.paging['worklist'].filter;
                   workflowService.findChecklists($scope.project.id,
-                    //$scope.user.userName, pfs).then(function(data) {
                     $scope.query, pfs).then(function(data) {
                     $scope.worklists = data.checklists;
                     $scope.worklists.totalCount = data.totalCount;
-                    //$scope.stats.count = $scope.worklists.totalCount;
-                    //$scope.reselect();
                   });
                 }
-              };
-              
-              
-              // Convert an array of tracking records to an array of worklists.
-              $scope.getWorklistsFromRecords = function(records) {
-                var worklists = new Array();
-                for (var i = 0; i < records.length; i++) {
-                  worklists.push(records[i].worklist);
-                }
-                return worklists;
-              };
-
-              // Reselect selected worklist to refresh
-              $scope.reselect = function() {
-                // if there is a selection...
-                // Bail if nothing selected
-                if ($scope.selected.worklist) {
-                  // If $scope.selected.worklist is in the list, select it, if not
-                  // clear $scope.selected.worklist
-                  var found = false;
-                  if ($scope.selected.worklist) {
-                    for (var i = 0; i < $scope.worklists.length; i++) {
-                      if ($scope.selected.worklist.id == $scope.worklists[i].id) {
-                        $scope.selectWorklist($scope.worklists[i]);
-                        found = true;
-                        break;
-                      }
-                    }
-                  }
-                  if (!found) {
-                    $scope.selected.worklist = null;
-                    $scope.selected.concept = null;
-                  }
-                }
-
-                // If 'lookup in progress' is set, get progress
-                for (var i = 0; i < $scope.worklists.length; i++) {
-                  if ($scope.worklists[i].lookupInProgress) {
-                    $scope.refreshLookupProgress($scope.worklists[i]);
-                  }
-                }
-              };
-
-              // Get $scope.filters
-              $scope.getFilters = function() {
-                var projectId = $scope.project ? $scope.project.id : null;
-                var workflowStatus = null;
-                if ($scope.value == 'PUBLISHED' || $scope.value == 'BETA') {
-                  workflowStatus = $scope.value;
-                }
-                workflowService.getFilters(projectId, workflowStatus).then(
-                // Success
-                function(data) {
-                  $scope.filters = data.keyValuePairs;
-                });
               };
 
 
@@ -206,7 +141,9 @@ tsApp
                   sortField : $scope.paging['record'].sortField,
                   ascending : $scope.paging['record'].ascending == null ? false
                     : $scope.paging['record'].ascending,
-                  queryRestriction : null
+                  queryRestriction : $scope.paging['record'].filter != undefined && 
+                  $scope.paging['record'].filter != "" ? $scope.paging['record'].filter
+                    : null
                 };
 
                 if ($scope.paging['record'].typeFilter) {
@@ -214,9 +151,15 @@ tsApp
 
                   // Handle inactive
                   if (value == 'N') {
-                    pfs.queryRestriction = 'workflowStatus:NEEDS_REVIEW';
+                    if (pfs.queryRestriction != null)
+                      pfs.queryRestriction += ' AND workflowStatus:NEEDS_REVIEW';
+                    else
+                      pfs.queryRestriction = 'workflowStatus:NEEDS_REVIEW';
                   } else if (value == 'R') {
-                    pfs.queryRestriction = 'workflowStatus:READY_FOR_PUBLICATION';
+                    if (pfs.queryRestriction != null)
+                      pfs.queryRestriction += ' AND workflowStatus:READY_FOR_PUBLICATION';
+                    else
+                      pfs.queryRestriction = 'workflowStatus:READY_FOR_PUBLICATION';
                   }
 
                 }
@@ -243,13 +186,6 @@ tsApp
               };
 
 
-              // optimizes the definition
-              $scope.optimizeDefinition = function(worklist) {
-                workflowService.optimizeDefinition(worklist.id).then(function() {
-                  workflowService.fireWorklistChanged(worklist);
-                });
-              };
-
               // Convert time to a string
               $scope.toTime = function(editingTime) {
                 return utilService.toTime(editingTime);
@@ -258,37 +194,6 @@ tsApp
               // Convert date to a string
               $scope.toDate = function(lastModified) {
                 return utilService.toDate(lastModified);
-              };
-
-              // Convert date to a string
-              $scope.toSimpleDate = function(lastModified) {
-                return utilService.toSimpleDate(lastModified);
-
-              };
-
-              // Convert date to a string
-              $scope.toShortDate = function(lastModified) {
-                return utilService.toShortDate(lastModified);
-
-              };
-
-              // Indicates whether we are in a directory page section
-              var valueFlag = ($scope.value == 'PUBLISHED' || $scope.value == 'BETA');
-              $scope.isDirectory = function() {
-                return valueFlag;
-              };
-
-              // Return the name for a terminology
-              $scope.getTerminologyName = function(terminology) {
-                return $scope.metadata.terminologyNames[terminology];
-              };
-
-              // Get ordered definition clauses
-              $scope.getOrderedDefinitionClauses = function() {
-                if ($scope.selected.worklist && $scope.selected.worklist.definitionClauses) {
-                  return $scope.selected.worklist.definitionClauses.sort(utilService
-                    .sort_by('negated'));
-                }
               };
 
               // Table sorting mechanism
@@ -404,17 +309,7 @@ tsApp
                   //});
               };
 
-              // Remove worklist record
-              $scope.removeWorklistRecord = function(worklist, record) {
 
-                workflowService.removeWorklistRecord(record.id).then(
-                // Success
-                function() {
-                  $scope.selected.concept = null;
-                  $scope.handleWorkflow(worklist);
-                });
-              };
- 
 
               // Unassign worklist from user
               $scope.unassign = function(worklist, userName) {
@@ -441,12 +336,7 @@ tsApp
                 });
               };
 
-              // Removes all worklist records
-              $scope.removeAllWorklistRecords = function(worklist) {
-                workflowService.removeAllWorklistRecords(worklist.id).then(function(data) {
-                  workflowService.fireWorklistChanged(worklist);
-                });
-              };
+ 
 
 
               // Get the most recent note for display
@@ -458,12 +348,7 @@ tsApp
                 return $sce.trustAsHtml('');
               };
 
-              // Initialize if project setting isn't used
-              if ($scope.value == 'BETA' || $scope.value == 'PUBLISHED') {
-                $scope.getWorklists();
-              }
 
-              //$scope.getFilters();
               $scope.getWorklists();
 
               //

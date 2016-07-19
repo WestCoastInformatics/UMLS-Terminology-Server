@@ -1412,6 +1412,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final Map<String, Integer> typeUneditableMap = new HashMap<>();
       final Map<String, Integer> typeEditableMap = new HashMap<>();
       for (final WorkflowBin bin : bins) {
+        typeUneditableMap.clear();
+        typeEditableMap.clear();
         final List<TrackingRecord> list = bin.getTrackingRecords();
 
         // If no tracking records, get the raw cluster ct
@@ -2100,10 +2102,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         record.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
 
         // Load the concept ids involved
+        StringBuffer conceptNames = new StringBuffer();
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           final Concept concept = workflowService.getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
-          // TODO record.setIndexData(String of appended names)  ANALYZED=YES
+          // collect all the concept names for the indexed data 
+          conceptNames.append(concept.getName()).append(" ");
 
           // Set cluster type if a concept has an STY associated with a cluster
           // type in th eproject
@@ -2129,6 +2133,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             }
           }
         }
+        record.setIndexedData(conceptNames.toString());
 
         // if any of the concepts or atoms are NEEDS_REVIEW, set record to NEEDS_REVIEW
         boolean needsReviewFlag = false;

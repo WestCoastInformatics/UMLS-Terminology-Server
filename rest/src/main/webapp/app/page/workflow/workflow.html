@@ -123,7 +123,7 @@
             </td>
           </tr>
           <tr ng-click="selectConcept(concept);"
-            ng-class="{selected : record.id == selected.record.id}"
+            ng-class="{selected : concept.id == selected.concept.id}"
             ng-repeat="concept in record.concepts"
             ng-style="{'color': concept.workflowStatus == 'NEEDS_REVIEW' ? 'red' : 'black'}">
             <td>
@@ -136,6 +136,11 @@
           </tr>
         </tbody>
       </table>
+      <span
+          ng-show="(paging['record'].filter || paging['record'].typeFilter) && selected.worklist.records.totalCount == 0"
+          class="alert alert-warning">
+          <br />No records matching filter
+      </span>
       </div>
       <div class="col-md-6 col-xs-12">
         <h4 ng-show="selected.concept">Concept Report</h4>

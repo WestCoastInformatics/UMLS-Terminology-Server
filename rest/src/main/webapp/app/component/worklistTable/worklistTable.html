@@ -261,7 +261,7 @@
                   uib-tooltip="Ready for publication">R</button></td>
             </tr>
             <tr  ng-click="selectConcept(concept);"
-              ng-class="{selected : record.id == selected.record.id}"
+              ng-class="{selected : concept.id == selected.concept.id}"
               ng-repeat="concept in record.concepts" 
               ng-style="{'color': concept.workflowStatus == 'NEEDS_REVIEW' ? 'red' : 'black'}">
               <td>
@@ -277,9 +277,9 @@
           </tbody>
         </table>
         <span
-          ng-show="paging['record'].filter && selected.worklist.records.totalCount == 0"
+          ng-show="(paging['record'].filter || paging['record'].typeFilter) && selected.worklist.records.totalCount == 0"
           class="alert alert-warning">
-          <br />No worklist records matching filter
+          <br />No records matching filter
         </span>
 
       </div>

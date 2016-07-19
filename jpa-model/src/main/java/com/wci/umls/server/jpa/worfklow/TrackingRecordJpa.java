@@ -124,6 +124,9 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Enumerated(EnumType.STRING)
   @Column(nullable = true)
   private WorkflowStatus workflowStatus;
+  
+  /**  The indexed data. */
+  private String indexedData;
 
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
@@ -152,6 +155,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     worklistName = record.getWorklistName();
     project = record.getProject();
     workflowStatus = record.getWorkflowStatus();
+    indexedData = record.getIndexedData();
   }
 
   /* see superclass */
@@ -331,6 +335,18 @@ public class TrackingRecordJpa implements TrackingRecord {
     this.version = version;
   }
 
+  /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Override
+  public String getIndexedData() {
+    return indexedData;
+  }
+  
+  @Override
+  public void setIndexedData(String indexedData) {
+    this.indexedData = indexedData;
+  }
+  
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
