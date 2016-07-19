@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.algo.action;
 
@@ -47,6 +47,18 @@ public interface MolecularActionAlgorithm extends Algorithm {
    * @return the last modified
    */
   public Long getLastModified();
+
+  /**
+   * Returns the change status flag.
+   *
+   * @return the change status flag
+   */
+  public boolean getChangeStatusFlag();
+
+  /**
+   * Sets the change status flag.
+   */
+  public void setChangeStatusFlag(boolean changeStatusFlag);
 
   /**
    * This method is responsible for locking the concepts involved in the action,

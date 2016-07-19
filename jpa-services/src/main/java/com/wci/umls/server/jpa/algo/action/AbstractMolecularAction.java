@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -20,8 +20,8 @@ import com.wci.umls.server.model.content.Concept;
 /**
  * Abstract {@link MolecularActionAlgorithm}.
  */
-public abstract class AbstractMolecularAction extends
-    AbstractTerminologyAlgorithm implements MolecularActionAlgorithm {
+public abstract class AbstractMolecularAction
+    extends AbstractTerminologyAlgorithm implements MolecularActionAlgorithm {
 
   /** The concept. */
   private Concept concept;
@@ -37,6 +37,9 @@ public abstract class AbstractMolecularAction extends
 
   /** The last modified. */
   private Long lastModified;
+
+  /** The change status flag. */
+  private boolean changeStatusFlag;
 
   /**
    * Instantiates an empty {@link AbstractMolecularAction}.
@@ -90,6 +93,20 @@ public abstract class AbstractMolecularAction extends
   @Override
   public Long getLastModified() {
     return lastModified;
+  }
+
+
+  /* see superclass */
+  @Override
+  public boolean getChangeStatusFlag() {
+    return changeStatusFlag;
+  }
+
+
+  /* see superclass */
+  @Override  
+  public void setChangeStatusFlag(boolean changeStatusFlag) {
+    this.changeStatusFlag = changeStatusFlag;
   }
 
   /* see superclass */

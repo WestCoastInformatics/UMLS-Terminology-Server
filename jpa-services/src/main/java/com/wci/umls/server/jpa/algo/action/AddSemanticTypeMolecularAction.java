@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.algo.action;
 
 import com.wci.umls.server.ValidationResult;
@@ -29,7 +32,7 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
    *
    * @param sty the semantic type
    */
-  public void setSemanticType(SemanticTypeComponent sty) {
+  public void setSemanticTypeComponent(SemanticTypeComponent sty) {
     this.sty = sty;
   }
 
@@ -43,8 +46,8 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
     if (getSemanticType(sty.getSemanticType(), getConcept().getTerminology(),
         getConcept().getVersion()) == null) {
       rollback();
-      throw new LocalException("Cannot add invalid semantic type - "
-          + sty.getSemanticType());
+      throw new LocalException(
+          "Cannot add invalid semantic type - " + sty.getSemanticType());
     }
     if (getTerminology(sty.getTerminology(), sty.getVersion()) == null) {
       rollback();
@@ -57,8 +60,8 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
     for (final SemanticTypeComponent s : getConcept().getSemanticTypes()) {
       if (s.getSemanticType().equals(sty.getSemanticType())) {
         rollback();
-        throw new LocalException("Duplicate semantic type - "
-            + sty.getSemanticType());
+        throw new LocalException(
+            "Duplicate semantic type - " + sty.getSemanticType());
       }
     }
 
@@ -74,12 +77,16 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
     //
 
     // add the semantic type component itself and set the last modified
-    sty.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    if (getChangeStatusFlag()) {
+      sty.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    }
     sty = addSemanticTypeComponent(sty, getConcept());
 
     // add the semantic type and set the last modified by
     getConcept().getSemanticTypes().add(sty);
-    getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    if (getChangeStatusFlag()) {
+      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    }
 
     // update the concept
     updateConcept(getConcept());

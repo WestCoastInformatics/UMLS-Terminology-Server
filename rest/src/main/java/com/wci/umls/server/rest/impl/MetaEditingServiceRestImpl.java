@@ -114,7 +114,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       // Start transaction
       action.setTransactionPerOperation(false);
       action.beginTransaction();
-
+      action.setSemanticTypeComponent(semanticType);
+      
       // Authorize project role, get userName
       final String userName =
           authorizeProject(action, projectId, securityService, authToken,
@@ -1394,7 +1395,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /**
+
+  /* see superclass */
   @Override
   @POST
   @Path("/concept/move")
@@ -1408,34 +1410,34 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-   * Helper function to:
+
     Logger.getLogger(getClass())
         .info("RESTful POST call (MetaEditing): /concept/move/" + projectId + "/"
             + fromConceptId + "/move atoms for user " + authToken + " to concept "
             + toConceptId);
-   * 
+
     // Prep reusable variables
     final String action = "MOVE";
     final ValidationResult validationResult = new ValidationResultJpa();
-   * <pre>
+
     // Instantiate services
     final ContentService contentService = new ContentServiceJpa();
-   * (1) Set transaction mode and begin transaction
+
     try {
-   * (1) retrieve and lock concept, 
+
       // Authorize project role, get userName
       final String userName = authorizeProject(contentService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
-   * (2) prepare molecular action 
+
       // Retrieve the project
       final Project project = contentService.getProject(projectId);
-   * (3) configure the service
+
       // Do some standard intialization and precondition checking
       // action and prep services
       final List<Concept> conceptList =
           initialize(contentService, project, fromConceptId, toConceptId, userName,
               action, lastModified, validationResult);
-   * (5) validate project/concept
+
       //Order may have been changed in initialize 
       Concept toConcept = null;
       Concept fromConcept = null;
@@ -1445,7 +1447,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
         if  (cpt.getId() == toConceptId)
         {toConcept = cpt;}
       }
-   * (6) Check dirty flag (concept lastModifiedBy)
+
       if (toConcept==null || fromConcept==null)
       {
         throw new LocalException(
@@ -1456,13 +1458,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       // change event
       Concept toConceptPreUpdates = new ConceptJpa(toConcept, false);
       Concept fromConceptPreUpdates = new ConceptJpa(fromConcept, false);
-   * </pre>
+
       //
       // Check prerequisites
       //
-   * 
+
       // Perform action specific validation - n/a
-   * .
+
       // Metadata referential integrity checking
       
       // Same concept check
@@ -1470,7 +1472,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
         throw new LocalException("Cannot move atoms from concept " + fromConceptId
             + " to concept " + toConceptId + " - identical concept.");
       }
-   *
+
       // Populate move-atom list, and exists check
       List<Atom> moveAtoms = new ArrayList<>();
       
@@ -1486,7 +1488,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       
       //TODO - check with Brian if this is required
       //contentService.validateMerge(project, toConcept, fromConcept);
-   * @param contentService the content service
+
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
           || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
@@ -1494,25 +1496,25 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
         contentService.rollback();
         return validationResult;
       }
-   * @param project the project
+
       //
       // Perform the actions (contentService will create atomic actions
       // for CRUD
       // operations)
       //
-   * @param conceptId the concept id
+
       // Add each listed atom from fromConcept to toConcept, delete from
       // fromConcept, and set to NEEDS_REVIEW
       contentService.moveAtoms(toConcept, fromConcept, moveAtoms);
-   * @param conceptId2 the concept id 2
+
       for (Atom atm : moveAtoms){
         atm.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
-   * @param userName the user name
-   * @param actionType the action type
+
+
       toConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       fromConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-   * @param lastModified the last modified
+
       // update the to concept, and delete the from concept
       contentService.updateConcept(toConcept);
       contentService.updateConcept(fromConcept);
@@ -1521,16 +1523,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       // log the REST calls
       contentService.addLogEntry(userName, projectId, fromConceptId, action + " "
           + atomIds + " from Concept " + fromConcept.getId() + " to concept " + toConcept.getId());
-   * @param result the result
+
       // commit (also removes the lock)
       contentService.commit();
-   * @return the concept
+
       // Re-read from and toConcept
       Concept fromConceptPostUpdates =
           contentService.getConcept(fromConcept.getId());
       Concept toConceptPostUpdates =
           contentService.getConcept(toConcept.getId());
-   * @throws Exception the exception
+
       // Resolve all four concepts with graphresolutionhandler.resolve(concept)
       // below
       GraphResolutionHandler graphHandler =
@@ -1539,7 +1541,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       graphHandler.resolve(fromConceptPostUpdates);
       graphHandler.resolve(toConceptPreUpdates);
       graphHandler.resolve(toConceptPostUpdates);
-   */
+
       // Websocket notification - one each for the updating the from and toConcept
       final ChangeEvent<ConceptJpa> event =
           new ChangeEventJpa<ConceptJpa>(action, authToken,
