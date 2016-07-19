@@ -115,6 +115,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       action.setTransactionPerOperation(false);
       action.beginTransaction();
       action.setSemanticTypeComponent(semanticType);
+      action.setChangeStatusFlag(true);
       
       // Authorize project role, get userName
       final String userName =
@@ -930,7 +931,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
           userName,
           projectId,
           conceptId,
-          action + " " + newRelationship.getName() + " to concept "
+          action + " " + newRelationship + " to concept "
               + concept.getTerminologyId());
 
       // commit (also removes the lock)
