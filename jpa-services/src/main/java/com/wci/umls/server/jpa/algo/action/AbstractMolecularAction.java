@@ -29,7 +29,7 @@ public abstract class AbstractMolecularAction
   /** The concept2. */
   private Concept concept2;
 
-  /** The proejct. */
+  /** The project. */
   private Project project;
 
   /** The user name. */
