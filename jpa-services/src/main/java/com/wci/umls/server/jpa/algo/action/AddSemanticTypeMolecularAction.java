@@ -28,9 +28,18 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
   }
 
   /**
-   * Sets the semantic type.
+   * Returns the sty.
    *
-   * @param sty the semantic type
+   * @return the sty
+   */
+  public SemanticTypeComponent getSemanticTypeComponent() {
+    return sty;
+  }
+
+  /**
+   * Sets the sty.
+   *
+   * @param sty the sty
    */
   public void setSemanticTypeComponent(SemanticTypeComponent sty) {
     this.sty = sty;
@@ -101,15 +110,6 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
   @Override
   public String getName() {
     return "ADD_SEMANTIC_TYPE";
-  }
-
-  /**
-   * Returns the semantic type component.
-   *
-   * @return the semantic type component
-   */
-  public SemanticTypeComponent getSemanticTypeComponent() {
-    return sty;
   }
 
 }

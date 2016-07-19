@@ -317,8 +317,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     atomicActions = contentService
         .findAtomicActions(ma.getId(), null, null, authToken).getObjects();
-    assertEquals(atomicActions.size(), 1);
-    assertEquals(atomicActions.get(0).getIdType().toString(), "SEMANTIC_TYPE");
+    assertEquals(1, atomicActions.size());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
     assertNull(atomicActions.get(0).getNewValue());
 
@@ -568,7 +568,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("REMOVE_ATTRIBUTE " + attribute.getName()));
+    assertTrue(logEntry
+        .contains("REMOVE_ATTRIBUTE " + attribute.getName()));
 
     // remove the second attribute from the concept (assume verification of MA,
     // atomic actions, and log entry since we just tested those)

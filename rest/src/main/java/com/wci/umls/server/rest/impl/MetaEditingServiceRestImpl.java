@@ -29,7 +29,10 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
+import com.wci.umls.server.jpa.algo.action.AddAttributeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.RemoveAttributeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -143,8 +146,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
       }
 
       //
-      // Perform the action (contentService will create atomic actions for CRUD
-      // operations)
+      // Perform the action 
       //
       action.compute();
 
@@ -189,92 +191,65 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
             + "/remove for user " + authToken + " with id "
             + semanticTypeComponentId);
 
-    // Prep reusable variables
-    final String action = "REMOVE_SEMANTIC_TYPE";
-    final ValidationResult validationResult = new ValidationResultJpa();
-
     // Instantiate services
-    final ContentService contentService = new ContentServiceJpa();
-
+    final RemoveSemanticTypeMolecularAction action =
+        new RemoveSemanticTypeMolecularAction();
     try {
 
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setSemanticTypeComponentId(semanticTypeComponentId);
+      action.setChangeStatusFlag(true);
+      
       // Authorize project role, get userName
       final String userName =
-          authorizeProject(contentService, projectId, securityService,
-              authToken, action, UserRole.AUTHOR);
+          authorizeProject(action, projectId, securityService,
+              authToken, "removing a semantic type", UserRole.AUTHOR);
 
       // Retrieve the project
-      final Project project = contentService.getProject(projectId);
+      final Project project = action.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-
-      final List<Concept> conceptList =
-          initialize(contentService, project, conceptId, null, userName,
-              action, lastModified, validationResult);
-
-      Concept concept = conceptList.get(0);
+      action.initialize(project, conceptId, null, userName, lastModified);
 
       //
       // Check prerequisites
       //
-
-      // Perform action specific validation - n/a
-
-      // Exists check
-      SemanticTypeComponent semanticTypeComponent = null;
-      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
-        if (sty.getId().equals(semanticTypeComponentId)) {
-          semanticTypeComponent = sty;
-        }
-      }
-      if (semanticTypeComponent == null) {
-        contentService.rollback();
-        throw new LocalException("Semantic type to remove does not exist");
-      }
-
+      final ValidationResult validationResult = action.checkPreconditions();
+      
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
           || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
         // rollback -- unlocks the concept and closes transaction
-        contentService.rollback();
+        action.rollback();
         return validationResult;
       }
 
       //
       // Perform the action
       //
+      action.compute();
+      
+      // commit (also removes the lock)
+      action.commit();      
 
-      // remove the semantic type component from the concept and update
-      concept.getSemanticTypes().remove(semanticTypeComponent);
-      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      contentService.updateConcept(concept);
-
-      // remove the semantic type component
-      contentService.removeSemanticTypeComponent(semanticTypeComponent.getId());
-
-      // log the REST call
-      contentService.addLogEntry(userName, projectId, conceptId, action + " "
-          + semanticTypeComponent.getSemanticType() + " from concept "
-          + concept.getTerminologyId());
-
-      // commit (also adds the molecular action and removes the lock)
-      contentService.commit();
 
       // Websocket notification
-      final ChangeEvent<SemanticTypeComponentJpa> event =
-          new ChangeEventJpa<SemanticTypeComponentJpa>(action, authToken,
-              IdType.SEMANTIC_TYPE.toString(),
-              (SemanticTypeComponentJpa) semanticTypeComponent, null, concept);
+      final ChangeEvent<SemanticTypeComponent> event =
+          new ChangeEventJpa<SemanticTypeComponent>(action.getName(),
+              authToken, IdType.SEMANTIC_TYPE.toString(), action.getSemanticTypeComponent(), null,
+               action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
 
     } catch (Exception e) {
-      handleException(e, action);
+      handleException(e, "removing a semantic type");
       return null;
     } finally {
-      contentService.close();
+      action.close();
       securityService.close();
     }
   }
@@ -298,127 +273,72 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
             + conceptId + "/add for user " + authToken
             + " with attribute value " + attribute.getName());
 
-    // Prep reusable variables
-    final String action = "ADD_ATTRIBUTE";
-    final ValidationResult validationResult = new ValidationResultJpa();
-
     // Instantiate services
-    final ContentService contentService = new ContentServiceJpa();
-
+    final AddAttributeMolecularAction action =
+        new AddAttributeMolecularAction();
     try {
 
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setAttribute(attribute);
+      action.setChangeStatusFlag(true);
+      
       // Authorize project role, get userName
       final String userName =
-          authorizeProject(contentService, projectId, securityService,
-              authToken, action, UserRole.AUTHOR);
+          authorizeProject(action, projectId, securityService,
+              authToken, "adding an attribute", UserRole.AUTHOR);
 
       // Retrieve the project
-      final Project project = contentService.getProject(projectId);
+      final Project project = action.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final List<Concept> conceptList =
-          initialize(contentService, project, conceptId, null, userName,
-              action, lastModified, validationResult);
-
-      Concept concept = conceptList.get(0);
+      action.initialize(project, conceptId, null, userName, lastModified);
 
       //
       // Check prerequisites
       //
+      final ValidationResult validationResult = action.checkPreconditions();
 
-      if (concept.getTerminologyId() == "") {
-        contentService.rollback();
-        throw new LocalException(
-            "Cannot add an attribute to a concept that doesn't have a TerminologyId (Concept: "
-                + concept.getName() + ")");
-      }
-
-      // Perform action specific validation - n/a
-
-      // Metadata referential integrity checking
-      if (contentService.getAttributeName(attribute.getName(),
-          concept.getTerminology(), concept.getVersion()) == null) {
-        contentService.rollback();
-        throw new LocalException("Cannot add invalid attribute - "
-            + attribute.getName());
-      }
-      if (contentService.getTerminology(attribute.getTerminology(),
-          attribute.getVersion()) == null) {
-        contentService.rollback();
-        throw new LocalException(
-            "Cannot add attribute with invalid terminology - "
-                + attribute.getTerminology() + ", version: "
-                + attribute.getVersion());
-      }
-
-      // Duplicate check
-      for (final Attribute a : concept.getAttributes()) {
-        if (a.getName().equals(attribute.getName())
-            && a.getValue().equals(attribute.getValue())) {
-          contentService.rollback();
-          throw new LocalException("Duplicate attribute - "
-              + attribute.getName() + ", with value " + attribute.getValue());
-        }
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        action.rollback();
+        return validationResult;
       }
 
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
           || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
         // rollback -- unlocks the concept and closes transaction
-        contentService.rollback();
+        action.rollback();
         return validationResult;
       }
 
       //
-      // Perform the action (contentService will create atomic actions for CRUD
-      // operations)
+      // Perform the action
       //
-
-      // Assign alternateTerminologyId
-      final IdentifierAssignmentHandler handler =
-          contentService.getIdentifierAssignmentHandler(concept
-              .getTerminology());
-      final String altId = handler.getTerminologyId(attribute, concept);
-      attribute.getAlternateTerminologyIds().put(concept.getTerminology(),
-          altId);
-
-      // set the attribute component last modified
-      final AttributeJpa newAttribute =
-          (AttributeJpa) contentService.addAttribute(attribute, concept);
-
-      // add the attribute and set the last modified by
-      concept.getAttributes().add(newAttribute);
-      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-
-      // update the concept
-      contentService.updateConcept(concept);
-
-      // log the REST call
-      contentService.addLogEntry(
-          userName,
-          projectId,
-          conceptId,
-          action + " " + newAttribute.getName() + " to concept "
-              + concept.getTerminologyId());
-
+      action.compute();
+      
       // commit (also removes the lock)
-      contentService.commit();
+      action.commit();
 
       // Websocket notification
-      final ChangeEvent<AttributeJpa> event =
-          new ChangeEventJpa<AttributeJpa>(action, authToken,
-              IdType.ATTRIBUTE.toString(), null, newAttribute, concept);
+      final ChangeEvent<Attribute> event =
+          new ChangeEventJpa<Attribute>(action.getName(), authToken,
+              IdType.ATTRIBUTE.toString(), null, action.getAttribute(), action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
 
     } catch (Exception e) {
 
-      handleException(e, action);
+      handleException(e, "adding an attribute");
       return null;
     } finally {
-      contentService.close();
+      action.close();
       securityService.close();
     }
 
@@ -443,95 +363,64 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
             + conceptId + "/remove for user " + authToken + " with id "
             + attributeId);
 
-    // Prep reusable variables
-    final String action = "REMOVE_ATTRIBUTE";
-    final ValidationResult validationResult = new ValidationResultJpa();
-
     // Instantiate services
-    final ContentService contentService = new ContentServiceJpa();
-
+    final RemoveAttributeMolecularAction action =
+        new RemoveAttributeMolecularAction();
     try {
 
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setAttributeId(attributeId);
+      action.setChangeStatusFlag(true);      
+      
       // Authorize project role, get userName
       final String userName =
-          authorizeProject(contentService, projectId, securityService,
-              authToken, action, UserRole.AUTHOR);
+          authorizeProject(action, projectId, securityService,
+              authToken, "removing an attribute", UserRole.AUTHOR);
 
       // Retrieve the project
-      final Project project = contentService.getProject(projectId);
+      final Project project = action.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final List<Concept> conceptList =
-          initialize(contentService, project, conceptId, null, userName,
-              action, lastModified, validationResult);
-
-      Concept concept = conceptList.get(0);
+      action.initialize(project, conceptId, null, userName, lastModified);
 
       //
       // Check prerequisites
       //
-
-      // Perform action specific validation - n/a
-
-      // Exists check
-      Attribute attribute = null;
-      for (final Attribute atr : concept.getAttributes()) {
-        if (atr.getId().equals(attributeId)) {
-          attribute = atr;
-        }
-      }
-      if (attribute == null) {
-        contentService.rollback();
-        throw new LocalException("Attribute to remove does not exist");
-      }
-
+      final ValidationResult validationResult = action.checkPreconditions();
+      
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
           || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
         // rollback -- unlocks the concept and closes transaction
-        contentService.rollback();
+        action.rollback();
         return validationResult;
       }
 
       //
       // Perform the action
       //
-
-      // remove the attribute type component from the concept and update
-      concept.getAttributes().remove(attribute);
-      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      contentService.updateConcept(concept);
-
-      // remove the attribute component
-      contentService.removeAttribute(attribute.getId());
-
-      // log the REST call
-      contentService
-          .addLogEntry(
-              userName,
-              projectId,
-              conceptId,
-              action + " " + attribute.getName() + " from concept "
-                  + concept.getTerminologyId());
-
-      // commit (also adds the molecular action and removes the lock)
-      contentService.commit();
+      action.compute();
+      
+      // commit (also removes the lock)
+      action.commit();    
 
       // Websocket notification
-      final ChangeEvent<AttributeJpa> event =
-          new ChangeEventJpa<AttributeJpa>(action, authToken,
-              IdType.ATTRIBUTE.toString(), (AttributeJpa) attribute, null,
-              concept);
+      final ChangeEvent<Attribute> event =
+          new ChangeEventJpa<Attribute>(action.getName(), authToken,
+              IdType.ATTRIBUTE.toString(), action.getAttribute(), null,
+              action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
 
     } catch (Exception e) {
-      handleException(e, action);
+      handleException(e, "removing an attribute");
       return null;
     } finally {
-      contentService.close();
+      action.close();
       securityService.close();
     }
   }
