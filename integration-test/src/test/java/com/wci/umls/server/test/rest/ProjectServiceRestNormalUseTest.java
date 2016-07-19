@@ -3,9 +3,10 @@
  */
 package com.wci.umls.server.test.rest;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,13 +34,12 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
 
   /** The admin auth token. */
   private static String adminAuthToken;
-  
+
   /** The msh terminology. */
   private String mshTerminology = "MSH";
 
   /** The msh version. */
   private String mshVersion = "2016_2016_02_26";
-
 
   /**
    * Create test fixtures per test.
@@ -63,7 +63,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestProject001() throws Exception {
+  public void testAddUpdateRemoveProject() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Add a project
@@ -73,9 +73,9 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     values.add("PUBLISHED");
 
     project.setDescription("Sample");
-    project.setName("Sample");
+    project.setName("Sample " + new Date().getTime());
     project.setTerminology("UMLS");
-
+    project.setWorkflowPath("DEFAULT");
     ProjectJpa project2 =
         (ProjectJpa) projectService.addProject(project, adminAuthToken);
 
@@ -84,7 +84,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
 
     // Update that newly added project
     Logger.getLogger(getClass()).info("  Update project");
-    project2.setName("Sample 2");
+    project2.setName("Sample 2 " + new Date().getTime());
     projectService.updateProject(project2, adminAuthToken);
     Project project3 =
         projectService.getProject(project2.getId(), adminAuthToken);
@@ -97,12 +97,8 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     projectService.removeProject(project2.getId(), adminAuthToken);
 
     // TEST: verify that it is removed (call should return null)
-    try {
-      project3 = projectService.getProject(project2.getId(), adminAuthToken);
-      fail("Cannot retrieve a removed project.");
-    } catch (Exception e) {
-      // do nothing
-    }
+    project3 = projectService.getProject(project2.getId(), adminAuthToken);
+    assertNull(project3);
   }
 
   /**
@@ -111,7 +107,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestProject002() throws Exception {
+  public void testAddProjects() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Add a project
@@ -120,15 +116,18 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
     project.setDescription("Sample");
-    project.setName("Sample");
+    project.setName("Sample " + new Date().getTime());
     project.setTerminology("UMLS");
+    project.setWorkflowPath("DEFAULT");
     ProjectJpa project2 = new ProjectJpa(project);
     project = (ProjectJpa) projectService.addProject(project, adminAuthToken);
 
     // Add a second project
     Logger.getLogger(getClass()).info("  Add second project");
-    project2.setName("Sample 2");
+    project2.setName("Sample 2 " + new Date().getTime());
     project2.setDescription("Sample 2");
+    project2.setTerminology("UMLS");
+    project2.setWorkflowPath("DEFAULT");
     project2 = (ProjectJpa) projectService.addProject(project2, adminAuthToken);
 
     // Get the projects
@@ -151,23 +150,24 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     Assert.assertEquals(projectCount - 2, projectList.getCount());
 
   }
-  
+
   /**
    * Test validation of a concept.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestValidation001() throws Exception {
+  public void testValidateConcept() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Project p = projectService.getProjects(adminAuthToken).getObjects().get(0);
-    
+
     ConceptJpa c =
         (ConceptJpa) contentService.getConcept("M0028634", mshTerminology,
             mshVersion, p.getId(), adminAuthToken);
 
-    ValidationResult result = projectService.validateConcept(p.getId(), c, adminAuthToken);
+    ValidationResult result =
+        projectService.validateConcept(p.getId(), c, adminAuthToken);
 
     assertTrue(result.getErrors().size() == 0);
     assertTrue(result.getWarnings().size() == 0);
@@ -179,21 +179,24 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    * @throws Exception the exception
    */
   // TODO @Test
-  public void testNormalUseRestValidation002() throws Exception {
+  public void testValidateAtom() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    
 
-    /*Project p = projectService.getProjects(adminAuthToken).getObjects().get(0);
-
-    // NOTE: ContentServiceRest has no getAtom method, this was previously a direct JPA invocation
-    AtomJpa c =
-        (AtomJpa) contentService.getAtom("412904012", snomedTerminology,
-            snomedVersion, adminAuthToken);
-
-    ValidationResult result = projectService.validateAtom(p.getId(), c, adminAuthToken);
-
-    assertTrue(result.getErrors().size() == 0);
-    assertTrue(result.getWarnings().size() == 0);*/
+    /*
+     * Project p =
+     * projectService.getProjects(adminAuthToken).getObjects().get(0);
+     * 
+     * // NOTE: ContentServiceRest has no getAtom method, this was previously a
+     * direct JPA invocation AtomJpa c = (AtomJpa)
+     * contentService.getAtom("412904012", snomedTerminology, snomedVersion,
+     * adminAuthToken);
+     * 
+     * ValidationResult result = projectService.validateAtom(p.getId(), c,
+     * adminAuthToken);
+     * 
+     * assertTrue(result.getErrors().size() == 0);
+     * assertTrue(result.getWarnings().size() == 0);
+     */
   }
 
   /**
@@ -202,12 +205,11 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestValidation003() throws Exception {
+  public void testValidateDescriptor() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-
     Project p = projectService.getProjects(adminAuthToken).getObjects().get(0);
-    
+
     DescriptorJpa c =
         (DescriptorJpa) contentService.getDescriptor("C013093", mshTerminology,
             mshVersion, p.getId(), adminAuthToken);
@@ -225,21 +227,21 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestProject004() throws Exception {
+  public void testValidateCode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    
+
     Project p = projectService.getProjects(adminAuthToken).getObjects().get(0);
 
     CodeJpa c =
-        (CodeJpa) contentService.getCode("C013093", mshTerminology, mshVersion, p.getId(),
-            adminAuthToken);
+        (CodeJpa) contentService.getCode("C013093", mshTerminology, mshVersion,
+            p.getId(), adminAuthToken);
 
-    ValidationResult result = projectService.validateCode(p.getId(), c, adminAuthToken);
+    ValidationResult result =
+        projectService.validateCode(p.getId(), c, adminAuthToken);
 
     assertTrue(result.getErrors().size() == 0);
     assertTrue(result.getWarnings().size() == 0);
   }
-
 
   /**
    * Teardown.

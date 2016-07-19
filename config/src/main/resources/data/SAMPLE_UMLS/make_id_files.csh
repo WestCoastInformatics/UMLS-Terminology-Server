@@ -125,7 +125,7 @@ endif
 
 #
 # Relationship Identity
-#  id|terminology|terminologyId|type|additionalType|fromId|fromType|fromTerminology|toId|toType|toTerminology
+#  id|terminology|terminologyId|type|additionalType|fromId|fromType|fromTerminology|toId|toType|toTerminology|inverseId
 #
 
 # make inverseRui.txt
@@ -135,6 +135,11 @@ grep inverse MRDOC.RRF  | grep 'RELA|' | cut -d\| -f 2,4,5 | sort -t\| -k 1,1 -o
 lib/inverseRui.pl MRREL.RRF | sort -t\| -k 2,2 -o mrrel.txt
 join -t\| -j 2 -o 1.1 2.1 mrrel.txt mrrel.txt | perl -ne 'chop; @_ = split /\|/; print "$_\n" if $_[0] ne $_[1];' | sort -u -o inverseRui.txt
 /bin/rm -f mrrel.txt rel.txt rela.txt
+
+if (`cut -d\| -f 1 inverseRui.txt | sort | uniq -d | wc -l` > 1) then
+	echo "ERROR: duplicate inverse RUIs in MRREL, try using fixMrrel.pl"
+	exit 1
+endif
 
 # C0000039|A0016511|AUI|SY|C0000039|A1317687|AUI|permuted_term_of|R28482429||MSH|MSH|||N||
 #

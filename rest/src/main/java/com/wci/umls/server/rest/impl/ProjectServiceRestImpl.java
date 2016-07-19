@@ -747,7 +747,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   }
 
   @Override
-  @PUT
+  @POST
   @Path("/descriptor")
   @ApiOperation(value = "Validate Descriptor", notes = "Validates a descriptor")
   public ValidationResult validateDescriptor(
@@ -776,7 +776,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/atom")
   @ApiOperation(value = "Validate Atom", notes = "Validates a atom")
   public ValidationResult validateAtom(
@@ -805,7 +805,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/code")
   @ApiOperation(value = "Validate Code", notes = "Validates a code")
   public ValidationResult validateCode(
@@ -834,7 +834,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/concept")
   @ApiOperation(value = "Validate Concept", notes = "Validates a concept")
   public ValidationResult validateConcept(

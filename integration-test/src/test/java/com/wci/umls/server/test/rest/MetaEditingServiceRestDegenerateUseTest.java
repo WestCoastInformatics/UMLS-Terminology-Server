@@ -17,26 +17,25 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 
 //TODO eventually - fill this out
 
 /**
  * Implementation of the "MetaEditing Service REST Normal Use" Test Cases.
  */
-public class MetaEditingServiceRestDegenerateUseTest
-    extends MetaEditingServiceRestTest {
+public class MetaEditingServiceRestDegenerateUseTest extends
+    MetaEditingServiceRestTest {
 
-  /** The auth tokens. */
-  private static String viewerToken;
-
-  /** The admin token. */
-  private static String adminToken;
+  /** The auth token. */
+  private static String authToken;
 
   /** The project. */
   private static Project project;
@@ -48,6 +47,12 @@ public class MetaEditingServiceRestDegenerateUseTest
   private String umlsVersion = "latest";
 
   /**
+   * The concept (will be copied from existing concept, to avoid affecting
+   * database values.
+   */
+  private ConceptJpa concept;
+
+  /**
    * Create test fixtures per test.
    *
    * @throws Exception the exception
@@ -56,22 +61,27 @@ public class MetaEditingServiceRestDegenerateUseTest
   @Before
   public void setup() throws Exception {
 
-    // authentication
-    viewerToken =
-        securityService.authenticate(testUser, testPassword).getAuthToken();
-
     // authenticate the viewer user
-    adminToken =
+    authToken =
         securityService.authenticate(adminUser, adminPassword).getAuthToken();
 
     // ensure there is a concept associated with the project
-    ProjectList projects = projectService.getProjects(adminToken);
+    ProjectList projects = projectService.getProjects(authToken);
     assertTrue(projects.getCount() > 0);
     project = projects.getObjects().get(0);
 
     // verify terminology and branch are expected values
     assertTrue(project.getTerminology().equals(umlsTerminology));
-    assertTrue(project.getBranch().equals(Branch.ROOT));
+    // assertTrue(project.getBranch().equals(Branch.ROOT));
+
+    // Copy existing concept to avoid messing with actual database data.
+    concept =
+        new ConceptJpa(contentService.getConcept("C0000294", umlsTerminology,
+            umlsVersion, null, authToken), false);
+    concept.setId(null);
+    concept.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+    concept = (ConceptJpa) testService.addConcept(concept, authToken);
+
   }
 
   /**
@@ -80,36 +90,19 @@ public class MetaEditingServiceRestDegenerateUseTest
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUseRestContent001() throws Exception {
+  public void testAddRemoveSemanticType() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(
         "TEST - Degenerate use tests for add/remove semantic type to concept");
 
     // get the concept
-    Concept c = contentService.getConcept("C0000005", umlsTerminology,
-        umlsVersion, null, adminToken);
+    Concept c =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
     assertNotNull(c);
 
-    // check against project
-    assertTrue(c.getBranch().equals(project.getBranch()));
-
-    // check that concept has semantic types
-    assertTrue(c.getSemanticTypes().size() > 0);
-
-    // get the first semantic type
-    SemanticTypeComponentJpa sty =
-        (SemanticTypeComponentJpa) c.getSemanticTypes().get(0);
-    assertNotNull(sty);
-
-    // get a concept with different semantic type (for testing add)
-    // NOTE: Testing addition of already present sty done elsewhere
-    Concept c2 = contentService.getConcept("C0000039", umlsTerminology,
-        umlsVersion, null, adminToken);
-    assertNotNull(c2);
-    SemanticTypeComponentJpa sty2 =
-        (SemanticTypeComponentJpa) c2.getSemanticTypes().get(0);
-    assertNotNull(sty2);
+    // create semantic type
+    SemanticTypeComponentJpa sty = new SemanticTypeComponentJpa();
 
     //
     // Null parameters
@@ -118,8 +111,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null project id
     try {
-      metaEditingService.addSemanticType(null, c.getId(),
-          c.getTimestamp().getTime(), sty2, false, adminToken);
+      metaEditingService.addSemanticType(null, c.getId(), c.getTimestamp()
+          .getTime(), sty, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -127,8 +120,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null concept id
     try {
-      metaEditingService.addSemanticType(project.getId(), null,
-          c.getTimestamp().getTime(), sty2, false, adminToken);
+      metaEditingService.addSemanticType(project.getId(), null, c
+          .getTimestamp().getTime(), sty, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -136,8 +129,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null timestamp
     try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(), null, sty2,
-          false, adminToken);
+      metaEditingService.addSemanticType(project.getId(), c.getId(), null, sty,
+          false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -145,8 +138,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null sty id
     try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), null, false, adminToken);
+      metaEditingService.addSemanticType(project.getId(), c.getId(), c
+          .getTimestamp().getTime(), null, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -154,8 +147,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null auth token
     try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), sty2, false, null);
+      metaEditingService.addSemanticType(project.getId(), c.getId(), c
+          .getTimestamp().getTime(), sty, false, null);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -163,8 +156,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null project id
     try {
-      metaEditingService.removeSemanticType(null, c.getId(),
-          c.getTimestamp().getTime(), sty.getId(), false, adminToken);
+      metaEditingService.removeSemanticType(null, c.getId(), c.getTimestamp()
+          .getTime(), 0L, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -172,8 +165,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null concept id
     try {
-      metaEditingService.removeSemanticType(project.getId(), null,
-          c.getTimestamp().getTime(), sty.getId(), false, adminToken);
+      metaEditingService.removeSemanticType(project.getId(), null, c
+          .getTimestamp().getTime(), 0L, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -182,7 +175,7 @@ public class MetaEditingServiceRestDegenerateUseTest
     // check null timestamp
     try {
       metaEditingService.removeSemanticType(project.getId(), c.getId(), null,
-          sty.getId(), false, adminToken);
+          0L, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -190,8 +183,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null sty id
     try {
-      metaEditingService.removeSemanticType(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), null, false, adminToken);
+      metaEditingService.removeSemanticType(project.getId(), c.getId(), c
+          .getTimestamp().getTime(), null, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -199,8 +192,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null auth token
     try {
-      metaEditingService.removeSemanticType(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), sty.getId(), false, null);
+      metaEditingService.removeSemanticType(project.getId(), c.getId(), c
+          .getTimestamp().getTime(), sty.getId(), false, null);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -211,96 +204,53 @@ public class MetaEditingServiceRestDegenerateUseTest
     // semantic type
     // NOTE: These return validation result errors
     //
-    ValidationResult result;
-
-    result = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), sty, false, adminToken);
-    assertTrue(!result.isValid());
-
-    result = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), sty2.getId(), false, adminToken);
-    assertTrue(!result.isValid());
-
-    sty.setSemanticType("this string must not match a semantic type name");
-    result = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), sty, false, adminToken);
-    assertTrue(!result.isValid());
-
-    //
-    // Check authorization
-    // NOTE: These should throw exceptions
-    //
-
+    Concept c2 =
+        contentService.getConcept("C0000005", umlsTerminology, umlsVersion,
+            project.getId(), authToken);
+    sty = (SemanticTypeComponentJpa) c2.getSemanticTypes().iterator().next();
+    sty.setId(null);
     try {
-      metaEditingService.addSemanticType(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), sty2, false, viewerToken);
-      fail();
+      metaEditingService.addSemanticType(project.getId(), c2.getId(), c2
+          .getTimestamp().getTime(), sty, false, authToken);
+      fail("Attempt to insert a duplicate semantic type should fail");
     } catch (Exception e) {
-      // do nothing
+      // n/a
     }
 
-    // verify addition did not succeed (concept does not contain sty2)
-    assertTrue(!c.getSemanticTypes().contains(sty2));
-
     try {
-      metaEditingService.removeSemanticType(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), sty.getId(), false, viewerToken);
-      fail();
+      sty.setSemanticType("this string must not match a semantic type name");
+      ValidationResult result =
+          metaEditingService.addSemanticType(project.getId(), c2.getId(), c2
+              .getTimestamp().getTime(), sty, false, authToken);
+      fail("Attempt to insert a bogus semantic type should fail");
     } catch (Exception e) {
-      // do nothing
+      // n/a
     }
-
-    // verify removal did not succeed (concept still contains original sty)
-    assertTrue(c.getSemanticTypes().contains(sty));
 
   }
-  
+
   /**
    * Test add/remove attribute degenerate cases
    *
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUseRestContent002() throws Exception {
+  public void testAddRemoveAttribute() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    Logger.getLogger(getClass()).info(
-        "TEST - Degenerate use tests for add/remove attribute to concept");
-
-    // get the concept
-    Concept c = contentService.getConcept("C0000005", umlsTerminology,
-        umlsVersion, null, adminToken);
-    assertNotNull(c);
-
-    // check against project
-    assertTrue(c.getBranch().equals(project.getBranch()));
-
-    // check that concept has attributes
-    assertTrue(c.getAttributes().size() > 0);
-
-    // get the first attribute
-    AttributeJpa attribute =
-        (AttributeJpa) c.getAttributes().get(0);
-    assertNotNull(attribute);
-
-    // get a concept with different attribute (for testing add)
-    // NOTE: Testing addition of already present attribute done elsewhere
-    Concept c2 = contentService.getConcept("C0000039", umlsTerminology,
-        umlsVersion, null, adminToken);
-    assertNotNull(c2);
-    AttributeJpa attribute2 =
-        (AttributeJpa) c2.getAttributes().get(0);
-    assertNotNull(attribute2);
-
     //
     // Null parameters
     // NOTE: Null parameters should throw exceptions (required arguments)
     //
+    // get the concept
+    Concept c =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(c);
+    AttributeJpa attribute = new AttributeJpa();
 
     // check null project id
     try {
-      metaEditingService.addAttribute(null, c.getId(),
-          c.getTimestamp().getTime(), attribute2, false, adminToken);
+      metaEditingService.addAttribute(null, c.getId(), c.getTimestamp()
+          .getTime(), attribute, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -308,8 +258,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null concept id
     try {
-      metaEditingService.addAttribute(project.getId(), null,
-          c.getTimestamp().getTime(), attribute2, false, adminToken);
+      metaEditingService.addAttribute(project.getId(), null, c.getTimestamp()
+          .getTime(), attribute, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -317,8 +267,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null timestamp
     try {
-      metaEditingService.addAttribute(project.getId(), c.getId(), null, attribute2,
-          false, adminToken);
+      metaEditingService.addAttribute(project.getId(), c.getId(), null,
+          attribute, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -326,8 +276,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null attribute id
     try {
-      metaEditingService.addAttribute(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), null, false, adminToken);
+      metaEditingService.addAttribute(project.getId(), c.getId(), c
+          .getTimestamp().getTime(), null, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -335,8 +285,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null auth token
     try {
-      metaEditingService.addAttribute(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), attribute2, false, null);
+      metaEditingService.addAttribute(project.getId(), c.getId(), c
+          .getTimestamp().getTime(), attribute, false, null);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -344,8 +294,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null project id
     try {
-      metaEditingService.removeAttribute(null, c.getId(),
-          c.getTimestamp().getTime(), attribute.getId(), false, adminToken);
+      metaEditingService.removeAttribute(null, c.getId(), c.getTimestamp()
+          .getTime(), attribute.getId(), false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -353,8 +303,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null concept id
     try {
-      metaEditingService.removeAttribute(project.getId(), null,
-          c.getTimestamp().getTime(), attribute.getId(), false, adminToken);
+      metaEditingService.removeAttribute(project.getId(), null, c
+          .getTimestamp().getTime(), attribute.getId(), false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -363,7 +313,7 @@ public class MetaEditingServiceRestDegenerateUseTest
     // check null timestamp
     try {
       metaEditingService.removeAttribute(project.getId(), c.getId(), null,
-          attribute.getId(), false, adminToken);
+          attribute.getId(), false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -371,8 +321,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null attribute id
     try {
-      metaEditingService.removeAttribute(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), null, false, adminToken);
+      metaEditingService.removeAttribute(project.getId(), c.getId(), c
+          .getTimestamp().getTime(), null, false, authToken);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -380,8 +330,8 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null auth token
     try {
-      metaEditingService.removeAttribute(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), attribute.getId(), false, null);
+      metaEditingService.removeAttribute(project.getId(), c.getId(), c
+          .getTimestamp().getTime(), attribute.getId(), false, null);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -393,47 +343,29 @@ public class MetaEditingServiceRestDegenerateUseTest
     // NOTE: These return validation result errors
     //
     ValidationResult result;
+    Concept c2 =
+        contentService.getConcept("C0000005", umlsTerminology, umlsVersion,
+            project.getId(), authToken);
+    attribute = (AttributeJpa) c2.getAttributes().iterator().next();
 
-    result = metaEditingService.addAttribute(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), attribute, false, adminToken);
-    assertTrue(!result.isValid());
-
-    result = metaEditingService.removeAttribute(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), attribute2.getId(), false, adminToken);
-    assertTrue(!result.isValid());
+    try {
+      result =
+          metaEditingService.addAttribute(project.getId(), c2.getId(), c2
+              .getTimestamp().getTime(), attribute, false, authToken);
+      fail("Should throw an exception");
+    } catch (Exception e) {
+      // n/a
+    }
 
     attribute.setName("this string must not match a attribute name");
-    result = metaEditingService.addAttribute(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), attribute, false, adminToken);
-    assertTrue(!result.isValid());
-
-    //
-    // Check authorization
-    // NOTE: These should throw exceptions
-    //
-
     try {
-      metaEditingService.addAttribute(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), attribute2, false, viewerToken);
-      fail();
+      result =
+          metaEditingService.addAttribute(project.getId(), c2.getId(), c2
+              .getTimestamp().getTime(), attribute, false, authToken);
+      fail("Should throw an exception");
     } catch (Exception e) {
-      // do nothing
+      // n/a
     }
-
-    // verify addition did not succeed (concept does not contain attribute2)
-    assertTrue(!c.getAttributes().contains(attribute2));
-
-    try {
-      metaEditingService.removeAttribute(project.getId(), c.getId(),
-          c.getTimestamp().getTime(), attribute.getId(), false, viewerToken);
-      fail();
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    // verify removal did not succeed (concept still contains original attribute)
-    assertTrue(c.getAttributes().contains(attribute));
-
   }
 
   /**
@@ -445,15 +377,12 @@ public class MetaEditingServiceRestDegenerateUseTest
   @After
   public void teardown() throws Exception {
 
-    // ensure project has correct branch reset (safety check)
-    if (!project.getBranch().equals(Branch.ROOT)) {
-      project.setBranch(Branch.ROOT);
-      projectService.updateProject((ProjectJpa) project, adminToken);
-    }
-
+    // Copy existing concept to avoid messing with actual database data.
+    IntegrationTestClientRest testService =
+        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+    testService.removeConcept(concept.getId(), authToken);
     // logout
-    securityService.logout(adminToken);
-    securityService.logout(viewerToken);
+    securityService.logout(authToken);
 
   }
 

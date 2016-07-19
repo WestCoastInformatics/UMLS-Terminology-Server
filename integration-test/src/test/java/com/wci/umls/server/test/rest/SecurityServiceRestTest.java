@@ -96,13 +96,6 @@ public class SecurityServiceRestTest extends IntegrationUnitSupport {
           "Test prerequisite:  A non-existent (bad) user must be specified in config properties file");
     }
 
-    String authToken =
-        service.authenticate(adminUserName, adminUserPassword).getAuthToken();
-    if (service.getUser(badUserName, authToken) != null) {
-      throw new Exception(
-          "Test prerequisite:  The bad user specified in config properties file should not exist in database");
-    }
-    service.logout(authToken);
   }
 
   /**

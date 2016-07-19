@@ -120,8 +120,10 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     try {
       authorizeApp(securityService, authToken, "retrieve the user",
           UserRole.VIEWER);
-      User user = securityService.getUser(id);
-
+      final User user = securityService.getUser(id);
+      if (user != null) {
+        return new UserJpa(user);
+      }
       return user;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a user");
@@ -146,7 +148,10 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     try {
       authorizeApp(securityService, authToken, "retrieve the user by username",
           UserRole.VIEWER);
-      User user = securityService.getUser(username);
+      final User user = securityService.getUser(username);
+      if (user != null) {
+        return new UserJpa(user);
+      }
       return user;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a user by username");
@@ -419,7 +424,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Security): /user/name" + authToken);
+        "RESTful call (Security): /user" + authToken);
     final SecurityService securityService = new SecurityServiceJpa();
     try {
       final String userName =

@@ -34,7 +34,7 @@ public class SecurityServiceRestEdgeCasesTest extends SecurityServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCasesRestSecurity001() throws Exception {
+  public void testAuthenticate() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String authToken;
@@ -60,7 +60,7 @@ public class SecurityServiceRestEdgeCasesTest extends SecurityServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCasesRestSecurity003() throws Exception {
+  public void testLogout() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Procedure 1
