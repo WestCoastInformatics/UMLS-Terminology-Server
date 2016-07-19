@@ -120,6 +120,7 @@ public abstract class AbstractChecklist implements Checklist {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getLastModified() {
     return lastModified;
   }

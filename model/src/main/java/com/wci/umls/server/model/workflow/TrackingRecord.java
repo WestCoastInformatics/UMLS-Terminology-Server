@@ -119,4 +119,18 @@ public interface TrackingRecord extends HasLastModified, HasTerminology,
    * @param concept the concepts
    */
   public void setConcepts(List<Concept> concept);
+
+  /**
+   * Returns the workflow status.
+   *
+   * @return the workflow status
+   */
+  public WorkflowStatus getWorkflowStatus();
+
+  /**
+   * Sets the workflow status.
+   *
+   * @param workflowStatus the workflow status
+   */
+  public void setWorkflowStatus(WorkflowStatus workflowStatus);
 }

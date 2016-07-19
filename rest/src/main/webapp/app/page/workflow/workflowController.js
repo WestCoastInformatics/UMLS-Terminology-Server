@@ -10,9 +10,10 @@ tsApp.controller('WorkflowCtrl', [
   'workflowService',
   'configureService',
   'projectService',
+  'reportService', 
   '$uibModal',
   function($scope, $http, $location, gpService, utilService, tabService, securityService,
-    workflowService, configureService, projectService, $uibModal) {
+    workflowService, configureService, projectService, reportService, $uibModal) {
     console.debug("configure WorkflowCtrl");
 
     // Clear error
@@ -26,9 +27,23 @@ tsApp.controller('WorkflowCtrl', [
     $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
     // TODO: need to bootstrap this
     $scope.currentProject = {id : 1239500};
+    $scope.recordTypes = [ 'N', 'R' ];
     $scope.projects;
+    $scope.selected = {
+      bin : null
+    };
 
-
+    // Paging variables
+    $scope.visibleSize = 4;
+    $scope.pageSize = 10;
+    $scope.paging = {};
+    $scope.paging['record'] = {
+      page : 1,
+      filter : '',
+      typeFilter : '',
+      sortField : 'clusterId',
+      ascending : true
+    };
     
     // Configure tab and accordion
     $scope.configureTab = function() {
@@ -123,6 +138,86 @@ tsApp.controller('WorkflowCtrl', [
       });
     };
     
+    // Selects a bin (setting $scope.selected.bin)    
+    // clusterType is optional
+    $scope.selectBin = function(bin, clusterType) {
+      $scope.selected.bin = bin;   
+      
+      if (clusterType && clusterType == 'default') {
+        $scope.paging['record'].filter = ' NOT chem';
+      }
+      else if (clusterType && clusterType != 'all') {
+        $scope.paging['record'].filter = clusterType;
+      }
+      $scope.getRecords($scope.selected.bin);
+    };
+    
+    // Get $scope.records
+    $scope.getRecords = function(bin) {
+      
+      var pfs = {
+        startIndex : ($scope.paging['record'].page - 1) * $scope.pageSize,
+        maxResults : $scope.pageSize,
+        sortField : $scope.paging['record'].sortField,
+        ascending : $scope.paging['record'].ascending == null ? false
+          : $scope.paging['record'].ascending,
+        queryRestriction : $scope.paging['record'].filter != undefined && 
+          $scope.paging['record'].filter != "" ? $scope.paging['record'].filter
+          : null
+      };
+
+      if ($scope.paging['record'].typeFilter) {
+        var value = $scope.paging['record'].typeFilter;
+
+        // Handle inactive
+        if (value == 'N') {
+          if (pfs.queryRestriction != null)
+            pfs.queryRestriction += ' AND workflowStatus:NEEDS_REVIEW';
+          else
+            pfs.queryRestriction = 'workflowStatus:NEEDS_REVIEW';
+        } else if (value == 'R') {
+          if (pfs.queryRestriction != null)
+            pfs.queryRestriction += ' AND workflowStatus:READY_FOR_PUBLICATION';
+          else
+            pfs.queryRestriction = 'workflowStatus:READY_FOR_PUBLICATION';
+        }
+
+      }
+      /*if (clusterType && clusterType != 'all') {
+        
+        if (pfs.queryRestriction != null)
+          pfs.queryRestriction += ' AND clusterType:' + clusterType;
+        else
+          pfs.queryRestriction = 'clusterType:' + clusterType;
+      }*/
+
+        workflowService.findTrackingRecordsForWorkflowBin(bin.projectId, bin.id,
+          pfs).then(
+        // Success
+        function(data) {
+          bin.records = data.worklists;
+          bin.records.totalCount = data.totalCount;
+        });
+ 
+
+    };
+
+    // Selects a concept (setting $scope.selected.concept)
+    $scope.selectConcept = function(concept) {
+      // Set the concept for display
+      $scope.selected.concept = {
+        terminologyId : concept.terminologyId,
+        terminology : concept.terminology,
+        version : concept.version,
+        id : concept.id
+      };
+      reportService.getConceptReport($scope.currentProject.id, $scope.selected.concept.id).then(
+      // Success
+      function(data) {
+        $scope.selected.concept.report = data;
+      });
+    };
+    
     // Convert date to a string
     $scope.toDate = function(lastModified) {
       return utilService.toDate(lastModified);
@@ -160,7 +255,7 @@ tsApp.controller('WorkflowCtrl', [
     };
 
     // Create worklist modal
-    $scope.openCreateWorklistModal = function(bin) {
+    $scope.openCreateWorklistModal = function(bin, clusterType) {
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/addWorklist.html',
@@ -175,6 +270,9 @@ tsApp.controller('WorkflowCtrl', [
           },
           user : function() {
             return $scope.user;
+          },
+          clusterType : function() {
+            return clusterType;
           }
         }
       });

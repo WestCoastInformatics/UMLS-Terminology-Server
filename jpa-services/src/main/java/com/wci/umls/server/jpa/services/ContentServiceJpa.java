@@ -2908,6 +2908,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         branch, query, pfs, ConceptJpa.class, ConceptJpa.class);
     for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.CONCEPT);
+      Concept concept = getConcept(result.getId());
+      result.setWorkflowStatus(concept.getWorkflowStatus());
     }
     return results;
   }

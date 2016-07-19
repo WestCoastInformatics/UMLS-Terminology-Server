@@ -53,9 +53,12 @@ public class ReportServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
-  @GET
+  @GET  
+  @Produces({
+    MediaType.TEXT_PLAIN
+  })
   @Path("/concept")
-  @ApiOperation(value = "Get concept report", notes = "Gets a concept report")
+  @ApiOperation(value = "Get concept report", notes = "Gets a concept report", response = String.class)
   public String getConceptReport(
     @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long  projectId,
     @ApiParam(value = "Concept id, e.g. UMLS", required = true) @QueryParam("conceptId") Long  conceptId,

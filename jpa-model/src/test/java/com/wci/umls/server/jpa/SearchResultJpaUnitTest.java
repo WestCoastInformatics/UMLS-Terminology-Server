@@ -81,6 +81,7 @@ public class SearchResultJpaUnitTest extends ModelUnitSupport {
     tester.include("score");
     tester.include("type");
     tester.include("property");
+    tester.include("workflowStatus");
 
     tester.proxy(KeyValuePair.class, 1, kvp1);
     tester.proxy(KeyValuePair.class, 2, kvp2);

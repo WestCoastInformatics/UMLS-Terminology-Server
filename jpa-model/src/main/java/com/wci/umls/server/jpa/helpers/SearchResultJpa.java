@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers;
 
@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * JAXB enabled implementation of a {@link SearchResult}.
@@ -42,6 +43,9 @@ public class SearchResultJpa implements SearchResult {
 
   /** The score. */
   private Float score = null;
+  
+  /**  The workflow status. */
+  private WorkflowStatus workflowStatus;
 
   /**
    * Instantiates a new search result jpa.
@@ -65,6 +69,7 @@ public class SearchResultJpa implements SearchResult {
     score = result.getScore();
     property = result.getProperty();
     type = result.getType();
+    workflowStatus = result.getWorkflowStatus();
   }
 
   /* see superclass */
@@ -179,7 +184,19 @@ public class SearchResultJpa implements SearchResult {
   public void setProperty(KeyValuePair property) {
     this.property = property;
   }
-
+  
+  /* see superclass */  
+  @Override
+  public WorkflowStatus getWorkflowStatus() {
+    return workflowStatus;
+  }
+  
+  /* see superclass */ 
+  @Override
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
+    this.workflowStatus = workflowStatus;
+  }
+  
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -240,6 +257,7 @@ public class SearchResultJpa implements SearchResult {
         return false;
     } else if (!version.equals(other.version))
       return false;
+
     return true;
   }
 
@@ -251,7 +269,9 @@ public class SearchResultJpa implements SearchResult {
     return "SearchResultJpa [id=" + id + ", terminologyId=" + terminologyId
         + ", terminology=" + terminology + ", version=" + version + ", type="
         + type + ", property=" + property + ", value=" + value + ", obsolete="
-        + obsolete + ", score=" + score + "]";
+        + obsolete + ", score=" + score + ", workflowStatus=" + workflowStatus + "]";
   }
+
+
 
 }

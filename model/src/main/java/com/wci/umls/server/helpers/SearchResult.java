@@ -1,9 +1,10 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Generic object to contain search results.
@@ -135,5 +136,19 @@ public interface SearchResult {
    * @param property the new property
    */
   public void setProperty(KeyValuePair property);
+  
+  /**
+   * Returns the workflow status.
+   *
+   * @return the workflow status
+   */
+  public WorkflowStatus getWorkflowStatus();
+  
+  /**
+   * Sets the workflow status.
+   *
+   * @param workflowStatus the workflow status
+   */
+  public void setWorkflowStatus(WorkflowStatus workflowStatus);
 
 }

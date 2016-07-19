@@ -347,7 +347,7 @@ tsApp
 
           // Make POST call
           gpService.increment();
-          $http.post(workflowUrl + 'checklists?projectId=' + projectId + '&query=' + query,
+          $http.post(workflowUrl + 'checklist?projectId=' + projectId,
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {
@@ -576,6 +576,75 @@ tsApp
             // success
             function(response) {
               console.debug('  worklist = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+            return deferred.promise;
+          };
+          
+          // find tracking records for worklist
+          this.findTrackingRecordsForWorklist = function(projectId, worklistId, pfs) {
+            console.debug('findTrackingRecordsForWorklist');
+            var deferred = $q.defer();
+
+            // find tracking records
+            gpService.increment();
+            $http.post(workflowUrl + 'worklist/' + worklistId + '/records?projectId=' + projectId, pfs).then(
+            // success
+            function(response) {
+              console.debug('  trackingRecords = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+            return deferred.promise;
+          };
+          
+          // find tracking records for checklist
+          this.findTrackingRecordsForChecklist = function(projectId, checklistId, pfs) {
+            console.debug('findTrackingRecordsForChecklist');
+            var deferred = $q.defer();
+
+            // find tracking records
+            gpService.increment();
+            $http.post(workflowUrl + 'checklist/' + checklistId + '/records?projectId=' + projectId, pfs).then(
+            // success
+            function(response) {
+              console.debug('  trackingRecords = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+            return deferred.promise;
+          };
+          
+          // find tracking records for workflow bin
+          this.findTrackingRecordsForWorkflowBin = function(projectId, binId, pfs) {
+            console.debug('findTrackingRecordsForWorkflowBin');
+            var deferred = $q.defer();
+
+            // find tracking records
+            gpService.increment();
+            $http.post(workflowUrl + 'bin/' + binId + '/records?projectId=' + projectId, pfs).then(
+            // success
+            function(response) {
+              console.debug('  trackingRecords = ', response.data);
               gpService.decrement();
               deferred.resolve(response.data);
             },
