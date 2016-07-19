@@ -22,6 +22,7 @@ import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.actions.ChangeEvent;
+import com.wci.umls.server.model.content.Component;
 
 /**
  * Unit testing for {@link ChangeEventJpa}.
@@ -90,11 +91,11 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
     tester.include("newValue");
     tester.include("container");
 
-    tester.proxy(AbstractComponent.class, 1, c1);
-    tester.proxy(AbstractComponent.class, 2, c2);
+    tester.proxy(Component.class, 1, c1);
+    tester.proxy(Component.class, 2, c2);
     tester.proxy(ComponentInfo.class, 1, c1);
     tester.proxy(ComponentInfo.class, 2, c2);
-    
+
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -113,8 +114,8 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(AbstractComponent.class, 1, c1);
-    tester.proxy(AbstractComponent.class, 2, c2);
+    tester.proxy(Component.class, 1, c1);
+    tester.proxy(Component.class, 2, c2);
     tester.proxy(ComponentInfo.class, 1, c1);
     tester.proxy(ComponentInfo.class, 2, c2);
     assertTrue(tester.testCopyConstructor(ChangeEvent.class));
@@ -134,7 +135,7 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
         "xml = " + ConfigUtility.getStringForGraph(object));
     Logger.getLogger(getClass()).info(
         "json = " + ConfigUtility.getJsonForGraph(object));
-
+    // Only testing TO XML/JSON is important
   }
 
   /**

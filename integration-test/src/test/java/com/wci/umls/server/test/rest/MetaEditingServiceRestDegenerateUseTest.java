@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.content.AttributeJpa;
@@ -219,9 +218,8 @@ public class MetaEditingServiceRestDegenerateUseTest extends
 
     try {
       sty.setSemanticType("this string must not match a semantic type name");
-      ValidationResult result =
-          metaEditingService.addSemanticType(project.getId(), c2.getId(), c2
-              .getTimestamp().getTime(), sty, false, authToken);
+      metaEditingService.addSemanticType(project.getId(), c2.getId(), c2
+          .getTimestamp().getTime(), sty, false, authToken);
       fail("Attempt to insert a bogus semantic type should fail");
     } catch (Exception e) {
       // n/a
@@ -342,16 +340,14 @@ public class MetaEditingServiceRestDegenerateUseTest extends
     // attribute
     // NOTE: These return validation result errors
     //
-    ValidationResult result;
     Concept c2 =
         contentService.getConcept("C0000005", umlsTerminology, umlsVersion,
             project.getId(), authToken);
     attribute = (AttributeJpa) c2.getAttributes().iterator().next();
 
     try {
-      result =
-          metaEditingService.addAttribute(project.getId(), c2.getId(), c2
-              .getTimestamp().getTime(), attribute, false, authToken);
+      metaEditingService.addAttribute(project.getId(), c2.getId(), c2
+          .getTimestamp().getTime(), attribute, false, authToken);
       fail("Should throw an exception");
     } catch (Exception e) {
       // n/a
@@ -359,9 +355,8 @@ public class MetaEditingServiceRestDegenerateUseTest extends
 
     attribute.setName("this string must not match a attribute name");
     try {
-      result =
-          metaEditingService.addAttribute(project.getId(), c2.getId(), c2
-              .getTimestamp().getTime(), attribute, false, authToken);
+      metaEditingService.addAttribute(project.getId(), c2.getId(), c2
+          .getTimestamp().getTime(), attribute, false, authToken);
       fail("Should throw an exception");
     } catch (Exception e) {
       // n/a

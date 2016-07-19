@@ -67,7 +67,7 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
 
     // local variables
     User user;
-    String viewerUserNameAuthToken, adminAuthToken;
+    String adminAuthToken;
 
     // authorize the user
     adminAuthToken =

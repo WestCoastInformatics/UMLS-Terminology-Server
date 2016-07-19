@@ -195,6 +195,7 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
   }
 
   /* see superclass */
+  @XmlElement(type = AbstractComponent.class)
   @Override
   public T getOldValue() {
     return oldValue;
@@ -207,6 +208,7 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
   }
 
   /* see superclass */
+  @XmlElement(type = AbstractComponent.class)
   @Override
   public T getNewValue() {
     return newValue;

@@ -22,10 +22,6 @@ package com.wci.umls.server.mojo;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
-import com.wci.umls.server.jpa.algo.UmlsIdentityLoaderAlgorithm;
-import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
-import com.wci.umls.server.rest.impl.WorkflowServiceRestImpl;
-
 /**
  * Goal which performs an ad hoc task.
  * 
@@ -50,28 +46,12 @@ public class AdHocMojo extends AbstractMojo {
   }
 
   /* see superclass */
-  @SuppressWarnings("unused")
   @Override
   public void execute() throws MojoFailureException {
 
     try {
 
       getLog().info("Ad Hoc Mojo");
-
-      System.out.println("TESTTEST - You've made it into the Mojo.");
-      
-      UmlsIdentityLoaderAlgorithm loader = new UmlsIdentityLoaderAlgorithm();
-
-      System.out.println("TESTTEST - You've made it past the loader instantiation.");
-      
-      
-      loader.setTerminology(terminology);
-      loader.setInputPath("C:/Users/rwood/workspace/UMLS-Terminology-Server/config/src/main/resources/data/SAMPLE_UMLS");
-
-      System.out.println("TESTTEST - You've made it past passing in the terminology and path.");      
-      WorkflowServiceRest workflowService = new WorkflowServiceRestImpl();
-
-
 
       getLog().info("done ...");
     } catch (Exception e) {
