@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -46,8 +46,8 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class MetadataServiceRestImpl extends RootServiceRestImpl implements
-    MetadataServiceRest {
+public class MetadataServiceRestImpl extends RootServiceRestImpl
+    implements MetadataServiceRest {
 
   /** The security service. */
   private SecurityService securityService;
@@ -111,8 +111,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /all/terminology/" + terminology + "/"
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /all/terminology/" + terminology + "/"
             + version);
 
     final MetadataService metadataService = new MetadataServiceJpa();
@@ -144,8 +144,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  private KeyValuePairLists getMetadataHelper(String terminology, String version)
-    throws Exception {
+  private KeyValuePairLists getMetadataHelper(String terminology,
+    String version) throws Exception {
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
 
@@ -172,11 +172,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
         }
       }
       if (term == null) {
-        throw new WebApplicationException(Response
-            .status(204)
-            .entity(
-                "No version " + version + " is loaded for terminology "
-                    + terminology).build());
+        throw new WebApplicationException(
+            Response.status(204).entity("No version " + version
+                + " is loaded for terminology " + terminology).build());
       }
 
       // call jpa service and get complex map return type
@@ -194,9 +192,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
         keyValuePairList.setName(metadataType);
         for (final Map.Entry<String, String> pairEntry : metadataPairs
             .entrySet()) {
-          final KeyValuePair keyValuePair =
-              new KeyValuePair(pairEntry.getKey().toString(),
-                  pairEntry.getValue());
+          final KeyValuePair keyValuePair = new KeyValuePair(
+              pairEntry.getKey().toString(), pairEntry.getValue());
           keyValuePairList.addKeyValuePair(keyValuePair);
         }
         keyValuePairLists.addKeyValuePairList(keyValuePairList);
@@ -219,8 +216,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /terminologies/latest/");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /terminologies/latest/");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
@@ -326,8 +323,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /precedence/" + precedenceListId);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /precedence/" + precedenceListId);
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
@@ -354,14 +351,13 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /precedence/add");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /precedence/add");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
-      final String userName =
-          authorizeApp(securityService, authToken, "add precedence list",
-              UserRole.USER);
+      final String userName = authorizeApp(securityService, authToken,
+          "add precedence list", UserRole.USER);
       metadataService.setLastModifiedBy(userName);
 
       return metadataService.addPrecedenceList(precedenceList);
@@ -384,14 +380,13 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Precedence list to add", required = true) PrecedenceListJpa precedenceList,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /precedence/add");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /precedence/add");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
-      final String userName =
-          authorizeApp(securityService, authToken, "update precedence list",
-              UserRole.USER);
+      final String userName = authorizeApp(securityService, authToken,
+          "update precedence list", UserRole.USER);
       metadataService.setLastModifiedBy(userName);
 
       metadataService.updatePrecedenceList(precedenceList);
@@ -413,15 +408,14 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Precedence list id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /precedence/add");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /precedence/add");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
 
-      final String userName =
-          authorizeApp(securityService, authToken, "remove precedence list",
-              UserRole.USER);
+      final String userName = authorizeApp(securityService, authToken,
+          "remove precedence list", UserRole.USER);
       metadataService.setLastModifiedBy(userName);
 
       metadataService.removePrecedenceList(id);

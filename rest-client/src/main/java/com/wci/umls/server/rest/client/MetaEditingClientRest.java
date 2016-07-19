@@ -24,7 +24,6 @@ import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
-import com.wci.umls.server.model.content.Atom;
 
 /**
  * A client for connecting to a content REST service.
@@ -44,6 +43,7 @@ public class MetaEditingClientRest extends RootClientRest
     this.config = config;
   }
 
+  /* see superclass */
   @Override
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
     Long lastModified, SemanticTypeComponentJpa semanticTypeComponent,
@@ -78,6 +78,7 @@ public class MetaEditingClientRest extends RootClientRest
         ValidationResultJpa.class);
   }
 
+  /* see superclass */
   @Override
   public ValidationResult removeSemanticType(Long projectId, Long conceptId,
     Long lastModified, Long semanticTypeComponentId, boolean overrideWarnings,
@@ -147,6 +148,7 @@ public class MetaEditingClientRest extends RootClientRest
 
   }
 
+  /* see superclass */
   @Override
   public ValidationResult removeAttribute(Long projectId, Long conceptId,
     Long lastModified, Long attributeId, boolean overrideWarnings,
@@ -214,6 +216,7 @@ public class MetaEditingClientRest extends RootClientRest
         ValidationResultJpa.class);
   }
 
+  /* see superclass */
   @Override
   public ValidationResult removeAtom(Long projectId, Long conceptId,
     Long lastModified, Long atomId, boolean overrideWarnings, String authToken)
@@ -281,6 +284,7 @@ public class MetaEditingClientRest extends RootClientRest
         ValidationResultJpa.class);
   }
 
+  /* see superclass */
   @Override
   public ValidationResult removeRelationship(Long projectId, Long conceptId,
     Long lastModified, Long relationshipId, boolean overrideWarnings,
@@ -351,17 +355,16 @@ public class MetaEditingClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
   }
-  
+
   /* see superclass */
   @Override
   public ValidationResult moveAtoms(Long projectId, Long fromConceptId,
-    Long lastModified, Long toConceptId, List<Long> atomIds, boolean overrideWarnings,
-    String authToken)
-    throws Exception {
+    Long lastModified, Long toConceptId, List<Long> atomIds,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
-        .debug("MetaEditing Client - move atoms "+ atomIds +" from concept " + fromConceptId
-            + " to concept " + toConceptId + ", " + lastModified + ", "
-            + overrideWarnings + ", " + authToken);
+        .debug("MetaEditing Client - move atoms " + atomIds + " from concept "
+            + fromConceptId + " to concept " + toConceptId + ", " + lastModified
+            + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(fromConceptId, "fromConceptId");
@@ -387,6 +390,6 @@ public class MetaEditingClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
-  }  
+  }
 
 }

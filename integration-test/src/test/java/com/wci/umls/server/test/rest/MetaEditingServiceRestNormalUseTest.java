@@ -1581,16 +1581,13 @@ public class MetaEditingServiceRestNormalUseTest
     fromC =
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
 
-    //Reread atoms, to refresh with the ID
+    // Reread atoms, to refresh with the ID
     atom = null;
     atom2 = null;
     atom3 = null;
     for (Atom a : toC.getAtoms()) {
       if (a.getName().equals("DCB")) {
         atom = (AtomJpa) a;
-      }
-      if (a.getName().equals("17 Oxosteroids")) {
-        atom2 = (AtomJpa) a;
       }
     }
     for (Atom a : fromC.getAtoms()) {
@@ -1599,11 +1596,12 @@ public class MetaEditingServiceRestNormalUseTest
       }
       if (a.getName().equals("PABA")) {
         atom3 = (AtomJpa) a;
-      }    }    
+      }
+    }
     assertNotNull(atom);
-    assertNotNull(atom2);  
-    assertNotNull(atom3);   
-    
+    assertNotNull(atom2);
+    assertNotNull(atom3);
+
     List<Long> moveList = new ArrayList<Long>();
     moveList.add(atom2.getId());
     moveList.add(atom3.getId());
@@ -1618,7 +1616,7 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(concept.getId(), project.getId(), authToken);
     fromC =
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
-    
+
     // Verify fromConcept atoms are now present in toConcept, along with
     // original toConcept atom
     int atomCount = 0;
@@ -1643,8 +1641,8 @@ public class MetaEditingServiceRestNormalUseTest
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    MolecularActionList list =
-        contentService.findMolecularActions(fromC.getId(), null, pfs, authToken);
+    MolecularActionList list = contentService
+        .findMolecularActions(fromC.getId(), null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -1671,7 +1669,6 @@ public class MetaEditingServiceRestNormalUseTest
         projectService.getLog(project.getId(), fromC.getId(), 1, authToken);
     assertTrue(logEntry.contains("MOVE"));
 
-
     // Remove all of the atoms so teardown can succesfully remove the concept.
     List<Atom> toAtomList = toC.getAtoms();
     for (Atom atm : toAtomList) {
@@ -1679,8 +1676,8 @@ public class MetaEditingServiceRestNormalUseTest
           toC.getLastModified().getTime(), atm.getId(), false, authToken);
       toC = contentService.getConcept(concept.getId(), project.getId(),
           authToken);
-    }    
-    
+    }
+
   }
 
   /**
