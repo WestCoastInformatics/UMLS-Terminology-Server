@@ -148,6 +148,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     setTerminology(result.getTerminology());
     setTerminologyId(result.getTerminologyId());
     setVersion(result.getVersion());
+    setWorkflowStatus(result.getWorkflowStatus());
   }
 
   /**

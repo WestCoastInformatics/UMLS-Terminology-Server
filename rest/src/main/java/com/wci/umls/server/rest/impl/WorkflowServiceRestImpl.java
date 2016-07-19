@@ -2097,11 +2097,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         record.setProject(project);
         record.setWorklistName(null);
         record.setClusterType("");
+        record.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
 
         // Load the concept ids involved
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           final Concept concept = workflowService.getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
+          // TODO record.setIndexData(String of appended names)  ANALYZED=YES
 
           // Set cluster type if a concept has an STY associated with a cluster
           // type in th eproject
@@ -2127,6 +2129,25 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             }
           }
         }
+
+        // if any of the concepts or atoms are NEEDS_REVIEW, set record to NEEDS_REVIEW
+        boolean needsReviewFlag = false;
+        for (Concept concept : record.getConcepts()) {
+          if (needsReviewFlag)
+            break;
+          if (concept.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+            record.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+            needsReviewFlag = true;
+          }            
+          for (Atom atom : concept.getAtoms()) {
+            if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+              record.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+              needsReviewFlag = true;
+              break;
+            }
+          }
+        }
+        
         workflowService.addTrackingRecord(record);
         bin.getTrackingRecords().add(record);
       }

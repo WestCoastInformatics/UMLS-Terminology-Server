@@ -178,7 +178,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // add the semantic type and set the last modified by
       concept.getSemanticTypes().add(newSemanticType);
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-
       // update the concept
       contentService.updateConcept(concept);
 

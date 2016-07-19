@@ -13,6 +13,8 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,6 +37,7 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
@@ -43,6 +46,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * JAXB and JPA enabled implementation of {@link TrackingRecord}.
@@ -116,6 +120,11 @@ public class TrackingRecordJpa implements TrackingRecord {
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
 
+  /** The workflow status. */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = true)
+  private WorkflowStatus workflowStatus;
+
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
    */
@@ -142,6 +151,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     workflowBinName = record.getWorkflowBinName();
     worklistName = record.getWorklistName();
     project = record.getProject();
+    workflowStatus = record.getWorkflowStatus();
   }
 
   /* see superclass */
@@ -360,6 +370,21 @@ public class TrackingRecordJpa implements TrackingRecord {
     this.worklistName = worklist;
   }
 
+  /* see superclass */
+  @Override
+  @FieldBridge(impl = EnumBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public WorkflowStatus getWorkflowStatus() {
+    return workflowStatus;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
+    this.workflowStatus = workflowStatus;
+
+  }
+  
   /* see superclass */
   @Override
   public int hashCode() {

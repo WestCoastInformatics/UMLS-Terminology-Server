@@ -1,0 +1,57 @@
+<div class="modal-header">
+  <h4>
+    {{action}} Worklist
+    <span ng-show="action == 'REASSIGN'"> to Author</span>
+  </h4>
+</div>
+
+<div class="modal-body">
+  <!-- Worklist info -->
+  <div worklist-info worklist="worklist" form="short"></div>
+
+  <table class="table">
+    <tr ng-show="action == 'ASSIGN'">
+      <td>
+        <b>Select user</b>
+      </td>
+      <td>
+        <select ng-model="user" ng-options="item.name for item in assignedUsers"></select>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <b>Note</b>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <textarea rows="4" cols="40" ng-model="note" ui-tinymce="tinymceOptions"></textarea>
+      </td>
+    </tr>
+    <tr ng-show="errors.length > 0">
+      <td>&nbsp;</td>
+      <td>
+        <div class="alert alert-danger alert-error">
+          {{errors[0]}}
+          <div style="display: inline; float: right;">
+            <i ng-show="errors[1]"
+              title="{{error.expand ? 'Show' : 'Hide'}} long eror"
+              class="noul material-icons md-18"
+              ng-click="error.expand = !error.expand;">attach_file</i>
+          </div>
+          <p ng-show="errors[1] && error.expand">
+            <br />{{errors[1]}}
+          </p>
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div class="modal-footer">
+  <button ng-show="action == 'ASSIGN'" class="btn btn-primary"
+    ng-click="assignWorklist();">Assign</button>
+  <button ng-show="action == 'REASSIGN'" class="btn btn-primary"
+    ng-click="assignWorklist();">Reassign</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>
