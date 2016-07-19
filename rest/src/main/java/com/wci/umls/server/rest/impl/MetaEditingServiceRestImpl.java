@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.HeaderParam;
@@ -53,6 +54,7 @@ import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -810,7 +812,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful POST call (MetaEditing): /relationship/" + projectId
             + "/" + conceptId + "/add for user " + authToken
-            + " with relationship value " + relationship.getName());
+            + " with relationship value " + relationship);
 
     // Prep reusable variables
     final String action = "ADD_RELATIONSHIP";
@@ -830,16 +832,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      System.out.println("The conceptId is " + conceptId
-          + ", and the toConcept ID is " + relationship.getTo().getId());
-
       final List<Concept> conceptList = initialize(contentService, project,
           conceptId, relationship.getTo().getId(), userName, action,
           lastModified, validationResult);
 
       Concept concept = conceptList.get(0);
       Concept toConcept = conceptList.get(1);
-      
+
       //
       // Check prerequisites
       //
@@ -871,8 +870,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Duplicate check
       for (final ConceptRelationship a : concept.getRelationships()) {
         if (a.equals(relationship)) {
-          throw new LocalException(
-              "Duplicate relationship - " + relationship.getName());
+          throw new LocalException("Duplicate relationship - " + relationship);
         }
       }
 
@@ -891,27 +889,28 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
 
       relationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      // Assign alternateTerminologyId
-      final IdentifierAssignmentHandler handler = contentService
-          .getIdentifierAssignmentHandler(concept.getTerminology());
-
-      final String altId = handler.getTerminologyId(relationship);
-      relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
-          altId);
+      // Assign alternateTerminologyId - this was moved to release time.
+      // final IdentifierAssignmentHandler handler = contentService
+      // .getIdentifierAssignmentHandler(concept.getTerminology());
+      //
+      // final String altId = handler.getTerminologyId(relationship);
+      // relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
+      // altId);
 
       // set the relationship component last modified
       final ConceptRelationshipJpa newRelationship =
           (ConceptRelationshipJpa) contentService.addRelationship(relationship);
 
       // construct inverse relationship
-      ConceptRelationshipJpa inverseRelationship =
+      final ConceptRelationshipJpa inverseRelationship =
           (ConceptRelationshipJpa) contentService
               .createInverseConceptRelationship(newRelationship);
 
-      // pass to handler.getTerminologyId
-      final String inverseAltId = handler.getTerminologyId(inverseRelationship);
-      inverseRelationship.getAlternateTerminologyIds()
-          .put(concept.getTerminology(), inverseAltId);
+      // pass to handler.getTerminologyId - this was moved to release time.
+      // final String inverseAltId =
+      // handler.getTerminologyId(inverseRelationship);
+      // inverseRelationship.getAlternateTerminologyIds()
+      // .put(concept.getTerminology(), inverseAltId);
 
       // set the relationship component last modified
       final ConceptRelationshipJpa newInverseRelationship =
@@ -920,17 +919,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // add the relationship and set the last modified by
       concept.getRelationships().add(newRelationship);
-      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       toConcept.getRelationships().add(newInverseRelationship);
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
       // update the concept
-      contentService.updateConcept(concept);
       contentService.updateConcept(toConcept);
+      contentService.updateConcept(concept);
 
       // log the REST calls
-      contentService.addLogEntry(userName, projectId, conceptId,
-          action + " " + newRelationship.getName() + " to concept "
-              + concept.getTerminologyId());
+      contentService.addLogEntry(userName, projectId, conceptId, action + " "
+          + newRelationship + " to concept " + concept.getTerminologyId());
 
       // commit (also removes the lock)
       contentService.commit();
@@ -981,8 +979,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     // Instantiate services
     final ContentService contentService = new ContentServiceJpa();
 
-    // TODO: actually look up second conceptId somehow.
-    Long conceptId2 = 0L;
+    // Look up ToConcept Id
+    final Long conceptId2 = contentService
+        .getRelationship(relationshipId, ConceptRelationshipJpa.class).getTo()
+        .getId();
 
     try {
 
@@ -1019,29 +1019,26 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         throw new LocalException("Relationship to remove does not exist");
       }
 
-      // Exists check for inverse Relationshop
-      // TODO - relationshopId is the wrong value. Need to get relationship Id
-      // from inverseRelationship
+      // Exists check for inverse Relationship
 
-      // Assign alternateTerminologyId
-      final IdentifierAssignmentHandler handler = contentService
-          .getIdentifierAssignmentHandler(concept.getTerminology());
-
-      String inverseRui = handler.getInverseTerminologyId(relationship);
-      RelationshipList relList = contentService.findConceptRelationships(
-          toConcept.getTerminologyId(), toConcept.getTerminology(),
-          toConcept.getVersion(), Branch.ROOT, "alternateTerminologyIds:\""
-              + toConcept.getTerminology() + " " + inverseRui + "\"",
-          false, null);
-
-      if (relList.getCount() != 1) {
-        throw new Exception(
-            "Unexepected inverse Relationship count " + relList.getCount());
-      }
+      RelationshipList relList =
+          contentService.findConceptRelationships(toConcept.getTerminologyId(),
+              toConcept.getTerminology(), toConcept.getVersion(), Branch.ROOT,
+              "fromId:" + toConcept.getId() + " AND toId:" + concept.getId(),
+              false, null);
 
       ConceptRelationship inverseRelationship = null;
       for (final Relationship rel : relList.getObjects()) {
-        inverseRelationship = (ConceptRelationship) rel;
+        if (rel.getTo().getId() == relationship.getFrom().getId()
+            && rel.getFrom().getId() == relationship.getTo().getId()) {
+          if (inverseRelationship != null) {
+            throw new Exception(
+                "Unexepected more than a single inverse relationship for relationship - "
+                    + relationship);
+          }
+
+          inverseRelationship = (ConceptRelationship) rel;
+        }
       }
 
       // if prerequisites fail, return validation result
@@ -1092,13 +1089,306 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       return validationResult;
 
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       handleException(e, action);
       return null;
     } finally {
       contentService.close();
       securityService.close();
     }
+  }
+
+  /* see superclass */
+  @SuppressWarnings("rawtypes")
+  @Override
+  @POST
+  @Path("/concept/merge")
+  @ApiOperation(value = "Merge concepts together", notes = "Merge concepts together on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult mergeConcepts(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Make demotions", required = false) @QueryParam("makeDemotions") boolean makeDemotions,
+    @ApiParam(value = "Unapprove content", required = false) @QueryParam("unapproveContent") boolean unapproveContent,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /concept/" + projectId + "/"
+            + conceptId + "/merge for user " + authToken + " with concept "
+            + conceptId2);
+
+    // Prep reusable variables
+    final String action = "MERGE";
+    final ValidationResult validationResult = new ValidationResultJpa();
+
+    // Instantiate services
+    final ContentService contentService = new ContentServiceJpa();
+
+    try {
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, action, UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = contentService.getProject(projectId);
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      final List<Concept> conceptList =
+          initialize(contentService, project, conceptId, conceptId2, userName,
+              action, lastModified, validationResult);
+
+      // Assign the concept with the lowest id to survive, and the one with the
+      // highest id to get destroyed.
+      List<Concept> sortedConceptList = conceptList.stream()
+          .sorted((c1, c2) -> Long.compare(c1.getId(), c2.getId())).collect(Collectors.toList());
+
+      Concept toConcept = sortedConceptList.get(0);
+      Concept fromConcept = sortedConceptList.get(1);
+
+      // Make copy of toConcept and fromConcept before changes, to pass into
+      // change event
+      Concept toConceptPreUpdates = new ConceptJpa(toConcept, false);
+      Concept fromConceptPreUpdates = new ConceptJpa(fromConcept, false);
+
+      //
+      // Check prerequisites
+      //
+
+      // Perform action specific validation - n/a
+
+      // Metadata referential integrity checking
+
+      // Same concept check
+      if (conceptId == conceptId2) {
+        throw new LocalException("Cannot merge concept " + conceptId
+            + " to concept " + conceptId2 + " - identical concept.");
+      }
+
+      contentService.validateMerge(project, toConcept, fromConcept);
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concepts and closes transaction
+        contentService.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the actions (contentService will create atomic actions
+      // for CRUD
+      // operations)
+      //
+
+      // Add each atom from fromConcept to toConcept, delete from
+      // fromConcept, and set to NEEDS_REVIEW
+      final List<Atom> fromAtoms = new ArrayList<>(fromConcept.getAtoms());
+      contentService.moveAtoms(toConcept, fromConcept, fromAtoms);
+
+      for (Atom atm : fromAtoms){
+        atm.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
+      
+      // Add each semanticType from fromConcept to toConcept, and delete from
+      // fromConcept
+      // NOTE: Only add semantic type if it doesn't already exist in toConcept
+      final List<SemanticTypeComponent> fromStys =
+          new ArrayList<>(fromConcept.getSemanticTypes());
+      final List<SemanticTypeComponent> toStys = toConcept.getSemanticTypes();
+
+      for (SemanticTypeComponent sty : fromStys) {
+        // remove the semantic type from the fromConcept
+        fromConcept.getSemanticTypes().remove(sty);
+
+        // remove the semantic type component
+        contentService.removeSemanticTypeComponent(sty.getId());
+        
+        if (!toStys.contains(sty)) {
+          sty.setId(null);
+          SemanticTypeComponentJpa newSemanticType =
+              (SemanticTypeComponentJpa) contentService
+                  .addSemanticTypeComponent(sty, toConcept);
+          newSemanticType.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+          // add the semantic type and set the last modified by
+          toConcept.getSemanticTypes().add(newSemanticType);
+        }
+
+      }
+
+      // Add each relationship from/to fromConcept to be attached to toConcept,
+      // and delete from fromConcept
+
+      List<ConceptRelationship> fromRelationships =
+          new ArrayList<>(fromConcept.getRelationships());
+
+      // Go through all relationships in the fromConcept
+      for (final ConceptRelationship rel : fromRelationships) {
+        // Any relationship between from and toConcept is deleted
+        if (toConcept.getId() == rel.getTo().getId()) {
+
+          // remove the relationship type component from the concept and update
+          fromConcept.getRelationships().remove(rel);
+          // remove the relationship component
+          contentService.removeRelationship(rel.getId(), rel.getClass());
+
+          // If inverse relationship exists, remove it as well
+          List<ConceptRelationship> toRelationships =
+              new ArrayList<>(toConcept.getRelationships());
+
+          ConceptRelationship inverseRel = null;
+            for (final Relationship innerInverseRel : toRelationships) {
+            if (innerInverseRel.getTo().getId() == rel.getFrom().getId()
+                && innerInverseRel.getFrom().getId() == rel.getTo().getId()) {
+              if (inverseRel != null) {
+                throw new Exception(
+                    "Unexepected more than a single inverse relationship for relationship - "
+                        + rel);
+              }
+
+              inverseRel = (ConceptRelationship) innerInverseRel;
+            }
+          }
+
+          if (inverseRel != null) {
+            // remove the inverse relationship type component from the concept
+            // and
+            // update
+            toConcept.getRelationships().remove(inverseRel);
+
+            // remove the inverse relationship component
+            contentService.removeRelationship(inverseRel.getId(),
+                inverseRel.getClass());
+          }
+
+        }
+        // If relationship is not between two merging concepts, add relationship
+        // and inverse toConcept and remove from fromConcept
+        else {
+          //
+          // Remove relationship and inverseRelationship
+          //
+          // remove the relationship type component from the concept and update
+          fromConcept.getRelationships().remove(rel);
+
+          // remove the relationship component
+          contentService.removeRelationship(rel.getId(), rel.getClass());
+
+          // If inverse relationship exists, remove it as well
+          Concept thirdConcept = rel.getTo();
+          List<ConceptRelationship> thirdRelationships =
+              new ArrayList<>(thirdConcept.getRelationships());
+
+          ConceptRelationship inverseRel2 = null;
+          for (final Relationship innerInverseRel : thirdRelationships) {
+            if (innerInverseRel.getTo().getId() == rel.getFrom().getId()
+                && innerInverseRel.getFrom().getId() == rel.getTo().getId()) {
+              if (inverseRel2 != null) {
+                throw new Exception(
+                    "Unexepected more than a single inverse relationship for relationship - "
+                        + rel);
+              }
+
+              inverseRel2 = (ConceptRelationship) innerInverseRel;
+            }
+          }
+
+          if (inverseRel2 != null) {
+            // remove the inverse relationship type component from the concept
+            // and update
+            thirdConcept.getRelationships().remove(inverseRel2);
+
+            // remove the inverse relationship component
+            contentService.removeRelationship(inverseRel2.getId(),
+                inverseRel2.getClass());
+          }
+          
+          //
+          // Create and add relationship and inverseRelationship
+          //
+
+          // set the relationship component last modified
+          rel.setId(null);
+          ConceptRelationshipJpa newRel =
+              (ConceptRelationshipJpa) contentService.addRelationship(rel);
+          newRel.setFrom(toConcept);
+          newRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+          // construct inverse relationship
+          ConceptRelationshipJpa inverseRel =
+              (ConceptRelationshipJpa) contentService
+                  .createInverseConceptRelationship(newRel);
+
+          // set the inverse relationship component last modified
+          ConceptRelationshipJpa newInverseRel =
+              (ConceptRelationshipJpa) contentService
+                  .addRelationship(inverseRel);
+          newInverseRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+          // add relationship and inverse to respective concepts and set last
+          // modified by
+          toConcept.getRelationships().add(newRel);
+          thirdConcept.getRelationships().add(newInverseRel);
+
+        }
+      }
+
+      toConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+      // update the to concept, and delete the from concept
+      contentService.updateConcept(toConcept);
+      contentService.removeConcept(fromConcept.getId());
+
+      // log the REST calls
+      contentService.addLogEntry(userName, projectId, conceptId, action + " "
+          + fromConcept.getId() + " into concept " + toConcept.getId());
+
+      // commit (also removes the lock)
+      contentService.commit();
+
+      // Re-read toConcept
+      Concept toConceptPostUpdates =
+          contentService.getConcept(toConcept.getId());
+
+      // Resolve all three concepts with graphresolutionhandler.resolve(concept)
+      // below
+      GraphResolutionHandler graphHandler =
+          contentService.getGraphResolutionHandler(toConcept.getTerminology());
+      graphHandler.resolve(fromConceptPreUpdates);
+      graphHandler.resolve(toConceptPreUpdates);
+      graphHandler.resolve(toConceptPostUpdates);
+
+      // Websocket notification - one for the updating of the toConcept, and one
+      // for the deletion of the fromConcept
+      final ChangeEvent<ConceptJpa> event =
+          new ChangeEventJpa<ConceptJpa>(action, authToken,
+              IdType.CONCEPT.toString(), (ConceptJpa) toConceptPreUpdates,
+              (ConceptJpa) toConceptPostUpdates, null);
+      sendChangeEvent(event);
+
+      final ChangeEvent<ConceptJpa> event2 = new ChangeEventJpa<ConceptJpa>(
+          action, authToken, IdType.CONCEPT.toString(),
+          (ConceptJpa) fromConceptPreUpdates, null, null);
+      sendChangeEvent(event2);
+
+      return validationResult;
+
+    } catch (Exception e) {
+
+      handleException(e, action);
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
   }
 
   /**
@@ -1153,8 +1443,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       Concept tempConcept;
 
       synchronized (i.toString().intern()) {
-
-        System.out.println("TESTTEST - conceptId is " + i);
 
         // retrieve the concept
         tempConcept = contentService.getConcept(i);

@@ -6,6 +6,7 @@
  */
 package com.wci.umls.server.services;
 
+import java.util.List;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.ComponentInfo;
@@ -735,6 +736,17 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public void removeAtom(Long id) throws Exception;
+
+  /**
+   * Move atoms.
+   *
+   * @param toConcept the to concept
+   * @param fromConcept the from concept
+   * @param fromAtoms the from atoms
+   * @throws Exception the exception
+   */
+  public void moveAtoms(Concept toConcept, Concept fromConcept,
+    List<Atom> fromAtoms) throws Exception;
 
   /**
    * Add relationship.

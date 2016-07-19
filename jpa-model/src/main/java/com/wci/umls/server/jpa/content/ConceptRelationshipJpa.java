@@ -26,6 +26,7 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
@@ -101,6 +102,8 @@ public class ConceptRelationshipJpa extends
    *
    * @return the from id
    */
+  @FieldBridge(impl=LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getFromId() {
     return from == null ? null : from.getId();
   }
@@ -226,6 +229,8 @@ public class ConceptRelationshipJpa extends
    *
    * @return the to id
    */
+  @FieldBridge(impl=LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getToId() {
     return to == null ? null : to.getId();
   }

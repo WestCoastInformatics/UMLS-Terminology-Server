@@ -28,6 +28,10 @@ import org.apache.maven.plugin.MojoFailureException;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.algo.UmlsIdentityLoaderAlgorithm;
+import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
+import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
@@ -70,27 +74,17 @@ public class AdHocMojo extends AbstractMojo {
 
       getLog().info("Ad Hoc Mojo");
 
-      // Handle creating the database if the mode parameter is set
-      final Properties properties = ConfigUtility.getConfigProperties();
+      System.out.println("TESTTEST - You've made it into the Mojo.");
+      
+      UmlsIdentityLoaderAlgorithm loader = new UmlsIdentityLoaderAlgorithm();
 
-      // authenticate
-      final SecurityService service = new SecurityServiceJpa();
-      final String authToken =
-          service.authenticate(properties.getProperty("admin.user"),
-              properties.getProperty("admin.password")).getAuthToken();
-      service.close();
+      System.out.println("TESTTEST - You've made it past the loader instantiation.");
+      
+      
+      loader.setTerminology(terminology);
+      loader.setInputPath("C:/Users/rwood/workspace/UMLS-Terminology-Server/config/src/main/resources/data/SAMPLE_UMLS");
 
-      boolean serverRunning = ConfigUtility.isServerActive();
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
-      if (serverRunning) {
-        throw new Exception("Server must not be running to generate data");
-      }
-      //
-      // // Initialize
-      Logger.getLogger(getClass()).info("Authenticate admin user");
-      SecurityServiceRest security = new SecurityServiceRestImpl();
-      ProjectServiceRest project = new ProjectServiceRestImpl();
+      System.out.println("TESTTEST - You've made it past passing in the terminology and path.");      
       WorkflowServiceRest workflowService = new WorkflowServiceRestImpl();
 
       // Get project

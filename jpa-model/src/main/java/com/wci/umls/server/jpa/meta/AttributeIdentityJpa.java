@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.meta;
 
 import javax.persistence.Column;
@@ -13,11 +16,12 @@ import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * JPA and JAXB enabled implementation of {@link AttributeIdentity}
+ * JPA and JAXB enabled implementation of {@link AttributeIdentity}.
  */
 @Entity
 @Table(name = "attribute_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "componentId", "componentType", "terminology", "id"
+    "componentId", "componentTerminology", "componentType", "hashcode", "name",
+    "terminology", "terminologyId"
 }))
 @XmlRootElement(name = "attributeIdentity")
 public class AttributeIdentityJpa implements AttributeIdentity {
@@ -44,7 +48,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /** The component type. */
   @Column(nullable = false)
-  @Enumerated(EnumType.STRING)  
+  @Enumerated(EnumType.STRING)
   private IdType componentType;
 
   /** The component terminology. */
@@ -181,16 +185,16 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     int result = 1;
     result = prime * result + ((hashcode == null) ? 0 : hashcode.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((componentId == null) ? 0 : componentId.hashCode());
     result =
-        prime * result
-            + ((componentTerminology == null) ? 0 : componentTerminology.hashCode());
-    result = prime * result + ((componentType == null) ? 0 : componentType.hashCode());
+        prime * result + ((componentId == null) ? 0 : componentId.hashCode());
+    result = prime * result + ((componentTerminology == null) ? 0
+        : componentTerminology.hashCode());
+    result = prime * result
+        + ((componentType == null) ? 0 : componentType.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     return result;
   }
 
@@ -245,7 +249,8 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     return "AttributeIdentityJpa [id=" + id + ", name=" + name
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
         + ", componentId=" + componentId + ", componentType=" + componentType
-        + ", componentTerminology=" + componentTerminology + ", hashCode=" + hashcode + "]";
+        + ", componentTerminology=" + componentTerminology + ", hashCode="
+        + hashcode + "]";
   }
 
 }

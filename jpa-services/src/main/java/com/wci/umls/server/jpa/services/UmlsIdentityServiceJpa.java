@@ -7,6 +7,7 @@ import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
@@ -502,25 +503,27 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     String version =
         getTerminologyLatestVersion(identity.getTerminology()).getVersion();
 
-    RelationshipIdentity inverseIdentity = identity;
-    inverseIdentity.setId(null);
-    inverseIdentity.setFromId(identity.getFromId());
-    inverseIdentity.setFromTerminology(identity.getFromTerminology());
-    inverseIdentity.setFromType(identity.getFromType());
-    inverseIdentity.setToId(identity.getToId());
-    inverseIdentity.setToTerminology(identity.getToTerminology());
-    inverseIdentity.setToType(identity.getToType());
+    RelationshipIdentity inverseIdentity =
+        new RelationshipIdentityJpa(identity);
+    inverseIdentity.setId(identity.getInverseId());
+    inverseIdentity.setFromId(identity.getToId());
+    inverseIdentity.setFromTerminology(identity.getToTerminology());
+    inverseIdentity.setFromType(identity.getToType());
+    inverseIdentity.setToId(identity.getFromId());
+    inverseIdentity.setToTerminology(identity.getFromTerminology());
+    inverseIdentity.setToType(identity.getFromType());
     inverseIdentity
         .setRelationshipType(getRelationshipType(identity.getRelationshipType(),
             identity.getTerminology(), version).getInverse().getAbbreviation());
-    if (!identity.getAdditionalRelationshipType().equals("")){
-    inverseIdentity.setAdditionalRelationshipType(
-        getAdditionalRelationshipType(identity.getRelationshipType(),
-            identity.getTerminology(), version).getInverse().getAbbreviation());
-    }
-    else {
+    if (!identity.getAdditionalRelationshipType().equals("")) {
+      inverseIdentity.setAdditionalRelationshipType(
+          getAdditionalRelationshipType(identity.getRelationshipType(),
+              identity.getTerminology(), version).getInverse()
+                  .getAbbreviation());
+    } else {
       inverseIdentity.setAdditionalRelationshipType("");
     }
+    inverseIdentity.setInverseId(identity.getId());
 
     return inverseIdentity;
   }
@@ -555,16 +558,14 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     try {
       final javax.persistence.Query query =
           manager.createQuery("select a from RelationshipIdentityJpa a "
-              + "where id = :id  " + "and terminology = :terminology  "
+              + "where terminology = :terminology  "
               + "and terminologyId = :terminologyId  "
               + "and relationshipType = :relationshipType  "
               + "and additionalRelationshipType = :additionalRelationshipType  "
               + "and fromId  = :fromId   " + "and fromType = :fromType  "
               + "and fromTerminology = :fromTerminology  "
               + "and toId = :toId  " + "and toType = :toType  "
-              + "and toTerminology = :toTerminology  "
-              + "and inverseId = :inverseId  ");
-      query.setParameter("id", identity.getId());
+              + "and toTerminology = :toTerminology  ");
       query.setParameter("terminology", identity.getTerminology());
       query.setParameter("terminologyId", identity.getTerminologyId());
       query.setParameter("relationshipType", identity.getRelationshipType());
@@ -576,7 +577,6 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       query.setParameter("toId", identity.getToId());
       query.setParameter("toType", identity.getToType());
       query.setParameter("toTerminology", identity.getToTerminology());
-      query.setParameter("inverseId", identity.getInverseId());
 
       return (RelationshipIdentity) query.getSingleResult();
 

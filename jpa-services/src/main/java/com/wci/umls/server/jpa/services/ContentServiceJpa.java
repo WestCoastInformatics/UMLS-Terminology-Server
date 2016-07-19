@@ -1975,6 +1975,43 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
+  /* see superclass */
+  @Override
+  public void moveAtoms(Concept toConcept, Concept fromConcept,
+    List<Atom> fromAtoms) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - move atoms " + fromAtoms + " from concept "
+            + fromConcept + " to concept " + toConcept);
+
+    // for each atom, remove from fromConcept and add toConcept
+    for (Atom atm : fromAtoms) {
+      toConcept.getAtoms().add(atm);
+      fromConcept.getAtoms().remove(atm);
+
+      // check for molecular action flag
+      if (isMolecularActionFlag()) {
+        // Create an atomic action for each atom move
+        final MolecularAction molecularAction = getMolecularAction();
+
+        // construct the atomic action
+
+        final AtomicAction atomicAction = new AtomicActionJpa();
+        atomicAction.setField("concept");
+        atomicAction.setIdType(IdType.getIdType(atm));
+        atomicAction.setMolecularAction(molecularAction);
+        atomicAction.setOldValue(fromConcept.getId().toString());
+        atomicAction.setNewValue(toConcept.getId().toString());
+        atomicAction.setObjectId(atm.getId());
+
+        // persist the atomic action and add the persisted version to the
+        // molecular action
+        final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
+
+        molecularAction.getAtomicActions().add(newAtomicAction);
+      }
+    }
+  }
+
   /**
    * Creates the inverse concept relationship.
    *
@@ -1990,7 +2027,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .debug("Content Service - create inverse of concept relationship "
             + relationship);
     if (relationship != null) {
-      // TODO - check if relationship accurately copies
       ConceptRelationship inverseRelationship =
           new ConceptRelationshipJpa(relationship, false);
       inverseRelationship.setId(null);
@@ -2148,17 +2184,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - add relationship " + rel);
-    // Assign id
-    IdentifierAssignmentHandler idHandler = null;
-    if (assignIdentifiersFlag) {
-      idHandler = getIdentifierAssignmentHandler(rel.getTerminology());
-      if (idHandler == null) {
-        throw new Exception(
-            "Unable to find id handler for " + rel.getTerminology());
-      }
-      String id = idHandler.getTerminologyId(rel);
-      rel.setTerminologyId(id);
-    }
+    // Assign id - this was moved to Release time.
+    // IdentifierAssignmentHandler idHandler = null;
+    // if (assignIdentifiersFlag) {
+    // idHandler = getIdentifierAssignmentHandler(rel.getTerminology());
+    // if (idHandler == null) {
+    // throw new Exception(
+    // "Unable to find id handler for " + rel.getTerminology());
+    // }
+    // String id = idHandler.getTerminologyId(rel);
+    // rel.setTerminologyId(id);
+    // }
 
     // Add component
     return addComponent(rel);
@@ -2179,24 +2215,25 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Content Service - update relationship " + rel);
 
-    // Id assignment should not change
-    final IdentifierAssignmentHandler idHandler =
-        getIdentifierAssignmentHandler(rel.getTerminology());
-    if (assignIdentifiersFlag) {
-      if (!idHandler.allowIdChangeOnUpdate()) {
-        @SuppressWarnings("unchecked")
-        Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel2 =
-            getComponent(rel.getId(), rel.getClass());
-        if (!idHandler.getTerminologyId(rel)
-            .equals(idHandler.getTerminologyId(rel2))) {
-          throw new Exception(
-              "Update cannot be used to change object identity.");
-        }
-      } else {
-        // set attribute id on update
-        rel.setTerminologyId(idHandler.getTerminologyId(rel));
-      }
-    }
+    // Id assignment should not change - Id assignment was moved to release
+    // time.
+    // final IdentifierAssignmentHandler idHandler =
+    // getIdentifierAssignmentHandler(rel.getTerminology());
+    // if (assignIdentifiersFlag) {
+    // if (!idHandler.allowIdChangeOnUpdate()) {
+    // @SuppressWarnings("unchecked")
+    // Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel2 =
+    // getComponent(rel.getId(), rel.getClass());
+    // if (!idHandler.getTerminologyId(rel)
+    // .equals(idHandler.getTerminologyId(rel2))) {
+    // throw new Exception(
+    // "Update cannot be used to change object identity.");
+    // }
+    // } else {
+    // // set attribute id on update
+    // rel.setTerminologyId(idHandler.getTerminologyId(rel));
+    // }
+    // }
     // update component
     updateComponent(rel);
 
@@ -2661,7 +2698,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * Adds the subset member.
    *
    * @param subsetMember the subset member
-   * @return the subset member<? extends component has attributes and name,? extends subset>
+   * @return the subset member<? extends component has attributes and name,?
+   *         extends subset>
    * @throws Exception the exception
    */
   /* see superclass */
@@ -3010,7 +3048,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // declare search handler
     SearchHandler searchHandler = null;
 
-    if (localPfs.getExpression() != null && !localPfs.getExpression().isEmpty()) {
+    if (localPfs.getExpression() != null
+        && !localPfs.getExpression().isEmpty()) {
 
       // get the results
       ExpressionHandler exprHandler =
@@ -3019,10 +3058,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       // if results found, constuct a query restriction
       if (exprResults.getCount() > 0) {
-        String exprQueryRestr =
-            (localPfs.getQueryRestriction() != null
-                && !localPfs.getQueryRestriction().isEmpty() ? " AND " : "")
-                + "terminologyId:(";
+        String exprQueryRestr = (localPfs.getQueryRestriction() != null
+            && !localPfs.getQueryRestriction().isEmpty() ? " AND " : "")
+            + "terminologyId:(";
         for (final SearchResult exprResult : exprResults.getObjects()) {
           exprQueryRestr += exprResult.getTerminologyId() + " ";
         }
@@ -3030,8 +3068,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         exprQueryRestr =
             exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")^"
                 + exprResults.getCount();
-        localPfs.setQueryRestriction((localPfs.getQueryRestriction() != null ? localPfs
-            .getQueryRestriction() : "") + exprQueryRestr);
+        localPfs.setQueryRestriction((localPfs.getQueryRestriction() != null
+            ? localPfs.getQueryRestriction() : "") + exprQueryRestr);
       }
     }
 
@@ -3827,11 +3865,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
             m.invoke(oldComponent, new Object[] {}).toString();
         final String newValue =
             m.invoke(newComponent, new Object[] {}).toString();
-        
-        if(m.getName().equals("getWorkflowStatus")){
-          System.out.println("Looky here!");
-        }
-        
+
         if (!oldValue.equals(newValue)) {
 
           // construct the atomic action
@@ -3969,7 +4003,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .debug("Content Service - find relationships for concept " + conceptId
             + "/" + terminology + "/" + version + "/" + branch + "/" + query
             + "/" + inverseFlag);
-
+    
     return findRelationshipsForComponentHelper(conceptId, terminology, version,
         branch, query, inverseFlag, pfs, ConceptRelationshipJpa.class);
   }
@@ -4269,8 +4303,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         finalQuery.append(" AND ");
       }
       if (terminology != null && version != null) {
-        finalQuery.append("toTerminology:" + terminology + " AND toVersion:"
-            + version);
+        finalQuery.append(
+            "toTerminology:" + terminology + " AND toVersion:" + version);
       }
     } else {
       if (terminologyId != null) {
@@ -4280,8 +4314,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         finalQuery.append(" AND ");
       }
       if (terminology != null && version != null) {
-        finalQuery.append("fromTerminology:" + terminology
-            + " AND fromVersion:" + version);
+        finalQuery.append(
+            "fromTerminology:" + terminology + " AND fromVersion:" + version);
       }
     }
 

@@ -552,6 +552,27 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowService.addWorkflowBinDefinition(project1.getId(), definition,
         authToken);
 
+
+    // Clear and regenerate all bins
+    getLog().info("  Clear and regenerate ME bins");
+    // Clear bins
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.clearBins(project1.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+    // Regenerate bins
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.regenerateBins(project1.getId(),
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+    // TODO: create
+    // 1. obtain bins
+    // 2. Make 2 worklists of size 10 from demotions/nci/snomed/leftovers
+    // 3. Make a checklist of size 10 from each one, exclude on worklist
+    // 4. Make a random checklist of size 10 from each one
+    // 5. Make an in-order checklist of size 10 from each one
+
+    
     //
     // Add a QA bins workflow config for the current project
     //
@@ -655,25 +676,6 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     // true_orphan
     // sfo_lfo
     // deleted_cui_split
-
-    // Clear and regenerate all bins
-    getLog().info("  Clear and regenerate ME bins");
-    // Clear bins
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.clearBins(project1.getId(),
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-
-    // Regenerate bins
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.regenerateBins(project1.getId(),
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
-
-    // TODO: create
-    // 1. obtain bins
-    // 2. Make 2 worklists of size 10 from demotions/nci/snomed/leftovers
-    // 3. Make a checklist of size 10 from each one, exclude on worklist
-    // 4. Make a random checklist of size 10 from each one
-    // 5. Make an in-order checklist of size 10 from each one
 
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate QA bins");

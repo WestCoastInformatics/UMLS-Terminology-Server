@@ -341,19 +341,28 @@ public class UmlsIdentifierAssignmentHandler
         synchronized (this) {
           // Get next id and inverse ID
           final Long nextId = service.getNextRelationshipId();
-          //TODO confirm this gives different number.  If not, add 1 to nextId;
-          final Long nextIdInverse = service.getNextRelationshipId();
           
-          //Set ID and inverse IDs for both relationship and its inverse
-          identity.setId(nextId);
-          identity.setInverseId(nextIdInverse);
+          //Set ID for the relationship.  Set inverseId to bogus number for now - it will be updated later.
+          identity.setId(nextId);          
+          identity.setInverseId(0L);          
+          
+          // Add new identity object
+          service.addRelationshipIdentity(identity);
 
+          // Get next id for inverse relationship
+         //TODO confirm this gives different number.  If not, add 1 to nextId;
+          final Long nextIdInverse = service.getNextRelationshipId();
+
+          //Set ID and inverse IDs for the inverse Id
           inverseIdentity.setId(nextIdInverse);
           inverseIdentity.setInverseId(nextId);
 
-          // Add new identity objects
+          // Add inverse identity objects
           service.addRelationshipIdentity(inverseIdentity);
-          service.addRelationshipIdentity(identity);
+                   
+          // Update the identity objects with the true InverseId
+          identity.setInverseId(nextIdInverse);          
+          service.updateRelationshipIdentity(identity);
           
           // return ID for called relationship (inverse can get called later)
           return convertId(nextId, "RUI");
@@ -381,7 +390,7 @@ public class UmlsIdentifierAssignmentHandler
     try {
       // Create RelationshipIdentity and populate from the relationship.
       final RelationshipIdentity identity = new RelationshipIdentityJpa();
-      identity.setId(relationship.getId());
+//      identity.setId(relationship.getId());
       identity.setTerminology(relationship.getTerminology());
       identity.setTerminologyId(relationship.getTerminologyId());
       identity.setRelationshipType(relationship.getRelationshipType());

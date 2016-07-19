@@ -20,7 +20,9 @@ import com.wci.umls.server.model.meta.RelationshipIdentity;
  */
 @Entity
 @Table(name = "relationship_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "fromId", "toId", "terminology", "id"
+    "additionalRelationshipType", "fromId", "fromTerminology", "fromType",
+    "relationshipType", "terminology", "terminologyId", "toId", "toTerminology",
+    "toType"
 }))
 @XmlRootElement(name = "relationshipIdentity")
 public class RelationshipIdentityJpa implements RelationshipIdentity {
@@ -247,37 +249,32 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
     this.inverseId = inverseId;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime
-            * result
-            + ((additionalRelationshipType == null) ? 0
-                : additionalRelationshipType.hashCode());
+    result = prime * result + ((additionalRelationshipType == null) ? 0
+        : additionalRelationshipType.hashCode());
     result = prime * result + ((fromId == null) ? 0 : fromId.hashCode());
-    result =
-        prime * result
-            + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
+    result = prime * result
+        + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
     result = prime * result + ((fromType == null) ? 0 : fromType.hashCode());
     result = prime * result + ((inverseId == null) ? 0 : inverseId.hashCode());
-    result =
-        prime * result
-            + ((relationshipType == null) ? 0 : relationshipType.hashCode());
+    result = prime * result
+        + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((toId == null) ? 0 : toId.hashCode());
-    result =
-        prime * result
-            + ((toTerminology == null) ? 0 : toTerminology.hashCode());
+    result = prime * result
+        + ((toTerminology == null) ? 0 : toTerminology.hashCode());
     result = prime * result + ((toType == null) ? 0 : toType.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -340,6 +337,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "RelationshipIdentityJpa [id=" + id + ", terminology=" + terminology
