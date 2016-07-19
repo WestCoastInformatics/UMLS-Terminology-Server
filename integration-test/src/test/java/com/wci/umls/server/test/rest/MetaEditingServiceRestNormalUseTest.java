@@ -1340,6 +1340,60 @@ public class MetaEditingServiceRestNormalUseTest
     relatedC =
         contentService.getConcept(concept3.getId(), project.getId(), authToken);
 
+    // Verify fromConcept has been removed
+    boolean fromCNotExists = false;
+    try {
+      fromC =
+          contentService.getConcept(concept2.getId(), project.getId(), authToken);      
+    }
+    catch (Exception e){
+      fromCNotExists = true;
+    }
+    assertTrue(fromCNotExists);
+
+    // Verify fromConcept atom is now present in toConcept, along with original
+    // toConcept atom
+    int atomCount = 0;
+    for (Atom a : toC.getAtoms()) {
+      if (a.getName().equals("DCB") || a.getName().equals("17 Oxosteroids")) {
+        atomCount++;
+      }
+    }
+    assertEquals(2, atomCount);
+
+    // Verify fromConcept Semantic type is now present in toConcept, along with
+    // original toConcept Semantic type
+    int styCount = 0;
+    for (SemanticTypeComponent sty : toC.getSemanticTypes()) {
+      if (sty.getSemanticType().equals("Lipid") || sty.getSemanticType().equals("Enzyme")) {
+        styCount++;
+      }
+    }
+    assertEquals(2, styCount);
+
+    // Verify relationship between to and from Concept has been removed
+    RelationshipList relList = contentService.findConceptRelationships(toC.getTerminologyId(),
+        toC.getTerminology(), toC.getVersion(), null, null, authToken);
+
+    boolean relationshipPresent = false;
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getTo().getTerminologyId().equals("C0002073")
+          && rel.getFrom().getId().equals(toC.getId())) {
+        relationshipPresent = true;
+      }
+    }
+    assertTrue(!relationshipPresent);
+
+    // Verify that relationships from fromConcept have been added to toConcept
+    relationshipPresent = false;
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getTo().getTerminologyId().equals("C0065642")
+          && rel.getFrom().getId().equals(toC.getId())) {
+        relationshipPresent = true;
+      }
+    }
+    assertTrue(relationshipPresent);
+
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
@@ -1386,7 +1440,6 @@ public class MetaEditingServiceRestNormalUseTest
         projectService.getLog(project.getId(), toC.getId(), 1, authToken);
     assertTrue(logEntry.contains("MERGE"));
 
-
     // Remove all of the atoms, semantic types, and relationships (and re-create
     // Concept2) so teardown can succesfully remove the concept.
     List<Atom> toAtomList = toC.getAtoms();
@@ -1403,7 +1456,7 @@ public class MetaEditingServiceRestNormalUseTest
       toC = contentService.getConcept(concept.getId(), project.getId(),
           authToken);
     }
-    RelationshipList relList =
+    relList =
         contentService.findConceptRelationships(toC.getTerminologyId(),
             toC.getTerminology(), toC.getVersion(), null, null, authToken);
     for (final Relationship<?, ?> rel : relList.getObjects()) {
