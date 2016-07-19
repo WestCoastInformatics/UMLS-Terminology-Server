@@ -48,8 +48,14 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
   /** The keep inferred. */
   private boolean keepInferred = false;
 
+  /** The keep descendants. */
+  private boolean keepDescendants = false;
+
   /** The chd par map. */
   Map<String, Set<String>> chdParMap = new HashMap<>();
+
+  /** The chd par map. */
+  Map<String, Set<String>> parChdMap = new HashMap<>();
 
   /** The other map. */
   Map<String, Set<String>> otherMap = new HashMap<>();
@@ -93,6 +99,15 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
       Set<String> descriptions = new HashSet<>();
       concepts.addAll(inputConcepts);
       Logger.getLogger(getClass()).info("    count = " + concepts.size());
+
+      // 1b. Get descendants if indicated
+      if (keepDescendants) {
+        for (final String concept : new HashSet<>(concepts)) {
+          Set<String> desc = getDescendantsHelper(concept);
+          Logger.getLogger(getClass()).info("    desc count = " + desc.size());
+          concepts.addAll(desc);
+        }
+      }
 
       // 2. Find other related concepts
       Logger.getLogger(getClass()).info("  Add distance 1 related concepts");
@@ -166,12 +181,6 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
         Logger.getLogger(getClass()).info(
             "    count (after ancestors) = " + concepts.size());
         Logger.getLogger(getClass()).info("    prev count = " + prevCt);
-
-        if (concepts.contains("370570004")) {
-          Logger.getLogger(getClass()).info("Found 370570004");
-        }
-        if (descriptions.contains("1195863013"))
-          Logger.getLogger(getClass()).info("Found 1195863013");
 
       } while (concepts.size() != prevCt);
 
@@ -593,6 +602,13 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
           }
           chdParMap.get(rel.getFrom().getTerminologyId()).add(
               rel.getTo().getTerminologyId());
+
+          if (!parChdMap.containsKey(rel.getTo().getTerminologyId())) {
+            parChdMap
+                .put(rel.getTo().getTerminologyId(), new HashSet<String>());
+          }
+          parChdMap.get(rel.getTo().getTerminologyId()).add(
+              rel.getFrom().getTerminologyId());
         }
 
         // active, not isa => other
@@ -692,15 +708,6 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
   }
 
   /**
-   * Returns the keep inferred.
-   *
-   * @return the keep inferred
-   */
-  public boolean getKeepInferred() {
-    return keepInferred;
-  }
-
-  /**
    * Sets the keep inferred.
    *
    * @param keepInferred the keep inferred
@@ -710,12 +717,38 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
   }
 
   /**
+   * Sets the keep descendants.
+   *
+   * @param keepDescendants the keep descendants
+   */
+  public void setKeepDescendants(boolean keepDescendants) {
+    this.keepDescendants = keepDescendants;
+  }
+
+  /**
    * Sets the input path.
    *
    * @param inputPath the input path
    */
   public void setInputPath(String inputPath) {
     this.inputPath = inputPath;
+  }
+
+  /**
+   * Returns the descendant concepts.
+   *
+   * @param concept the concept
+   * @return the descendant concepts
+   */
+  public Set<String> getDescendantsHelper(String concept) {
+    final Set<String> descendants = new HashSet<>();
+    if (!parChdMap.containsKey(concept)) {
+      return descendants;
+    }
+    for (final String chd : parChdMap.get(concept)) {
+      descendants.addAll(getDescendantsHelper(chd));
+    }
+    return descendants;
   }
 
 }

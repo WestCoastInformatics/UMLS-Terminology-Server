@@ -7,8 +7,6 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -18,11 +16,9 @@ import org.junit.Test;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.test.helpers.DegenerateUseMethodTestHelper;
-import com.wci.umls.server.test.helpers.DegenerateUseMethodTestHelper.ExpectedFailure;
 
 /**
  * Implementation of the "Security Service REST Degenerate Use" Test Cases.

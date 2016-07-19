@@ -18,21 +18,21 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-
-//TODO eventually - fill this out
+import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 
 /**
- * Implementation of the "MetaEditing Service REST Normal Use" Test Cases.
+ * Implementation of the "MetaEditing Service REST Edge Cases" Test Cases.
  */
-public class MetaEditingServiceRestEdgeCasesTest
-    extends MetaEditingServiceRestTest {
+public class MetaEditingServiceRestEdgeCasesTest extends
+    MetaEditingServiceRestTest {
 
   /** The auth tokens. */
   static String authToken;
@@ -45,6 +45,12 @@ public class MetaEditingServiceRestEdgeCasesTest
 
   /** The umls version. */
   private String umlsVersion = "latest";
+
+  /**
+   * The concept (will be copied from existing concept, to avoid affecting
+   * database values.
+   */
+  private ConceptJpa concept;
 
   /**
    * Create test fixtures per test.
@@ -66,88 +72,15 @@ public class MetaEditingServiceRestEdgeCasesTest
 
     // verify terminology and branch are expected values
     assertTrue(project.getTerminology().equals(umlsTerminology));
-    assertTrue(project.getBranch().equals(Branch.ROOT));
-  }
+    // assertTrue(project.getBranch().equals(Branch.ROOT));
 
-  /**
-   * Test terminology and branch mismatches between project and concept
-   * NOTE: Only need this one test, as the project/concept checks are uniform
-   * across all MetaEditing REST calls
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testEdgeCaseRestContent001() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    Logger.getLogger(getClass()).info(
-        "TEST - Degenerate use tests for add/remove semantic type to concept");
-
-    ValidationResult result;
-
-    // get the concept
-    Concept c = contentService.getConcept("C0000005", umlsTerminology,
-        umlsVersion, null, authToken);
-    assertNotNull(c);
-
-    // check against project
-    assertTrue(c.getBranch().equals(project.getBranch()));
-
-    // check that concept has semantic types
-    assertTrue(c.getSemanticTypes().size() > 0);
-
-    // get the first semantic type
-    SemanticTypeComponent sty = c.getSemanticTypes().get(0);
-    assertNotNull(sty);
-
-    // get a concept with different semantic type (for testing add)
-    // NOTE: Testing addition of already present sty done elsewhere
-    Concept c2 = contentService.getConcept("C0000039", umlsTerminology,
-        umlsVersion, null, authToken);
-    assertNotNull(c2);
-    SemanticTypeComponentJpa sty2 =
-        (SemanticTypeComponentJpa) c2.getSemanticTypes().get(0);
-    assertNotNull(sty2);
-
-    //
-    // Test calls where terminologies do not match
-    //
-    project.setTerminology("testTerminology");
-    projectService.updateProject((ProjectJpa) project, authToken);
-
-    result = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), sty2, false, authToken);
-    assertTrue(!result.isValid());
-
-    metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), sty.getId(), false, authToken);
-    assertTrue(!result.isValid());
-
-    // reset the terminology
-    project.setTerminology(umlsTerminology);
-    projectService.updateProject((ProjectJpa) project, authToken);
-
-    //
-    // Test calls where branches do not match
-    //
-    project.setBranch("testBranch");
-    projectService.updateProject((ProjectJpa) project, authToken);
-
-    //
-    // Test add and remove
-    //
-
-    result = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), sty2, false, authToken);
-    assertTrue(!result.isValid());
-
-    result = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getTimestamp().getTime(), sty.getId(), false, authToken);
-    assertTrue(!result.isValid());
-
-    // reset the branch
-    project.setBranch(Branch.ROOT);
-    projectService.updateProject((ProjectJpa) project, authToken);
+    // Copy existing concept to avoid messing with actual database data.
+    concept =
+        new ConceptJpa(contentService.getConcept("C0000294", umlsTerminology,
+            umlsVersion, null, authToken), false);
+    concept.setId(null);
+    concept.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+    concept = (ConceptJpa) testService.addConcept(concept, authToken);
 
   }
 
@@ -161,8 +94,8 @@ public class MetaEditingServiceRestEdgeCasesTest
     ValidationResult result = new ValidationResultJpa();
 
     // get the concept
-    Concept c1 = contentService.getConcept("C0000530", umlsTerminology,
-        umlsVersion, null, authToken);
+    Concept c1 =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     // construct a semantic type not present on concept (here, Lipid)
     SemanticTypeComponent sty = new SemanticTypeComponentJpa();
@@ -175,17 +108,19 @@ public class MetaEditingServiceRestEdgeCasesTest
     sty.setTimestamp(new Date());
 
     // add the sty
-    result = metaEditingService.addSemanticType(project.getId(), c1.getId(),
-        c1.getTimestamp().getTime(), (SemanticTypeComponentJpa) sty, false,
-        authToken);
+    result =
+        metaEditingService.addSemanticType(project.getId(), c1.getId(), c1
+            .getTimestamp().getTime(), (SemanticTypeComponentJpa) sty, false,
+            authToken);
     if (!result.isValid()) {
       Logger.getLogger(getClass()).info("Invalid result: " + result.toString());
     }
     assertTrue(result.isValid());
 
     // get the concept
-    c1 = contentService.getConcept("C0000530", umlsTerminology, umlsVersion,
-        null, authToken);
+    c1 =
+        contentService.getConcept("C0000530", umlsTerminology, umlsVersion,
+            null, authToken);
 
     sty = null;
     for (SemanticTypeComponent s : c1.getSemanticTypes()) {
@@ -201,7 +136,7 @@ public class MetaEditingServiceRestEdgeCasesTest
 
     // number of repeated calls to make
     final int[] nThreads = {
-        10
+      10
     };
 
     // runnable instanes
@@ -213,13 +148,13 @@ public class MetaEditingServiceRestEdgeCasesTest
     // accessible index, success, and exception counters
     int ct[] = new int[1];
     int completeCt[] = {
-        0
+      0
     };
     int successCt[] = {
-        0
+      0
     };
     int exceptionCt[] = {
-        0
+      0
     };
 
     for (int i = 0; i < nThreads[0]; i++) {
@@ -229,7 +164,7 @@ public class MetaEditingServiceRestEdgeCasesTest
         @Override
         public void run() {
           Logger.getLogger(getClass()).info("Running new thread");
-          
+
           // introduce slight delay (really for cleanliness of log)
           try {
             Thread.sleep(500);
@@ -242,16 +177,19 @@ public class MetaEditingServiceRestEdgeCasesTest
               Logger.getLogger(getClass()).info("  Thread returned success");
               successCt[0]++;
             } else {
-              Logger.getLogger(getClass()).info("  Thread returned expected failure");
+              Logger.getLogger(getClass()).info(
+                  "  Thread returned expected failure");
             }
           } catch (Exception e) {
-            Logger.getLogger(getClass()).info("  Unexpected exception encountered");
+            Logger.getLogger(getClass()).info(
+                "  Unexpected exception encountered");
             exceptionCt[0]++;
           } finally {
             completeCt[0]++;
-            Logger.getLogger(getClass()).info("Thread complete: " + completeCt[0] + "/"
-                + nThreads[0] + " (" + exceptionCt[0] + " exceptions, "
-                + successCt[0] + " successes)");
+            Logger.getLogger(getClass()).info(
+                "Thread complete: " + completeCt[0] + "/" + nThreads[0] + " ("
+                    + exceptionCt[0] + " exceptions, " + successCt[0]
+                    + " successes)");
             // on all threads complete, expect only one valid result and no
             // exceptions
             // NOTE: Exceptions indicate a commit error (asynchronous failure)
@@ -272,7 +210,7 @@ public class MetaEditingServiceRestEdgeCasesTest
     for (int i = 0; i < nThreads[0]; i++) {
       threads[i].start();
     }
-    
+
     // wait an arbitrary amount of time
     Thread.sleep(20000);
 
@@ -286,11 +224,10 @@ public class MetaEditingServiceRestEdgeCasesTest
   @Override
   @After
   public void teardown() throws Exception {
-
-    // ensure branch and terminology are set correctly
-    project.setBranch(Branch.ROOT);
-    project.setTerminology(umlsTerminology);
-    projectService.updateProject((ProjectJpa) project, authToken);
+    // Copy existing concept to avoid messing with actual database data.
+    IntegrationTestClientRest testService =
+        new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+    testService.removeConcept(concept.getId(), authToken);
     // logout
     securityService.logout(authToken);
 

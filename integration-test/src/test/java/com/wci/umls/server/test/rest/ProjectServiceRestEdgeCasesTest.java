@@ -6,6 +6,7 @@
  */
 package com.wci.umls.server.test.rest;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,7 +75,7 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
 
-    project2.setDescription("Sample");
+    project2.setDescription("Sample " + new Date().getTime());
     project2.setName("Sample");
     project2.setTerminology("UMLS");
     project2.setWorkflowPath("DEFAULT");
