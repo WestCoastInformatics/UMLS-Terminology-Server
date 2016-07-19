@@ -106,10 +106,4 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
 
   }
 
-  /* see superclass */
-  @Override
-  public String getName() {
-    return "ADD_SEMANTIC_TYPE";
-  }
-
 }

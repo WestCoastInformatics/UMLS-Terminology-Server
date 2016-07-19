@@ -104,10 +104,4 @@ public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
 
   }
 
-  /* see superclass */
-  @Override
-  public String getName() {
-    return "REMOVE_SEMANTIC_TYPE";
-  }
-
 }

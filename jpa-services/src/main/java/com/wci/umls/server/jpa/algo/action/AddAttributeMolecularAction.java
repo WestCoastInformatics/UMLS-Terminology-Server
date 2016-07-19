@@ -110,9 +110,9 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
     // add the attribute and set the last modified by
     getConcept().getAttributes().add(attribute);
     if (getChangeStatusFlag()) {
-    getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    
+
     // update the concept
     updateConcept(getConcept());
 
@@ -120,12 +120,6 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
         getName() + " " + attribute.getName() + " to concept "
             + getConcept().getTerminologyId());
-  }
-
-  /* see superclass */
-  @Override
-  public String getName() {
-    return "ADD_ATTRIBUTE";
   }
 
 }

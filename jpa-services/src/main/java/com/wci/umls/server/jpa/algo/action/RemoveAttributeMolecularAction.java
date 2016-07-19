@@ -114,15 +114,4 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
 
   }
 
-  /**
-   * Returns the name.
-   *
-   * @return the name
-   */
-  /* see superclass */
-  @Override
-  public String getName() {
-    return "REMOVE_ATTRIBUTE";
-  }
-
 }

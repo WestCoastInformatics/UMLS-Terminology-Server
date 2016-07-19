@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import com.google.common.base.CaseFormat;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.LocalException;
@@ -95,16 +96,24 @@ public abstract class AbstractMolecularAction
     return lastModified;
   }
 
-
   /* see superclass */
   @Override
   public boolean getChangeStatusFlag() {
     return changeStatusFlag;
   }
 
+  /* see superclass */
+  public String getName() {
+    String objectName = this.getClass().getSimpleName();
+    objectName = objectName.replace("MolecularAction", "");
+    objectName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, objectName);
+    objectName = objectName.toUpperCase();
+    
+    return objectName;
+  }
 
   /* see superclass */
-  @Override  
+  @Override
   public void setChangeStatusFlag(boolean changeStatusFlag) {
     this.changeStatusFlag = changeStatusFlag;
   }
