@@ -48,37 +48,21 @@
       <thead class="table-select-row">
         <tr>
           <!-- Worklist number header -->
-          <th class="col-md-1 col-xs-1"><span
-              ng-click="setSortField('worklist','number')">
-              <span ng-bind="getSortIndicator('worklist','number')"></span>
-            </span></th>
+          <th class="col-md-1 col-xs-1"></th>
             
           <!-- Worklist name header -->
-          <th class="col-md-5 col-xs-5"><span
-              ng-click="setSortField('worklist','name')">
-              Name
-              <span ng-bind="getSortIndicator('worklist','name')"></span>
-            </span> / 
-              <span ng-click="setSortField('worklist','lastModified')">
-                Last Modified
-                <span ng-bind="getSortIndicator('worklist','lastModified')"></span>
-            </span></th>
+          <th class="col-md-5 col-xs-5">Name / Last Modified</th>
 
           <!-- Author/Reviewer Time header -->
-          <th ng-show="value == 'Worklist'" class="col-md-3 col-xs-3"><span
-              ng-click="setSortField('worklist','moduleId')">
+          <th ng-show="value == 'Worklist'" class="col-md-3 col-xs-3">
               Editor
-              <span ng-bind="getSortIndicator('worklist','moduleId')"></span>
-            </span> / <span title="Group">Group
+            / <span title="Group">Group
             </span> / <span title="Time">Time
             </span></th>
 
           <!-- Workflow Status header -->
-          <th class="col-md-1 col-xs-1"><span
-              ng-click="setSortField('worklist','workflowStatus')">
-              Status
-              <span ng-bind="getSortIndicator('worklist','workflowStatus')"></span>
-            </span></th>
+          <th class="col-md-1 col-xs-1">
+              Status</th>
 
           <!-- Actions header -->
           <th class="col-md-2 col-xs-2" ">Actions</th>
@@ -162,9 +146,9 @@
           </tr>
           <tr>
             <td>
-              <b>Concept/Cluster Counts</b>
+              <b>Cluster/Concept Counts</b>
             </td>
-            <td>{{selected.worklist.stats.conceptCt}}/{{selected.worklist.stats.clusterCt}}</td>
+            <td>{{selected.worklist.stats.clusterCt}}/{{selected.worklist.stats.conceptCt}}</td>
           </tr>
           <!-- TODO: make dates dynamic in table based on workflowStateHistory keys -->
           <tr>

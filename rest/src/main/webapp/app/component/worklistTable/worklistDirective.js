@@ -196,53 +196,6 @@ tsApp
                 return utilService.toDate(lastModified);
               };
 
-              // Table sorting mechanism
-              $scope.setSortField = function(table, field, object) {
-
-                // handle 'ASSIGNED' vs 'AVAILABLE' fields
-                // worklistTable.html expresses the fields in terms of available
-                var lfield = field;
-                if (table == 'worklist' && ($scope.value == 'ASSIGNED')) {
-                  if (field == 'terminologyId') {
-                    lfield = 'worklistId';
-                  } else if (field == 'lastModified') {
-                    lfield = 'lastModified';
-                  } else if (field == 'workflowStatus') {
-                    lfield = 'workflowStatus';
-                  } else {
-                    // uppercase and prepend worklist in all other cases
-                    lfield = 'worklist' + field.charAt(0).toUpperCase() + field.slice(1);
-                  }
-                }
-
-                utilService.setSortField(table, lfield, $scope.paging);
-                // retrieve the correct table
-                if (table === 'worklist') {
-                  $scope.getWorklists();
-                }
-                if (table === 'record') {
-                  $scope.getRecords(object);
-                }
-              };
-
-              // Return up or down sort chars if sorted
-              $scope.getSortIndicator = function(table, field) {
-                var lfield = field;
-                if (table == 'worklist' && ($scope.value == 'ASSIGNED')) {
-                  if (field == 'terminologyId') {
-                    lfield = 'worklistId';
-                  } else if (field == 'lastModified') {
-                    lfield = 'lastModified';
-                  } else if (field == 'workflowStatus') {
-                    lfield = 'workflowStatus';
-                  } else {
-                    // uppercase and prepend worklist in all other cases
-                    lfield = 'worklist' + field.charAt(0).toUpperCase() + field.slice(1);
-                  }
-                }
-                return utilService.getSortIndicator(table, lfield, $scope.paging);
-              };
-
               // Selects a worklist (setting $scope.selected.worklist).
               // Looks up current release info and records.
               $scope.selectWorklist = function(worklist) {

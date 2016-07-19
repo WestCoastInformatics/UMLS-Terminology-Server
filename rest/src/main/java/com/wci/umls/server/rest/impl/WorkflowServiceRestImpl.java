@@ -1338,7 +1338,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final StringBuffer sb = new StringBuffer();
       sb.append("workflowBinName:").append(workflowBin.getName());
       sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-      if (!clusterType.equals("all")) {
+      if (!clusterType.equals("all") && !clusterType.equals("default")) {
         sb.append(" AND ").append("clusterType:").append(clusterType);
       }
       if (clusterType.equals("default")) {
@@ -1478,7 +1478,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           bin.getStats().add(stats);
         }
       }
-
+      Collections.sort(bins, (o1, o2) -> o1.getRank() - o2.getRank());
       return bins;
 
     } catch (Exception e) {
