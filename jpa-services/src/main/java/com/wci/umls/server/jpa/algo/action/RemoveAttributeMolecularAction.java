@@ -10,7 +10,7 @@ import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
- * The Class RemoveAttributeMolecularAction.
+ * A molecular action for removing an attribute.
  */
 public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
 

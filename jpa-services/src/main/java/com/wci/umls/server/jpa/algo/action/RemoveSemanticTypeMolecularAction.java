@@ -10,7 +10,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
- * A molecular action for adding a semantic type.
+ * A molecular action for removing a semantic type.
  */
 public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
 

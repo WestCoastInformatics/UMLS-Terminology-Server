@@ -10,7 +10,7 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
- * The Class RemoveAtomMolecularAction.
+ * A molecular action for removing an atom.
  */
 public class RemoveAtomMolecularAction extends AbstractMolecularAction {
 

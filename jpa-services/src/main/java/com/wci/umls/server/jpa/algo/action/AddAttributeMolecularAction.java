@@ -11,7 +11,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
- * The Class AddAttributeMolecularAction.
+ * A molecular action for adding an attribute.
  */
 public class AddAttributeMolecularAction extends AbstractMolecularAction {
 

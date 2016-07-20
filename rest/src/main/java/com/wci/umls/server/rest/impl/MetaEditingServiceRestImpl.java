@@ -23,17 +23,17 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
-import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAttributeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveAttributeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.RemoveRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
@@ -594,151 +594,71 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             + "/" + conceptId + "/add for user " + authToken
             + " with relationship value " + relationship);
 
-    // Prep reusable variables
-    final String action = "ADD_RELATIONSHIP";
-    final ValidationResult validationResult = new ValidationResultJpa();
-
     // Instantiate services
-    final ContentService contentService = new ContentServiceJpa();
-
+    final AddRelationshipMolecularAction action =
+        new AddRelationshipMolecularAction();
     try {
 
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setRelationship(relationship);
+      action.setChangeStatusFlag(true);
+
       // Authorize project role, get userName
-      final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, action, UserRole.AUTHOR);
+      final String userName = authorizeProject(action, projectId,
+          securityService, authToken, "adding a relationship", UserRole.AUTHOR);
 
       // Retrieve the project
-      final Project project = contentService.getProject(projectId);
+      final Project project = action.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final List<Concept> conceptList = initialize(contentService, project,
-          conceptId, relationship.getTo().getId(), userName, action,
-          lastModified, validationResult);
-
-      Concept concept = conceptList.get(0);
-      Concept toConcept = conceptList.get(1);
+      action.initialize(project, conceptId, relationship.getTo().getId(),
+          userName, lastModified);
 
       //
       // Check prerequisites
       //
-
-      // Perform action specific validation - n/a
-
-      // Metadata referential integrity checking
-      if (contentService.getRelationshipType(relationship.getRelationshipType(),
-          relationship.getTerminology(), relationship.getVersion()) == null) {
-        contentService.rollback();
-        throw new LocalException(
-            "Cannot add relationship with invalid relationship type - "
-                + relationship.getRelationshipType());
-      }
-      if (contentService.getAdditionalRelationshipType(
-          relationship.getAdditionalRelationshipType(),
-          relationship.getTerminology(), relationship.getVersion()) == null) {
-        contentService.rollback();
-        throw new LocalException(
-            "Cannot add relationship with invalid additional relationship type - "
-                + relationship.getAdditionalRelationshipType());
-      }
-      if (contentService.getTerminology(relationship.getTerminology(),
-          relationship.getVersion()) == null) {
-        contentService.rollback();
-        throw new LocalException(
-            "Cannot add relationship with invalid terminology - "
-                + relationship.getTerminology() + ", version: "
-                + relationship.getVersion());
-      }
-
-      // Duplicate check
-      for (final ConceptRelationship a : concept.getRelationships()) {
-        if (a.equals(relationship)) {
-          contentService.rollback();
-          throw new LocalException(
-              "Duplicate relationship - " + relationship.getName());
-        }
-      }
+      final ValidationResult validationResult = action.checkPreconditions();
 
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
           || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
         // rollback -- unlocks the concept and closes transaction
-        contentService.rollback();
+        action.rollback();
         return validationResult;
       }
 
       //
-      // Perform the action (contentService will create atomic actions
-      // for CRUD
-      // operations)
+      // Perform the action
       //
-
-      relationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      // Assign alternateTerminologyId
-      // final IdentifierAssignmentHandler handler = contentService
-      // .getIdentifierAssignmentHandler(concept.getTerminology());
-      //
-      // final String altId = handler.getTerminologyId(relationship);
-      // relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
-      // altId);
-
-      // set the relationship component last modified
-      final ConceptRelationshipJpa newRelationship =
-          (ConceptRelationshipJpa) contentService.addRelationship(relationship);
-
-      // construct inverse relationship
-      final ConceptRelationshipJpa inverseRelationship =
-          (ConceptRelationshipJpa) contentService
-              .createInverseConceptRelationship(newRelationship);
-
-      // pass to handler.getTerminologyId
-      // final String inverseAltId =
-      // handler.getTerminologyId(inverseRelationship);
-      // inverseRelationship.getAlternateTerminologyIds()
-      // .put(concept.getTerminology(), inverseAltId);
-
-      // set the relationship component last modified
-      final ConceptRelationshipJpa newInverseRelationship =
-          (ConceptRelationshipJpa) contentService
-              .addRelationship(inverseRelationship);
-
-      // add the relationship and set the last modified by
-      concept.getRelationships().add(newRelationship);
-      toConcept.getRelationships().add(newInverseRelationship);
-      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-
-      // update the concept
-      contentService.updateConcept(toConcept);
-      contentService.updateConcept(concept);
-
-      // log the REST calls
-      contentService.addLogEntry(userName, projectId, conceptId, action + " "
-          + newRelationship + " to concept " + concept.getTerminologyId());
+      action.compute();
 
       // commit (also removes the lock)
-      contentService.commit();
+      action.commit();
 
       // Websocket notification
-      final ChangeEvent<ConceptRelationshipJpa> event =
-          new ChangeEventJpa<ConceptRelationshipJpa>(action, authToken,
-              IdType.RELATIONSHIP.toString(), null, newRelationship, concept);
+      final ChangeEvent<ConceptRelationship> event =
+          new ChangeEventJpa<ConceptRelationship>(action.getName(), authToken,
+              IdType.RELATIONSHIP.toString(), null, action.getRelationship(),
+              action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
 
     } catch (Exception e) {
 
-      handleException(e, action);
+      handleException(e, "adding a relationship");
       return null;
     } finally {
-      contentService.close();
+      action.close();
       securityService.close();
     }
 
   }
 
   /* see superclass */
-  @SuppressWarnings("rawtypes")
   @Override
   @POST
   @Path("/relationship/remove/{id}")
@@ -757,119 +677,60 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             + "/" + conceptId + "/remove for user " + authToken + " with id "
             + relationshipId);
 
-    // Prep reusable variables
-    final String action = "REMOVE_RELATIONSHIP";
-    final ValidationResult validationResult = new ValidationResultJpa();
-
     // Instantiate services
-    final ContentService contentService = new ContentServiceJpa();
-
-    // TODO: actually look up second conceptId somehow.
-    final Long conceptId2 = contentService
-        .getRelationship(relationshipId, ConceptRelationshipJpa.class).getTo()
-        .getId();
-
+    final RemoveRelationshipMolecularAction action =
+        new RemoveRelationshipMolecularAction();
     try {
 
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setRelationshipId(relationshipId);
+      action.setChangeStatusFlag(true);
+
+      // Look up second conceptId.
+      final Long conceptId2 =
+          action.getRelationship(relationshipId, ConceptRelationshipJpa.class)
+              .getTo().getId();
+
       // Authorize project role, get userName
-      final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, action, UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(action, projectId, securityService, authToken,
+              "removing a relationship", UserRole.AUTHOR);
 
       // Retrieve the project
-      final Project project = contentService.getProject(projectId);
+      final Project project = action.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      final List<Concept> conceptList =
-          initialize(contentService, project, conceptId, conceptId2, userName,
-              action, lastModified, validationResult);
-
-      Concept concept = conceptList.get(0);
-      Concept toConcept = conceptList.get(1);
+      action.initialize(project, conceptId, conceptId2, userName, lastModified);
 
       //
       // Check prerequisites
       //
-
-      // Perform action specific validation - n/a
-
-      // Exists check
-      ConceptRelationship relationship = null;
-      for (final ConceptRelationship atr : concept.getRelationships()) {
-        if (atr.getId().equals(relationshipId)) {
-          relationship = atr;
-        }
-      }
-      if (relationship == null) {
-        throw new LocalException("Relationship to remove does not exist");
-      }
-
-      // Exists check for inverse Relationshop
-
-      RelationshipList relList =
-          contentService.findConceptRelationships(toConcept.getTerminologyId(),
-              toConcept.getTerminology(), toConcept.getVersion(), Branch.ROOT,
-              "fromId:" + toConcept.getId() + " AND toId:" + concept.getId(),
-              false, null);
-
-      ConceptRelationship inverseRelationship = null;
-      for (final Relationship rel : relList.getObjects()) {
-        if (rel.getTo().getId() == relationship.getFrom().getId()
-            && rel.getFrom().getId() == relationship.getTo().getId()) {
-          if (inverseRelationship != null) {
-            throw new Exception(
-                "Unexepected more than a single inverse relationship for relationship - "
-                    + relationship);
-          }
-
-          inverseRelationship = (ConceptRelationship) rel;
-        }
-      }
+      final ValidationResult validationResult = action.checkPreconditions();
 
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
           || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
         // rollback -- unlocks the concept and closes transaction
-        contentService.rollback();
+        action.rollback();
         return validationResult;
       }
 
       //
       // Perform the action
       //
+      action.compute();
 
-      // remove the relationship type component from the concept and update
-      concept.getRelationships().remove(relationship);
-
-      // remove the relationship component
-      contentService.removeRelationship(relationship.getId(),
-          relationship.getClass());
-
-      // remove the inverse relationship type component from the concept and
-      // update
-      toConcept.getRelationships().remove(inverseRelationship);
-
-      // remove the inverse relationship component
-      contentService.removeRelationship(inverseRelationship.getId(),
-          inverseRelationship.getClass());
-
-      contentService.updateConcept(toConcept);
-
-      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      contentService.updateConcept(concept);
-
-      // log the REST call
-      contentService.addLogEntry(userName, projectId, conceptId,
-          action + " " + relationship);
-
-      // commit (also adds the molecular action and removes the lock)
-      contentService.commit();
+      // commit (also removes the lock)
+      action.commit();
 
       // Websocket notification
-      final ChangeEvent<ConceptRelationshipJpa> event =
-          new ChangeEventJpa<ConceptRelationshipJpa>(action, authToken,
-              IdType.RELATIONSHIP.toString(),
-              (ConceptRelationshipJpa) relationship, null, concept);
+      final ChangeEvent<ConceptRelationship> event =
+          new ChangeEventJpa<ConceptRelationship>(action.getName(), authToken,
+              IdType.RELATIONSHIP.toString(), action.getRelationship(), null,
+              action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
@@ -877,10 +738,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     } catch (
 
     Exception e) {
-      handleException(e, action);
+      handleException(e, "removing a relationship");
       return null;
     } finally {
-      contentService.close();
+      action.close();
       securityService.close();
     }
   }
