@@ -85,7 +85,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Path("/workflow")
 @Api(value = "/workflow", description = "Operations supporting workflow")
 @Consumes({
-    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_HTML
+    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
@@ -1667,6 +1667,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
+  @Produces(MediaType.TEXT_PLAIN)
   @Path("/worklist/{id}/report/generate")
   @ApiOperation(value = "Generate concept reports for worklist", notes = "Generate concept reports for the specified worklist", response = String.class)
   public String generateConceptReport(
@@ -1817,6 +1818,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
+  @Produces(MediaType.TEXT_PLAIN)
   @Path("/report/{fileName}")
   @ApiOperation(value = "Get generated concept report", notes = "Get generated concept report", response = String.class)
   public String getGeneratedConceptReport(
