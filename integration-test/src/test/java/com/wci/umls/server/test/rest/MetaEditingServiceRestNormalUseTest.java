@@ -317,8 +317,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     atomicActions = contentService
         .findAtomicActions(ma.getId(), null, null, authToken).getObjects();
-    assertEquals(atomicActions.size(), 1);
-    assertEquals(atomicActions.get(0).getIdType().toString(), "SEMANTIC_TYPE");
+    assertEquals(1, atomicActions.size());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
     assertNull(atomicActions.get(0).getNewValue());
 
@@ -568,7 +568,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("REMOVE_ATTRIBUTE " + attribute.getName()));
+    assertTrue(logEntry
+        .contains("REMOVE_ATTRIBUTE " + attribute.getName()));
 
     // remove the second attribute from the concept (assume verification of MA,
     // atomic actions, and log entry since we just tested those)
@@ -1332,7 +1333,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Now that the concepts are all set up, merge them.
     v = metaEditingService.mergeConcepts(project.getId(), toC.getId(),
-        toC.getLastModified().getTime(), fromC.getId(), false, false, false,
+        toC.getLastModified().getTime(), fromC.getId(), false, false,
         authToken);
     assertTrue(v.getErrors().isEmpty());
 
@@ -1342,14 +1343,9 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(concept3.getId(), project.getId(), authToken);
 
     // Verify fromConcept has been removed
-    boolean fromCNotExists = false;
-    try {
       fromC = contentService.getConcept(concept2.getId(), project.getId(),
           authToken);
-    } catch (Exception e) {
-      fromCNotExists = true;
-    }
-    assertTrue(fromCNotExists);
+      assertTrue(fromC == null);
 
     // Verify fromConcept atom is now present in toConcept, along with original
     // toConcept atom
