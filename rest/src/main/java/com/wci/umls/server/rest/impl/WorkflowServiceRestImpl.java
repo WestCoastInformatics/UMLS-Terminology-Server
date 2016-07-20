@@ -93,6 +93,9 @@ import com.wordnik.swagger.annotations.ApiParam;
 public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     WorkflowServiceRest {
 
+  /** The lock. */
+  private static String lock = "LOCK";
+
   /** The security service. */
   private SecurityService securityService;
 
@@ -295,7 +298,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
               authToken, "remove workflow config", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
-      // TODO: remove worklistName from any tracking records in the corresponding bin
+      // TODO: remove worklistName from any tracking records in the
+      // corresponding bin
       workflowService.removeWorklist(id, true);
 
     } catch (Exception e) {
@@ -631,51 +635,54 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Workflow): /bin/regenerate/all ");
 
-    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
-    try {
-      final String userName =
-          authorizeProject(workflowService, projectId, securityService,
-              authToken, "trying to regenerate bins", UserRole.AUTHOR);
-      workflowService.setLastModifiedBy(userName);
+    // Only one user can regenerate bins at a time
+    synchronized (lock) {
+      final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+      try {
+        final String userName =
+            authorizeProject(workflowService, projectId, securityService,
+                authToken, "trying to regenerate bins", UserRole.AUTHOR);
+        workflowService.setLastModifiedBy(userName);
 
-      // Set transaction mode
-      workflowService.setTransactionPerOperation(false);
-      workflowService.beginTransaction();
+        // Set transaction mode
+        workflowService.setTransactionPerOperation(false);
+        workflowService.beginTransaction();
 
-      // Load the project and workflow config
-      final Project project = workflowService.getProject(projectId);
-      final WorkflowConfig workflowConfig =
-          workflowService.getWorkflowConfig(project, type);
+        // Load the project and workflow config
+        final Project project = workflowService.getProject(projectId);
+        final WorkflowConfig workflowConfig =
+            workflowService.getWorkflowConfig(project, type);
 
-      // Start by clearing the bins
-      // remove bins and all of the tracking records in the bins
-      final List<WorkflowBin> results =
-          workflowService.getWorkflowBins(project, type);
-      for (final WorkflowBin workflowBin : results) {
-        workflowService.removeWorkflowBin(workflowBin.getId(), true);
+        // Start by clearing the bins
+        // remove bins and all of the tracking records in the bins
+        final List<WorkflowBin> results =
+            workflowService.getWorkflowBins(project, type);
+        for (final WorkflowBin workflowBin : results) {
+          workflowService.removeWorkflowBin(workflowBin.getId(), true);
+        }
+
+        // concepts seen set
+        final Set<Long> conceptsSeen = new HashSet<>();
+        final Map<Long, String> conceptIdWorklistNameMap =
+            getConceptIdWorklistNameMap(project, workflowService);
+
+        // Look up the bin definitions
+        int rank = 0;
+        for (final WorkflowBinDefinition definition : workflowConfig
+            .getWorkflowBinDefinitions()) {
+
+          // regenerate bins
+          regenerateBinHelper(project, definition, ++rank, conceptsSeen,
+              conceptIdWorklistNameMap, workflowService);
+        }
+
+        workflowService.commit();
+      } catch (Exception e) {
+        handleException(e, "trying to regenerate bins");
+      } finally {
+        workflowService.close();
+        securityService.close();
       }
-
-      // concepts seen set
-      final Set<Long> conceptsSeen = new HashSet<>();
-      final Map<Long, String> conceptIdWorklistNameMap =
-          getConceptIdWorklistNameMap(project, workflowService);
-
-      // Look up the bin definitions
-      int rank = 0;
-      for (final WorkflowBinDefinition definition : workflowConfig
-          .getWorkflowBinDefinitions()) {
-
-        // regenerate bins
-        regenerateBinHelper(project, definition, ++rank, conceptsSeen,
-            conceptIdWorklistNameMap, workflowService);
-      }
-
-      workflowService.commit();
-    } catch (Exception e) {
-      handleException(e, "trying to regenerate bins");
-    } finally {
-      workflowService.close();
-      securityService.close();
     }
 
   }
@@ -1280,111 +1287,121 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Workflow): /worklist/add ");
 
-    final WorkflowService workflowService = new WorkflowServiceJpa();
-    try {
-      final String userName =
-          authorizeProject(workflowService, projectId, securityService,
-              authToken, "trying to create worklist", UserRole.AUTHOR);
-      workflowService.setLastModifiedBy(userName);
+    // Only allow one user in here at a time.
+    synchronized (lock) {
+      final WorkflowService workflowService = new WorkflowServiceJpa();
+      try {
+        final String userName =
+            authorizeProject(workflowService, projectId, securityService,
+                authToken, "trying to create worklist", UserRole.AUTHOR);
+        workflowService.setLastModifiedBy(userName);
 
-      final Project project = workflowService.getProject(projectId);
-      final WorkflowBin workflowBin =
-          workflowService.getWorkflowBin(workflowBinId);
-      final WorkflowEpoch currentEpoch =
-          workflowService.getCurrentWorkflowEpoch(project);
+        final Project project = workflowService.getProject(projectId);
+        final WorkflowBin workflowBin =
+            workflowService.getWorkflowBin(workflowBinId);
+        final WorkflowEpoch currentEpoch =
+            workflowService.getCurrentWorkflowEpoch(project);
 
-      if (workflowBin == null) {
-        throw new LocalException(
-            "Attempt to create a worklist from a nonexistent bin "
-                + workflowBinId);
+        if (workflowBin == null) {
+          throw new LocalException(
+              "Attempt to create a worklist from a nonexistent bin "
+                  + workflowBinId);
+        }
+
+        if (currentEpoch == null) {
+          throw new Exception(
+              "No current workflow epoch exists for this project " + projectId);
+        }
+
+        // Compose the worklist name from the current epoch, the bin name,
+        // and the max worklist id+1. (e.g. wrk16a_demotions_chem_001)
+        final StringBuffer worklistName = new StringBuffer();
+        worklistName.append("wrk").append(currentEpoch.getName()).append("_");
+        worklistName.append(workflowBin.getName()).append("_");
+        if (clusterType.equals("chem"))
+          worklistName.append("chem").append("_");
+
+        // Obtain the next worklist number for this naming scheme
+        final PfsParameter worklistQueryPfs = new PfsParameterJpa();
+        worklistQueryPfs.setStartIndex(0);
+        worklistQueryPfs.setMaxResults(1);
+        worklistQueryPfs.setSortField("name");
+        worklistQueryPfs.setAscending(false);
+        final StringBuffer query = new StringBuffer();
+        query
+            .append("name:")
+            .append("wrk")
+            .append(
+                currentEpoch.getName() + "_" + workflowBin.getName() + "_"
+                    + clusterType + '*');
+        final WorklistList worklistList =
+            workflowService.findWorklists(project, query.toString(),
+                worklistQueryPfs);
+        int nextNumber =
+            worklistList.getObjects().size() == 0 ? 1 : worklistList
+                .getObjects().get(0).getNumber() + 1;
+        worklistName.append(new String(Integer.toString(nextNumber + 1000))
+            .substring(1));
+
+        // build query to retrieve tracking records that will be in worklist
+        final StringBuffer sb = new StringBuffer();
+        sb.append("workflowBinName:").append(workflowBin.getName());
+        sb.append(" AND ").append("NOT worklistName:[* TO *] ");
+        if (!clusterType.equals("all")) {
+          sb.append(" AND ").append("clusterType:").append(clusterType);
+        }
+        if (clusterType.equals("default")) {
+          sb.append(" AND NOT ").append("clusterType:chem");
+        }
+
+        final PfsParameter localPfs =
+            pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
+        // Always work in clusterId order
+        localPfs.setSortField("clusterId");
+        final TrackingRecordList recordResultList =
+            workflowService.findTrackingRecords(project, sb.toString(),
+                localPfs);
+
+        // Bail if there are no more records to make worklists from
+        if (recordResultList.getCount() == 0) {
+          throw new LocalException(
+              "No more unassigned clusters in workflow bin");
+        }
+
+        final WorklistJpa worklist = new WorklistJpa();
+        worklist.setName(worklistName.toString());
+        worklist.setDescription(worklistName.toString() + " description");
+        worklist.setProject(project);
+        worklist.setWorkflowStatus(WorkflowStatus.NEW);
+        worklist.setNumber(nextNumber);
+        worklist.setProjectId(project.getId());
+        worklist.setTimestamp(new Date());
+        worklist.setWorkflowBinName(workflowBin.getName());
+
+        final Worklist newWorklist = workflowService.addWorklist(worklist);
+
+        for (final TrackingRecord record : recordResultList.getObjects()) {
+          // Set worklist name of bin's copy of tracking record
+          record.setWorklistName(worklistName.toString());
+          workflowService.updateTrackingRecord(record);
+          // Reuse bins tracking record for worklist
+          final TrackingRecord worklistRecord = new TrackingRecordJpa(record);
+          worklistRecord.setId(null);
+          worklistRecord.setWorklistName(worklistName.toString());
+          workflowService.addTrackingRecord(worklistRecord);
+          newWorklist.getTrackingRecords().add(worklistRecord);
+        }
+        workflowService.updateWorklist(newWorklist);
+
+        return newWorklist;
+      } catch (Exception e) {
+        handleException(e, "trying to create worklist");
+      } finally {
+        workflowService.close();
+        securityService.close();
       }
-
-      if (currentEpoch == null) {
-        throw new Exception(
-            "No current workflow epoch exists for this project " + projectId);
-      }
-
-      // Compose the worklist name from the current epoch, the bin name,
-      // and the max worklist id+1. (e.g. wrk16a_demotions_chem_001)
-      final StringBuffer worklistName = new StringBuffer();
-      worklistName.append("wrk").append(currentEpoch.getName()).append("_");
-      worklistName.append(workflowBin.getName()).append("_");
-      if (clusterType.equals("chem"))
-        worklistName.append("chem").append("_");
-
-      // Obtain the next worklist number for this naming scheme
-      final PfsParameter worklistQueryPfs = new PfsParameterJpa();
-      worklistQueryPfs.setStartIndex(0);
-      worklistQueryPfs.setMaxResults(1);
-      worklistQueryPfs.setSortField("name");
-      worklistQueryPfs.setAscending(false);
-      final StringBuffer query = new StringBuffer();
-      query
-          .append("name:")
-          .append("wrk")
-          .append(
-              currentEpoch.getName() + "_" + workflowBin.getName() + "_"
-                  + clusterType + '*');
-      final WorklistList worklistList =
-          workflowService.findWorklists(project, query.toString(),
-              worklistQueryPfs);
-      int nextNumber =
-          worklistList.getObjects().size() == 0 ? 1 : worklistList.getObjects()
-              .get(0).getNumber() + 1;
-      worklistName.append(new String(Integer.toString(nextNumber + 1000))
-          .substring(1));
-
-      // build query to retrieve tracking records that will be in worklist
-      final StringBuffer sb = new StringBuffer();
-      sb.append("workflowBinName:").append(workflowBin.getName());
-      sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-      if (!clusterType.equals("all")) {
-        sb.append(" AND ").append("clusterType:").append(clusterType);
-      }
-      if (clusterType.equals("default")) {
-        sb.append(" AND NOT ").append("clusterType:chem");
-      }
-
-      final PfsParameter localPfs =
-          pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
-      // Always work in clusterId order
-      localPfs.setSortField("clusterId");
-      final TrackingRecordList recordResultList =
-          workflowService.findTrackingRecords(project, sb.toString(), localPfs);
-
-      final WorklistJpa worklist = new WorklistJpa();
-      worklist.setName(worklistName.toString());
-      worklist.setDescription(worklistName.toString() + " description");
-      worklist.setProject(project);
-      worklist.setWorkflowStatus(WorkflowStatus.NEW);
-      worklist.setNumber(nextNumber);
-      worklist.setProjectId(project.getId());
-      worklist.setTimestamp(new Date());
-      worklist.setWorkflowBinName(workflowBin.getName());
-
-      final Worklist newWorklist = workflowService.addWorklist(worklist);
-
-      for (final TrackingRecord record : recordResultList.getObjects()) {
-        // Set worklist name of bin's copy of tracking record
-        record.setWorklistName(worklistName.toString());
-        workflowService.updateTrackingRecord(record);
-        // Reuse bins tracking record for worklist
-        final TrackingRecord worklistRecord = new TrackingRecordJpa(record);
-        worklistRecord.setId(null);
-        worklistRecord.setWorklistName(worklistName.toString());
-        workflowService.addTrackingRecord(worklistRecord);
-        newWorklist.getTrackingRecords().add(worklistRecord);
-      }
-      workflowService.updateWorklist(newWorklist);
-
-      return newWorklist;
-    } catch (Exception e) {
-      handleException(e, "trying to create worklist");
-    } finally {
-      workflowService.close();
-      securityService.close();
+      return null;
     }
-    return null;
   }
 
   /* see superclass */
@@ -1597,49 +1614,54 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Workflow): /bin/" + id + "/regenerate ");
-    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
-    try {
-      final String userName =
-          authorizeProject(workflowService, projectId, securityService,
-              authToken, "trying to regenerate a single bin", UserRole.AUTHOR);
-      workflowService.setLastModifiedBy(userName);
 
-      // Set transaction scope
-      workflowService.setTransactionPerOperation(false);
-      workflowService.beginTransaction();
+    // Only one user can regenerate a bin at a time
+    synchronized (lock) {
 
-      // Read relevant workflow objects
-      final Project project = workflowService.getProject(projectId);
-      final WorkflowBin bin = workflowService.getWorkflowBin(id);
+      final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+      try {
+        final String userName =
+            authorizeProject(workflowService, projectId, securityService,
+                authToken, "trying to regenerate a single bin", UserRole.AUTHOR);
+        workflowService.setLastModifiedBy(userName);
 
-      // Remove the workflow bin
-      workflowService.removeWorkflowBin(id, true);
+        // Set transaction scope
+        workflowService.setTransactionPerOperation(false);
+        workflowService.beginTransaction();
 
-      // Get the bin definitions
-      final List<WorkflowBinDefinition> definitions =
-          workflowService.getWorkflowBinDefinitions(project, type);
-      WorkflowBin newBin = null;
-      for (final WorkflowBinDefinition definition : definitions) {
-        if (definition.getName().equals(bin.getName())) {
-          newBin =
-              this.regenerateBinHelper(project, definition, bin.getRank(),
-                  new HashSet<>(),
-                  getConceptIdWorklistNameMap(project, workflowService),
-                  workflowService);
-          break;
+        // Read relevant workflow objects
+        final Project project = workflowService.getProject(projectId);
+        final WorkflowBin bin = workflowService.getWorkflowBin(id);
+
+        // Remove the workflow bin
+        workflowService.removeWorkflowBin(id, true);
+
+        // Get the bin definitions
+        final List<WorkflowBinDefinition> definitions =
+            workflowService.getWorkflowBinDefinitions(project, type);
+        WorkflowBin newBin = null;
+        for (final WorkflowBinDefinition definition : definitions) {
+          if (definition.getName().equals(bin.getName())) {
+            newBin =
+                this.regenerateBinHelper(project, definition, bin.getRank(),
+                    new HashSet<>(),
+                    getConceptIdWorklistNameMap(project, workflowService),
+                    workflowService);
+            break;
+          }
         }
+
+        workflowService.commit();
+        return newBin;
+
+      } catch (Exception e) {
+        handleException(e, "trying to regenerate a single bin");
+      } finally {
+        workflowService.close();
+        securityService.close();
       }
-
-      workflowService.commit();
-      return newBin;
-
-    } catch (Exception e) {
-      handleException(e, "trying to regenerate a single bin");
-    } finally {
-      workflowService.close();
-      securityService.close();
+      return null;
     }
-    return null;
   }
 
   /* see superclass */
@@ -2103,7 +2125,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           final Concept concept = workflowService.getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
-          // TODO record.setIndexData(String of appended names)  ANALYZED=YES
+          // TODO record.setIndexData(String of appended names) ANALYZED=YES
 
           // Set cluster type if a concept has an STY associated with a cluster
           // type in th eproject
@@ -2130,7 +2152,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           }
         }
 
-        // if any of the concepts or atoms are NEEDS_REVIEW, set record to NEEDS_REVIEW
+        // if any of the concepts or atoms are NEEDS_REVIEW, set record to
+        // NEEDS_REVIEW
         boolean needsReviewFlag = false;
         for (Concept concept : record.getConcepts()) {
           if (needsReviewFlag)
@@ -2138,7 +2161,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           if (concept.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
             record.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
             needsReviewFlag = true;
-          }            
+          }
           for (Atom atom : concept.getAtoms()) {
             if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
               record.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
@@ -2147,7 +2170,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             }
           }
         }
-        
+
         workflowService.addTrackingRecord(record);
         bin.getTrackingRecords().add(record);
       }
