@@ -1333,7 +1333,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Now that the concepts are all set up, merge them.
     v = metaEditingService.mergeConcepts(project.getId(), toC.getId(),
-        toC.getLastModified().getTime(), fromC.getId(), false, false, false,
+        toC.getLastModified().getTime(), fromC.getId(), false, false,
         authToken);
     assertTrue(v.getErrors().isEmpty());
 
@@ -1343,14 +1343,9 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(concept3.getId(), project.getId(), authToken);
 
     // Verify fromConcept has been removed
-    boolean fromCNotExists = false;
-    try {
       fromC = contentService.getConcept(concept2.getId(), project.getId(),
           authToken);
-    } catch (Exception e) {
-      fromCNotExists = true;
-    }
-    assertTrue(fromCNotExists);
+      assertTrue(fromC == null);
 
     // Verify fromConcept atom is now present in toConcept, along with original
     // toConcept atom

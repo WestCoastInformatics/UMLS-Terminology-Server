@@ -959,9 +959,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               UserRole.VIEWER);
 
       final Concept concept = contentService.getConcept(conceptId);
-      final String terminology = concept.getTerminology();
-
+      
       if (concept != null) {
+        final String terminology = concept.getTerminology();
+
         final PrecedenceList list =
             getPrecedenceList(securityService, contentService, projectService,
                 userName, concept, projectId);

@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo.action;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -88,7 +89,8 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
                 + getConcept2().getId() + " AND toId:" + getConcept().getId(),
             false, null);
 
-    for (final Relationship rel : relList.getObjects()) {
+    for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
+        .getObjects()) {
       if (rel.getTo().getId() == relationship.getFrom().getId()
           && rel.getFrom().getId() == relationship.getTo().getId()) {
         if (inverseRelationship != null) {

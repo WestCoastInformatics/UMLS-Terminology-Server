@@ -322,7 +322,7 @@ public class MetaEditingClientRest extends RootClientRest
   @Override
   public ValidationResult mergeConcepts(Long projectId, Long conceptId,
     Long lastModified, Long conceptId2, boolean overrideWarnings,
-    boolean makeDemotions, boolean unapproveContent, String authToken)
+    boolean makeDemotions, String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - merge concept " + conceptId
@@ -338,8 +338,7 @@ public class MetaEditingClientRest extends RootClientRest
         + "/meta/concept/merge?projectId=" + projectId + "&conceptId="
         + conceptId + "&lastModified=" + lastModified + "&conceptId2="
         + conceptId2 + (overrideWarnings ? "&overrideWarnings=true" : "")
-        + (makeDemotions ? "&makeDemotions=true" : "")
-        + (unapproveContent ? "&unapproveContent=true" : ""));
+        + (makeDemotions ? "&makeDemotions=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
