@@ -20,10 +20,8 @@ tsApp
         return {
           restrict : 'A',
           scope : {
-            // Legal 'value' settings include
-            // For directory tab: PUBLISHED, BETA
-            // For worklist tab: AVAILABLE, ASSIGNED
-            // RELEASE
+            // Legal 'value' settings include:
+            // Worklist, Checklist
             value : '@',
             projects : '=',
             metadata : '=',
@@ -41,22 +39,13 @@ tsApp
               $scope.selected = {
                 worklist : null,
                 record : null,
-                concept : null,
-                terminology : null,
-                version : null
+                concept : null
               };
               $scope.worklists = null;
-              //$scope.project = null;
-              $scope.filters = [];
                            
 
               // Page metadata
               $scope.recordTypes = [ 'N', 'R' ];
-
-              // Used for project admin to know what users are assigned to
-              // something.
-              $scope.worklistAuthorsMap = {};
-              $scope.worklistReviewersMap = {};
 
               // Paging variables
               $scope.visibleSize = 4;
@@ -94,12 +83,32 @@ tsApp
               function handleError(errors, error) {
                 utilService.handleDialogError(errors, error);
               }
+              
+              $scope.joinEditors = function(worklist) {
+                var joinedEditors = '';
+                var editors = [];
+                if (worklist.reviewers && worklist.reviewers.length > 0) {
+                  editors = worklist.reviewers;
+                } else if (worklist.authors && worklist.authors.length > 0){
+                  editors = worklist.authors;
+                }
+                for (i=0; i<editors.length; i++) {
+                  joinedEditors += editors[i];
+                  joinedEditors += ' ';
+                }
+                return joinedEditors;
+              }
 
               // Set $scope.project and reload
               // $scope.worklists
               $scope.setProject = function(project) {
                 $scope.project = project;
                 $scope.getWorklists();
+                projectService.findAssignedUsersForProject($scope.project.id, null, null).then(
+                  function(data) {
+                  $scope.users = data.users;
+                  $scope.users.totalCount = data.totalCount;
+                });
               };
 
               // Get $scope.worklists
@@ -222,6 +231,14 @@ tsApp
                 });
               };
 
+              $scope.unassignWorklist = function(worklist) {
+                workflowService.performWorkflowAction($scope.project.id, worklist.id, $scope.joinEditors(worklist).trim(),
+                  $scope.project.userRoleMap[$scope.user.userName], 'UNASSIGN').then(
+                // Success
+                function(data) {
+                  $scope.getWorklists();
+                });
+              };
 
               // Remove a worklist
               $scope.removeWorklist = function(worklist) {
@@ -468,7 +485,6 @@ tsApp
                 $scope.getPagedNotes();
               };
 
-
               // Assign worklist modal
               $scope.openAssignWorklistModal = function(lworklist, laction, lrole) {
                 console.debug('openAssignWorklistModal ', lworklist, laction);
@@ -487,21 +503,8 @@ tsApp
                     currentUser : function() {
                       return $scope.user;
                     },
-                    assignedUsers : function() {
-                      return lworklist.authors;
-                    },
                     project : function() {
                       return $scope.project;
-                    },
-                    role : function() {
-                      if (lrole) {
-                        return lrole;
-                      } /*else {
-                        return $scope.projects.role;
-                      }*/
-                    },
-                    tinymceOptions : function() {
-                      return utilService.tinymceOptions;
                     }
                   }
 
@@ -514,143 +517,7 @@ tsApp
                 });
               };
 
-              // Assign worklist controller
-              var AssignWorklistModalCtrl = function($scope, $uibModalInstance, $sce, worklist, action,
-                currentUser, assignedUsers, project, role, tinymceOptions) {
-                console.debug('Entered assign worklist modal control', assignedUsers, project.id);
-                $scope.worklist = worklist;
-                $scope.action = action;
-                $scope.project = project;
-                $scope.role = role;
-                $scope.tinymceOptions = tinymceOptions;
-                $scope.assignedUsers = [];
-                $scope.user = utilService.findBy(assignedUsers, currentUser, 'userName');
-                $scope.note;
-                $scope.errors = [];
 
-                // Sort users by name and role restricts
-                var sortedUsers = assignedUsers.sort(utilService.sort_by('name'));
-                for (var i = 0; i < sortedUsers.length; i++) {
-                  if ($scope.role == 'AUTHOR'
-                    || $scope.project.userRoleMap[sortedUsers[i].userName] == 'REVIEWER'
-                    || $scope.project.userRoleMap[sortedUsers[i].userName] == 'ADMIN') {
-                    $scope.assignedUsers.push(sortedUsers[i]);
-                  }
-                }
-
-                // Assign (or reassign)
-                $scope.assignWorklist = function() {
-                  if (!$scope.user) {
-                    $scope.errors[0] = 'The user must be selected. ';
-                    return;
-                  }
-
-                  if (action == 'ASSIGN') {
-                    workflowService.performWorkflowAction($scope.project.id, worklist.id,
-                      $scope.user.userName, $scope.role, 'ASSIGN').then(
-                    // Success
-                    function(data) {
-
-                      // Add a note as well
-                      if ($scope.note) {
-                        workflowService.addWorklistNote(worklist.id, $scope.note).then(
-                        // Success
-                        function(data) {
-                          $uibModalInstance.close(worklist);
-                        },
-                        // Error
-                        function(data) {
-                          handleError($scope.errors, data);
-                        });
-                      }
-                      // close dialog if no note
-                      else {
-                        $uibModalInstance.close(worklist);
-                      }
-
-                    },
-                    // Error
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-                  }
-
-                  // else reassign
-                  else if (action == 'REASSIGN') {
-                    workflowService.performWorkflowAction($scope.project.id, worklist.id,
-                      $scope.user.userName, 'AUTHOR', 'REASSIGN').then(
-                    // success - reassign
-                    function(data) {
-                      // Add a note as well
-                      if ($scope.note) {
-                        workflowService.addWorklistNote(worklist.id, $scope.note).then(
-                        // Success - add note
-                        function(data) {
-                          $uibModalInstance.close(worklist);
-                        },
-                        // Error - remove note
-                        function(data) {
-                          handleError($scope.errors, data);
-                        });
-                      }
-                      // close dialog if no note
-                      else {
-                        $uibModalInstance.close(worklist);
-                      }
-                    },
-                    // Error - reassign
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-                  }
-
-                  // else unassign, then reassign
-                  else if (action == 'UNASSIGN-REASSIGN') {
-                    workflowService.performWorkflowAction($scope.project.id, worklist.id,
-                      $scope.user.userName, $scope.role, 'UNASSIGN').then(
-                      // Success - unassign
-                      function(data) {
-                        // The username doesn't matter - it'll go back to the
-                        // author
-                        workflowService.performWorkflowAction($scope.project.id, worklist.id,
-                          $scope.user.userName, 'AUTHOR', 'REASSIGN').then(
-                        // success - reassign
-                        function(data) {
-                          // Add a note as well
-                          if ($scope.note) {
-                            workflowService.addWorklistNote(worklist.id, $scope.note).then(
-                            // Success - add note
-                            function(data) {
-                              $uibModalInstance.close(worklist);
-                            },
-                            // Error - remove note
-                            function(data) {
-                              handleError($scope.errors, data);
-                            });
-                          }
-                          // close dialog if no note
-                          else {
-                            $uibModalInstance.close(worklist);
-                          }
-                        },
-                        // Error - reassign
-                        function(data) {
-                          handleError($scope.errors, data);
-                        });
-                      },
-                      // Error - unassign
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                  }
-                };
-
-                // Dismiss modal
-                $scope.cancel = function() {
-                  $uibModalInstance.dismiss('cancel');
-                };
-
-              };
 
               // Log modal
               $scope.openLogModal = function() {

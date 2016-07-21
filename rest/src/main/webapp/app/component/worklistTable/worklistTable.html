@@ -47,9 +47,7 @@
     <table ng-show="worklists.totalCount > 0" class="table">
       <thead class="table-select-row">
         <tr>
-          <!-- Worklist number header -->
-          <th class="col-md-1 col-xs-1"></th>
-            
+          
           <!-- Worklist name header -->
           <th class="col-md-5 col-xs-5">Name / Last Modified</th>
 
@@ -61,7 +59,7 @@
             </span></th>
 
           <!-- Workflow Status header -->
-          <th class="col-md-1 col-xs-1">
+          <th class="col-md-2 col-xs-2">
               Status</th>
 
           <!-- Actions header -->
@@ -72,7 +70,6 @@
       <tbody>
         <tr ng-repeat="worklist in worklists" ng-click="selectWorklist(worklist);"
           ng-class="{selected: worklist.id == selected.worklist.id}">
-          <td style="word-break: break-word;">{{worklist.number}}</td>
           
           <td>
             {{worklist.name}}
@@ -82,7 +79,7 @@
           </td>
 
           <td ng-show="value == 'Worklist'">
-            <span style="word-break: break-word;"> {{worklist.authors[0]}}</span> <br/>
+            <span style="word-break: break-word;"> {{joinEditors(worklist)}}</span> <br/>
             <span> {{worklist.team}} </span> <br/>
             <span> {{toTime(worklist.authorTime)}} </span>
           </td>
@@ -98,11 +95,13 @@
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
               class="noul material-icons md-18">delete</i>
 
-
-            <i  ng-show="value == 'Worklist'"
+            <i  ng-show="value == 'Worklist' && joinEditors(worklist).length == 0"
               ng-click="openAssignWorklistModal(worklist,'ASSIGN'); $event.stopPropagation()"
               title="Assign" class="noul material-icons md-18">assignment_ind</i>
 
+            <i  ng-show="value == 'Worklist' && joinEditors(worklist).length > 0"
+              ng-click="unassignWorklist(worklist); $event.stopPropagation()"
+              title="Unassign" class="noul material-icons md-18">assignment_return</i>
           </td>
         </tr>
       </tbody>

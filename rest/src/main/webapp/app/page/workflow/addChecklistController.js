@@ -1,9 +1,9 @@
     // Create checklist controller
-    var CreateChecklistModalCtrl = function($scope, $uibModalInstance, workflowService, user, projectId, binId) {
+    var CreateChecklistModalCtrl = function($scope, $uibModalInstance, workflowService, clusterType, projectId, bin) {
 
-      $scope.checklist = {};
+      $scope.bin = bin;
+      $scope.clusterType = clusterType
 
-      $scope.user = user;
       $scope.errors = [];
 
 
@@ -15,7 +15,7 @@
         }
 
         // Create checklist 
-        workflowService.createChecklist(projectId, binId, checklist.name, 
+        workflowService.createChecklist(projectId, bin.id, $scope.clusterType, checklist.name, 
           checklist.randomize, checklist.excludeOnWorklist, checklist.query == undefined ? 
             "" : checklist.query, checklist.pfs).then(
           // Success

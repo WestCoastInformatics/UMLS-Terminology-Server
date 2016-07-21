@@ -1121,8 +1121,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /action " + action + ", " + projectId
-            + ", " + worklistId + ", " + userRole + ", " + userName);
+        "RESTful POST call (Workflow): /action "  + projectId
+            + ", " + worklistId + ", " + userName);
 
     // Test preconditions
     if (projectId == null || userName == null) {
@@ -1138,6 +1138,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       final Worklist worklist = workflowService.getWorklist(worklistId);
       final Project project = workflowService.getProject(projectId);
+      //UserRole role = UserRole.valueOf(userRole);
       final Worklist returnWorklist =
           workflowService.performWorkflowAction(project, worklist, userName,
               userRole, action);
@@ -1196,6 +1197,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   public Checklist createChecklist(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin id, e.g. 5", required = false) @QueryParam("workflowBinId") Long workflowBinId,
+    @ApiParam(value = "Cluster type", required = false) @QueryParam("clusterType") String clusterType,
     @ApiParam(value = "Checklist name", required = false) @QueryParam("name") String name,
     @ApiParam(value = "Randomize, e.g. false", required = true) @QueryParam("randomize") Boolean randomize,
     @ApiParam(value = "Exclude on worklist, e.g. false", required = true) @QueryParam("excludeOnWorklist") Boolean excludeOnWorklist,
@@ -1205,7 +1207,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Workflow): /checklist/add " + projectId + ", "
-            + workflowBinId + ", " + name + ", " + randomize);
+            + workflowBinId + ", " + clusterType + ", " + name + ", " + randomize);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -1221,6 +1223,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       // Prep initial query
       final StringBuffer sb = new StringBuffer();
       sb.append("workflowBinName:").append(workflowBin.getName());
+      
+      // Handle "cluster type"
+      if (!clusterType.equals("all") && !clusterType.equals("default")) {
+        sb.append(" AND ").append("clusterType:").append(clusterType);
+      }
+      if (clusterType.equals("default")) {
+        sb.append(" AND NOT clusterType:[* TO *]");
+      }
 
       // Handle "exclude on worklist"
       if (excludeOnWorklist) {
@@ -1319,12 +1329,21 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       worklistQueryPfs.setSortField("name");
       worklistQueryPfs.setAscending(false);
       final StringBuffer query = new StringBuffer();
-      query
+      if (clusterType.equals("default")) {
+        query
+        .append("name:")
+        .append("wrk")
+        .append(
+            currentEpoch.getName() + "_" + workflowBin.getName() + "_0"
+                + '*');        
+      } else {
+        query
           .append("name:")
           .append("wrk")
           .append(
               currentEpoch.getName() + "_" + workflowBin.getName() + "_"
                   + clusterType + '*');
+      }
       final WorklistList worklistList =
           workflowService.findWorklists(project, query.toString(),
               worklistQueryPfs);
@@ -1342,7 +1361,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         sb.append(" AND ").append("clusterType:").append(clusterType);
       }
       if (clusterType.equals("default")) {
-        sb.append(" AND NOT ").append("clusterType:chem");
+        sb.append(" AND NOT clusterType:[* TO *]");
       }
 
       final PfsParameter localPfs =

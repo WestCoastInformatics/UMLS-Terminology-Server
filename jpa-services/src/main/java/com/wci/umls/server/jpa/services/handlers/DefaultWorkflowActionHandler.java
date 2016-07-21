@@ -141,7 +141,15 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
                 && EnumSet.of(WorkflowStatus.REVIEW_NEW,
                     WorkflowStatus.REVIEW_IN_PROGRESS).contains(
                     worklist.getWorkflowStatus());
-        flag = authorFlag || reviewerFlag;
+        
+        boolean administratorFlag = role == UserRole.ADMINISTRATOR 
+            && EnumSet.of(WorkflowStatus.NEW,
+            WorkflowStatus.EDITING_IN_PROGRESS,
+            WorkflowStatus.EDITING_DONE, WorkflowStatus.REVIEW_NEW,
+            WorkflowStatus.REVIEW_IN_PROGRESS).contains(
+            worklist.getWorkflowStatus());
+            
+        flag = authorFlag || reviewerFlag || administratorFlag;
 
         break;
 

@@ -268,7 +268,7 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public Worklist performWorkflowAction(Long projectId, Long worklistId,
-    String userName, UserRole role, WorkflowAction action, String authToken)
+    String userName, UserRole role,  WorkflowAction action, String authToken)
     throws Exception;
 
   /**
@@ -289,6 +289,7 @@ public interface WorkflowServiceRest {
    *
    * @param projectId the project id
    * @param workflowBinId the workflow bin id
+   * @param clusterType the cluster type
    * @param name the name
    * @param randomize the randomize
    * @param excludeOnWorklist the exclude on worklist
@@ -298,7 +299,7 @@ public interface WorkflowServiceRest {
    * @return the checklist
    * @throws Exception the exception
    */
-  public Checklist createChecklist(Long projectId, Long workflowBinId,
+  public Checklist createChecklist(Long projectId, Long workflowBinId, String clusterType,
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception;
 

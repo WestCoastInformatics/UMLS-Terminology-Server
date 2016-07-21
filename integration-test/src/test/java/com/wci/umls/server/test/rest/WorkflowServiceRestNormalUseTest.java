@@ -565,7 +565,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass())
         .debug("  Create checklist in cluster id order");
     final Checklist checklistOrderByClusterId =
-        workflowService.createChecklist(projectId, testNameBin.getId(),
+        workflowService.createChecklist(projectId, testNameBin.getId(), "chem",
             "checklistOrderByClusterId", false, false, null, pfs, authToken);
     Logger.getLogger(getClass()).debug(
         "    checklist = " + checklistOrderByClusterId);
@@ -585,7 +585,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // Randomize flag picks random tracking records from the bin
     Logger.getLogger(getClass()).debug("  Create checklist in random order");
     final Checklist checklistOrderByRandom =
-        workflowService.createChecklist(projectId, testNameBin.getId(),
+        workflowService.createChecklist(projectId, testNameBin.getId(), "chem",
             "checklistOrderByRandom", true, false, null, pfs, authToken);
     Logger.getLogger(getClass()).debug(
         "    checklist = " + checklistOrderByRandom);
@@ -1201,7 +1201,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // Make a checklist and exclude stuff on worklist.
     Logger.getLogger(getClass()).debug("  Create checklist");
     final Checklist checklist =
-        workflowService.createChecklist(projectId, testNameBin.getId(),
+        workflowService.createChecklist(projectId, testNameBin.getId(), "chem",
             "checklistWorklist", false, true, "", pfs, authToken);
     final TrackingRecordList list2 =
         workflowService.findTrackingRecordsForChecklist(projectId,
