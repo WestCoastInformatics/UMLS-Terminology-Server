@@ -19,6 +19,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,6 +36,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -51,6 +53,7 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
+import com.wci.umls.server.jpa.worfklow.ChecklistNoteJpa;
 import com.wci.umls.server.jpa.worfklow.ClusterTypeStatsJpa;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -1023,8 +1026,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           action, UserRole.AUTHOR);
 
       final Project project = workflowService.getProject(projectId);
-      return workflowService.findChecklists(project, query, pfs);
-
+      ChecklistList list =  workflowService.findChecklists(project, query, pfs);
+      for (Checklist checklist : list.getObjects()) {
+        workflowService.handleLazyInit(checklist);
+      }
+      return list;
     } catch (Exception e) {
       handleException(e, action);
       return null;
@@ -1118,7 +1124,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/worklist/action")
-  @ApiOperation(value = "Perform workflow action on a tracking record", notes = "Performs the specified action as the specified refset as the specified user", response = WorklistJpa.class)
+  @ApiOperation(value = "Perform workflow action on a tracking record", notes = "Performs the specified action as the specified worklist as the specified user", response = WorklistJpa.class)
   public Worklist performWorkflowAction(
     @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Worklist id, e.g. 5", required = false) @QueryParam("worklistId") Long worklistId,
@@ -1243,6 +1249,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       if (excludeOnWorklist) {
         sb.append(" AND ").append("NOT worklistName:[* TO *] ");
       }
+      
       if (query != null && !query.equals("")) {
         sb.append(" AND ").append(query);
       }
@@ -2207,4 +2214,104 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/add/note")
+  @Consumes("text/plain")
+  @ApiOperation(value = "Add a note", notes = "Adds a note", response = ChecklistNoteJpa.class)
+  public Note addNote(
+    @ApiParam(value = "Checklist or Worklist id, e.g. 3", required = true) @QueryParam("listId") Long checklistId,
+    @ApiParam(value = "The note, e.g. \"this is a sample note\"", required = true) String note,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Checklist): /add/note " + checklistId + ", " + note);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final Checklist checklist = workflowService.getChecklist(checklistId);
+      if (checklist.getProject() == null || checklist.getProject().getId() == null) {
+        throw new Exception(
+            "Checklist must have a project with a non null identifier.");
+      }
+
+      String userName =
+          authorizeProject(workflowService, checklist.getProject().getId(),
+              securityService, authToken, "adding checklist note", UserRole.AUTHOR);
+
+      // Create the note
+      final Note checklistNote = new ChecklistNoteJpa();
+      checklistNote.setLastModifiedBy(userName);
+      checklistNote.setNote(note);
+      ((ChecklistNoteJpa) checklistNote).setChecklist(checklist);
+
+      // Add and return the note
+      checklistNote.setLastModifiedBy(userName);
+      workflowService.setLastModifiedBy(userName);
+      final Note newNote = workflowService.addNote(checklistNote);
+
+      // For indexing
+      checklist.getNotes().add(newNote);
+      checklist.setLastModifiedBy(userName);
+      workflowService.updateChecklist(checklist);
+
+
+      return newNote;
+    } catch (Exception e) {
+      handleException(e, "trying to add note");
+      return null;
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/remove/note")
+  @ApiOperation(value = "Remove a note", notes = "Removes the specified note")
+  public void removeNote(
+    @ApiParam(value = "Checklist or Worklist id, e.g. 3", required = true) @QueryParam("listId") Long checklistId,
+    @ApiParam(value = "Note id, e.g. 3", required = true) @QueryParam("noteId") Long noteId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call DELETE (Checklist): /remove/note " + checklistId + ", "
+            + noteId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final Checklist checklist = workflowService.getChecklist(checklistId);
+      if (checklist.getProject() == null || checklist.getProject().getId() == null) {
+        throw new Exception(
+            "Checklist must have a project with a non null identifier.");
+      }
+
+      final String userName =
+          authorizeProject(workflowService, checklist.getProject().getId(),
+              securityService, authToken, "remove note", UserRole.AUTHOR);
+
+      // remove note
+      workflowService.setLastModifiedBy(userName);
+      workflowService.removeNote(noteId, ChecklistNoteJpa.class);
+      // For indexing
+      for (int i = 0; i < checklist.getNotes().size(); i++) {
+        if (checklist.getNotes().get(i).getId().equals(noteId)) {
+          checklist.getNotes().remove(i);
+          break;
+        }
+      }
+      checklist.setLastModifiedBy(userName);
+      workflowService.updateChecklist(checklist);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove a note");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
 }

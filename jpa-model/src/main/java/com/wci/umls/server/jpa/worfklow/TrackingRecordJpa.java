@@ -107,6 +107,10 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Column(nullable = true)
   private String worklistName;
 
+  /** The checklist name. */
+  @Column(nullable = true)
+  private String checklistName;
+  
   /** The original concept ids . */
   @ElementCollection
   @CollectionTable(name = "orig_concept_ids")
@@ -153,6 +157,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     origConceptIds = new HashSet<>(record.getOrigConceptIds());
     workflowBinName = record.getWorkflowBinName();
     worklistName = record.getWorklistName();
+    checklistName = record.getChecklistName();
     project = record.getProject();
     workflowStatus = record.getWorkflowStatus();
     indexedData = record.getIndexedData();
@@ -388,6 +393,19 @@ public class TrackingRecordJpa implements TrackingRecord {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getChecklistName() {
+    return checklistName;
+  }
+
+  /* see superclass */
+  @Override
+  public void setChecklistName(String checklistName) {
+    this.checklistName = checklistName;
+  }
+  
+  /* see superclass */
+  @Override
   @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public WorkflowStatus getWorkflowStatus() {
@@ -423,6 +441,8 @@ public class TrackingRecordJpa implements TrackingRecord {
             + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
     result =
         prime * result + ((worklistName == null) ? 0 : worklistName.hashCode());
+    result =
+        prime * result + ((checklistName == null) ? 0 : checklistName.hashCode());
     return result;
   }
 
@@ -480,6 +500,11 @@ public class TrackingRecordJpa implements TrackingRecord {
       if (other.worklistName != null)
         return false;
     } else if (!worklistName.equals(other.worklistName))
+      return false;
+    if (checklistName == null) {
+      if (other.checklistName != null)
+        return false;
+    } else if (!checklistName.equals(other.checklistName))
       return false;
     return true;
   }

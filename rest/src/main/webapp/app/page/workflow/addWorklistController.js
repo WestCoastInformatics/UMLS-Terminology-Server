@@ -18,7 +18,8 @@
       var item2 = {index : 50 };
       var item3 = {index : 100 };
       var item4 = {index : 200 };
-      $scope.clusterCtOptions = [item1, item2, item3, item4];
+      var item5 = {index : 500 };
+      $scope.clusterCtOptions = [item1, item2, item3, item4, item5];
 
 
       // Create the worklist

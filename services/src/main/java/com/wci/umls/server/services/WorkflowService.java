@@ -456,4 +456,11 @@ public interface WorkflowService extends ContentService {
   public WorkflowEpoch getCurrentWorkflowEpoch(Project project)
     throws Exception;
 
+  /**
+   * Handle lazy init.
+   *
+   * @param checklist the checklist
+   */
+  public void handleLazyInit(Checklist checklist);
+
 }

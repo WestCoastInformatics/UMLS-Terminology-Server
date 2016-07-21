@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasProject;
+import com.wci.umls.server.helpers.Note;
 
 /**
  * Represents a checklist which is a collection of tracking records without
@@ -55,6 +56,20 @@ public interface Checklist extends HasLastModified, HasProject {
    * @param description the new description
    */
   public void setDescription(String description);
+
+  /**
+   * Returns the notes.
+   *
+   * @return the notes
+   */
+  public List<Note> getNotes();
+
+  /**
+   * Sets the notes.
+   *
+   * @param notes the notes
+   */
+  public void setNotes(List<Note> notes);
 
 
 }
