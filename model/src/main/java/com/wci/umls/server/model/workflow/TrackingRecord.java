@@ -133,4 +133,32 @@ public interface TrackingRecord extends HasLastModified, HasTerminology,
    * @param workflowStatus the workflow status
    */
   public void setWorkflowStatus(WorkflowStatus workflowStatus);
+
+  /**
+   * Returns the indexed data.
+   *
+   * @return the indexed data
+   */
+  public String getIndexedData();
+
+  /**
+   * Sets the indexed data.
+   *
+   * @param indexedData the indexed data
+   */
+  public void setIndexedData(String indexedData);
+
+  /**
+   * Returns the checklist name.
+   *
+   * @return the checklist name
+   */
+  public String getChecklistName();
+
+  /**
+   * Sets the checklist name.
+   *
+   * @param checklistName the checklist name
+   */
+  public void setChecklistName(String checklistName);
 }

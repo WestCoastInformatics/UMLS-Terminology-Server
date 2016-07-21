@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -268,7 +269,7 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public Worklist performWorkflowAction(Long projectId, Long worklistId,
-    String userName, UserRole role, WorkflowAction action, String authToken)
+    String userName, UserRole role,  WorkflowAction action, String authToken)
     throws Exception;
 
   /**
@@ -289,6 +290,7 @@ public interface WorkflowServiceRest {
    *
    * @param projectId the project id
    * @param workflowBinId the workflow bin id
+   * @param clusterType the cluster type
    * @param name the name
    * @param randomize the randomize
    * @param excludeOnWorklist the exclude on worklist
@@ -298,7 +300,7 @@ public interface WorkflowServiceRest {
    * @return the checklist
    * @throws Exception the exception
    */
-  public Checklist createChecklist(Long projectId, Long workflowBinId,
+  public Checklist createChecklist(Long projectId, Long workflowBinId, String clusterType,
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception;
 
@@ -486,5 +488,28 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public List<WorkflowConfig> getWorkflowConfigs(Long projectId, String authToken)
+    throws Exception;
+
+  /**
+   * Removes the note.
+   *
+   * @param checklistId the checklist id
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeNote(Long checklistId, Long noteId, String authToken)
+    throws Exception;
+
+  /**
+   * Adds the note.
+   *
+   * @param checklistId the checklist id
+   * @param note the note
+   * @param authToken the auth token
+   * @return the note
+   * @throws Exception the exception
+   */
+  public Note addNote(Long checklistId, String note, String authToken)
     throws Exception;
 }

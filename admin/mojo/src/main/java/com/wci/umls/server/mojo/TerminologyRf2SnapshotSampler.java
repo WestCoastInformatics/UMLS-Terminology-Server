@@ -132,6 +132,7 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
       getLog().info("  Run RF2 sampling algorithm");
       Rf2SnapshotSamplerAlgorithm algorithm = new Rf2SnapshotSamplerAlgorithm();
       algorithm.setKeepInferred(true);
+      algorithm.setKeepDescendants(true);
       algorithm.setReaders(readers);
       algorithm.setInputConcepts(inputConcepts);
       algorithm.compute();

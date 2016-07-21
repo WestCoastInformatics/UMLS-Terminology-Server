@@ -1,5 +1,7 @@
 <div class="modal-header">
   <h4>Create Worklist</h4>
+  <h5>Bin: {{bin.name}}</h5>
+  <h5>Cluster type: {{clusterType}}</h5>
 </div>
 
 <div class="modal-body">
@@ -9,8 +11,15 @@
         <td>
           <b>Cluster Count</b>
         </td>
-        <td>         
-          <input ng-model="clusterCt" size="5" />
+        <td> 
+          <input size="4" ng-model="clusterCt"
+            list="clusterCtList" placeholder="20" />
+          <datalist id="clusterCtList">
+            <option ng-repeat="option in clusterCtOptions"
+              value="{{option.index}}">{{option.index}}</option>
+          </datalist>
+          <!-- <button class="btn btn-xs btn-warning" ng-show="clusterCt"
+            ng-click="clusterCt=''">Clear</button> -->
         </td>
       </tr>
       <tr>
@@ -18,7 +27,15 @@
           <b>Start Index</b>
         </td>
         <td>         
-          <input ng-model="skipClusterCt" size="5" />
+          <input ng-model="skipClusterCt" size="4" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Number of Worklists</b>
+        </td>
+        <td>         
+          <input ng-model="numberOfWorklists" size="4" />
         </td>
       </tr>
     </table>
@@ -38,9 +55,9 @@
   </div>
 </div>
 
-
+{{completionMessage}}
 <div class="modal-footer">
   <button class="btn btn-primary"
-    ng-click="createWorklist(clusterCt, skipClusterCt);">Add</button>
+    ng-click="createWorklist(clusterCt, skipClusterCt, numberOfWorklists);">Add</button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

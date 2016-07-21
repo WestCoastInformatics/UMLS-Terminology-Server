@@ -189,11 +189,12 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("authors");
     tester.include("reviewers");
+    tester.include("name");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
-    tester.include("name");
+    tester.include("nameSort");
     tester.include("projectId");
     tester.include("lastModified");
     tester.include("lastModifiedBy");

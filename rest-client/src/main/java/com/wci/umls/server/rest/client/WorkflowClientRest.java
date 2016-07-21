@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -31,6 +32,7 @@ import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
+import com.wci.umls.server.jpa.worfklow.ChecklistNoteJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
@@ -682,9 +684,9 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/worklist/action" + "?projectId=" + projectId
-            + "&worklistId=" + worklistId + "&action=" + action + "&userName="
-            + userName + "&userRole=" + role);
+            + "/workflow/worklist/action?projectId=" + projectId
+            + "&worklistId=" + worklistId  + "&userName="
+            + userName + "&userRole=" + role + "&action=" + action);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -796,14 +798,14 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public Checklist createChecklist(Long projectId, Long workflowBinId,
+  public Checklist createChecklist(Long projectId, Long workflowBinId, String clusterType,
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - create checklist " + projectId + ", " + workflowBinId
-            + ", " + name + ", " + randomize + ", " + excludeOnWorklist + ", "
-            + query + ", " + projectId);
+        "Workflow Client - create checklist " + projectId + ", "
+            + workflowBinId + ", " + name + ", " + randomize + ", "
+            + excludeOnWorklist + ", " + query + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -814,6 +816,8 @@ public class WorkflowClientRest extends RootClientRest implements
             + projectId
             + "&workflowBinId="
             + workflowBinId
+            + "&clusterType="
+            + clusterType
             + "&name="
             + name
             + (randomize != null ? ("&randomize=" + randomize) : "")
@@ -958,7 +962,7 @@ public class WorkflowClientRest extends RootClientRest implements
             });
     return new ArrayList<WorkflowBin>(list);
   }
-  
+
   /* see superclass */
   @Override
   public List<WorkflowConfig> getWorkflowConfigs(Long projectId,
@@ -1100,8 +1104,8 @@ public class WorkflowClientRest extends RootClientRest implements
             + "&conceptReportType=" + conceptReportType + "&relationshipCt="
             + relationshipCt);
     final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
+            .get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1128,8 +1132,8 @@ public class WorkflowClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url") + "/workflow/report/"
             + fileName + "?projectId=" + projectId + "&fileName=" + fileName);
     final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
+            .get();
 
     if (response.getStatus() == 204) {
       return null;
@@ -1204,4 +1208,54 @@ public class WorkflowClientRest extends RootClientRest implements
     return ConfigUtility.getGraphForString(resultString, StringList.class);
   }
 
+  /* see superclass */
+  @Override
+  public Note addNote(Long checklistId, String note, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Rest Client - add note - " + checklistId + ", " + note);
+    validateNotEmpty(note, "note");
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/checklist/add/note?"
+            + "checklistId=" + checklistId);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).put(Entity.text(note));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return (ChecklistNoteJpa) ConfigUtility.getGraphForString(resultString,
+        ChecklistNoteJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeNote(Long checklistId, Long noteId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Rest Client - remove note " + checklistId + ", " + noteId);
+    validateNotEmpty(checklistId, "checklistId");
+    validateNotEmpty(noteId, "noteId");
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/checklist/remove/note?"
+            + "checklistId=" + checklistId + "&noteId=" + noteId);
+
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing, successful
+    } else {
+      throw new Exception("Unexpected status - " + response.getStatus());
+    }
+  }
 }

@@ -482,15 +482,16 @@ tsApp
           return deferred.promise;
         };        
         
-        // get tracking records for concept
+        // perform workflow action
         this.performWorkflowAction = function(projectId, worklistId,
           userName, role, action) {
           var deferred = $q.defer();
 
           // Get projects
           gpService.increment();
-          $http.get(workflowUrl + 'action?projectId=' + projectId + '&worklistId=' + worklistId + '&action=' + 
-            action + '&userName=' + userName + '&userRole=' + userRole).then(
+          $http.get(workflowUrl + 'worklist/action?projectId=' + projectId + 
+            '&worklistId=' + worklistId + '&userName=' + userName + '&userRole=' + 
+            role + '&action=' + action ).then(
           // success
           function(response) {
             console.debug('  output = ', response.data);
@@ -507,16 +508,16 @@ tsApp
         };
           
           // Create a checklist
-          this.createChecklist = function(projectId, workflowBinId, name, randomize, excludeOnWorklist, query, pfs) {
+          this.createChecklist = function(projectId, workflowBinId, clusterType, name, randomize, excludeOnWorklist, query, pfs) {
 
-            console.debug('createChecklist', projectId, workflowBinId, name, randomize, excludeOnWorklist, query, pfs);
+            console.debug('createChecklist', projectId, workflowBinId, clusterType, name, randomize, excludeOnWorklist, query, pfs);
             // Setup deferred
             var deferred = $q.defer();
 
             // Make POST call
             gpService.increment();
             $http.post(workflowUrl + 'checklist/add?projectId=' + projectId + 
-              '&workflowBinId=' + workflowBinId + '&name=' + name + '&randomize=' + randomize +
+              '&workflowBinId=' + workflowBinId + '&clusterType=' + clusterType + '&name=' + name + '&randomize=' + randomize +
               '&excludeOnWorklist=' + excludeOnWorklist + 
               '&query=' + query,
               utilService.prepPfs(pfs)).then(
@@ -588,6 +589,29 @@ tsApp
             return deferred.promise;
           };
           
+          // remove checklist
+          this.removeChecklist = function(projectId, checklistId) {
+            console.debug();
+            var deferred = $q.defer();
+
+            // Add project
+            gpService.increment();
+            $http['delete'](workflowUrl + 'checklist/' + checklistId + "/remove?projectId=" + projectId).then(
+            // success
+            function(response) {
+              console.debug('  checklist = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+            return deferred.promise;
+          };
+          
           // find tracking records for worklist
           this.findTrackingRecordsForWorklist = function(projectId, worklistId, pfs) {
             console.debug('findTrackingRecordsForWorklist');
@@ -645,6 +669,52 @@ tsApp
             // success
             function(response) {
               console.debug('  trackingRecords = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+            return deferred.promise;
+          };
+          
+          this.addNote = function(listId, note) {
+            console.debug('add note', listId, note);
+            var deferred = $q.defer();
+
+            // Add list
+            gpService.increment();
+            $http.put(workflowUrl + 'add/note?listId=' + listId, note, {
+              headers : {
+                'Content-type' : 'text/plain'
+              }
+            }).then(
+            // success
+            function(response) {
+              console.debug('  note = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+            return deferred.promise;
+          };
+
+          this.removeNote = function(listId, noteId) {
+            console.debug('remove note', listId, noteId);
+            var deferred = $q.defer();
+
+            gpService.increment();
+            $http['delete'](workflowUrl + '/remove/note?listId=' + listId + '&noteId=' + noteId).then(
+            // success
+            function(response) {
               gpService.decrement();
               deferred.resolve(response.data);
             },

@@ -30,7 +30,8 @@ tsApp.controller('WorkflowCtrl', [
     $scope.recordTypes = [ 'N', 'R' ];
     $scope.projects;
     $scope.selected = {
-      bin : null
+      bin : null,
+      clusterType : null
     };
 
     // Paging variables
@@ -142,16 +143,18 @@ tsApp.controller('WorkflowCtrl', [
     // clusterType is optional
     $scope.selectBin = function(bin, clusterType) {
       $scope.selected.bin = bin;   
+      $scope.selected.clusterType = clusterType;
       
       if (clusterType && clusterType == 'default') {
-        $scope.paging['record'].filter = ' NOT chem';
-      }
-      else if (clusterType && clusterType != 'all') {
+        $scope.paging['record'].filter = ' NOT clusterType:[* TO *]';
+      } else if (clusterType && clusterType != 'all') {
         $scope.paging['record'].filter = clusterType;
+      } else if (clusterType == 'all') {
+        $scope.paging['record'].filter = '';
       }
       $scope.getRecords($scope.selected.bin);
     };
-    
+
     // Get $scope.records
     $scope.getRecords = function(bin) {
       
@@ -183,13 +186,6 @@ tsApp.controller('WorkflowCtrl', [
         }
 
       }
-      /*if (clusterType && clusterType != 'all') {
-        
-        if (pfs.queryRestriction != null)
-          pfs.queryRestriction += ' AND clusterType:' + clusterType;
-        else
-          pfs.queryRestriction = 'clusterType:' + clusterType;
-      }*/
 
         workflowService.findTrackingRecordsForWorkflowBin(bin.projectId, bin.id,
           pfs).then(
@@ -228,7 +224,7 @@ tsApp.controller('WorkflowCtrl', [
     //
 
     // Create checklist modal
-    $scope.openCreateChecklistModal = function(bin) {
+    $scope.openCreateChecklistModal = function(bin, clusterType) {
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/addChecklist.html',
@@ -238,11 +234,11 @@ tsApp.controller('WorkflowCtrl', [
           projectId : function() {
             return $scope.currentProject.id;
           },
-          binId : function() {
-            return bin.id;
+          bin : function() {
+            return bin;
           },
-          user : function() {
-            return $scope.user;
+          clusterType : function() {
+            return clusterType;
           }
         }
       });
@@ -255,7 +251,7 @@ tsApp.controller('WorkflowCtrl', [
     };
 
     // Create worklist modal
-    $scope.openCreateWorklistModal = function(bin, clusterType) {
+    $scope.openCreateWorklistModal = function(bin, clusterType, availableClusterCt) {
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/addWorklist.html',
@@ -265,14 +261,17 @@ tsApp.controller('WorkflowCtrl', [
           projectId : function() {
             return $scope.currentProject.id;
           },
-          binId : function() {
-            return bin.id;
+          bin : function() {
+            return bin;
           },
           user : function() {
             return $scope.user;
           },
           clusterType : function() {
             return clusterType;
+          },
+          availableClusterCt : function() {
+            return availableClusterCt;
           }
         }
       });
@@ -280,7 +279,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(project) {
-       
+        $scope.getBins($scope.currentProject.id, $scope.currentBinType);
       });
     };
 

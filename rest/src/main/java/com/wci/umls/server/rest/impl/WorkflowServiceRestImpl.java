@@ -19,6 +19,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,6 +36,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -51,6 +53,7 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
+import com.wci.umls.server.jpa.worfklow.ChecklistNoteJpa;
 import com.wci.umls.server.jpa.worfklow.ClusterTypeStatsJpa;
 import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -85,7 +88,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Path("/workflow")
 @Api(value = "/workflow", description = "Operations supporting workflow")
 @Consumes({
-    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_HTML
+    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
@@ -1023,8 +1026,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           action, UserRole.AUTHOR);
 
       final Project project = workflowService.getProject(projectId);
-      return workflowService.findChecklists(project, query, pfs);
-
+      ChecklistList list =  workflowService.findChecklists(project, query, pfs);
+      for (Checklist checklist : list.getObjects()) {
+        workflowService.handleLazyInit(checklist);
+      }
+      return list;
     } catch (Exception e) {
       handleException(e, action);
       return null;
@@ -1118,7 +1124,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/worklist/action")
-  @ApiOperation(value = "Perform workflow action on a tracking record", notes = "Performs the specified action as the specified refset as the specified user", response = WorklistJpa.class)
+  @ApiOperation(value = "Perform workflow action on a tracking record", notes = "Performs the specified action as the specified worklist as the specified user", response = WorklistJpa.class)
   public Worklist performWorkflowAction(
     @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Worklist id, e.g. 5", required = false) @QueryParam("worklistId") Long worklistId,
@@ -1128,8 +1134,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /action " + action + ", " + projectId
-            + ", " + worklistId + ", " + userRole + ", " + userName);
+        "RESTful POST call (Workflow): /action "  + projectId
+            + ", " + worklistId + ", " + userName);
 
     // Test preconditions
     if (projectId == null || userName == null) {
@@ -1145,6 +1151,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       final Worklist worklist = workflowService.getWorklist(worklistId);
       final Project project = workflowService.getProject(projectId);
+      //UserRole role = UserRole.valueOf(userRole);
       final Worklist returnWorklist =
           workflowService.performWorkflowAction(project, worklist, userName,
               userRole, action);
@@ -1203,6 +1210,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   public Checklist createChecklist(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin id, e.g. 5", required = false) @QueryParam("workflowBinId") Long workflowBinId,
+    @ApiParam(value = "Cluster type", required = false) @QueryParam("clusterType") String clusterType,
     @ApiParam(value = "Checklist name", required = false) @QueryParam("name") String name,
     @ApiParam(value = "Randomize, e.g. false", required = true) @QueryParam("randomize") Boolean randomize,
     @ApiParam(value = "Exclude on worklist, e.g. false", required = true) @QueryParam("excludeOnWorklist") Boolean excludeOnWorklist,
@@ -1212,7 +1220,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Workflow): /checklist/add " + projectId + ", "
-            + workflowBinId + ", " + name + ", " + randomize);
+            + workflowBinId + ", " + clusterType + ", " + name + ", " + randomize);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -1228,11 +1236,20 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       // Prep initial query
       final StringBuffer sb = new StringBuffer();
       sb.append("workflowBinName:").append(workflowBin.getName());
+      
+      // Handle "cluster type"
+      if (!clusterType.equals("all") && !clusterType.equals("default")) {
+        sb.append(" AND ").append("clusterType:").append(clusterType);
+      }
+      if (clusterType.equals("default")) {
+        sb.append(" AND NOT clusterType:[* TO *]");
+      }
 
       // Handle "exclude on worklist"
       if (excludeOnWorklist) {
         sb.append(" AND ").append("NOT worklistName:[* TO *] ");
       }
+      
       if (query != null && !query.equals("")) {
         sb.append(" AND ").append(query);
       }
@@ -1321,38 +1338,47 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         if (clusterType.equals("chem"))
           worklistName.append("chem").append("_");
 
-        // Obtain the next worklist number for this naming scheme
-        final PfsParameter worklistQueryPfs = new PfsParameterJpa();
-        worklistQueryPfs.setStartIndex(0);
-        worklistQueryPfs.setMaxResults(1);
-        worklistQueryPfs.setSortField("name");
-        worklistQueryPfs.setAscending(false);
-        final StringBuffer query = new StringBuffer();
+      // Obtain the next worklist number for this naming scheme
+      final PfsParameter worklistQueryPfs = new PfsParameterJpa();
+      worklistQueryPfs.setStartIndex(0);
+      worklistQueryPfs.setMaxResults(1);
+      worklistQueryPfs.setSortField("name");
+      worklistQueryPfs.setAscending(false);
+      final StringBuffer query = new StringBuffer();
+      if (clusterType.equals("default")) {
         query
-            .append("name:")
-            .append("wrk")
-            .append(
-                currentEpoch.getName() + "_" + workflowBin.getName() + "_"
-                    + clusterType + '*');
-        final WorklistList worklistList =
-            workflowService.findWorklists(project, query.toString(),
-                worklistQueryPfs);
-        int nextNumber =
-            worklistList.getObjects().size() == 0 ? 1 : worklistList
-                .getObjects().get(0).getNumber() + 1;
-        worklistName.append(new String(Integer.toString(nextNumber + 1000))
-            .substring(1));
+        .append("name:")
+        .append("wrk")
+        .append(
+            currentEpoch.getName() + "_" + workflowBin.getName() + "_0"
+                + '*');        
+      } else {
+        query
+          .append("name:")
+          .append("wrk")
+          .append(
+              currentEpoch.getName() + "_" + workflowBin.getName() + "_"
+                  + clusterType + '*');
+      }
+      final WorklistList worklistList =
+          workflowService.findWorklists(project, query.toString(),
+              worklistQueryPfs);
+      int nextNumber =
+          worklistList.getObjects().size() == 0 ? 1 : worklistList.getObjects()
+              .get(0).getNumber() + 1;
+      worklistName.append(new String(Integer.toString(nextNumber + 1000))
+          .substring(1));
 
-        // build query to retrieve tracking records that will be in worklist
-        final StringBuffer sb = new StringBuffer();
-        sb.append("workflowBinName:").append(workflowBin.getName());
-        sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-        if (!clusterType.equals("all")) {
-          sb.append(" AND ").append("clusterType:").append(clusterType);
-        }
-        if (clusterType.equals("default")) {
-          sb.append(" AND NOT ").append("clusterType:chem");
-        }
+      // build query to retrieve tracking records that will be in worklist
+      final StringBuffer sb = new StringBuffer();
+      sb.append("workflowBinName:").append(workflowBin.getName());
+      sb.append(" AND ").append("NOT worklistName:[* TO *] ");
+      if (!clusterType.equals("all") && !clusterType.equals("default")) {
+        sb.append(" AND ").append("clusterType:").append(clusterType);
+      }
+      if (clusterType.equals("default")) {
+        sb.append(" AND NOT clusterType:[* TO *]");
+      }
 
         final PfsParameter localPfs =
             pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
@@ -1425,10 +1451,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final List<WorkflowBin> bins =
           workflowService.getWorkflowBins(project, type);
 
-      // Track "editable" and "uneditable"
-      final Map<String, Integer> typeUneditableMap = new HashMap<>();
-      final Map<String, Integer> typeEditableMap = new HashMap<>();
+      // Track "unassigned" and "assigned"
+      final Map<String, Integer> typeAssignedMap = new HashMap<>();
+      final Map<String, Integer> typeUnassignedMap = new HashMap<>();
       for (final WorkflowBin bin : bins) {
+        typeAssignedMap.clear();
+        typeUnassignedMap.clear();
         final List<TrackingRecord> list = bin.getTrackingRecords();
 
         // If no tracking records, get the raw cluster ct
@@ -1449,51 +1477,51 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           }
 
           // Initialize map
-          if (!typeUneditableMap.containsKey(clusterType)) {
-            typeUneditableMap.put(clusterType, 0);
-            typeEditableMap.put(clusterType, 0);
+          if (!typeAssignedMap.containsKey(clusterType)) {
+            typeAssignedMap.put(clusterType, 0);
+            typeUnassignedMap.put(clusterType, 0);
           }
           // compute "all" cluster type
-          if (!typeUneditableMap.containsKey("all")) {
-            typeUneditableMap.put("all", 0);
-            typeEditableMap.put("all", 0);
+          if (!typeAssignedMap.containsKey("all")) {
+            typeAssignedMap.put("all", 0);
+            typeUnassignedMap.put("all", 0);
           }
 
-          // Increment uneditable
+          // Increment assigned
           if (!ConfigUtility.isEmpty(record.getWorklistName())) {
-            typeUneditableMap.put(clusterType,
-                typeUneditableMap.get(clusterType) + 1);
-            typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
+            typeAssignedMap.put(clusterType,
+                typeAssignedMap.get(clusterType) + 1);
+            typeAssignedMap.put("all", typeAssignedMap.get("all") + 1);
           }
 
-          // Otherwise increment editable
+          // Otherwise increment unassigned
           else {
-            typeEditableMap.put(clusterType,
-                typeEditableMap.get(clusterType) + 1);
-            typeEditableMap.put("all", typeEditableMap.get("all") + 1);
+            typeUnassignedMap.put(clusterType,
+                typeUnassignedMap.get(clusterType) + 1);
+            typeUnassignedMap.put("all", typeUnassignedMap.get("all") + 1);
           }
 
         }
         // Now extract cluster types and add statistics
-        for (final String clusterType : typeUneditableMap.keySet()) {
+        for (final String clusterType : typeAssignedMap.keySet()) {
 
           // Skip "all" if there is only one cluster type
-          if (typeUneditableMap.keySet().size() == 2
+          if (typeAssignedMap.keySet().size() == 2
               && clusterType.equals("all")) {
             continue;
           }
           // Add statistics
           ClusterTypeStats stats = new ClusterTypeStatsJpa();
           stats.setClusterType(clusterType);
-          int editable = typeEditableMap.get(clusterType);
-          int uneditable = typeUneditableMap.get(clusterType);
-          stats.getStats().put("all", editable + uneditable);
-          stats.getStats().put("editable", editable);
-          stats.getStats().put("uneditable", uneditable);
+          int unassigned = typeUnassignedMap.get(clusterType);
+          int assigned = typeAssignedMap.get(clusterType);
+          stats.getStats().put("all", unassigned + assigned);
+          stats.getStats().put("unassigned", unassigned);
+          stats.getStats().put("assigned", assigned);
           bin.getStats().add(stats);
         }
       }
-
+      Collections.sort(bins, (o1, o2) -> o1.getRank() - o2.getRank());
       return bins;
 
     } catch (Exception e) {
@@ -1667,6 +1695,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
+  @Produces(MediaType.TEXT_PLAIN)
   @Path("/worklist/{id}/report/generate")
   @ApiOperation(value = "Generate concept reports for worklist", notes = "Generate concept reports for the specified worklist", response = String.class)
   public String generateConceptReport(
@@ -1817,6 +1846,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
+  @Produces(MediaType.TEXT_PLAIN)
   @Path("/report/{fileName}")
   @ApiOperation(value = "Get generated concept report", notes = "Get generated concept report", response = String.class)
   public String getGeneratedConceptReport(
@@ -2104,7 +2134,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         "  clusters = " + clusterIdConceptIdsMap.size());
 
     // for each cluster in clusterIdComponentIdsMap create a tracking record if
-    // editable bin
+    // unassigned bin
     if (definition.isEditable()) {
       long clusterIdCt = 1L;
       for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
@@ -2122,10 +2152,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         record.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
 
         // Load the concept ids involved
+        StringBuffer conceptNames = new StringBuffer();
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           final Concept concept = workflowService.getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
-          // TODO record.setIndexData(String of appended names) ANALYZED=YES
+          // collect all the concept names for the indexed data 
+          conceptNames.append(concept.getName()).append(" ");
 
           // Set cluster type if a concept has an STY associated with a cluster
           // type in th eproject
@@ -2151,6 +2183,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             }
           }
         }
+        record.setIndexedData(conceptNames.toString());
 
         // if any of the concepts or atoms are NEEDS_REVIEW, set record to
         // NEEDS_REVIEW
@@ -2181,4 +2214,104 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/add/note")
+  @Consumes("text/plain")
+  @ApiOperation(value = "Add a note", notes = "Adds a note", response = ChecklistNoteJpa.class)
+  public Note addNote(
+    @ApiParam(value = "Checklist or Worklist id, e.g. 3", required = true) @QueryParam("listId") Long checklistId,
+    @ApiParam(value = "The note, e.g. \"this is a sample note\"", required = true) String note,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Checklist): /add/note " + checklistId + ", " + note);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final Checklist checklist = workflowService.getChecklist(checklistId);
+      if (checklist.getProject() == null || checklist.getProject().getId() == null) {
+        throw new Exception(
+            "Checklist must have a project with a non null identifier.");
+      }
+
+      String userName =
+          authorizeProject(workflowService, checklist.getProject().getId(),
+              securityService, authToken, "adding checklist note", UserRole.AUTHOR);
+
+      // Create the note
+      final Note checklistNote = new ChecklistNoteJpa();
+      checklistNote.setLastModifiedBy(userName);
+      checklistNote.setNote(note);
+      ((ChecklistNoteJpa) checklistNote).setChecklist(checklist);
+
+      // Add and return the note
+      checklistNote.setLastModifiedBy(userName);
+      workflowService.setLastModifiedBy(userName);
+      final Note newNote = workflowService.addNote(checklistNote);
+
+      // For indexing
+      checklist.getNotes().add(newNote);
+      checklist.setLastModifiedBy(userName);
+      workflowService.updateChecklist(checklist);
+
+
+      return newNote;
+    } catch (Exception e) {
+      handleException(e, "trying to add note");
+      return null;
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/remove/note")
+  @ApiOperation(value = "Remove a note", notes = "Removes the specified note")
+  public void removeNote(
+    @ApiParam(value = "Checklist or Worklist id, e.g. 3", required = true) @QueryParam("listId") Long checklistId,
+    @ApiParam(value = "Note id, e.g. 3", required = true) @QueryParam("noteId") Long noteId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call DELETE (Checklist): /remove/note " + checklistId + ", "
+            + noteId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final Checklist checklist = workflowService.getChecklist(checklistId);
+      if (checklist.getProject() == null || checklist.getProject().getId() == null) {
+        throw new Exception(
+            "Checklist must have a project with a non null identifier.");
+      }
+
+      final String userName =
+          authorizeProject(workflowService, checklist.getProject().getId(),
+              securityService, authToken, "remove note", UserRole.AUTHOR);
+
+      // remove note
+      workflowService.setLastModifiedBy(userName);
+      workflowService.removeNote(noteId, ChecklistNoteJpa.class);
+      // For indexing
+      for (int i = 0; i < checklist.getNotes().size(); i++) {
+        if (checklist.getNotes().get(i).getId().equals(noteId)) {
+          checklist.getNotes().remove(i);
+          break;
+        }
+      }
+      checklist.setLastModifiedBy(userName);
+      workflowService.updateChecklist(checklist);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove a note");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
 }
