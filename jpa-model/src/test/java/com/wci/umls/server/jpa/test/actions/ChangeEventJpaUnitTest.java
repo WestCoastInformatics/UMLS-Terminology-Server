@@ -19,7 +19,6 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
-import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.model.content.Component;

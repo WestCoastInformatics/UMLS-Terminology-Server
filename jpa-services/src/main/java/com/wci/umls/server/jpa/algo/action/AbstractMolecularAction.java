@@ -21,8 +21,8 @@ import com.wci.umls.server.model.content.Concept;
 /**
  * Abstract {@link MolecularActionAlgorithm}.
  */
-public abstract class AbstractMolecularAction
-    extends AbstractTerminologyAlgorithm implements MolecularActionAlgorithm {
+public abstract class AbstractMolecularAction extends
+    AbstractTerminologyAlgorithm implements MolecularActionAlgorithm {
 
   /** The concept. */
   private Concept concept;
@@ -103,12 +103,14 @@ public abstract class AbstractMolecularAction
   }
 
   /* see superclass */
+  @Override
   public String getName() {
     String objectName = this.getClass().getSimpleName();
     objectName = objectName.replace("MolecularAction", "");
-    objectName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, objectName);
+    objectName =
+        CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, objectName);
     objectName = objectName.toUpperCase();
-    
+
     return objectName;
   }
 
