@@ -30,18 +30,17 @@
               <th class="col-md-4 col-xs-4">Dates</th>
               <th class="col-md-1 col-xs-1">Cluster</th>
               <th class="col-md-1 col-xs-1">All</th>
-              <th class="col-md-1 col-xs-1">Uneditable</th>
-              <th class="col-md-1 col-xs-1">Editable</th>
+              <th class="col-md-1 col-xs-1">Assigned</th>
+              <th class="col-md-1 col-xs-1">Unassigned</th>
               <th class="col-md-1 col-xs-1">Actions</th>
             </tr>
           </thead>
           <tbody ng-repeat="bin in bins">
-            <tr ng-click="selectBin(bin);"
+            <tr ng-click="selectBin(bin, 'all');"
               ng-class="{selected: bin.id == selected.bin.id}">
               <td rowspan="4">{{bin.rank}}</td>
               <td rowspan="4">
-                <i ng-click="showInfo(); $event.stopPropagation()"
-                  title="Information"
+                <i uib-tooltip="{{bin.description}}"
                   class="noul glyphicon glyphicon-question-sign"></i>&nbsp;{{bin.name}}
               </td>
               <td rowspan="4">
@@ -49,21 +48,23 @@
                 {{toDate(bin.lastModified)}}
               </td>
             </tr>
-            <tr ng-repeat="stats in bin.stats" ng-click="selectBin(bin, stats.clusterType);">
+            <tr ng-repeat="stats in bin.stats" ng-click="selectBin(bin, stats.clusterType);"
+                ng-class="{selected: (stats.clusterType == selected.clusterType && bin.id == selected.bin.id) ||
+                                      (selected.clusterType == 'all' && bin.id == selected.bin.id)}">
               <td>{{ stats.clusterType }}</td>
               <td>{{ stats.stats.all }}</td>
-              <td>{{ stats.stats.uneditable }}</td>
-              <td>{{ stats.stats.editable }}</td>
+              <td>{{ stats.stats.assigned }}</td>
+              <td>{{ stats.stats.unassigned }}</td>
               <td>
                 <i ng-show="stats.clusterType == 'all' && bin.stats.length > 1"
                   ng-click="setBinType(currentBinType); $event.stopPropagation()"
                   title="Refresh counts"
                   class="noul glyphicon glyphicon-refresh"></i> <i
                   ng-show="stats.clusterType != 'all'"
-                  ng-click="openCreateChecklistModal(bin); $event.stopPropagation()"
+                  ng-click="openCreateChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
                   title="Add Checklist" class="noul glyphicon glyphicon-check"></i>&nbsp;<i
                   ng-show="stats.clusterType != 'all'"
-                  ng-click="openCreateWorklistModal(bin, stats.clusterType); $event.stopPropagation()"
+                  ng-click="openCreateWorklistModal(bin, stats.clusterType, stats.stats.unassigned); $event.stopPropagation()"
                   title="Add Worklist" class="noul glyphicon glyphicon-list-alt"></i>
               </td>
             </tr>
@@ -123,7 +124,7 @@
             </td>
           </tr>
           <tr ng-click="selectConcept(concept);"
-            ng-class="{selected : record.id == selected.record.id}"
+            ng-class="{selected : concept.id == selected.concept.id}"
             ng-repeat="concept in record.concepts"
             ng-style="{'color': concept.workflowStatus == 'NEEDS_REVIEW' ? 'red' : 'black'}">
             <td>
@@ -136,6 +137,11 @@
           </tr>
         </tbody>
       </table>
+      <span
+          ng-show="(paging['record'].filter || paging['record'].typeFilter) && selected.worklist.records.totalCount == 0"
+          class="alert alert-warning">
+          <br />No records matching filter
+      </span>
       </div>
       <div class="col-md-6 col-xs-12">
         <h4 ng-show="selected.concept">Concept Report</h4>
@@ -144,13 +150,13 @@
         </pre>
       </div>
     </div>
-    </uib-accordion-group> <!-- A3 - Checklists --> <uib-accordion-group> <uib-accordion-heading>
+    </uib-accordion-group> <!-- A2 - Checklists --> <uib-accordion-group> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Checklists">Checklists</span>
     </h5>
     </uib-accordion-heading>
     <div worklist-table value="Checklist" project="currentProject"></div>
-    </uib-accordion-group> <!-- A2 - Worklists --> <uib-accordion-group> <uib-accordion-heading>
+    </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Worklists">Worklists</span>
     </h5>

@@ -682,9 +682,9 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/worklist/action" + "?projectId=" + projectId
-            + "&worklistId=" + worklistId + "&action=" + action + "&userName="
-            + userName + "&userRole=" + role);
+            + "/workflow/worklist/action?projectId=" + projectId
+            + "&worklistId=" + worklistId  + "&userName="
+            + userName + "&userRole=" + role + "&action=" + action);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -796,7 +796,7 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public Checklist createChecklist(Long projectId, Long workflowBinId,
+  public Checklist createChecklist(Long projectId, Long workflowBinId, String clusterType,
     String name, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
 
@@ -814,6 +814,8 @@ public class WorkflowClientRest extends RootClientRest implements
             + projectId
             + "&workflowBinId="
             + workflowBinId
+            + "&clusterType="
+            + clusterType
             + "&name="
             + name
             + (randomize != null ? ("&randomize=" + randomize) : "")

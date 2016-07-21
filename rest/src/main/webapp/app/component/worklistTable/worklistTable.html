@@ -47,38 +47,20 @@
     <table ng-show="worklists.totalCount > 0" class="table">
       <thead class="table-select-row">
         <tr>
-          <!-- Worklist number header -->
-          <th class="col-md-1 col-xs-1"><span
-              ng-click="setSortField('worklist','number')">
-              <span ng-bind="getSortIndicator('worklist','number')"></span>
-            </span></th>
-            
+          
           <!-- Worklist name header -->
-          <th class="col-md-5 col-xs-5"><span
-              ng-click="setSortField('worklist','name')">
-              Name
-              <span ng-bind="getSortIndicator('worklist','name')"></span>
-            </span> / 
-              <span ng-click="setSortField('worklist','lastModified')">
-                Last Modified
-                <span ng-bind="getSortIndicator('worklist','lastModified')"></span>
-            </span></th>
+          <th class="col-md-5 col-xs-5">Name / Last Modified</th>
 
           <!-- Author/Reviewer Time header -->
-          <th ng-show="value == 'Worklist'" class="col-md-3 col-xs-3"><span
-              ng-click="setSortField('worklist','moduleId')">
+          <th ng-show="value == 'Worklist'" class="col-md-3 col-xs-3">
               Editor
-              <span ng-bind="getSortIndicator('worklist','moduleId')"></span>
-            </span> / <span title="Group">Group
+            / <span title="Group">Group
             </span> / <span title="Time">Time
             </span></th>
 
           <!-- Workflow Status header -->
-          <th class="col-md-1 col-xs-1"><span
-              ng-click="setSortField('worklist','workflowStatus')">
-              Status
-              <span ng-bind="getSortIndicator('worklist','workflowStatus')"></span>
-            </span></th>
+          <th class="col-md-2 col-xs-2">
+              Status</th>
 
           <!-- Actions header -->
           <th class="col-md-2 col-xs-2" ">Actions</th>
@@ -88,7 +70,6 @@
       <tbody>
         <tr ng-repeat="worklist in worklists" ng-click="selectWorklist(worklist);"
           ng-class="{selected: worklist.id == selected.worklist.id}">
-          <td style="word-break: break-word;">{{worklist.number}}</td>
           
           <td>
             {{worklist.name}}
@@ -98,7 +79,7 @@
           </td>
 
           <td ng-show="value == 'Worklist'">
-            <span style="word-break: break-word;"> {{worklist.authors[0]}}</span> <br/>
+            <span style="word-break: break-word;"> {{joinEditors(worklist)}}</span> <br/>
             <span> {{worklist.team}} </span> <br/>
             <span> {{toTime(worklist.authorTime)}} </span>
           </td>
@@ -114,11 +95,13 @@
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
               class="noul material-icons md-18">delete</i>
 
-
-            <i  ng-show="value == 'Worklist'"
+            <i  ng-show="value == 'Worklist' && joinEditors(worklist).length == 0"
               ng-click="openAssignWorklistModal(worklist,'ASSIGN'); $event.stopPropagation()"
               title="Assign" class="noul material-icons md-18">assignment_ind</i>
 
+            <i  ng-show="value == 'Worklist' && joinEditors(worklist).length > 0"
+              ng-click="unassignWorklist(worklist); $event.stopPropagation()"
+              title="Unassign" class="noul material-icons md-18">assignment_return</i>
           </td>
         </tr>
       </tbody>
@@ -162,9 +145,9 @@
           </tr>
           <tr>
             <td>
-              <b>Concept/Cluster Counts</b>
+              <b>Cluster/Concept Counts</b>
             </td>
-            <td>{{selected.worklist.stats.conceptCt}}/{{selected.worklist.stats.clusterCt}}</td>
+            <td>{{selected.worklist.stats.clusterCt}}/{{selected.worklist.stats.conceptCt}}</td>
           </tr>
           <!-- TODO: make dates dynamic in table based on workflowStateHistory keys -->
           <tr>
@@ -261,7 +244,7 @@
                   uib-tooltip="Ready for publication">R</button></td>
             </tr>
             <tr  ng-click="selectConcept(concept);"
-              ng-class="{selected : record.id == selected.record.id}"
+              ng-class="{selected : concept.id == selected.concept.id}"
               ng-repeat="concept in record.concepts" 
               ng-style="{'color': concept.workflowStatus == 'NEEDS_REVIEW' ? 'red' : 'black'}">
               <td>
@@ -277,9 +260,9 @@
           </tbody>
         </table>
         <span
-          ng-show="paging['record'].filter && selected.worklist.records.totalCount == 0"
+          ng-show="(paging['record'].filter || paging['record'].typeFilter) && selected.worklist.records.totalCount == 0"
           class="alert alert-warning">
-          <br />No worklist records matching filter
+          <br />No records matching filter
         </span>
 
       </div>
