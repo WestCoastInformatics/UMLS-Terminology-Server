@@ -12,6 +12,7 @@ import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.model.actions.ChangeEvent;
+import com.wci.umls.server.model.content.Component;
 
 /**
  * JAXB enabled implementation of a {@link ChangeEvent}. NOTE: this object
@@ -21,8 +22,7 @@ import com.wci.umls.server.model.actions.ChangeEvent;
  * @param <T> the type
  */
 @XmlRootElement(name = "change")
-public class ChangeEventJpa<T extends AbstractComponent> implements
-    ChangeEvent<T> {
+public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
 
   /** The id. */
   private Long id;
@@ -195,6 +195,7 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
   }
 
   /* see superclass */
+  @XmlElement(type = AbstractComponent.class)
   @Override
   public T getOldValue() {
     return oldValue;
@@ -207,6 +208,7 @@ public class ChangeEventJpa<T extends AbstractComponent> implements
   }
 
   /* see superclass */
+  @XmlElement(type = AbstractComponent.class)
   @Override
   public T getNewValue() {
     return newValue;

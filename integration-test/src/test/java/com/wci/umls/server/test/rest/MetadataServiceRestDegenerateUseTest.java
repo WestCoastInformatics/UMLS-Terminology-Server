@@ -38,7 +38,7 @@ public class MetadataServiceRestDegenerateUseTest extends
    * @throws Exception
    */
   @Test
-  public void testDegenerateUseRestMetadata001() throws Exception {
+  public void testGetCurrentTerminologies() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     try {
       metadataService.getCurrentTerminologies("InvalidAuthToken");
@@ -50,32 +50,11 @@ public class MetadataServiceRestDegenerateUseTest extends
   }
 
   /**
-   * Tests retrieval of all terminology and latest version pairs
-   * 
-   * NOTE: Test is identical to testDegenerateUseRestMetadata001 but uses
-   * different API call.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testDegenerateUseRestMetadata002() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    // test bad authorization
-    try {
-      metadataService.getAllTerminologiesLatestVersions("InvalidAuthToken");
-      fail("Getting latest version for all terminologies without authorization token succeeded.");
-    } catch (Exception e) {
-      // do nothing
-    }
-  }
-
-  /**
    * Test retrieving all metadata for a terminology
    * @throws Exception
    */
   @Test
-  public void testDegenerateUseRestMetadata003() throws Exception {
+  public void testGetAllMetadata() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization
@@ -110,7 +89,7 @@ public class MetadataServiceRestDegenerateUseTest extends
    * @throws Exception
    */
   @Test
-  public void testDegenerateUseRestMetadata004() throws Exception {
+  public void testGetTerminology() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization
@@ -129,7 +108,7 @@ public class MetadataServiceRestDegenerateUseTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUseRestMetadata005() throws Exception {
+  public void testGetDefaultPrecedenceList() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization

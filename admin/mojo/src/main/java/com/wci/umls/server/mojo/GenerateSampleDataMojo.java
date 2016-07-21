@@ -396,6 +396,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
           .filter(t -> t.equals("NCI")).collect(Collectors.toList()).size() > 0) {
         continue;
       }
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       testService = new IntegrationTestServiceRestImpl();
       testService.updateConcept(concept, authToken);
 
@@ -552,7 +553,6 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     workflowService.addWorkflowBinDefinition(project1.getId(), definition,
         authToken);
 
-
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate ME bins");
     // Clear bins
@@ -571,8 +571,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     // 3. Make a checklist of size 10 from each one, exclude on worklist
     // 4. Make a random checklist of size 10 from each one
     // 5. Make an in-order checklist of size 10 from each one
-
-    
+    // 6. march a worklist through some changes to show the other worklist dates.
     //
     // Add a QA bins workflow config for the current project
     //
@@ -599,8 +598,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
           + " SCUIs, including merged PTs");
       definition.setQuery("select a.id clusterId, a.id conceptId "
           + "from concepts a, concepts_atoms b, atoms c "
-          + "where and a.terminology = :terminology "
-          + "  and a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+          + "where a.terminology = :terminology "
+          + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
           + "  and c.terminology='" + terminology.toUpperCase() + "'  "
           + "group by a.id having count(distinct c.conceptId)>1");
       definition.setEditable(true);
@@ -640,7 +639,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
           + " SCUIs, including merged PTs");
       definition.setQuery("select a.id clusterId, a.id conceptId "
           + "from concepts a, concepts_atoms b, atoms c "
-          + "where and a.terminology = :terminology "
+          + "where a.terminology = :terminology "
           + "  and a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
           + "  and c.terminology='" + terminology.toUpperCase() + "'  "
           + "group by a.id having count(distinct c.conceptId)>1");

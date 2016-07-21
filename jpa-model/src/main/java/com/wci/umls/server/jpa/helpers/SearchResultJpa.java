@@ -43,8 +43,8 @@ public class SearchResultJpa implements SearchResult {
 
   /** The score. */
   private Float score = null;
-  
-  /**  The workflow status. */
+
+  /** The workflow status. */
   private WorkflowStatus workflowStatus;
 
   /**
@@ -184,19 +184,19 @@ public class SearchResultJpa implements SearchResult {
   public void setProperty(KeyValuePair property) {
     this.property = property;
   }
-  
-  /* see superclass */  
+
+  /* see superclass */
   @Override
   public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;
   }
-  
-  /* see superclass */ 
+
+  /* see superclass */
   @Override
   public void setWorkflowStatus(WorkflowStatus workflowStatus) {
     this.workflowStatus = workflowStatus;
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -206,11 +206,15 @@ public class SearchResultJpa implements SearchResult {
     result = prime * result + ((score == null) ? 0 : score.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result =
+        prime * result
+            + ((workflowStatus == null) ? 0 : workflowStatus.hashCode());
     return result;
   }
 
@@ -257,10 +261,14 @@ public class SearchResultJpa implements SearchResult {
         return false;
     } else if (!version.equals(other.version))
       return false;
+    if (workflowStatus == null) {
+      if (other.workflowStatus != null)
+        return false;
+    } else if (!workflowStatus.equals(other.workflowStatus))
+      return false;
 
     return true;
   }
-
 
   /* see superclass */
 
@@ -269,9 +277,8 @@ public class SearchResultJpa implements SearchResult {
     return "SearchResultJpa [id=" + id + ", terminologyId=" + terminologyId
         + ", terminology=" + terminology + ", version=" + version + ", type="
         + type + ", property=" + property + ", value=" + value + ", obsolete="
-        + obsolete + ", score=" + score + ", workflowStatus=" + workflowStatus + "]";
+        + obsolete + ", score=" + score + ", workflowStatus=" + workflowStatus
+        + "]";
   }
-
-
 
 }

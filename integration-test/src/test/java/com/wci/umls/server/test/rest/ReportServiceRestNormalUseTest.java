@@ -68,7 +68,7 @@ public class ReportServiceRestNormalUseTest extends ReportServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestWorkflow00() throws Exception {
+  public void testGetConceptReport() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     Logger.getLogger(getClass()).info(

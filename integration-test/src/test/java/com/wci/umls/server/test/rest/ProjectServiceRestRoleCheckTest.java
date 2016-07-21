@@ -8,6 +8,7 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.fail;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -60,9 +61,10 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
 
-    project.setDescription("Sample");
+    project.setDescription("Sample " + new Date().getTime());
     project.setName("Sample");
     project.setTerminology("UMLS");
+    project.setWorkflowPath("DEFAULT");
 
     try {
       projectService.addProject(project, viewerAuthToken);

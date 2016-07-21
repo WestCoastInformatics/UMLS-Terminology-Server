@@ -801,9 +801,9 @@ public class WorkflowClientRest extends RootClientRest implements
     PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass()).debug(
-        "Workflow Client - create checklist " + projectId + ", " + workflowBinId
-            + ", " + name + ", " + randomize + ", " + excludeOnWorklist + ", "
-            + query + ", " + projectId);
+        "Workflow Client - create checklist " + projectId + ", "
+            + workflowBinId + ", " + name + ", " + randomize + ", "
+            + excludeOnWorklist + ", " + query + ", " + projectId);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -960,7 +960,7 @@ public class WorkflowClientRest extends RootClientRest implements
             });
     return new ArrayList<WorkflowBin>(list);
   }
-  
+
   /* see superclass */
   @Override
   public List<WorkflowConfig> getWorkflowConfigs(Long projectId,
@@ -1102,8 +1102,8 @@ public class WorkflowClientRest extends RootClientRest implements
             + "&conceptReportType=" + conceptReportType + "&relationshipCt="
             + relationshipCt);
     final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
+            .get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1130,8 +1130,8 @@ public class WorkflowClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url") + "/workflow/report/"
             + fileName + "?projectId=" + projectId + "&fileName=" + fileName);
     final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
+            .get();
 
     if (response.getStatus() == 204) {
       return null;

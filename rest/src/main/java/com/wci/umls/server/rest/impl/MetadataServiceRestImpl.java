@@ -213,41 +213,6 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/terminology/terminologies/latest")
-  @ApiOperation(value = "Get all terminologies and their latest versions", notes = "Gets the list of terminologies and their latest versions", response = TerminologyListJpa.class)
-  public TerminologyList getAllTerminologiesLatestVersions(
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /terminologies/latest/");
-
-    final MetadataService metadataService = new MetadataServiceJpa();
-    try {
-      // authorize call
-      authorizeApp(securityService, authToken,
-          "get latest versions of all terminologies", UserRole.VIEWER);
-
-      final TerminologyList results = metadataService.getTerminologies();
-      for (final Terminology terminology : results.getObjects()) {
-        metadataService.getGraphResolutionHandler(terminology.getTerminology())
-            .resolve(terminology);
-      }
-      return results;
-
-    } catch (Exception e) {
-      handleException(e,
-          "trying to retrieve the latest versions of all terminologies");
-      return null;
-    } finally {
-      metadataService.close();
-      securityService.close();
-    }
-  }
-
-  /* see superclass */
-  @Override
-  @GET
   @Path("/terminology/terminologies")
   @ApiOperation(value = "Get current terminologies", notes = "Gets the list of current terminologies", response = TerminologyListJpa.class)
   public TerminologyList getCurrentTerminologies(
@@ -332,9 +297,17 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
       authorizeApp(securityService, authToken, "get precedence list",
-          UserRole.USER);
+          UserRole.VIEWER);
 
-      return metadataService.getPrecedenceList(precedenceListId);
+      final PrecedenceList list =
+          metadataService.getPrecedenceList(precedenceListId);
+      if (list == null) {
+        return null;
+      }
+      // lazy initialize
+      list.getPrecedence().getKeyValuePairs().size();
+      list.getTermTypeRankMap().size();
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to get precedence list");
       return null;

@@ -195,6 +195,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester = new IndexedFieldTester(object);
     tester.include("name");
     tester.include("projectId");
+    tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("team");
     tester.include("workflowStatus");

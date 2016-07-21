@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -316,8 +317,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     atomicActions = contentService
         .findAtomicActions(ma.getId(), null, null, authToken).getObjects();
-    assertEquals(atomicActions.size(), 1);
-    assertEquals(atomicActions.get(0).getIdType().toString(), "SEMANTIC_TYPE");
+    assertEquals(1, atomicActions.size());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
     assertNull(atomicActions.get(0).getNewValue());
 
@@ -567,7 +568,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("REMOVE_ATTRIBUTE " + attribute.getName()));
+    assertTrue(logEntry
+        .contains("REMOVE_ATTRIBUTE " + attribute.getName()));
 
     // remove the second attribute from the concept (assume verification of MA,
     // atomic actions, and log entry since we just tested those)
@@ -1331,7 +1333,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Now that the concepts are all set up, merge them.
     v = metaEditingService.mergeConcepts(project.getId(), toC.getId(),
-        toC.getLastModified().getTime(), fromC.getId(), false, false, false,
+        toC.getLastModified().getTime(), fromC.getId(), false, false,
         authToken);
     assertTrue(v.getErrors().isEmpty());
 
@@ -1339,6 +1341,56 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(concept.getId(), project.getId(), authToken);
     relatedC =
         contentService.getConcept(concept3.getId(), project.getId(), authToken);
+
+    // Verify fromConcept has been removed
+      fromC = contentService.getConcept(concept2.getId(), project.getId(),
+          authToken);
+      assertTrue(fromC == null);
+
+    // Verify fromConcept atom is now present in toConcept, along with original
+    // toConcept atom
+    int atomCount = 0;
+    for (Atom a : toC.getAtoms()) {
+      if (a.getName().equals("DCB") || a.getName().equals("17 Oxosteroids")) {
+        atomCount++;
+      }
+    }
+    assertEquals(2, atomCount);
+
+    // Verify fromConcept Semantic type is now present in toConcept, along with
+    // original toConcept Semantic type
+    int styCount = 0;
+    for (SemanticTypeComponent sty : toC.getSemanticTypes()) {
+      if (sty.getSemanticType().equals("Lipid")
+          || sty.getSemanticType().equals("Enzyme")) {
+        styCount++;
+      }
+    }
+    assertEquals(2, styCount);
+
+    // Verify relationship between to and from Concept has been removed
+    RelationshipList relList =
+        contentService.findConceptRelationships(toC.getTerminologyId(),
+            toC.getTerminology(), toC.getVersion(), null, null, authToken);
+
+    boolean relationshipPresent = false;
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getTo().getTerminologyId().equals("C0002073")
+          && rel.getFrom().getId().equals(toC.getId())) {
+        relationshipPresent = true;
+      }
+    }
+    assertTrue(!relationshipPresent);
+
+    // Verify that relationships from fromConcept have been added to toConcept
+    relationshipPresent = false;
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getTo().getTerminologyId().equals("C0065642")
+          && rel.getFrom().getId().equals(toC.getId())) {
+        relationshipPresent = true;
+      }
+    }
+    assertTrue(relationshipPresent);
 
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -1386,7 +1438,6 @@ public class MetaEditingServiceRestNormalUseTest
         projectService.getLog(project.getId(), toC.getId(), 1, authToken);
     assertTrue(logEntry.contains("MERGE"));
 
-
     // Remove all of the atoms, semantic types, and relationships (and re-create
     // Concept2) so teardown can succesfully remove the concept.
     List<Atom> toAtomList = toC.getAtoms();
@@ -1403,9 +1454,8 @@ public class MetaEditingServiceRestNormalUseTest
       toC = contentService.getConcept(concept.getId(), project.getId(),
           authToken);
     }
-    RelationshipList relList =
-        contentService.findConceptRelationships(toC.getTerminologyId(),
-            toC.getTerminology(), toC.getVersion(), null, null, authToken);
+    relList = contentService.findConceptRelationships(toC.getTerminologyId(),
+        toC.getTerminology(), toC.getVersion(), null, null, authToken);
     for (final Relationship<?, ?> rel : relList.getObjects()) {
       if (rel.getRelationshipType().equals("RB")
           && rel.getTo().getTerminologyId().equals("C0065642")
@@ -1423,6 +1473,206 @@ public class MetaEditingServiceRestNormalUseTest
     concept2.setId(null);
     concept2.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     concept2 = (ConceptJpa) testService.addConcept(concept2, authToken);
+
+  }
+
+  /**
+   * Test move atoms.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testMoveAtoms() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass()).info(
+        "TEST - Move atoms from concept FROMCONCEPTID into concept TOCONCEPTID, "
+            + umlsTerminology + ", " + umlsVersion + authToken);
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // get the fromConcept, toConcept, and relatedConcept
+    Concept toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(toC);
+    Concept fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+    assertNotNull(fromC);
+
+    //
+    // Create and add atoms to the to and from Concepts
+    //
+    AtomJpa atom = new AtomJpa();
+    atom.setBranch(Branch.ROOT);
+    atom.setName("DCB");
+    atom.setTerminologyId("TestId");
+    atom.setTerminology(umlsTerminology);
+    atom.setVersion(umlsVersion);
+    atom.setTimestamp(new Date());
+    atom.setPublishable(true);
+    atom.setCodeId("C44314");
+    atom.setConceptId("M0023181");
+    atom.getConceptTerminologyIds().put(toC.getTerminology(),
+        toC.getTerminologyId());
+    atom.setDescriptorId("");
+    atom.setLanguage("ENG");
+    atom.setTermType("AB");
+    atom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    // add the atom to the concept
+    ValidationResult v = metaEditingService.addAtom(project.getId(),
+        toC.getId(), toC.getLastModified().getTime(), atom, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    AtomJpa atom2 = new AtomJpa();
+    atom2.setBranch(Branch.ROOT);
+    atom2.setName("17 Oxosteroids");
+    atom2.setTerminologyId("TestId");
+    atom2.setTerminology(umlsTerminology);
+    atom2.setVersion(umlsVersion);
+    atom2.setTimestamp(new Date());
+    atom2.setPublishable(true);
+    atom2.setCodeId("D015068");
+    atom2.setConceptId("M0023181");
+    atom.getConceptTerminologyIds().put(fromC.getTerminology(),
+        fromC.getTerminologyId());
+    atom2.setDescriptorId("D015068");
+    atom2.setLanguage("ENG");
+    atom2.setTermType("PM");
+    atom2.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    v = metaEditingService.addAtom(project.getId(), fromC.getId(),
+        fromC.getLastModified().getTime(), atom2, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+
+    AtomJpa atom3 = new AtomJpa();
+    atom3.setBranch(Branch.ROOT);
+    atom3.setName("PABA");
+    atom3.setTerminologyId("TestId");
+    atom3.setTerminology(umlsTerminology);
+    atom3.setVersion(umlsVersion);
+    atom3.setTimestamp(new Date());
+    atom3.setPublishable(true);
+    atom3.setCodeId("D010129");
+    atom3.setConceptId("M0015714");
+    atom.getConceptTerminologyIds().put(fromC.getTerminology(),
+        fromC.getTerminologyId());
+    atom3.setDescriptorId("D010129");
+    atom3.setLanguage("ENG");
+    atom3.setTermType("EP");
+    atom3.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    v = metaEditingService.addAtom(project.getId(), fromC.getId(),
+        fromC.getLastModified().getTime(), atom3, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+
+    // Reread atoms, to refresh with the ID
+    atom = null;
+    atom2 = null;
+    atom3 = null;
+    for (Atom a : toC.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        atom = (AtomJpa) a;
+      }
+    }
+    for (Atom a : fromC.getAtoms()) {
+      if (a.getName().equals("17 Oxosteroids")) {
+        atom2 = (AtomJpa) a;
+      }
+      if (a.getName().equals("PABA")) {
+        atom3 = (AtomJpa) a;
+      }
+    }
+    assertNotNull(atom);
+    assertNotNull(atom2);
+    assertNotNull(atom3);
+
+    List<Long> moveList = new ArrayList<Long>();
+    moveList.add(atom2.getId());
+    moveList.add(atom3.getId());
+
+    // Move all of the atoms fromConcept to toConcept.
+    v = metaEditingService.moveAtoms(project.getId(), fromC.getId(),
+        fromC.getLastModified().getTime(), toC.getId(), moveList, false,
+        authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+
+    // Verify fromConcept atoms are now present in toConcept, along with
+    // original toConcept atom
+    int atomCount = 0;
+    for (Atom a : toC.getAtoms()) {
+      if (a.getName().equals("DCB") || a.getName().equals("17 Oxosteroids")
+          || a.getName().equals("PABA")) {
+        atomCount++;
+      }
+    }
+    assertEquals(3, atomCount);
+
+    // Verify fromConcept atoms that were in the list are no longer present
+    atomCount = 0;
+    for (Atom a : fromC.getAtoms()) {
+      if (moveList.contains(a)) {
+        atomCount++;
+      }
+    }
+    assertEquals(0, atomCount);
+
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list = contentService
+        .findMolecularActions(fromC.getId(), null, pfs, authToken);
+    assertTrue(list.getCount() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertTrue(ma.getTerminologyId().equals(fromC.getTerminologyId()));
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Verify that atomic action exists, one for each atom move.
+    pfs.setSortField("idType");
+    pfs.setAscending(true);
+
+    List<AtomicAction> atomicActions = contentService
+        .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
+    assertEquals(2, atomicActions.size());
+    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    assertNotNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+    assertEquals("ATOM", atomicActions.get(1).getIdType().toString());
+    assertNotNull(atomicActions.get(1).getOldValue());
+    assertNotNull(atomicActions.get(1).getNewValue());
+
+    // Verify the log entry exists
+    String logEntry =
+        projectService.getLog(project.getId(), fromC.getId(), 1, authToken);
+    assertTrue(logEntry.contains("MOVE"));
+
+    // Remove all of the atoms so teardown can succesfully remove the concept.
+    List<Atom> toAtomList = toC.getAtoms();
+    for (Atom atm : toAtomList) {
+      metaEditingService.removeAtom(project.getId(), toC.getId(),
+          toC.getLastModified().getTime(), atm.getId(), false, authToken);
+      toC = contentService.getConcept(concept.getId(), project.getId(),
+          authToken);
+    }
 
   }
 

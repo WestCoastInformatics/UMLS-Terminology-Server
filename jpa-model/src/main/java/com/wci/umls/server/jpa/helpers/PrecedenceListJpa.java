@@ -119,7 +119,6 @@ public class PrecedenceListJpa implements PrecedenceList {
 
   /* see superclass */
   @Override
-  @XmlTransient
   public Long getId() {
     return this.id;
   }
@@ -208,11 +207,13 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Override
   public KeyValuePairList getPrecedence() {
     final KeyValuePairList precedence = new KeyValuePairList();
-    for (int i = 0; i < termTypes.size(); i++) {
-      final KeyValuePair pair = new KeyValuePair();
-      pair.setKey(terminologies.get(i));
-      pair.setValue(termTypes.get(i));
-      precedence.addKeyValuePair(pair);
+    if (termTypes != null) {
+      for (int i = 0; i < termTypes.size(); i++) {
+        final KeyValuePair pair = new KeyValuePair();
+        pair.setKey(terminologies.get(i));
+        pair.setValue(termTypes.get(i));
+        precedence.addKeyValuePair(pair);
+      }
     }
     return precedence;
   }

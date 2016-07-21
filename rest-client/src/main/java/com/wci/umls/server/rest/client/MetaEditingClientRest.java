@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.client.Client;
@@ -42,6 +43,7 @@ public class MetaEditingClientRest extends RootClientRest
     this.config = config;
   }
 
+  /* see superclass */
   @Override
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
     Long lastModified, SemanticTypeComponentJpa semanticTypeComponent,
@@ -76,6 +78,7 @@ public class MetaEditingClientRest extends RootClientRest
         ValidationResultJpa.class);
   }
 
+  /* see superclass */
   @Override
   public ValidationResult removeSemanticType(Long projectId, Long conceptId,
     Long lastModified, Long semanticTypeComponentId, boolean overrideWarnings,
@@ -145,6 +148,7 @@ public class MetaEditingClientRest extends RootClientRest
 
   }
 
+  /* see superclass */
   @Override
   public ValidationResult removeAttribute(Long projectId, Long conceptId,
     Long lastModified, Long attributeId, boolean overrideWarnings,
@@ -212,6 +216,7 @@ public class MetaEditingClientRest extends RootClientRest
         ValidationResultJpa.class);
   }
 
+  /* see superclass */
   @Override
   public ValidationResult removeAtom(Long projectId, Long conceptId,
     Long lastModified, Long atomId, boolean overrideWarnings, String authToken)
@@ -279,6 +284,7 @@ public class MetaEditingClientRest extends RootClientRest
         ValidationResultJpa.class);
   }
 
+  /* see superclass */
   @Override
   public ValidationResult removeRelationship(Long projectId, Long conceptId,
     Long lastModified, Long relationshipId, boolean overrideWarnings,
@@ -316,7 +322,7 @@ public class MetaEditingClientRest extends RootClientRest
   @Override
   public ValidationResult mergeConcepts(Long projectId, Long conceptId,
     Long lastModified, Long conceptId2, boolean overrideWarnings,
-    boolean makeDemotions, boolean unapproveContent, String authToken)
+    boolean makeDemotions, String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - merge concept " + conceptId
@@ -332,11 +338,46 @@ public class MetaEditingClientRest extends RootClientRest
         + "/meta/concept/merge?projectId=" + projectId + "&conceptId="
         + conceptId + "&lastModified=" + lastModified + "&conceptId2="
         + conceptId2 + (overrideWarnings ? "&overrideWarnings=true" : "")
-        + (makeDemotions ? "&makeDemotions=true" : "")
-        + (unapproveContent ? "&unapproveContent=true" : ""));
+        + (makeDemotions ? "&makeDemotions=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult moveAtoms(Long projectId, Long fromConceptId,
+    Long lastModified, Long toConceptId, List<Long> atomIds,
+    boolean overrideWarnings, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - move atoms " + atomIds + " from concept "
+            + fromConceptId + " to concept " + toConceptId + ", " + lastModified
+            + ", " + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(fromConceptId, "fromConceptId");
+    validateNotEmpty(toConceptId, "toConceptId");
+    validateNotEmpty(atomIds.toString(), "atoms");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/concept/move?projectId=" + projectId + "&fromConceptId="
+        + fromConceptId + "&lastModified=" + lastModified + "&toConceptId="
+        + toConceptId + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(atomIds));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
