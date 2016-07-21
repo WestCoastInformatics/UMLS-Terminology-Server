@@ -30,8 +30,8 @@
               <th class="col-md-4 col-xs-4">Dates</th>
               <th class="col-md-1 col-xs-1">Cluster</th>
               <th class="col-md-1 col-xs-1">All</th>
-              <th class="col-md-1 col-xs-1">Uneditable</th>
-              <th class="col-md-1 col-xs-1">Editable</th>
+              <th class="col-md-1 col-xs-1">Assigned</th>
+              <th class="col-md-1 col-xs-1">Unassigned</th>
               <th class="col-md-1 col-xs-1">Actions</th>
             </tr>
           </thead>
@@ -53,8 +53,8 @@
                                       (selected.clusterType == 'all' && bin.id == selected.bin.id)}">
               <td>{{ stats.clusterType }}</td>
               <td>{{ stats.stats.all }}</td>
-              <td>{{ stats.stats.uneditable }}</td>
-              <td>{{ stats.stats.editable }}</td>
+              <td>{{ stats.stats.assigned }}</td>
+              <td>{{ stats.stats.unassigned }}</td>
               <td>
                 <i ng-show="stats.clusterType == 'all' && bin.stats.length > 1"
                   ng-click="setBinType(currentBinType); $event.stopPropagation()"
@@ -64,7 +64,7 @@
                   ng-click="openCreateChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
                   title="Add Checklist" class="noul glyphicon glyphicon-check"></i>&nbsp;<i
                   ng-show="stats.clusterType != 'all'"
-                  ng-click="openCreateWorklistModal(bin, stats.clusterType, stats.stats.editable); $event.stopPropagation()"
+                  ng-click="openCreateWorklistModal(bin, stats.clusterType, stats.stats.unassigned); $event.stopPropagation()"
                   title="Add Worklist" class="noul glyphicon glyphicon-list-alt"></i>
               </td>
             </tr>

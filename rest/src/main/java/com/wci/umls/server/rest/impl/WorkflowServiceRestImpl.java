@@ -1444,12 +1444,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final List<WorkflowBin> bins =
           workflowService.getWorkflowBins(project, type);
 
-      // Track "editable" and "uneditable"
-      final Map<String, Integer> typeUneditableMap = new HashMap<>();
-      final Map<String, Integer> typeEditableMap = new HashMap<>();
+      // Track "unassigned" and "assigned"
+      final Map<String, Integer> typeAssignedMap = new HashMap<>();
+      final Map<String, Integer> typeUnassignedMap = new HashMap<>();
       for (final WorkflowBin bin : bins) {
-        typeUneditableMap.clear();
-        typeEditableMap.clear();
+        typeAssignedMap.clear();
+        typeUnassignedMap.clear();
         final List<TrackingRecord> list = bin.getTrackingRecords();
 
         // If no tracking records, get the raw cluster ct
@@ -1470,47 +1470,47 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           }
 
           // Initialize map
-          if (!typeUneditableMap.containsKey(clusterType)) {
-            typeUneditableMap.put(clusterType, 0);
-            typeEditableMap.put(clusterType, 0);
+          if (!typeAssignedMap.containsKey(clusterType)) {
+            typeAssignedMap.put(clusterType, 0);
+            typeUnassignedMap.put(clusterType, 0);
           }
           // compute "all" cluster type
-          if (!typeUneditableMap.containsKey("all")) {
-            typeUneditableMap.put("all", 0);
-            typeEditableMap.put("all", 0);
+          if (!typeAssignedMap.containsKey("all")) {
+            typeAssignedMap.put("all", 0);
+            typeUnassignedMap.put("all", 0);
           }
 
-          // Increment uneditable
+          // Increment assigned
           if (!ConfigUtility.isEmpty(record.getWorklistName())) {
-            typeUneditableMap.put(clusterType,
-                typeUneditableMap.get(clusterType) + 1);
-            typeUneditableMap.put("all", typeUneditableMap.get("all") + 1);
+            typeAssignedMap.put(clusterType,
+                typeAssignedMap.get(clusterType) + 1);
+            typeAssignedMap.put("all", typeAssignedMap.get("all") + 1);
           }
 
-          // Otherwise increment editable
+          // Otherwise increment unassigned
           else {
-            typeEditableMap.put(clusterType,
-                typeEditableMap.get(clusterType) + 1);
-            typeEditableMap.put("all", typeEditableMap.get("all") + 1);
+            typeUnassignedMap.put(clusterType,
+                typeUnassignedMap.get(clusterType) + 1);
+            typeUnassignedMap.put("all", typeUnassignedMap.get("all") + 1);
           }
 
         }
         // Now extract cluster types and add statistics
-        for (final String clusterType : typeUneditableMap.keySet()) {
+        for (final String clusterType : typeAssignedMap.keySet()) {
 
           // Skip "all" if there is only one cluster type
-          if (typeUneditableMap.keySet().size() == 2
+          if (typeAssignedMap.keySet().size() == 2
               && clusterType.equals("all")) {
             continue;
           }
           // Add statistics
           ClusterTypeStats stats = new ClusterTypeStatsJpa();
           stats.setClusterType(clusterType);
-          int editable = typeEditableMap.get(clusterType);
-          int uneditable = typeUneditableMap.get(clusterType);
-          stats.getStats().put("all", editable + uneditable);
-          stats.getStats().put("editable", editable);
-          stats.getStats().put("uneditable", uneditable);
+          int unassigned = typeUnassignedMap.get(clusterType);
+          int assigned = typeAssignedMap.get(clusterType);
+          stats.getStats().put("all", unassigned + assigned);
+          stats.getStats().put("unassigned", unassigned);
+          stats.getStats().put("assigned", assigned);
           bin.getStats().add(stats);
         }
       }
@@ -2127,7 +2127,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         "  clusters = " + clusterIdConceptIdsMap.size());
 
     // for each cluster in clusterIdComponentIdsMap create a tracking record if
-    // editable bin
+    // unassigned bin
     if (definition.isEditable()) {
       long clusterIdCt = 1L;
       for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
