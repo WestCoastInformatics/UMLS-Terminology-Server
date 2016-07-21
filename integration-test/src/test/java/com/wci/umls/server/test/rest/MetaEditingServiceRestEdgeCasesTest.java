@@ -227,7 +227,7 @@ public class MetaEditingServiceRestEdgeCasesTest extends
     // Copy existing concept to avoid messing with actual database data.
     IntegrationTestClientRest testService =
         new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-    testService.removeConcept(concept.getId(), authToken);
+    testService.removeConcept(concept.getId(), true, authToken);
     // logout
     securityService.logout(authToken);
 

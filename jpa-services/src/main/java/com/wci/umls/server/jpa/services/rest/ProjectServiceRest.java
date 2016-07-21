@@ -236,14 +236,14 @@ public interface ProjectServiceRest {
    * @param projectId the project id
    * @param terminology the terminology
    * @param version the version
-   * @param cui1 the cui1
-   * @param cui2 the cui2
+   * @param conceptId the concept id
+   * @param conceptId2 the concept id 2
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
   public ValidationResult validateMerge(Long projectId, String terminology,
-    String version, String cui1, String cui2, String authToken)
+    String version, Long conceptId, Long conceptId2, String authToken)
     throws Exception;
 
   /**

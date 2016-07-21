@@ -136,7 +136,7 @@ public abstract class AbstractMolecularAction
     Collections.sort(conceptIdList);
 
     this.concept = null;
-    this.concept2 = null;
+    this.concept2 = null;    
     for (final Long i : conceptIdList) {
       Concept tempConcept = null;
 
@@ -169,6 +169,9 @@ public abstract class AbstractMolecularAction
       }
     }
 
+    setTerminology(concept.getTerminology());
+    setVersion(concept.getVersion());
+    
     // construct the molecular action
     final MolecularAction molecularAction = new MolecularActionJpa();
     molecularAction.setTerminology(this.concept.getTerminology());

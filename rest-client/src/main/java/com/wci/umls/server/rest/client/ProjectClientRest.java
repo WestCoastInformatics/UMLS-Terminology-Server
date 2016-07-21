@@ -581,14 +581,14 @@ public class ProjectClientRest extends RootClientRest implements
 
   @Override
   public ValidationResult validateMerge(Long projectId, String terminology,
-    String version, String cui1, String cui2, String authToken)
+    String version, Long conceptId, Long conceptId2, String authToken)
     throws Exception {
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url")
             + "/validate/concept/merge/" + terminology + "/" + version + "/"
-            + cui1 + "/" + cui2 + "?projectId=" + projectId);
+            + conceptId + "/" + conceptId2 + "?projectId=" + projectId);
 
     Response response =
         target.request(MediaType.APPLICATION_XML)

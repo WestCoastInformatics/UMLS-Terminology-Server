@@ -11,6 +11,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
@@ -24,8 +25,11 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
@@ -69,14 +73,13 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept, e.g. newConcept", required = true) ConceptJpa concept,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (TEST): /add " + concept);
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (TEST): /add " + concept);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      final String authUser =
-          authorizeApp(securityService, authToken, "add concept",
-              UserRole.ADMINISTRATOR);
+      final String authUser = authorizeApp(securityService, authToken,
+          "add concept", UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
       contentService.setMolecularActionFlag(false);
 
@@ -102,20 +105,19 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept, e.g. newConcept", required = true) ConceptJpa concept,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (TEST): /update " + concept);
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (TEST): /update " + concept);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      final String authUser =
-          authorizeApp(securityService, authToken, "update concept",
-              UserRole.ADMINISTRATOR);
+      final String authUser = authorizeApp(securityService, authToken,
+          "update concept", UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
       contentService.setMolecularActionFlag(false);
 
       if (concept.getId() == null) {
-        throw new Exception("Only a concept that exists can be udpated: "
-            + concept);
+        throw new Exception(
+            "Only a concept that exists can be udpated: " + concept);
       }
       // Update concept
       contentService.updateConcept(concept);
@@ -136,21 +138,54 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Remove concept", notes = "Removes the concept with the specified id")
   public void removeConcept(
     @ApiParam(value = "Concept id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Remove all attached components", required = false) @QueryParam("cascade") boolean cascade,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call DELETE (TEST): /remove/" + id);
+    Logger.getLogger(getClass())
+        .info("RESTful call DELETE (TEST): /remove/" + id);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      String authUser =
-          authorizeApp(securityService, authToken, "remove concept",
-              UserRole.ADMINISTRATOR);
+      String authUser = authorizeApp(securityService, authToken,
+          "remove concept", UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
       contentService.setMolecularActionFlag(false);
+      Concept concept = contentService.getConcept(id);
+
+      if (cascade) {
+        for (ConceptRelationship rel : concept.getRelationships()) {
+          contentService.removeRelationship(rel.getId(), rel.getClass());
+
+          // Remove inverse as well
+          final Concept toConcept = rel.getTo();
+          for (ConceptRelationship inverseRel : toConcept.getRelationships()) {
+            if (inverseRel.getTo() == concept) {
+              contentService.removeRelationship(inverseRel.getId(),
+                  inverseRel.getClass());
+            }
+          }
+        }
+      }
+
+      // Make copy of the concept, so we can remove all of the components once
+      // it's been removed
+      Concept copyConcept = new ConceptJpa(concept, false);
 
       // Create service and configure transaction scope
       contentService.removeConcept(id);
+
+      if (cascade) {
+        for (Attribute atr : copyConcept.getAttributes()) {
+          contentService.removeAttribute(atr.getId());
+        }
+        for (Atom a : copyConcept.getAtoms()) {
+          contentService.removeAtom(a.getId());
+        }
+
+        for (SemanticTypeComponent sty : copyConcept.getSemanticTypes()) {
+          contentService.removeSemanticTypeComponent(sty.getId());
+        }
+      }
 
     } catch (Exception e) {
       handleException(e, "trying to remove a concept");
@@ -170,20 +205,19 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Atom, e.g. new atom", required = true) AtomJpa atom,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (TEST): /update " + atom);
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (TEST): /update " + atom);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      final String authUser =
-          authorizeApp(securityService, authToken, "update atom",
-              UserRole.ADMINISTRATOR);
+      final String authUser = authorizeApp(securityService, authToken,
+          "update atom", UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
       contentService.setMolecularActionFlag(false);
 
       if (atom.getId() == null) {
-        throw new Exception("Only a concept that exists can be udpated: "
-            + atom);
+        throw new Exception(
+            "Only a concept that exists can be udpated: " + atom);
       }
       // Update atom
       contentService.updateAtom(atom);
@@ -206,14 +240,13 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "ConceptRelationship", required = true) ConceptRelationshipJpa relationship,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (TEST): /relationship/add " + relationship);
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (TEST): /relationship/add " + relationship);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      final String authUser =
-          authorizeApp(securityService, authToken, "add relationship",
-              UserRole.ADMINISTRATOR);
+      final String authUser = authorizeApp(securityService, authToken,
+          "add relationship", UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
       contentService.setMolecularActionFlag(false);
 
@@ -239,8 +272,8 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Worklist id, e.g. 1", required = true) @PathParam("id") Long worklistId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Integration Test): /worklist/" + worklistId);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Integration Test): /worklist/" + worklistId);
 
     WorkflowService workflowService = new WorkflowServiceJpa();
     try {

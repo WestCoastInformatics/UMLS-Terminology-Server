@@ -98,13 +98,19 @@ public class MergeMolecularAction extends AbstractMolecularAction {
 
     // Metadata referential integrity checking
 
-    // Same concept check
-    if (getFromConcept().getId() == getToConcept().getId()) {
+    // Check to make sure concepts are different
+    if (getFromConcept() == getToConcept()) {
       throw new LocalException(
           "Cannot merge concept " + getFromConcept().getId() + " with concept "
               + getToConcept().getId() + " - identical concept.");
     }
-
+    
+    // Merging concepts must be from the same terminology
+    if (!(getFromConcept().getTerminology().toString().equals(getToConcept().getTerminology().toString()))){
+      throw new LocalException(
+          "Two concepts must be from the same terminology to be merged, but concept " + getFromConcept().getId() + " has terminology " + getFromConcept().getTerminology() +", and Concept " + getToConcept().getId() + " has terminology " + getToConcept().getTerminology());
+    }
+    
     validateMerge(getProject(), getToConcept(), getFromConcept());
 
     return validationResult;

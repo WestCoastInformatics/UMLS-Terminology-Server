@@ -49,15 +49,6 @@ public class MoveMolecularAction extends AbstractMolecularAction {
   }
 
   /**
-   * Returns the atom ids.
-   *
-   * @return the atom ids
-   */
-  public List<Long> getAtomIds() {
-    return atomIds;
-  }
-
-  /**
    * Sets the atom ids.
    *
    * @param atomIds the atom ids
@@ -129,12 +120,19 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     // Metadata referential integrity checking
 
     // Same concept check
-    if (getFromConcept().getId() == getToConcept().getId()) {
+    if (getFromConcept() == getToConcept()) {
       throw new LocalException("Cannot move atoms from concept "
           + getFromConcept().getId() + " to concept " + getToConcept().getId()
           + " - identical concept.");
     }
 
+    // Moving concepts must be from the same terminology
+    if (!(getFromConcept().getTerminology().toString().equals(getToConcept().getTerminology().toString()))){
+      throw new LocalException(
+          "Two concepts must be from the same terminology to have atoms moved between them, but concept " + getFromConcept().getId() + " has terminology " + getFromConcept().getTerminology() +", and Concept " + getToConcept().getId() + " has terminology " + getToConcept().getTerminology());
+    }
+    
+    
     // Populate move-atom list, and exists check
     moveAtoms = new ArrayList<Atom>();
     for (final Atom atm : getFromConcept().getAtoms()) {
@@ -148,7 +146,7 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     }
 
     // TODO - check with Brian if this is required
-    // validateMerge(project, toConcept, fromConcept);
+    // validateMove(project, toConcept, fromConcept);
 
     return validationResult;
   }
