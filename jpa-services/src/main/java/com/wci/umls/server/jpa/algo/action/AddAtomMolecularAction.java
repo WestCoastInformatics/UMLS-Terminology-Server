@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.algo.action;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.services.handlers.LuceneNormalizedStringHandler;
@@ -62,14 +61,14 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     if (getTermType(atom.getTermType(), getConcept().getTerminology(),
         getConcept().getVersion()) == null) {
       rollback();
-      throw new LocalException(
-          "Cannot add atom with invalid term type - " + atom.getTermType());
+      throw new LocalException("Cannot add atom with invalid term type - "
+          + atom.getTermType());
     }
     if (getLanguage(atom.getLanguage(), getConcept().getTerminology(),
         getConcept().getVersion()) == null) {
       rollback();
-      throw new LocalException(
-          "Cannot add atom with invalid language - " + atom.getLanguage());
+      throw new LocalException("Cannot add atom with invalid language - "
+          + atom.getLanguage());
     }
     if (getTerminology(atom.getTerminology(), atom.getVersion()) == null) {
       rollback();
@@ -120,7 +119,7 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     atom.getAlternateTerminologyIds().put(getConcept().getTerminology(), altId);
 
     // add the atom and set the last modified by
-    atom = (AtomJpa) addAtom(atom);
+    atom = addAtom(atom);
 
     // add the atom and set the last modified by
     getConcept().getAtoms().add(atom);

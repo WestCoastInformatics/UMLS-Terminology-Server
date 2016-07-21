@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -477,7 +478,7 @@ public abstract class RootServiceJpa implements RootService {
       }
 
       // if one or more sort fields found, apply sorting
-      if (!pfsSortFields.isEmpty()) {
+      if (!pfsSortFields.isEmpty() && !pfsSortFields.contains("RANDOM")) {
 
         // declare the final ascending flag and sort fields for comparator
         final boolean ascending = (pfs != null) ? pfs.isAscending() : true;
@@ -555,6 +556,18 @@ public abstract class RootServiceJpa implements RootService {
               e.printStackTrace();
               return 0;
             }
+          }
+        });
+      }
+
+      // support RANDOM
+      else if (pfsSortFields.contains("RANDOM")) {
+        final Random random = new Random(new Date().getTime());
+        Collections.sort(result, new Comparator<T>() {
+
+          @Override
+          public int compare(T arg0, T arg1) {
+            return random.nextInt();
           }
         });
       }
@@ -832,7 +845,7 @@ public abstract class RootServiceJpa implements RootService {
       if (hasLastModified.getTimestamp() == null) {
         hasLastModified.setTimestamp(hasLastModified.getLastModified());
       }
-      
+
     }
 
     return addObject(hasLastModified);

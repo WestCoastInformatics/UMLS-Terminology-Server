@@ -162,12 +162,12 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    // NO analyzed fields
+    tester.include("name");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
-    tester.include("name");
+    tester.include("nameSort");
     tester.include("projectId");
     tester.include("lastModified");
     tester.include("lastModifiedBy");

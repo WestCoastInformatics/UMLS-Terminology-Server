@@ -199,13 +199,13 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    // no analyzed fields
+    tester.include("name");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
     tester.include("lastModifiedBy");
-    tester.include("name");
+    tester.include("nameSort");
     tester.include("type");
     tester.include("editable");
     tester.include("required");
