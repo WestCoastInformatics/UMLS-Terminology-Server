@@ -35,7 +35,7 @@ public class ReportServiceJpa extends HistoryServiceJpa implements
   public String getConceptReport(Project project, Concept concept)
     throws Exception {
 
-    final StringBuffer sb = new StringBuffer();
+    final StringBuilder sb = new StringBuilder();
     sb.append("\n").append("CN# ");
     sb.append(concept.getId()).append(" ");
     sb.append(concept.getName()).append("\n");
