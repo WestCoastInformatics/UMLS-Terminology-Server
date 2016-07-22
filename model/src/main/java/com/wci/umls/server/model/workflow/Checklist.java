@@ -4,6 +4,7 @@
 package com.wci.umls.server.model.workflow;
 
 import java.util.List;
+import java.util.Map;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasProject;
@@ -70,6 +71,20 @@ public interface Checklist extends HasLastModified, HasProject {
    * @param notes the notes
    */
   public void setNotes(List<Note> notes);
+
+  /**
+   * Returns the stats.
+   *
+   * @return the stats
+   */
+  public Map<String, Integer> getStats();
+
+  /**
+   * Sets the stats.
+   *
+   * @param stats the stats
+   */
+  public void setStats(Map<String, Integer> stats);
 
 
 }

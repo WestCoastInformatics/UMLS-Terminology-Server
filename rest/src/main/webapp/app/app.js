@@ -12,17 +12,6 @@ var tsApp = angular
   });
 
 // Declare top level URL vars
-var securityUrl = 'security/';
-var metadataUrl = 'metadata/';
-var contentUrl = 'content/';
-var adminUrl = 'admin/';
-var projectUrl = 'project/';
-var validationUrl = 'validation/';
-var sourceDataUrl = 'file/';
-var configureUrl = 'configure/';
-var workflowUrl = 'workflow/';
-var reportUrl = 'report/';
-
 tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureService, utilService,
   securityService) {
 

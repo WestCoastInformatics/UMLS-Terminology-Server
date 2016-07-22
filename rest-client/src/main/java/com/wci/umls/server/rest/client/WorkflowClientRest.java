@@ -685,8 +685,8 @@ public class WorkflowClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url")
             + "/workflow/worklist/action?projectId=" + projectId
-            + "&worklistId=" + worklistId  + "&userName="
-            + userName + "&userRole=" + role + "&action=" + action);
+            + "&worklistId=" + worklistId + "&userName=" + userName
+            + "&userRole=" + role + "&action=" + action);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -798,9 +798,10 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public Checklist createChecklist(Long projectId, Long workflowBinId, String clusterType,
-    String name, Boolean randomize, Boolean excludeOnWorklist, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception {
+  public Checklist createChecklist(Long projectId, Long workflowBinId,
+    String clusterType, String name, String description, Boolean randomize,
+    Boolean excludeOnWorklist, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
 
     Logger.getLogger(getClass()).debug(
         "Workflow Client - create checklist " + projectId + ", "
@@ -820,6 +821,8 @@ public class WorkflowClientRest extends RootClientRest implements
             + clusterType
             + "&name="
             + name
+            + "&description="
+            + description
             + (randomize != null ? ("&randomize=" + randomize) : "")
             + (excludeOnWorklist != null
                 ? ("&excludeOnWorklist=" + excludeOnWorklist) : "")
@@ -1210,20 +1213,25 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public Note addNote(Long checklistId, String note, String authToken)
-    throws Exception {
+  public Note addChecklistNote(Long projectId, Long checklistId, String note,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Rest Client - add note - " + checklistId + ", " + note);
+        "Rest Client - add checklist note - " + projectId + ", " + checklistId
+            + ", " + note);
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(checklistId, "checklistId");
     validateNotEmpty(note, "note");
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/checklist/add/note?"
-            + "checklistId=" + checklistId);
-    Response response =
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/checklist/"
+            + checklistId + "/note/add?projectId=" + projectId);
+
+    final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).put(Entity.text(note));
 
-    String resultString = response.readEntity(String.class);
+    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
@@ -1231,24 +1239,24 @@ public class WorkflowClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return (ChecklistNoteJpa) ConfigUtility.getGraphForString(resultString,
-        ChecklistNoteJpa.class);
+    return ConfigUtility
+        .getGraphForString(resultString, ChecklistNoteJpa.class);
   }
 
   /* see superclass */
   @Override
-  public void removeNote(Long checklistId, Long noteId, String authToken)
+  public void removeChecklistNote(Long projectId, Long noteId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Rest Client - remove note " + checklistId + ", " + noteId);
-    validateNotEmpty(checklistId, "checklistId");
+        "Rest Client - remove note " + projectId + ", " + noteId);
+    validateNotEmpty(projectId, "projectId");
     validateNotEmpty(noteId, "noteId");
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/checklist/remove/note?"
-            + "checklistId=" + checklistId + "&noteId=" + noteId);
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/checklist/note/"
+            + noteId + "?projectId=" + projectId);
 
-    Response response =
+    final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).delete();
 

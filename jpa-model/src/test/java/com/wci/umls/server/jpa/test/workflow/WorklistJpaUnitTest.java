@@ -152,9 +152,11 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
 
     Project p1 = new ProjectJpa();
     p1.setId(1L);
-    tester.proxy(List.class, 1, l1);
     tester.proxy(Project.class, 1, p1);
     assertTrue(tester.testXmlSerialization());
+
+    // TODO: need to also test the authors/reviewers and notes features here.
+
   }
 
   /**

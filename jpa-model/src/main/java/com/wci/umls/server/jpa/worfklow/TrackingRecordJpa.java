@@ -110,7 +110,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   /** The checklist name. */
   @Column(nullable = true)
   private String checklistName;
-  
+
   /** The original concept ids . */
   @ElementCollection
   @CollectionTable(name = "orig_concept_ids")
@@ -128,8 +128,8 @@ public class TrackingRecordJpa implements TrackingRecord {
   @Enumerated(EnumType.STRING)
   @Column(nullable = true)
   private WorkflowStatus workflowStatus;
-  
-  /**  The indexed data. */
+
+  /** The indexed data. */
   private String indexedData;
 
   /**
@@ -346,12 +346,12 @@ public class TrackingRecordJpa implements TrackingRecord {
   public String getIndexedData() {
     return indexedData;
   }
-  
+
   @Override
   public void setIndexedData(String indexedData) {
     this.indexedData = indexedData;
   }
-  
+
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
@@ -403,7 +403,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   public void setChecklistName(String checklistName) {
     this.checklistName = checklistName;
   }
-  
+
   /* see superclass */
   @Override
   @FieldBridge(impl = EnumBridge.class)
@@ -418,7 +418,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     this.workflowStatus = workflowStatus;
 
   }
-  
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -442,7 +442,8 @@ public class TrackingRecordJpa implements TrackingRecord {
     result =
         prime * result + ((worklistName == null) ? 0 : worklistName.hashCode());
     result =
-        prime * result + ((checklistName == null) ? 0 : checklistName.hashCode());
+        prime * result
+            + ((checklistName == null) ? 0 : checklistName.hashCode());
     return result;
   }
 

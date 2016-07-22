@@ -1287,17 +1287,25 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public AtomicActionList findAtomicActions(String query, PfsParameter pfs)
-    throws Exception {
+  public AtomicActionList findAtomicActions(Long moleculeId, String query,
+    PfsParameter pfs) throws Exception {
 
-    // TODO: search handler initialization should be here
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
+
+    // Compose the query
+    final StringBuilder sb = new StringBuilder();
+    if (moleculeId != null) {
+      sb.append("moleculeId:" + moleculeId);
+    }
+    if (query != null) {
+      sb.append(sb.length() == 0 ? "" : " AND ").append(query);
+    }
 
     int totalCt[] = new int[1];
     final AtomicActionList results = new AtomicActionListJpa();
     for (final AtomicActionJpa aa : searchHandler.getQueryResults(null, null,
-        Branch.ROOT, query, null, AtomicActionJpa.class, AtomicActionJpa.class,
-        pfs, totalCt, manager)) {
+        Branch.ROOT, sb.toString(), null, AtomicActionJpa.class,
+        AtomicActionJpa.class, pfs, totalCt, manager)) {
       results.getObjects().add(aa);
     }
     results.setTotalCount(totalCt[0]);

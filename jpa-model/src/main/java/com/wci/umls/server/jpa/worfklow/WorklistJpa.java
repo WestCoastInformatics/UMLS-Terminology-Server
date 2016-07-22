@@ -15,9 +15,10 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -26,8 +27,10 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -83,12 +86,10 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @ElementCollection
   private Map<String, Date> workflowStateHistory = new HashMap<>();
 
-  /**
-   * The stats - intended only for JAXB serialization and reporting, not
-   * persisted.
-   */
-  @Transient
-  private Map<String, Integer> stats = new HashMap<>();
+  /** The notes. */
+  @OneToMany(mappedBy = "worklist", targetEntity = WorklistNoteJpa.class)
+  @IndexedEmbedded(targetElement = WorklistNoteJpa.class)
+  private List<Note> notes = new ArrayList<>();
 
   /**
    * Instantiates an empty {@link WorklistJpa}.
@@ -114,6 +115,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     authorTime = worklist.getAuthorTime();
     reviewerTime = worklist.getReviewerTime();
     if (deepCopy) {
+      notes = new ArrayList<>(worklist.getNotes());
       workflowStateHistory = worklist.getWorkflowStateHistory();
     }
   }
@@ -242,18 +244,19 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   }
 
   /* see superclass */
+  @XmlElement(type = WorklistNoteJpa.class)
   @Override
-  public Map<String, Integer> getStats() {
-    if (stats == null) {
-      stats = new HashMap<>();
+  public List<Note> getNotes() {
+    if (notes == null) {
+      notes = new ArrayList<Note>();
     }
-    return stats;
+    return notes;
   }
 
   /* see superclass */
   @Override
-  public void setStats(Map<String, Integer> stats) {
-    this.stats = stats;
+  public void setNotes(List<Note> notes) {
+    this.notes = notes;
   }
 
   /* see superclass */

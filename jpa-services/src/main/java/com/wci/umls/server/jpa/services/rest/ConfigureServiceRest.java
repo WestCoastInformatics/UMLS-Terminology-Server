@@ -1,6 +1,7 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import java.util.HashMap;
+import java.util.Properties;
 
 /**
  * Represents a service for configuring an environment.
@@ -32,5 +33,13 @@ public interface ConfigureServiceRest {
    * @throws Exception the exception
    */
   public void destroy(String authToken) throws Exception;
+
+  /**
+   * Returns the config properties relevant for the UI. This is the means to
+   * inject configuration info into the javaascript.
+   *
+   * @return the config properties
+   */
+  public Properties getConfigProperties();
 
 }

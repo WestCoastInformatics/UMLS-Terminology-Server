@@ -42,7 +42,6 @@ tsApp
                 concept : null
               };
               $scope.worklists = null;
-                           
 
               // Page metadata
               $scope.recordTypes = [ 'N', 'R' ];
@@ -65,7 +64,6 @@ tsApp
                 ascending : true
               };
 
-
               // Worklist Changed handler
               $scope.$on('workflow:worklistChanged', function(event, data) {
                 console.debug('on workflow:worklistChanged', data);
@@ -83,21 +81,21 @@ tsApp
               function handleError(errors, error) {
                 utilService.handleDialogError(errors, error);
               }
-              
+
               $scope.joinEditors = function(worklist) {
                 var joinedEditors = '';
-                var editors = [];
+                var editors = new Array();
                 if (worklist.reviewers && worklist.reviewers.length > 0) {
                   editors = worklist.reviewers;
-                } else if (worklist.authors && worklist.authors.length > 0){
+                } else if (worklist.authors && worklist.authors.length > 0) {
                   editors = worklist.authors;
                 }
-                for (i=0; i<editors.length; i++) {
+                for (var i = 0; i < editors.length; i++) {
                   joinedEditors += editors[i];
                   joinedEditors += ' ';
                 }
                 return joinedEditors;
-              }
+              };
 
               // Set $scope.project and reload
               // $scope.worklists
@@ -106,9 +104,9 @@ tsApp
                 $scope.getWorklists();
                 projectService.findAssignedUsersForProject($scope.project.id, null, null).then(
                   function(data) {
-                  $scope.users = data.users;
-                  $scope.users.totalCount = data.totalCount;
-                });
+                    $scope.users = data.users;
+                    $scope.users.totalCount = data.totalCount;
+                  });
               };
 
               // Get $scope.worklists
@@ -124,22 +122,21 @@ tsApp
 
                 if ($scope.value == 'Worklist') {
                   pfs.queryRestriction = $scope.paging['worklist'].filter;
-                  workflowService.findWorklists($scope.project.id,
-                    $scope.query, pfs).then(function(data) {
-                    $scope.worklists = data.worklists;
-                    $scope.worklists.totalCount = data.totalCount;
-                  });
+                  workflowService.findWorklists($scope.project.id, $scope.query, pfs).then(
+                    function(data) {
+                      $scope.worklists = data.worklists;
+                      $scope.worklists.totalCount = data.totalCount;
+                    });
                 }
                 if ($scope.value == 'Checklist') {
                   pfs.queryRestriction = $scope.paging['worklist'].filter;
-                  workflowService.findChecklists($scope.project.id,
-                    $scope.query, pfs).then(function(data) {
-                    $scope.worklists = data.checklists;
-                    $scope.worklists.totalCount = data.totalCount;
-                  });
+                  workflowService.findChecklists($scope.project.id, $scope.query, pfs).then(
+                    function(data) {
+                      $scope.worklists = data.checklists;
+                      $scope.worklists.totalCount = data.totalCount;
+                    });
                 }
               };
-
 
               // Get $scope.records
               $scope.getRecords = function(worklist) {
@@ -150,9 +147,8 @@ tsApp
                   sortField : $scope.paging['record'].sortField,
                   ascending : $scope.paging['record'].ascending == null ? false
                     : $scope.paging['record'].ascending,
-                  queryRestriction : $scope.paging['record'].filter != undefined && 
-                  $scope.paging['record'].filter != "" ? $scope.paging['record'].filter
-                    : null
+                  queryRestriction : $scope.paging['record'].filter != undefined
+                    && $scope.paging['record'].filter != "" ? $scope.paging['record'].filter : null
                 };
 
                 if ($scope.paging['record'].typeFilter) {
@@ -194,12 +190,11 @@ tsApp
 
               };
 
-
               // Convert time to a string
               $scope.toTime = function(editingTime) {
                 return utilService.toTime(editingTime);
               };
-              
+
               // Convert date to a string
               $scope.toDate = function(lastModified) {
                 return utilService.toDate(lastModified);
@@ -232,7 +227,8 @@ tsApp
               };
 
               $scope.unassignWorklist = function(worklist) {
-                workflowService.performWorkflowAction($scope.project.id, worklist.id, $scope.joinEditors(worklist).trim(),
+                workflowService.performWorkflowAction($scope.project.id, worklist.id,
+                  $scope.joinEditors(worklist).trim(),
                   $scope.project.userRoleMap[$scope.user.userName], 'UNASSIGN').then(
                 // Success
                 function(data) {
@@ -242,51 +238,41 @@ tsApp
 
               // Remove a worklist
               $scope.removeWorklist = function(worklist) {
-               /* workflowService.findAllAssignedWorklists($scope.project.id, {
-                  startIndex : 0,
-                  maxResults : 1,
-                  queryRestriction : 'worklistId:' + worklist.id
-                }).then(
-                  // Success
-                  function(data) {
-                    if (data.records.length > 0
-                      && !$window
-                        .confirm('The worklist is assigned, are you sure you want to proceed?')) {
-                      return;
-                    }*/
-                    $scope.removeWorklistHelper($scope.project.id, worklist);
-                  //});
+                /*
+                 * workflowService.findAllAssignedWorklists($scope.project.id, {
+                 * startIndex : 0, maxResults : 1, queryRestriction :
+                 * 'worklistId:' + worklist.id }).then( // Success
+                 * function(data) { if (data.records.length > 0 && !$window
+                 * .confirm('The worklist is assigned, are you sure you want to
+                 * proceed?')) { return; }
+                 */
+                $scope.removeWorklistHelper($scope.project.id, worklist);
+                // });
               };
 
               // Helper for removing a worklist/checklist
               $scope.removeWorklistHelper = function(projectId, worklist) {
 
-                /*workflowService.findWorklistMembersForQuery(worklist.id, '', {
-                  startIndex : 0,
-                  maxResults : 1
-                }).then(
-                  function(data) {
-                    if (data.records.length == 1) {
-                      if (!$window
-                        .confirm('The worklist has records, are you sure you want to proceed.')) {
-                        return;
-                      }
-                    }*/
+                /*
+                 * workflowService.findWorklistMembersForQuery(worklist.id, '', {
+                 * startIndex : 0, maxResults : 1 }).then( function(data) { if
+                 * (data.records.length == 1) { if (!$window .confirm('The
+                 * worklist has records, are you sure you want to proceed.')) {
+                 * return; } }
+                 */
                 if ($scope.value == 'Worklist') {
-                    workflowService.removeWorklist(projectId, worklist.id).then(function() {
-                      $scope.selected.worklist = null;
-                      workflowService.fireWorklistChanged(worklist);
-                    });
+                  workflowService.removeWorklist(projectId, worklist.id).then(function() {
+                    $scope.selected.worklist = null;
+                    workflowService.fireWorklistChanged(worklist);
+                  });
                 } else {
                   workflowService.removeChecklist(projectId, worklist.id).then(function() {
                     $scope.selected.worklist = null;
                     workflowService.fireWorklistChanged(worklist);
-                  });           
+                  });
                 }
-                  //});
+                // });
               };
-
-
 
               // Unassign worklist from user
               $scope.unassign = function(worklist, userName) {
@@ -313,18 +299,14 @@ tsApp
                 });
               };
 
- 
-
-
               // Get the most recent note for display
               $scope.getLatestNote = function(worklist) {
                 if (worklist && worklist.notes && worklist.notes.length > 0) {
-                  return $sce.trustAsHtml(worklist.notes
-                    .sort(utilService.sort_by('lastModified', -1))[0].note);
+                  return $sce.trustAsHtml(worklist.notes.sort(utilService.sort_by('lastModified',
+                    -1))[0].note);
                 }
                 return $sce.trustAsHtml('');
               };
-
 
               $scope.getWorklists();
 
@@ -397,7 +379,7 @@ tsApp
                 $scope.removeNote = function(object, note) {
 
                   if ($scope.type == 'Worklist' || $scope.type == 'Checklist') {
-                    workflowService.removeNote(object.id, note.id).then(
+                    workflowService.removeNote($scope.project.id, note.id).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
@@ -439,7 +421,7 @@ tsApp
                 $scope.submitNote = function(object, text) {
 
                   if ($scope.type == 'Worklist' || $scope.type == 'Checklist') {
-                    workflowService.addNote(object.id, text).then(
+                    workflowService.addChecklistNote($scope.project.id, object.id, text).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;

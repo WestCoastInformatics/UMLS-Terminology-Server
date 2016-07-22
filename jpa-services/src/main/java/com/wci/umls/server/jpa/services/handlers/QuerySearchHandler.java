@@ -12,7 +12,7 @@ import javax.persistence.EntityManager;
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.model.workflow.QueryType;
+import com.wci.umls.server.helpers.QueryType;
 
 /**
  * Extension of default search handler to support HQL and SQL querying as well.

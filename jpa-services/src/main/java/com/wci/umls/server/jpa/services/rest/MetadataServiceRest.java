@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.model.meta.Terminology;
@@ -34,7 +35,8 @@ public interface MetadataServiceRest {
    * @throws Exception if anything goes wrong
    */
 
-  public TerminologyList getCurrentTerminologies(String authToken) throws Exception;
+  public TerminologyList getCurrentTerminologies(String authToken)
+    throws Exception;
 
   /**
    * Gets the terminology information for a terminology.
@@ -99,5 +101,17 @@ public interface MetadataServiceRest {
    * @throws Exception the exception
    */
   public PrecedenceList getPrecedenceList(Long precedenceListId,
+    String authToken) throws Exception;
+
+  /**
+   * Returns the semantic types.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the semantic types
+   * @throws Exception the exception
+   */
+  public SemanticTypeList getSemanticTypes(String terminology, String version,
     String authToken) throws Exception;
 }

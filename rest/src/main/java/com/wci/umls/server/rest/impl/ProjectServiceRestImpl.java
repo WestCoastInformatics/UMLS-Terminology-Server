@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
@@ -33,10 +32,8 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
-import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
@@ -44,7 +41,8 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
-import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.actions.AtomicActionList;
+import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
@@ -312,7 +310,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/users/{projectId}")
+  @Path("/{id}/users")
   @ApiOperation(value = "Find users assigned to project", notes = "Finds users with assigned roles on the specified project", response = UserListJpa.class)
   public UserList findAssignedUsersForProject(
     @ApiParam(value = "Project id, e.g. 3", required = true) @PathParam("projectId") Long projectId,
@@ -321,8 +319,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /users/ " + projectId + ", " + query
-            + ", " + pfs);
+        "RESTful call PUT (Project): /" + projectId + "/users, " + query + ", "
+            + pfs);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -445,8 +443,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       sb.append("userRoleMap:" + user + UserRole.REVIEWER).append(" OR ");
       sb.append("userRoleMap:" + user + UserRole.AUTHOR).append(")");
       final ProjectList list =
-          projectService.findProjects(sb.toString(),
-              new PfsParameterJpa());
+          projectService.findProjects(sb.toString(), new PfsParameterJpa());
       return list.getTotalCount() != 0;
 
     } catch (Exception e) {
@@ -522,7 +519,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/projects")
+  @Path("/all")
   @ApiOperation(value = "Finds projects", notes = "Finds projects for the specified query", response = ProjectListJpa.class)
   public ProjectList findProjects(
     @ApiParam(value = "Query", required = false) @QueryParam("query") String query,
@@ -530,8 +527,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Project): find projects for query, " + pfs);
+    Logger.getLogger(getClass()).info("RESTful call (Project): /all, " + pfs);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -570,8 +566,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
       // Precondition checking -- must have projectId and objectId set
       if (projectId == null || objectId == null) {
-        throw new LocalException(
-            "Project id and Object id must be set");
+        throw new LocalException("Project id and Object id must be set");
       }
 
       PfsParameter pfs = new PfsParameterJpa();
@@ -589,13 +584,13 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       if (objectId != null) {
         query += " AND objectId:" + objectId;
       }
-      
+
       if (query.isEmpty()) {
-        throw new Exception("Must specify at least one parameter for querying log entries");
+        throw new Exception(
+            "Must specify at least one parameter for querying log entries");
       }
 
-      final List<LogEntry> entries =
-          projectService.findLogEntries(query, pfs);
+      final List<LogEntry> entries = projectService.findLogEntries(query, pfs);
 
       StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {
@@ -634,17 +629,17 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Terminology): /log/" + terminology + ", " + version + ", " + activity + ", "
-            + lines);
+        "RESTful POST call (Terminology): /log/" + terminology + ", " + version
+            + ", " + activity + ", " + lines);
 
     final ProjectService projectService = new ProjectServiceJpa();
-    try {  
-      authorizeApp(securityService, authToken,"get log entries", UserRole.VIEWER);
+    try {
+      authorizeApp(securityService, authToken, "get log entries",
+          UserRole.VIEWER);
 
       // Precondition checking -- must have terminology version AND activity set
       if (terminology == null || version == null || activity == null) {
-        throw new LocalException(
-            "Terminology/version and activity must be set");
+        throw new LocalException("Terminology/version and activity must be set");
       }
 
       PfsParameter pfs = new PfsParameterJpa();
@@ -666,13 +661,13 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       if (activity != null) {
         query += " AND activity:" + activity;
       }
-      
+
       if (query.isEmpty()) {
-        throw new Exception("Must specify at least one parameter for querying log entries");
+        throw new Exception(
+            "Must specify at least one parameter for querying log entries");
       }
 
-      final List<LogEntry> entries =
-          projectService.findLogEntries(query, pfs);
+      final List<LogEntry> entries = projectService.findLogEntries(query, pfs);
 
       StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {
@@ -695,178 +690,76 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
     return null;
-  }  
-  
-
-  /* see superclass */
-  @Override
-  @GET
-  @Path("/validate/concept/merge/{terminology}/{version}/{conceptId}/{conceptId2}")
-  @ApiOperation(value = "Validate merge", notes = "Validates the merge of two concepts")
-  public ValidationResult validateMerge(
-    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Terminology", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Version", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Id for first concept", required = true) @PathParam("conceptId") Long conceptId,
-    @ApiParam(value = "Id for second concept", required = true) @PathParam("conceptId2") Long conceptId2,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Validation): /validate/concept/merge/" + terminology
-            + "/" + version + "/" + conceptId + "/" + conceptId2);
-
-    ProjectService projectService = new ProjectServiceJpa();
-    ContentService contentService = new ContentServiceJpa();
-    try {
-
-      // authorize call
-      authorizeProject(projectService, projectId, securityService, authToken,
-          "merge concepts", UserRole.USER);
-      Project project = projectService.getProject(projectId);
-
-      Concept concept1 =
-          contentService.getConcept(conceptId);
-      Concept concept2 =
-          contentService.getConcept(conceptId2);
-
-      ValidationResult result =
-          projectService.validateMerge(project, concept1, concept2);
-
-      return result;
-
-    } catch (Exception e) {
-
-      handleException(e, "trying to validate the concept merge");
-      return null;
-    } finally {
-      projectService.close();
-      securityService.close();
-    }
-  }
-
-  @Override
-  @POST
-  @Path("/descriptor")
-  @ApiOperation(value = "Validate Descriptor", notes = "Validates a descriptor")
-  public ValidationResult validateDescriptor(
-    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Descriptor", required = true) DescriptorJpa descriptor,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /dui " + descriptor);
-
-    ProjectService projectService = new ProjectServiceJpa();
-    try {
-      Project project = projectService.getProject(projectId);
-      authorizeProject(projectService, projectId, securityService, authToken,
-          "validate descriptor", UserRole.USER);
-      return projectService.validateDescriptor(project, descriptor);
-    } catch (Exception e) {
-      handleException(e, "trying to validate descriptor");
-      return null;
-    } finally {
-      projectService.close();
-      securityService.close();
-    }
-
   }
 
   /* see superclass */
   @Override
   @POST
-  @Path("/atom")
-  @ApiOperation(value = "Validate Atom", notes = "Validates a atom")
-  public ValidationResult validateAtom(
-    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Atom", required = true) AtomJpa atom,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+  @Path("/actions/molecular")
+  @ApiOperation(value = "Get molecular actions", notes = "Get molecular actions", response = MolecularActionListJpa.class)
+  public MolecularActionList findMolecularActions(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = false) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. latest", required = false) @QueryParam("version") String version,
+    @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /aui " + atom);
+        "RESTful call POST (Content): /actions/molecular " + query);
 
-    ProjectService projectService = new ProjectServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeProject(projectService, projectId, securityService, authToken,
-          "validate atom", UserRole.USER);
-      Project project = projectService.getProject(projectId);
-      return projectService.validateAtom(project, atom);
+      authorizeApp(securityService, authToken,
+          "find molecular actions for a concept", UserRole.VIEWER);
+      return contentService.findMolecularActions(terminology, version, query,
+          pfs);
+
     } catch (Exception e) {
-      handleException(e, "trying to validate atom");
+      handleException(e, "trying to find molecular actions for a concept");
       return null;
     } finally {
-      projectService.close();
+      contentService.close();
       securityService.close();
     }
-
   }
 
   /* see superclass */
   @Override
   @POST
-  @Path("/code")
-  @ApiOperation(value = "Validate Code", notes = "Validates a code")
-  public ValidationResult validateCode(
-    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Code", required = true) CodeJpa code,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+  @Path("/actions/atomic")
+  @ApiOperation(value = "Get atomic actions for a molecular action", notes = "Get atomic actions for a molecular action", response = AtomicActionListJpa.class)
+  public AtomicActionList findAtomicActions(
+    @ApiParam(value = "The molecularActionId id, e.g. 1", required = true) @QueryParam("molecularActionId") Long molecularActionId,
+    @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /code " + code);
+        "RESTful call POST (Content): /actions/atomic " + molecularActionId
+            + ", " + query);
 
-    ProjectService projectService = new ProjectServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeProject(projectService, projectId, securityService, authToken,
-          "validate code", UserRole.USER);
-      Project project = projectService.getProject(projectId);
-      return projectService.validateCode(project, code);
+      authorizeApp(securityService, authToken,
+          "find atomic actions for a molecular action", UserRole.VIEWER);
+
+      return contentService.findAtomicActions(molecularActionId, query, pfs);
+
     } catch (Exception e) {
-      handleException(e, "trying to validate code");
+      handleException(e, "trying to find atomic actions for a molecular action");
       return null;
     } finally {
-      projectService.close();
+      contentService.close();
       securityService.close();
     }
-
-  }
-
-  /* see superclass */
-  @Override
-  @POST
-  @Path("/concept")
-  @ApiOperation(value = "Validate Concept", notes = "Validates a concept")
-  public ValidationResult validateConcept(
-    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Concept", required = true) ConceptJpa concept,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call PUT (Project): /concept " + concept);
-
-    ProjectService projectService = new ProjectServiceJpa();
-    try {
-      authorizeProject(projectService, projectId, securityService, authToken,
-          "validate conceptm", UserRole.USER);
-      Project project = projectService.getProject(projectId);
-      return projectService.validateConcept(project, concept);
-    } catch (Exception e) {
-      handleException(e, "trying to validate concept");
-      return null;
-    } finally {
-      projectService.close();
-      securityService.close();
-    }
-
   }
 
   /* see superclass */
   @Override
   @GET
   @Path("/checks")
-  @ApiOperation(value = "Gets all validation checks for a project", notes = "Gets all validation checks for a project", response = KeyValuePairList.class)
+  @ApiOperation(value = "Gets all validation checks", notes = "Gets all validation checks", response = KeyValuePairList.class)
   public KeyValuePairList getValidationChecks(
-    @ApiParam(value = "The project id , e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -877,9 +770,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "get validation checks",
           UserRole.VIEWER);
 
-      Project project = projectService.getProject(projectId);
-      final KeyValuePairList list =
-          projectService.getValidationCheckNames(project);
+      final KeyValuePairList list = projectService.getValidationCheckNames();
       return list;
     } catch (Exception e) {
       handleException(e, "trying to validate all concept");
@@ -889,7 +780,5 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
- 
 
 }

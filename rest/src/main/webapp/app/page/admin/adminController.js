@@ -109,7 +109,7 @@ tsApp
           if ($scope.user.applicationRole == 'ADMINISTRATOR') {
             pfs.queryRestriction = null;
           }
-          projectService.findProjectsAsList($scope.paging['project'].filter, pfs).then(
+          projectService.findProjects($scope.paging['project'].filter, pfs).then(
             function(data) {
               $scope.projects = data.projects;
               $scope.projects.totalCount = data.totalCount;
@@ -136,7 +136,7 @@ tsApp
             pfs.queryRestriction = null;
           }
 
-          projectService.findProjectsAsList($scope.paging['candidateProject'].filter, pfs).then(
+          projectService.findProjects($scope.paging['candidateProject'].filter, pfs).then(
             function(data) {
               $scope.candidateProjects = data.projects;
               $scope.candidateProjects.totalCount = data.totalCount;

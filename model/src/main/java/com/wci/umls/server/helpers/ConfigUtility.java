@@ -287,6 +287,28 @@ public class ConfigUtility {
   }
 
   /**
+   * Returns the ui config properties.
+   *
+   * @return the ui config properties
+   * @throws Exception the exception
+   */
+  public static Properties getUiConfigProperties() throws Exception {
+    final Properties config = getConfigProperties();
+
+    // use "deploy.*" and "site.*" and "base.url" properties
+    final Properties p = new Properties();
+    for (final Object prop : config.keySet()) {
+      final String str = prop.toString();
+      if (str.startsWith("deploy.") || str.startsWith("site.")
+          || str.equals("base.url")) {
+        p.put(prop, config.getProperty(prop.toString()));
+      }
+    }
+    return p;
+
+  }
+
+  /**
    * New handler instance.
    *
    * @param <T> the

@@ -93,7 +93,6 @@ public interface ProjectService extends RootService {
   public ProjectList findProjects(String query, PfsParameter pfs)
     throws Exception;
 
-
   /**
    * Validate concept.
    *
@@ -102,7 +101,7 @@ public interface ProjectService extends RootService {
    * @return the validation result
    */
   public ValidationResult validateConcept(Project project, Concept concept);
-  
+
   /**
    * Validate atom.
    *
@@ -111,7 +110,7 @@ public interface ProjectService extends RootService {
    * @return the validation result
    */
   public ValidationResult validateAtom(Project project, Atom atom);
-  
+
   /**
    * Validate descriptor.
    *
@@ -119,8 +118,9 @@ public interface ProjectService extends RootService {
    * @param descriptor the descriptor
    * @return the validation result
    */
-  public ValidationResult validateDescriptor(Project project, Descriptor descriptor);
-  
+  public ValidationResult validateDescriptor(Project project,
+    Descriptor descriptor);
+
   /**
    * Validate code.
    *
@@ -129,7 +129,7 @@ public interface ProjectService extends RootService {
    * @return the validation result
    */
   public ValidationResult validateCode(Project project, Code code);
-  
+
   /**
    * Validate merge.
    *
@@ -138,15 +138,15 @@ public interface ProjectService extends RootService {
    * @param concept2 the concept2
    * @return the validation result
    */
-  public ValidationResult validateMerge(Project project, Concept concept1, Concept concept2);
+  public ValidationResult validateMerge(Project project, Concept concept1,
+    Concept concept2);
 
   /**
    * Gets the validation check names.
    *
-   * @param project the project
    * @return the validation check names
+   * @throws Exception the exception
    */
-  public KeyValuePairList getValidationCheckNames(Project project);
+  public KeyValuePairList getValidationCheckNames() throws Exception;
 
-  
 }
