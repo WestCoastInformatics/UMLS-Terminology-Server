@@ -205,6 +205,7 @@ tsApp.controller('WorkflowCtrl', [
         terminologyId : concept.terminologyId,
         terminology : concept.terminology,
         version : concept.version,
+        type : 'CONCEPT',
         id : concept.id
       };
       reportService.getConceptReport($scope.currentProject.id, $scope.selected.concept.id).then(

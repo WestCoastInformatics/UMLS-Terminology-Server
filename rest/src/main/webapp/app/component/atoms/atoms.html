@@ -1,6 +1,6 @@
 <!-- Atoms -->
- <div ng-show="pagedData.totalCount > 0 || paging.filter">
-        
+<div ng-show="pagedData.totalCount > 0 || paging.filter">
+
   <h4>{{metadata.atomsLabel}} ({{pagedData.totalCount}})</h4>
   <span class="alert alert-warning" style="margin-left: 15px"
     ng-show="!showHidden && pagedData.totalCount == 0 && !paging.filter">
@@ -36,14 +36,15 @@
             {{item.terminology}} /</span>
           <span uib-tooltip="{{callbacks.getTermTypeName(item.termType)}}">{{item.termType}}</span>
           , {{item.language}} ]
-         
+
           <!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
           <span
             ng-show="item.codeId != component.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
-            uib-tooltip="{{item.terminology}} code"> {{item.version}}
+            uib-tooltip="{{item.terminology}} code">
+            {{item.version}}
             <a ng-show="item.codeId != 'NOCODE'"
               ng-class="{'nolink' : !callbacks.getComponent}"
-              ng-click="callbacks.getComponent('CODE', item.codeId, item.terminology, item.version)">{{item.codeId}}</a>
+              ng-click="callbacks.getComponent(item.id, 'CODE', item.codeId, item.terminology, item.version)">{{item.codeId}}</a>
             <span ng-show="item.codeId==='NOCODE'">NOCODE</span>
           </span>
           <!-- For concept id, do not show if identical to component id -->
@@ -51,7 +52,7 @@
             ng-show="item.terminology != component.terminology || item.conceptId != component.terminologyId"
             uib-tooltip="{{item.terminology}} concept">
             <a ng-class="{'nolink' : !callbacks.getComponent}"
-              ng-click="callbacks.getComponent('CONCEPT',item.conceptId, item.terminology, item.version)">{{item.conceptId}}</a>
+              ng-click="callbacks.getComponent(item.id, 'CONCEPT',item.conceptId, item.terminology, item.version)">{{item.conceptId}}</a>
           </span>
 
           <!-- For descriptor id, do not show if identical to component id -->
@@ -59,14 +60,14 @@
             ng-show="item.terminology != component.terminology || item.descriptorId != component.terminologyId"
             uib-tooltip="{{item.terminology}} descriptor">
             <a ng-class="{'nolink' : !callbacks.getComponent}"
-              ng-click="callbacks.getComponent('DESCRIPTOR',item.descriptorId, item.terminology, item.version)">{{item.descriptorId}}</a>
+              ng-click="callbacks.getComponent(item.id, 'DESCRIPTOR',item.descriptorId, item.terminology, item.version)">{{item.descriptorId}}</a>
           </span>
           <!-- Show any referenced components in the concept terminology id list -->
           <span ng-repeat="(key, value) in item.conceptTerminologyIds">
             <a ng-class="{'nolink' : !callbacks.getComponent}"
               ng-show="key != component.terminology || value != component.terminologyId"
               uib-tooltip="{{key}} concept"
-              ng-click="callbacks.getComponent('CONCEPT',value, key, callbacks.getTerminologyVersion(key))">{{value}}</a>
+              ng-click="callbacks.getComponent(item.id, 'CONCEPT',value, key, callbacks.getTerminologyVersion(key))">{{value}}</a>
           </span>
           <div style="margin-left: 20px;" ng-show="item.expanded">
             <!-- Atom Definitions -->
@@ -91,13 +92,12 @@
               </ul>
             </div>
             <!-- end Atom Attributes -->
-          
+
             <!-- Atom Subsets -->
             <div ng-show="item.members.length > 0">
               <strong>{{metadata.subsetsLabel}}</strong>
               <ul>
-                <li
-                  ng-repeat="member in item.members | orderBy: ['subsetName']">
+                <li ng-repeat="member in item.members | orderBy: ['subsetName']">
                   {{member.subsetName}}
                   <div ng-show="item.attributes.length > 0">
                     <ul>

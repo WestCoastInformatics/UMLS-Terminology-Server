@@ -44,10 +44,12 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
   private Project p2;
 
   /** The fixture l1. */
-  private List<String> l1;
+  @SuppressWarnings("rawtypes")
+  private List l1;
 
   /** The fixture l2. */
-  private List<String> l2;
+  @SuppressWarnings("rawtypes")
+  private List l2;
 
   /**
    * Setup class.
@@ -62,6 +64,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   @Before
   public void setup() throws Exception {
     object = new WorklistJpa();
@@ -71,10 +74,10 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     p2 = (ProjectJpa) tester2.createObject(2);
 
     l1 = new ArrayList<>();
-    l1.add("1");
+    l1.add(null);
     l2 = new ArrayList<>();
-    l2.add("2");
-    l2.add("3");
+    l2.add(null);
+    l2.add(null);
 
     object.setProject(p1);
   }

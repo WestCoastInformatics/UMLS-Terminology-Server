@@ -68,6 +68,7 @@ tsApp.directive('relationshipsDeep', [
           };
           
           var wrapper = {
+            id : scope.component.id,
             type : scope.metadata.terminology.organizingClassType,
             terminology : scope.component.terminology,
             version : scope.component.version,

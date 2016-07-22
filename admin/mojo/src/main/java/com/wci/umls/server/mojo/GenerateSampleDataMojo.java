@@ -230,6 +230,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       author3 = makeUser("author3", "Author3");
       author3 = (UserJpa) security.addUser(author3, authToken);
     }
+
     //
     // Make a project
     //

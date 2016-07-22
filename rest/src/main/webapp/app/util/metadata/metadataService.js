@@ -1,4 +1,5 @@
 // MetadataService
+var metadataUrl = 'metadata';
 tsApp.service('metadataService', [
   '$http',
   '$q',

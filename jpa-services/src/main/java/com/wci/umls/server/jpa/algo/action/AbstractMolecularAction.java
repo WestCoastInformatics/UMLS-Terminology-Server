@@ -10,8 +10,10 @@ import java.util.List;
 
 import com.google.common.base.CaseFormat;
 import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.algo.AbstractTerminologyAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -40,6 +42,9 @@ public abstract class AbstractMolecularAction extends
 
   /** The change status flag. */
   private boolean changeStatusFlag;
+
+  /** The validation checks. */
+  private List<String> validationChecks;
 
   /**
    * Instantiates an empty {@link AbstractMolecularAction}.
@@ -121,6 +126,24 @@ public abstract class AbstractMolecularAction extends
 
   /* see superclass */
   @Override
+  public void setValidationChecks(List<String> validationChecks) {
+    this.validationChecks = validationChecks;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : getValidationHandlersMap().keySet()) {
+      if (validationChecks.contains(key)) {
+        result.merge(getValidationHandlersMap().get(key).validateAction(this));
+      }
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
   public void initialize(Project project, Long conceptId, Long conceptId2,
     String userName, Long lastModified) throws Exception {
 
@@ -137,7 +160,7 @@ public abstract class AbstractMolecularAction extends
     Collections.sort(conceptIdList);
 
     this.concept = null;
-    this.concept2 = null;    
+    this.concept2 = null;
     for (final Long i : conceptIdList) {
       Concept tempConcept = null;
 
@@ -172,7 +195,7 @@ public abstract class AbstractMolecularAction extends
 
     setTerminology(concept.getTerminology());
     setVersion(concept.getVersion());
-    
+
     // construct the molecular action
     final MolecularAction molecularAction = new MolecularActionJpa();
     molecularAction.setTerminology(this.concept.getTerminology());

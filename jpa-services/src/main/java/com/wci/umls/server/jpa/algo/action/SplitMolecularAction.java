@@ -168,12 +168,12 @@ public class SplitMolecularAction extends AbstractMolecularAction {
         getRelationshipType(relationshipType, getTerminology(), getVersion());
 
     if (type == null) {
-      throw new LocalException(
-          "RelationshipType " + relationshipType + " not found.");
+      throw new LocalException("RelationshipType " + relationshipType
+          + " not found.");
     }
 
-    // TODO - add this method to everywhere it needs to be
-    // validateSplit(getProject(), getConcept(), null);
+    // Check preconditions
+    validationResult.merge(super.checkPreconditions());
 
     return validationResult;
   }
@@ -221,18 +221,19 @@ public class SplitMolecularAction extends AbstractMolecularAction {
           new ArrayList<>(getOriginatingConcept().getSemanticTypes());
 
       for (SemanticTypeComponent sty : fromStys) {
-        SemanticTypeComponent newSemanticType = new SemanticTypeComponentJpa(sty);
+        SemanticTypeComponent newSemanticType =
+            new SemanticTypeComponentJpa(sty);
         newSemanticType.setId(null);
         SemanticTypeComponentJpa newAddedSemanticType =
-            (SemanticTypeComponentJpa) addSemanticTypeComponent(newSemanticType,
-                createdConcept);
+            (SemanticTypeComponentJpa) addSemanticTypeComponent(
+                newSemanticType, createdConcept);
 
         // add the semantic type and set the last modified by
         getCreatedConcept().getSemanticTypes().add(newAddedSemanticType);
       }
 
     }
-       
+
     // Add each relationship from originatingConcept to be attached to
     // createdConcept
     if (copyRelationships) {
@@ -307,13 +308,12 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     // set the inverse relationship component last modified
     ConceptRelationshipJpa newAddedBetweenRel =
         (ConceptRelationshipJpa) addRelationship(newBetweenRel);
-    
+
     getOriginatingConcept().getRelationships().add(newAddedBetweenRel);
 
     // construct inverse relationship
     ConceptRelationshipJpa inverseBetweenRel =
-        (ConceptRelationshipJpa) createInverseConceptRelationship(
-            newBetweenRel);
+        (ConceptRelationshipJpa) createInverseConceptRelationship(newBetweenRel);
 
     // set the inverse relationship component last modified
     ConceptRelationshipJpa newInverseBetweenRel =
@@ -324,13 +324,12 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     // update the concepts
     updateConcept(getOriginatingConcept());
     updateConcept(getCreatedConcept());
-    
+
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(),
-        getOriginatingConcept().getId(),
-        getName() + " " + getOriginatingConcept().getId() + " into concept "
-            + getCreatedConcept().getId());
-    
+    addLogEntry(getUserName(), getProject().getId(), getOriginatingConcept()
+        .getId(), getName() + " " + getOriginatingConcept().getId()
+        + " into concept " + getCreatedConcept().getId());
+    // Make copy of toConcept to pass into change event
     // Make copy of toConcept to pass into change event
     originatingConceptPostUpdates =
         new ConceptJpa(getOriginatingConcept(), false);

@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4>{{type}} Notes</h4>
+  <h4>{{value}} Notes</h4>
 </div>
 
 <div class="modal-body">
@@ -12,7 +12,7 @@
     </tr>
     <tr>
       <td>
-        <b>{{type}} Id</b>
+        <b>{{value}} Id</b>
       </td>
       <td>{{object.id}}</td>
     </tr>
@@ -64,7 +64,7 @@
         <table ng-show="pagedNotes.length > 0" class="table">
           <thead class="table-select-row">
             <tr>
-              <th class="col-md-6 col-xs-6">{{type}} Notes</th>
+              <th class="col-md-6 col-xs-6">{{value}} Notes</th>
               <th class="col-md-2 col-xs-2">Date</th>
               <th class="col-md-2 col-xs-2">Author</th>
               <th class="col-md-2 col-xs-2"></th>
@@ -122,6 +122,6 @@
 
 <div class="modal-footer">
   <button class="btn btn-primary" ng-disabled="!newNote"
-    ng-click="submitNote(object, newNote);" title=" Add new note to {{type}}">Add</button>
+    ng-click="submitNote(object, newNote);" title=" Add new note to {{value}}">Add</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>

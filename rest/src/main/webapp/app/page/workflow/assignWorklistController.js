@@ -10,7 +10,7 @@ var AssignWorklistModalCtrl = function($scope, $uibModalInstance, $sce, workflow
   $scope.note;
   $scope.errors = [];
 
-  // Sort users by name and role restricts
+  // TODO Sort users by name and role restricts
   /*var sortedUsers = $scope.assignedUsers.sort(utilService.sort_by('name'));
   for (var i = 0; i < sortedUsers.length; i++) {
     if ($scope.role == 'AUTHOR'
@@ -35,7 +35,7 @@ var AssignWorklistModalCtrl = function($scope, $uibModalInstance, $sce, workflow
 
         // Add a note as well
         if ($scope.note) {
-          workflowService.addWorklistNote(worklist.id, $scope.note).then(
+          workflowService.addWorklistNote($scope.project.id, worklist.id, $scope.note).then(
           // Success
           function(data) {
             $uibModalInstance.close(worklist);

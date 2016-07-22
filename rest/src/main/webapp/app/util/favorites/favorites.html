@@ -17,7 +17,7 @@
           ng-repeat="favorite in pagedData.results">
           <!--  Only put ng-click callback on first two cells (i.e. not the controls cell) -->
           <td class="col-md-4 col-xs-4"
-            ng-click="callbacks.getComponent(favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
+            ng-click="callbacks.getComponent(favorite.id, favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
             <span
               ng-show="favorite.terminology != metadata.terminology.terminology">{{favorite.terminology}}
               /</span>
@@ -25,7 +25,7 @@
             <span ng-show="favorite.terminologyId.length > 11" class="breakword">{{favorite.terminologyId}}</span>
           </td>
           <td class="col-md-7 col-xs-7"
-            ng-click="callbacks.getComponent(favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
+            ng-click="callbacks.getComponent(favorite.id, favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
             <span class=""> {{favorite.value}}</span>
             <!-- Always show blue note icon if favorite has notes -->
           </td>

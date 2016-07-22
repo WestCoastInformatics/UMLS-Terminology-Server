@@ -4355,17 +4355,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call PUT (Project): /validate/descriptor " + descriptor);
 
-    final ProjectService projectService = new ProjectServiceJpa();
+    final ContentService conceptService = new ContentServiceJpa();
     try {
-      authorizeProject(projectService, projectId, securityService, authToken,
+      authorizeProject(conceptService, projectId, securityService, authToken,
           "validate descriptor", UserRole.USER);
-      final Project project = projectService.getProject(projectId);
-      return projectService.validateDescriptor(project, descriptor);
+      final Project project = conceptService.getProject(projectId);
+      return conceptService.validateDescriptor(project, descriptor);
     } catch (Exception e) {
       handleException(e, "trying to validate descriptor");
       return null;
     } finally {
-      projectService.close();
+      conceptService.close();
       securityService.close();
     }
 
@@ -4384,17 +4384,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call PUT (Project): /validate/atom " + atom);
 
-    final ProjectService projectService = new ProjectServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeProject(projectService, projectId, securityService, authToken,
+      authorizeProject(contentService, projectId, securityService, authToken,
           "validate atom", UserRole.USER);
-      final Project project = projectService.getProject(projectId);
-      return projectService.validateAtom(project, atom);
+      final Project project = contentService.getProject(projectId);
+      return contentService.validateAtom(project, atom);
     } catch (Exception e) {
       handleException(e, "trying to validate atom");
       return null;
     } finally {
-      projectService.close();
+      contentService.close();
       securityService.close();
     }
 
@@ -4413,17 +4413,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call PUT (Project): /validate/code " + code);
 
-    final ProjectService projectService = new ProjectServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeProject(projectService, projectId, securityService, authToken,
+      authorizeProject(contentService, projectId, securityService, authToken,
           "validate code", UserRole.USER);
-      final Project project = projectService.getProject(projectId);
-      return projectService.validateCode(project, code);
+      final Project project = contentService.getProject(projectId);
+      return contentService.validateCode(project, code);
     } catch (Exception e) {
       handleException(e, "trying to validate code");
       return null;
     } finally {
-      projectService.close();
+      contentService.close();
       securityService.close();
     }
 
@@ -4442,17 +4442,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call PUT (Project): /validate/concept " + concept);
 
-    final ProjectService projectService = new ProjectServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeProject(projectService, projectId, securityService, authToken,
+      authorizeProject(contentService, projectId, securityService, authToken,
           "validate conceptm", UserRole.USER);
-      final Project project = projectService.getProject(projectId);
-      return projectService.validateConcept(project, concept);
+      final Project project = contentService.getProject(projectId);
+      return contentService.validateConcept(project, concept);
     } catch (Exception e) {
       handleException(e, "trying to validate concept");
       return null;
     } finally {
-      projectService.close();
+      contentService.close();
       securityService.close();
     }
 

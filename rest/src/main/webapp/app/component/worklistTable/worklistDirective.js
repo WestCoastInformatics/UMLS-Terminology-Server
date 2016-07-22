@@ -1,5 +1,5 @@
 // Worklist Table directive
-// e.g. <div worklist-table value='PUBLISHED' />
+// e.g. <div worklist-table value='Worklist' />
 tsApp
   .directive(
     'worklistTable',
@@ -13,9 +13,8 @@ tsApp
       'projectService',
       'workflowService',
       'reportService',
-      'validationService',
       function($uibModal, $window, $sce, $interval, utilService, securityService, projectService,
-        workflowService, reportService, validationService) {
+        workflowService, reportService) {
         console.debug('configure worklistTable directive');
         return {
           restrict : 'A',
@@ -217,6 +216,7 @@ tsApp
                   terminologyId : concept.terminologyId,
                   terminology : concept.terminology,
                   version : concept.version,
+                  type : 'CONCEPT',
                   id : concept.id
                 };
                 reportService.getConceptReport($scope.project.id, $scope.selected.concept.id).then(
@@ -315,8 +315,8 @@ tsApp
               //
 
               // Notes modal
-              $scope.openNotesModal = function(lobject, ltype) {
-                console.debug('openNotesModal ', lobject, ltype);
+              $scope.openNotesModal = function(lobject) {
+                console.debug('openNotesModal ', lobject);
 
                 var modalInstance = $uibModal.open({
                   templateUrl : 'app/page/workflow/notes.html',
@@ -326,8 +326,11 @@ tsApp
                     object : function() {
                       return lobject;
                     },
-                    type : function() {
-                      return ltype;
+                    value : function() {
+                      return $scope.value;
+                    },
+                    project : function() {
+                      return $scope.project;
                     },
                     tinymceOptions : function() {
                       return utilService.tinymceOptions;
@@ -343,136 +346,7 @@ tsApp
 
               };
 
-              // Notes controller
-              var NotesModalCtrl = function($scope, $uibModalInstance, $sce, object, type,
-                tinymceOptions) {
-                console.debug('Entered notes modal control', object, type);
-                $scope.object = object;
-                $scope.type = type;
-                $scope.tinymceOptions = tinymceOptions;
-                $scope.newNote = null;
 
-                // Paging parameters
-                $scope.pageSize = 5;
-                $scope.pagedNotes = [];
-                $scope.paging = {};
-                $scope.paging['notes'] = {
-                  page : 1,
-                  filter : '',
-                  typeFilter : '',
-                  sortField : 'lastModified',
-                  ascending : true
-                };
-                $scope.errors = [];
-
-                // Get paged notes (assume all are loaded)
-                $scope.getPagedNotes = function() {
-                  $scope.pagedNotes = utilService.getPagedArray($scope.object.notes,
-                    $scope.paging['notes'], $scope.pageSize).data;
-                };
-
-                $scope.getNoteValue = function(note) {
-                  return $sce.trustAsHtml(note.note);
-                };
-
-                // remove note
-                $scope.removeNote = function(object, note) {
-
-                  if ($scope.type == 'Worklist' || $scope.type == 'Checklist') {
-                    workflowService.removeNote($scope.project.id, note.id).then(
-                    // Success - add worklist
-                    function(data) {
-                      $scope.newNote = null;
-                      workflowService.getWorklist(object.id).then(function(data) {
-                        object.notes = data.notes;
-                        $scope.getPagedNotes();
-                      },
-                      // Error - add worklist
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                    },
-                    // Error - add worklist
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-                  } else if ($scope.type == 'Record') {
-                    workflowService.removeWorklistRecordNote(object.id, note.id).then(
-                    // Success - add worklist
-                    function(data) {
-                      $scope.newNote = null;
-                      workflowService.getRecord(object.id).then(function(data) {
-                        object.notes = data.notes;
-                        $scope.getPagedNotes();
-                      },
-                      // Error - add worklist
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                    },
-                    // Error - add worklist
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-                  }
-                };
-
-                // add new note
-                $scope.submitNote = function(object, text) {
-
-                  if ($scope.type == 'Worklist' || $scope.type == 'Checklist') {
-                    workflowService.addChecklistNote($scope.project.id, object.id, text).then(
-                    // Success - add worklist
-                    function(data) {
-                      $scope.newNote = null;
-                      workflowService.getWorklist(object.id).then(function(data) {
-                        object.notes = data.notes;
-                        $scope.getPagedNotes();
-                      },
-                      // Error - add worklist
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                    },
-                    // Error - add worklist
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-                  } else if ($scope.type == 'Record') {
-                    workflowService.addWorklistRecordNote(object.worklistId, object.id, text).then(
-                    // Success - add worklist
-                    function(data) {
-                      $scope.newNote = null;
-
-                      workflowService.getRecord(object.id).then(function(data) {
-                        object.notes = data.notes;
-                        $scope.getPagedNotes();
-                      },
-                      // Error - add worklist
-                      function(data) {
-                        handleError($scope.errors, data);
-                      });
-                    },
-                    // Error - add worklist
-                    function(data) {
-                      handleError($scope.errors, data);
-                    });
-                  }
-                };
-
-                // Convert date to a string
-                $scope.toDate = function(lastModified) {
-                  return utilService.toDate(lastModified);
-                };
-
-                // Dismiss modal
-                $scope.cancel = function() {
-                  $uibModalInstance.dismiss('cancel');
-                };
-
-                // initialize modal
-                $scope.getPagedNotes();
-              };
 
               // Assign worklist modal
               $scope.openAssignWorklistModal = function(lworklist, laction, lrole) {

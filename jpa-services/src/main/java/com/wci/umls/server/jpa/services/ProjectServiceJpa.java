@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
@@ -27,12 +26,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.handlers.ValidationCheck;
 
@@ -45,7 +39,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   protected static Properties config = null;
 
   /** The validation handlers. */
-  protected static Map<String, ValidationCheck> validationHandlersMap = null;
+  private static Map<String, ValidationCheck> validationHandlersMap = null;
 
   static {
     validationHandlersMap = new HashMap<>();
@@ -395,69 +389,6 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
 
   /* see superclass */
   @Override
-  public ValidationResult validateConcept(Project project, Concept concept) {
-    final ValidationResult result = new ValidationResultJpa();
-    for (final String key : validationHandlersMap.keySet()) {
-      if (project.getValidationChecks().contains(key)) {
-        result.merge(validationHandlersMap.get(key).validate(concept));
-      }
-    }
-    return result;
-  }
-
-  /* see superclass */
-  @Override
-  public ValidationResult validateAtom(Project project, Atom atom) {
-    final ValidationResult result = new ValidationResultJpa();
-    for (final String key : validationHandlersMap.keySet()) {
-      if (project.getValidationChecks().contains(key)) {
-        result.merge(validationHandlersMap.get(key).validate(atom));
-      }
-    }
-    return result;
-  }
-
-  /* see superclass */
-  @Override
-  public ValidationResult validateDescriptor(Project project,
-    Descriptor descriptor) {
-    final ValidationResult result = new ValidationResultJpa();
-    for (final String key : validationHandlersMap.keySet()) {
-      if (project.getValidationChecks().contains(key)) {
-        result.merge(validationHandlersMap.get(key).validate(descriptor));
-      }
-    }
-    return result;
-  }
-
-  /* see superclass */
-  @Override
-  public ValidationResult validateCode(Project project, Code code) {
-    final ValidationResult result = new ValidationResultJpa();
-    for (final String key : validationHandlersMap.keySet()) {
-      if (project.getValidationChecks().contains(key)) {
-        result.merge(validationHandlersMap.get(key).validate(code));
-      }
-    }
-    return result;
-  }
-
-  /* see superclass */
-  @Override
-  public ValidationResult validateMerge(Project project, Concept concept1,
-    Concept concept2) {
-    final ValidationResult result = new ValidationResultJpa();
-    for (final String key : validationHandlersMap.keySet()) {
-      if (project.getValidationChecks().contains(key)) {
-        result.merge(validationHandlersMap.get(key).validateMerge(concept1,
-            concept2));
-      }
-    }
-    return result;
-  }
-
-  /* see superclass */
-  @Override
   public KeyValuePairList getValidationCheckNames() {
     final KeyValuePairList keyValueList = new KeyValuePairList();
     for (final Entry<String, ValidationCheck> entry : validationHandlersMap
@@ -469,4 +400,8 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     return keyValueList;
   }
 
+  @Override
+  public Map<String, ValidationCheck> getValidationHandlersMap() {
+    return validationHandlersMap;
+  }
 }

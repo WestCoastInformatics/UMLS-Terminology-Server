@@ -462,15 +462,16 @@ public class ProjectClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public MolecularActionList findMolecularActions(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+  public MolecularActionList findMolecularActions(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
 
     Logger.getLogger(getClass()).debug(
         "Project Client - find molecular actions " + query);
 
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(terminology, "version");
+
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
@@ -478,6 +479,7 @@ public class ProjectClientRest extends RootClientRest implements
             + terminology
             + "&version="
             + version
+            + (terminologyId == null ? "" : "&terminologyId="+terminologyId)
             + "&query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));

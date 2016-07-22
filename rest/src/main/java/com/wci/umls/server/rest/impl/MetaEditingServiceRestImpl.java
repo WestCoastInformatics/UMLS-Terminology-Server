@@ -6,7 +6,6 @@ package com.wci.umls.server.rest.impl;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -37,8 +36,6 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.actions.ChangeEvent;
@@ -48,8 +45,6 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wordnik.swagger.annotations.Api;
@@ -752,50 +747,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
-  @GET
-  @Path("/validate/merge/{conceptId1}/{conceptId2}")
-  @ApiOperation(value = "Validate merge", notes = "Validates the merge of two concepts")
-  public ValidationResult validateMerge(
-    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Terminology", required = true) @QueryParam("terminology") String terminology,
-    @ApiParam(value = "Version", required = true) @QueryParam("version") String version,
-    @ApiParam(value = "Id for first concept", required = true) @PathParam("conceptId") Long conceptId,
-    @ApiParam(value = "Id for second concept", required = true) @PathParam("conceptId2") Long conceptId2,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful call (MetaEditing): /validate/merge/" + conceptId + "/"
-            + conceptId2 + " ," + terminology + ", " + version);
-    final ProjectService projectService = new ProjectServiceJpa();
-    final ContentService contentService = new ContentServiceJpa();
-    try {
-      // authorize call
-      authorizeProject(projectService, projectId, securityService, authToken,
-          "merge concepts", UserRole.USER);
-      final Project project = projectService.getProject(projectId);
-      final Concept concept1 = contentService.getConcept(conceptId);
-      final Concept concept2 = contentService.getConcept(conceptId2);
-      if (concept1 == null) {
-        throw new Exception("Unexpected null concept 1");
-      }
-      if (concept2 == null) {
-        throw new Exception("Unexpected null concept 2");
-      }
-      return projectService.validateMerge(project, concept1, concept2);
-
-    } catch (Exception e) {
-
-      handleException(e, "trying to validate the concept merge");
-      return null;
-    } finally {
-      projectService.close();
-      securityService.close();
-    }
-  }
-
-  /* see superclass */
-  @Override
   @POST
   @Path("/concept/merge")
   @ApiOperation(value = "Merge concepts together", notes = "Merge concepts together on a project branch", response = ValidationResultJpa.class)
@@ -829,6 +780,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
+      action.setValidationChecks(project.getValidationChecks());
 
       // For merge only, need to check the concept Ids, so we can assign the
       // concept with the lowest id to survive, and the one with the highest id

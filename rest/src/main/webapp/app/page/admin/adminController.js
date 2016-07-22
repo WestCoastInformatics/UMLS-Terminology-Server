@@ -11,12 +11,11 @@ tsApp
       'utilService',
       'tabService',
       'securityService',
-      'validationService',
       'metadataService',
       'projectService',
       'configureService',
       function($scope, $http, $location, $uibModal, gpService, utilService, tabService,
-        securityService, validationService, metadataService, projectService, configureService) {
+        securityService, metadataService, projectService, configureService) {
         console.debug('configure AdminCtrl');
 
         // Clear error
@@ -382,7 +381,7 @@ tsApp
         };
 
         $scope.getValidationChecks = function() {
-          validationService.getValidationCheckNames().then(
+          projectService.getValidationCheckNames().then(
           // Success
           function(data) {
             $scope.validationChecks = data.keyValuePairs;

@@ -44,6 +44,15 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
       controller : 'ContentCtrl',
       reloadOnSearch : false
     });
+
+    // Content with mode set (e.g. 'simple' for component report)
+    $routeProvider.when('/content/:mode/:id', {
+      templateUrl : function(urlAttr) {
+        return 'app/page/content/' + urlAttr.mode + '.html';
+      },
+      controller : 'ContentCtrl',
+      reloadOnSearch : false
+    });
   }
 
   // Metadata View
@@ -55,7 +64,7 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
       reloadOnSearch : false
     });
   }
-  
+
   // Workflow View
   if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('workflow') != -1) {
     console.debug('Route enabled: workflow');
