@@ -59,6 +59,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
    * @throws Exception the exception
    */
   public ConfigureServiceRestImpl() throws Exception {
+    // n/a
   }
 
   /**
@@ -151,7 +152,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
       }
 
       // get the starting properties
-      final       Properties properties = new Properties();
+      final Properties properties = new Properties();
       properties.load(in);
 
       // directly replace parameters by key
@@ -321,7 +322,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
       // Delete all uploaded files using SourceDataServiceRet
       // NOTE: REST service used for file deletion
       //
-      final       SourceDataServiceRest sourceDataServiceRest =
+      final SourceDataServiceRest sourceDataServiceRest =
           new SourceDataServiceRestImpl();
       for (final SourceData sd : sourceDatas) {
         sourceDataServiceRest.removeSourceData(sd.getId(), authToken);
@@ -359,5 +360,23 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
         sourceDataService.close();
       }
     }
+  }
+
+  /* see superclass */
+  @DELETE
+  @Override
+  @Path("/properties")
+  @ApiOperation(value = "Get configuration properties", notes = "Gets user interface-relevant configuration properties", response = Properties.class)
+  public Properties getConfigProperties() {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Configure): /configure/properties");
+    try {
+      return ConfigUtility.getUiConfigProperties();
+    } catch (Exception e) {
+      handleException(e, "getting ui config properties");
+    } finally {
+      // n/a
+    }
+    return null;
   }
 }

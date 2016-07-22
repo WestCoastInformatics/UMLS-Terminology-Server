@@ -313,7 +313,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
             composeQuery(project, ""), "", WorkflowConfigJpa.class,
             WorkflowConfigJpa.class, null, totalCt, manager);
     return new ArrayList<WorkflowConfig>(results);
-    
+
   }
 
   /* see superclass */
@@ -482,8 +482,8 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     final int[] totalCt = new int[1];
     final List<WorkflowBinJpa> results =
         searchHandler.getQueryResults(null, null, "", composeQuery(project, "")
-            + " AND type:" + type, "", WorkflowBinJpa.class,
-            WorkflowBinJpa.class, null, totalCt, manager);
+            + (type == null ? "" : " AND type:" + type), "",
+            WorkflowBinJpa.class, WorkflowBinJpa.class, null, totalCt, manager);
     return new ArrayList<WorkflowBin>(results);
 
   }
@@ -750,7 +750,7 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
   @SuppressWarnings("static-method")
   private String composeQuery(Project project, String query) throws Exception {
     final StringBuilder localQuery = new StringBuilder();
-    if (query!= null && !query.equals("null"))
+    if (query != null && !query.equals("null"))
       localQuery.append(query);
     if (!ConfigUtility.isEmpty(query)) {
       localQuery.append(" AND ");

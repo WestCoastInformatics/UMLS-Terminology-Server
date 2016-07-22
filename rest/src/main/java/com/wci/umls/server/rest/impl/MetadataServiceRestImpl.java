@@ -23,8 +23,10 @@ import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -92,7 +94,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
     } catch (Exception e) {
 
-      handleException(e, "trying to retrieve the metadata");
+      handleException(e, "trying to get the metadata");
       return null;
     } finally {
       metadataService.close();
@@ -103,7 +105,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/all/terminology/{terminology}/{version}")
+  @Path("/all/{terminology}/{version}")
   @ApiOperation(value = "Get metadata for terminology and version", notes = "Gets the key-value pairs representing all metadata for a particular terminology and version", response = KeyValuePairLists.class)
   public KeyValuePairLists getAllMetadata(
     @ApiParam(value = "Terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
@@ -112,13 +114,12 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /all/terminology/" + terminology + "/"
-            + version);
+        "RESTful call (Metadata): /all/" + terminology + "/" + version);
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
       // authorize call
-      authorizeApp(securityService, authToken, "retrieve metadata",
+      authorizeApp(securityService, authToken, "get all metadata",
           UserRole.VIEWER);
 
       final KeyValuePairLists keyValuePairList =
@@ -127,7 +128,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       return keyValuePairList;
 
     } catch (Exception e) {
-      handleException(e, "trying to retrieve the metadata");
+      handleException(e, "trying to get the metadata");
       return null;
     } finally {
       metadataService.close();
@@ -213,14 +214,14 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/terminology/terminologies")
+  @Path("/terminology/current")
   @ApiOperation(value = "Get current terminologies", notes = "Gets the list of current terminologies", response = TerminologyListJpa.class)
   public TerminologyList getCurrentTerminologies(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful call (Metadata): /terminologies");
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Metadata): /terminology/current");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
@@ -237,7 +238,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       return results;
 
     } catch (Exception e) {
-      handleException(e, "trying to retrieve all terminologies");
+      handleException(e, "trying to get all terminologies");
       return null;
     } finally {
       metadataService.close();
@@ -273,7 +274,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
     } catch (Exception e) {
 
-      handleException(e, "trying to retrieve the metadata");
+      handleException(e, "trying to get the metadata");
       return null;
     } finally {
       metadataService.close();
@@ -400,11 +401,40 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       metadataService.removePrecedenceList(id);
     } catch (Exception e) {
 
-      handleException(e, "trying to retrieve the metadata");
+      handleException(e, "trying to get the metadata");
     } finally {
       metadataService.close();
       securityService.close();
     }
+
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("sty/{terminology}/{version}")
+  @ApiOperation(value = "Get semantic types", notes = "Get semantic types for the specified parameters", response = SemanticTypeListJpa.class)
+  public SemanticTypeList getSemanticTypes(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Metadata): /sty/" + terminology + "/" + version);
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get semantic types",
+          UserRole.USER);
+
+      return metadataService.getSemanticTypes(terminology, version);
+    } catch (Exception e) {
+      handleException(e, "trying to get semantic types");
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+    return null;
 
   }
 

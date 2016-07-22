@@ -18,8 +18,10 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
@@ -54,8 +56,8 @@ public class MetadataClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/metadata/all/terminology/" + terminology + "/" + version);
+        client.target(config.getProperty("base.url") + "/metadata/all/"
+            + terminology + "/" + version);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -82,7 +84,7 @@ public class MetadataClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/metadata/terminology/terminologies");
+            + "/metadata/terminology/current");
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -255,5 +257,34 @@ public class MetadataClientRest extends RootClientRest implements
       throw new Exception(response.toString());
     }
 
+  }
+
+  /* see superclass */
+  @Override
+  public SemanticTypeList getSemanticTypes(String terminology, String version,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Client - get semantic types " + terminology + ", " + version);
+
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/metadata/sty/"
+            + terminology + "/" + version);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        SemanticTypeListJpa.class);
   }
 }
