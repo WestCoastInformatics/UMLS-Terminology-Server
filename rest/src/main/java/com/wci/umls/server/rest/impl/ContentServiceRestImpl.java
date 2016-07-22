@@ -21,9 +21,11 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -59,6 +61,7 @@ import com.wci.umls.server.jpa.algo.Rf2SnapshotLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -959,7 +962,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               UserRole.VIEWER);
 
       final Concept concept = contentService.getConcept(conceptId);
-      
+
       if (concept != null) {
         final String terminology = concept.getTerminology();
 
@@ -4435,6 +4438,122 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       contentService.close();
       securityService.close();
     }
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/descriptor")
+  @ApiOperation(value = "Validate Descriptor", notes = "Validates a descriptor")
+  public ValidationResult validateDescriptor(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Descriptor", required = true) DescriptorJpa descriptor,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (Project): /validate/descriptor " + descriptor);
+
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "validate descriptor", UserRole.USER);
+      final Project project = projectService.getProject(projectId);
+      return projectService.validateDescriptor(project, descriptor);
+    } catch (Exception e) {
+      handleException(e, "trying to validate descriptor");
+      return null;
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/atom")
+  @ApiOperation(value = "Validate Atom", notes = "Validates a atom")
+  public ValidationResult validateAtom(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Atom", required = true) AtomJpa atom,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (Project): /validate/atom " + atom);
+
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "validate atom", UserRole.USER);
+      final Project project = projectService.getProject(projectId);
+      return projectService.validateAtom(project, atom);
+    } catch (Exception e) {
+      handleException(e, "trying to validate atom");
+      return null;
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/code")
+  @ApiOperation(value = "Validate Code", notes = "Validates a code")
+  public ValidationResult validateCode(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Code", required = true) CodeJpa code,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (Project): /validate/code " + code);
+
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "validate code", UserRole.USER);
+      final Project project = projectService.getProject(projectId);
+      return projectService.validateCode(project, code);
+    } catch (Exception e) {
+      handleException(e, "trying to validate code");
+      return null;
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/concept")
+  @ApiOperation(value = "Validate Concept", notes = "Validates a concept")
+  public ValidationResult validateConcept(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept", required = true) ConceptJpa concept,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call PUT (Project): /validate/concept " + concept);
+
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "validate conceptm", UserRole.USER);
+      final Project project = projectService.getProject(projectId);
+      return projectService.validateConcept(project, concept);
+    } catch (Exception e) {
+      handleException(e, "trying to validate concept");
+      return null;
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+
   }
 
 }

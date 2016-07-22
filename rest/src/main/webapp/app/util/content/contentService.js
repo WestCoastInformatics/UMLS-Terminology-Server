@@ -127,11 +127,12 @@ tsApp
 
         ];
 
+        // Returns the expression types
         this.getExpressions = function() {
           return expressions;
         };
 
-        // Autocomplete function
+        // Get autocomplete results
         this.autocomplete = function(searchTerms, autocompleteUrl) {
 
           // Setup deferred
@@ -161,7 +162,7 @@ tsApp
         };
 
         // Get the component from a component wrapper
-        // where wrapper is at minimum { type: ..., terminology: ..., version:
+        // where wrapper is at minimum { id: ..., type: ..., terminology: ..., version:
         // ..., terminologyId: ...}
         // Search results and components can be passed directly
         this.getComponent = function(wrapper) {
@@ -171,7 +172,7 @@ tsApp
           var deferred = $q.defer();
 
           // check prereqs
-          if (!wrapper.type || !wrapper.terminologyId || !wrapper.terminology || !wrapper.version) {
+          if (!wrapper.id || !wrapper.type || !wrapper.terminologyId || !wrapper.terminology || !wrapper.version) {
             utilService.setError('Component object not fully specified');
             deferred.reject('Component object not fully specified');
           } else {
@@ -700,6 +701,7 @@ tsApp
           return deferred.promise;
         };
 
+        // function for testing whether a query is a valid expression
         this.isExpressionConstraintLanguage = function(terminology, version, query) {
           var deferred = $q.defer();
           if (!query || query.length == 0) {

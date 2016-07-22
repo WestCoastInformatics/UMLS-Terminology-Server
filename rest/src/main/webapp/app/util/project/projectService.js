@@ -137,15 +137,15 @@ tsApp
         };
 
         // Finds projects as a list
-        this.findProjectsAsList = function(query, pfs) {
+        this.findProjects = function(query, pfs) {
 
-          console.debug('findProjectsAsList', query, pfs);
+          console.debug('findProjects', query, pfs);
           // Setup deferred
           var deferred = $q.defer();
 
           // Make POST call
           gpService.increment();
-          $http.post(projectUrl + 'projects?query=' + utilService.prepQuery(query),
+          $http.post(projectUrl + 'all?query=' + utilService.prepQuery(query),
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {
@@ -172,7 +172,7 @@ tsApp
 
           // Make PUT call
           gpService.increment();
-          $http.post(projectUrl + 'users/' + projectId + '?query=' + utilService.prepQuery(query),
+          $http.post(projectUrl + projectId + '/users?query=' + utilService.prepQuery(query),
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {

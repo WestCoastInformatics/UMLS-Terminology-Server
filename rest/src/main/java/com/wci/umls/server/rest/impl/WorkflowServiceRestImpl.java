@@ -2366,6 +2366,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Checklist): /add/note " + checklistId + ", " + note);
 
+    // TODO: add a projectId parametre
+    // put the "id" into the URL
+    //  change the url to "/checklist/note/{id}/add"
+    // add a separate call for worklist notes
+    // update client
+    // update js service.
+    
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       final Checklist checklist = workflowService.getChecklist(checklistId);

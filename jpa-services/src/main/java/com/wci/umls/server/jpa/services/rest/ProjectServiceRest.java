@@ -7,17 +7,14 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.actions.AtomicActionList;
+import com.wci.umls.server.model.actions.MolecularActionList;
 
 /**
  * Represents a content available via a REST service.
@@ -181,80 +178,31 @@ public interface ProjectServiceRest {
   public String getLog(String terminology, String version, String activity,
     int lines, String authToken) throws Exception;
 
-  /**
-   * Validates the specified concept. Checks are defined the "run.config.umls"
-   * setting for the deployed server.
-   *
-   * @param projectId the project id
-   * @param concept the concept
-   * @param authToken the auth token
-   * @return the validation result
-   * @throws Exception the exception
-   */
-  public ValidationResult validateConcept(Long projectId, ConceptJpa concept,
-    String authToken) throws Exception;
 
   /**
-   * Validate atom.
+   * Finds molecular actions for concept and query.
    *
-   * @param projectId the project id
-   * @param atom the atom
-   * @param authToken the auth token
-   * @return the validation result
-   * @throws Exception the exception
-   */
-  public ValidationResult validateAtom(Long projectId, AtomJpa atom,
-    String authToken) throws Exception;
-
-  /**
-   * Validate descriptor.
-   *
-   * @param projectId the project id
-   * @param descriptor the descriptor
-   * @param authToken the auth token
-   * @return the validation result
-   * @throws Exception the exception
-   */
-  public ValidationResult validateDescriptor(Long projectId,
-    DescriptorJpa descriptor, String authToken) throws Exception;
-
-  /**
-   * Validate code.
-   *
-   * @param projectId the project id
-   * @param code the code
-   * @param authToken the auth token
-   * @return the validation result
-   * @throws Exception the exception
-   */
-  public ValidationResult validateCode(Long projectId, CodeJpa code,
-    String authToken) throws Exception;
-
-  /**
-   * Validate merge.
-   *
-   * @param projectId the project id
-   * @param terminology the terminology
-   * @param version the version
    * @param conceptId the concept id
-   * @param conceptId2 the concept id 2
+   * @param query the query
+   * @param pfs the pfs
    * @param authToken the auth token
-   * @return the validation result
+   * @return the molecular actions for concept
    * @throws Exception the exception
    */
-  public ValidationResult validateMerge(Long projectId, String terminology,
-    String version, Long conceptId, Long conceptId2, String authToken)
-    throws Exception;
+  public MolecularActionList findMolecularActions(Long conceptId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
-   * Gets the validation checks.
+   * Find atomic actions.
    *
-   * @param projectId the project id
+   * @param molecularActionId the molecular action id
+   * @param query the query
+   * @param pfs the pfs
    * @param authToken the auth token
-   * @return the validation checks
+   * @return the atomic action list
    * @throws Exception the exception
    */
-  public KeyValuePairList getValidationChecks(Long projectId, String authToken)
-    throws Exception;
+  public AtomicActionList findAtomicActions(Long molecularActionId,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
 }

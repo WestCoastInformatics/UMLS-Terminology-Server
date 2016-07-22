@@ -6,6 +6,7 @@ package com.wci.umls.server.rest.impl;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -36,6 +37,8 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.actions.ChangeEvent;
@@ -45,6 +48,8 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -61,8 +66,8 @@ import com.wordnik.swagger.annotations.ApiParam;
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Api(value = "/meta", description = "Operations for metathesaurus editing")
-public class MetaEditingServiceRestImpl extends RootServiceRestImpl
-    implements MetaEditingServiceRest {
+public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
+    MetaEditingServiceRest {
 
   /** The security service. */
   private SecurityService securityService;
@@ -90,8 +95,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/add " + projectId + ","
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /sty/add " + projectId + ","
             + conceptId + " for user " + authToken + " with sty value "
             + semanticType.getSemanticType());
 
@@ -141,8 +146,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
-          new ChangeEventJpa<SemanticTypeComponent>(action.getName(), authToken,
-              IdType.SEMANTIC_TYPE.toString(), null,
+          new ChangeEventJpa<SemanticTypeComponent>(action.getName(),
+              authToken, IdType.SEMANTIC_TYPE.toString(), null,
               action.getSemanticTypeComponent(), action.getConcept());
       sendChangeEvent(event);
 
@@ -172,9 +177,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /sty/" + projectId + "/" + conceptId
+            + "/remove for user " + authToken + " with id "
             + semanticTypeComponentId);
 
     // Instantiate services
@@ -223,8 +228,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
-          new ChangeEventJpa<SemanticTypeComponent>(action.getName(), authToken,
-              IdType.SEMANTIC_TYPE.toString(),
+          new ChangeEventJpa<SemanticTypeComponent>(action.getName(),
+              authToken, IdType.SEMANTIC_TYPE.toString(),
               action.getSemanticTypeComponent(), null, action.getConcept());
       sendChangeEvent(event);
 
@@ -253,8 +258,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
             + conceptId + "/add for user " + authToken
             + " with attribute value " + attribute.getName());
 
@@ -270,8 +275,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "adding an attribute", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(action, projectId, securityService, authToken,
+              "adding an attribute", UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
@@ -310,9 +316,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.commit();
 
       // Websocket notification
-      final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
-          action.getName(), authToken, IdType.ATTRIBUTE.toString(), null,
-          action.getAttribute(), action.getConcept());
+      final ChangeEvent<Attribute> event =
+          new ChangeEventJpa<Attribute>(action.getName(), authToken,
+              IdType.ATTRIBUTE.toString(), null, action.getAttribute(),
+              action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
@@ -342,8 +349,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
             + conceptId + "/remove for user " + authToken + " with id "
             + attributeId);
 
@@ -359,8 +366,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "removing an attribute", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(action, projectId, securityService, authToken,
+              "removing an attribute", UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
@@ -391,9 +399,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.commit();
 
       // Websocket notification
-      final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
-          action.getName(), authToken, IdType.ATTRIBUTE.toString(),
-          action.getAttribute(), null, action.getConcept());
+      final ChangeEvent<Attribute> event =
+          new ChangeEventJpa<Attribute>(action.getName(), authToken,
+              IdType.ATTRIBUTE.toString(), action.getAttribute(), null,
+              action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
@@ -421,9 +430,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/" + projectId + "/"
-            + conceptId + "/add for user " + authToken + " with atom value "
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /atom/" + projectId + "/" + conceptId
+            + "/add for user " + authToken + " with atom value "
             + atom.getName());
 
     // Instantiate services
@@ -437,8 +446,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "adding an atom", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(action, projectId, securityService, authToken,
+              "adding an atom", UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
@@ -469,9 +479,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.commit();
 
       // Websocket notification
-      final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>("adding an atom",
-          authToken, IdType.ATOM.toString(), null, action.getAtom(),
-          action.getConcept());
+      final ChangeEvent<Atom> event =
+          new ChangeEventJpa<Atom>("adding an atom", authToken,
+              IdType.ATOM.toString(), null, action.getAtom(),
+              action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
@@ -501,10 +512,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
-            + atomId);
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /atom/" + projectId + "/" + conceptId
+            + "/remove for user " + authToken + " with id " + atomId);
 
     // Instantiate services
     final RemoveAtomMolecularAction action = new RemoveAtomMolecularAction();
@@ -517,8 +527,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "removing an atom", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(action, projectId, securityService, authToken,
+              "removing an atom", UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
@@ -549,9 +560,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.commit();
 
       // Websocket notification
-      final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(action.getName(),
-          authToken, IdType.ATTRIBUTE.toString(), action.getAtom(), null,
-          action.getConcept());
+      final ChangeEvent<Atom> event =
+          new ChangeEventJpa<Atom>(action.getName(), authToken,
+              IdType.ATTRIBUTE.toString(), action.getAtom(), null,
+              action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
@@ -579,9 +591,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /relationship/" + projectId
-            + "/" + conceptId + "/add for user " + authToken
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /relationship/" + projectId + "/"
+            + conceptId + "/add for user " + authToken
             + " with relationship value " + relationship);
 
     // Instantiate services
@@ -596,8 +608,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "adding a relationship", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(action, projectId, securityService, authToken,
+              "adding a relationship", UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
@@ -662,9 +675,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /relationship/" + projectId
-            + "/" + conceptId + "/remove for user " + authToken + " with id "
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /relationship/" + projectId + "/"
+            + conceptId + "/remove for user " + authToken + " with id "
             + relationshipId);
 
     // Instantiate services
@@ -738,6 +751,50 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
+  @GET
+  @Path("/validate/merge/{conceptId1}/{conceptId2}")
+  @ApiOperation(value = "Validate merge", notes = "Validates the merge of two concepts")
+  public ValidationResult validateMerge(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Terminology", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Id for first concept", required = true) @PathParam("conceptId") Long conceptId,
+    @ApiParam(value = "Id for second concept", required = true) @PathParam("conceptId2") Long conceptId2,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (MetaEditing): /validate/merge/" + conceptId + "/"
+            + conceptId2 + " ," + terminology + ", " + version);
+    final ProjectService projectService = new ProjectServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      // authorize call
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "merge concepts", UserRole.USER);
+      final Project project = projectService.getProject(projectId);
+      final Concept concept1 = contentService.getConcept(conceptId);
+      final Concept concept2 = contentService.getConcept(conceptId2);
+      if (concept1 == null) {
+        throw new Exception("Unexpected null concept 1");
+      }
+      if (concept2 == null) {
+        throw new Exception("Unexpected null concept 2");
+      }
+      return projectService.validateMerge(project, concept1, concept2);
+
+    } catch (Exception e) {
+
+      handleException(e, "trying to validate the concept merge");
+      return null;
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
   @POST
   @Path("/concept/merge")
   @ApiOperation(value = "Merge concepts together", notes = "Merge concepts together on a project branch", response = ValidationResultJpa.class)
@@ -751,8 +808,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/" + projectId + "/"
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /concept/" + projectId + "/"
             + conceptId + "/merge for user " + authToken + " with concept "
             + conceptId2);
 
@@ -765,8 +822,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "merging concepts", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(action, projectId, securityService, authToken,
+              "merging concepts", UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
@@ -811,9 +869,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
               action.getToConceptPostUpdates(), null);
       sendChangeEvent(event);
 
-      final ChangeEvent<Concept> event2 = new ChangeEventJpa<Concept>(
-          action.getName(), authToken, IdType.CONCEPT.toString(),
-          action.getFromConceptPreUpdates(), null, null);
+      final ChangeEvent<Concept> event2 =
+          new ChangeEventJpa<Concept>(action.getName(), authToken,
+              IdType.CONCEPT.toString(), action.getFromConceptPreUpdates(),
+              null, null);
       sendChangeEvent(event2);
 
       return validationResult;
@@ -844,10 +903,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/move/" + projectId
-            + "/" + conceptId + "/move atoms for user " + authToken
-            + " to concept " + conceptId2);
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /concept/move/" + projectId + "/"
+            + conceptId + "/move atoms for user " + authToken + " to concept "
+            + conceptId2);
 
     // Instantiate services
     final MoveMolecularAction action = new MoveMolecularAction();
@@ -859,8 +918,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "moving atoms", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(action, projectId, securityService, authToken,
+              "moving atoms", UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
@@ -868,7 +928,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Do some standard intialization and precondition checking
       // action and prep services
       action.initialize(project, conceptId, conceptId2, userName, lastModified);
-      
+
       //
       // Check prerequisites
       //
@@ -934,8 +994,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/" + projectId + "/"
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (MetaEditing): /concept/" + projectId + "/"
             + conceptId + "/split for user " + authToken);
 
     // Instantiate services
@@ -951,16 +1011,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "splitting concept", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(action, projectId, securityService, authToken,
+              "splitting concept", UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, null, userName,
-          lastModified);
+      action.initialize(project, conceptId, null, userName, lastModified);
 
       //
       // Check prerequisites
@@ -983,18 +1043,20 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
-      
-      // Websocket notification - one for the updating of the originating Concept, and one
+      // Websocket notification - one for the updating of the originating
+      // Concept, and one
       // for the created Concept
       final ChangeEvent<Concept> event =
           new ChangeEventJpa<Concept>(action.getName(), authToken,
-              IdType.CONCEPT.toString(), action.getOriginatingConceptPreUpdates(),
+              IdType.CONCEPT.toString(),
+              action.getOriginatingConceptPreUpdates(),
               action.getOriginatingConceptPostUpdates(), null);
       sendChangeEvent(event);
 
-      final ChangeEvent<Concept> event2 = new ChangeEventJpa<Concept>(
-          action.getName(), authToken, IdType.CONCEPT.toString(),
-          null, action.getCreatedConceptPostUpdates(), null);
+      final ChangeEvent<Concept> event2 =
+          new ChangeEventJpa<Concept>(action.getName(), authToken,
+              IdType.CONCEPT.toString(), null,
+              action.getCreatedConceptPostUpdates(), null);
       sendChangeEvent(event2);
 
       return validationResult;
@@ -1008,8 +1070,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
 
-  }  
-  
+  }
+
   // /**
   // * Helper function to:
   // *
