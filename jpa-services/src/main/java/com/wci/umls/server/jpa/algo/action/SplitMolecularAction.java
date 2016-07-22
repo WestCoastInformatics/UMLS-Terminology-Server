@@ -201,6 +201,8 @@ public class SplitMolecularAction extends AbstractMolecularAction {
       createdConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
     createdConcept = addConcept(createdConcept);
+    createdConcept.setTerminologyId(createdConcept.getId().toString());
+    updateConcept(createdConcept);
 
     // Add each listed atom from originatingConcept to createdConcept, delete
     // from
