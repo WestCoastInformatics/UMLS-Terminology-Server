@@ -44,10 +44,12 @@ public interface IntegrationTestServiceRest {
    * Removes the concept.
    *
    * @param conceptId the concept id
+   * @param cascade the cascade
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeConcept(Long conceptId, String authToken) throws Exception;
+  public void removeConcept(Long conceptId, boolean cascade, String authToken)
+    throws Exception;
 
   /**
    * Update atom.
@@ -56,8 +58,7 @@ public interface IntegrationTestServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateAtom(AtomJpa atom, String authToken)
-    throws Exception;
+  public void updateAtom(AtomJpa atom, String authToken) throws Exception;
 
   /**
    * Adds the relationship.

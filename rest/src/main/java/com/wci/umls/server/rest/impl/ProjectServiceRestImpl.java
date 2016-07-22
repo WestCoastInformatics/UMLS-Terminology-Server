@@ -23,7 +23,6 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
@@ -702,20 +701,20 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/validate/concept/merge/{terminology}/{version}/{cui1}/{cui2}")
+  @Path("/validate/concept/merge/{terminology}/{version}/{conceptId}/{conceptId2}")
   @ApiOperation(value = "Validate merge", notes = "Validates the merge of two concepts")
   public ValidationResult validateMerge(
     @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Terminology", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Version", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Cui for first concept", required = true) @PathParam("cui1") String cui1,
-    @ApiParam(value = "Cui for second concept", required = true) @PathParam("cui2") String cui2,
+    @ApiParam(value = "Id for first concept", required = true) @PathParam("conceptId") Long conceptId,
+    @ApiParam(value = "Id for second concept", required = true) @PathParam("conceptId2") Long conceptId2,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Validation): /validate/concept/merge/" + terminology
-            + "/" + version + "/" + cui1 + "/" + cui2);
+            + "/" + version + "/" + conceptId + "/" + conceptId2);
 
     ProjectService projectService = new ProjectServiceJpa();
     ContentService contentService = new ContentServiceJpa();
@@ -727,9 +726,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       Project project = projectService.getProject(projectId);
 
       Concept concept1 =
-          contentService.getConcept(cui1, terminology, version, Branch.ROOT);
+          contentService.getConcept(conceptId);
       Concept concept2 =
-          contentService.getConcept(cui2, terminology, version, Branch.ROOT);
+          contentService.getConcept(conceptId2);
 
       ValidationResult result =
           projectService.validateMerge(project, concept1, concept2);

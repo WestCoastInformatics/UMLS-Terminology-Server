@@ -181,4 +181,24 @@ public interface MetaEditingServiceRest {
     Long timestamp, Long toConceptId, List<Long> atomIds,
     boolean overrideWarnings, String authToken) throws Exception;
 
+  /**
+   * Split concept.
+   *
+   * @param projectId the project id
+   * @param conceptId the concept id
+   * @param timestamp the timestamp
+   * @param atomIds the atom ids
+   * @param overrideWarnings the override warnings
+   * @param copyRelationships the copy relationships
+   * @param copySemanticTypes the copy semantic types
+   * @param relationshipType the relationship type
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult splitConcept(Long projectId, Long conceptId,
+    Long timestamp, List<Long> atomIds, boolean overrideWarnings,
+    boolean copyRelationships, boolean copySemanticTypes,
+    String relationshipType, String authToken) throws Exception;
+
 }

@@ -31,6 +31,7 @@ import com.wci.umls.server.jpa.algo.action.RemoveAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveAttributeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.SplitMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -835,9 +836,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Move atoms from concept to concept", notes = "Move atoms from concept to concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult moveAtoms(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("fromConceptId") Long conceptId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
-    @ApiParam(value = "Concept id, e.g. 3", required = true) @QueryParam("toConceptId") Long conceptId2,
+    @ApiParam(value = "Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
     @ApiParam(value = "Atoms to move", required = true) List<Long> atomIds,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
@@ -916,6 +917,99 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/concept/split")
+  @ApiOperation(value = "Split concept into two", notes = "Split concept into two on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult splitConcept(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Atoms to move", required = true) List<Long> atomIds,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Copy relationships", required = false) @QueryParam("copyRelationships") boolean copyRelationships,
+    @ApiParam(value = "Copy semantic types", required = false) @QueryParam("copySemanticTypes") boolean copySemanticTypes,
+    @ApiParam(value = "Relationship to new concept", required = true) @QueryParam("relationshipType") String relationshipType,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /concept/" + projectId + "/"
+            + conceptId + "/split for user " + authToken);
+
+    // Instantiate services
+    final SplitMolecularAction action = new SplitMolecularAction();
+    try {
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setAtomIds(atomIds);
+      action.setRelationshipType(relationshipType);
+      action.setCopyRelationships(copyRelationships);
+      action.setCopySemanticTypes(copySemanticTypes);
+      action.setChangeStatusFlag(true);
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(action, projectId,
+          securityService, authToken, "splitting concept", UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = action.getProject(projectId);
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      action.initialize(project, conceptId, null, userName,
+          lastModified);
+
+      //
+      // Check prerequisites
+      //
+      final ValidationResult validationResult = action.checkPreconditions();
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        action.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action
+      //
+      action.compute();
+
+      // commit (also removes the lock)
+      action.commit();
+
+      
+      // Websocket notification - one for the updating of the originating Concept, and one
+      // for the created Concept
+      final ChangeEvent<Concept> event =
+          new ChangeEventJpa<Concept>(action.getName(), authToken,
+              IdType.CONCEPT.toString(), action.getOriginatingConceptPreUpdates(),
+              action.getOriginatingConceptPostUpdates(), null);
+      sendChangeEvent(event);
+
+      final ChangeEvent<Concept> event2 = new ChangeEventJpa<Concept>(
+          action.getName(), authToken, IdType.CONCEPT.toString(),
+          null, action.getCreatedConceptPostUpdates(), null);
+      sendChangeEvent(event2);
+
+      return validationResult;
+
+    } catch (Exception e) {
+
+      handleException(e, "splitting concept");
+      return null;
+    } finally {
+      action.close();
+      securityService.close();
+    }
+
+  }  
+  
   // /**
   // * Helper function to:
   // *

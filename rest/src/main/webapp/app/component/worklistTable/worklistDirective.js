@@ -258,7 +258,7 @@ tsApp
                   //});
               };
 
-              // Helper for removing a refest
+              // Helper for removing a worklist/checklist
               $scope.removeWorklistHelper = function(projectId, worklist) {
 
                 /*workflowService.findWorklistMembersForQuery(worklist.id, '', {
@@ -272,10 +272,17 @@ tsApp
                         return;
                       }
                     }*/
+                if ($scope.value == 'Worklist') {
                     workflowService.removeWorklist(projectId, worklist.id).then(function() {
                       $scope.selected.worklist = null;
                       workflowService.fireWorklistChanged(worklist);
                     });
+                } else {
+                  workflowService.removeChecklist(projectId, worklist.id).then(function() {
+                    $scope.selected.worklist = null;
+                    workflowService.fireWorklistChanged(worklist);
+                  });           
+                }
                   //});
               };
 
@@ -313,7 +320,7 @@ tsApp
               $scope.getLatestNote = function(worklist) {
                 if (worklist && worklist.notes && worklist.notes.length > 0) {
                   return $sce.trustAsHtml(worklist.notes
-                    .sort(utilService.sort_by('lastModified', -1))[0].value);
+                    .sort(utilService.sort_by('lastModified', -1))[0].note);
                 }
                 return $sce.trustAsHtml('');
               };
@@ -330,7 +337,7 @@ tsApp
                 console.debug('openNotesModal ', lobject, ltype);
 
                 var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/notes.html',
+                  templateUrl : 'app/page/workflow/notes.html',
                   controller : NotesModalCtrl,
                   backdrop : 'static',
                   resolve : {
@@ -379,18 +386,18 @@ tsApp
                 // Get paged notes (assume all are loaded)
                 $scope.getPagedNotes = function() {
                   $scope.pagedNotes = utilService.getPagedArray($scope.object.notes,
-                    $scope.paging['notes'], $scope.pageSize);
+                    $scope.paging['notes'], $scope.pageSize).data;
                 };
 
                 $scope.getNoteValue = function(note) {
-                  return $sce.trustAsHtml(note.value);
+                  return $sce.trustAsHtml(note.note);
                 };
 
                 // remove note
                 $scope.removeNote = function(object, note) {
 
-                  if ($scope.type == 'Worklist') {
-                    workflowService.removeWorklistNote(object.id, note.id).then(
+                  if ($scope.type == 'Worklist' || $scope.type == 'Checklist') {
+                    workflowService.removeNote(object.id, note.id).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
@@ -431,8 +438,8 @@ tsApp
                 // add new note
                 $scope.submitNote = function(object, text) {
 
-                  if ($scope.type == 'Worklist') {
-                    workflowService.addWorklistNote(object.id, text).then(
+                  if ($scope.type == 'Worklist' || $scope.type == 'Checklist') {
+                    workflowService.addNote(object.id, text).then(
                     // Success - add worklist
                     function(data) {
                       $scope.newNote = null;
@@ -515,62 +522,6 @@ tsApp
                 function(data) {
                   workflowService.fireWorklistChanged(data);
                 });
-              };
-
-
-
-              // Log modal
-              $scope.openLogModal = function() {
-                console.debug('openLogModal ');
-
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/component/worklistTable/log.html',
-                  controller : LogModalCtrl,
-                  backdrop : 'static',
-                  size : 'lg',
-                  resolve : {
-                    worklist : function() {
-                      return $scope.selected.worklist;
-                    },
-                    project : function() {
-                      return $scope.project;
-                    }
-                  }
-                });
-
-                // NO need for result function - no action on close
-                // modalInstance.result.then(function(data) {});
-              };
-
-              // Log controller
-              var LogModalCtrl = function($scope, $uibModalInstance, worklist, project) {
-                console.debug('Entered log modal control', worklist, project);
-
-                $scope.errors = [];
-                $scope.warnings = [];
-
-                // Get log to display
-                $scope.getLog = function() {
-                  projectService.getLog(project.id, worklist.id).then(
-                  // Success
-                  function(data) {
-                    $scope.log = data;
-                  },
-                  // Error
-                  function(data) {
-                    handleError($scope.errors, data);
-                  });
-
-                };
-
-                // Dismiss modal
-                $scope.close = function() {
-                  // nothing changed, don't pass a worklist
-                  $uibModalInstance.close();
-                };
-
-                // initialize
-                $scope.getLog();
               };
 
               // end

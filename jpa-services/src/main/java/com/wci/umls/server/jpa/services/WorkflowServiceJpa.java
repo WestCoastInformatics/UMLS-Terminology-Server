@@ -170,6 +170,13 @@ public class WorkflowServiceJpa extends ContentServiceJpa implements
     worklist.getReviewers().size();
     worklist.getAuthors().size();
     worklist.getWorkflowStateHistory().size();
+    worklist.getNotes().size();
+  }
+  
+  /* see superclass */
+  @Override
+  public void handleLazyInit(Checklist checklist) {
+    checklist.getNotes().size();
   }
 
   /* see superclass */

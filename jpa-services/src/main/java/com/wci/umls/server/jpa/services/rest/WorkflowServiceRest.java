@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -487,5 +488,28 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public List<WorkflowConfig> getWorkflowConfigs(Long projectId, String authToken)
+    throws Exception;
+
+  /**
+   * Removes the note.
+   *
+   * @param checklistId the checklist id
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeNote(Long checklistId, Long noteId, String authToken)
+    throws Exception;
+
+  /**
+   * Adds the note.
+   *
+   * @param checklistId the checklist id
+   * @param note the note
+   * @param authToken the auth token
+   * @return the note
+   * @throws Exception the exception
+   */
+  public Note addNote(Long checklistId, String note, String authToken)
     throws Exception;
 }

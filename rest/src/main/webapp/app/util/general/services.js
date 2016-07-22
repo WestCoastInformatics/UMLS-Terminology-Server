@@ -262,6 +262,23 @@ tsApp
           }
         };
 
+        // function for sorting an array by (string) field and direction
+        this.sort_by = function(field, reverse) {
+
+          // key: function to return field value from object
+          var key = function(x) {
+            return x[field];
+          };
+
+          // convert reverse to integer (1 = ascending, -1 =
+          // descending)
+          reverse = !reverse ? 1 : -1;
+
+          return function(a, b) {
+            return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+          };
+        };
+        
         // Helper function to get a standard paging object
         // overwritten as needed
         this.getPaging = function() {
@@ -277,7 +294,7 @@ tsApp
 
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
-        this.getPagedArray = function(array, paging) {
+        this.getPagedArray = function(array, paging, pageSize) {
           var newArray = new Array();
 
           // if array blank or not an array, return blank list
@@ -288,11 +305,11 @@ tsApp
           newArray = array;
 
           // apply suppressible/obsolete
-          if (!paging.showHidden) {
+          /*if (!paging.showHidden) {
             newArray = newArray.filter(function(item) {
               return !item.suppressible && !item.obsolete;
             });
-          }
+          }*/
 
           // apply sort if specified
           if (paging.sortField) {
@@ -312,9 +329,9 @@ tsApp
           }
 
           // get the page indices (if supplied)
-          if (paging.pageSize != -1) {
-            var fromIndex = (paging.page - 1) * paging.pageSize;
-            var toIndex = Math.min(fromIndex + paging.pageSize, array.length);
+          if (pageSize != -1) {
+            var fromIndex = (paging.page - 1) * pageSize;
+            var toIndex = Math.min(fromIndex + pageSize, array.length);
 
             // slice the array
             var results = newArray.slice(fromIndex, toIndex);
