@@ -81,6 +81,30 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // update worklist
+    this.updateWorklist = function(projectId, worklist) {
+      console.debug();
+      var deferred = $q.defer();
+
+      // Update worklist
+      gpService.increment();
+      $http.post(workflowUrl + '/worklist/update?projectId=' + projectId, worklist).then(
+      // success
+      function(response) {
+        console.debug('  worklist = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    
     // remove workflow config
     this.removeWorkflowConfig = function(workflowConfig) {
       console.debug();

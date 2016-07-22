@@ -188,6 +188,45 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
+  @POST
+  @Path("/worklist/update")
+  @ApiOperation(value = "Update a worklist", notes = "Update a worklist")
+  public void updateWorklist(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Worklist to update", required = true) WorklistJpa worklist,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Workflow): /worklist/update/" + projectId + " "
+            + worklist.getId() + " " + authToken);
+
+    final String action = "trying to update a worklist";
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      // authorize and get user name from the token
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, action, UserRole.AUTHOR);
+      workflowService.setLastModifiedBy(userName);
+      
+      // reconnect tracking records before saving worklist
+      // (parameter worklist will have no records on it)
+      Worklist origWorklist = workflowService.getWorklist(worklist.getId());
+      worklist.setTrackingRecords(origWorklist.getTrackingRecords());
+      
+      workflowService.updateWorklist(worklist);
+
+    } catch (Exception e) {
+      handleException(e, "trying to " + action);
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
   @DELETE
   @Path("/config/{id}/remove")
   @ApiOperation(value = "Remove a workflow config", notes = "Remove a workflow config")
@@ -1282,9 +1321,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             && !ConfigUtility.isEmpty(record.getWorklistName())) {
           continue;
         }
-        if (clusterType != null && !record.getClusterType().equals(clusterType)) {
+        if (clusterType != null && !record.getClusterType().equals(clusterType) &&
+            !(clusterType.equals("default") && record.getClusterType().equals(""))) {
           continue;
         }
+        
         found = true;
         if (sb.toString().length() > 1) {
           sb.append(" OR ");

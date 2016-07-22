@@ -126,6 +126,33 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
+  public void updateWorklist(Long projectId,
+    WorklistJpa worklist, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - update worklist " + projectId + ", "
+             + worklist.getId());
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/workflow/worklist/update?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .post(Entity.json(worklist));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
   public void removeWorkflowConfig(Long projectId, Long id, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(

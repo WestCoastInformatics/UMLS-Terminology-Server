@@ -306,7 +306,7 @@ tsApp
                 }
                 return $sce.trustAsHtml('');
               };
-
+              
               $scope.getWorklists();
 
               //

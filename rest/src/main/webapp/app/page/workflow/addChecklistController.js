@@ -20,6 +20,7 @@
             "" : checklist.query, checklist.pfs).then(
           // Success
           function(data) {
+            workflowService.fireWorklistChanged(data);
             $uibModalInstance.close();
           },
           // Error
