@@ -16,7 +16,7 @@
 
         // Create checklist 
         workflowService.createChecklist(projectId, bin.id, $scope.clusterType, checklist.name, 
-          checklist.randomize, checklist.excludeOnWorklist, checklist.query == undefined ? 
+          checklist.description, checklist.randomize, checklist.excludeOnWorklist, checklist.query == undefined ? 
             "" : checklist.query, checklist.pfs).then(
           // Success
           function(data) {

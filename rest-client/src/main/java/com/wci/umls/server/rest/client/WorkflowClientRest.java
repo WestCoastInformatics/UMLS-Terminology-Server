@@ -799,7 +799,7 @@ public class WorkflowClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public Checklist createChecklist(Long projectId, Long workflowBinId, String clusterType,
-    String name, Boolean randomize, Boolean excludeOnWorklist, String query,
+    String name, String description, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass()).debug(
@@ -820,6 +820,8 @@ public class WorkflowClientRest extends RootClientRest implements
             + clusterType
             + "&name="
             + name
+            + "&description="
+            + description
             + (randomize != null ? ("&randomize=" + randomize) : "")
             + (excludeOnWorklist != null
                 ? ("&excludeOnWorklist=" + excludeOnWorklist) : "")

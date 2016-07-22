@@ -508,16 +508,17 @@ tsApp
         };
           
           // Create a checklist
-          this.createChecklist = function(projectId, workflowBinId, clusterType, name, randomize, excludeOnWorklist, query, pfs) {
+          this.createChecklist = function(projectId, workflowBinId, clusterType, name, description, randomize, excludeOnWorklist, query, pfs) {
 
-            console.debug('createChecklist', projectId, workflowBinId, clusterType, name, randomize, excludeOnWorklist, query, pfs);
+            console.debug('createChecklist', projectId, workflowBinId, clusterType, name, description, randomize, excludeOnWorklist, query, pfs);
             // Setup deferred
             var deferred = $q.defer();
 
             // Make POST call
             gpService.increment();
             $http.post(workflowUrl + 'checklist/add?projectId=' + projectId + 
-              '&workflowBinId=' + workflowBinId + '&clusterType=' + clusterType + '&name=' + name + '&randomize=' + randomize +
+              '&workflowBinId=' + workflowBinId + '&clusterType=' + clusterType + '&name=' + name + 
+              '&description=' + description + '&randomize=' + randomize +
               '&excludeOnWorklist=' + excludeOnWorklist + 
               '&query=' + query,
               utilService.prepPfs(pfs)).then(

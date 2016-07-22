@@ -5,7 +5,9 @@ package com.wci.umls.server.jpa.worfklow;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -17,6 +19,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
@@ -88,6 +91,13 @@ public abstract class AbstractChecklist implements Checklist {
   @IndexedEmbedded(targetElement = ChecklistNoteJpa.class)
   private List<Note> notes = new ArrayList<>();
   
+  /**
+   * The stats - intended only for JAXB serialization and reporting, not
+   * persisted.
+   */
+  @Transient
+  private Map<String, Integer> stats = new HashMap<>();
+
   /**
    * Instantiates an empty {@link AbstractChecklist}.
    */
@@ -233,6 +243,21 @@ public abstract class AbstractChecklist implements Checklist {
     project.setId(projectId);
   }
 
+  /* see superclass */
+  @Override
+  public Map<String, Integer> getStats() {
+    if (stats == null) {
+      stats = new HashMap<>();
+    }
+    return stats;
+  }
+
+  /* see superclass */
+  @Override
+  public void setStats(Map<String, Integer> stats) {
+    this.stats = stats;
+  }
+  
   /* see superclass */
   @XmlTransient
   @Override

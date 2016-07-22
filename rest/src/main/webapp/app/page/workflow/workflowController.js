@@ -246,7 +246,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(project) {
-       
+        
       });
     };
 

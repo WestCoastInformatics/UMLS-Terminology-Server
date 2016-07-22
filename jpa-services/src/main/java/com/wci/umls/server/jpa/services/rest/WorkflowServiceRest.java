@@ -292,6 +292,7 @@ public interface WorkflowServiceRest {
    * @param workflowBinId the workflow bin id
    * @param clusterType the cluster type
    * @param name the name
+   * @param description the description
    * @param randomize the randomize
    * @param excludeOnWorklist the exclude on worklist
    * @param query the query
@@ -301,7 +302,7 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public Checklist createChecklist(Long projectId, Long workflowBinId, String clusterType,
-    String name, Boolean randomize, Boolean excludeOnWorklist, String query,
+    String name, String description, Boolean randomize, Boolean excludeOnWorklist, String query,
     PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
