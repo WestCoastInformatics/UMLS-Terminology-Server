@@ -1053,6 +1053,20 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       for (Checklist checklist : list.getObjects()) {
         workflowService.handleLazyInit(checklist);
       }
+      
+      // Compute "cluster" and "concept" counts
+      for (final Checklist checklist : list.getObjects()) {
+        checklist.getStats().put("clusterCt",
+            checklist.getTrackingRecords().size());
+        // Add up orig concepts size from all tracking records
+        checklist.getStats().put(
+            "conceptCt",
+            checklist
+                .getTrackingRecords()
+                .stream()
+                .collect(
+                    Collectors.summingInt(w -> w.getOrigConceptIds().size())));
+      }
       return list;
     } catch (Exception e) {
       handleException(e, action);
@@ -1235,6 +1249,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Workflow bin id, e.g. 5", required = false) @QueryParam("workflowBinId") Long workflowBinId,
     @ApiParam(value = "Cluster type", required = false) @QueryParam("clusterType") String clusterType,
     @ApiParam(value = "Checklist name", required = false) @QueryParam("name") String name,
+    @ApiParam(value = "Checklist description", required = false) @QueryParam("description") String description,
     @ApiParam(value = "Randomize, e.g. false", required = true) @QueryParam("randomize") Boolean randomize,
     @ApiParam(value = "Exclude on worklist, e.g. false", required = true) @QueryParam("excludeOnWorklist") Boolean excludeOnWorklist,
     @ApiParam(value = "Query", required = false) @QueryParam("query") String query,
@@ -1257,25 +1272,31 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final WorkflowBin workflowBin =
           workflowService.getWorkflowBin(workflowBinId);
 
-      // Prep initial query
-      final StringBuffer sb = new StringBuffer();
-      sb.append("workflowBinName:").append(workflowBin.getName());
+      // Build up list of identifiers
+      StringBuilder sb = new StringBuilder();
+      sb.append("(");
+      boolean found = false;
+      for (final TrackingRecord record : workflowBin.getTrackingRecords()) {
+        if (excludeOnWorklist
+            && !ConfigUtility.isEmpty(record.getWorklistName())) {
+          continue;
+        }
+        if (clusterType != null && !record.getClusterType().equals(clusterType)) {
+          continue;
+        }
+        found = true;
+        if (sb.toString().length() > 1) {
+          sb.append(" OR ");
+        }
+        sb.append("id:" + record.getId());
+      }
+      sb.append(")");
+      if (!found) {
+        sb = new StringBuilder();
+      }
 
-      // Handle "cluster type"
-      if (!clusterType.equals("all") && !clusterType.equals("default")) {
-        sb.append(" AND ").append("clusterType:").append(clusterType);
-      }
-      if (clusterType.equals("default")) {
-        sb.append(" AND NOT clusterType:[* TO *]");
-      }
-
-      // Handle "exclude on worklist"
-      if (excludeOnWorklist) {
-        sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-      }
-      
       if (query != null && !query.equals("")) {
-        sb.append(" AND ").append(query);
+        sb.append(found ? " AND " : "").append(query);
       }
 
       // Handle "randomize"
@@ -1290,7 +1311,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       final ChecklistJpa checklist = new ChecklistJpa();
       checklist.setName(name);
-      checklist.setDescription(name + " description");
+      if (description != null) {
+        checklist.setDescription(description);
+      } else {
+        checklist.setDescription(name + " description");       
+      }
       checklist.setProject(project);
       checklist.setTimestamp(new Date());
 
@@ -1298,6 +1323,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       for (final TrackingRecord record : list.getObjects()) {
         final TrackingRecord copy = new TrackingRecordJpa(record);
         copy.setId(null);
+        copy.setChecklistName(name);
         workflowService.addTrackingRecord(copy);
         newChecklist.getTrackingRecords().add(copy);
       }
@@ -1312,6 +1338,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     }
     return null;
   }
+
 
   /* see superclass */
   @Override
