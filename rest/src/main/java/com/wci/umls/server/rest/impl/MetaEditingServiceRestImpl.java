@@ -46,6 +46,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -803,6 +804,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Resolve all three concepts with graphresolutionhandler.resolve(concept)
+      // so they can be appropriately read by ChangeEvent
+      GraphResolutionHandler graphHandler =
+          action.getGraphResolutionHandler(action.getToConcept().getTerminology());
+      graphHandler.resolve(action.getFromConceptPreUpdates());
+      graphHandler.resolve(action.getToConceptPreUpdates());
+      graphHandler.resolve(action.getToConceptPostUpdates());      
+      
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
       final ChangeEvent<Concept> event =
@@ -890,6 +899,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Resolve all three concepts with graphresolutionhandler.resolve(concept)
+      // so they can be appropriately read by ChangeEvent
+      GraphResolutionHandler graphHandler =
+          action.getGraphResolutionHandler(action.getToConcept().getTerminology());
+      graphHandler.resolve(action.getFromConceptPreUpdates());
+      graphHandler.resolve(action.getToConceptPreUpdates());
+      graphHandler.resolve(action.getFromConceptPostUpdates());
+      graphHandler.resolve(action.getToConceptPostUpdates());      
+      
       // Websocket notification - one each for the updating the from and
       // toConcept
       final ChangeEvent<Concept> event =
@@ -983,6 +1001,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      
+      // Resolve all three concepts with graphresolutionhandler.resolve(concept)
+      // so they can be appropriately read by ChangeEvent
+      GraphResolutionHandler graphHandler =
+          action.getGraphResolutionHandler(action.getCreatedConcept().getTerminology());
+      graphHandler.resolve(action.getOriginatingConceptPreUpdates());
+      graphHandler.resolve(action.getOriginatingConceptPostUpdates());
+      graphHandler.resolve(action.getCreatedConceptPostUpdates());
       
       // Websocket notification - one for the updating of the originating Concept, and one
       // for the created Concept

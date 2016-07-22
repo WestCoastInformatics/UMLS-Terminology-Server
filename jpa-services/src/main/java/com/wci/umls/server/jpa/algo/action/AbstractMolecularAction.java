@@ -17,7 +17,6 @@ import com.wci.umls.server.jpa.algo.AbstractTerminologyAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Concept;
-
 /**
  * Abstract {@link MolecularActionAlgorithm}.
  */
