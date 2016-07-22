@@ -85,6 +85,8 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
       // Add concept
       final Concept newConcept = contentService.addConcept(concept);
+      newConcept.setTerminologyId(newConcept.getId().toString());
+      contentService.updateConcept(newConcept);
       return newConcept;
     } catch (Exception e) {
       handleException(e, "trying to add a concept");

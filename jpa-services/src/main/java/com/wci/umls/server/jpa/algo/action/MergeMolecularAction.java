@@ -19,7 +19,6 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
-import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
  * A molecular action for merging two concepts.
@@ -302,13 +301,6 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     // Make copy of toConcept to pass into change event
     toConceptPostUpdates = new ConceptJpa(getToConcept(), false);
 
-    // Resolve all three concepts with graphresolutionhandler.resolve(concept)
-    // so they can be appropriately read by ChangeEvent
-    GraphResolutionHandler graphHandler =
-        getGraphResolutionHandler(getToConcept().getTerminology());
-    graphHandler.resolve(fromConceptPreUpdates);
-    graphHandler.resolve(toConceptPreUpdates);
-    graphHandler.resolve(toConceptPostUpdates);
 
   }
 

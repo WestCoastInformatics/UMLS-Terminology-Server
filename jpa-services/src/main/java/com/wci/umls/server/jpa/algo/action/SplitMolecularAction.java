@@ -20,7 +20,6 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
-import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
  * A molecular action for splitting a concept into two concepts.
@@ -202,6 +201,8 @@ public class SplitMolecularAction extends AbstractMolecularAction {
       createdConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
     createdConcept = addConcept(createdConcept);
+    createdConcept.setTerminologyId(createdConcept.getId().toString());
+    updateConcept(createdConcept);
 
     // Add each listed atom from originatingConcept to createdConcept, delete
     // from
@@ -329,19 +330,11 @@ public class SplitMolecularAction extends AbstractMolecularAction {
         getOriginatingConcept().getId(),
         getName() + " " + getOriginatingConcept().getId() + " into concept "
             + getCreatedConcept().getId());
-
+    
     // Make copy of toConcept to pass into change event
     originatingConceptPostUpdates =
         new ConceptJpa(getOriginatingConcept(), false);
     createdConceptPostUpdates = new ConceptJpa(getCreatedConcept(), false);
-
-    // Resolve all three concepts with graphresolutionhandler.resolve(concept)
-    // so they can be appropriately read by ChangeEvent
-    GraphResolutionHandler graphHandler =
-        getGraphResolutionHandler(getCreatedConcept().getTerminology());
-    graphHandler.resolve(originatingConceptPreUpdates);
-    graphHandler.resolve(originatingConceptPostUpdates);
-    graphHandler.resolve(createdConceptPostUpdates);
 
   }
 
