@@ -269,7 +269,7 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public Worklist performWorkflowAction(Long projectId, Long worklistId,
-    String userName, UserRole role,  WorkflowAction action, String authToken)
+    String userName, UserRole role, WorkflowAction action, String authToken)
     throws Exception;
 
   /**
@@ -301,9 +301,10 @@ public interface WorkflowServiceRest {
    * @return the checklist
    * @throws Exception the exception
    */
-  public Checklist createChecklist(Long projectId, Long workflowBinId, String clusterType,
-    String name, String description, Boolean randomize, Boolean excludeOnWorklist, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+  public Checklist createChecklist(Long projectId, Long workflowBinId,
+    String clusterType, String name, String description, Boolean randomize,
+    Boolean excludeOnWorklist, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Adds the workflow epoch.
@@ -488,29 +489,30 @@ public interface WorkflowServiceRest {
    * @return the workflow configs
    * @throws Exception the exception
    */
-  public List<WorkflowConfig> getWorkflowConfigs(Long projectId, String authToken)
-    throws Exception;
+  public List<WorkflowConfig> getWorkflowConfigs(Long projectId,
+    String authToken) throws Exception;
 
   /**
    * Removes the note.
    *
-   * @param checklistId the checklist id
+   * @param projectId the project id
    * @param noteId the note id
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeNote(Long checklistId, Long noteId, String authToken)
+  public void removeChecklistNote(Long projectId, Long noteId, String authToken)
     throws Exception;
 
   /**
    * Adds the note.
    *
+   * @param projectId the project id
    * @param checklistId the checklist id
    * @param note the note
    * @param authToken the auth token
    * @return the note
    * @throws Exception the exception
    */
-  public Note addNote(Long checklistId, String note, String authToken)
-    throws Exception;
+  public Note addChecklistNote(Long projectId, Long checklistId, String note,
+    String authToken) throws Exception;
 }

@@ -31,8 +31,6 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
-import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -53,8 +51,6 @@ import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
-import com.wci.umls.server.model.actions.AtomicActionList;
-import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
@@ -2307,77 +2303,6 @@ public class ContentClientRest extends RootClientRest implements
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         SearchResultListJpa.class);
-  }
-
-  /* see superclass */
-  @Override
-  public MolecularActionList findMolecularActions(Long conceptId, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception {
-
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find molecular actions for concept for query");
-    this.validateNotEmpty(conceptId, "conceptId");
-
-    final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/actions/molecular?conceptId="
-            + conceptId
-            + "&query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
-
-    final String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    return ConfigUtility.getGraphForString(resultString,
-        MolecularActionListJpa.class);
-  }
-
-  @Override
-  public AtomicActionList findAtomicActions(Long molecularActionId,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find atomic actions for molecular action "
-            + molecularActionId);
-    validateNotEmpty(molecularActionId, "molecularActionId");
-
-    final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/actions/atomic?molecularActionId="
-            + molecularActionId
-            + "&query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
-
-    final String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    return ConfigUtility.getGraphForString(resultString,
-        AtomicActionListJpa.class);
   }
 
   /* see superclass */

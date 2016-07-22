@@ -594,19 +594,20 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         pfs.setMaxResults(10);
         workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
-            "chk_random_nonworklist_" + chk++, true, true, "", pfs, authToken);
+            "chk_random_nonworklist_" + chk++, "test desc", true, true, "",
+            pfs, authToken);
         workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
-            "chk_random_worklist_" + chk++, true, false, "", pfs, authToken);
-        workflowService = new WorkflowServiceRestImpl();
-        workflowService.createChecklist(projectId, bin.getId(), null,
-            "chk_nonrandom_noworklist_" + chk++, false, true, "", pfs,
+            "chk_random_worklist_" + chk++, "test desc", true, false, "", pfs,
             authToken);
         workflowService = new WorkflowServiceRestImpl();
-        workflowService
-            .createChecklist(projectId, bin.getId(), null,
-                "chk_nonrandom_worklist_" + chk++, false, false, "", pfs,
-                authToken);
+        workflowService.createChecklist(projectId, bin.getId(), null,
+            "chk_nonrandom_noworklist_" + chk++, "test desc", false, true, "",
+            pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        workflowService.createChecklist(projectId, bin.getId(), null,
+            "chk_nonrandom_worklist_" + chk++, "test desc", false, false, "",
+            pfs, authToken);
 
       }
     }

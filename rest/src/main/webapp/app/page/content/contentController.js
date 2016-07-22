@@ -123,8 +123,7 @@ tsApp
 
           // set the autocomplete url, with pattern:
           // /type/{terminology}/{version}/autocomplete/{searchTerm}
-          $scope.autocompleteUrl = contentUrl
-            + $scope.metadata.terminology.organizingClassType.toLowerCase() + '/'
+          $scope.autocompleteUrl = $scope.metadata.terminology.organizingClassType.toLowerCase() + '/'
             + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
             + "/autocomplete/";
 

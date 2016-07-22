@@ -1,4 +1,5 @@
-// Content Service
+// Configure Service
+var configureUrl = 'configure';
 tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'gpService',
   'utilService',
 
@@ -16,7 +17,7 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
         deferred.resolve(configured);
       } else {
 
-        $http.get(configureUrl + 'configured').then(function(isConfigured) {
+        $http.get(configureUrl + '/configured').then(function(isConfigured) {
           configured = isConfigured.data;
           deferred.resolve(isConfigured.data);
         }, // error
@@ -40,7 +41,7 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
 
       };
       gpService.increment();
-      $http.post(configureUrl + 'configure', config).then(function() {
+      $http.post(configureUrl + '/configure', config).then(function() {
         configured = true;
         gpService.decrement();
         deferred.resolve();
@@ -57,7 +58,7 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
     this.destroy = function() {
       var deferred = $q.defer();
       gpService.increment();
-      $http['delete'](configureUrl + 'destroy').then(function(response) {
+      $http['delete'](configureUrl + '/destroy').then(function(response) {
         gpService.decrement();
         deferred.resolve();
       }, function(error) {

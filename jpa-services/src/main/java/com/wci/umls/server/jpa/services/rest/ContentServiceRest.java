@@ -24,8 +24,6 @@ import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.model.actions.AtomicActionList;
-import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
@@ -1002,7 +1000,6 @@ public interface ContentServiceRest {
    */
   public SearchResultList getComponentsWithNotes(String query,
     PfsParameterJpa pfs, String authToken) throws Exception;
-
 
   /**
    * Validates the specified concept. Checks are defined the "run.config.umls"

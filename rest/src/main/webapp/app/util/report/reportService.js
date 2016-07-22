@@ -1,4 +1,5 @@
 // Report Service
+var reportUrl = 'report';
 tsApp.service('reportService', [ '$http', '$q', '$rootScope', 'gpService', 'utilService',
   function($http, $q, $rootScope, gpService, utilService) {
     console.debug('configure reportService');
@@ -9,7 +10,7 @@ tsApp.service('reportService', [ '$http', '$q', '$rootScope', 'gpService', 'util
 
       // Get projects
       gpService.increment();
-      $http.get(reportUrl + 'concept?projectId=' + projectId + "&conceptId=" + conceptId, {
+      $http.get(reportUrl + '/concept?projectId=' + projectId + "&conceptId=" + conceptId, {
         headers : {
           'Content-type' : 'text/plain'
         }

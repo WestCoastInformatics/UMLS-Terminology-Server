@@ -16,6 +16,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
@@ -28,11 +30,13 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
@@ -41,6 +45,7 @@ import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.test.helpers.PfsParameterForComponentTest;
 
 /**
@@ -2104,6 +2109,100 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Validate the concept returned
     assertNotNull(c);
     assertEquals(1, c.getObjects().size());
+  }
+
+  /**
+   * Test validation of a concept.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testValidateConcept() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    ProjectServiceRest projectService = new ProjectClientRest(properties);
+    Project p = projectService.getProjects(authToken).getObjects().get(0);
+
+    ConceptJpa concept =
+        (ConceptJpa) contentService.getConcept("M0028634", mshTerminology,
+            mshVersion, p.getId(), authToken);
+
+    ValidationResult result =
+        contentService.validateConcept(p.getId(), concept, authToken);
+
+    assertTrue(result.getErrors().size() == 0);
+    assertTrue(result.getWarnings().size() == 0);
+  }
+
+  /**
+   * Test validation of a descriptor.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testValidateDescriptor() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    ProjectServiceRest projectService = new ProjectClientRest(properties);
+    Project p = projectService.getProjects(authToken).getObjects().get(0);
+
+    DescriptorJpa c =
+        (DescriptorJpa) contentService.getDescriptor("C013093", mshTerminology,
+            mshVersion, p.getId(), authToken);
+
+    ValidationResult result =
+        contentService.validateDescriptor(p.getId(), c, authToken);
+
+    assertTrue(result.getErrors().size() == 0);
+    assertTrue(result.getWarnings().size() == 0);
+  }
+
+  /**
+   * Test validation of a code.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testValidateCode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    ProjectServiceRest projectService = new ProjectClientRest(properties);
+    Project p = projectService.getProjects(authToken).getObjects().get(0);
+
+    CodeJpa c =
+        (CodeJpa) contentService.getCode("C013093", mshTerminology, mshVersion,
+            p.getId(), authToken);
+
+    ValidationResult result =
+        contentService.validateCode(p.getId(), c, authToken);
+
+    assertTrue(result.getErrors().size() == 0);
+    assertTrue(result.getWarnings().size() == 0);
+  }
+
+  /**
+   * Test validation of an atom.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testValidateAtom() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    ProjectServiceRest projectService = new ProjectClientRest(properties);
+    Project p = projectService.getProjects(authToken).getObjects().get(0);
+
+    ConceptJpa concept =
+        (ConceptJpa) contentService.getConcept("M0028634", mshTerminology,
+            mshVersion, p.getId(), authToken);
+
+    ValidationResult result =
+        contentService.validateAtom(p.getId(), (AtomJpa) concept.getAtoms()
+            .get(0), authToken);
+
+    assertTrue(result.getErrors().size() == 0);
+    assertTrue(result.getWarnings().size() == 0);
+
   }
 
   /**

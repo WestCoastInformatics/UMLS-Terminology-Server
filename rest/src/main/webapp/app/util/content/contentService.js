@@ -1,4 +1,5 @@
 // Content Service
+var contentUrl = 'content';
 tsApp
   .service(
     'contentService',
@@ -146,7 +147,7 @@ tsApp
 
             // NO GLASS PANE
             // Make GET call
-            $http.get(autocompleteUrl + encodeURIComponent(searchTerms)).then(
+            $http.get(contentUrl + '/' + autocompleteUrl + encodeURIComponent(searchTerms)).then(
             // success
             function(response) {
               deferred.resolve(response.data.strings);
@@ -162,7 +163,8 @@ tsApp
         };
 
         // Get the component from a component wrapper
-        // where wrapper is at minimum { id: ..., type: ..., terminology: ..., version:
+        // where wrapper is at minimum { id: ..., type: ..., terminology: ...,
+        // version:
         // ..., terminologyId: ...}
         // Search results and components can be passed directly
         this.getComponent = function(wrapper) {
@@ -172,7 +174,8 @@ tsApp
           var deferred = $q.defer();
 
           // check prereqs
-          if (!wrapper.id || !wrapper.type || !wrapper.terminologyId || !wrapper.terminology || !wrapper.version) {
+          if (!wrapper.id || !wrapper.type || !wrapper.terminologyId || !wrapper.terminology
+            || !wrapper.version) {
             utilService.setError('Component object not fully specified');
             deferred.reject('Component object not fully specified');
           } else {
@@ -186,7 +189,7 @@ tsApp
             // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
             // path
             $http.get(
-              contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
+              contentUrl + '/' + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
                 + wrapper.version + "/" + wrapper.terminologyId).then(
               // success
               function(response) {
@@ -359,7 +362,7 @@ tsApp
           // Make post call
           gpService.increment();
           $http.post(
-            contentUrl + wrapper.type.toLowerCase() + '/' + wrapper.terminology + '/'
+            contentUrl + '/' + wrapper.type.toLowerCase() + '/' + wrapper.terminology + '/'
               + wrapper.version + '/' + wrapper.terminologyId + '/trees', pfs).then(
           // success
           function(response) {
@@ -396,8 +399,8 @@ tsApp
           // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
           // path
           $http.post(
-            contentUrl + type.toLowerCase() + '/' + tree.terminology + '/' + tree.version + '/'
-              + tree.nodeTerminologyId + '/trees/children', pfs).then(
+            contentUrl + '/' + type.toLowerCase() + '/' + tree.terminology + '/' + tree.version
+              + '/' + tree.nodeTerminologyId + '/trees/children', pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -434,8 +437,8 @@ tsApp
           // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
           // path
           $http.post(
-            contentUrl + type.toLowerCase() + "/" + terminology + "/" + version + "/trees/roots",
-            pfs).then(
+            contentUrl + '/' + type.toLowerCase() + "/" + terminology + "/" + version
+              + "/trees/roots", pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -502,7 +505,7 @@ tsApp
           // path
           gpService.increment();
           $http.post(
-            contentUrl + type.toLowerCase() + "/" + terminology + "/" + version + "?query="
+            contentUrl + '/' + type.toLowerCase() + "/" + terminology + "/" + version + "?query="
               + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
           // success
           function(response) {
@@ -562,8 +565,8 @@ tsApp
           // path
           gpService.increment();
           $http.post(
-            contentUrl + type.toLowerCase() + "/" + terminology + "/" + version + "/trees?query="
-              + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
+            contentUrl + '/' + type.toLowerCase() + "/" + terminology + "/" + version
+              + "/trees?query=" + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -638,7 +641,7 @@ tsApp
           // path
           gpService.increment();
           $http.post(
-            contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
+            contentUrl + '/' + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
               + wrapper.version + "/" + wrapper.terminologyId + "/relationships?query="
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             gpService.decrement();
@@ -687,7 +690,7 @@ tsApp
           // i.e. retrieve concept, THEN get deep relationships
           // gpService.increment();
           $http.post(
-            contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
+            contentUrl + '/' + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
               + wrapper.version + "/" + wrapper.terminologyId + "/relationships/deep?query="
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             // gpService.decrement();
@@ -729,7 +732,7 @@ tsApp
 
             gpService.increment();
             $http.post(
-              contentUrl + wrapper.type.toLowerCase() + '/note/' + wrapper.terminology + '/'
+              contentUrl + '/' + wrapper.type.toLowerCase() + '/note/' + wrapper.terminology + '/'
                 + wrapper.version + '/' + wrapper.terminologyId + '/add', note).then(
               function(response) {
                 gpService.decrement();
@@ -752,17 +755,17 @@ tsApp
           } else {
 
             gpService.increment();
-            $http['delete']
-              (contentUrl + wrapper.type.toLowerCase() + '/note/' + noteId + '/remove').then(
-                function(response) {
-                  gpService.decrement();
-                  deferred.resolve(response.data);
-                }, function(response) {
-                  utilService.handleError(response);
-                  gpService.decrement();
-                  // return the original concept without additional annotation
-                  deferred.reject();
-                });
+            $http['delete'](
+              contentUrl + '/' + wrapper.type.toLowerCase() + '/note/' + noteId + '/remove').then(
+              function(response) {
+                gpService.decrement();
+                deferred.resolve(response.data);
+              }, function(response) {
+                utilService.handleError(response);
+                gpService.decrement();
+                // return the original concept without additional annotation
+                deferred.reject();
+              });
 
             return deferred.promise;
           }
@@ -820,7 +823,7 @@ tsApp
 
           gpService.increment();
           $http.post(
-            contentUrl + 'component/notes?query='
+            contentUrl + '/component/notes?query='
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             gpService.decrement();
             deferred.resolve(response.data);
@@ -847,6 +850,28 @@ tsApp
           };
         };
 
+        // validate concept
+        this.validateConcept = function(concept, projectId) {
+          console.debug('validateConcept');
+          var deferred = $q.defer();
+
+          // validate concept
+          gpService.increment();
+          $http.put(contentUrl + '/concept?projectId' + projectId, concept).then(
+          // success
+          function(response) {
+            console.debug('  result = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };
         // end
 
       } ]);

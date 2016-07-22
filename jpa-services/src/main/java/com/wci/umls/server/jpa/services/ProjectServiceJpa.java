@@ -458,16 +458,13 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
 
   /* see superclass */
   @Override
-  public KeyValuePairList getValidationCheckNames(Project project) {
+  public KeyValuePairList getValidationCheckNames() {
     final KeyValuePairList keyValueList = new KeyValuePairList();
     for (final Entry<String, ValidationCheck> entry : validationHandlersMap
         .entrySet()) {
-      if (project == null
-          || project.getValidationChecks().contains(entry.getKey())) {
-        final KeyValuePair pair =
-            new KeyValuePair(entry.getKey(), entry.getValue().getName());
-        keyValueList.addKeyValuePair(pair);
-      }
+      final KeyValuePair pair =
+          new KeyValuePair(entry.getKey(), entry.getValue().getName());
+      keyValueList.addKeyValuePair(pair);
     }
     return keyValueList;
   }

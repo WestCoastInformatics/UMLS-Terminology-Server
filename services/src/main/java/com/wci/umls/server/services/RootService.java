@@ -361,12 +361,13 @@ public interface RootService {
   /**
    * Find atomic actions.
    *
+   * @param moleculeId the molecule id
    * @param query the query
    * @param pfs the pfs
    * @return the atomic action list
    * @throws Exception the exception
    */
-  public AtomicActionList findAtomicActions(String query, PfsParameter pfs)
-    throws Exception;
+  public AtomicActionList findAtomicActions(Long moleculeId, String query,
+    PfsParameter pfs) throws Exception;
 
 }

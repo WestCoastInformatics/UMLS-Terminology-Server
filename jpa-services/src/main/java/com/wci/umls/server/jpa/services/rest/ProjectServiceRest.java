@@ -178,19 +178,20 @@ public interface ProjectServiceRest {
   public String getLog(String terminology, String version, String activity,
     int lines, String authToken) throws Exception;
 
-
   /**
    * Finds molecular actions for concept and query.
    *
-   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
    * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the molecular actions for concept
    * @throws Exception the exception
    */
-  public MolecularActionList findMolecularActions(Long conceptId, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+  public MolecularActionList findMolecularActions(String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Find atomic actions.
@@ -205,4 +206,13 @@ public interface ProjectServiceRest {
   public AtomicActionList findAtomicActions(Long molecularActionId,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
+  /**
+   * Returns the validation checks.
+   *
+   * @param authToken the auth token
+   * @return the validation checks
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getValidationChecks(String authToken)
+    throws Exception;
 }

@@ -39,6 +39,9 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
   /** The fdixture p2. */
   private Project p2;
 
+  // TODO: need to also test the notes features here.
+  // by proxying a List<Note>...
+
   /**
    * Setup class.
    */
@@ -131,6 +134,7 @@ public class ChecklistJpaUnitTest extends ModelUnitSupport {
     p1.setId(1L);
     tester.proxy(Project.class, 1, p1);
     assertTrue(tester.testXmlSerialization());
+
   }
 
   /**

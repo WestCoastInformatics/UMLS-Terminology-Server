@@ -20,28 +20,28 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.content.AbstractNote;
-import com.wci.umls.server.model.workflow.Checklist;
+import com.wci.umls.server.model.workflow.Worklist;
 
 /**
- * JPA enabled implementation of {@link Note} connected to a {@link Checklist}.
- * NOTE: the checklist is not exposed through the API, it exists to separate
+ * JPA enabled implementation of {@link Note} connected to a {@link Worklist}.
+ * NOTE: the worklist is not exposed through the API, it exists to separate
  * notes by type and avoid a table
  * 
  */
 @Entity
-@Table(name = "checklist_notes")
+@Table(name = "worklist_notes")
 @Audited
 @XmlRootElement(name = "note")
-public class ChecklistNoteJpa extends AbstractNote {
+public class WorklistNoteJpa extends AbstractNote {
 
-  /** The Checklist. */
-  @ManyToOne(targetEntity = ChecklistJpa.class, optional = false)
-  private Checklist checklist;
+  /** The Worklist. */
+  @ManyToOne(targetEntity = WorklistJpa.class, optional = false)
+  private Worklist worklist;
 
   /**
    * The default constructor.
    */
-  public ChecklistNoteJpa() {
+  public WorklistNoteJpa() {
     // n/a
   }
 
@@ -50,53 +50,53 @@ public class ChecklistNoteJpa extends AbstractNote {
    *
    * @param note the note
    */
-  public ChecklistNoteJpa(ChecklistNoteJpa note) {
+  public WorklistNoteJpa(WorklistNoteJpa note) {
     super(note);
-    checklist = note.getChecklist();
+    worklist = note.getWorklist();
   }
 
   /**
-   * Returns the checklist.
+   * Returns the worklist.
    *
-   * @return the checklist
+   * @return the worklist
    */
   @XmlTransient
-  public Checklist getChecklist() {
-    return checklist;
+  public Worklist getWorklist() {
+    return worklist;
   }
 
   /**
-   * Sets the checklist.
+   * Sets the worklist.
    *
-   * @param checklist the checklist
+   * @param worklist the worklist
    */
-  public void setChecklist(Checklist checklist) {
-    this.checklist = checklist;
+  public void setWorklist(Worklist worklist) {
+    this.worklist = worklist;
   }
 
   /**
-   * Returns the checklist id.
+   * Returns the worklist id.
    *
-   * @return the checklist id
+   * @return the worklist id
    */
   @XmlElement
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public Long getChecklistId() {
-    return (checklist != null) ? checklist.getId() : 0;
+  public Long getWorklistId() {
+    return (worklist != null) ? worklist.getId() : 0;
   }
 
   /**
-   * Sets the checklist id.
+   * Sets the worklist id.
    *
-   * @param checklistId the checklist id
+   * @param worklistId the worklist id
    */
   @SuppressWarnings("unused")
-  private void setChecklistId(Long checklistId) {
-    if (checklist == null) {
-      checklist = new ChecklistJpa();
+  private void setWorklistId(Long worklistId) {
+    if (worklist == null) {
+      worklist = new WorklistJpa();
     }
-    checklist.setId(checklistId);
+    worklist.setId(worklistId);
   }
 
   /* see superclass */
@@ -104,7 +104,7 @@ public class ChecklistNoteJpa extends AbstractNote {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((checklist == null) ? 0 : checklist.hashCode());
+    result = prime * result + ((worklist == null) ? 0 : worklist.hashCode());
     return result;
   }
 
@@ -117,11 +117,11 @@ public class ChecklistNoteJpa extends AbstractNote {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    ChecklistNoteJpa other = (ChecklistNoteJpa) obj;
-    if (checklist == null) {
-      if (other.checklist != null)
+    WorklistNoteJpa other = (WorklistNoteJpa) obj;
+    if (worklist == null) {
+      if (other.worklist != null)
         return false;
-    } else if (!checklist.equals(other.checklist))
+    } else if (!worklist.equals(other.worklist))
       return false;
     return true;
   }
@@ -129,7 +129,7 @@ public class ChecklistNoteJpa extends AbstractNote {
   /* see superclass */
   @Override
   public String toString() {
-    return "ChecklistNoteJpa [checklist=" + checklist + ", getLastModified()="
+    return "WorklistNoteJpa [worklist=" + worklist + ", getLastModified()="
         + getLastModified() + ", getLastModifiedBy()=" + getLastModifiedBy()
         + ", getClass()=" + getClass() + ", toString()=" + super.toString()
         + "]";

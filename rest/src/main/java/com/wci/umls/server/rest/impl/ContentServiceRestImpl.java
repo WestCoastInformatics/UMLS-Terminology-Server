@@ -48,8 +48,6 @@ import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
-import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
-import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.EclConceptIndexingAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
@@ -92,8 +90,6 @@ import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
-import com.wci.umls.server.model.actions.AtomicActionList;
-import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -4344,100 +4340,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
 
-  }
-
-  /* see superclass */
-  /**
-   * Find molecular actions for concept.
-   *
-   * @param conceptId the concept id
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the molecular action list
-   * @throws Exception the exception
-   */
-  @Override
-  @POST
-  @Path("/actions/molecular")
-  @ApiOperation(value = "Get molecular actions for a concept", notes = "Get molecular actions for a concept", response = MolecularActionListJpa.class)
-  public MolecularActionList findMolecularActions(
-    @ApiParam(value = "The concept id, e.g. 1", required = true) @QueryParam("conceptId") Long conceptId,
-    @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
-    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call POST (Content): /actions/molecular " + conceptId + ", "
-            + query);
-
-    final ContentService contentService = new ContentServiceJpa();
-    try {
-      authorizeApp(securityService, authToken,
-          "find molecular actions for a concept", UserRole.VIEWER);
-
-      final Concept concept = contentService.getConcept(conceptId);
-
-      final String localQuery =
-          (query == null || query.isEmpty() ? "" : " AND ") + "terminologyId:"
-              + concept.getTerminologyId();
-
-      return contentService.findMolecularActions(concept.getTerminology(),
-          concept.getVersion(), localQuery, pfs);
-
-    } catch (Exception e) {
-      handleException(e, "trying to find molecular actions for a concept");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-  }
-
-  /**
-   * Find atomic actions.
-   *
-   * @param molecularActionId the molecular action id
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the atomic action list
-   * @throws Exception the exception
-   */
-  @Override
-  @POST
-  @Path("/actions/atomic")
-  @ApiOperation(value = "Get atomic actions for a molecular action", notes = "Get atomic actions for a molecular action", response = AtomicActionListJpa.class)
-  public AtomicActionList findAtomicActions(
-    @ApiParam(value = "The molecularActionId id, e.g. 1", required = true) @QueryParam("molecularActionId") Long molecularActionId,
-    @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
-    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call POST (Content): /actions/atomic " + molecularActionId
-            + ", " + query);
-
-    final ContentService contentService = new ContentServiceJpa();
-    try {
-      authorizeApp(securityService, authToken,
-          "find atomic actions for a molecular action", UserRole.VIEWER);
-      String localQuery;
-      if (query == null || query.isEmpty()) {
-        localQuery = "molecularActionId:" + molecularActionId;
-      } else {
-        localQuery = "molecularActionId:" + molecularActionId + " AND " + query;
-      }
-
-      return contentService.findAtomicActions(localQuery, pfs);
-
-    } catch (Exception e) {
-      handleException(e, "trying to find atomic actions for a molecular action");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
   }
 
   /* see superclass */

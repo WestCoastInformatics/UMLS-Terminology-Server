@@ -29,12 +29,10 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
@@ -86,11 +84,6 @@ public abstract class AbstractChecklist implements Checklist {
   @OneToMany(targetEntity = TrackingRecordJpa.class)
   private List<TrackingRecord> trackingRecords = new ArrayList<>();
 
-  /** The notes. */
-  @OneToMany(mappedBy = "checklist", targetEntity = ChecklistNoteJpa.class)
-  @IndexedEmbedded(targetElement = ChecklistNoteJpa.class)
-  private List<Note> notes = new ArrayList<>();
-  
   /**
    * The stats - intended only for JAXB serialization and reporting, not
    * persisted.
@@ -119,10 +112,6 @@ public abstract class AbstractChecklist implements Checklist {
     name = checklist.getName();
     description = checklist.getDescription();
     project = checklist.getProject();
-
-    for (Note note : checklist.getNotes()) {
-      getNotes().add(new ChecklistNoteJpa((ChecklistNoteJpa) note));
-    }
     if (deepCopy) {
       trackingRecords = new ArrayList<>(checklist.getTrackingRecords());
     }
@@ -181,8 +170,8 @@ public abstract class AbstractChecklist implements Checklist {
   /* see superclass */
   @Override
   @Fields({
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-    @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
   public String getName() {
     return name;
@@ -257,7 +246,7 @@ public abstract class AbstractChecklist implements Checklist {
   public void setStats(Map<String, Integer> stats) {
     this.stats = stats;
   }
-  
+
   /* see superclass */
   @XmlTransient
   @Override
@@ -290,22 +279,6 @@ public abstract class AbstractChecklist implements Checklist {
     return sb.toString();
   }
 
-  /* see superclass */
-  @XmlElement(type = ChecklistNoteJpa.class)
-  @Override
-  public List<Note> getNotes() {
-    if (notes == null) {
-      notes = new ArrayList<Note>();
-    }
-    return notes;
-  }
-
-  /* see superclass */
-  @Override
-  public void setNotes(List<Note> notes) {
-    this.notes = notes;
-  }
-  
   /* see superclass */
   @Override
   public int hashCode() {

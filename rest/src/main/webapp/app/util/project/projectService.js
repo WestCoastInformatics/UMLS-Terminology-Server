@@ -1,4 +1,5 @@
 // Project Service
+var projectUrl = 'project';
 tsApp
   .service(
     'projectService',
@@ -32,7 +33,7 @@ tsApp
 
           // Get projects
           gpService.increment();
-          $http.get(projectUrl + 'all').then(
+          $http.get(projectUrl + '/all').then(
           // success
           function(response) {
             gpService.decrement();
@@ -53,7 +54,7 @@ tsApp
 
           // Get projects
           gpService.increment();
-          $http.get(projectUrl + projectId).then(
+          $http.get(projectUrl + '/' + projectId).then(
           // success
           function(response) {
             gpService.decrement();
@@ -74,7 +75,7 @@ tsApp
 
           // Add project
           gpService.increment();
-          $http.put(projectUrl + 'add', project).then(
+          $http.put(projectUrl + '/add', project).then(
           // success
           function(response) {
             console.debug('  project = ', response.data);
@@ -97,7 +98,7 @@ tsApp
 
           // Add project
           gpService.increment();
-          $http.post(projectUrl + 'update', project).then(
+          $http.post(projectUrl + '/update', project).then(
           // success
           function(response) {
             console.debug('  project = ', response.data);
@@ -120,7 +121,7 @@ tsApp
 
           // Add project
           gpService.increment();
-          $http['delete'](projectUrl + 'remove/' + project.id).then(
+          $http['delete'](projectUrl + '/remove/' + project.id).then(
           // success
           function(response) {
             console.debug('  project = ', response.data);
@@ -145,7 +146,7 @@ tsApp
 
           // Make POST call
           gpService.increment();
-          $http.post(projectUrl + 'all?query=' + utilService.prepQuery(query),
+          $http.post(projectUrl + '/all?query=' + utilService.prepQuery(query),
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {
@@ -172,7 +173,7 @@ tsApp
 
           // Make PUT call
           gpService.increment();
-          $http.post(projectUrl + projectId + '/users?query=' + utilService.prepQuery(query),
+          $http.post(projectUrl + + '/' + projectId + '/users?query=' + utilService.prepQuery(query),
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {
@@ -199,22 +200,21 @@ tsApp
 
           // Make PUT call
           gpService.increment();
-          $http
-            .post(
-              projectUrl + 'users/' + projectId + '/unassigned?query='
-                + utilService.prepQuery(query), utilService.prepPfs(pfs)).then(
-            // success
-            function(response) {
-              console.debug('  output = ', response.data);
-              gpService.decrement();
-              deferred.resolve(response.data);
-            },
-            // error
-            function(response) {
-              utilService.handleError(response);
-              gpService.decrement();
-              deferred.reject(response.data);
-            });
+          $http.post(
+            projectUrl + '/users/' + projectId + '/unassigned?query='
+              + utilService.prepQuery(query), utilService.prepPfs(pfs)).then(
+          // success
+          function(response) {
+            console.debug('  output = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
 
           return deferred.promise;
         };
@@ -227,7 +227,7 @@ tsApp
           // Assign user to project
           gpService.increment();
           $http.get(
-            projectUrl + 'assign?projectId=' + projectId + '&userName=' + userName + '&role='
+            projectUrl + '/assign?projectId=' + projectId + '&userName=' + userName + '&role='
               + projectRole).then(
           // success
           function(response) {
@@ -251,19 +251,20 @@ tsApp
 
           // Unassign user from project
           gpService.increment();
-          $http.get(projectUrl + 'unassign?projectId=' + projectId + '&userName=' + userName).then(
-          // success
-          function(response) {
-            console.debug('  project = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+          $http.get(projectUrl + '/unassign?projectId=' + projectId + '&userName=' + userName)
+            .then(
+            // success
+            function(response) {
+              console.debug('  project = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
         };
 
@@ -274,7 +275,7 @@ tsApp
 
           // Get project roles
           gpService.increment();
-          $http.get(projectUrl + 'roles').then(
+          $http.get(projectUrl + '/roles').then(
           // success
           function(response) {
             gpService.decrement();
@@ -296,7 +297,7 @@ tsApp
 
           // Get project roles
           gpService.increment();
-          $http.get(projectUrl + 'user/anyrole').then(
+          $http.get(projectUrl + '/user/anyrole').then(
           // success
           function(response) {
             console.debug('  anyrole = ' + response.data);
@@ -326,7 +327,7 @@ tsApp
           else {
 
             $http.get(
-              projectUrl + 'log?terminology=' + sourceData.terminology + '&version='
+              projectUrl + '/log?terminology=' + sourceData.terminology + '&version='
                 + sourceData.version + (lines ? '&lines=' + lines : '')).then(function(response) {
               deferred.resolve(response.data);
             }, function(error) {
@@ -346,10 +347,32 @@ tsApp
           // Assign user to project
           gpService.increment();
           $http.get(
-            projectUrl + 'log?projectId=' + projectId + (objectId ? '&objectId=' + objectId : '')
+            projectUrl + '/log?projectId=' + projectId + (objectId ? '&objectId=' + objectId : '')
               + '&lines=1000').then(
           // success
           function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };
+
+        // get all validation check names
+        this.getValidationCheckNames = function() {
+          console.debug('getValidationCheckNames');
+          var deferred = $q.defer();
+
+          gpService.increment();
+          $http.get(projectUrl + '/checks').then(
+          // success
+          function(response) {
+            console.debug('  validation checks = ', response.data);
             gpService.decrement();
             deferred.resolve(response.data);
           },

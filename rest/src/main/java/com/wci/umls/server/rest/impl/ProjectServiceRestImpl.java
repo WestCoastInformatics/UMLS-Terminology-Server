@@ -32,12 +32,18 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
+import com.wci.umls.server.model.actions.AtomicActionList;
+import com.wci.umls.server.model.actions.MolecularActionList;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
@@ -688,11 +694,72 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
+  @POST
+  @Path("/actions/molecular")
+  @ApiOperation(value = "Get molecular actions", notes = "Get molecular actions", response = MolecularActionListJpa.class)
+  public MolecularActionList findMolecularActions(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = false) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. latest", required = false) @QueryParam("version") String version,
+    @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call POST (Content): /actions/molecular " + query);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "find molecular actions for a concept", UserRole.VIEWER);
+      return contentService.findMolecularActions(terminology, version, query,
+          pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find molecular actions for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/actions/atomic")
+  @ApiOperation(value = "Get atomic actions for a molecular action", notes = "Get atomic actions for a molecular action", response = AtomicActionListJpa.class)
+  public AtomicActionList findAtomicActions(
+    @ApiParam(value = "The molecularActionId id, e.g. 1", required = true) @QueryParam("molecularActionId") Long molecularActionId,
+    @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call POST (Content): /actions/atomic " + molecularActionId
+            + ", " + query);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "find atomic actions for a molecular action", UserRole.VIEWER);
+
+      return contentService.findAtomicActions(molecularActionId, query, pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find atomic actions for a molecular action");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
   @GET
   @Path("/checks")
-  @ApiOperation(value = "Gets all validation checks for a project", notes = "Gets all validation checks for a project", response = KeyValuePairList.class)
+  @ApiOperation(value = "Gets all validation checks", notes = "Gets all validation checks", response = KeyValuePairList.class)
   public KeyValuePairList getValidationChecks(
-    @ApiParam(value = "The project id , e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -703,9 +770,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "get validation checks",
           UserRole.VIEWER);
 
-      Project project = projectService.getProject(projectId);
-      final KeyValuePairList list =
-          projectService.getValidationCheckNames(project);
+      final KeyValuePairList list = projectService.getValidationCheckNames();
       return list;
     } catch (Exception e) {
       handleException(e, "trying to validate all concept");

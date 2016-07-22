@@ -1,4 +1,5 @@
 // Security service
+var securityUrl = 'security';
 tsApp.service('securityService', [
   '$http',
   '$location',
@@ -196,7 +197,7 @@ tsApp.service('securityService', [
 
       // login
       $http({
-        url : securityUrl + 'authenticate/' + userName,
+        url : securityUrl + '/authenticate/' + userName,
         method : 'POST',
         data : password,
         headers : {
@@ -228,7 +229,7 @@ tsApp.service('securityService', [
         gpService.increment();
 
         // logout
-        $http.get(securityUrl + 'logout/' + user.authToken).then(
+        $http.get(securityUrl + '/logout/' + user.authToken).then(
         // success
         function(response) {
 
@@ -257,7 +258,7 @@ tsApp.service('securityService', [
 
       // Get users
       gpService.increment();
-      $http.get(securityUrl + 'user/users').then(
+      $http.get(securityUrl + '/user/users').then(
       // success
       function(response) {
         gpService.decrement();
@@ -278,7 +279,7 @@ tsApp.service('securityService', [
 
       // Get users
       gpService.increment();
-      $http.get(securityUrl + 'user').then(
+      $http.get(securityUrl + '/user').then(
       // success
       function(response) {
         gpService.decrement();
@@ -299,7 +300,7 @@ tsApp.service('securityService', [
 
       // Add user
       gpService.increment();
-      $http.put(securityUrl + 'user/add', user).then(
+      $http.put(securityUrl + '/user/add', user).then(
       // success
       function(response) {
         gpService.decrement();
@@ -320,7 +321,7 @@ tsApp.service('securityService', [
 
       // Add user
       gpService.increment();
-      $http.post(securityUrl + 'user/update', user).then(
+      $http.post(securityUrl + '/user/update', user).then(
       // success
       function(response) {
         gpService.decrement();
@@ -341,7 +342,7 @@ tsApp.service('securityService', [
 
       // Add user
       gpService.increment();
-      $http['delete'](securityUrl + 'user/remove/' + user.id).then(
+      $http['delete'](securityUrl + '/user/remove/' + user.id).then(
       // success
       function(response) {
         gpService.decrement();
@@ -362,7 +363,7 @@ tsApp.service('securityService', [
 
       // Get application roles
       gpService.increment();
-      $http.get(securityUrl + 'roles').then(
+      $http.get(securityUrl + '/roles').then(
       // success
       function(response) {
         gpService.decrement();
@@ -384,7 +385,7 @@ tsApp.service('securityService', [
 
       // Make POST call
       gpService.increment();
-      $http.post(securityUrl + 'user/find?query=' + utilService.prepQuery(query),
+      $http.post(securityUrl + '/user/find?query=' + utilService.prepQuery(query),
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {
@@ -533,7 +534,7 @@ tsApp.service('securityService', [
       } else {
 
         gpService.increment();
-        $http.post(securityUrl + 'user/preferences/update', userPreferences).then(
+        $http.post(securityUrl + '/user/preferences/update', userPreferences).then(
         // success
         function(response) {
           gpService.decrement();

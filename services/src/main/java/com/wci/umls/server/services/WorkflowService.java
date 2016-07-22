@@ -400,10 +400,10 @@ public interface WorkflowService extends ContentService {
   /**
    * Update checklist.
    *
-   * @param worklist the worklist
+   * @param checklist the checklist
    * @throws Exception the exception
    */
-  public void updateChecklist(Checklist worklist) throws Exception;
+  public void updateChecklist(Checklist checklist) throws Exception;
 
   /**
    * Remove checklist.

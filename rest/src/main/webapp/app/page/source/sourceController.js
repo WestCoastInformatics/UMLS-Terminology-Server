@@ -1,4 +1,5 @@
-// Controller
+// Source data controller
+var sourceDataUrl = 'file';
 tsApp
   .controller(
     'SourceCtrl',
@@ -374,7 +375,7 @@ tsApp
 
       // Specify the angular-file-uploader
       var uploader = $scope.uploader = new FileUploader({
-        url : sourceDataUrl + 'upload'
+        url : sourceDataUrl + '/upload'
       });
 
       // FILTERS

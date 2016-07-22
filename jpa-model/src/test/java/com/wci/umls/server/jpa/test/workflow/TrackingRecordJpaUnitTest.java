@@ -126,6 +126,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     tester.include("project");
     tester.include("workflowBinName");
     tester.include("worklistName");
+    tester.include("checklistName");
 
     tester.proxy(Set.class, 1, l1);
     tester.proxy(Set.class, 2, l2);
@@ -235,6 +236,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("projectId");
     tester.include("worklistName");
+    tester.include("checklistName");
     tester.include("workflowBinName");
     tester.include("workflowStatus");
     assertTrue(tester.testNotAnalyzedIndexedFields());
