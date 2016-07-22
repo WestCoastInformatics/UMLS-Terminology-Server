@@ -66,6 +66,7 @@ import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.jpa.worfklow.WorklistNoteJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -1585,7 +1586,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/worklist/{id}")
-  @ApiOperation(value = "Get the statistics for the worklist", notes = "Gets the statistics for the worklist.", response = WorklistJpa.class)
+  @ApiOperation(value = "Get the worklist", notes = "Gets the statistics for the worklist.", response = WorklistJpa.class)
   public Worklist getWorklist(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Worklist id, e.g. 5", required = false) @PathParam("id") Long id,
@@ -1643,6 +1644,69 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/checklist/{id}")
+  @ApiOperation(value = "Get the checklist", notes = "Gets the statistics for the checklist.", response = ChecklistJpa.class)
+  public Checklist getChecklist(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Checklist id, e.g. 5", required = false) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Workflow): /checklist/" + id);
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "trying to get checklist stats", UserRole.AUTHOR);
+
+      workflowService.setLastModifiedBy(userName);
+
+      final Checklist checklist = workflowService.getChecklist(id);
+
+      checklist.getStats()
+          .put("clusterCt", checklist.getTrackingRecords().size());
+      // Add up orig concepts size from all tracking records
+      checklist
+          .getStats()
+          .put(
+              "conceptCt",
+              checklist
+                  .getTrackingRecords()
+                  .stream()
+                  .collect(
+                      Collectors.summingInt(w -> w.getOrigConceptIds().size())));
+
+      // TODO to be done later
+      // compute the stats and add them to the stats object
+      // n_actions -1 - molecular action search by concept ids on checklist
+      // n_approved -1 - "APPROVE_CONCEPT" molecular actions
+      // n_approved_by_editor -1 - "APPROVE_CONCEPT" molecular actions with
+      // editors initial
+      // n_stamped -1 - "APPROVE_CONCEPT" molecular actions with editors
+      // stampinginitial
+      // n_not_stamped -1 - concepts without APPROVE_CONCEPT actions
+      // n_rels_inserted -1 - "ADD_RELATIONSHIP" molecular actions
+      // n_stys_inserted -1 - "ADD_SEMANTIC_TYPE" molecular actions
+      // n_splits -1 - "SPLIT" molecular actions
+      // n_merges -1 - "MERGE" molecular actions
+
+      // return the checklist
+      workflowService.handleLazyInit(checklist);
+      return checklist;
+
+    } catch (Exception e) {
+      handleException(e, "trying to get checklist stats");
+      return null;
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
+  
   /* see superclass */
   @Override
   @GET
@@ -2428,6 +2492,56 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
+  @PUT
+  @Path("/worklist/{id}/note/add")
+  @Consumes("text/plain")
+  @ApiOperation(value = "Add worklist note", notes = "Adds a worklist note", response = WorklistNoteJpa.class)
+  public Note addWorklistNote(
+    @ApiParam(value = "Project id, e.g. 3", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Worklist id, e.g. 3", required = true) @PathParam("id") Long worklistId,
+    @ApiParam(value = "The note, e.g. \"this is a sample note\"", required = true) String note,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Worklist): /worklist/" + worklistId
+            + "/note/add " + note);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "adding worklist note", UserRole.AUTHOR);
+      workflowService.setLastModifiedBy(userName);
+
+      final Worklist worklist = workflowService.getWorklist(worklistId);
+      if (worklist == null) {
+        throw new Exception("Invalid worklist id " + worklistId);
+      }
+
+      final Note worklistNote = new WorklistNoteJpa();
+      worklistNote.setLastModifiedBy(userName);
+      worklistNote.setNote(note);
+      ((WorklistNoteJpa) worklistNote).setWorklist(worklist);
+
+      // Add and return the note
+      final Note newNote = workflowService.addNote(worklistNote);
+
+      // For indexing
+      worklist.getNotes().add(newNote);
+      workflowService.updateWorklist(worklist);
+
+      return newNote;
+    } catch (Exception e) {
+      handleException(e, "trying to add note");
+      return null;
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
   @DELETE
   @Path("/checklist/note/{id}/remove")
   @ApiOperation(value = "Remove checklist note", notes = "Removes the specified checklist note")
@@ -2466,6 +2580,52 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
     } catch (Exception e) {
       handleException(e, "trying to remove a checklist note");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
+  
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/worklist/note/{id}/remove")
+  @ApiOperation(value = "Remove worklist note", notes = "Removes the specified worklist note")
+  public void removeWorklistNote(
+    @ApiParam(value = "Project id, e.g. 3", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Note id, e.g. 3", required = true) @PathParam("id") Long noteId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call DELETE (Worklist): /worklist/note/" + noteId
+            + "/remove");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "remove worklist note", UserRole.AUTHOR);
+      workflowService.setLastModifiedBy(userName);
+
+      final WorklistNoteJpa note =
+          (WorklistNoteJpa) workflowService.getNote(noteId,
+              WorklistNoteJpa.class);
+      final Worklist worklist = note.getWorklist();
+
+      if (!worklist.getProject().getId().equals(projectId)) {
+        throw new Exception(
+            "Attempt to remove a note from a different project.");
+      }
+
+      // remove note
+      workflowService.removeNote(noteId, WorklistNoteJpa.class);
+
+      // For indexing
+      worklist.getNotes().remove(note);
+      workflowService.updateWorklist(worklist);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove a worklist note");
     } finally {
       workflowService.close();
       securityService.close();

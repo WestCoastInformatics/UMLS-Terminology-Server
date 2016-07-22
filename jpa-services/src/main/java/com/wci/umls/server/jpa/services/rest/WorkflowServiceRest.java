@@ -515,4 +515,40 @@ public interface WorkflowServiceRest {
    */
   public Note addChecklistNote(Long projectId, Long checklistId, String note,
     String authToken) throws Exception;
+
+  /**
+   * Returns the checklist.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param authToken the auth token
+   * @return the checklist
+   * @throws Exception the exception
+   */
+  public Checklist getChecklist(Long projectId, Long id, String authToken)
+    throws Exception;
+
+  /**
+   * Adds the worklist note.
+   *
+   * @param projectId the project id
+   * @param worklistId the worklist id
+   * @param note the note
+   * @param authToken the auth token
+   * @return the note
+   * @throws Exception the exception
+   */
+  public Note addWorklistNote(Long projectId, Long worklistId, String note,
+    String authToken) throws Exception;
+
+  /**
+   * Removes the worklist note.
+   *
+   * @param projectId the project id
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeWorklistNote(Long projectId, Long noteId, String authToken)
+    throws Exception;
 }

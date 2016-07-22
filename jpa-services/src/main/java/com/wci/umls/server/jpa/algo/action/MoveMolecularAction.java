@@ -13,7 +13,6 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
-import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
  * A molecular action for moving atoms from one concept to another.
@@ -108,7 +107,7 @@ public class MoveMolecularAction extends AbstractMolecularAction {
    * @return the from concept post updates
    */
   public Concept getFromConceptPostUpdates() {
-    return fromConceptPreUpdates;
+    return fromConceptPostUpdates;
   }
 
   /* see superclass */
@@ -196,15 +195,6 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     // Make copy of toConcept and fromConcept to pass into change event
     fromConceptPostUpdates = new ConceptJpa(getFromConcept(), false);
     toConceptPostUpdates = new ConceptJpa(getToConcept(), false);
-
-    // Resolve all three concepts with graphresolutionhandler.resolve(concept)
-    // so they can be appropriately read by ChangeEvent
-    GraphResolutionHandler graphHandler =
-        getGraphResolutionHandler(getToConcept().getTerminology());
-    graphHandler.resolve(fromConceptPreUpdates);
-    graphHandler.resolve(toConceptPreUpdates);
-    graphHandler.resolve(fromConceptPostUpdates);
-    graphHandler.resolve(toConceptPostUpdates);
 
   }
 

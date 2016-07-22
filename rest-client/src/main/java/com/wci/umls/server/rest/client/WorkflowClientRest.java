@@ -38,6 +38,7 @@ import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.jpa.worfklow.WorklistNoteJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
@@ -1030,6 +1031,35 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
+  public Checklist getChecklist(Long projectId, Long checklistId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - get checklist " + projectId + ", " + checklistId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(checklistId, "checklistId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/checklist/"
+            + checklistId + "?projectId=" + projectId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, ChecklistJpa.class);
+  }
+  
+  /* see superclass */
+  @Override
   public void clearBin(Long projectId, Long workflowBinId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1245,6 +1275,38 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
+  public Note addWorklistNote(Long projectId, Long worklistId, String note,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Rest Client - add worklist note - " + projectId + ", " + worklistId
+            + ", " + note);
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(worklistId, "worklistId");
+    validateNotEmpty(note, "note");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/worklist/"
+            + worklistId + "/note/add?projectId=" + projectId);
+
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).put(Entity.text(note));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility
+        .getGraphForString(resultString, WorklistNoteJpa.class);
+  }
+  
+  /* see superclass */
+  @Override
   public void removeChecklistNote(Long projectId, Long noteId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1254,6 +1316,30 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/checklist/note/"
+            + noteId + "?projectId=" + projectId);
+
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing, successful
+    } else {
+      throw new Exception("Unexpected status - " + response.getStatus());
+    }
+  }
+  
+  /* see superclass */
+  @Override
+  public void removeWorklistNote(Long projectId, Long noteId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Rest Client - remove note " + projectId + ", " + noteId);
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(noteId, "noteId");
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/worklist/note/"
             + noteId + "?projectId=" + projectId);
 
     final Response response =
