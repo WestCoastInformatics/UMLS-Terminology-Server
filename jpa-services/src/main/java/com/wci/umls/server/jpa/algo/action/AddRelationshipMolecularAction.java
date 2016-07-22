@@ -109,6 +109,11 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
     // altId);
 
+    //XR (not related) relationships need to be set to not-released
+    if (relationship.getRelationshipType().equals("XR")){
+      relationship.setPublishable(false);
+    }
+    
     // set the relationship component last modified
     relationship = (ConceptRelationshipJpa) addRelationship(relationship);
 
@@ -132,7 +137,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-
+    
     // update the concept
     updateConcept(getConcept2());
     updateConcept(getConcept());

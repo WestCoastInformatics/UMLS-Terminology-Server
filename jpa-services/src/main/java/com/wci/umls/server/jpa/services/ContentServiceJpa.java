@@ -2061,9 +2061,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       inverseRelationship.setId(null);
       inverseRelationship.setFrom(relationship.getTo());
       inverseRelationship.setTo(relationship.getFrom());
-      inverseRelationship.setRelationshipType(getRelationshipType(
-          relationship.getRelationshipType(), relationship.getTerminology(),
-          relationship.getVersion()).getInverse().getAbbreviation());
+      inverseRelationship.setPublishable(relationship.isPublishable());
+      inverseRelationship.setRelationshipType(
+          getRelationshipType(relationship.getRelationshipType(),
+              relationship.getTerminology(), relationship.getVersion())
+                  .getInverse().getAbbreviation());
       inverseRelationship.setAssertedDirection(false);
 
       return inverseRelationship;
