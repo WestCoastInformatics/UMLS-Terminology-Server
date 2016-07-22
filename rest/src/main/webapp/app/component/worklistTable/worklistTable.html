@@ -144,11 +144,11 @@
               </div>
               <div>
                 <i ng-show="selected.worklist.notes.length > 0"
-                  ng-click="openNotesModal(selected.worklist, 'Worklist'); $event.stopPropagation()"
+                  ng-click="openNotesModal(selected.worklist); $event.stopPropagation()"
                   title="Edit worklist notes" class="noul material-icons md-18">assignment</i>
                 <i ng-show="selected.worklist.notes.length == 0"
                   title="Add worklist note (no notes yet)"
-                  ng-click="openNotesModal(selected.worklist, 'Worklist'); $event.stopPropagation()"
+                  ng-click="openNotesModal(selected.worklist); $event.stopPropagation()"
                   class="md-grey material-icons md-18">assignment</i>
                 
               </div>
