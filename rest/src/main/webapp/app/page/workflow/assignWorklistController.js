@@ -1,5 +1,5 @@
 // Assign worklist controller
-var AssignWorklistModalCtrl = function($scope, $uibModalInstance, $sce, workflowService, worklist, action,
+var AssignWorklistModalCtrl = function($scope, $uibModalInstance, $sce, workflowService, securityService, worklist, action,
   currentUser, project) {
   console.debug('Entered assign worklist modal control', worklist.id, action, currentUser, project.id);
   $scope.worklist = worklist;
@@ -45,10 +45,24 @@ var AssignWorklistModalCtrl = function($scope, $uibModalInstance, $sce, workflow
             handleError($scope.errors, data);
           });
         }
-        // close dialog if no note
-        else {
-          $uibModalInstance.close(worklist);
-        }
+        
+        // If user has a team, update worklist
+        securityService.getUserByName($scope.user).then(
+
+          // Success
+          function(data) {
+            $scope.user = data;
+            if ($scope.user.team) {
+              worklist.team = $scope.user.team;
+            }
+            $uibModalInstance.close(worklist);
+          },
+          // Error
+          function(data) {
+            handleError($scope.errors, data);
+          });
+        
+
 
       },
       // Error
