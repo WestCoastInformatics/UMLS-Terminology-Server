@@ -217,6 +217,7 @@ tsApp
                   terminologyId : concept.terminologyId,
                   terminology : concept.terminology,
                   version : concept.version,
+                  type : 'CONCEPT',
                   id : concept.id
                 };
                 reportService.getConceptReport($scope.project.id, $scope.selected.concept.id).then(

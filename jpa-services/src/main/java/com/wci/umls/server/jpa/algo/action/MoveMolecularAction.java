@@ -127,12 +127,19 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     }
 
     // Moving concepts must be from the same terminology
-    if (!(getFromConcept().getTerminology().toString().equals(getToConcept().getTerminology().toString()))){
+    if (!(getFromConcept().getTerminology().toString().equals(getToConcept()
+        .getTerminology().toString()))) {
       throw new LocalException(
-          "Two concepts must be from the same terminology to have atoms moved between them, but concept " + getFromConcept().getId() + " has terminology " + getFromConcept().getTerminology() +", and Concept " + getToConcept().getId() + " has terminology " + getToConcept().getTerminology());
+          "Two concepts must be from the same terminology to have atoms moved between them, but concept "
+              + getFromConcept().getId()
+              + " has terminology "
+              + getFromConcept().getTerminology()
+              + ", and Concept "
+              + getToConcept().getId()
+              + " has terminology "
+              + getToConcept().getTerminology());
     }
-    
-    
+
     // Populate move-atom list, and exists check
     moveAtoms = new ArrayList<Atom>();
     for (final Atom atm : getFromConcept().getAtoms()) {
@@ -145,8 +152,8 @@ public class MoveMolecularAction extends AbstractMolecularAction {
       throw new LocalException("Atom to move not found on from Concept");
     }
 
-    // TODO - check with Brian if this is required
-    // validateMove(project, toConcept, fromConcept);
+    // Check preconditions
+    validationResult.merge(super.checkPreconditions());
 
     return validationResult;
   }

@@ -9,6 +9,8 @@ package com.wci.umls.server.services;
 import java.util.List;
 import java.util.Map;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
@@ -290,8 +292,8 @@ public interface ContentService extends MetadataService {
    * @return the descriptors
    * @throws Exception the exception
    */
-  public DescriptorList getDescriptors(String terminologyId, String terminology,
-    String version) throws Exception;
+  public DescriptorList getDescriptors(String terminologyId,
+    String terminology, String version) throws Exception;
 
   /**
    * Gets the descriptor.
@@ -776,7 +778,8 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeRelationship(Long id,
+  public void removeRelationship(
+    Long id,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
@@ -821,7 +824,8 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeTransitiveRelationship(Long id,
+  public void removeTransitiveRelationship(
+    Long id,
     Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
     throws Exception;
 
@@ -924,7 +928,8 @@ public interface ContentService extends MetadataService {
    * @param memberClass the member class
    * @throws Exception the exception
    */
-  public void removeSubsetMember(Long id,
+  public void removeSubsetMember(
+    Long id,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1036,8 +1041,7 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @return the all codes
    */
-  public CodeList getAllCodes(String terminology, String version,
-    String branch);
+  public CodeList getAllCodes(String terminology, String version, String branch);
 
   /**
    * Gets the all subsets.
@@ -1280,8 +1284,8 @@ public interface ContentService extends MetadataService {
    * @return the definitions
    * @throws Exception the exception
    */
-  public DefinitionList getDefinitions(String terminologyId, String terminology,
-    String version) throws Exception;
+  public DefinitionList getDefinitions(String terminologyId,
+    String terminology, String version) throws Exception;
 
   /**
    * Gets the definition.
@@ -1304,7 +1308,10 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
-    String terminologyId, String terminology, String version, String branch,
+    String terminologyId,
+    String terminology,
+    String version,
+    String branch,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
@@ -1318,8 +1325,10 @@ public interface ContentService extends MetadataService {
    * @return the relationships
    * @throws Exception the exception
    */
-  public RelationshipList getRelationships(String terminologyId,
-    String terminology, String version,
+  public RelationshipList getRelationships(
+    String terminologyId,
+    String terminology,
+    String version,
     Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
@@ -1358,7 +1367,10 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    String terminologyId, String terminology, String version, String branch,
+    String terminologyId,
+    String terminology,
+    String version,
+    String branch,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1372,8 +1384,10 @@ public interface ContentService extends MetadataService {
    * @return the subset members
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembers(String terminologyId,
-    String terminology, String version,
+  public SubsetMemberList getSubsetMembers(
+    String terminologyId,
+    String terminology,
+    String version,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1639,8 +1653,8 @@ public interface ContentService extends MetadataService {
    * @return the map sets
    * @throws Exception the exception
    */
-  public MapSetList getMapSets(String terminology, String version,
-    String branch) throws Exception;
+  public MapSetList getMapSets(String terminology, String version, String branch)
+    throws Exception;
 
   /**
    * Find mappings for concept.
@@ -1789,8 +1803,46 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findComponentInfoRelationships(String componentInfoId,
-    String terminology, String version, IdType type, String branch,
-    String query, boolean inverseFlag, PfsParameter pfs) throws Exception;
+  public RelationshipList findComponentInfoRelationships(
+    String componentInfoId, String terminology, String version, IdType type,
+    String branch, String query, boolean inverseFlag, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Validate concept.
+   *
+   * @param project the project
+   * @param concept the concept
+   * @return the validation result
+   */
+  public ValidationResult validateConcept(Project project, Concept concept);
+
+  /**
+   * Validate atom.
+   *
+   * @param project the project
+   * @param atom the atom
+   * @return the validation result
+   */
+  public ValidationResult validateAtom(Project project, Atom atom);
+
+  /**
+   * Validate descriptor.
+   *
+   * @param project the project
+   * @param descriptor the descriptor
+   * @return the validation result
+   */
+  public ValidationResult validateDescriptor(Project project,
+    Descriptor descriptor);
+
+  /**
+   * Validate code.
+   *
+   * @param project the project
+   * @param code the code
+   * @return the validation result
+   */
+  public ValidationResult validateCode(Project project, Code code);
 
 }

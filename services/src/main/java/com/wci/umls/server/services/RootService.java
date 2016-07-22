@@ -348,6 +348,7 @@ public interface RootService {
   /**
    * Find molecular actions.
    *
+   * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
    * @param query the query
@@ -355,8 +356,9 @@ public interface RootService {
    * @return the list
    * @throws Exception the exception
    */
-  public MolecularActionList findMolecularActions(String terminology,
-    String version, String query, PfsParameter pfs) throws Exception;
+  public MolecularActionList findMolecularActions(String terminologyId,
+    String terminology, String version, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find atomic actions.

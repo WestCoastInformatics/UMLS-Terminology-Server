@@ -222,11 +222,12 @@ tsApp
 
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a search result
-        $scope.getComponent = function(type, terminologyId, terminology, version) {
+        $scope.getComponent = function(id, type, terminologyId, terminology, version) {
 
-          console.debug('getComponent', type, terminologyId, terminology, version);
+          console.debug('getComponent', id, type, terminologyId, terminology, version);
 
           var wrapper = {
+            id : id,
             type : type,
             terminologyId : terminologyId,
             terminology : terminology,
@@ -351,13 +352,13 @@ tsApp
         $scope.getComponentFromTree = function(type, nodeScope) {
           console.debug('getComponentFromTree', type, nodeScope);
           var tree = nodeScope.$modelValue;
-          $scope.getComponent(type, tree.nodeTerminologyId, tree.terminology, tree.version);
+          $scope.getComponent(tree.nodeId, type, tree.nodeTerminologyId, tree.terminology, tree.version);
         };
 
         // helper function to get component from wrapper
         $scope.getComponentFromWrapper = function(wrapper) {
           console.debug('getComponentFromWrapper', wrapper);
-          $scope.getComponent(wrapper.type, wrapper.terminologyId, wrapper.terminology,
+          $scope.getComponent(wrapper.id, wrapper.type, wrapper.terminologyId, wrapper.terminology,
             wrapper.version);
         };
 
@@ -802,7 +803,7 @@ tsApp
                       function() {
 
                         // get the component
-                        $scope.getComponent($routeParams.type, $routeParams.terminologyId,
+                        $scope.getComponent($routeParams.id, $routeParams.type, $routeParams.terminologyId,
                           $routeParams.terminology, $routeParams.version);
                       });
                   }

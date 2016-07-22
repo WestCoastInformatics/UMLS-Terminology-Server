@@ -185,8 +185,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -261,8 +261,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -316,8 +316,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -429,8 +429,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -522,8 +522,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -573,8 +573,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -691,8 +691,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -792,8 +792,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -843,8 +843,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -989,9 +989,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
-
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -1100,8 +1099,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -1162,8 +1161,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + c.getId(), pfs, authToken);
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -1479,8 +1478,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + toC.getId(), pfs, authToken);
+        projectService.findMolecularActions(toC.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -1692,8 +1691,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + fromC.getId(), pfs, authToken);
+        projectService.findMolecularActions(fromC.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -1979,8 +1978,8 @@ public class MetaEditingServiceRestNormalUseTest extends
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(umlsTerminology, umlsVersion,
-            "terminologyId:" + originatingC.getId(), pfs, authToken);
+        projectService.findMolecularActions(originatingC.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);

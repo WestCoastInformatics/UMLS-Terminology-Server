@@ -51,7 +51,7 @@ tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureSe
   }
 
   // check and set whether application is configured
-  $http.get(configureUrl + 'configured').then(function(response) {
+  $http.get(configureUrl + '/configured').then(function(response) {
     $rootScope.isConfigured = response.data;
   }, function() {
     console.error('Could not determine configuration status');

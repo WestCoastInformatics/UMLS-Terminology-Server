@@ -221,7 +221,7 @@
             <!-- table-hover makes use of the active class -->
             <tr ng-class="{active: searchResult.active}"
               ng-repeat="searchResult in searchResults.results"
-              ng-click="getComponent(metadata.terminology.organizingClassType, searchResult.terminologyId, searchResult.terminology, searchResult.version)">
+              ng-click="getComponent(searchResult.id, metadata.terminology.organizingClassType, searchResult.terminologyId, searchResult.terminology, searchResult.version)">
               <td class="col-md-4 col-xs-4">
                 <span>
                   <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>

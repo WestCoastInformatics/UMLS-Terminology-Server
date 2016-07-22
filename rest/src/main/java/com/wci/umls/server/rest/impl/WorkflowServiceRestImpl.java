@@ -1385,8 +1385,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         final StringBuffer worklistName = new StringBuffer();
         worklistName.append("wrk").append(currentEpoch.getName()).append("_");
         worklistName.append(workflowBin.getName()).append("_");
-        if (clusterType.equals("chem"))
-          worklistName.append("chem").append("_");
+        if (clusterType != null)
+          worklistName.append(clusterType).append("_");
 
         // Obtain the next worklist number for this naming scheme
         final PfsParameter worklistQueryPfs = new PfsParameterJpa();
@@ -1395,7 +1395,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         worklistQueryPfs.setSortField("name");
         worklistQueryPfs.setAscending(false);
         final StringBuffer query = new StringBuffer();
-        if (clusterType.equals("default")) {
+        if (clusterType == null) {
           query
               .append("name:")
               .append("wrk")
@@ -1423,10 +1423,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         final StringBuffer sb = new StringBuffer();
         sb.append("workflowBinName:").append(workflowBin.getName());
         sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-        if (!clusterType.equals("all") && !clusterType.equals("default")) {
+        if (clusterType != null) {
           sb.append(" AND ").append("clusterType:").append(clusterType);
-        }
-        if (clusterType.equals("default")) {
+        } else {
           sb.append(" AND NOT clusterType:[* TO *]");
         }
 

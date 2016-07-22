@@ -294,7 +294,7 @@ tsApp
 
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
-        this.getPagedArray = function(array, paging, pageSize) {
+        this.getPagedArray = function(array, paging) {
           var newArray = new Array();
 
           // if array blank or not an array, return blank list
@@ -303,7 +303,6 @@ tsApp
           }
 
           newArray = array;
-
           // apply suppressible/obsolete
           /*if (!paging.showHidden) {
             newArray = newArray.filter(function(item) {
@@ -313,7 +312,6 @@ tsApp
 
           // apply sort if specified
           if (paging.sortField) {
-            console.debug('sorting', paging.sortField, paging.sortAscending);
             // if ascending specified, use that value, otherwise use false
             newArray.sort(this.sortBy(paging.sortField, paging.sortAscending));
           }
@@ -329,12 +327,13 @@ tsApp
           }
 
           // get the page indices (if supplied)
-          if (pageSize != -1) {
-            var fromIndex = (paging.page - 1) * pageSize;
-            var toIndex = Math.min(fromIndex + pageSize, array.length);
-
+          var results;
+          if (paging.pageSize != -1) {
+            var fromIndex = (paging.page - 1) * paging.pageSize;
+            var toIndex = Math.min(fromIndex + paging.pageSize, array.length);
+            
             // slice the array
-            var results = newArray.slice(fromIndex, toIndex);
+            results = newArray.slice(fromIndex, toIndex);
           } else {
             results = newArray;
           }

@@ -147,23 +147,6 @@ public interface MetaEditingServiceRest {
     Long timestamp, Long relationshipId, boolean overrideWarnings,
     String authToken) throws Exception;
 
-  
-  /**
-   * Validate merge.
-   *
-   * @param projectId the project id
-   * @param terminology the terminology
-   * @param version the version
-   * @param conceptId the concept id
-   * @param conceptId2 the concept id 2
-   * @param authToken the auth token
-   * @return the validation result
-   * @throws Exception the exception
-   */
-  public ValidationResult validateMerge(Long projectId, String terminology,
-    String version, Long conceptId, Long conceptId2, String authToken)
-    throws Exception;
-  
   /**
    * Merge concepts.
    *
