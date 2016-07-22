@@ -68,29 +68,29 @@ public class UmlsIdentifierAssignmentHandler
       if (p.containsKey("aui.prefix")) {
         prefixMap.put("AUI", p.getProperty("aui.prefix"));
       }
-      if (p.containsKey("lui.length")) {
-        lengthMap.put("LUI", Integer.valueOf(p.getProperty("lui.length")));
-      }
-      if (p.containsKey("lui.prefix")) {
-        prefixMap.put("LUI", p.getProperty("lui.prefix"));
-      }
       if (p.containsKey("atui.length")) {
         lengthMap.put("ATUI", Integer.valueOf(p.getProperty("atui.length")));
       }
       if (p.containsKey("atui.prefix")) {
         prefixMap.put("ATUI", p.getProperty("atui.prefix"));
       }
-      if (p.containsKey("sui.length")) {
-        lengthMap.put("SUI", Integer.valueOf(p.getProperty("sui.length")));
+      if (p.containsKey("lui.length")) {
+        lengthMap.put("LUI", Integer.valueOf(p.getProperty("lui.length")));
       }
-      if (p.containsKey("sui.prefix")) {
-        prefixMap.put("SUI", p.getProperty("sui.prefix"));
+      if (p.containsKey("lui.prefix")) {
+        prefixMap.put("LUI", p.getProperty("lui.prefix"));
       }
       if (p.containsKey("rui.length")) {
         lengthMap.put("RUI", Integer.valueOf(p.getProperty("rui.length")));
       }
       if (p.containsKey("rui.prefix")) {
         prefixMap.put("RUI", p.getProperty("rui.prefix"));
+      }
+      if (p.containsKey("sui.length")) {
+        lengthMap.put("SUI", Integer.valueOf(p.getProperty("sui.length")));
+      }
+      if (p.containsKey("sui.prefix")) {
+        prefixMap.put("SUI", p.getProperty("sui.prefix"));
       }
     }
   }

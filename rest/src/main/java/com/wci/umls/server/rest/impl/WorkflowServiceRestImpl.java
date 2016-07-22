@@ -1,8 +1,12 @@
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.rest.impl;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -38,6 +42,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
@@ -300,11 +305,29 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           authorizeProject(workflowService, projectId, securityService,
               authToken, "remove workflow config", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
+      // do all of this in one transaction
+      workflowService.setTransactionPerOperation(false);
+      workflowService.beginTransaction();
 
-      // TODO: remove worklistName from any tracking records in the
-      // corresponding bin
+      final Project project = workflowService.getProject(projectId);
+      final Worklist worklist = workflowService.getWorklist(id);
+
+      // Find workflow bin name
+      final List<WorkflowBin> list =
+          workflowService.getWorkflowBins(project, null);
+      for (final WorkflowBin bin : list) {
+        if (bin.getName().equals(worklist.getName())) {
+          for (final TrackingRecord record : bin.getTrackingRecords()) {
+            if (record.getWorklistName().equals(worklist.getName())) {
+              record.setWorklistName(null);
+              workflowService.updateTrackingRecord(record);
+            }
+          }
+        }
+      }
+
       workflowService.removeWorklist(id, true);
-
+      workflowService.commit();
     } catch (Exception e) {
       handleException(e, "trying to remove a worklist");
     } finally {
@@ -1148,8 +1171,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /action "  + projectId
-            + ", " + worklistId + ", " + userName);
+        "RESTful POST call (Workflow): /action " + projectId + ", "
+            + worklistId + ", " + userName);
 
     // Test preconditions
     if (projectId == null || userName == null) {
@@ -1165,7 +1188,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       final Worklist worklist = workflowService.getWorklist(worklistId);
       final Project project = workflowService.getProject(projectId);
-      //UserRole role = UserRole.valueOf(userRole);
+      // UserRole role = UserRole.valueOf(userRole);
       final Worklist returnWorklist =
           workflowService.performWorkflowAction(project, worklist, userName,
               userRole, action);
@@ -1366,47 +1389,47 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         if (clusterType.equals("chem"))
           worklistName.append("chem").append("_");
 
-      // Obtain the next worklist number for this naming scheme
-      final PfsParameter worklistQueryPfs = new PfsParameterJpa();
-      worklistQueryPfs.setStartIndex(0);
-      worklistQueryPfs.setMaxResults(1);
-      worklistQueryPfs.setSortField("name");
-      worklistQueryPfs.setAscending(false);
-      final StringBuffer query = new StringBuffer();
-      if (clusterType.equals("default")) {
-        query
-        .append("name:")
-        .append("wrk")
-        .append(
-            currentEpoch.getName() + "_" + workflowBin.getName() + "_0"
-                + '*');        
-      } else {
-        query
-          .append("name:")
-          .append("wrk")
-          .append(
-              currentEpoch.getName() + "_" + workflowBin.getName() + "_"
-                  + clusterType + '*');
-      }
-      final WorklistList worklistList =
-          workflowService.findWorklists(project, query.toString(),
-              worklistQueryPfs);
-      int nextNumber =
-          worklistList.getObjects().size() == 0 ? 1 : worklistList.getObjects()
-              .get(0).getNumber() + 1;
-      worklistName.append(new String(Integer.toString(nextNumber + 1000))
-          .substring(1));
+        // Obtain the next worklist number for this naming scheme
+        final PfsParameter worklistQueryPfs = new PfsParameterJpa();
+        worklistQueryPfs.setStartIndex(0);
+        worklistQueryPfs.setMaxResults(1);
+        worklistQueryPfs.setSortField("name");
+        worklistQueryPfs.setAscending(false);
+        final StringBuffer query = new StringBuffer();
+        if (clusterType.equals("default")) {
+          query
+              .append("name:")
+              .append("wrk")
+              .append(
+                  currentEpoch.getName() + "_" + workflowBin.getName() + "_0"
+                      + '*');
+        } else {
+          query
+              .append("name:")
+              .append("wrk")
+              .append(
+                  currentEpoch.getName() + "_" + workflowBin.getName() + "_"
+                      + clusterType + '*');
+        }
+        final WorklistList worklistList =
+            workflowService.findWorklists(project, query.toString(),
+                worklistQueryPfs);
+        int nextNumber =
+            worklistList.getObjects().size() == 0 ? 1 : worklistList
+                .getObjects().get(0).getNumber() + 1;
+        worklistName.append(new String(Integer.toString(nextNumber + 1000))
+            .substring(1));
 
-      // build query to retrieve tracking records that will be in worklist
-      final StringBuffer sb = new StringBuffer();
-      sb.append("workflowBinName:").append(workflowBin.getName());
-      sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-      if (!clusterType.equals("all") && !clusterType.equals("default")) {
-        sb.append(" AND ").append("clusterType:").append(clusterType);
-      }
-      if (clusterType.equals("default")) {
-        sb.append(" AND NOT clusterType:[* TO *]");
-      }
+        // build query to retrieve tracking records that will be in worklist
+        final StringBuffer sb = new StringBuffer();
+        sb.append("workflowBinName:").append(workflowBin.getName());
+        sb.append(" AND ").append("NOT worklistName:[* TO *] ");
+        if (!clusterType.equals("all") && !clusterType.equals("default")) {
+          sb.append(" AND ").append("clusterType:").append(clusterType);
+        }
+        if (clusterType.equals("default")) {
+          sb.append(" AND NOT clusterType:[* TO *]");
+        }
 
         final PfsParameter localPfs =
             pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
@@ -1534,8 +1557,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         for (final String clusterType : typeAssignedMap.keySet()) {
 
           // Skip "all" if there is only one cluster type
-          if (typeAssignedMap.keySet().size() == 2
-              && clusterType.equals("all")) {
+          if (typeAssignedMap.keySet().size() == 2 && clusterType.equals("all")) {
             continue;
           }
           // Add statistics
@@ -1596,6 +1618,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
                   .stream()
                   .collect(
                       Collectors.summingInt(w -> w.getOrigConceptIds().size())));
+
       // TODO to be done later
       // compute the stats and add them to the stats object
       // n_actions -1 - molecular action search by concept ids on worklist
@@ -1940,62 +1963,112 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
    * Execute query.
    *
    * @param query the query
-   * @param nativeFlag the native flag
+   * @param queryType the query type
    * @param params the params
    * @param workflowService the workflow service
    * @return the list
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private List<Object[]> executeQuery(String query, boolean nativeFlag,
+  private List<Long[]> executeQuery(String query, QueryType queryType,
     Map<String, String> params, WorkflowServiceJpa workflowService)
     throws Exception {
 
-    // check for sql query errors -- throw as local exception
-    // this is used to propagate errors back to user when testing queries
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+      // precondition check
+      if (params == null || !params.containsKey("terminology")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'terminology'"
+                + params);
+      }
+      // Perform search
+      final SearchResultList resultList =
+          workflowService.findConcepts(params.get("terminology"), null, null,
+              null, pfs);
+      // Cluster results
+      final List<Long[]> results = new ArrayList<>();
+      for (final SearchResult concept : resultList.getObjects()) {
+        final Long[] result = new Long[2];
+        result[0] = concept.getId();
+        result[1] = concept.getId();
+        results.add(result);
+      }
+      return results;
+    }
 
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // Handle SQL and JQL queries here
+    // Check for JQL/SQL errors
     // ensure that query begins with SELECT (i.e. prevent injection
     // problems)
     if (!query.toUpperCase().startsWith("SELECT")) {
       throw new LocalException(
-          "SQL Query has bad format:  does not begin with SELECT");
+          "Query has bad format:  does not begin with SELECT");
     }
 
     // check for multiple commands (i.e. multiple semi-colons)
     if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
       throw new LocalException(
-          "SQL Query has bad format:  multiple commands detected");
+          "Query has bad format:  multiple queries detected");
     }
 
     // crude check: check for data manipulation commands
     if (query.toUpperCase().matches(
         "ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
-      throw new LocalException(
-          "SQL Query has bad format:  data manipulation request detected");
+      throw new LocalException("Query has bad format:  DDL request detected");
     }
 
     // check for proper format for insertion into reports
 
-    if (query.toUpperCase().indexOf("FROM") == -1)
-      throw new LocalException(
-          "Workflow bin definition query must contain the term FROM");
+    if (query.toUpperCase().indexOf("FROM") == -1) {
+      throw new LocalException("Query must contain the term FROM");
+    }
 
-    String selectSubStr =
+    final String selectSubStr =
         query.substring(0, query.toUpperCase().indexOf(" FROM "));
 
-    if (nativeFlag && !selectSubStr.contains("clusterId"))
-      throw new LocalException(
-          "Workflow bin definition query must return column result with name of 'clusterId'");
+    boolean conceptQuery = false;
+    boolean dualConceptQuery = false;
+    boolean clusterQuery = false;
 
-    if (nativeFlag && !selectSubStr.contains("conceptId"))
-      throw new LocalException(
-          "Workflow bin definition query must return column result with name of 'conceptId'");
+    if (selectSubStr.contains("conceptId")) {
+      conceptQuery = true;
+    }
 
+    if (selectSubStr.contains("conceptId1")
+        && selectSubStr.contains("conceptId2")) {
+      dualConceptQuery = true;
+    }
+
+    if (selectSubStr.contains("clusterId")) {
+      clusterQuery = true;
+    }
+
+    if (!conceptQuery && !dualConceptQuery && !clusterQuery) {
+      throw new LocalException(
+          "Query must have either clusterId,conceptId OR conceptId OR conceptId1,conceptId2 fields in the SELECT statement");
+    }
+
+    if (dualConceptQuery && clusterQuery) {
+      throw new LocalException(
+          "Query must have either clusterId,conceptId OR conceptId OR conceptId1,conceptId2 fields in the SELECT statement");
+    }
+
+    // Execute the query
     javax.persistence.Query jpaQuery = null;
-    if (nativeFlag) {
+    if (queryType == QueryType.SQL) {
       jpaQuery = workflowService.getEntityManager().createNativeQuery(query);
-    } else {
+    } else if (queryType == QueryType.JQL) {
       jpaQuery = workflowService.getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
     }
     if (params != null) {
       for (final String key : params.keySet()) {
@@ -2005,7 +2078,108 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       }
     }
     Logger.getLogger(getClass()).info("  query = " + query);
-    return jpaQuery.getResultList();
+
+    // Handle simple concept type
+    if (conceptQuery && !dualConceptQuery && !clusterQuery) {
+      final List<Object[]> list = jpaQuery.getResultList();
+      final List<Long[]> results = new ArrayList<>();
+      for (final Object[] entry : list) {
+        final Long conceptId = ((BigInteger) entry[0]).longValue();
+        final Long[] result = new Long[2];
+        result[0] = conceptId;
+        result[1] = conceptId;
+        results.add(result);
+      }
+      return results;
+    }
+
+    // Handle concept,concept type
+    if (dualConceptQuery) {
+      final List<Object[]> list = jpaQuery.getResultList();
+
+      final Map<Long, Set<Long>> parChd = new HashMap<>();
+      final Map<Long, Set<Long>> chdPar = new HashMap<>();
+      for (final Object[] entry : list) {
+        final Long conceptId1 = ((BigInteger) entry[0]).longValue();
+        final Long conceptId2 = ((BigInteger) entry[1]).longValue();
+        final Long par = Math.min(conceptId1, conceptId2);
+        final Long chd = Math.max(conceptId1, conceptId2);
+        // skip self-ref
+        if (par.equals(chd)) {
+          continue;
+        }
+        if (!parChd.containsKey(par)) {
+          parChd.put(par, new HashSet<>());
+        }
+        parChd.get(par).add(chd);
+        if (!chdPar.containsKey(chd)) {
+          chdPar.put(chd, new HashSet<>());
+        }
+        chdPar.get(chd).add(par);
+      }
+
+      // Recurse down the parChd tree for each key that isn't also a child (e.g.
+      // these are the roots and also the cluster ids)
+      final List<Long[]> results = new ArrayList<>();
+      for (final Long par : parChd.keySet()) {
+        // Skip keys that are themselves children of other nodes
+        if (chdPar.containsKey(par)) {
+          continue;
+        }
+        // Put the parent itself into the results
+        final Long[] result = new Long[2];
+        result[0] = par;
+        result[1] = par;
+        results.add(result);
+
+        // recurse down the entire parChd graph for "root" keys
+        final Set<Long> descendants = new HashSet<>();
+        getDescendants(par, parChd, descendants);
+        for (final Long desc : descendants) {
+          // Create and add results for each descendatn
+          final Long[] result2 = new Long[2];
+          result2[0] = par;
+          result2[1] = desc;
+          results.add(result);
+        }
+      }
+      return results;
+    }
+
+    // Otherwise, just return the result list as longs.
+    // this is just the regular clusterQuery case
+    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Long[]> results = new ArrayList<>();
+    for (final Object[] entry : list) {
+      final Long[] result =
+          new Long[] {
+              ((BigInteger) entry[0]).longValue(),
+              ((BigInteger) entry[1]).longValue()
+          };
+      results.add(result);
+    }
+    return results;
+
+  }
+
+  /**
+   * get all descendants of the parent node.
+   *
+   * @param par the par
+   * @param parChd the par chd
+   * @param result the result
+   */
+  private void getDescendants(Long par, Map<Long, Set<Long>> parChd,
+    Set<Long> result) {
+    if (!parChd.containsKey(par)) {
+      return;
+    }
+    // Iterate through all children, add and recurse
+    for (final Long chd : parChd.get(par)) {
+      result.add(chd);
+      getDescendants(chd, parChd, result);
+    }
+
   }
 
   /**
@@ -2085,46 +2259,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     final Map<String, String> params = new HashMap<>();
     params.put("terminology", project.getTerminology());
 
-    List<Object[]> results = null;
-    switch (definition.getQueryType()) {
-      case JQL:
-        try {
-          results = executeQuery(query, false, params, workflowService);
-        } catch (java.lang.IllegalArgumentException e) {
-          throw new LocalException("Error executing HQL query: "
-              + e.getMessage());
-        }
-        break;
-      case LUCENE:
-        final PfsParameter pfs = new PfsParameterJpa();
-        pfs.setQueryRestriction(query);
-        final SearchResultList resultList =
-            workflowService.findConcepts(project.getTerminology(), null, null,
-                null, pfs);
-        results = new ArrayList<>();
-        for (final SearchResult result : resultList.getObjects()) {
-          final Object[] objectArray = new Object[2];
-          objectArray[0] = result.getId();
-          objectArray[1] = result.getId();
-          results.add(objectArray);
-        }
-        break;
-      case SQL:
-        try {
-          results = executeQuery(query, true, params, workflowService);
-        } catch (javax.persistence.PersistenceException e) {
-          throw new LocalException("Error executing SQL query:  "
-              + e.getMessage());
-        } catch (java.lang.IllegalArgumentException e) {
-          throw new LocalException(
-              "Error executing SQL query, possible invalid parameters - "
-                  + e.getMessage());
-        }
-        break;
-      default:
-        break;
-
-    } // end execute query for each definition
+    List<Long[]> results =
+        executeQuery(query, definition.getQueryType(), params, workflowService);
 
     if (results == null)
       throw new Exception("Failed to retrieve results for query");
@@ -2133,7 +2269,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info("  results = " + results.size());
 
     // put query results into map
-    for (final Object[] result : results) {
+    for (final Long[] result : results) {
       final Long clusterId = Long.parseLong(result[0].toString());
       final Long componentId = Long.parseLong(result[1].toString());
 
@@ -2184,7 +2320,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           final Concept concept = workflowService.getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
-          // collect all the concept names for the indexed data 
+          // collect all the concept names for the indexed data
           conceptNames.append(concept.getName()).append(" ");
 
           // Set cluster type if a concept has an STY associated with a cluster

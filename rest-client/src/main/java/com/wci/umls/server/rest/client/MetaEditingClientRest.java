@@ -357,24 +357,24 @@ public class MetaEditingClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public ValidationResult moveAtoms(Long projectId, Long fromConceptId,
-    Long lastModified, Long toConceptId, List<Long> atomIds,
+  public ValidationResult moveAtoms(Long projectId, Long conceptId,
+    Long lastModified, Long conceptId2, List<Long> atomIds,
     boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - move atoms " + atomIds + " from concept "
-            + fromConceptId + " to concept " + toConceptId + ", " + lastModified
+            + conceptId + " to concept " + conceptId2 + ", " + lastModified
             + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
-    validateNotEmpty(fromConceptId, "fromConceptId");
-    validateNotEmpty(toConceptId, "toConceptId");
+    validateNotEmpty(conceptId, "conceptId");
+    validateNotEmpty(conceptId2, "conceptId2");
     validateNotEmpty(atomIds.toString(), "atoms");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/meta/concept/move?projectId=" + projectId + "&fromConceptId="
-        + fromConceptId + "&lastModified=" + lastModified + "&toConceptId="
-        + toConceptId + (overrideWarnings ? "&overrideWarnings=true" : ""));
+        + "/meta/concept/move?projectId=" + projectId + "&conceptId="
+        + conceptId + "&lastModified=" + lastModified + "&conceptId2="
+        + conceptId2 + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(atomIds));
@@ -390,5 +390,43 @@ public class MetaEditingClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
   }
+  
+  @Override
+  public ValidationResult splitConcept(Long projectId, Long conceptId,
+    Long lastModified, List<Long> atomIds, boolean overrideWarnings,
+    boolean copyRelationships, boolean copySemanticTypes,
+    String relationshipType, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - splitting " + atomIds + " atoms out of concept " + conceptId
+            + " into new concept, " + lastModified + ", "
+            + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/concept/split?projectId=" + projectId + "&conceptId="
+        + conceptId + "&lastModified=" + lastModified + (overrideWarnings ? "&overrideWarnings=true" : "")
+        + (copyRelationships ? "&copyRelationships=true" : "")
+        + (copySemanticTypes ? "&copySemanticTypes=true" : "")
+        + "&relationshipType=" + relationshipType);
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(atomIds));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+  }
+
 
 }

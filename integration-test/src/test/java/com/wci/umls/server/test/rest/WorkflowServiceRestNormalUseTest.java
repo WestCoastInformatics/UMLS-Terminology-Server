@@ -29,18 +29,18 @@ import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
+import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.Checklist;
-import com.wci.umls.server.model.workflow.QueryType;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
@@ -50,7 +50,7 @@ import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
-import com.wci.umls.server.services.MetadataService;
+import com.wci.umls.server.rest.client.MetadataClientRest;
 
 /**
  * Implementation of the "Workflow Service REST Normal Use" Test Cases.
@@ -213,7 +213,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     final WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
     definition.setName("test name");
     definition.setDescription("test description");
-    definition.setQuery("select * from concepts");
+    definition.setQuery("select a.id from concepts a");
     definition.setEditable(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
@@ -259,16 +259,54 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
   public void testClearAndRegenerateBins() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    // Add a required SQL bin definition
+    // Add a required SQL bin definition CLUSTER_CONCEPT
     Logger.getLogger(getClass()).info("    Add required SQL bin definition");
     WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
-    definition.setName("testSQL");
+    definition.setName("testSQL - cluster,concept");
     definition.setDescription("Test SQL.");
     definition.setQuery("select a.id clusterId, a.id conceptId "
         + "from concepts a, concepts_atoms b, atoms c "
         + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
         + "  and a.terminology = :terminology and c.terminology='NCI' "
         + "  and c.workflowStatus = 'NEEDS_REVIEW'");
+    definition.setEditable(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(config);
+    definition =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition, authToken);
+
+    // Add a required SQL bin definition CONCEPT CONCEPT
+    Logger.getLogger(getClass()).info(
+        "    Add required SQL bin definition - cid1,2");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("testSQL - concept,concept");
+    definition.setDescription("Test SQL.");
+    definition.setQuery("select a.from_id conceptId1, a.to_id conceptId2 "
+        + "from concept_relationships a, concepts b "
+        + "where a.from_id = b.id "
+        + "  and b.terminologyId between  'C0000000' and 'C0000500' "
+        + "  and a.terminology = :terminology");
+    definition.setEditable(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(config);
+    definition =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition, authToken);
+
+    // Add a required SQL bin definition CONCEPT CONCEPT
+    Logger.getLogger(getClass()).info(
+        "    Add required SQL bin definition - cid1,2");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("testSQL - concept");
+    definition.setDescription("Test SQL.");
+    definition.setQuery("select a.from_id conceptId "
+        + "from concept_relationships a, concepts b "
+        + "where a.from_id = b.id "
+        + "  and b.terminologyId between 'C0000000' and 'C0000500' "
+        + "  and a.terminology = :terminology");
     definition.setEditable(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
@@ -1026,39 +1064,31 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
    */
   private Map<String, String> getSemanticTypeCategoryMap() throws Exception {
     final Map<String, String> map = new HashMap<>();
-    final MetadataService service = new MetadataServiceJpa();
-    try {
-      final SemanticTypeList styList =
-          service.getSemanticTypes(umlsTerminology, umlsVersion);
+    final MetadataServiceRest service =
+        new MetadataClientRest(ConfigUtility.getConfigProperties());
+    final SemanticTypeList styList =
+        service.getSemanticTypes(umlsTerminology, umlsVersion, authToken);
 
-      // Obtain "Chemical" semantic type.
-      String chemStn = null;
-      for (final SemanticType sty : styList.getObjects()) {
-        if (sty.getExpandedForm().equals("Chemical")) {
-          chemStn = sty.getTreeNumber();
-          break;
-        }
+    // Obtain "Chemical" semantic type.
+    String chemStn = null;
+    for (final SemanticType sty : styList.getObjects()) {
+      if (sty.getExpandedForm().equals("Chemical")) {
+        chemStn = sty.getTreeNumber();
+        break;
       }
-      if (chemStn == null) {
-        throw new Exception("Unable to find 'Chemical' semantic type");
-      }
-
-      // Assign "chem" categories
-      for (final SemanticType sty : styList.getObjects()) {
-        if (sty.getTreeNumber().startsWith(chemStn)) {
-          map.put(sty.getExpandedForm(), "chem");
-        }
-        // the default is not explicitly rendered
-        // else {
-        // map.put(sty.getExpandedForm(), "nonchem");
-        // }
-      }
-
-    } catch (Exception e) {
-      throw e;
-    } finally {
-      service.close();
     }
+    if (chemStn == null) {
+      throw new Exception("Unable to find 'Chemical' semantic type");
+    }
+
+    // Assign "chem" categories
+    for (final SemanticType sty : styList.getObjects()) {
+      if (sty.getTreeNumber().startsWith(chemStn)) {
+        map.put(sty.getExpandedForm(), "chem");
+      }
+      // the default is not explicitly rendered
+    }
+
     return map;
   }
 
@@ -1232,6 +1262,47 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
     workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
+        authToken);
+
+  }
+
+  /**
+   * Test new bins
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNewBin() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Add a required SQL bin definition
+    Logger.getLogger(getClass()).info("    Add required SQL bin definition");
+    WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
+    definition.setName("testSQL");
+    definition.setDescription("Test SQL.");
+    definition.setQuery("select a.id clusterId, a.id conceptId "
+        + "from concepts a, concepts_atoms b, atoms c "
+        + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+        + "  and a.terminology = :terminology and c.terminology='NCI' "
+        + "  and c.workflowStatus = 'NEEDS_REVIEW'");
+    definition.setEditable(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(config);
+    definition =
+        (WorkflowBinDefinitionJpa) workflowService.addWorkflowBinDefinition(
+            projectId, definition, authToken);
+
+    // Regenerate bins
+    workflowService.regenerateBins(projectId,
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+
+    // Clear bins
+    Logger.getLogger(getClass()).debug("  Clear bins");
+    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
+        authToken);
+    // Remove the definition
+    workflowService.removeWorkflowBinDefinition(projectId, definition.getId(),
         authToken);
 
   }

@@ -4,6 +4,7 @@
 package com.wci.umls.server.model.workflow;
 
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.QueryType;
 
 /**
  * Represents a query for identifing concepts/components that meet some set of

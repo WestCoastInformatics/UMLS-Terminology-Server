@@ -130,6 +130,7 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
     tester.include("description");
     tester.include("query");
     tester.include("queryType");
+
     tester.include("editable");
     tester.include("required");
     tester.include("workflowConfig");

@@ -103,14 +103,15 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public void removeConcept(Long id, String authToken) throws Exception {
+  public void removeConcept(Long id, boolean cascade, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Integration Test Client - remove concept " + id);
     validateNotEmpty(id, "id");
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/test/concept/remove/"
-            + id);
+            + id + (cascade ? "?cascade=true" : ""));
+    
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).delete();
