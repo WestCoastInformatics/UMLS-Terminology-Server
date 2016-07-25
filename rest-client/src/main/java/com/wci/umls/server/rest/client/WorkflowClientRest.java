@@ -412,11 +412,11 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bin/regenerate/all?projectId=" + projectId);
+            + "/workflow/bin/regenerate/all?projectId=" + projectId + "&type=" + type);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.json(type));
-
+            .header("Authorization", authToken).get();
+    
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
@@ -811,10 +811,10 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/bin/clear/all?projectId=" + projectId);
+            + "/workflow/bin/clear/all?projectId=" + projectId + "&type=" + type);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.json(type));
+            .header("Authorization", authToken).get();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a

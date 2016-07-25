@@ -653,7 +653,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
-  @POST
+  @GET
   @Path("/bin/clear/all")
   @ApiOperation(value = "Clear bins", notes = "Clear bins")
   public void clearBins(
@@ -690,12 +690,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
   /* see superclass */
   @Override
-  @POST
+  @GET
   @Path("/bin/regenerate/all")
   @ApiOperation(value = "Regenerate bins", notes = "Regenerate bins")
   public void regenerateBins(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin type", required = true) WorkflowBinType type,
+    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") WorkflowBinType type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -726,7 +726,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         for (final WorkflowBin workflowBin : results) {
           workflowService.removeWorkflowBin(workflowBin.getId(), true);
         }
-
+        
+        // tried to add this because removeBins wasn't removing them till later
+        // causing table integrity constraints to be violated
+        // adding it caused lazyInitException on workflowConfig.getWorkflowBinDefinitions
+/*        workflowService.commit();
+        workflowService.beginTransaction();
+*/
         // concepts seen set
         final Set<Long> conceptsSeen = new HashSet<>();
         final Map<Long, String> conceptIdWorklistNameMap =

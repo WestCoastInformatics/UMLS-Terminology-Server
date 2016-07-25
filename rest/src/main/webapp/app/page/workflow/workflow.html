@@ -18,7 +18,11 @@
           ng-model="currentBinType" ng-show="binTypeOptions.length > 1"
           ng-options="item for item in binTypeOptions"
           ng-change="setBinType(currentBinType);"></select>
-        <h4><span ng-show="binTypeOptions.length == 1">{{currentBinType}}</span></h4>
+        <h4><span ng-show="binTypeOptions.length == 1">{{currentBinType}}
+          <i title="Regenerate bins"
+                  ng-click="regenerateBins(); $event.stopPropagation()"
+                  class="md-grey material-icons md-18">refresh</i>
+        </span></h4>
       </div>
       <div class="col-md-12 col-xs-12">
         <table class="table table-hover" style="margin-top: 10px;"

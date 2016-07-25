@@ -220,6 +220,19 @@ tsApp.controller('WorkflowCtrl', [
       });
     };
     
+    // Regenerate bins
+    $scope.regenerateBins = function() {
+      console.debug('clear and regenerateBins');
+      workflowService.clearBins($scope.currentProject.id, $scope.currentBinType).then(
+        function(response) {
+
+          workflowService.regenerateBins($scope.currentProject.id, $scope.currentBinType).then(
+            function(response) {
+              $scope.getBins($scope.currentProject.id, $scope.currentBinType);
+            });
+        });
+    };
+    
     // Convert date to a string
     $scope.toDate = function(lastModified) {
       return utilService.toDate(lastModified);

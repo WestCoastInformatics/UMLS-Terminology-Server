@@ -843,5 +843,51 @@ tsApp.service('workflowService', [
         });
       return deferred.promise;
     };
+    
+    // regenerate bins
+    this.regenerateBins = function(projectId, workflowBinType) {
+      console.debug('regenerate bins');
+      var deferred = $q.defer();
+
+      // find tracking records
+      gpService.increment();
+      $http.get(workflowUrl + '/bin/regenerate/all?projectId=' + projectId + '&type=' + workflowBinType)
+        .then(
+        // success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      return deferred.promise;
+    };
+    
+    // clear bins
+    this.clearBins = function(projectId, workflowBinType) {
+      console.debug('clear bins');
+      var deferred = $q.defer();
+
+      // find tracking records
+      gpService.increment();
+      $http.get(workflowUrl + '/bin/clear/all?projectId=' + projectId + '&type=' + workflowBinType)
+        .then(
+        // success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      return deferred.promise;
+    };
     // end
   } ]);
