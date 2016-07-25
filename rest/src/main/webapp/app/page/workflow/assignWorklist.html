@@ -13,9 +13,12 @@
     <tr ng-show="action == 'ASSIGN'">
       <td>
         <b>Select user</b>
+        <!-- allUsers: {{allUsers}}</br>
+        assignedUsers: {{assignedUsers}} </br>
+        prospectiveUsers: {{prospectiveUsers}}</br> -->
       </td>
       <td>
-        <select ng-model="user" ng-options="item for item in assignedUsers"></select>
+        <select ng-model="user" ng-options="item.userName for item in assignedUsers"></select>
       </td>
     </tr>
     <tr>
