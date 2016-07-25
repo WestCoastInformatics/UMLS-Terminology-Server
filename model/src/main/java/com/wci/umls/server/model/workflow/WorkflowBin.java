@@ -195,4 +195,18 @@ public interface WorkflowBin extends HasLastModified, HasProject {
    * @param stats the stats
    */
   public void setStats(List<ClusterTypeStats> stats);
+
+  /**
+   * Sets the enabled.
+   *
+   * @param enabled the enabled
+   */
+  public void setEnabled(boolean enabled);
+
+  /**
+   * Indicates whether or not enabled is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isEnabled();
 }

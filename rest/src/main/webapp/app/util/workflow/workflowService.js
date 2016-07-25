@@ -462,6 +462,27 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // get workflow bin definition
+    this.getWorkflowBinDefinition = function(projectId, definitionName, binType) {
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(workflowUrl + '/definition?projectId=' + projectId +
+        '&name=' + definitionName + '&type=' + binType).then(
+      // success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
     // get all workflow bins
     this.getWorkflowBins = function(projectId, type) {
       var deferred = $q.defer();

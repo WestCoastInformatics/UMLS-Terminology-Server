@@ -561,4 +561,17 @@ public interface WorkflowServiceRest {
    */
   public void updateWorklist(Long projectId, WorklistJpa config, String authToken)
     throws Exception;
+
+  /**
+   * Returns the workflow bin definition.
+   *
+   * @param projectId the project id
+   * @param name the name
+   * @param type the type
+   * @param authToken the auth token
+   * @return the workflow bin definition
+   * @throws Exception the exception
+   */
+  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId, String name,
+    WorkflowBinType type, String authToken) throws Exception;
 }

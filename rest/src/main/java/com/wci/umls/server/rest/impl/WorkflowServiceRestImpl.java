@@ -358,7 +358,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       for (final WorkflowBin bin : list) {
         if (bin.getName().equals(worklist.getWorkflowBinName())) {
           for (final TrackingRecord record : bin.getTrackingRecords()) {
-            if (record.getWorklistName().equals(worklist.getName())) {
+            if (worklist.getName().equals(record.getWorklistName())) {
               record.setWorklistName(null);
               workflowService.updateTrackingRecord(record);
             }
@@ -654,6 +654,45 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
+  @Path("/definition")
+  @ApiOperation(value = "Get workflow bin definition", notes = "Gets workflow bin definition by name")
+  public WorkflowBinDefinition getWorkflowBinDefinition(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow bin definition name, e.g. demotions", required = true) @QueryParam("name") String name,
+    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") WorkflowBinType type,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Workflow): /definition/" + name + " " + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "get workflow bin definition", UserRole.AUTHOR);
+      final Project project = workflowService.getProject(projectId);
+      final List<WorkflowBinDefinition> definitions =
+          workflowService.getWorkflowBinDefinitions(project, type);
+      for (WorkflowBinDefinition definition : definitions) {
+        if (definition.getName().equals(name)) {
+          workflowService.handleLazyInit(definition);
+          return definition;
+        }
+      }
+      return null;
+
+    } catch (Exception e) {
+      handleException(e, "trying to get a workflow bin definition");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+
+  }
+
+  /* see superclass */
+  @Override
+  @GET
   @Path("/bin/clear/all")
   @ApiOperation(value = "Clear bins", notes = "Clear bins")
   public void clearBins(
@@ -715,10 +754,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         workflowService.beginTransaction();
 
         // Load the project and workflow config
-        final Project project = workflowService.getProject(projectId);
-        final WorkflowConfig workflowConfig =
-            workflowService.getWorkflowConfig(project, type);
-
+        Project project = workflowService.getProject(projectId);
+        
         // Start by clearing the bins
         // remove bins and all of the tracking records in the bins
         final List<WorkflowBin> results =
@@ -727,12 +764,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           workflowService.removeWorkflowBin(workflowBin.getId(), true);
         }
         
-        // tried to add this because removeBins wasn't removing them till later
-        // causing table integrity constraints to be violated
-        // adding it caused lazyInitException on workflowConfig.getWorkflowBinDefinitions
-/*        workflowService.commit();
+        workflowService.commit();
         workflowService.beginTransaction();
-*/
+        
+        // reread after the commit
+        project = workflowService.getProject(projectId);
+        
+        final WorkflowConfig workflowConfig =
+            workflowService.getWorkflowConfig(project, type);
+
         // concepts seen set
         final Set<Long> conceptsSeen = new HashSet<>();
         final Map<Long, String> conceptIdWorklistNameMap =
@@ -2355,6 +2395,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     bin.setName(definition.getName());
     bin.setDescription(definition.getDescription());
     bin.setEditable(definition.isEditable());
+    bin.setEnabled(definition.isEnabled());
     bin.setProject(project);
     bin.setRank(rank);
     bin.setTerminology(project.getTerminology());
@@ -2409,7 +2450,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
     // for each cluster in clusterIdComponentIdsMap create a tracking record if
     // unassigned bin
-    if (definition.isEditable()) {
+    if (definition.isEditable() && definition.isEnabled()) {
       long clusterIdCt = 1L;
       for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
 

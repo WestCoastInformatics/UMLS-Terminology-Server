@@ -29,9 +29,10 @@
           ng-show="bins.length > 0">
           <thead class="table-select-row">
             <tr>
+              <th class="col-md-1 col-xs-1"></th>
               <th class="col-md-1 col-xs-1">Rank</th>
               <th class="col-md-3 col-xs-3">Name</th>
-              <th class="col-md-4 col-xs-4">Dates</th>
+              <th class="col-md-3 col-xs-3">Dates</th>
               <th class="col-md-1 col-xs-1">Cluster</th>
               <th class="col-md-1 col-xs-1">All</th>
               <th class="col-md-1 col-xs-1">Assigned</th>
@@ -40,8 +41,10 @@
             </tr>
           </thead>
           <tbody ng-repeat="bin in bins">
-            <tr ng-click="selectBin(bin, 'all');"
+            <tr ng-click="selectBin(bin, 'all');" ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
               ng-class="{selected: bin.id == selected.bin.id}">
+              <td rowspan="4"><input type="checkbox" title="Enable/Disable Bin"
+                ng-model="bin.enabled" ng-change="toggleEnable(bin)"></input></td>
               <td rowspan="4">{{bin.rank}}</td>
               <td rowspan="4">
                 <i uib-tooltip="{{bin.description}}"
@@ -53,6 +56,7 @@
               </td>
             </tr>
             <tr ng-repeat="stats in bin.stats" ng-click="selectBin(bin, stats.clusterType);"
+                ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
                 ng-class="{selected: (stats.clusterType == selected.clusterType && bin.id == selected.bin.id) ||
                                       (selected.clusterType == 'all' && bin.id == selected.bin.id)}">
               <td>{{ stats.clusterType }}</td>

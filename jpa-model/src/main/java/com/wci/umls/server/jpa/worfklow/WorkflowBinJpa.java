@@ -100,11 +100,15 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Column(nullable = false)
   private int rank;
 
-  /** The editable. */
+  /** The editable flag. */
   @Column(nullable = false)
   private boolean editable;
 
-  /** The required. */
+  /** The enabled flag. */
+  @Column(nullable = false)
+  private boolean enabled;
+
+  /** The required flag. */
   @Column(nullable = false)
   private boolean required;
 
@@ -157,6 +161,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     type = bin.getType();
     rank = bin.getRank();
     editable = bin.isEditable();
+    enabled = bin.isEnabled();
     required = bin.isRequired();
     creationTime = bin.getCreationTime();
     clusterCt = bin.getClusterCt();
@@ -279,6 +284,20 @@ public class WorkflowBinJpa implements WorkflowBin {
     this.editable = editable;
   }
 
+  /* see superclass */
+  @Override
+  @FieldBridge(impl = BooleanBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  /* see superclass */
+  @Override
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+  
   /* see superclass */
   @Override
   @FieldBridge(impl = BooleanBridge.class)
@@ -432,6 +451,7 @@ public class WorkflowBinJpa implements WorkflowBin {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (editable ? 1231 : 1237);
+    result = prime * result + (enabled ? 1231 : 1237);
     result = prime * result + (required ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + rank;
@@ -461,6 +481,8 @@ public class WorkflowBinJpa implements WorkflowBin {
     } else if (!description.equals(other.description))
       return false;
     if (editable != other.editable)
+      return false;
+    if (enabled != other.enabled)
       return false;
     if (required != other.required)
       return false;
@@ -500,7 +522,8 @@ public class WorkflowBinJpa implements WorkflowBin {
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
         + ", version=" + version + ", type=" + type + ", rank=" + rank
         + ", editable=" + editable + ", required=" + required
-        + ", creationTime=" + creationTime + ", stats=" + stats + "]";
+        + ", creationTime=" + creationTime + ", stats=" + stats + ", enabled=" 
+        + enabled + "]";
   }
 
 }

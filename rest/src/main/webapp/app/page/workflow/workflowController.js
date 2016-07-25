@@ -23,6 +23,7 @@ tsApp.controller('WorkflowCtrl', [
     tabService.setSelectedTabByLabel('Workflow');
 
     $scope.user = securityService.getUser();
+    $scope.projectRole;
     $scope.binTypeOptions = []; 
     $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
     // TODO: need to bootstrap this
@@ -76,6 +77,7 @@ tsApp.controller('WorkflowCtrl', [
           $scope.projects = data;
           $scope.projects = data;
           $scope.currentProject = $scope.projects.projects[0];
+          $scope.currentProject.user = Object.keys($scope.currentProject.userRoleMap);
 
           $scope.getBins($scope.currentProject.id, $scope.currentBinType);
           $scope.getBinTypes();
@@ -229,6 +231,24 @@ tsApp.controller('WorkflowCtrl', [
           workflowService.regenerateBins($scope.currentProject.id, $scope.currentBinType).then(
             function(response) {
               $scope.getBins($scope.currentProject.id, $scope.currentBinType);
+            });
+        });
+    };
+    
+    // enable/disable
+    $scope.toggleEnable = function(bin) {
+      console.debug('enable/disable bin');
+      workflowService.getWorkflowBinDefinition($scope.currentProject.id, bin.name, $scope.currentBinType).then(
+        function(response) {
+          var workflowBinDefinition = response;
+          if (workflowBinDefinition.enabled) {
+            workflowBinDefinition.enabled = false;
+          } else {
+            workflowBinDefinition.enabled = true;
+          }
+          workflowService.updateWorkflowBinDefinition($scope.currentProject.id, workflowBinDefinition).then(
+            function(response) {
+              $scope.regenerateBins();
             });
         });
     };
