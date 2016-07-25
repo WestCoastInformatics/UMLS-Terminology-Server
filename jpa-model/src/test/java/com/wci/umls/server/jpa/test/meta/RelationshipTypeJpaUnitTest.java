@@ -147,6 +147,7 @@ public class RelationshipTypeJpaUnitTest extends ModelUnitSupport {
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
+    tester.include("hierarchical");
 
     assertTrue(tester.testNotNullFields());
   }

@@ -180,6 +180,7 @@ public class AdditionalRelationshipTypeJpaUnitTest extends ModelUnitSupport {
     tester.include("transitive");
     tester.include("universalQuantification");
     tester.include("groupingType");
+    tester.include("hierarchical");
 
     assertTrue(tester.testNotNullFields());
   }

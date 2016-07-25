@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.meta;
 
@@ -8,6 +8,20 @@ package com.wci.umls.server.model.meta;
  */
 public interface RelationshipType extends Abbreviation {
 
+  /**
+   * Indicates whether or not the relationship type is necessarily hierarchical.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isHierarchical();
+  
+  /**
+   * Sets the hierarchical flag.
+   *
+   * @param hierarchical the hierarchical
+   */
+  public void setHierarchical(boolean hierarchical);
+  
   /**
    * Returns the inverse.
    * 
