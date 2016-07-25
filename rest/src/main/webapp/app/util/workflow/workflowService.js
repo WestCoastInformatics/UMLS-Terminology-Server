@@ -13,6 +13,10 @@ tsApp.service('workflowService', [
     this.fireWorklistChanged = function(worklist) {
       $rootScope.$broadcast('workflow:worklistChanged', worklist);
     };
+    
+    this.fireWorkflowBinsChanged = function(worklist) {
+      $rootScope.$broadcast('workflow:workflowBinsChanged', worklist);
+    };
 
     // get all workflow paths
     this.getWorkflowPaths = function() {

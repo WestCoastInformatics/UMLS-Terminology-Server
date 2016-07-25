@@ -52,6 +52,12 @@ tsApp.controller('WorkflowCtrl', [
       //securityService.updateUserPreferences($scope.user.userPreferences);
     };
 
+   // Workflow Bins Changed handler
+    $scope.$on('workflow:workflowBinsChanged', function(event, data) {
+      console.debug('on workflow:workflowBinsChanged', data);
+      $scope.getBins($scope.currentProject.id, $scope.currentBinType);
+    });
+    
     //
     // Initialize
     //

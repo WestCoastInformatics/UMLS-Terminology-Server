@@ -263,11 +263,13 @@ tsApp
                   workflowService.removeWorklist(projectId, worklist.id).then(function() {
                     $scope.selected.worklist = null;
                     workflowService.fireWorklistChanged(worklist);
+                    workflowService.fireWorkflowBinsChanged(worklist);
                   });
                 } else {
                   workflowService.removeChecklist(projectId, worklist.id).then(function() {
                     $scope.selected.worklist = null;
                     workflowService.fireWorklistChanged(worklist);
+                    workflowService.fireWorkflowBinsChanged(worklist);
                   });
                 }
                 // });

@@ -356,7 +356,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final List<WorkflowBin> list =
           workflowService.getWorkflowBins(project, null);
       for (final WorkflowBin bin : list) {
-        if (bin.getName().equals(worklist.getName())) {
+        if (bin.getName().equals(worklist.getWorkflowBinName())) {
           for (final TrackingRecord record : bin.getTrackingRecords()) {
             if (record.getWorklistName().equals(worklist.getName())) {
               record.setWorklistName(null);
