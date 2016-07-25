@@ -817,22 +817,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final Project project = workflowService.getProject(projectId);
       final Checklist checklist = workflowService.getChecklist(id);
       // Compose query of all of the tracking record ids
-      StringBuffer query = new StringBuffer();
-      query.append("(");
-      for (final TrackingRecord record : checklist.getTrackingRecords()) {
-        if (query.toString().length() > 1) {
-          query.append(" OR ");
-        }
-        query.append("id:" + record.getId());
-      }
-      query.append(")");
-
-      if (query.toString().equals("()")) {
+      final List<String> clauses =
+          checklist.getTrackingRecords().stream().map(r -> "id:" + r.getId())
+              .collect(Collectors.toList());
+      final String query = ConfigUtility.composeQuery("OR", clauses);
+      if (query.isEmpty()) {
         return new TrackingRecordListJpa();
       }
 
       final TrackingRecordList list =
-          workflowService.findTrackingRecords(project, query.toString(), pfs);
+          workflowService.findTrackingRecords(project, query, pfs);
       for (final TrackingRecord record : list.getObjects()) {
         lookupTrackingRecordConcepts(record, workflowService);
       }
@@ -858,7 +852,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
   @SuppressWarnings("static-method")
   private void lookupTrackingRecordConcepts(TrackingRecord record,
     WorkflowService service) throws Exception {
-    StringBuffer query = new StringBuffer();
 
     // Bail if no atom components.
     if (record.getComponentIds().size() == 0) {
@@ -866,17 +859,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     }
 
     // Create a query
-    for (final Long id : record.getComponentIds()) {
-      if (query.toString().length() > 1) {
-        query.append(" OR ");
-      }
-      query.append("atoms.id:" + id);
-    }
+    final List<String> clauses =
+        record.getComponentIds().stream().map(l -> "atoms.id:" + l)
+            .collect(Collectors.toList());
+    final String query = ConfigUtility.composeQuery("OR", clauses);
 
     // add concepts
     for (final SearchResult result : service.findConcepts(
-        record.getTerminology(), null, Branch.ROOT, query.toString(), null)
-        .getObjects()) {
+        record.getTerminology(), null, Branch.ROOT, query, null).getObjects()) {
       record.getConcepts().add(new ConceptJpa(result));
     }
 
@@ -904,22 +894,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final Project project = workflowService.getProject(projectId);
       final Worklist worklist = workflowService.getWorklist(id);
       // Compose query of all of the tracking record ids
-      StringBuffer query = new StringBuffer();
-      query.append("(");
-      for (final TrackingRecord record : worklist.getTrackingRecords()) {
-        if (query.toString().length() > 1) {
-          query.append(" OR ");
-        }
-        query.append("id:" + record.getId());
-      }
-      query.append(")");
+      final List<String> clauses =
+          worklist.getTrackingRecords().stream()
+              .map(r -> "id:" + r.getIndexedData())
+              .collect(Collectors.toList());
+      final String query = ConfigUtility.composeQuery("OR", clauses);
 
-      if (query.toString().equals("()")) {
+      if (query.isEmpty()) {
         return new TrackingRecordListJpa();
       }
 
       final TrackingRecordList list =
-          workflowService.findTrackingRecords(project, query.toString(), pfs);
+          workflowService.findTrackingRecords(project, query, pfs);
       for (final TrackingRecord record : list.getObjects()) {
         lookupTrackingRecordConcepts(record, workflowService);
       }
@@ -957,22 +943,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       final Project project = workflowService.getProject(projectId);
       final WorkflowBin bin = workflowService.getWorkflowBin(id);
       // Compose query of all of the tracking record ids
-      StringBuffer query = new StringBuffer();
-      query.append("(");
-      for (final TrackingRecord record : bin.getTrackingRecords()) {
-        if (query.toString().length() > 1) {
-          query.append(" OR ");
-        }
-        query.append("id:" + record.getId());
-      }
-      query.append(")");
+      final List<String> clauses =
+          bin.getTrackingRecords().stream()
+              .map(r -> "id:" + r.getIndexedData())
+              .collect(Collectors.toList());
+      final String query = ConfigUtility.composeQuery("OR", clauses);
 
-      if (query.toString().equals("()")) {
+      if (query.isEmpty()) {
         return new TrackingRecordListJpa();
       }
 
       final TrackingRecordList list =
-          workflowService.findTrackingRecords(project, query.toString(), pfs);
+          workflowService.findTrackingRecords(project, query, pfs);
       for (final TrackingRecord record : list.getObjects()) {
         lookupTrackingRecordConcepts(record, workflowService);
       }
@@ -1274,31 +1256,21 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
           workflowService.getWorkflowBin(workflowBinId);
 
       // Build up list of identifiers
-      StringBuilder sb = new StringBuilder();
-      sb.append("(");
-      boolean found = false;
-      for (final TrackingRecord record : workflowBin.getTrackingRecords()) {
-        if (excludeOnWorklist
-            && !ConfigUtility.isEmpty(record.getWorklistName())) {
-          continue;
-        }
-        if (clusterType != null && !record.getClusterType().equals(clusterType)) {
-          continue;
-        }
-        found = true;
-        if (sb.toString().length() > 1) {
-          sb.append(" OR ");
-        }
-        sb.append("id:" + record.getId());
-      }
-      sb.append(")");
-      if (!found) {
-        sb = new StringBuilder();
-      }
-
-      if (query != null && !query.equals("")) {
-        sb.append(found ? " AND " : "").append(query);
-      }
+      final List<String> clauses =
+          workflowBin
+              .getTrackingRecords()
+              .stream()
+              // Skip records on worklists if excludeWorklist is used
+              // Skip records with a clusterType if cluster type doesn't match
+              .filter(
+                  record -> !(excludeOnWorklist && !ConfigUtility
+                      .isEmpty(record.getWorklistName()))
+                      && !(clusterType != null && !record.getClusterType()
+                          .equals(clusterType))).map(r -> "id:" + r.getId())
+              .collect(Collectors.toList());
+      final String idQuery = ConfigUtility.composeQuery("OR", clauses);
+      final String finalQuery =
+          ConfigUtility.composeQuery("AND", idQuery, query);
 
       // Handle "randomize"
       if (randomize) {
@@ -1308,7 +1280,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       }
 
       final TrackingRecordList list =
-          workflowService.findTrackingRecords(project, sb.toString(), pfs);
+          workflowService.findTrackingRecords(project, finalQuery, pfs);
 
       final ChecklistJpa checklist = new ChecklistJpa();
       checklist.setName(name);
@@ -1383,7 +1355,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
         // Compose the worklist name from the current epoch, the bin name,
         // and the max worklist id+1. (e.g. wrk16a_demotions_chem_001)
-        final StringBuffer worklistName = new StringBuffer();
+        final StringBuilder worklistName = new StringBuilder();
         worklistName.append("wrk").append(currentEpoch.getName()).append("_");
         worklistName.append(workflowBin.getName()).append("_");
         if (clusterType != null)
@@ -1395,7 +1367,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         worklistQueryPfs.setMaxResults(1);
         worklistQueryPfs.setSortField("name");
         worklistQueryPfs.setAscending(false);
-        final StringBuffer query = new StringBuffer();
+        final StringBuilder query = new StringBuilder();
         if (clusterType == null) {
           query
               .append("name:")
@@ -1421,7 +1393,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
             .substring(1));
 
         // build query to retrieve tracking records that will be in worklist
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append("workflowBinName:").append(workflowBin.getName());
         sb.append(" AND ").append("NOT worklistName:[* TO *] ");
         if (clusterType != null) {
@@ -1667,8 +1639,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
       final Checklist checklist = workflowService.getChecklist(id);
 
-      checklist.getStats()
-          .put("clusterCt", checklist.getTrackingRecords().size());
+      checklist.getStats().put("clusterCt",
+          checklist.getTrackingRecords().size());
       // Add up orig concepts size from all tracking records
       checklist
           .getStats()
@@ -1706,7 +1678,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
+
   /* see superclass */
   @Override
   @GET
@@ -1825,7 +1797,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     final ReportServiceJpa reportService = new ReportServiceJpa();
-    StringBuffer conceptReport = new StringBuffer();
+    StringBuilder conceptReport = new StringBuilder();
     try {
       final String userName =
           authorizeProject(workflowService, projectId, securityService,
@@ -2378,7 +2350,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
         record.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
 
         // Load the concept ids involved
-        StringBuffer conceptNames = new StringBuffer();
+        StringBuilder conceptNames = new StringBuilder();
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           final Concept concept = workflowService.getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
@@ -2503,8 +2475,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Worklist): /worklist/" + worklistId
-            + "/note/add " + note);
+        "RESTful POST call (Worklist): /worklist/" + worklistId + "/note/add "
+            + note);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -2585,7 +2557,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
+
   /* see superclass */
   @Override
   @DELETE
@@ -2597,8 +2569,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call DELETE (Worklist): /worklist/note/" + noteId
-            + "/remove");
+        "RESTful call DELETE (Worklist): /worklist/note/" + noteId + "/remove");
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {

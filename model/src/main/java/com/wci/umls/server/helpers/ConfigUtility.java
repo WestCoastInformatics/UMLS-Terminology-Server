@@ -1043,4 +1043,67 @@ public class ConfigUtility {
         "Unknown upload dir, source.data.dir not set in config file");
   }
 
+  /**
+   * Compose query from a list of possibly empty/null clauses and an operator
+   * (typically OR or AND).
+   *
+   * @param clauses the clauses
+   * @param operator the operator
+   * @return the string
+   */
+  public static String composeQuery(String operator, List<String> clauses) {
+    final StringBuilder sb = new StringBuilder();
+    if (operator.equals("OR")) {
+      sb.append("(");
+    }
+    for (final String clause : clauses) {
+      if (ConfigUtility.isEmpty(clause)) {
+        continue;
+      }
+      if (sb.length() > 0) {
+        sb.append(" ").append(operator).append(" ");
+      }
+      sb.append(clause);
+    }
+    if (operator.equals("OR")) {
+      sb.append(")");
+    }
+    if (operator.equals("OR") && sb.toString().equals("()")) {
+      return "";
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Compose query.
+   *
+   * @param operator the operator
+   * @param clauses the clauses
+   * @return the string
+   */
+  public static String composeQuery(String operator, String... clauses) {
+    final StringBuilder sb = new StringBuilder();
+    if (operator.equals("OR")) {
+      sb.append("(");
+    }
+    for (final String clause : clauses) {
+      if (ConfigUtility.isEmpty(clause)) {
+        continue;
+      }
+      if (sb.length() > 0) {
+        sb.append(" ").append(operator).append(" ");
+      }
+      sb.append(clause);
+    }
+    if (operator.equals("OR")) {
+      sb.append(")");
+    }
+    if (operator.equals("OR") && sb.toString().equals("()")) {
+      return "";
+    }
+
+    return sb.toString();
+  }
+
 }

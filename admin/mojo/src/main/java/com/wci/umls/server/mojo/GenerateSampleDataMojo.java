@@ -310,14 +310,14 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     getLog().info("  Add demotions");
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setStartIndex(1000);
-    pfs.setMaxResults(50);
+    pfs.setMaxResults(80);
     contentService = new ContentServiceRestImpl();
     final Long[] id1s =
         contentService.findConcepts(terminology, version, null, pfs, authToken)
             .getObjects().stream().map(c -> c.getId())
             .collect(Collectors.toList()).toArray(new Long[] {});
     pfs.setStartIndex(1100);
-    pfs.setMaxResults(50);
+    pfs.setMaxResults(80);
     contentService = new ContentServiceRestImpl();
     final Long[] id2s =
         contentService.findConcepts(terminology, version, null, pfs, authToken)
@@ -572,6 +572,22 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     Worklist lastWorklist = null;
     int chk = 100;
     for (final WorkflowBin bin : bins) {
+      // Log all
+      getLog().info(
+          "  bin " + bin.getName() + " = " + bin.getTrackingRecords().size());
+
+      // Log "chem" count
+      workflowService = new WorkflowServiceRestImpl();
+      int chemRecords =
+          workflowService
+              .findTrackingRecordsForWorkflowBin(projectId, bin.getId(), null,
+                  authToken).getObjects().stream()
+              .filter(r -> r.getClusterType().equals("chem"))
+              .collect(Collectors.toList()).size();
+      getLog().info("    chem = " + chemRecords);
+      getLog().info(
+          "    non chem = " + (bin.getTrackingRecords().size() - chemRecords));
+
       if (bin.isEditable()) {
         pfs = new PfsParameterJpa();
         pfs.setStartIndex(0);
