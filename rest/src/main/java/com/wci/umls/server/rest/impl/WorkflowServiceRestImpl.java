@@ -945,7 +945,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl implements
       // Compose query of all of the tracking record ids
       final List<String> clauses =
           bin.getTrackingRecords().stream()
-              .map(r -> "id:" + r.getIndexedData())
+              .map(r -> "id:" + r.getId())
               .collect(Collectors.toList());
       final String query = ConfigUtility.composeQuery("OR", clauses);
 

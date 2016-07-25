@@ -78,20 +78,20 @@ public class ConfigUtility {
   public final static String ATOMCLASS = "ATOMCLASS";
 
   /** The date format. */
-  public final static FastDateFormat DATE_FORMAT = FastDateFormat
-      .getInstance("yyyyMMdd");
+  public final static FastDateFormat DATE_FORMAT =
+      FastDateFormat.getInstance("yyyyMMdd");
 
   /** The Constant DATE_FORMAT2. */
-  public final static FastDateFormat DATE_FORMAT2 = FastDateFormat
-      .getInstance("yyyy_MM_dd");
+  public final static FastDateFormat DATE_FORMAT2 =
+      FastDateFormat.getInstance("yyyy_MM_dd");
 
   /** The Constant DATE_FORMAT3. */
-  public final static FastDateFormat DATE_FORMAT3 = FastDateFormat
-      .getInstance("yyyy");
+  public final static FastDateFormat DATE_FORMAT3 =
+      FastDateFormat.getInstance("yyyy");
 
   /** The Constant DATE_FORMAT4. */
-  public final static FastDateFormat DATE_FORMAT4 = FastDateFormat
-      .getInstance("yyyy-MM-dd hh:mm:ss");
+  public final static FastDateFormat DATE_FORMAT4 =
+      FastDateFormat.getInstance("yyyy-MM-dd hh:mm:ss");
 
   /** The Constant PUNCTUATION. */
   public final static String PUNCTUATION =
@@ -108,8 +108,8 @@ public class ConfigUtility {
   private static Transformer transformer;
 
   /** The date format. */
-  public final static FastDateFormat format = FastDateFormat
-      .getInstance("yyyyMMdd");
+  public final static FastDateFormat format =
+      FastDateFormat.getInstance("yyyyMMdd");
 
   static {
     try {
@@ -117,8 +117,8 @@ public class ConfigUtility {
       transformer = factory.newTransformer();
       // Indent output.
       transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-      transformer.setOutputProperty(
-          "{http://xml.apache.org/xslt}indent-amount", "4");
+      transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
+          "4");
       // Skip XML declaration header.
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
     } catch (TransformerConfigurationException e) {
@@ -139,9 +139,8 @@ public class ConfigUtility {
     try {
       // Attempt to logout to verify service is up (this works like a "ping").
       Client client = ClientBuilder.newClient();
-      WebTarget target =
-          client.target(config.getProperty("base.url")
-              + "/security/logout/dummy");
+      WebTarget target = client
+          .target(config.getProperty("base.url") + "/security/logout/dummy");
 
       Response response = target.request(MediaType.APPLICATION_JSON).get();
       if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -206,12 +205,12 @@ public class ConfigUtility {
         label = candidateLabel;
       }
     } else {
-      Logger.getLogger(ConfigUtility.class.getName()).info(
-          "  label.prop resource cannot be found, using default");
+      Logger.getLogger(ConfigUtility.class.getName())
+          .info("  label.prop resource cannot be found, using default");
 
     }
-    Logger.getLogger(ConfigUtility.class.getName()).info(
-        "  run.config.label = " + label);
+    Logger.getLogger(ConfigUtility.class.getName())
+        .info("  run.config.label = " + label);
 
     return label;
   }
@@ -233,8 +232,8 @@ public class ConfigUtility {
    * @throws Exception the exception
    */
   public static String getLocalConfigFolder() throws Exception {
-    return System.getProperty("user.home") + "/.term-server/"
-        + getConfigLabel() + "/";
+    return System.getProperty("user.home") + "/.term-server/" + getConfigLabel()
+        + "/";
   }
 
   /**
@@ -254,8 +253,8 @@ public class ConfigUtility {
       // Default setups do not require this.
       String configFileName = System.getProperty("run.config." + label);
       if (configFileName != null) {
-        Logger.getLogger(ConfigUtility.class.getName()).info(
-            "  run.config." + label + " = " + configFileName);
+        Logger.getLogger(ConfigUtility.class.getName())
+            .info("  run.config." + label + " = " + configFileName);
         config = new Properties();
         FileReader in = new FileReader(new File(configFileName));
         config.load(in);
@@ -263,8 +262,8 @@ public class ConfigUtility {
       } else {
         InputStream is =
             ConfigUtility.class.getResourceAsStream("/config.properties");
-        Logger.getLogger(ConfigUtility.class.getName()).info(
-            "Cannot find run.config." + label
+        Logger.getLogger(ConfigUtility.class.getName())
+            .info("Cannot find run.config." + label
                 + ", looking for config.properties in the classpath");
         if (is != null) {
           config = new Properties();
@@ -378,12 +377,10 @@ public class ConfigUtility {
     for (final Object key : config.keySet()) {
       // Find properties like "metadata.service.handler.SNOMED.class"
       if (key.toString().startsWith(property + "." + handlerName + ".")) {
-        String shortKey =
-            key.toString().substring(
-                (property + "." + handlerName + ".").length());
-        Logger.getLogger(ConfigUtility.class).debug(
-            " property " + shortKey + " = "
-                + config.getProperty(key.toString()));
+        String shortKey = key.toString()
+            .substring((property + "." + handlerName + ".").length());
+        Logger.getLogger(ConfigUtility.class).debug(" property " + shortKey
+            + " = " + config.getProperty(key.toString()));
         handlerProperties.put(shortKey, config.getProperty(key.toString()));
       }
     }
@@ -441,6 +438,7 @@ public class ConfigUtility {
    * <pre>
    *   List&lt;ConceptJpa&gt; list = ConfigUtility.getGraphForJson(str, new TypeReference&lt;List&lt;ConceptJpa&gt;&gt;{});
    * </pre>
+   * 
    * @param <T> the
    * @param json the json
    * @param typeRef the type ref
@@ -475,8 +473,8 @@ public class ConfigUtility {
   @SuppressWarnings("resource")
   public static <T> T getGraphForFile(File file, Class<T> graphClass)
     throws FileNotFoundException, JAXBException {
-    return getGraphForString(new Scanner(file, "UTF-8").useDelimiter("\\A")
-        .next(), graphClass);
+    return getGraphForString(
+        new Scanner(file, "UTF-8").useDelimiter("\\A").next(), graphClass);
   }
 
   /**
@@ -492,8 +490,8 @@ public class ConfigUtility {
   @SuppressWarnings("resource")
   public static <T> T getGraphForStream(InputStream in, Class<T> graphClass)
     throws FileNotFoundException, JAXBException {
-    return getGraphForString(new Scanner(in, "UTF-8").useDelimiter("\\A")
-        .next(), graphClass);
+    return getGraphForString(
+        new Scanner(in, "UTF-8").useDelimiter("\\A").next(), graphClass);
   }
 
   /**
@@ -578,8 +576,8 @@ public class ConfigUtility {
    * @throws TransformerException the transformer exception
    * @throws ParserConfigurationException the parser configuration exception
    */
-  public static String getStringForNode(Node root) throws TransformerException,
-    ParserConfigurationException {
+  public static String getStringForNode(Node root)
+    throws TransformerException, ParserConfigurationException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder = factory.newDocumentBuilder();
     Document document = builder.newDocument();
@@ -755,7 +753,8 @@ public class ConfigUtility {
     msg.setFrom(new InternetAddress(from));
     final String[] recipientsArray = recipients.split(";");
     for (final String recipient : recipientsArray) {
-      msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+      msg.addRecipient(Message.RecipientType.TO,
+          new InternetAddress(recipient));
     }
     Transport.send(msg);
   }
@@ -802,9 +801,8 @@ public class ConfigUtility {
   public static <T> void reflectionSort(List<T> classes, Class<T> clazz,
     String sortField) throws Exception {
 
-    final Method getMethod =
-        clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
-            + sortField.substring(1));
+    final Method getMethod = clazz.getMethod("get"
+        + sortField.substring(0, 1).toUpperCase() + sortField.substring(1));
     if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
       throw new Exception("Referenced sort field is not comparable");
     }
@@ -936,8 +934,8 @@ public class ConfigUtility {
    * @throws Exception
    */
   public static String getBaseIndexDirectory() throws Exception {
-    return getConfigProperties().getProperty(
-        "hibernate.search.default.indexBase");
+    return getConfigProperties()
+        .getProperty("hibernate.search.default.indexBase");
   }
 
   /**
@@ -1000,13 +998,14 @@ public class ConfigUtility {
    * @throws Exception
    * @throws NumberFormatException
    */
-  public static int getLuceneMaxClauseCount() throws NumberFormatException,
-    Exception {
-    if (!getConfigProperties().containsKey("hibernate.search.max.clause.count")) {
+  public static int getLuceneMaxClauseCount()
+    throws NumberFormatException, Exception {
+    if (!getConfigProperties()
+        .containsKey("hibernate.search.max.clause.count")) {
       return 100000;
     }
-    return Integer.valueOf(getConfigProperties().getProperty(
-        "hibernate.search.max.clause.count"));
+    return Integer.valueOf(
+        getConfigProperties().getProperty("hibernate.search.max.clause.count"));
   }
 
   /**
@@ -1060,7 +1059,10 @@ public class ConfigUtility {
       if (ConfigUtility.isEmpty(clause)) {
         continue;
       }
-      if (sb.length() > 0) {
+      if (sb.length() > 0 && !operator.equals("OR")) {
+        sb.append(" ").append(operator).append(" ");
+      }
+      if (sb.length() > 1 && operator.equals("OR")) {
         sb.append(" ").append(operator).append(" ");
       }
       sb.append(clause);
