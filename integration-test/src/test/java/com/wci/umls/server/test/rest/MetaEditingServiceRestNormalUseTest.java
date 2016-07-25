@@ -1738,6 +1738,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Split the atoms out into a new concept,and give the concept an RN
     // relation to the new one.
+    // Transfer over semantic types or relationships
     ValidationResult v = metaEditingService.splitConcept(project.getId(),
         originatingC.getId(), originatingC.getLastModified().getTime(),
         moveAtomIds, false, true, true, "RN", authToken);
@@ -1787,7 +1788,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify that the originating and created Concepts have a relationship
     // between them of the specified type
-    final RelationshipList originatingConceptRels =
+    RelationshipList originatingConceptRels =
         contentService.findConceptRelationships(originatingC.getTerminologyId(),
             originatingC.getTerminology(), originatingC.getVersion(),
             "fromId:" + originatingC.getId(), null, authToken);
@@ -1803,7 +1804,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(relationshipPresent);
 
     // Verify that the same is true for the inverse
-    final RelationshipList createdConceptRels =
+    RelationshipList createdConceptRels =
         contentService.findConceptRelationships(createdC.getTerminologyId(),
             createdC.getTerminology(), createdC.getVersion(), null, null,
             authToken);
@@ -1831,7 +1832,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(relationshipPresent);
 
     // Verify that the same is true for the inverse
-    final RelationshipList relatedConceptRels =
+    RelationshipList relatedConceptRels =
         contentService.findConceptRelationships(relatedC.getTerminologyId(),
             relatedC.getTerminology(), relatedC.getVersion(),
             "fromId:" + relatedC.getId(), null, authToken);
@@ -1892,6 +1893,201 @@ public class MetaEditingServiceRestNormalUseTest
         originatingC.getId(), 1, authToken);
     assertTrue(logEntry.contains("SPLIT " + concept.getId()));
 
+    //
+    // Run the test again from scratch, but this time with not splitting out
+    // Semantic Types and Relationships
+    //
+
+    teardown();
+    setup();
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // Populate concept components
+    populateConcepts();
+
+    // get the fromConcept, toConcept, and relatedConcept
+    originatingC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(originatingC);
+    relatedC =
+        contentService.getConcept(concept3.getId(), project.getId(), authToken);
+    assertNotNull(relatedC);
+
+    // Get the atoms so we can extract the IDs
+    atom = null;
+    atom2 = null;
+    for (Atom a : originatingC.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        atom = (AtomJpa) a;
+      }
+      if (a.getName().equals("IPA")) {
+        atom2 = (AtomJpa) a;
+      }
+    }
+    assertNotNull(atom);
+    assertNotNull(atom2);
+
+    // Create a list of the atoms we'll be splitting out into the new concept
+    moveAtomIds = new ArrayList<Long>();
+    moveAtomIds.add(atom2.getId());
+
+    // Split the atoms out into a new concept,and give the concept an RN
+    // relation to the new one.
+    // Do NOT transfer over semantic types or relationships
+    v = metaEditingService.splitConcept(project.getId(),
+        originatingC.getId(), originatingC.getLastModified().getTime(),
+        moveAtomIds, false, false, false, "RN", authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    // Identify the newly created concept by finding the most recently modified
+    // concept that includes one of the moved atoms
+    pfs = new PfsParameterJpa();
+    pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    pfs.setMaxResults(1);
+    pfs.setStartIndex(0);
+
+    createdC = contentService.getConcept(contentService
+        .findConcepts(umlsTerminology, umlsVersion,
+            "atoms.id:" + moveAtomIds.get(0), pfs, authToken)
+        .getObjects().get(0).getId(), project.getId(), authToken);
+
+    // Set this to concept4, so it can be handled in cleanup.
+    concept4 = createdC;
+
+    originatingC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    relatedC =
+        contentService.getConcept(concept3.getId(), project.getId(), authToken);
+
+    // Verify split atom is now present in created Concept, and not present in
+    // originating Concept
+    assertTrue(createdC.getAtoms().contains(atom2));
+    assertTrue(!originatingC.getAtoms().contains(atom2));
+
+    // Verify non-split atom is still present in originating Concept, and is not
+    // present in created Concept
+    assertTrue(originatingC.getAtoms().contains(atom));
+    assertTrue(!createdC.getAtoms().contains(atom));
+
+    // Verify originating Concept Semantic type is NOT present in created
+    // Concept
+    styCount = 0;
+    for (SemanticTypeComponent sty : createdC.getSemanticTypes()) {
+      if (sty.getSemanticType().equals("Lipid")) {
+        styCount++;
+      }
+    }
+    assertEquals(0, styCount);
+
+    // Verify that the originating and created Concepts have a relationship
+    // between them of the specified type
+    originatingConceptRels =
+        contentService.findConceptRelationships(originatingC.getTerminologyId(),
+            originatingC.getTerminology(), originatingC.getVersion(),
+            "fromId:" + originatingC.getId(), null, authToken);
+
+    relationshipPresent = false;
+    for (final Relationship<?, ?> rel : originatingConceptRels.getObjects()) {
+      if (rel.getFrom().getId().equals(originatingC.getId())
+          && rel.getTo().getId().equals(createdC.getId())
+          && rel.getRelationshipType().equals("RN")) {
+        relationshipPresent = true;
+      }
+    }
+    assertTrue(relationshipPresent);
+
+    // Verify that the same is true for the inverse
+    createdConceptRels =
+        contentService.findConceptRelationships(createdC.getTerminologyId(),
+            createdC.getTerminology(), createdC.getVersion(), null, null,
+            authToken);
+
+    relationshipPresent = false;
+    for (final Relationship<?, ?> rel : createdConceptRels.getObjects()) {
+      if (rel.getFrom().getId().equals(createdC.getId())
+          && rel.getTo().getId().equals(originatingC.getId())
+          && rel.getRelationshipType().equals("RB")) {
+        relationshipPresent = true;
+      }
+    }
+    assertTrue(relationshipPresent);
+
+    // Verify that relationships from originatingConcept have NOT been added to
+    // createdConcept
+    relationshipPresent = false;
+    for (final Relationship<?, ?> rel : createdConceptRels.getObjects()) {
+      if (rel.getFrom().getId().equals(createdC.getId())
+          && rel.getTo().getId().equals(relatedC.getId())
+          && rel.getRelationshipType().equals("RN")) {
+        relationshipPresent = true;
+      }
+    }
+    assertTrue(!relationshipPresent);
+
+    // Verify that the same is true for the inverse
+    relatedConceptRels =
+        contentService.findConceptRelationships(relatedC.getTerminologyId(),
+            relatedC.getTerminology(), relatedC.getVersion(),
+            "fromId:" + relatedC.getId(), null, authToken);
+
+    relationshipPresent = false;
+    for (final Relationship<?, ?> rel : relatedConceptRels.getObjects()) {
+      if (rel.getFrom().getId().equals(relatedC.getId())
+          && rel.getTo().getId().equals(createdC.getId())
+          && rel.getRelationshipType().equals("RB")) {
+        relationshipPresent = true;
+      }
+    }
+    assertTrue(!relationshipPresent);
+
+    // verify the molecular action exists
+    pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    list =
+        projectService.findMolecularActions(originatingC.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.getCount() > 0);
+    ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertTrue(ma.getTerminologyId().equals(originatingC.getTerminologyId()));
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Verify that atomic actions exists for splitting off atoms, creating new
+    // Concept
+    // adding Semantic Types, and for adding Relationships
+    // 1 for Atom move
+    // 1 for fromConcept creation
+    // 2 for Relationship creations
+    pfs.setSortField("idType");
+    pfs.setAscending(true);
+
+    atomicActions = projectService
+        .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
+    assertEquals(4, atomicActions.size());
+    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    assertNotNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+    assertEquals(atomicActions.get(1).getIdType().toString(), "CONCEPT");
+    assertNull(atomicActions.get(1).getOldValue());
+    assertNotNull(atomicActions.get(1).getNewValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(2).getIdType().toString());
+    assertEquals("RELATIONSHIP", atomicActions.get(3).getIdType().toString());
+
+    // Verify the log entry exists
+    logEntry = projectService.getLog(project.getId(),
+        originatingC.getId(), 1, authToken);
+    assertTrue(logEntry.contains("SPLIT " + concept.getId()));    
+    
   }
 
   /**

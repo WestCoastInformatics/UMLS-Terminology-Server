@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -29,6 +30,7 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.ContentService;
@@ -164,19 +166,15 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
       if (cascade) {
         for (ConceptRelationship rel : concept.getRelationships()) {
+          // Remove relationship and inverse.
           contentService.removeRelationship(rel.getId(), rel.getClass());
 
-          // Remove inverse as well
-          final Concept toConcept =
-              contentService.getConcept(rel.getTo().getId());
-          for (ConceptRelationship inverseRel : toConcept.getRelationships()) {
-            if (inverseRel.getTo() == concept && contentService
-                .getRelationshipType(rel.getRelationshipType(),
-                    rel.getTerminology(), rel.getVersion())
-                .getInverse().getAbbreviation()
-                .equals(inverseRel.getRelationshipType())) {
+          // Remove inverse as well         
+          for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> inverseRel : contentService.getInverseRelationships(rel).getObjects()) {
+            //TODO - figure out what distinguishing feature is
+            if (true) {
               contentService.removeRelationship(inverseRel.getId(),
-                  inverseRel.getClass());
+                  rel.getClass());
             }
           }
         }

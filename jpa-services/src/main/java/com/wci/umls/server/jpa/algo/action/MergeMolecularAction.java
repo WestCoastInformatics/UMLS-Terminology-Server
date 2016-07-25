@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -16,7 +15,6 @@ import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
@@ -189,35 +187,15 @@ public class MergeMolecularAction extends AbstractMolecularAction {
 
         // remove the relationship type component from the concept and update
         getFromConcept().getRelationships().remove(rel);
-        // remove the relationship component
+        // remove the relationship component and its inverse
         removeRelationship(rel.getId(), rel.getClass());
 
-        // If inverse relationship exists, remove it as well
-        List<ConceptRelationship> toRelationships =
-            new ArrayList<>(getToConcept().getRelationships());
-
-        ConceptRelationship inverseRel = null;
-        for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> innerInverseRel : toRelationships) {
-          if (innerInverseRel.getTo().getId() == rel.getFrom().getId()
-              && innerInverseRel.getFrom().getId() == rel.getTo().getId()) {
-            if (inverseRel != null) {
-              throw new Exception(
-                  "Unexepected more than a single inverse relationship for relationship - "
-                      + rel);
-            }
-
-            inverseRel = (ConceptRelationship) innerInverseRel;
-          }
-        }
-
-        if (inverseRel != null) {
-          // remove the inverse relationship type component from the concept
-          // and update
-          getToConcept().getRelationships().remove(inverseRel);
-
-          // remove the inverse relationship component
-          removeRelationship(inverseRel.getId(), inverseRel.getClass());
-        }
+         // remove the inverse relationship type component from the concept
+         // and update
+         getToConcept().getRelationships().remove(findInverseRelationship(rel));
+        
+         // remove the inverse relationship component
+         removeRelationship(findInverseRelationship(rel).getId(), rel.getClass());  
 
       }
       // If relationship is not between two merging concepts, add relationship
@@ -229,36 +207,17 @@ public class MergeMolecularAction extends AbstractMolecularAction {
         // remove the relationship type component from the concept and update
         getFromConcept().getRelationships().remove(rel);
 
-        // remove the relationship component
+        // remove the relationship component and the inverse
         removeRelationship(rel.getId(), rel.getClass());
 
-        // If inverse relationship exists, remove it as well
-        Concept thirdConcept = rel.getTo();
-        List<ConceptRelationship> thirdRelationships =
-            new ArrayList<>(thirdConcept.getRelationships());
-
-        ConceptRelationship inverseRel2 = null;
-        for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> innerInverseRel : thirdRelationships) {
-          if (innerInverseRel.getTo().getId() == rel.getFrom().getId()
-              && innerInverseRel.getFrom().getId() == rel.getTo().getId()) {
-            if (inverseRel2 != null) {
-              throw new Exception(
-                  "Unexepected more than a single inverse relationship for relationship - "
-                      + rel);
-            }
-
-            inverseRel2 = (ConceptRelationship) innerInverseRel;
-          }
-        }
-
-        if (inverseRel2 != null) {
-          // remove the inverse relationship type component from the concept
-          // and update
-          thirdConcept.getRelationships().remove(inverseRel2);
-
-          // remove the inverse relationship component
-          removeRelationship(inverseRel2.getId(), inverseRel2.getClass());
-        }
+         // remove the inverse relationship type component from the concept
+         // and update
+         Concept thirdConcept = rel.getTo();
+         thirdConcept.getRelationships().remove(findInverseRelationship(rel));
+        
+         // remove the inverse relationship component
+         removeRelationship(findInverseRelationship(rel).getId(), rel.getClass());
+        
 
         //
         // Create and add relationship and inverseRelationship
