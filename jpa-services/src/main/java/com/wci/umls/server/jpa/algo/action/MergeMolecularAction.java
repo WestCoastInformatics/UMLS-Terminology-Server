@@ -99,14 +99,14 @@ public class MergeMolecularAction extends AbstractMolecularAction {
 
     // Check to make sure concepts are different
     if (getFromConcept() == getToConcept()) {
-      throw new LocalException("Cannot merge concept "
-          + getFromConcept().getId() + " with concept "
-          + getToConcept().getId() + " - identical concept.");
+      throw new LocalException(
+          "Cannot merge concept " + getFromConcept().getId() + " with concept "
+              + getToConcept().getId() + " - identical concept.");
     }
 
     // Merging concepts must be from the same terminology
-    if (!(getFromConcept().getTerminology().toString().equals(getToConcept()
-        .getTerminology().toString()))) {
+    if (!(getFromConcept().getTerminology().toString()
+        .equals(getToConcept().getTerminology().toString()))) {
       throw new LocalException(
           "Two concepts must be from the same terminology to be merged, but concept "
               + getFromConcept().getId() + " has terminology "
@@ -183,6 +183,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
 
     // Go through all relationships in the fromConcept
     for (final ConceptRelationship rel : fromRelationships) {
+
       // Any relationship between from and toConcept is deleted
       if (getToConcept().getId() == rel.getTo().getId()) {
 
@@ -265,9 +266,13 @@ public class MergeMolecularAction extends AbstractMolecularAction {
 
         // set the relationship component last modified
         rel.setId(null);
+        rel.setFrom(getToConcept());
         ConceptRelationshipJpa newRel =
             (ConceptRelationshipJpa) addRelationship(rel);
-        newRel.setFrom(getToConcept());
+
+        // add relationship to concept and set last modified by
+        getToConcept().getRelationships().add(newRel);
+
         if (getChangeStatusFlag()) {
           newRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
         }
@@ -283,9 +288,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
           newInverseRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
         }
 
-        // add relationship and inverse to respective concepts and set last
-        // modified by
-        getToConcept().getRelationships().add(newRel);
+        // add relationship to concept and set last modified by
         thirdConcept.getRelationships().add(newInverseRel);
 
       }
@@ -306,7 +309,6 @@ public class MergeMolecularAction extends AbstractMolecularAction {
 
     // Make copy of toConcept to pass into change event
     toConceptPostUpdates = new ConceptJpa(getToConcept(), false);
-
 
   }
 

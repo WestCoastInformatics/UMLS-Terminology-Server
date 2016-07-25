@@ -133,6 +133,14 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /**
+   * Removes the concept.
+   *
+   * @param id the id
+   * @param cascade the cascade
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   @DELETE
@@ -159,9 +167,14 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
           contentService.removeRelationship(rel.getId(), rel.getClass());
 
           // Remove inverse as well
-          final Concept toConcept = rel.getTo();
+          final Concept toConcept =
+              contentService.getConcept(rel.getTo().getId());
           for (ConceptRelationship inverseRel : toConcept.getRelationships()) {
-            if (inverseRel.getTo() == concept) {
+            if (inverseRel.getTo() == concept && contentService
+                .getRelationshipType(rel.getRelationshipType(),
+                    rel.getTerminology(), rel.getVersion())
+                .getInverse().getAbbreviation()
+                .equals(inverseRel.getRelationshipType())) {
               contentService.removeRelationship(inverseRel.getId(),
                   inverseRel.getClass());
             }

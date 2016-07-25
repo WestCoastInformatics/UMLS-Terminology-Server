@@ -1252,10 +1252,9 @@ public abstract class RootServiceJpa implements RootService {
     final StringBuilder sb = new StringBuilder();
     if (terminologyId != null) {
       sb.append("terminologyId:" + terminologyId);
-      sb.append(query == null ? "" : " AND ");
     }
-    if (query != null) {
-      sb.append(query);
+    if (!ConfigUtility.isEmpty(query)) {
+      sb.append(sb.length() == 0 ? "" : " AND ").append(query);
     }
     for (final MolecularActionJpa ma : searchHandler.getQueryResults(
         terminology, version, Branch.ROOT, query, null,
@@ -1296,17 +1295,17 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public AtomicActionList findAtomicActions(Long moleculeId, String query,
+  public AtomicActionList findAtomicActions(Long molecularActionId, String query,
     PfsParameter pfs) throws Exception {
 
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
 
     // Compose the query
     final StringBuilder sb = new StringBuilder();
-    if (moleculeId != null) {
-      sb.append("moleculeId:" + moleculeId);
+    if (molecularActionId != null) {
+      sb.append("molecularActionId:" + molecularActionId);
     }
-    if (query != null) {
+    if (!ConfigUtility.isEmpty(query)) {
       sb.append(sb.length() == 0 ? "" : " AND ").append(query);
     }
 

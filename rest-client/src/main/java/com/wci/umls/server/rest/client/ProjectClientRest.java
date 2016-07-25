@@ -516,9 +516,9 @@ public class ProjectClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url")
             + "/project/actions/atomic?molecularActionId="
             + molecularActionId
-            + "&query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
+            + (query == null ? "" : "&query="
+            + URLEncoder.encode(query, "UTF-8")
+                .replaceAll("\\+", "%20")));
     final String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);

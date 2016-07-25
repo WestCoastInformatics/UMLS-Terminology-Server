@@ -2059,6 +2059,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       ConceptRelationship inverseRelationship =
           new ConceptRelationshipJpa(relationship, false);
       inverseRelationship.setId(null);
+      inverseRelationship.setTerminologyId("");
       inverseRelationship.setFrom(relationship.getTo());
       inverseRelationship.setTo(relationship.getFrom());
       inverseRelationship.setPublishable(relationship.isPublishable());

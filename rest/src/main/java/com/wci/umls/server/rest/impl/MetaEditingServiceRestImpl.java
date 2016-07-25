@@ -885,6 +885,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
+      action.setValidationChecks(project.getValidationChecks());
 
       // Do some standard intialization and precondition checking
       // action and prep services
@@ -987,6 +988,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl implements
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
+      action.setValidationChecks(project.getValidationChecks());
 
       // Do some standard intialization and precondition checking
       // action and prep services
