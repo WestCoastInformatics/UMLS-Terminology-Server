@@ -87,6 +87,29 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       }
     }
 
+    // If a relationship between these two concepts already exists, cannot add a
+    // new one.
+    // EXCEPTION: can add a DEMOTION relationship on top of an existing
+    // relationship, and can add a non-DEMOTION relationship on top of a
+    // DEMOTION.
+    if (!relationship.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+      for (final ConceptRelationship rel : getConcept().getRelationships()) {
+        if (rel.getTo().getId() == relationship.getTo().getId()
+            && rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+          throw new LocalException(
+              "Cannot add multiple relationships between two concepts.");
+        }
+      }
+    } else {
+      for (final ConceptRelationship rel : getConcept().getRelationships()) {
+        if (rel.getTo().getId() == relationship.getTo().getId()
+            && rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+          throw new LocalException(
+              "Cannot add multiple DEMOTION relationships between two concepts.");
+        }
+      }
+    }
+
     return validationResult;
   }
 
@@ -109,11 +132,11 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
     // altId);
 
-    //XR (not related) relationships need to be set to not-released
-    if (relationship.getRelationshipType().equals("XR")){
+    // XR (not related) relationships need to be set to not-released
+    if (relationship.getRelationshipType().equals("XR")) {
       relationship.setPublishable(false);
     }
-    
+
     // set the relationship component last modified
     relationship = (ConceptRelationshipJpa) addRelationship(relationship);
 
@@ -137,7 +160,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    
+
     // update the concept
     updateConcept(getConcept2());
     updateConcept(getConcept());
