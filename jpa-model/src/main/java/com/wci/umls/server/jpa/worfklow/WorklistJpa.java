@@ -147,7 +147,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   /* see superclass */
   @Override
   public Long getReviewerTime() {
-    return authorTime;
+    return reviewerTime;
   }
 
   /* see superclass */
