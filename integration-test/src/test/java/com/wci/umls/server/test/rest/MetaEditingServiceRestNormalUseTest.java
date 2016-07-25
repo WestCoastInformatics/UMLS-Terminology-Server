@@ -306,6 +306,7 @@ public class MetaEditingServiceRestNormalUseTest
     relationship.setVersion(umlsVersion);
     relationship.setTimestamp(new Date());
     relationship.setPublishable(true);
+    relationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
     ConceptRelationshipJpa relationship2 = new ConceptRelationshipJpa();
     relationship2.setBranch(Branch.ROOT);
@@ -318,6 +319,7 @@ public class MetaEditingServiceRestNormalUseTest
     relationship2.setVersion(umlsVersion);
     relationship2.setTimestamp(new Date());
     relationship2.setPublishable(true);
+    relationship2.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
     ConceptRelationshipJpa relationship3 = new ConceptRelationshipJpa();
     relationship3.setBranch(Branch.ROOT);
@@ -330,6 +332,7 @@ public class MetaEditingServiceRestNormalUseTest
     relationship3.setVersion(umlsVersion);
     relationship3.setTimestamp(new Date());
     relationship3.setPublishable(true);
+    relationship3.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
     v = metaEditingService.addRelationship(project.getId(), concept2.getId(),
         concept2.getLastModified().getTime(), relationship, false, authToken);
@@ -1140,6 +1143,7 @@ public class MetaEditingServiceRestNormalUseTest
     relationship.setVersion(umlsVersion);
     relationship.setTimestamp(new Date());
     relationship.setPublishable(true);
+    relationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
     //
     // Test addition
@@ -1250,6 +1254,7 @@ public class MetaEditingServiceRestNormalUseTest
     relationship3.setVersion(umlsVersion);
     relationship3.setTimestamp(new Date());
     relationship3.setPublishable(true);
+    relationship3.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
     //
     // add the second relationship to the concept
@@ -1530,14 +1535,15 @@ public class MetaEditingServiceRestNormalUseTest
     // adding/removing Semantic Types, and for adding/removing Relationships
     // 2 for Atom moves
     // 1 for fromConcept deletion
-    // 6 for Relationships (four deletions, and two creations)
+    // 4 for Relationships (four deletions) - no creations, because relationship
+    // already exists between to and related Concept
     // 5 for Semantic Types (three deletions, two creation)
     pfs.setSortField("idType");
     pfs.setAscending(true);
 
     List<AtomicAction> atomicActions = projectService
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
-    assertEquals(14, atomicActions.size());
+    assertEquals(12, atomicActions.size());
     assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
     assertNotNull(atomicActions.get(0).getNewValue());
@@ -1551,13 +1557,11 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals("RELATIONSHIP", atomicActions.get(4).getIdType().toString());
     assertEquals("RELATIONSHIP", atomicActions.get(5).getIdType().toString());
     assertEquals("RELATIONSHIP", atomicActions.get(6).getIdType().toString());
-    assertEquals("RELATIONSHIP", atomicActions.get(7).getIdType().toString());
-    assertEquals("RELATIONSHIP", atomicActions.get(8).getIdType().toString());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(7).getIdType().toString());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(8).getIdType().toString());
     assertEquals("SEMANTIC_TYPE", atomicActions.get(9).getIdType().toString());
     assertEquals("SEMANTIC_TYPE", atomicActions.get(10).getIdType().toString());
     assertEquals("SEMANTIC_TYPE", atomicActions.get(11).getIdType().toString());
-    assertEquals("SEMANTIC_TYPE", atomicActions.get(12).getIdType().toString());
-    assertEquals("SEMANTIC_TYPE", atomicActions.get(13).getIdType().toString());
 
     // Verify the log entry exists
     String logEntry =
@@ -1940,9 +1944,9 @@ public class MetaEditingServiceRestNormalUseTest
     // Split the atoms out into a new concept,and give the concept an RN
     // relation to the new one.
     // Do NOT transfer over semantic types or relationships
-    v = metaEditingService.splitConcept(project.getId(),
-        originatingC.getId(), originatingC.getLastModified().getTime(),
-        moveAtomIds, false, false, false, "RN", authToken);
+    v = metaEditingService.splitConcept(project.getId(), originatingC.getId(),
+        originatingC.getLastModified().getTime(), moveAtomIds, false, false,
+        false, "RN", authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // Identify the newly created concept by finding the most recently modified
@@ -2005,10 +2009,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(relationshipPresent);
 
     // Verify that the same is true for the inverse
-    createdConceptRels =
-        contentService.findConceptRelationships(createdC.getTerminologyId(),
-            createdC.getTerminology(), createdC.getVersion(), null, null,
-            authToken);
+    createdConceptRels = contentService.findConceptRelationships(
+        createdC.getTerminologyId(), createdC.getTerminology(),
+        createdC.getVersion(), null, null, authToken);
 
     relationshipPresent = false;
     for (final Relationship<?, ?> rel : createdConceptRels.getObjects()) {
@@ -2033,10 +2036,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(!relationshipPresent);
 
     // Verify that the same is true for the inverse
-    relatedConceptRels =
-        contentService.findConceptRelationships(relatedC.getTerminologyId(),
-            relatedC.getTerminology(), relatedC.getVersion(),
-            "fromId:" + relatedC.getId(), null, authToken);
+    relatedConceptRels = contentService.findConceptRelationships(
+        relatedC.getTerminologyId(), relatedC.getTerminology(),
+        relatedC.getVersion(), "fromId:" + relatedC.getId(), null, authToken);
 
     relationshipPresent = false;
     for (final Relationship<?, ?> rel : relatedConceptRels.getObjects()) {
@@ -2052,9 +2054,8 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list =
-        projectService.findMolecularActions(originatingC.getTerminologyId(),
-            umlsTerminology, umlsVersion, null, pfs, authToken);
+    list = projectService.findMolecularActions(originatingC.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.getCount() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -2084,10 +2085,10 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals("RELATIONSHIP", atomicActions.get(3).getIdType().toString());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(),
-        originatingC.getId(), 1, authToken);
-    assertTrue(logEntry.contains("SPLIT " + concept.getId()));    
-    
+    logEntry = projectService.getLog(project.getId(), originatingC.getId(), 1,
+        authToken);
+    assertTrue(logEntry.contains("SPLIT " + concept.getId()));
+
   }
 
   /**

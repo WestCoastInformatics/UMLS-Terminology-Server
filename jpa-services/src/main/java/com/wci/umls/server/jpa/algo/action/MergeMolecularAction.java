@@ -119,6 +119,11 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     return validationResult;
   }
 
+  /**
+   * Compute.
+   *
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -179,6 +184,9 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     List<ConceptRelationship> fromRelationships =
         new ArrayList<>(getFromConcept().getRelationships());
 
+    List<ConceptRelationship> toRelationships =
+        new ArrayList<>(getToConcept().getRelationships());
+
     // Go through all relationships in the fromConcept
     for (final ConceptRelationship rel : fromRelationships) {
 
@@ -190,12 +198,13 @@ public class MergeMolecularAction extends AbstractMolecularAction {
         // remove the relationship component and its inverse
         removeRelationship(rel.getId(), rel.getClass());
 
-         // remove the inverse relationship type component from the concept
-         // and update
-         getToConcept().getRelationships().remove(findInverseRelationship(rel));
-        
-         // remove the inverse relationship component
-         removeRelationship(findInverseRelationship(rel).getId(), rel.getClass());  
+        // remove the inverse relationship type component from the concept
+        // and update
+        getToConcept().getRelationships().remove(findInverseRelationship(rel));
+
+        // remove the inverse relationship component
+        removeRelationship(findInverseRelationship(rel).getId(),
+            rel.getClass());
 
       }
       // If relationship is not between two merging concepts, add relationship
@@ -210,46 +219,61 @@ public class MergeMolecularAction extends AbstractMolecularAction {
         // remove the relationship component and the inverse
         removeRelationship(rel.getId(), rel.getClass());
 
-         // remove the inverse relationship type component from the concept
-         // and update
-         Concept thirdConcept = rel.getTo();
-         thirdConcept.getRelationships().remove(findInverseRelationship(rel));
-        
-         // remove the inverse relationship component
-         removeRelationship(findInverseRelationship(rel).getId(), rel.getClass());
-        
+        // remove the inverse relationship type component from the concept
+        // and update
+        Concept thirdConcept = rel.getTo();
+        thirdConcept.getRelationships().remove(findInverseRelationship(rel));
+
+        // remove the inverse relationship component
+        removeRelationship(findInverseRelationship(rel).getId(),
+            rel.getClass());
 
         //
         // Create and add relationship and inverseRelationship
         //
+        // If relationship already exists between to and related concept, don't
+        // add any more - set worklow status of existing relationship to Needs
+        // Review
 
-        // set the relationship component last modified
-        rel.setId(null);
-        rel.setFrom(getToConcept());
-        ConceptRelationshipJpa newRel =
-            (ConceptRelationshipJpa) addRelationship(rel);
-
-        // add relationship to concept and set last modified by
-        getToConcept().getRelationships().add(newRel);
-
-        if (getChangeStatusFlag()) {
-          newRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        ConceptRelationship existingRel = null;
+        for (final ConceptRelationship toRel : toRelationships) {
+          if (toRel.getTo().getId() == thirdConcept.getId()) {
+            existingRel = toRel;
+          }
         }
 
-        // construct inverse relationship
-        ConceptRelationshipJpa inverseRel =
-            (ConceptRelationshipJpa) createInverseConceptRelationship(newRel);
+        if (existingRel != null) {
+          existingRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          findInverseRelationship(existingRel)
+          .setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        } else {
+          // set the relationship component last modified
+          rel.setId(null);
+          rel.setFrom(getToConcept());
+          ConceptRelationshipJpa newRel =
+              (ConceptRelationshipJpa) addRelationship(rel);
 
-        // set the inverse relationship component last modified
-        ConceptRelationshipJpa newInverseRel =
-            (ConceptRelationshipJpa) addRelationship(inverseRel);
-        if (getChangeStatusFlag()) {
-          newInverseRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          // add relationship to concept and set last modified by
+          getToConcept().getRelationships().add(newRel);
+
+          if (getChangeStatusFlag()) {
+            newRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          }
+
+          // construct inverse relationship
+          ConceptRelationshipJpa inverseRel =
+              (ConceptRelationshipJpa) createInverseConceptRelationship(newRel);
+
+          // set the inverse relationship component last modified
+          ConceptRelationshipJpa newInverseRel =
+              (ConceptRelationshipJpa) addRelationship(inverseRel);
+          if (getChangeStatusFlag()) {
+            newInverseRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          }
+
+          // add relationship to concept and set last modified by
+          thirdConcept.getRelationships().add(newInverseRel);
         }
-
-        // add relationship to concept and set last modified by
-        thirdConcept.getRelationships().add(newInverseRel);
-
       }
     }
 
