@@ -21,7 +21,7 @@
         <h4><span ng-show="binTypeOptions.length == 1">{{currentBinType}}
           <i title="Regenerate bins"
                   ng-click="regenerateBins(); $event.stopPropagation()"
-                  class="md-grey material-icons md-18">refresh</i>
+                  class="noul md-grey material-icons md-18">refresh</i>
         </span></h4>
       </div>
       <div class="col-md-12 col-xs-12">
@@ -29,7 +29,7 @@
           ng-show="bins.length > 0">
           <thead class="table-select-row">
             <tr>
-              <th class="col-md-1 col-xs-1"></th>
+              <th ng-show="projectRole == 'ADMINISTRATOR'" class="col-md-1 col-xs-1"></th>
               <th class="col-md-1 col-xs-1">Rank</th>
               <th class="col-md-3 col-xs-3">Name</th>
               <th class="col-md-3 col-xs-3">Dates</th>
@@ -43,7 +43,8 @@
           <tbody ng-repeat="bin in bins">
             <tr ng-click="selectBin(bin, 'all');" ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
               ng-class="{selected: bin.id == selected.bin.id}">
-              <td rowspan="4"><input type="checkbox" title="Enable/Disable Bin"
+              <td rowspan="4" ng-show="projectRole == 'ADMINISTRATOR'" >
+                <input type="checkbox" title="Enable/Disable Bin"
                 ng-model="bin.enabled" ng-change="toggleEnable(bin)"></input></td>
               <td rowspan="4">{{bin.rank}}</td>
               <td rowspan="4">
@@ -64,14 +65,14 @@
               <td>{{ stats.stats.assigned }}</td>
               <td>{{ stats.stats.unassigned }}</td>
               <td>
-                <i ng-show="stats.clusterType == 'all' && bin.stats.length > 1"
+                <i ng-show="stats.clusterType == 'all' && bin.stats.length > 1 && bin.enabled"
                   ng-click="setBinType(currentBinType); $event.stopPropagation()"
-                  title="Refresh counts"
-                  class="noul glyphicon glyphicon-refresh"></i> <i
-                  ng-show="stats.clusterType != 'all'"
+                  title="Refresh counts"   
+                  class="noul glyphicon glyphicon-refresh"></i><i
+                  ng-show="stats.clusterType != 'all' && bin.enabled"
                   ng-click="openCreateChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
                   title="Add Checklist" class="noul glyphicon glyphicon-check"></i>&nbsp;<i
-                  ng-show="stats.clusterType != 'all'"
+                  ng-show="stats.clusterType != 'all' && bin.enabled"
                   ng-click="openCreateWorklistModal(bin, stats.clusterType, stats.stats.unassigned); $event.stopPropagation()"
                   title="Add Worklist" class="noul glyphicon glyphicon-list-alt"></i>
               </td>

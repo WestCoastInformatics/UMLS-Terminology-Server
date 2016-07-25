@@ -77,7 +77,7 @@ tsApp.controller('WorkflowCtrl', [
           $scope.projects = data;
           $scope.projects = data;
           $scope.currentProject = $scope.projects.projects[0];
-          $scope.currentProject.user = Object.keys($scope.currentProject.userRoleMap);
+          $scope.projectRole = $scope.currentProject.userRoleMap[$scope.user.userName];
 
           $scope.getBins($scope.currentProject.id, $scope.currentBinType);
           $scope.getBinTypes();
