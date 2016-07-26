@@ -4335,26 +4335,26 @@ public class ContentServiceJpa extends MetadataServiceJpa
     clauses.add(query);
 
     // 2. to/fromTerminologyId
-    if (!inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
+    if (inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
       clauses.add("toTerminologyId:" + terminologyId);
     }
-    if (inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
+    if (!inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
       clauses.add("fromTerminologyId:" + terminologyId);
     }
 
     // 3. to/fromTerminology
-    if (!inverseFlag && !ConfigUtility.isEmpty(terminology)) {
+    if (inverseFlag && !ConfigUtility.isEmpty(terminology)) {
       clauses.add("toTerminology:" + terminology);
     }
-    if (inverseFlag && !ConfigUtility.isEmpty(terminology)) {
+    if (!inverseFlag && !ConfigUtility.isEmpty(terminology)) {
       clauses.add("fromTerminology:" + terminology);
     }
 
     // r. to/fromVersion clause
-    if (!inverseFlag && !ConfigUtility.isEmpty(version)) {
+    if (inverseFlag && !ConfigUtility.isEmpty(version)) {
       clauses.add("toVersion:" + version);
     }
-    if (inverseFlag && !ConfigUtility.isEmpty(version)) {
+    if (!inverseFlag && !ConfigUtility.isEmpty(version)) {
       clauses.add("fromVersion:" + version);
     }
 

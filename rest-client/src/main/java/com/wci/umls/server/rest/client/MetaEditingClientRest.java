@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -62,9 +63,12 @@ public class MetaEditingClientRest extends RootClientRest
             + "&conceptId=" + conceptId + "&lastModified=" + lastModified
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
+    final String styString =
+        ConfigUtility.getJsonForGraph(semanticTypeComponent == null
+            ? new SemanticTypeComponentJpa() : semanticTypeComponent);
+
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken)
-        .post(Entity.json(semanticTypeComponent));
+        .header("Authorization", authToken).post(Entity.json(styString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -132,8 +136,11 @@ public class MetaEditingClientRest extends RootClientRest
         + conceptId + "&lastModified=" + lastModified
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
+    final String attributeString = ConfigUtility
+        .getJsonForGraph(attribute == null ? new AttributeJpa() : attribute);
+
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(attribute));
+        .header("Authorization", authToken).post(Entity.json(attributeString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -201,8 +208,11 @@ public class MetaEditingClientRest extends RootClientRest
             + "&conceptId=" + conceptId + "&lastModified=" + lastModified
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
+    final String atomString =
+        ConfigUtility.getJsonForGraph(atom == null ? new AtomJpa() : atom);
+
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(atom));
+        .header("Authorization", authToken).post(Entity.json(atomString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -269,9 +279,13 @@ public class MetaEditingClientRest extends RootClientRest
         + conceptId + "&lastModified=" + lastModified
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
+    String relString = ConfigUtility.getJsonForGraph(
+        relationship == null ? new ConceptRelationshipJpa() : relationship);
+    
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(relationship));
-
+        .header("Authorization", authToken).post(Entity.json(relString));
+    
+    
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -322,7 +336,7 @@ public class MetaEditingClientRest extends RootClientRest
   @Override
   public ValidationResult mergeConcepts(Long projectId, Long conceptId,
     Long lastModified, Long conceptId2, boolean overrideWarnings,
-    boolean makeDemotions, String authToken) throws Exception {
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - merge concept " + conceptId
             + " with concept " + conceptId2 + ", " + lastModified + ", "
@@ -336,8 +350,7 @@ public class MetaEditingClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/concept/merge?projectId=" + projectId + "&conceptId="
         + conceptId + "&lastModified=" + lastModified + "&conceptId2="
-        + conceptId2 + (overrideWarnings ? "&overrideWarnings=true" : "")
-        + (makeDemotions ? "&makeDemotions=true" : ""));
+        + conceptId2 + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
@@ -375,8 +388,11 @@ public class MetaEditingClientRest extends RootClientRest
         + conceptId + "&lastModified=" + lastModified + "&conceptId2="
         + conceptId2 + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
+    String atomIdsString = ConfigUtility.getJsonForGraph(
+        atomIds == null ? new ArrayList<Long>() : atomIds);        
+    
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(atomIds));
+        .header("Authorization", authToken).post(Entity.json(atomIdsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -413,8 +429,11 @@ public class MetaEditingClientRest extends RootClientRest
             + (copySemanticTypes ? "&copySemanticTypes=true" : "")
             + "&relationshipType=" + relationshipType);
 
+    String atomIdsString = ConfigUtility.getJsonForGraph(
+        atomIds == null ? new ArrayList<Long>() : atomIds);    
+    
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(atomIds));
+        .header("Authorization", authToken).post(Entity.json(atomIdsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -434,8 +453,8 @@ public class MetaEditingClientRest extends RootClientRest
     Long lastModified, boolean overrideWarnings, String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .debug("MetaEditing Client - approve concept " + conceptId + ", " + lastModified + ", "
-            + overrideWarnings + ", " + authToken);
+        .debug("MetaEditing Client - approve concept " + conceptId + ", "
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(conceptId, "conceptId");

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.worfklow;
 
@@ -88,6 +88,10 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   @Column(nullable = false)
   private boolean editable;
 
+  /**  The enabled flag. */
+  @Column(nullable = false)
+  private boolean enabled;
+
   /** The required flag. */
   @Column(nullable = false)
   private boolean required;
@@ -119,6 +123,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     query = def.getQuery();
     queryType = def.getQueryType();
     editable = def.isEditable();
+    enabled = def.isEnabled();
     required = def.isRequired();
     workflowConfig = def.getWorkflowConfig();
   }
@@ -215,6 +220,20 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   @Override
   @FieldBridge(impl = BooleanBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  /* see superclass */
+  @Override
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+  
+  /* see superclass */
+  @Override
+  @FieldBridge(impl = BooleanBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isRequired() {
     return required;
   }
@@ -295,6 +314,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (editable ? 1231 : 1237);
+    result = prime * result + (enabled ? 1231 : 1237);
     result = prime * result + (required ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((query == null) ? 0 : query.hashCode());
@@ -318,6 +338,8 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
     } else if (!description.equals(other.description))
       return false;
     if (editable != other.editable)
+      return false;
+    if (enabled != other.enabled)
       return false;
     if (required != other.required)
       return false;
@@ -346,7 +368,7 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
         + lastModified + ", lastModifiedBy=" + lastModifiedBy + ", timestamp="
         + timestamp + ", name=" + name + ", description=" + description
         + ", query=" + query + ", queryType=" + queryType + ", editable="
-        + editable + ", required=" + required + "]";
+        + editable + ", required=" + required + ", enabled=" + enabled + "]";
   }
 
 }

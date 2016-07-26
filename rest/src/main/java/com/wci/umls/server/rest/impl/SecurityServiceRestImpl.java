@@ -175,6 +175,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "retrieve all users",
           UserRole.VIEWER);
       UserList list = securityService.getUsers();
+      for (User user : list.getObjects()) {
+        user.getProjectRoleMap().size();
+      }
       return list;
     } catch (Exception e) {
       handleException(e, "trying to retrieve all users");

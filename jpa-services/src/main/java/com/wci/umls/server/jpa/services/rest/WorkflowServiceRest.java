@@ -15,6 +15,7 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
+import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
@@ -391,13 +392,11 @@ public interface WorkflowServiceRest {
     WorkflowBinType type, String authToken) throws Exception;
 
   /**
-   * 
+   * Clear bin.
+   *
    * @param projectId the project id
-   * 
    * @param workflowBinId the workflow bin id
-   * 
    * @param authToken the auth token
-   * 
    * @throws Exception the exception
    */
   public void clearBin(Long projectId, Long workflowBinId, String authToken)
@@ -551,4 +550,28 @@ public interface WorkflowServiceRest {
    */
   public void removeWorklistNote(Long projectId, Long noteId, String authToken)
     throws Exception;
+
+  /**
+   * Update worklist.
+   *
+   * @param projectId the project id
+   * @param config the config
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateWorklist(Long projectId, WorklistJpa config, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the workflow bin definition.
+   *
+   * @param projectId the project id
+   * @param name the name
+   * @param type the type
+   * @param authToken the auth token
+   * @return the workflow bin definition
+   * @throws Exception the exception
+   */
+  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId, String name,
+    WorkflowBinType type, String authToken) throws Exception;
 }
