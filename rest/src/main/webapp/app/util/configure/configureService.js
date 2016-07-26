@@ -41,12 +41,16 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
 
       };
       gpService.increment();
-      $http.post(configureUrl + '/configure', config).then(function() {
+      $http.post(configureUrl + '/configure', config).then(
+      // Success
+      function() {
         configured = true;
         gpService.decrement();
         deferred.resolve();
 
-      }, function(response) {
+      },
+      // Error
+      function(response) {
         gpService.decrement();
         utilService.handleError(response);
         deferred.reject();
@@ -58,10 +62,14 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
     this.destroy = function() {
       var deferred = $q.defer();
       gpService.increment();
-      $http['delete'](configureUrl + '/destroy').then(function(response) {
+      $http['delete'](configureUrl + '/destroy').then(
+      // Success
+      function(response) {
         gpService.decrement();
         deferred.resolve();
-      }, function(error) {
+      },
+      // Error
+      function(error) {
         gpService.decrement();
         utilService.handleError();
 
@@ -70,6 +78,25 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
       return deferred.promise;
     };
 
+    // Get config properties
+    this.getConfigProperties = function() {
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http.get(configureUrl + '/properties').then(
+      // success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // Error
+      function(response) {
+        gpService.decrement();
+        utilService.handleError(response);
+        deferred.reject();
+      });
+      return deferred.promise;
+    };
     // end
 
   } ]);

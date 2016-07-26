@@ -50,8 +50,8 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
-    ConfigureServiceRest {
+public class ConfigureServiceRestImpl extends RootServiceRestImpl
+    implements ConfigureServiceRest { 
 
   /**
    * Instantiates an empty {@link ConfigureServiceRestImpl}.
@@ -70,7 +70,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  private void validateProperty(String name, Properties props) throws Exception {
+  private void validateProperty(String name, Properties props)
+    throws Exception {
     if (props == null) {
       throw new Exception("Properties are null");
     }
@@ -96,14 +97,13 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
   @Path("/configured")
   @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
   public boolean isConfigured() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Configure): /configure/configured");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Configure): /configure/configured");
 
     try {
       String configFileName = ConfigUtility.getLocalConfigFile();
-      boolean configured =
-          ConfigUtility.getConfigProperties() != null
-              || (new File(configFileName).exists());
+      boolean configured = ConfigUtility.getConfigProperties() != null
+          || (new File(configFileName).exists());
       return configured;
 
     } catch (Exception e) {
@@ -126,8 +126,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
   public void configure(
     @ApiParam(value = "Configuration parameters as JSON string", required = true) HashMap<String, String> parameters)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Configure): /configure/configure with parameters "
+    Logger.getLogger(getClass())
+        .info("RESTful call (Configure): /configure/configure with parameters "
             + parameters.toString());
 
     // NOTE: Configure calls do not require authorization
@@ -135,9 +135,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
     try {
 
       // get the starting configuration
-      InputStream in =
-          ConfigureServiceRestImpl.class
-              .getResourceAsStream("/config.properties.start");
+      InputStream in = ConfigureServiceRestImpl.class
+          .getResourceAsStream("/config.properties.start");
 
       if (in == null) {
         throw new Exception("Could not open starting configuration file");
@@ -147,8 +146,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
       String configFileName = ConfigUtility.getLocalConfigFile();
 
       if (new File(configFileName).exists()) {
-        throw new LocalException("System is already configured from file: "
-            + configFileName);
+        throw new LocalException(
+            "System is already configured from file: " + configFileName);
       }
 
       // get the starting properties
@@ -166,12 +165,11 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
       for (final Object key : new HashSet<>(properties.keySet())) {
         for (final String param : parameters.keySet()) {
 
-          if (properties.getProperty(key.toString()).contains(
-              "${" + param + "}")) {
-            properties.setProperty(
-                key.toString(),
-                properties.getProperty(key.toString()).replace(
-                    "${" + param + "}", parameters.get(param)));
+          if (properties.getProperty(key.toString())
+              .contains("${" + param + "}")) {
+            properties.setProperty(key.toString(),
+                properties.getProperty(key.toString())
+                    .replace("${" + param + "}", parameters.get(param)));
           }
         }
       }
@@ -216,8 +214,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
             + parameters.get("app.dir"));
       }
 
-      Logger.getLogger(getClass()).info(
-          "Writing configuration file: " + configFileName);
+      Logger.getLogger(getClass())
+          .info("Writing configuration file: " + configFileName);
 
       File configFile = new File(configFileName);
 
@@ -261,8 +259,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
         if (metadataService != null) {
           metadataService.close();
         }
-        ConfigUtility.getConfigProperties().setProperty(
-            "hibernate.hbm2ddl.auto", "update");
+        ConfigUtility.getConfigProperties()
+            .setProperty("hibernate.hbm2ddl.auto", "update");
       }
 
     } catch (Exception e) {
@@ -278,8 +276,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
   public void destroy(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Configure): /configure/destroy");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Configure): /configure/destroy");
 
     // NOTE: Configure calls do not require authorization
 
@@ -348,8 +346,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
         }
 
         // return mode to update
-        ConfigUtility.getConfigProperties().setProperty(
-            "hibernate.hbm2ddl.auto", "update");
+        ConfigUtility.getConfigProperties()
+            .setProperty("hibernate.hbm2ddl.auto", "update");
 
       }
 
@@ -363,13 +361,13 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
-  @DELETE
+  @GET
   @Override
   @Path("/properties")
   @ApiOperation(value = "Get configuration properties", notes = "Gets user interface-relevant configuration properties", response = Properties.class)
   public Properties getConfigProperties() {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Configure): /configure/properties");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Configure): /configure/properties");
     try {
       return ConfigUtility.getUiConfigProperties();
     } catch (Exception e) {

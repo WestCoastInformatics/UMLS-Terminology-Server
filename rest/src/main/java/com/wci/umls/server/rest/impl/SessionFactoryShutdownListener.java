@@ -10,7 +10,7 @@ import javax.servlet.ServletContextListener;
 import com.wci.umls.server.jpa.services.RootServiceJpa;
 
 /**
- * Listener for shutting down session factory.
+ * Listener for shutting down session factory. dd
  */
 public class SessionFactoryShutdownListener implements ServletContextListener {
 

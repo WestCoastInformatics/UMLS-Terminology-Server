@@ -67,7 +67,7 @@ tsApp.service('securityService', [
     this.getUser = function() {
 
       // if login is not enabled, set and return the Guest user
-      if (appConfig.loginEnabled !== 'true') {
+      if (appConfig.loginEnabled && appConfig.loginEnabled !== 'true') {
         this.setGuestUser();
       }
       // otherwise, determine if user is already logged in

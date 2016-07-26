@@ -8,61 +8,62 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
     // Available tabs, keep as array
     this.tabs = new Array();
 
-    // Setup tabs array based on "enabled tabs"
-    if (appConfig.enabledTabs) {
-      // Verify user cookie properly setup - TODO: does this make sense here?
-      securityService.getUser();
+    // Setup tabs array based on "enabled tabs"]
+    // Called at the end of routes.js
+    this.initEnabledTabs = function() {
+      if (appConfig.enabledTabs) {
 
-      var tabArray = appConfig.enabledTabs.split(',');
-      for (var i = 0; i < tabArray.length; i++) {
-        switch (tabArray[i]) {
-        case 'source':
-          this.tabs.push({
-            link : 'source',
-            label : 'Sources',
-            role : 'USER'
-          });
+        var tabArray = appConfig.enabledTabs.split(',');
+        for (var i = 0; i < tabArray.length; i++) {
+          switch (tabArray[i]) {
+          case 'source':
+            this.tabs.push({
+              link : 'source',
+              label : 'Sources',
+              role : 'USER'
+            });
 
-          break;
-        case 'content':
-          this.tabs.push({
-            link : 'content',
-            label : 'Content',
-            role : false
-          });
-          break;
-        case 'metadata':
-          this.tabs.push({
-            link : 'metadata',
-            label : 'Metadata',
-            role : false
-          });
-          break;
-        case 'workflow':
-          this.tabs.push({
-            link : 'workflow',
-            label : 'Workflow',
-            role : false
-          });
-          break;
-        case 'admin':
-          this.tabs.push({
-            link : 'admin',
-            label : 'Admin',
-            role : 'ADMINISTRATOR'
+            break;
+          case 'content':
+            this.tabs.push({
+              link : 'content',
+              label : 'Content',
+              role : false
+            });
+            break;
+          case 'metadata':
+            this.tabs.push({
+              link : 'metadata',
+              label : 'Metadata',
+              role : false
+            });
+            break;
+          case 'workflow':
+            this.tabs.push({
+              link : 'workflow',
+              label : 'Workflow',
+              role : false
+            });
+            break;
+          case 'admin':
+            this.tabs.push({
+              link : 'admin',
+              label : 'Admin',
+              role : 'ADMINISTRATOR'
 
-          });
+            });
 
-          break;
-        case 'default':
-          utilService.setError('Invalid tab ' + tabArray[i] + ' specified, skipping');
+            break;
+          case 'default':
+            utilService.setError('Invalid tab ' + tabArray[i] + ' specified, skipping');
+          }
         }
       }
-    }
 
-    // Fail if no enabled tabs
-    else {
-      utilService.setError('Configuration error: no enabled tabs in appConfig');
+      // Fail if no enabled tabs
+      else {
+        utilService.setError('Configuration error: no enabled tabs in appConfig');
+      }
     }
 
     // Set a flag indicating whether tabs are to be showing

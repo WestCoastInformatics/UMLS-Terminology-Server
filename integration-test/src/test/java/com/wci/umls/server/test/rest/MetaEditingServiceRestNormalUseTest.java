@@ -1607,15 +1607,15 @@ public class MetaEditingServiceRestNormalUseTest
     Atom atom3 = null;
     for (Atom a : toC.getAtoms()) {
       if (a.getName().equals("DCB")) {
-        atom = (AtomJpa) a;
+        atom = a;
       }
     }
     for (Atom a : fromC.getAtoms()) {
       if (a.getName().equals("17 Oxosteroids")) {
-        atom2 = (AtomJpa) a;
+        atom2 = a;
       }
       if (a.getName().equals("PABA")) {
-        atom3 = (AtomJpa) a;
+        atom3 = a;
       }
     }
     assertNotNull(atom);
@@ -1727,10 +1727,10 @@ public class MetaEditingServiceRestNormalUseTest
     Atom atom2 = null;
     for (Atom a : originatingC.getAtoms()) {
       if (a.getName().equals("DCB")) {
-        atom = (AtomJpa) a;
+        atom = a;
       }
       if (a.getName().equals("IPA")) {
-        atom2 = (AtomJpa) a;
+        atom2 = a;
       }
     }
     assertNotNull(atom);
@@ -1928,10 +1928,10 @@ public class MetaEditingServiceRestNormalUseTest
     atom2 = null;
     for (Atom a : originatingC.getAtoms()) {
       if (a.getName().equals("DCB")) {
-        atom = (AtomJpa) a;
+        atom = a;
       }
       if (a.getName().equals("IPA")) {
-        atom2 = (AtomJpa) a;
+        atom2 = a;
       }
     }
     assertNotNull(atom);
