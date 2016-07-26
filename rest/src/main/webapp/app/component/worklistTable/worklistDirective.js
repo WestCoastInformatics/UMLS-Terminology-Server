@@ -209,21 +209,7 @@ tsApp
                 $scope.getRecords(worklist);
               };
 
-              // Selects a concept (setting $scope.selected.concept)
-              $scope.selectConcept = function(concept) {
-                // Set the concept for display
-                $scope.selected.concept = {
-                  terminologyId : concept.terminologyId,
-                  terminology : concept.terminology,
-                  version : concept.version,
-                  id : concept.id
-                };
-                reportService.getConceptReport($scope.project.id, $scope.selected.concept.id).then(
-                // Success
-                function(data) {
-                  $scope.selected.concept.report = data;
-                });
-              };
+
 
               $scope.unassignWorklist = function(worklist) {
                 workflowService.performWorkflowAction($scope.project.id, worklist.id,

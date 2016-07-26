@@ -1,0 +1,132 @@
+<div class="modal-header">
+  <h4>{{action}} Bin</h4>
+</div>
+
+<div class="modal-body">
+  <div>
+    <table class="table">
+      <tr>
+        <td>
+          <b>Project</b>
+        </td>
+        <td>
+          {{project.name}}
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Name</b>
+        </td>
+        <td>
+          <input ng-model="workflowBinDefinition.name" size="60"
+            placeholder="e.g. demotions" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Description</b>
+        </td>
+        <td>
+          <textarea rows="2" cols="60" ng-model="workflowBinDefinition.description"
+            placeholder="Basic description of the bin"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Query</b>
+        </td>
+        <td>
+          <textarea rows="5" cols="60" ng-model="workflowBinDefinition.query"
+            placeholder="Query to compose bin"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Query Type</b>
+        </td>
+        <td>
+          <select ng-model="workflowBinDefinition.queryType"
+            ng-options="item for item in queryTypes"></select>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Required</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="workflowBinDefinition.required">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Editable</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="workflowBinDefinition.editable">
+        </td>
+      </tr>
+      <tr ng-show="action == 'Add' || action == 'Clone'">
+        <td>
+          <b>Position bin after:</b>
+        </td>
+        <td>
+          <select ng-model="positionAfterBin"
+            ng-change="positionAfterBin(bin)"
+            ng-options="bin.name for bin in bins">
+          </select>
+        </td>
+      </tr>
+
+
+      <!-- Errors and warnings-->
+      <tr ng-show="warnings.length > 0">
+        <td>&nbsp;</td>
+        <td>
+          <div class="alert alert-warning" ng-repeat="warning in warnings">
+            {{warning}}</div>
+        </td>
+      </tr>
+
+      <tr
+        ng-show="errors.length == 1 || (errors.length == 2 && errors[1].length>100)">
+        <td colspan="2">
+          <div class="alert alert-danger alert-error">
+            {{errors[0]}}
+            <div style="display: inline; float: right;">
+              <i ng-show="errors[1]"
+                title="{{error.expand ? 'Show' : 'Hide'}} long eror"
+                class="noul material-icons md-18"
+                ng-click="error.expand = !error.expand;">attach_file</i>
+            </div>
+            <p ng-show="errors[1] && error.expand">
+              <br />{{errors[1]}}
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr
+        ng-show="errors.length>2 || (errors.length == 2 && errors[1].length<101)">
+        <td colspan="2">
+          <div class="alert alert-danger alert-error"
+            ng-repeat="error in errors">{{error}}</div>
+        </td>
+      </tr>
+      <tr class="alert alert-warning" ng-repeat="warning in warnings">
+        <td colspan="2">
+          <div class="alert alert-warning" ng-repeat="warning in warnings">{{warning}}</div>
+        </td>
+      </tr>
+
+    </table>
+  </div>
+
+  <div class="modal-footer">
+    <button ng-show="action == 'Add'" class="btn btn-primary"
+      ng-click="submitDefinition(bin, workflowBinDefinition); ">Add</button>
+    <button ng-show="action == 'Edit'" class="btn btn-primary"
+      ng-click="submitDefinition(bin, workflowBinDefinition); ">Save</button>
+    <button ng-show="action == 'Clone'" class="btn btn-primary"
+      ng-click="submitDefinition(bin, workflowBinDefinition); ">Clone</button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+  </div>
+</div>

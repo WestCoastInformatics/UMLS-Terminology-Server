@@ -22,7 +22,12 @@
           <i title="Regenerate bins"
                   ng-click="regenerateBins(); $event.stopPropagation()"
                   class="noul md-grey material-icons md-18">refresh</i>
-        </span></h4>
+        </span>
+        <span style="float: right;">
+          <button ng-click="openAddBinModal()" title="Add new bin"
+            class="btn btn-xs btn-primary">Add Bin</button>
+        </span>
+        </h4>
       </div>
       <div class="col-md-12 col-xs-12">
         <table class="table table-hover" style="margin-top: 10px;"
@@ -45,7 +50,17 @@
               ng-class="{selected: bin.id == selected.bin.id}">
               <td rowspan="4" ng-show="projectRole == 'ADMINISTRATOR'" >
                 <input type="checkbox" title="Enable/Disable Bin"
-                ng-model="bin.enabled" ng-change="toggleEnable(bin)"></input></td>
+                ng-model="bin.enabled" ng-change="toggleEnable(bin)"></input>   </br>             
+                <i ng-click="openEditBinModal(bin); $event.stopPropagation()" ng-show="bin.enabled"
+                  title="Edit Bin"   
+                  class="noul glyphicon glyphicon-pencil"></i>
+                <i ng-click="removeBin(bin); $event.stopPropagation()" ng-show="bin.enabled"
+                  title="Remove Bin"   
+                  class="noul glyphicon glyphicon-trash"></i>
+                <i ng-click="openCloneBinModal(bin); $event.stopPropagation()" ng-show="bin.enabled"
+                  title="Clone Bin"   
+                  class="noul glyphicon glyphicon-copy"></i>
+              </td>
               <td rowspan="4">{{bin.rank}}</td>
               <td rowspan="4">
                 <i uib-tooltip="{{bin.description}}"

@@ -100,6 +100,11 @@ tsApp.controller('WorkflowCtrl', [
       $scope.currentBinType = binType;
       //$scope.user.userPreferences.binType = $scope.currentBinType;
       //securityService.updateUserPreferences($scope.user.userPreferences);
+      for (var i = 0; i < $scope.workflowConfigs.length; i++) {
+        if ($scope.workflowConfigs[i].type == binType) {
+          $scope.currentWorkflowConfig = $scope.workflowConfigs[i];
+        }
+      }
       $scope.getBins($scope.currentProject.id, binType);
     }
     
@@ -206,21 +211,7 @@ tsApp.controller('WorkflowCtrl', [
 
     };
 
-    // Selects a concept (setting $scope.selected.concept)
-    $scope.selectConcept = function(concept) {
-      // Set the concept for display
-      $scope.selected.concept = {
-        terminologyId : concept.terminologyId,
-        terminology : concept.terminology,
-        version : concept.version,
-        id : concept.id
-      };
-      reportService.getConceptReport($scope.currentProject.id, $scope.selected.concept.id).then(
-      // Success
-      function(data) {
-        $scope.selected.concept.report = data;
-      });
-    };
+
     
     // Regenerate bins
     $scope.regenerateBins = function() {
@@ -253,6 +244,27 @@ tsApp.controller('WorkflowCtrl', [
         });
     };
     
+    // remove bin/definition
+    $scope.removeBin = function(bin) {
+      console.debug('remove bin/definition');
+      if(!window.confirm('Are you sure you want to remove the ' + bin.name + ' bin?')) {
+        return;
+      }
+      workflowService.getWorkflowBinDefinition($scope.currentProject.id, bin.name, $scope.currentBinType).then(
+        function(response) {
+          var workflowBinDefinition = response;
+          
+          workflowService.removeWorkflowBinDefinition(workflowBinDefinition).then(
+            function(response) {
+              $scope.regenerateBins();
+            },
+            // Error
+            function(data) {
+              handleError($scope.errors, data);
+            });
+        });
+    };
+ 
     // Convert date to a string
     $scope.toDate = function(lastModified) {
       return utilService.toDate(lastModified);
@@ -322,5 +334,120 @@ tsApp.controller('WorkflowCtrl', [
       });
     };
 
+    // Edit bin modal
+    $scope.openEditBinModal = function(lbin) {
+      console.debug('openEditBinModal ');
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/editBin.html',
+        controller : EditBinModalCtrl,
+        backdrop : 'static',
+        resolve : {
+          bin : function() {
+            return lbin;
+          },
+          workflowConfig : function() {
+            return $scope.currentWorkflowConfig;
+          },
+          bins : function() {
+            return $scope.bins;
+          },
+          binType : function() {
+            return $scope.currentBinType;
+          },
+          project : function() {
+            return $scope.currentProject;
+          },
+          projects : function() {
+            return $scope.projects;
+          },
+          action : function() {
+            return 'Edit';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+      });
+    };
+
+    // Clone bin modal
+    $scope.openCloneBinModal = function(lbin) {
+      console.debug('openCloneBinModal ');
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/editBin.html',
+        controller : EditBinModalCtrl,
+        backdrop : 'static',
+        resolve : {
+          bin : function() {
+            return lbin;
+          },
+          workflowConfig : function() {
+            return $scope.currentWorkflowConfig;
+          },
+          bins : function() {
+            return $scope.bins;
+          },
+          binType : function() {
+            return $scope.currentBinType;
+          },
+          project : function() {
+            return $scope.currentProject;
+          },
+          projects : function() {
+            return $scope.projects;
+          },
+          action : function() {
+            return 'Clone';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+      });
+    };
     
+    // Add bin modal
+    $scope.openAddBinModal = function(lbin) {
+      console.debug('openAddBinModal ');
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/editBin.html',
+        controller : EditBinModalCtrl,
+        backdrop : 'static',
+        resolve : {
+          bin : function() {
+            return undefined;
+          },
+          workflowConfig : function() {
+            return $scope.currentWorkflowConfig;
+          },
+          bins : function() {
+            return $scope.bins;
+          },
+          binType : function() {
+            return $scope.currentBinType;
+          },
+          project : function() {
+            return $scope.currentProject;
+          },
+          projects : function() {
+            return $scope.projects;
+          },
+          action : function() {
+            return 'Add';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+      });
+    };
   } ]);

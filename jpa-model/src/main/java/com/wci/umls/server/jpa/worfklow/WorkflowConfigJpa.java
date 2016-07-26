@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -87,6 +88,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
 
   /** The workflow bin definitions. */
   @OneToMany(mappedBy = "workflowConfig", targetEntity = WorkflowBinDefinitionJpa.class)
+  @OrderColumn
   private List<WorkflowBinDefinition> workflowBinDefinitions =
       new ArrayList<>();
 
