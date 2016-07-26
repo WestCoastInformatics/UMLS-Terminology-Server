@@ -982,7 +982,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final Worklist worklist = workflowService.getWorklist(id);
       // Compose query of all of the tracking record ids
       final List<String> clauses = worklist.getTrackingRecords().stream()
-          .map(r -> "id:" + r.getIndexedData()).collect(Collectors.toList());
+          .map(r -> "id:" + r.getId()).collect(Collectors.toList());
       final String query = ConfigUtility.composeQuery("OR", clauses);
 
       if (query.isEmpty()) {
