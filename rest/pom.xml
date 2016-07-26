@@ -151,10 +151,6 @@
     </dependency>
 
     <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-jersey2-jaxrs</artifactId>
     </dependency>

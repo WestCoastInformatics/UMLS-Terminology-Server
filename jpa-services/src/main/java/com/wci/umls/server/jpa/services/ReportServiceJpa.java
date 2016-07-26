@@ -17,8 +17,8 @@ import com.wci.umls.server.services.ReportService;
 /**
  * JPA and JAXB enabled implementation of {@link HistoryService}.
  */
-public class ReportServiceJpa extends HistoryServiceJpa implements
-    ReportService {
+public class ReportServiceJpa extends HistoryServiceJpa
+    implements ReportService {
 
   /**
    * Instantiates an empty {@link ReportServiceJpa}.
@@ -55,7 +55,8 @@ public class ReportServiceJpa extends HistoryServiceJpa implements
 
     sb.append("CUI ");
     sb.append(concept.getTerminologyId()).append("\t");
-    sb.append("Concept Status is " + concept.getWorkflowStatus()).append("\n");
+    sb.append("Concept Status is "
+        + concept.getWorkflowStatus().toString().substring(0, 1)).append("\n");
     for (final String id : conceptTerminologyIds) {
       sb.append(id).append("\n");
     }
@@ -70,7 +71,7 @@ public class ReportServiceJpa extends HistoryServiceJpa implements
     sb.append("ATOMS").append("\n");
 
     for (final Atom atom : concept.getAtoms()) {
-      sb.append("\t").append("\t");
+      sb.append("   ");
       sb.append(atom.getWorkflowStatus().toString().substring(0, 1))
           .append(" ");
       // TODO [] what are these brackets for?

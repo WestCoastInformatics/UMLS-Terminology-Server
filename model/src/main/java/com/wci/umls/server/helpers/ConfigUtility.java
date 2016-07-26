@@ -293,19 +293,16 @@ public class ConfigUtility {
    */
   public static Properties getUiConfigProperties() throws Exception {
     final Properties config = getConfigProperties();
-    System.out.println("condfig=" +config);
     // use "deploy.*" and "site.*" and "base.url" properties
     final Properties p = new Properties();
     for (final Object prop : config.keySet()) {
       final String str = prop.toString();
-      System.out.println("str="+str);
 
       if (str.startsWith("deploy.") || str.startsWith("site.")
           || str.equals("base.url")) {
         p.put(prop, config.getProperty(prop.toString()));
       }
     }
-    System.out.println("p="+p);
     return p;
 
   }
