@@ -13,6 +13,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
@@ -21,6 +22,7 @@ import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 
@@ -116,6 +118,19 @@ public interface WorkflowService extends ContentService {
    */
   public TrackingRecordList findTrackingRecords(Project project, String query,
     PfsParameter pfs) throws Exception;
+
+  /**
+   * Find tracking records for a concept id.
+   *
+   * @param project the project
+   * @param concept the concept
+   * @param query the query
+   * @param pfs the pfs
+   * @return the tracking record list
+   * @throws Exception the exception
+   */
+  public TrackingRecordList findTrackingRecordsForConcept(Project project,
+    Concept concept, String query, PfsParameter pfs) throws Exception;
 
   /**
    * Handle lazy init.
@@ -318,8 +333,8 @@ public interface WorkflowService extends ContentService {
    * @return the workflow bins
    * @throws Exception the exception
    */
-  public List<WorkflowBin> getWorkflowBins(Project project, WorkflowBinType type)
-    throws Exception;
+  public List<WorkflowBin> getWorkflowBins(Project project,
+    WorkflowBinType type) throws Exception;
 
   /**
    * Gets the workflow bin.
@@ -454,6 +469,16 @@ public interface WorkflowService extends ContentService {
    * @throws Exception the exception
    */
   public WorkflowEpoch getCurrentWorkflowEpoch(Project project)
+    throws Exception;
+
+  /**
+   * Compute tracking record status.
+   *
+   * @param record the record
+   * @return the workflow status
+   * @throws Exception the exception
+   */
+  public WorkflowStatus computeTrackingRecordStatus(TrackingRecord record)
     throws Exception;
 
   /**

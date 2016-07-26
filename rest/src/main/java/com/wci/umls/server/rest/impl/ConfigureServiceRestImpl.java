@@ -35,9 +35,10 @@ import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
 import com.wci.umls.server.jpa.services.rest.SourceDataServiceRest;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SourceDataService;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * REST implementation for {@link HistoryServiceRest}.
@@ -51,7 +52,7 @@ import com.wordnik.swagger.annotations.ApiParam;
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 public class ConfigureServiceRestImpl extends RootServiceRestImpl
-    implements ConfigureServiceRest { 
+    implements ConfigureServiceRest {
 
   /**
    * Instantiates an empty {@link ConfigureServiceRestImpl}.

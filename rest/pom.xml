@@ -155,8 +155,8 @@
       <artifactId>asm</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.wordnik</groupId>
-      <artifactId>swagger-jersey2-jaxrs_2.10</artifactId>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-jersey2-jaxrs</artifactId>
     </dependency>
 
     <!-- Commons IO -->

@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.services;
 
 import java.util.ArrayList;
@@ -7,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -18,6 +22,7 @@ import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -31,6 +36,8 @@ import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
@@ -39,6 +46,7 @@ import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.SearchHandler;
@@ -97,8 +105,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public TrackingRecord getTrackingRecord(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - get tracking record " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - get tracking record " + id);
     return getHasLastModified(id, TrackingRecordJpa.class);
   }
 
@@ -127,8 +135,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void removeTrackingRecord(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove tracking record " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - remove tracking record " + id);
     // Remove the component
     removeHasLastModified(id, TrackingRecordJpa.class);
 
@@ -138,9 +146,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public TrackingRecordList findTrackingRecords(Project project, String query,
     PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - find tracking records " + project.getId() + ", "
-            + query);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - find tracking records " + project.getId()
+            + ", " + query);
 
     final TrackingRecordList results = new TrackingRecordListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
@@ -149,6 +157,36 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
         searchHandler.getQueryResults(null, null, Branch.ROOT,
             composeQuery(project, query), "", TrackingRecordJpa.class,
             TrackingRecordJpa.class, pfs, totalCt, manager);
+    results.setTotalCount(totalCt[0]);
+    for (final TrackingRecordJpa trackingRecord : luceneResults) {
+      handleLazyInit(trackingRecord);
+      results.getObjects().add(trackingRecord);
+    }
+    return results;
+  }
+
+  /* see superclass */
+  @Override
+  public TrackingRecordList findTrackingRecordsForConcept(Project project,
+    Concept concept, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - find tracking records for concept "
+            + project.getId() + ", " + concept.getId() + ", " + query);
+
+    // Create a query
+    final List<String> clauses = concept.getAtoms().stream()
+        .map(a -> "componentIds:" + a.getId()).collect(Collectors.toList());
+    final String atomQuery = ConfigUtility.composeQuery("OR", clauses);
+
+    final String finalQuery = ConfigUtility.composeQuery("AND", atomQuery,
+        composeQuery(project, query));
+
+    final TrackingRecordList results = new TrackingRecordListJpa();
+    final SearchHandler searchHandler = getSearchHandler(null);
+    final int[] totalCt = new int[1];
+    final List<TrackingRecordJpa> luceneResults = searchHandler.getQueryResults(
+        null, null, Branch.ROOT, finalQuery, "", TrackingRecordJpa.class,
+        TrackingRecordJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final TrackingRecordJpa trackingRecord : luceneResults) {
       handleLazyInit(trackingRecord);
@@ -172,7 +210,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
     worklist.getWorkflowStateHistory().size();
     worklist.getNotes().size();
   }
-  
+
   /* see superclass */
   @Override
   public void handleLazyInit(Checklist checklist) {
@@ -227,9 +265,10 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
 
   /* see superclass */
   @Override
-  public void updateWorkflowEpoch(WorkflowEpoch workflowEpoch) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - update workflow epoch " + workflowEpoch);
+  public void updateWorkflowEpoch(WorkflowEpoch workflowEpoch)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - update workflow epoch " + workflowEpoch);
 
     // update component
     updateHasLastModified(workflowEpoch);
@@ -239,8 +278,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void removeWorkflowEpoch(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove workflow epoch " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - remove workflow epoch " + id);
     // Remove the component
     removeHasLastModified(id, WorkflowEpochJpa.class);
   }
@@ -248,8 +287,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public WorkflowEpoch getWorkflowEpoch(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - get workflow epoch " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - get workflow epoch " + id);
     return getHasLastModified(id, WorkflowEpochJpa.class);
   }
 
@@ -257,15 +296,14 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public List<WorkflowEpoch> getWorkflowEpochs(Project project)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - get workflow epochs - " + project.getId());
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - get workflow epochs - " + project.getId());
 
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<WorkflowEpochJpa> results =
-        searchHandler.getQueryResults(null, null, "",
-            composeQuery(project, ""), "", WorkflowEpochJpa.class,
-            WorkflowEpochJpa.class, null, totalCt, manager);
+    final List<WorkflowEpochJpa> results = searchHandler.getQueryResults(null,
+        null, "", composeQuery(project, ""), "", WorkflowEpochJpa.class,
+        WorkflowEpochJpa.class, null, totalCt, manager);
     return new ArrayList<WorkflowEpoch>(results);
 
   }
@@ -274,8 +312,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public WorkflowConfig addWorkflowConfig(WorkflowConfig workflowConfig)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - add project workflow config "
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - add project workflow config "
             + workflowConfig.toString());
 
     // Add component
@@ -300,8 +338,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void removeWorkflowConfig(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove project workflow config " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - remove project workflow config " + id);
     // Remove the component
     removeHasLastModified(id, WorkflowConfigJpa.class);
   }
@@ -315,10 +353,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
 
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<WorkflowConfigJpa> results =
-        searchHandler.getQueryResults(null, null, "",
-            composeQuery(project, ""), "", WorkflowConfigJpa.class,
-            WorkflowConfigJpa.class, null, totalCt, manager);
+    final List<WorkflowConfigJpa> results = searchHandler.getQueryResults(null,
+        null, "", composeQuery(project, ""), "", WorkflowConfigJpa.class,
+        WorkflowConfigJpa.class, null, totalCt, manager);
     return new ArrayList<WorkflowConfig>(results);
 
   }
@@ -327,15 +364,15 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public WorkflowConfig getWorkflowConfig(Project project, WorkflowBinType type)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - get project workflow config " + project.getId()
-            + ", " + type);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - get project workflow config "
+            + project.getId() + ", " + type);
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<WorkflowConfigJpa> results =
-        searchHandler.getQueryResults(null, null, "", composeQuery(project, "")
-            + " AND type:" + type.toString(), "", WorkflowConfigJpa.class,
-            WorkflowConfigJpa.class, null, totalCt, manager);
+    final List<WorkflowConfigJpa> results = searchHandler.getQueryResults(null,
+        null, "", composeQuery(project, "") + " AND type:" + type.toString(),
+        "", WorkflowConfigJpa.class, WorkflowConfigJpa.class, null, totalCt,
+        manager);
 
     if (results.size() == 0) {
       return null;
@@ -352,8 +389,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public WorkflowConfig getWorkflowConfig(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - get project workflow config " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - get project workflow config " + id);
     return getHasLastModified(id, WorkflowConfigJpa.class);
   }
 
@@ -361,8 +398,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public WorkflowBinDefinition addWorkflowBinDefinition(
     WorkflowBinDefinition workflowBinDefinition) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - add workflow bin definition "
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - add workflow bin definition "
             + workflowBinDefinition.toString());
 
     // Add component
@@ -376,8 +413,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public void updateWorkflowBinDefinition(
     WorkflowBinDefinition workflowBinDefinition) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - update workflow bin definition "
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - update workflow bin definition "
             + workflowBinDefinition);
 
     // update component
@@ -388,8 +425,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void removeWorkflowBinDefinition(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove workflow bin definition " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - remove workflow bin definition " + id);
 
     // Remove the component
     removeHasLastModified(id, WorkflowBinDefinitionJpa.class);
@@ -399,9 +436,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public List<WorkflowBinDefinition> getWorkflowBinDefinitions(Project project,
     WorkflowBinType type) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - get workflow bin definitions " + project.getId()
-            + ", " + type);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - get workflow bin definitions "
+            + project.getId() + ", " + type);
 
     final WorkflowConfig config = this.getWorkflowConfig(project, type);
     return config.getWorkflowBinDefinitions();
@@ -411,16 +448,16 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public WorkflowBinDefinition getWorkflowBinDefinition(Long id)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - get workflow bin definition " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - get workflow bin definition " + id);
     return getHasLastModified(id, WorkflowBinDefinitionJpa.class);
   }
 
   /* see superclass */
   @Override
   public WorkflowBin addWorkflowBin(WorkflowBin workflowBin) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - add workflow bin " + workflowBin.toString());
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - add workflow bin " + workflowBin.toString());
 
     // Add component
     WorkflowBin bin = addHasLastModified(workflowBin);
@@ -432,8 +469,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void updateWorkflowBin(WorkflowBin workflowBin) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - update workflow bin " + workflowBin);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - update workflow bin " + workflowBin);
 
     // update component
     updateHasLastModified(workflowBin);
@@ -443,8 +480,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void removeWorkflowBin(Long id, boolean cascade) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove workflow bin " + id + ", " + cascade);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - remove workflow bin " + id + ", " + cascade);
     // if cascade, remove tracking records before removing workflow bin
 
     // Manage transaction
@@ -478,19 +515,19 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
 
   /* see superclass */
   @Override
-  public List<WorkflowBin> getWorkflowBins(Project project, WorkflowBinType type)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug(
-            "Workflow Service - get workflow bins " + project.getId() + ", "
-                + type);
+  public List<WorkflowBin> getWorkflowBins(Project project,
+    WorkflowBinType type) throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Service - get workflow bins "
+        + project.getId() + ", " + type);
 
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorkflowBinJpa> results =
-        searchHandler.getQueryResults(null, null, "", composeQuery(project, "")
-            + (type == null ? "" : " AND type:" + type), "",
-            WorkflowBinJpa.class, WorkflowBinJpa.class, null, totalCt, manager);
+        searchHandler.getQueryResults(null, null, "",
+            composeQuery(project, "")
+                + (type == null ? "" : " AND type:" + type),
+            "", WorkflowBinJpa.class, WorkflowBinJpa.class, null, totalCt,
+            manager);
     return new ArrayList<WorkflowBin>(results);
 
   }
@@ -498,16 +535,16 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public WorkflowBin getWorkflowBin(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - get workflow bin " + id);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - get workflow bin " + id);
     return getHasLastModified(id, WorkflowBinJpa.class);
   }
 
   /* see superclass */
   @Override
   public Worklist addWorklist(Worklist worklist) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - add worklist " + worklist.toString());
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - add worklist " + worklist.toString());
 
     // Add component
     Worklist list = addHasLastModified(worklist);
@@ -519,8 +556,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void updateWorklist(Worklist worklist) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - update worklist " + worklist);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - update worklist " + worklist);
 
     // update component
     updateHasLastModified(worklist);
@@ -530,8 +567,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void removeWorklist(Long id, boolean cascade) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove worklist " + id + ", " + cascade);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - remove worklist " + id + ", " + cascade);
     // if cascade, remove tracking records before removing worklist
     // Manage transaction
     boolean origTpo = getTransactionPerOperation();
@@ -582,15 +619,14 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public WorklistList findWorklists(Project project, String query,
     PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - find worklists for query " + query);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - find worklists for query " + query);
     final WorklistList results = new WorklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<WorklistJpa> luceneResults =
-        searchHandler.getQueryResults(null, null, "",
-            composeQuery(project, query), "", WorklistJpa.class,
-            WorklistJpa.class, pfs, totalCt, manager);
+    final List<WorklistJpa> luceneResults = searchHandler.getQueryResults(null,
+        null, "", composeQuery(project, query), "", WorklistJpa.class,
+        WorklistJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final WorklistJpa worklist : luceneResults) {
       handleLazyInit(worklist);
@@ -602,8 +638,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public Checklist addChecklist(Checklist checklist) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - add checklist " + checklist.toString());
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - add checklist " + checklist.toString());
 
     // Add component
     Checklist list = addHasLastModified(checklist);
@@ -615,8 +651,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void updateChecklist(Checklist checklist) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - update checklist " + checklist);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - update checklist " + checklist);
 
     // update component
     updateHasLastModified(checklist);
@@ -626,8 +662,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   /* see superclass */
   @Override
   public void removeChecklist(Long id, boolean cascade) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - remove checklist " + id + ", " + cascade);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - remove checklist " + id + ", " + cascade);
     // if cascade, remove tracking records before removing checklist
     // Manage transaction
     boolean origTpo = getTransactionPerOperation();
@@ -670,16 +706,15 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public ChecklistList findChecklists(Project project, String query,
     PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - find checklists for query " + query);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - find checklists for query " + query);
 
     ChecklistList results = new ChecklistListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<ChecklistJpa> luceneResults =
-        searchHandler.getQueryResults(null, null, "",
-            composeQuery(project, query), "", ChecklistJpa.class,
-            ChecklistJpa.class, pfs, totalCt, manager);
+    final List<ChecklistJpa> luceneResults = searchHandler.getQueryResults(null,
+        null, "", composeQuery(project, query), "", ChecklistJpa.class,
+        ChecklistJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final ChecklistJpa checklist : luceneResults) {
       results.getObjects().add(checklist);
@@ -723,27 +758,71 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
   @Override
   public Worklist performWorkflowAction(Project project, Worklist worklist,
     String userName, UserRole role, WorkflowAction action) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Workflow Service - perform workflow action " + action + ", "
-            + project.getId() + ", " + worklist.getId() + ", " + userName
-            + ", " + role);
+    Logger.getLogger(getClass())
+        .debug("Workflow Service - perform workflow action " + action + ", "
+            + project.getId() + ", " + worklist.getId() + ", " + userName + ", "
+            + role);
 
     // Obtain the handler
     final WorkflowActionHandler handler =
         getWorkflowHandlerForPath(project.getWorkflowPath());
     // Validate the action
-    final ValidationResult result =
-        handler.validateWorkflowAction(project, worklist, userName, role,
-            action, this);
+    final ValidationResult result = handler.validateWorkflowAction(project,
+        worklist, userName, role, action, this);
     if (!result.isValid()) {
       Logger.getLogger(getClass()).error("  validationResult = " + result);
       throw new LocalException(result.getErrors().iterator().next());
     }
     // Perform the action
-    Worklist r =
-        handler.performWorkflowAction(project, worklist, userName, role,
-            action, this);
+    Worklist r = handler.performWorkflowAction(project, worklist, userName,
+        role, action, this);
     return r;
+  }
+
+  /* see superclass */
+  @Override
+  public WorkflowStatus computeTrackingRecordStatus(TrackingRecord record)
+    throws Exception {
+    // Bail if no atom components.
+    if (record.getComponentIds().size() == 0) {
+      return null;
+    }
+
+    // Create a query
+    final List<String> clauses = record.getComponentIds().stream()
+        .map(l -> "atoms.id:" + l).collect(Collectors.toList());
+    final String query = ConfigUtility.composeQuery("OR", clauses);
+
+    WorkflowStatus status = WorkflowStatus.READY_FOR_PUBLICATION;
+    // add concepts
+    for (final SearchResult result : findConcepts(record.getTerminology(), null,
+        Branch.ROOT, query, null).getObjects()) {
+      final Concept concept = getConcept(result.getId());
+
+      // Add all atom ids as component ids
+      for (final Atom atom : concept.getAtoms()) {
+        record.getComponentIds().add(atom.getId());
+
+        // look for needs review atoms
+        if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+          status = WorkflowStatus.NEEDS_REVIEW;
+          break;
+        }
+      }
+
+      // if already needs review, break out of concept loop
+      if (status == WorkflowStatus.NEEDS_REVIEW) {
+        break;
+      }
+
+      // Compute workflow status for tracking record
+      if (concept.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+        status = WorkflowStatus.NEEDS_REVIEW;
+      }
+
+    }
+    // Return final computed value
+    return status;
   }
 
   /**

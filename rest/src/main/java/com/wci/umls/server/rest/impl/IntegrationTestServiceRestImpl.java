@@ -36,9 +36,10 @@ import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.WorkflowService;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * REST implementation for {@link IntegrationTestServiceRest}..
@@ -169,9 +170,10 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
           // Remove relationship and inverse.
           contentService.removeRelationship(rel.getId(), rel.getClass());
 
-          // Remove inverse as well         
-          for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> inverseRel : contentService.getInverseRelationships(rel).getObjects()) {
-            //TODO - figure out what distinguishing feature is
+          // Remove inverse as well
+          for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> inverseRel : contentService
+              .getInverseRelationships(rel).getObjects()) {
+            // TODO - figure out what distinguishing feature is
             if (true) {
               contentService.removeRelationship(inverseRel.getId(),
                   rel.getClass());
