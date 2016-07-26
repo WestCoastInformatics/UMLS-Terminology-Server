@@ -1,7 +1,7 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import java.util.HashMap;
-import java.util.Properties;
+import java.util.Map;
 
 /**
  * Represents a service for configuring an environment.
@@ -40,6 +40,6 @@ public interface ConfigureServiceRest {
    *
    * @return the config properties
    */
-  public Properties getConfigProperties();
+  public Map<String, String> getConfigProperties();
 
 }

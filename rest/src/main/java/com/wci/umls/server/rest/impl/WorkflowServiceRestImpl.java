@@ -1503,7 +1503,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           bin.getStats().add(stats);
         }
       }
+
       Collections.sort(bins, (o1, o2) -> o1.getRank() - o2.getRank());
+      for (final WorkflowBin bin : bins) {
+        for (final TrackingRecord record : bin.getTrackingRecords()) {
+          workflowService.handleLazyInit(record);
+        }
+      }
       return bins;
 
     } catch (Exception e) {

@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.ws.rs.Consumes;
@@ -365,12 +366,20 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
   @GET
   @Override
   @Path("/properties")
-  @ApiOperation(value = "Get configuration properties", notes = "Gets user interface-relevant configuration properties", response = Properties.class)
-  public Properties getConfigProperties() {
+  @Produces({
+      MediaType.APPLICATION_JSON
+  })
+  @ApiOperation(value = "Get configuration properties", notes = "Gets user interface-relevant configuration properties", response = String.class, responseContainer = "Map")
+  public Map<String, String> getConfigProperties() {
     Logger.getLogger(getClass())
         .info("RESTful call (Configure): /configure/properties");
     try {
-      return ConfigUtility.getUiConfigProperties();
+      Map<String, String> map = new HashMap<>();
+      for (final Map.Entry<Object, Object> o : ConfigUtility
+          .getUiConfigProperties().entrySet()) {
+        map.put(o.getKey().toString(), o.getValue().toString());
+      }
+      return map;
     } catch (Exception e) {
       handleException(e, "getting ui config properties");
     } finally {

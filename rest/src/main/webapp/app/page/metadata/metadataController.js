@@ -13,6 +13,8 @@ tsApp.controller('MetadataCtrl', [
     metadataService, configureService) {
     console.debug("configure MetadataCtrl");
 
+    tabService.setShowing(true);
+
     // Clear error
     utilService.clearError();
 

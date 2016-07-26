@@ -130,7 +130,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     usesRelationshipUnion = concept.getUsesRelationshipUnion();
     lastApproved = concept.getLastApproved();
     lastApprovedBy = concept.getLastApprovedBy();
-    
+
     if (concept.getLabels() != null) {
       labels = new ArrayList<>(concept.getLabels());
     }
@@ -364,6 +364,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    *
    * @return the last approved
    */
+  @Override
   public Date getLastApproved() {
     return lastApproved;
   }
@@ -373,6 +374,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    *
    * @param lastApproved the last approved
    */
+  @Override
   public void setLastApproved(Date lastApproved) {
     this.lastApproved = lastApproved;
   }
@@ -382,6 +384,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    *
    * @return the last approved by
    */
+  @Override
   public String getLastApprovedBy() {
     return lastApprovedBy;
   }
@@ -391,6 +394,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    *
    * @param lastApprovedBy the last approved by
    */
+  @Override
   public void setLastApprovedBy(String lastApprovedBy) {
     this.lastApprovedBy = lastApprovedBy;
   }

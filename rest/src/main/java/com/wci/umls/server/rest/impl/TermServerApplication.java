@@ -44,25 +44,25 @@ public class TermServerApplication extends Application {
    */
   public TermServerApplication() throws Exception {
     Logger.getLogger(getClass()).info("TERM SERVER APPLICATION START");
+
+    // Instantiate bean config
     BeanConfig beanConfig = new BeanConfig();
     beanConfig.setTitle("Term Server API");
     beanConfig.setDescription("RESTful calls for terminology server");
     beanConfig.setVersion(API_VERSION);
     final URL url =
         new URL(ConfigUtility.getConfigProperties().getProperty("base.url"));
-    final String host =
-        url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-    System.out.println("HOST = " + host);
-    System.out.println("PATH = " + url.getPath());
-    beanConfig.setHost(host);
-    beanConfig.setBasePath(url.getPath());
+    final String host = url.getHost() + ":" + url.getPort();
 
     if (new ConfigureServiceRestImpl().isConfigured()) {
-      beanConfig.setBasePath(
-          ConfigUtility.getConfigProperties().getProperty("base.url"));
+      beanConfig.setHost(host);
+      beanConfig.setBasePath(url.getPath());
+      beanConfig.setSchemes(new String[] {
+          url.getProtocol()
+      });
       beanConfig.setResourcePackage("com.wci.umls.server.rest.impl");
-      beanConfig.setResourcePackage("io.swagger.resources");
       beanConfig.setScan(true);
+      beanConfig.setPrettyPrint(true);
     }
 
     // Set up a timer task to run at 2AM every day
@@ -77,8 +77,7 @@ public class TermServerApplication extends Application {
   }
 
   /**
-   * Initialization task.
-   * TODO: shut this task down when application is shutdown
+   * Initialization task. TODO: shut this task down when application is shutdown
    */
   class InitializationTask extends TimerTask {
 
