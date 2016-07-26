@@ -4329,50 +4329,43 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     final RelationshipList results = new RelationshipListJpa();
 
-    // Prepare the query string
-    final StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query == null ? "" : query);
-    // if (!finalQuery.toString().isEmpty()) {
-    // finalQuery.append(" AND ");
-    // }
+    final List<String> clauses = new ArrayList<>();
+    // Parts to combine
+    // 1. query
+    clauses.add(query);
 
-    // add id/terminology/version constraints based on inverse flag
-    if (inverseFlag == true) {
-      if (terminologyId != null) {
-        if (!finalQuery.toString().isEmpty()) {
-          finalQuery.append(" AND ");
-        }
-        finalQuery.append("toTerminologyId:" + terminologyId);
-      }
-      if (terminology != null && version != null) {
-        if (!finalQuery.toString().isEmpty()) {
-          finalQuery.append(" AND ");
-        }
-        finalQuery.append(
-            "toTerminology:" + terminology + " AND toVersion:" + version);
-      }
-    } else {
-      if (terminologyId != null) {
-        if (!finalQuery.toString().isEmpty()) {
-          finalQuery.append(" AND ");
-        }
-        finalQuery.append("fromTerminologyId:" + terminologyId);
-      }
-      if (terminology != null && version != null) {
-        if (!finalQuery.toString().isEmpty()) {
-          finalQuery.append(" AND ");
-        }
-        finalQuery.append(
-            "fromTerminology:" + terminology + " AND fromVersion:" + version);
-      }
+    // 2. to/fromTerminologyId
+    if (!inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
+      clauses.add("toTerminologyId:" + terminologyId);
     }
+    if (inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
+      clauses.add("fromTerminologyId:" + terminologyId);
+    }
+
+    // 3. to/fromTerminology
+    if (!inverseFlag && !ConfigUtility.isEmpty(terminology)) {
+      clauses.add("toTerminology:" + terminology);
+    }
+    if (inverseFlag && !ConfigUtility.isEmpty(terminology)) {
+      clauses.add("fromTerminology:" + terminology);
+    }
+
+    // r. to/fromVersion clause
+    if (!inverseFlag && !ConfigUtility.isEmpty(version)) {
+      clauses.add("toVersion:" + version);
+    }
+    if (inverseFlag && !ConfigUtility.isEmpty(version)) {
+      clauses.add("fromVersion:" + version);
+    }
+
+    final String finalQuery = ConfigUtility.composeQuery("AND", clauses);
 
     final SearchHandler searchHandler = getSearchHandler(terminology);
     final int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
     results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery.toString(), "toNameSort", ConceptRelationshipJpa.class,
-        clazz, pfs, totalCt, manager));
+        finalQuery, "toNameSort", ConceptRelationshipJpa.class, clazz, pfs,
+        totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
     for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : results

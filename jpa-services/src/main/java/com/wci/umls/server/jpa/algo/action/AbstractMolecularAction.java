@@ -245,6 +245,7 @@ public abstract class AbstractMolecularAction
    * @return the relationship<? extends component info,? extends component info>
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> findInverseRelationship(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
