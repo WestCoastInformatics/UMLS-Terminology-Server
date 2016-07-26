@@ -155,14 +155,13 @@ public interface MetaEditingServiceRest {
    * @param timestamp the timestamp
    * @param conceptId2 the concept id 2
    * @param overrideWarnings the override warnings
-   * @param makeDemotions the make demotions
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
   public ValidationResult mergeConcepts(Long projectId, Long conceptId,
     Long timestamp, Long conceptId2, boolean overrideWarnings,
-    boolean makeDemotions, String authToken) throws Exception;
+    String authToken) throws Exception;
 
   /**
    * Move atoms.

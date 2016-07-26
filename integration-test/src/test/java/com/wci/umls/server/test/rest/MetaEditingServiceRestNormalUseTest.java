@@ -1455,9 +1455,9 @@ public class MetaEditingServiceRestNormalUseTest
     final Long fromCId = concept2.getId();
 
     // Now that the concepts are all set up, merge them.
-    ValidationResult v = metaEditingService.mergeConcepts(project.getId(),
-        toC.getId(), toC.getLastModified().getTime(), fromC.getId(), false,
-        false, authToken);
+    ValidationResult v =
+        metaEditingService.mergeConcepts(project.getId(), toC.getId(),
+            toC.getLastModified().getTime(), fromC.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     toC =
@@ -2114,6 +2114,9 @@ public class MetaEditingServiceRestNormalUseTest
     // Populate concept components
     populateConcepts();
 
+    // Wait a half second (if populate and approve happen to closely together, the log entries can get reversed
+    Thread.sleep(500);
+    
     // get the concept
     Concept c =
         contentService.getConcept(concept.getId(), project.getId(), authToken);
@@ -2129,11 +2132,12 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify concept now has a workflow status of "READY_FOR_PUBLICATION"
     assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
 
-    // Verify the concept has lastApproved and lastApprovedBy correctly populated
+    // Verify the concept has lastApproved and lastApprovedBy correctly
+    // populated
     assertEquals(adminUser, c.getLastApprovedBy());
     assertNotNull(c.getLastApproved());
     assertTrue(c.getLastApproved().compareTo(startDate) >= 0);
-    
+
     // Verify that all of the concept's atoms have a status of
     // "READY_FOR_PUBLICATION"
     boolean allAtomsReadyForPub = true;
@@ -2163,7 +2167,7 @@ public class MetaEditingServiceRestNormalUseTest
             c.getTerminology(), c.getVersion(), null, null, authToken);
 
     final List<String> typeList = Arrays.asList("RO", "RB", "RN", "XR");
-    
+
     boolean allRelsReadyForPub = true;
     boolean allRelsCorrectType = true;
     boolean allInverseRelsReadyForPub = true;
@@ -2173,18 +2177,27 @@ public class MetaEditingServiceRestNormalUseTest
           .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
         allRelsReadyForPub = false;
       }
-      if(!typeList.contains(rel.getRelationshipType())){
-        allRelsCorrectType = false;        
+      if (!typeList.contains(rel.getRelationshipType())) {
+        allRelsCorrectType = false;
       }
 
       // Check its inverse also
       String inverseRelType = "";
-      if (rel.getRelationshipType().equals("RN")) {
-        inverseRelType = "RB";
+      switch (rel.getRelationshipType()) {
+        case "RN":
+          inverseRelType = "RB";
+          break;
+        case "RB":
+          inverseRelType = "RN";
+          break;
+        case "RO":
+          inverseRelType = "RO";
+          break;
+        case "XR":
+          inverseRelType = "XR";
+          break;
       }
-      if (rel.getRelationshipType().equals("RB")) {
-        inverseRelType = "RN";
-      }
+
       // This will return the single inverse relationship
       RelationshipList inverseRelList =
           contentService
@@ -2197,9 +2210,10 @@ public class MetaEditingServiceRestNormalUseTest
           .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
         allInverseRelsReadyForPub = false;
       }
-      if(!typeList.contains(inverseRelList.getObjects().get(0).getRelationshipType())){
-        allInverseRelsCorrectType = false;        
-      }      
+      if (!typeList
+          .contains(inverseRelList.getObjects().get(0).getRelationshipType())) {
+        allInverseRelsCorrectType = false;
+      }
     }
     assertTrue(allRelsReadyForPub);
     assertTrue(allRelsCorrectType);

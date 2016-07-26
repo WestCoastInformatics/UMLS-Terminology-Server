@@ -193,6 +193,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getTimestamp() {
     return timestamp;
   }

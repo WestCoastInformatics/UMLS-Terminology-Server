@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
@@ -46,6 +47,8 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.workflow.TrackingRecord;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
@@ -750,7 +753,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
-    @ApiParam(value = "Make demotions", required = false) @QueryParam("makeDemotions") boolean makeDemotions,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1095,8 +1097,19 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
       action.compute();
 
-      // TODO - update any tracking record that references this concept
-      
+      // Update any tracking record that references this concept
+      final TrackingRecordList trackingRecords =
+          action.findTrackingRecordsForConcept(action.getProject(),
+              action.getConcept(), null, null);
+
+      // Set trackingRecord to READY_FOR_PUBLICATION if all contained
+      // concepts and atoms are all set to READY_FOR_PUBLICATION.
+      for (TrackingRecord rec : trackingRecords.getObjects()) {
+        final WorkflowStatus status = action.computeTrackingRecordStatus(rec);
+        rec.setWorkflowStatus(status);
+        action.updateTrackingRecord(rec);
+      }
+
       // commit (also removes the lock)
       action.commit();
 
