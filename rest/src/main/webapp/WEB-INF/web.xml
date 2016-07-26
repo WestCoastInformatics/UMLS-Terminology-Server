@@ -9,36 +9,6 @@
     <listener-class>com.wci.umls.server.rest.impl.SessionFactoryShutdownListener</listener-class>
   </listener>
 
-  <!-- Jersey configuration. For additional configuration see the class TermServerApplication -->
-  <servlet>
-    <servlet-name>jersey</servlet-name>
-    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
-    <init-param>
-      <param-name>jersey.config.server.provider.packages</param-name>
-      <param-value>
-        com.wordnik.swagger.jaxrs.json
-      </param-value>
-    </init-param>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <!-- Swagger configuration -->
-  <servlet>
-    <servlet-name>JerseyJaxrsConfig</servlet-name>
-    <servlet-class>com.wordnik.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
-    <init-param>
-      <param-name>api.version</param-name>
-      <param-value>1.0.0</param-value>
-    </init-param>
-    <init-param>
-      <!-- This URL is the path to the REST web service itself. In the index.html 
-        page is the path to the api-docs page -->
-      <param-name>swagger.api.basepath</param-name>
-      <param-value>${base.url}</param-value>
-    </init-param>
-    <load-on-startup>2</load-on-startup>
-  </servlet>
-
   <!-- Redirect swagger ui pages to swagger UI -->
   <servlet-mapping>
     <servlet-name>default</servlet-name>
@@ -83,8 +53,9 @@
     <url-pattern>/sitemap.xml</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
+    <!-- site verification file -->
     <servlet-name>default</servlet-name>
-    <url-pattern>/${site.verification.file}</url-pattern>
+    <url-pattern>/google*html</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>

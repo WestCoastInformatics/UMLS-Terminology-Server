@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
@@ -20,7 +21,8 @@ import com.ibm.icu.util.Calendar;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.services.MetadataService;
-import com.wordnik.swagger.jaxrs.config.BeanConfig;
+
+import io.swagger.jaxrs.config.BeanConfig;
 
 /**
  * The application (for jersey). Also serves the role of the initialization
@@ -46,11 +48,20 @@ public class TermServerApplication extends Application {
     beanConfig.setTitle("Term Server API");
     beanConfig.setDescription("RESTful calls for terminology server");
     beanConfig.setVersion(API_VERSION);
+    final URL url =
+        new URL(ConfigUtility.getConfigProperties().getProperty("base.url"));
+    final String host =
+        url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
+    System.out.println("HOST = " + host);
+    System.out.println("PATH = " + url.getPath());
+    beanConfig.setHost(host);
+    beanConfig.setBasePath(url.getPath());
 
     if (new ConfigureServiceRestImpl().isConfigured()) {
-      beanConfig.setBasePath(ConfigUtility.getConfigProperties().getProperty(
-          "base.url"));
+      beanConfig.setBasePath(
+          ConfigUtility.getConfigProperties().getProperty("base.url"));
       beanConfig.setResourcePackage("com.wci.umls.server.rest.impl");
+      beanConfig.setResourcePackage("io.swagger.resources");
       beanConfig.setScan(true);
     }
 
@@ -63,26 +74,11 @@ public class TermServerApplication extends Application {
     today.set(Calendar.SECOND, 0);
     timer.scheduleAtFixedRate(task, today.getTime(), 6 * 60 * 60 * 1000);
 
-    // Cache the "guest" user.
-    // SecurityService service;
-    // try {
-    // service = new SecurityServiceJpa();
-    // Properties config = ConfigUtility.getConfigProperties();
-    // if (config.getProperty("security.handler").equals("DEFAULT")) {
-    // service.authenticate("guest", "guest");
-    // }
-    // } catch (Exception e) {
-    // try {
-    // ExceptionHandler.handleException(e, "Cacheing guest user info");
-    // } catch (Exception e1) {
-    // // do nothing
-    // e1.printStackTrace();
-    // }
-    // }
   }
 
   /**
    * Initialization task.
+   * TODO: shut this task down when application is shutdown
    */
   class InitializationTask extends TimerTask {
 
@@ -139,12 +135,14 @@ public class TermServerApplication extends Application {
     classes.add(MultiPartFeature.class);
 
     // register swagger classes
-    classes
-        .add(com.wordnik.swagger.jersey.listing.ApiListingResourceJSON.class);
-    classes
-        .add(com.wordnik.swagger.jersey.listing.JerseyApiDeclarationProvider.class);
-    classes
-        .add(com.wordnik.swagger.jersey.listing.JerseyResourceListingProvider.class);
+    classes.add(io.swagger.jaxrs.listing.ApiListingResource.class);
+    classes.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
+    // classes
+    // .add(com.wordnik.swagger.jersey.listing.ApiListingResourceJSON.class);
+    // classes
+    // .add(com.wordnik.swagger.jersey.listing.JerseyApiDeclarationProvider.class);
+    // classes
+    // .add(com.wordnik.swagger.jersey.listing.JerseyResourceListingProvider.class);
     return classes;
   }
 
