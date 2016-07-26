@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.content;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -13,6 +14,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -97,6 +100,15 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Column(nullable = false)
   private boolean usesRelationshipUnion = false;
 
+  /** The last approved. */
+  @Column(nullable = true)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date lastApproved;
+
+  /** The last approved by. */
+  @Column(nullable = true)
+  private String lastApprovedBy;
+
   /**
    * Instantiates an empty {@link ConceptJpa}.
    */
@@ -116,6 +128,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     fullyDefined = concept.isFullyDefined();
     usesRelationshipIntersection = concept.getUsesRelationshipIntersection();
     usesRelationshipUnion = concept.getUsesRelationshipUnion();
+    lastApproved = concept.getLastApproved();
+    lastApprovedBy = concept.getLastApprovedBy();
+    
     if (concept.getLabels() != null) {
       labels = new ArrayList<>(concept.getLabels());
     }
@@ -124,9 +139,10 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       for (final Definition definition : concept.getDefinitions()) {
         getDefinitions().add(new DefinitionJpa(definition, deepCopy));
       }
-      for (final ConceptRelationship relationship : concept.getRelationships()) {
-        getRelationships().add(
-            new ConceptRelationshipJpa(relationship, deepCopy));
+      for (final ConceptRelationship relationship : concept
+          .getRelationships()) {
+        getRelationships()
+            .add(new ConceptRelationshipJpa(relationship, deepCopy));
       }
       for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         getSemanticTypes().add(new SemanticTypeComponentJpa(sty));
@@ -341,6 +357,42 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public IdType getType() {
     return IdType.CONCEPT;
+  }
+
+  /**
+   * Returns the last approved.
+   *
+   * @return the last approved
+   */
+  public Date getLastApproved() {
+    return lastApproved;
+  }
+
+  /**
+   * Sets the last approved.
+   *
+   * @param lastApproved the last approved
+   */
+  public void setLastApproved(Date lastApproved) {
+    this.lastApproved = lastApproved;
+  }
+
+  /**
+   * Returns the last approved by.
+   *
+   * @return the last approved by
+   */
+  public String getLastApprovedBy() {
+    return lastApprovedBy;
+  }
+
+  /**
+   * Sets the last approved by.
+   *
+   * @param lastApprovedBy the last approved by
+   */
+  public void setLastApprovedBy(String lastApprovedBy) {
+    this.lastApprovedBy = lastApprovedBy;
   }
 
   /* see superclass */

@@ -3896,10 +3896,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       for (Method m : allClassMethods) {
 
-        final String oldValue =
-            m.invoke(oldComponent, new Object[] {}).toString();
-        final String newValue =
-            m.invoke(newComponent, new Object[] {}).toString();
+        final Object oldObject = m.invoke(oldComponent, new Object[] {});
+        final Object newObject = m.invoke(newComponent, new Object[] {});
+
+        String oldValue = "";
+        if (oldObject != null) {
+          oldValue = m.invoke(oldComponent, new Object[] {}).toString();
+        }
+        String newValue = "";
+        if (newObject != null) {
+          newValue = m.invoke(newComponent, new Object[] {}).toString();
+        }
 
         if (!oldValue.equals(newValue)) {
 
