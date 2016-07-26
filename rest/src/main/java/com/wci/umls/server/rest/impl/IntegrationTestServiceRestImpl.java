@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -29,14 +30,16 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.WorkflowService;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * REST implementation for {@link IntegrationTestServiceRest}..
@@ -133,6 +136,14 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /**
+   * Removes the concept.
+   *
+   * @param id the id
+   * @param cascade the cascade
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   @DELETE
@@ -156,14 +167,16 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
       if (cascade) {
         for (ConceptRelationship rel : concept.getRelationships()) {
+          // Remove relationship and inverse.
           contentService.removeRelationship(rel.getId(), rel.getClass());
 
           // Remove inverse as well
-          final Concept toConcept = rel.getTo();
-          for (ConceptRelationship inverseRel : toConcept.getRelationships()) {
-            if (inverseRel.getTo() == concept) {
+          for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> inverseRel : contentService
+              .getInverseRelationships(rel).getObjects()) {
+            // TODO - figure out what distinguishing feature is
+            if (true) {
               contentService.removeRelationship(inverseRel.getId(),
-                  inverseRel.getClass());
+                  rel.getClass());
             }
           }
         }

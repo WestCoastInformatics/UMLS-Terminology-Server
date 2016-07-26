@@ -328,11 +328,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (getReleaseVersion() == null) {
       setReleaseVersion(getVersion());
     }
-    releaseVersionDate =
-        ConfigUtility.DATE_FORMAT.parse(getReleaseVersion().substring(0, 4)
-            + "0101");
-    Logger.getLogger(getClass()).info(
-        "  releaseVersion = " + getReleaseVersion());
+    releaseVersionDate = ConfigUtility.DATE_FORMAT
+        .parse(getReleaseVersion().substring(0, 4) + "0101");
+    Logger.getLogger(getClass())
+        .info("  releaseVersion = " + getReleaseVersion());
 
     // Open readers - just open original RRF, no need to sort
     readers = new RrfReaders(inputDirFile);
@@ -452,8 +451,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     umlsIdentityLoaderAlgo.close();
 
     // Final logging messages
-    Logger.getLogger(getClass()).info(
-        "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+    Logger.getLogger(getClass())
+        .info("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
     Logger.getLogger(getClass()).info("done ...");
 
   }
@@ -526,16 +525,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
     commitClearBegin();
 
-    SemanticTypeList structuralDescendants =
-        getSemanticTypeDescendants(getTerminology(), getVersion(),
-            structuralChemicalTreeNumber, true);
+    SemanticTypeList structuralDescendants = getSemanticTypeDescendants(
+        getTerminology(), getVersion(), structuralChemicalTreeNumber, true);
     for (final SemanticType sty : structuralDescendants.getObjects()) {
       sty.setStructuralChemical(true);
       updateSemanticType(sty);
     }
-    SemanticTypeList functionalDescendants =
-        getSemanticTypeDescendants(getTerminology(), getVersion(),
-            functionalChemicalTreeNumber, true);
+    SemanticTypeList functionalDescendants = getSemanticTypeDescendants(
+        getTerminology(), getVersion(), functionalChemicalTreeNumber, true);
     for (final SemanticType sty : functionalDescendants.getObjects()) {
       sty.setFunctionalChemical(true);
       updateSemanticType(sty);
@@ -576,7 +573,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Handle AttributeNames
       if ((fields[0].equals("ATN") || fields[0].equals("MAPATN"))
-          && fields[2].equals("expanded_form") && !atnSeen.contains(fields[1])) {
+          && fields[2].equals("expanded_form")
+          && !atnSeen.contains(fields[1])) {
         final AttributeName atn = new AttributeNameJpa();
         atn.setAbbreviation(fields[1]);
         atn.setExpandedForm(fields[3]);
@@ -608,8 +606,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (latCodeMap.containsKey(fields[1])) {
           lat.setISOCode(latCodeMap.get(fields[1]));
         } else {
-          throw new Exception("Language map does not have 2 letter code for "
-              + fields[1]);
+          throw new Exception(
+              "Language map does not have 2 letter code for " + fields[1]);
         }
         Logger.getLogger(getClass()).debug("    add language - " + lat);
         addLanguage(lat);
@@ -632,8 +630,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // DL fields are all left false, with no domain/range
         // no equivalent types or supertypes included
         relaMap.put(fields[1], rela);
-        Logger.getLogger(getClass()).debug(
-            "    add additional relationship type - " + rela);
+        Logger.getLogger(getClass())
+            .debug("    add additional relationship type - " + rela);
       } else if (fields[0].equals("RELA") && fields[2].equals("rela_inverse")) {
         inverseRelaMap.put(fields[1], fields[3]);
 
@@ -661,6 +659,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         rel.setVersion(getVersion());
         rel.setPublished(true);
         rel.setPublishable(true);
+        rel.setHierarchical(false);
+        if (fields[1].equals("CHD")) {
+          rel.setHierarchical(true);
+        }
         relMap.put(fields[1], rel);
         Logger.getLogger(getClass())
             .debug("    add relationship type - " + rel);
@@ -709,14 +711,16 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.SY);
         }
         if (fields[3].equals("preferred")) {
-          if (ttyMap.get(fields[1]).getCodeVariantType() == CodeVariantType.ET) {
+          if (ttyMap.get(fields[1])
+              .getCodeVariantType() == CodeVariantType.ET) {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PET);
           } else {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PN);
           }
         }
         if (fields[3].equals("entry_term")) {
-          if (ttyMap.get(fields[1]).getCodeVariantType() == CodeVariantType.PN) {
+          if (ttyMap.get(fields[1])
+              .getCodeVariantType() == CodeVariantType.PN) {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PET);
           } else {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.ET);
@@ -1216,14 +1220,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         relationship.getAttributes().add(att);
         addAttribute(att, relationship);
       } else if (codesFlag && fields[4].equals("CODE")) {
-        final Long codeId =
-            codeIdMap.get(atomTerminologyMap.get(fields[3])
-                + atomCodeIdMap.get(fields[3]));
+        final Long codeId = codeIdMap.get(
+            atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3]));
         if (codeId == null) {
           // Referential integrity error
           logError("line = " + line);
-          Logger.getLogger(getClass()).error(
-              "Referential integrity issue with field 3: " + fields[3]);
+          Logger.getLogger(getClass())
+              .error("Referential integrity issue with field 3: " + fields[3]);
         } else {
           // Get the code for the terminology and CODE of the AUI
           final Code code = getCode(codeId);
@@ -1246,8 +1249,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (conceptId == null) {
           // Referential integrity error
           logError("line = " + line);
-          Logger.getLogger(getClass()).error(
-              "Referential integrity issue with field 3: " + fields[3]);
+          Logger.getLogger(getClass())
+              .error("Referential integrity issue with field 3: " + fields[3]);
 
         } else {
           final Concept concept =
@@ -1263,8 +1266,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (descriptorId == null) {
           // Referential integrity error
           logError("line = " + line);
-          Logger.getLogger(getClass()).error(
-              "Referential integrity issue with field 3: " + fields[3]);
+          Logger.getLogger(getClass())
+              .error("Referential integrity issue with field 3: " + fields[3]);
 
         } else {
           // Get the descriptor for the terminology and SDUI of the AUI
@@ -1311,15 +1314,15 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (isExtensionModule(fields[10])) {
           // terminology + module concept id
           final String key = fields[9] + fields[10];
-          Logger.getLogger(getClass()).debug(
-              "  extension module = " + fields[10] + ", " + key);
+          Logger.getLogger(getClass())
+              .debug("  extension module = " + fields[10] + ", " + key);
           if (!moduleConceptIdMap.containsKey(key)) {
             moduleConceptIdMap.put(key, new HashSet<Long>());
           }
-          Logger.getLogger(getClass()).debug(
-              "    concept = " + atomConceptIdMap.get(fields[3]));
-          moduleConceptIdMap.get(key).add(
-              conceptIdMap.get(atomTerminologyMap.get(fields[3])
+          Logger.getLogger(getClass())
+              .debug("    concept = " + atomConceptIdMap.get(fields[3]));
+          moduleConceptIdMap.get(key)
+              .add(conceptIdMap.get(atomTerminologyMap.get(fields[3])
                   + atomConceptIdMap.get(fields[3])));
         }
       }
@@ -1549,16 +1552,16 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             .add(makeAttribute(mapping, "FROMID", fields[6]));
       }
       if (fields[7] != null && !fields[7].equals("")) {
-        mapping.getAttributes().add(
-            makeAttribute(mapping, "FROMSID", fields[7]));
+        mapping.getAttributes()
+            .add(makeAttribute(mapping, "FROMSID", fields[7]));
       }
       if (fields[10] != null && !fields[10].equals("")) {
-        mapping.getAttributes().add(
-            makeAttribute(mapping, "FROMRULE", fields[10]));
+        mapping.getAttributes()
+            .add(makeAttribute(mapping, "FROMRULE", fields[10]));
       }
       if (fields[11] != null && !fields[11].equals("")) {
-        mapping.getAttributes().add(
-            makeAttribute(mapping, "FROMRES", fields[11]));
+        mapping.getAttributes()
+            .add(makeAttribute(mapping, "FROMRES", fields[11]));
       }
       if (fields[14] != null && !fields[14].equals("")) {
         mapping.getAttributes().add(makeAttribute(mapping, "TOID", fields[14]));
@@ -1568,8 +1571,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             .add(makeAttribute(mapping, "TOSID", fields[15]));
       }
       if (fields[18] != null && !fields[18].equals("")) {
-        mapping.getAttributes().add(
-            makeAttribute(mapping, "TORULE", fields[18]));
+        mapping.getAttributes()
+            .add(makeAttribute(mapping, "TORULE", fields[18]));
       }
       if (fields[19] != null && !fields[19].equals("")) {
         mapping.getAttributes()
@@ -1630,8 +1633,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapSet = new MapSetJpa();
       mapSetMap.put(cui, mapSet);
       // Set map set name to preferred name of the cui
-      mapSet.setName(getConcept(conceptIdMap.get(getTerminology() + cui))
-          .getName());
+      mapSet.setName(
+          getConcept(conceptIdMap.get(getTerminology() + cui)).getName());
     }
     mapSet = mapSetMap.get(cui);
     if (atn.equals("MAPSETNAME")) {
@@ -1642,8 +1645,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     } else if (atn.equals("TOVSAB")) {
       if (mapSet.getToTerminology() != null) {
         String version = atv.substring(mapSet.getToTerminology().length());
-        mapSet.setToVersion(version.startsWith("_") ? version.substring(1)
-            : version);
+        mapSet.setToVersion(
+            version.startsWith("_") ? version.substring(1) : version);
       } else {
         mapSet.setToVersion(atv);
       }
@@ -1651,8 +1654,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapSet.setToTerminology(atv);
       if (mapSet.getToVersion() != null) {
         String version = mapSet.getToVersion().substring(atv.length());
-        mapSet.setToVersion(version.startsWith("_") ? version.substring(1)
-            : version);
+        mapSet.setToVersion(
+            version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMRSAB")) {
       if (atv.equals(proxySab)) {
@@ -1662,8 +1665,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         mapSet.setFromTerminology(atv);
         if (mapSet.getFromVersion() != null) {
           String version = mapSet.getFromVersion().substring(atv.length());
-          mapSet.setFromVersion(version.startsWith("_") ? version.substring(1)
-              : version);
+          mapSet.setFromVersion(
+              version.startsWith("_") ? version.substring(1) : version);
         }
       }
 
@@ -1674,8 +1677,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       } else {
         if (mapSet.getFromTerminology() != null) {
           String version = atv.substring(mapSet.getFromTerminology().length());
-          mapSet.setFromVersion(version.startsWith("_") ? version.substring(1)
-              : version);
+          mapSet.setFromVersion(
+              version.startsWith("_") ? version.substring(1) : version);
         } else {
           mapSet.setFromVersion(atv);
         }
@@ -1723,8 +1726,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // rest as the version
         if (mapSet.getVersion() != null) {
           final String version = mapSet.getVersion().substring(atv.length());
-          mapSet.setVersion(version.startsWith("_") ? version.substring(1)
-              : version);
+          mapSet.setVersion(
+              version.startsWith("_") ? version.substring(1) : version);
         }
       }
 
@@ -1865,8 +1868,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             // We now know subset type, insert it and remove the corresponding
             // opposite type
             if (idTerminologyAtomSubsetMap.containsKey(subsetIdKey)) {
-              Logger.getLogger(getClass()).debug(
-                  "  Concept subset " + conceptSubset);
+              Logger.getLogger(getClass())
+                  .debug("  Concept subset " + conceptSubset);
               addSubset(conceptSubset);
               idTerminologyAtomSubsetMap.remove(subsetIdKey);
             }
@@ -1923,8 +1926,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           memberAtt.setPublished(true);
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
-          Logger.getLogger(getClass()).debug(
-              "        Add member attribute" + memberAtt);
+          Logger.getLogger(getClass())
+              .debug("        Add member attribute" + memberAtt);
           addAttribute(memberAtt, member);
 
           // This member is not yet committed, so no need for an
@@ -1965,8 +1968,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final Concept concept = getConcept(conceptIdMap.get(key));
       final ConceptSubset subset = new ConceptSubsetJpa();
       subset.setName(concept.getName());
-      subset.setDescription("Represents the members of module "
-          + concept.getTerminologyId());
+      subset.setDescription(
+          "Represents the members of module " + concept.getTerminologyId());
       subset.setDisjointSubset(false);
       subset.setLabelSubset(true);
       subset.setLastModified(releaseVersionDate);
@@ -2107,20 +2110,18 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       } else if (fields[2].equals("SCUI") && fields[6].equals("SCUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
-        final Long fromId =
-            conceptIdMap.get(atomTerminologyMap.get(fields[5])
-                + atomConceptIdMap.get(fields[5]));
-        final Long toId =
-            conceptIdMap.get(atomTerminologyMap.get(fields[1])
-                + atomConceptIdMap.get(fields[1]));
+        final Long fromId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
+            + atomConceptIdMap.get(fields[5]));
+        final Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
+            + atomConceptIdMap.get(fields[1]));
 
         if (fromId == null || toId == null) {
           // Referential integrity error, we know this happens in RXNORM
           // because RXAUI 5430346 has a relationship with SCUI type
           // but the SCUI of this atom is null;
           logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: "
-              + fields[1] + ", " + fields[5]);
+          logError("Referential integrity issue with field 2 or 6: " + fields[1]
+              + ", " + fields[5]);
         } else {
           conceptRel.setFrom(getConcept(fromId));
           conceptRel.setTo(getConcept(toId));
@@ -2135,15 +2136,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         final Long fromId =
             descriptorIdMap.get(atomTerminologyMap.get(fields[5])
                 + atomDescriptorIdMap.get(fields[5]));
-        final Long toId =
-            descriptorIdMap.get(atomTerminologyMap.get(fields[1])
-                + atomDescriptorIdMap.get(fields[1]));
+        final Long toId = descriptorIdMap.get(atomTerminologyMap.get(fields[1])
+            + atomDescriptorIdMap.get(fields[1]));
 
         if (fromId == null || toId == null) {
           // Referential integrity error
           logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: "
-              + fields[1] + ", " + fields[5]);
+          logError("Referential integrity issue with field 2 or 6: " + fields[1]
+              + ", " + fields[5]);
         } else {
           descriptorRel.setFrom(getDescriptor(fromId));
           descriptorRel.setTo(getDescriptor(toId));
@@ -2156,17 +2156,15 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           && fields[6].equals("CODE")) {
         final CodeRelationship codeRel = new CodeRelationshipJpa();
 
-        final Long fromId =
-            codeIdMap.get(atomTerminologyMap.get(fields[5])
-                + atomCodeIdMap.get(fields[5]));
-        final Long toId =
-            codeIdMap.get(atomTerminologyMap.get(fields[1])
-                + atomCodeIdMap.get(fields[1]));
+        final Long fromId = codeIdMap.get(
+            atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5]));
+        final Long toId = codeIdMap.get(
+            atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1]));
         if (fromId == null || toId == null) {
           // Referential integrity error
           logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: "
-              + fields[5] + ", " + fields[1]);
+          logError("Referential integrity issue with field 2 or 6: " + fields[5]
+              + ", " + fields[1]);
         } else {
 
           codeRel.setFrom(getCode(fromId));
@@ -2186,16 +2184,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         ComponentInfo from = null;
         if (stype2.equals("CODE")) {
-          final Long fromId =
-              codeIdMap.get(atomTerminologyMap.get(fields[5])
-                  + atomCodeIdMap.get(fields[5]));
+          final Long fromId = codeIdMap.get(
+              atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5]));
           final Code code = getCode(fromId);
           from = new ComponentInfoJpa(code);
 
         } else if (stype2.equals("SCUI")) {
-          final Long fromId =
-              conceptIdMap.get(atomTerminologyMap.get(fields[5])
-                  + atomConceptIdMap.get(fields[5]));
+          final Long fromId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
+              + atomConceptIdMap.get(fields[5]));
           final Concept concept = getConcept(fromId);
           from = new ComponentInfoJpa(concept);
 
@@ -2220,9 +2216,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         ComponentInfo to = null;
         if (stype1.equals("CODE")) {
-          final Long toId =
-              codeIdMap.get(atomTerminologyMap.get(fields[1])
-                  + atomCodeIdMap.get(fields[1]));
+          final Long toId = codeIdMap.get(
+              atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1]));
           final Code code = getCode(toId);
           to = new ComponentInfoJpa(code);
 
@@ -2232,9 +2227,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           to = new ComponentInfoJpa(concept);
 
         } else if (stype1.equals("SCUI")) {
-          final Long toId =
-              conceptIdMap.get(atomTerminologyMap.get(fields[1])
-                  + atomConceptIdMap.get(fields[1]));
+          final Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
+              + atomConceptIdMap.get(fields[1]));
           final Concept concept = getConcept(toId);
           to = new ComponentInfoJpa(concept);
 
@@ -2255,8 +2249,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (from == null || to == null) {
           // Referential integrity error
           logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: "
-              + fields[1] + ", " + fields[5]);
+          logError("Referential integrity issue with field 2 or 6: " + fields[1]
+              + ", " + fields[5]);
         } else {
           componentInfoRel.setFrom(from);
           componentInfoRel.setTo(to);
@@ -2283,8 +2277,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @param relationship the relationship
    * @throws Exception the exception
    */
-  private void setRelationshipFields(
-    final String[] fields,
+  private void setRelationshipFields(final String[] fields,
     final Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
     relationship.setTimestamp(releaseVersionDate);
@@ -2465,10 +2458,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setName(fields[14]);
       atom.setTerminology(fields[11].intern());
       if (loadedTerminologies.get(fields[11]) == null) {
-        throw new Exception("Atom references terminology that does not exist: "
-            + fields[11]);
+        throw new Exception(
+            "Atom references terminology that does not exist: " + fields[11]);
       }
-      atom.setVersion(loadedTerminologies.get(fields[11]).getVersion().intern());
+      atom.setVersion(
+          loadedTerminologies.get(fields[11]).getVersion().intern());
       // skip in single mode
       if (!singleMode) {
         atom.putAlternateTerminologyId(getTerminology(), fields[7]);
@@ -2591,13 +2585,15 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         final AtomSubset atomSubset = new AtomSubsetJpa();
         setSubsetFields(atomSubset, fields);
         cuiAuiAtomSubsetMap.put(fields[0] + fields[7], atomSubset);
-        idTerminologyAtomSubsetMap.put(atomSubset.getTerminologyId()
-            + atomSubset.getTerminology(), atomSubset);
+        idTerminologyAtomSubsetMap.put(
+            atomSubset.getTerminologyId() + atomSubset.getTerminology(),
+            atomSubset);
         final ConceptSubset conceptSubset = new ConceptSubsetJpa();
         setSubsetFields(conceptSubset, fields);
         cuiAuiConceptSubsetMap.put(fields[0] + fields[7], conceptSubset);
-        idTerminologyConceptSubsetMap.put(conceptSubset.getTerminologyId()
-            + conceptSubset.getTerminology(), conceptSubset);
+        idTerminologyConceptSubsetMap.put(
+            conceptSubset.getTerminologyId() + conceptSubset.getTerminology(),
+            conceptSubset);
       }
 
     }
@@ -2625,9 +2621,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Restrict to timestamp used for THESE atoms, in case multiple RRF
     // files are loaded
     final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select a from AtomJpa a "
-            + "where conceptId is not null "
+    org.hibernate.Query hQuery = session
+        .createQuery("select a from AtomJpa a " + "where conceptId is not null "
             + "and conceptId != '' and timestamp = :timestamp "
             + "order by terminology, conceptId");
     hQuery.setParameter("timestamp", releaseVersionDate);
@@ -2676,9 +2671,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     objectCt = 0;
 
     // NOTE: Hibernate-specific to support iterating
-    hQuery =
-        session.createQuery("select a from AtomJpa a "
-            + "where descriptorId is not null "
+    hQuery = session.createQuery(
+        "select a from AtomJpa a " + "where descriptorId is not null "
             + "and descriptorId != '' and timestamp = :timestamp "
             + "order by terminology, descriptorId");
     hQuery.setParameter("timestamp", releaseVersionDate);
@@ -2730,9 +2724,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       objectCt = 0;
       // NOTE: Hibernate-specific to support iterating
       // Skip NOCODE
-      hQuery =
-          session.createQuery("select a from AtomJpa a "
-              + "where codeId is not null "
+      hQuery = session
+          .createQuery("select a from AtomJpa a " + "where codeId is not null "
               + "and codeId != '' and timestamp = :timestamp "
               + "order by terminology, codeId");
       hQuery.setParameter("timestamp", releaseVersionDate);
@@ -3031,8 +3024,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           t.getVersion(), Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
         if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
+          Logger.getLogger(getClass())
+              .info("  Create label set for subset = " + subset);
           labelSetAlgorithm = new LabelSetMarkedParentAlgorithm();
           labelSetAlgorithm.setTerminology(t.getTerminology());
           labelSetAlgorithm.setVersion(t.getVersion());
@@ -3048,9 +3041,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /* see superclass */
   @Override
   public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + getTerminology() + "/"
-            + getVersion());
+    Logger.getLogger(getClass()).info("  Compute transitive closure from  "
+        + getTerminology() + "/" + getVersion());
 
     // Compute transitive closure
     // Obtain each terminology and run transitive closure on it with the

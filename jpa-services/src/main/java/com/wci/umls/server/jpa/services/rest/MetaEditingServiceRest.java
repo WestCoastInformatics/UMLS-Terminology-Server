@@ -147,23 +147,6 @@ public interface MetaEditingServiceRest {
     Long timestamp, Long relationshipId, boolean overrideWarnings,
     String authToken) throws Exception;
 
-  
-  /**
-   * Validate merge.
-   *
-   * @param projectId the project id
-   * @param terminology the terminology
-   * @param version the version
-   * @param conceptId the concept id
-   * @param conceptId2 the concept id 2
-   * @param authToken the auth token
-   * @return the validation result
-   * @throws Exception the exception
-   */
-  public ValidationResult validateMerge(Long projectId, String terminology,
-    String version, Long conceptId, Long conceptId2, String authToken)
-    throws Exception;
-  
   /**
    * Merge concepts.
    *
@@ -172,14 +155,13 @@ public interface MetaEditingServiceRest {
    * @param timestamp the timestamp
    * @param conceptId2 the concept id 2
    * @param overrideWarnings the override warnings
-   * @param makeDemotions the make demotions
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
   public ValidationResult mergeConcepts(Long projectId, Long conceptId,
     Long timestamp, Long conceptId2, boolean overrideWarnings,
-    boolean makeDemotions, String authToken) throws Exception;
+    String authToken) throws Exception;
 
   /**
    * Move atoms.
@@ -217,5 +199,20 @@ public interface MetaEditingServiceRest {
     Long timestamp, List<Long> atomIds, boolean overrideWarnings,
     boolean copyRelationships, boolean copySemanticTypes,
     String relationshipType, String authToken) throws Exception;
+
+  /**
+   * Approve concept.
+   *
+   * @param projectId the project id
+   * @param conceptId the concept id
+   * @param timestamp the timestamp
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult approveConcept(Long projectId, Long conceptId,
+    Long timestamp, boolean overrideWarnings, String authToken)
+    throws Exception;
 
 }

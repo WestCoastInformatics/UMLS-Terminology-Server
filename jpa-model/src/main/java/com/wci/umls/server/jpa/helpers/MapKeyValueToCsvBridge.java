@@ -17,7 +17,7 @@ public class MapKeyValueToCsvBridge implements StringBridge {
   @Override
   public String objectToString(Object value) {
     if (value != null) {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
 
       Map<?, ?> map = (Map<?, ?>) value;
       Iterator<? extends Map.Entry<?, ?>> it = map.entrySet().iterator();

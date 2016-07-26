@@ -21,9 +21,10 @@ import com.wci.umls.server.jpa.services.rest.ReportServiceRest;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.ReportService;
 import com.wci.umls.server.services.SecurityService;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * REST implementation for {@link ReportServiceRest}.
@@ -36,8 +37,8 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class ReportServiceRestImpl extends RootServiceRestImpl implements
-    ReportServiceRest {
+public class ReportServiceRestImpl extends RootServiceRestImpl
+    implements ReportServiceRest {
 
   /** The security service. */
   private SecurityService securityService;

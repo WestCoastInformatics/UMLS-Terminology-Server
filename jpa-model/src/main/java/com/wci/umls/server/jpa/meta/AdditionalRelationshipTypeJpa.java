@@ -31,6 +31,10 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     implements AdditionalRelationshipType {
 
+  /** The hierarchical. */
+  @Column(nullable = false)
+  private boolean hierarchical;
+
   /** The inverse type. */
   @OneToOne(targetEntity = AdditionalRelationshipTypeJpa.class, optional = true)
   private AdditionalRelationshipType inverse;
@@ -126,6 +130,7 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     domainId = rela.getDomainId();
     rangeId = rela.getRangeId();
     groupingType = rela.isGroupingType();
+    hierarchical = rela.isHierarchical();
   }
 
   /* see superclass */
@@ -183,6 +188,18 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
   @Override
   public void setInverse(AdditionalRelationshipType inverse) {
     this.inverse = inverse;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isHierarchical() {
+    return hierarchical;
+  }
+
+  /* see superclass */
+  @Override
+  public void setHierarchical(boolean hierarchicial) {
+    this.hierarchical = hierarchicial;
   }
 
   /* see superclass */

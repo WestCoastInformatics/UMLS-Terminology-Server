@@ -10,7 +10,7 @@ import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasTerminology;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
+import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -18,7 +18,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Abstract support for loader algorithms.
  */
-public abstract class AbstractTerminologyAlgorithm extends HistoryServiceJpa
+public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
     implements Algorithm, HasTerminology {
 
   /** Listeners. */

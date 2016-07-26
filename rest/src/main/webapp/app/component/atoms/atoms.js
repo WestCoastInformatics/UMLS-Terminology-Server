@@ -24,7 +24,7 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
       scope.pageCallback = {
         getPagedList : getPagedList
       };
-      
+
       // watch the component
       scope.$watch('component', function() {
         if (scope.component) {
@@ -35,23 +35,12 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
       // watch show hidden flag
       scope.$watch('showHidden', function(newValue, oldValue) {
         scope.paging.showHidden = scope.showHidden;
-        
+
         // if value changed, get paged list
         if (newValue != oldValue) {
           getPagedList();
         }
       });
-      
-      scope.getComponentFromId = function(type, terminologyId, terminology, version) {
-        console.debug('getComponentFromId', type, terminologyId, terminology, version);
-        var wrapper = {
-          type : type,
-          terminologyId : terminologyId,
-          terminology :terminology,
-          version : version
-        };
-        scope.callbacks.getComponent(wrapper);
-      };
 
       // toggle an items collapsed state
       scope.toggleItemCollapse = function(item) {

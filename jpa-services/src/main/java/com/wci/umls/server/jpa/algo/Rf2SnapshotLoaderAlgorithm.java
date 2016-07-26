@@ -77,8 +77,8 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotLoaderAlgorithm extends
-    AbstractTerminologyLoaderAlgorithm {
+public class Rf2SnapshotLoaderAlgorithm
+    extends AbstractTerminologyLoaderAlgorithm {
 
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
@@ -168,7 +168,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
   /** The id. */
   private final String id = "id";
 
-
   /** The tree pos algorithm. */
   private final TreePositionAlgorithm treePosAlgorithm =
       new TreePositionAlgorithm();
@@ -198,9 +197,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
     logInfo("  version = " + getVersion());
     logInfo("  inputDir = " + getInputPath());
     logInfo("  sorting files = " + isSortFiles());
-    logInfo("  releaseVersion = "
-        + (getReleaseVersion() == null ? "COMPUTE FROM FILES"
-            : getReleaseVersion()));
+    logInfo("  releaseVersion = " + (getReleaseVersion() == null
+        ? "COMPUTE FROM FILES" : getReleaseVersion()));
     logInfo("  readers = " + (readers == null ? null : "PASSED IN"));
     long startTimeOrig = System.nanoTime();
 
@@ -230,7 +228,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       setLastModifiedFlag(false);
       // Turn off action handling
       setMolecularActionFlag(false);
-      
+
       // faster performance.
       beginTransaction();
 
@@ -259,8 +257,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
         setReleaseVersion(getFileVersion());
       }
       releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(getReleaseVersion());
-      Logger.getLogger(getClass()).info(
-          "  releaseVersion = " + getReleaseVersion());
+      Logger.getLogger(getClass())
+          .info("  releaseVersion = " + getReleaseVersion());
 
       // Open readers if not opened externally
       boolean leaveReadersOpen = readers != null;
@@ -363,8 +361,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (info == null) {
         info = new ReleaseInfoJpa();
         info.setName(getReleaseVersion());
-        info.setDescription(getTerminology() + " " + getReleaseVersion()
-            + " release");
+        info.setDescription(
+            getTerminology() + " " + getReleaseVersion() + " release");
         info.setPlanned(false);
         info.setPublished(true);
         info.setReleaseBeginDate(releaseVersionDate);
@@ -387,8 +385,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
       // Remove sort directory if sorting was done locally
       if (isSortFiles()) {
-        ConfigUtility.deleteDirectory(new File(getInputPath(),
-            "/RF2-sorted-temp/"));
+        ConfigUtility
+            .deleteDirectory(new File(getInputPath(), "/RF2-sorted-temp/"));
       }
 
       // Final logging messages
@@ -435,9 +433,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
   /* see superclass */
   @Override
   public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + getTerminology() + "/"
-            + getVersion());
+    Logger.getLogger(getClass()).info("  Compute transitive closure from  "
+        + getTerminology() + "/" + getVersion());
     try {
       transClosureAlgorithm.setCycleTolerant(false);
       transClosureAlgorithm.setIdType(IdType.CONCEPT);
@@ -452,8 +449,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
           getVersion(), Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
         if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
+          Logger.getLogger(getClass())
+              .info("  Create label set for subset = " + subset);
           labelSetAlgorithm.setTerminology(getTerminology());
           labelSetAlgorithm.setVersion(getVersion());
           labelSetAlgorithm.setSubset(conceptSubset);
@@ -614,11 +611,11 @@ public class Rf2SnapshotLoaderAlgorithm extends
         relationship.setObsolete(fields[2].equals("0")); // active
         relationship.setSuppressible(relationship.isObsolete());
         relationship.setGroup(fields[6].intern()); // relationshipGroup
-        relationship.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
-            : "other"); // typeId
+        relationship.setRelationshipType(
+            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
         relationship.setAdditionalRelationshipType(fields[7]); // typeId
-        relationship.setHierarchical(relationship.getRelationshipType().equals(
-            "Is a"));
+        relationship
+            .setHierarchical(relationship.getRelationshipType().equals("Is a"));
         generalEntryValues.add(relationship.getAdditionalRelationshipType());
         additionalRelTypes.add(relationship.getAdditionalRelationshipType());
         relationship.setStated(fields[8].equals("900000000000010007"));
@@ -668,13 +665,12 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
         } else {
           if (fromConcept == null) {
-            throw new Exception("Relationship "
-                + relationship.getTerminologyId()
-                + " -existent source concept " + fields[4]);
+            throw new Exception(
+                "Relationship " + relationship.getTerminologyId()
+                    + " -existent source concept " + fields[4]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship"
-                + relationship.getTerminologyId()
+            throw new Exception("Relationship" + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[5]);
           }
         }
@@ -863,14 +859,12 @@ public class Rf2SnapshotLoaderAlgorithm extends
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session
-            .createQuery(
-                "select a from AtomJpa a " + "where conceptId is not null "
-                    + "and conceptId != '' and terminology = :terminology "
-                    + "order by terminology, conceptId")
-            .setParameter("terminology", getTerminology()).setReadOnly(true)
-            .setFetchSize(1000);
+    org.hibernate.Query hQuery = session
+        .createQuery("select a from AtomJpa a " + "where conceptId is not null "
+            + "and conceptId != '' and terminology = :terminology "
+            + "order by terminology, conceptId")
+        .setParameter("terminology", getTerminology()).setReadOnly(true)
+        .setFetchSize(1000);
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCui = null;
     String prefName = null;
@@ -899,7 +893,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
           // Add definitions
           if (definitionMap.containsKey(concept.getTerminologyId())) {
-            for (final Long id : definitionMap.get(concept.getTerminologyId())) {
+            for (final Long id : definitionMap
+                .get(concept.getTerminologyId())) {
               concept.getDefinitions().add(getDefinition(id));
             }
           }
@@ -1088,11 +1083,9 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
         if (conceptIdMap.get(fields[4]) == null) {
 
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent refset with terminology id "
-                      + fields[4]);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent refset with terminology id "
+                  + fields[4]);
 
           logWarn("  Line: " + line);
           continue;
@@ -1103,11 +1096,9 @@ public class Rf2SnapshotLoaderAlgorithm extends
         }
 
         if (conceptIdMap.get(fields[5]) == null) {
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent source object with terminology id "
-                      + fields[5]);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent source object with terminology id "
+                  + fields[5]);
 
           logWarn("  Line: " + line);
           continue;
@@ -1118,11 +1109,9 @@ public class Rf2SnapshotLoaderAlgorithm extends
         }
 
         if (conceptIdMap.get(fields[6]) == null) {
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent target object with terminology id "
-                      + fields[5]);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent target object with terminology id "
+                  + fields[5]);
           logWarn("  Line: " + line);
           continue;
           /*
@@ -1177,27 +1166,22 @@ public class Rf2SnapshotLoaderAlgorithm extends
           relationship.setTo(toConcept);
           addRelationship(relationship);
 
-          Logger.getLogger(getClass()).debug(
-              "adding RO rel "
-                  + (objectCt + 1)
-                  + ", "
-                  + relationship.getTerminologyId()
-                  + ", "
-                  + relationship.getFrom().getName()
-                  + ", "
-                  + getConcept(conceptIdMap.get(relationship
-                      .getAdditionalRelationshipType())) + ", "
-                  + relationship.getTo().getName());
+          Logger.getLogger(getClass())
+              .debug("adding RO rel " + (objectCt + 1) + ", "
+                  + relationship.getTerminologyId() + ", "
+                  + relationship.getFrom().getName() + ", "
+                  + getConcept(conceptIdMap
+                      .get(relationship.getAdditionalRelationshipType()))
+                  + ", " + relationship.getTo().getName());
 
         } else {
           if (fromConcept == null) {
-            throw new Exception("Relationship "
-                + relationship.getTerminologyId()
-                + " references non-existent source concept " + fields[5]);
+            throw new Exception(
+                "Relationship " + relationship.getTerminologyId()
+                    + " references non-existent source concept " + fields[5]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship"
-                + relationship.getTerminologyId()
+            throw new Exception("Relationship" + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[6]);
           }
         }
@@ -1549,8 +1533,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
       final Atom description = getAtom(atomIdMap.get(fields[5]));
       ((AtomSubsetMember) member).setMember(description);
     } else {
-      throw new Exception("Refset member connected to nonexistent object - "
-          + fields[5]);
+      throw new Exception(
+          "Refset member connected to nonexistent object - " + fields[5]);
     }
 
     // Universal RefSet attributes
@@ -1662,8 +1646,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
       // Continue - this is a known issue in SNOMED
       return;
     } else {
-      throw new Exception("Mapping member connected to nonexistent object - "
-          + fields[5]);
+      throw new Exception(
+          "Mapping member connected to nonexistent object - " + fields[5]);
     }
 
     // Universal mapping attributes
@@ -1820,7 +1804,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     RelationshipType par = null;
     RelationshipType ro = null;
     for (final String rel : relTypes) {
-      final       RelationshipType type = new RelationshipTypeJpa();
+      final RelationshipType type = new RelationshipTypeJpa();
       type.setTerminology(getTerminology());
       type.setVersion(getVersion());
       type.setLastModified(releaseVersionDate);
@@ -1828,9 +1812,11 @@ public class Rf2SnapshotLoaderAlgorithm extends
       type.setPublishable(true);
       type.setPublished(true);
       type.setAbbreviation(rel);
+      type.setHierarchical(false);
       if (rel.equals("Is a")) {
         chd = type;
         type.setExpandedForm("Is a (has parent)");
+        type.setHierarchical(true);
       } else if (rel.equals("Inverse is a")) {
         par = type;
         type.setExpandedForm("Inverse is a (has child)");
@@ -1856,7 +1842,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
     Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
         new HashMap<>();
     for (final String rela : additionalRelTypes) {
-      final       AdditionalRelationshipType type = new AdditionalRelationshipTypeJpa();
+      final AdditionalRelationshipType type =
+          new AdditionalRelationshipTypeJpa();
       type.setTerminology(getTerminology());
       type.setVersion(getVersion());
       type.setLastModified(releaseVersionDate);
@@ -1865,6 +1852,11 @@ public class Rf2SnapshotLoaderAlgorithm extends
       type.setPublished(true);
       type.setExpandedForm(getConcept(conceptIdMap.get(rela)).getName());
       type.setAbbreviation(rela);
+      // Hierarchical type
+      type.setHierarchical(false);
+      if (rela.equals(isaTypeRel)) {
+        type.setHierarchical(true);
+      }
       // $nevergrouped{"123005000"} = "T"; # part-of is never grouped
       // $nevergrouped{"272741003"} = "T"; # laterality is never grouped
       // $nevergrouped{"127489000"} = "T"; # has-active-ingredient is never
@@ -1909,8 +1901,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
     chain.setLastModifiedBy(loader);
     chain.setPublishable(true);
     chain.setPublished(true);
-    chain
-        .setAbbreviation("direct-substance o has-active-ingredient -> direct-substance");
+    chain.setAbbreviation(
+        "direct-substance o has-active-ingredient -> direct-substance");
     chain.setExpandedForm(chain.getAbbreviation());
     List<AdditionalRelationshipType> list = new ArrayList<>();
     list.add(directSubstance);
@@ -1927,8 +1919,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
     root.setFamily(getTerminology());
-    root.setHierarchicalName(getConcept(conceptIdMap.get(rootConceptId))
-        .getName());
+    root.setHierarchicalName(
+        getConcept(conceptIdMap.get(rootConceptId)).getName());
     root.setLanguage(rootLanguage.getAbbreviation());
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
@@ -1962,7 +1954,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
         logInfo("  Skipping Genral Metadata Entry = " + conceptId);
         continue;
       }
-      final   String name = getConcept(conceptIdMap.get(conceptId)).getName();
+      final String name = getConcept(conceptIdMap.get(conceptId)).getName();
       final GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
       entry.setTerminology(getTerminology());
       entry.setVersion(getVersion());
@@ -1977,16 +1969,14 @@ public class Rf2SnapshotLoaderAlgorithm extends
       addGeneralMetadataEntry(entry);
     }
 
-    String[] labels =
-        new String[] {
-            "Atoms_Label", "Subsets_Label", "Attributes_Label",
-            "Semantic_Types_Label", "Obsolete_Label", "Obsolete_Indicator",
-        };
-    String[] labelValues =
-        new String[] {
-            "Descriptions", "Refsets", "Properties", "Semantic Tags",
-            "Retired", "Retired"
-        };
+    String[] labels = new String[] {
+        "Atoms_Label", "Subsets_Label", "Attributes_Label",
+        "Semantic_Types_Label", "Obsolete_Label", "Obsolete_Indicator",
+    };
+    String[] labelValues = new String[] {
+        "Descriptions", "Refsets", "Properties", "Semantic Tags", "Retired",
+        "Retired"
+    };
     int i = 0;
     for (final String label : labels) {
       final GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
@@ -2017,7 +2007,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     List<ConceptSubset> subsets = new ArrayList<>();
     for (final String moduleId : moduleIds) {
       logInfo("  Create subset for module = " + moduleId);
-      final   Concept concept = getConcept(conceptIdMap.get(moduleId));
+      final Concept concept = getConcept(conceptIdMap.get(moduleId));
       final ConceptSubset subset = new ConceptSubsetJpa();
       subset.setName(concept.getName());
       subset.setDescription("Represents the members of module " + moduleId);
@@ -2043,7 +2033,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       for (final String conceptId : moduleConceptIdMap.get(moduleId)) {
         final Concept memberConcept = getConcept(conceptIdMap.get(conceptId));
 
-        final         ConceptSubsetMember member = new ConceptSubsetMemberJpa();
+        final ConceptSubsetMember member = new ConceptSubsetMemberJpa();
         member.setLastModified(releaseVersionDate);
         member.setTimestamp(releaseVersionDate);
         member.setLastModifiedBy(loader);
@@ -2114,7 +2104,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     super.close();
     readers = null;
   }
-  
+
   /* see superclass */
   @Override
   public void computeExpressionIndexes() throws Exception {

@@ -77,6 +77,11 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
     return validationResult;
   }
 
+  /**
+   * Compute.
+   *
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -91,8 +96,6 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
     }
     sty = addSemanticTypeComponent(sty, getConcept());
 
-    System.out.println("TESTTEST - Adding semantic Type with the id: " + sty.getId());
-    
     // add the semantic type and set the last modified by
     getConcept().getSemanticTypes().add(sty);
     if (getChangeStatusFlag()) {

@@ -181,6 +181,7 @@ public interface ProjectServiceRest {
   /**
    * Finds molecular actions for concept and query.
    *
+   * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
    * @param query the query
@@ -189,9 +190,9 @@ public interface ProjectServiceRest {
    * @return the molecular actions for concept
    * @throws Exception the exception
    */
-  public MolecularActionList findMolecularActions(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public MolecularActionList findMolecularActions(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Find atomic actions.

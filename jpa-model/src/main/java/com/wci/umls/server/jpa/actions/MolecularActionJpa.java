@@ -79,6 +79,14 @@ public class MolecularActionJpa implements MolecularAction {
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
 
+  /** The batch id. */
+  @Column(nullable = true)
+  private String batchId;
+
+  /** The work id. */
+  @Column(nullable = true)
+  private String workId;
+
   /** The macro action. */
   @Column(nullable = false)
   private boolean macroAction;
@@ -111,6 +119,8 @@ public class MolecularActionJpa implements MolecularAction {
     terminologyId2 = action.getTerminologyId2();
     terminology = action.getTerminology();
     macroAction = action.isMacroAction();
+    batchId = action.getBatchId();
+    workId = action.getWorkId();
     name = action.getName();
     if (deepCopy) {
       atomicActions = new ArrayList<>(action.getAtomicActions());
@@ -183,6 +193,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getTimestamp() {
     return timestamp;
   }
@@ -260,6 +271,33 @@ public class MolecularActionJpa implements MolecularAction {
     this.macroAction = macroAction;
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getBatchId() {
+    return batchId;
+  }
+
+  /* see superclass */
+  @Override
+  public void setBatchId(String batchId) {
+    this.batchId = batchId;
+  }
+
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getWorkId() {
+    return workId;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkId(String workId) {
+    this.workId = workId;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -274,10 +312,13 @@ public class MolecularActionJpa implements MolecularAction {
     result =
         prime * result
             + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
+    result = prime * result + ((batchId == null) ? 0 : batchId.hashCode());
+    result = prime * result + ((workId == null) ? 0 : workId.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -314,9 +355,20 @@ public class MolecularActionJpa implements MolecularAction {
         return false;
     } else if (!version.equals(other.version))
       return false;
+    if (batchId == null) {
+      if (other.batchId != null)
+        return false;
+    } else if (!batchId.equals(other.batchId))
+      return false;
+    if (workId == null) {
+      if (other.workId != null)
+        return false;
+    } else if (!workId.equals(other.workId))
+      return false;
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "MolecularActionJpa [id=" + id + ", version=" + version
@@ -324,7 +376,7 @@ public class MolecularActionJpa implements MolecularAction {
         + terminologyId2 + ", terminology=" + terminology + ", name=" + name
         + ", lastModified=" + lastModified + ", lastModifiedBy="
         + lastModifiedBy + ", timestamp=" + timestamp + ", macroAction="
-        + macroAction + "]";
+        + macroAction + ", batchId=" + batchId + ", workId=" + workId + "]";
   }
 
 }

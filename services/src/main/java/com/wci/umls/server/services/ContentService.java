@@ -9,6 +9,8 @@ package com.wci.umls.server.services;
 import java.util.List;
 import java.util.Map;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
@@ -777,8 +779,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public void removeRelationship(Long id,
-    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
-    throws Exception;
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass) throws Exception;
 
   /**
    * Get transitive relationship.
@@ -1337,6 +1338,17 @@ public interface ContentService extends MetadataService {
     throws Exception;
 
   /**
+   * Returns the inverse relationships.
+   *
+   * @param relationship the relationship
+   * @return the inverse relationships
+   * @throws Exception the exception
+   */
+  public RelationshipList getInverseRelationships(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception;
+
+  /**
    * Creates the inverse concept relationship.
    *
    * @param relationship the relationship
@@ -1792,5 +1804,42 @@ public interface ContentService extends MetadataService {
   public RelationshipList findComponentInfoRelationships(String componentInfoId,
     String terminology, String version, IdType type, String branch,
     String query, boolean inverseFlag, PfsParameter pfs) throws Exception;
+
+  /**
+   * Validate concept.
+   *
+   * @param project the project
+   * @param concept the concept
+   * @return the validation result
+   */
+  public ValidationResult validateConcept(Project project, Concept concept);
+
+  /**
+   * Validate atom.
+   *
+   * @param project the project
+   * @param atom the atom
+   * @return the validation result
+   */
+  public ValidationResult validateAtom(Project project, Atom atom);
+
+  /**
+   * Validate descriptor.
+   *
+   * @param project the project
+   * @param descriptor the descriptor
+   * @return the validation result
+   */
+  public ValidationResult validateDescriptor(Project project,
+    Descriptor descriptor);
+
+  /**
+   * Validate code.
+   *
+   * @param project the project
+   * @param code the code
+   * @return the validation result
+   */
+  public ValidationResult validateCode(Project project, Code code);
 
 }

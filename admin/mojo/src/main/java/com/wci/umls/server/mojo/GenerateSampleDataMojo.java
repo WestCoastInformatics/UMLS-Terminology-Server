@@ -143,8 +143,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       }
 
       boolean serverRunning = ConfigUtility.isServerActive();
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
       if (serverRunning) {
         throw new Exception("Server must not be running to generate data");
       }
@@ -230,6 +230,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       author3 = makeUser("author3", "Author3");
       author3 = (UserJpa) security.addUser(author3, authToken);
     }
+
     //
     // Make a project
     //
@@ -309,14 +310,14 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     getLog().info("  Add demotions");
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setStartIndex(1000);
-    pfs.setMaxResults(50);
+    pfs.setMaxResults(80);
     contentService = new ContentServiceRestImpl();
     final Long[] id1s =
         contentService.findConcepts(terminology, version, null, pfs, authToken)
             .getObjects().stream().map(c -> c.getId())
             .collect(Collectors.toList()).toArray(new Long[] {});
     pfs.setStartIndex(1100);
-    pfs.setMaxResults(50);
+    pfs.setMaxResults(80);
     contentService = new ContentServiceRestImpl();
     final Long[] id2s =
         contentService.findConcepts(terminology, version, null, pfs, authToken)
@@ -366,9 +367,9 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     for (final SearchResult result : contentService.findConcepts(terminology,
         version, "atoms.terminology:NCI", pfs, authToken).getObjects()) {
       contentService = new ContentServiceRestImpl();
-      final ConceptJpa concept =
-          new ConceptJpa(contentService.getConcept(result.getId(), projectId,
-              authToken), true);
+      final ConceptJpa concept = new ConceptJpa(
+          contentService.getConcept(result.getId(), projectId, authToken),
+          true);
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       testService = new IntegrationTestServiceRestImpl();
       testService.updateConcept(concept, authToken);
@@ -382,22 +383,24 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       }
     }
 
-    // Leftovers
-    getLog().info("  Mark first 50 non-NCIt concepts as status N");
+    // SNOMEDCT_US
+    getLog().info("  Mark first 100 SNOMED concepts as status N");
     pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(100);
     contentService = new ContentServiceRestImpl();
     for (final SearchResult result : contentService.findConcepts(terminology,
-        version, "atoms.terminology:SNOMEDCT_US", pfs, authToken).getObjects()) {
+        version, "atoms.terminology:SNOMEDCT_US", pfs, authToken)
+        .getObjects()) {
       contentService = new ContentServiceRestImpl();
-      final ConceptJpa concept =
-          new ConceptJpa(contentService.getConcept(result.getId(), projectId,
-              authToken), true);
+      final ConceptJpa concept = new ConceptJpa(
+          contentService.getConcept(result.getId(), projectId, authToken),
+          true);
 
       // skip if any concepts have NCI atoms
       if (concept.getAtoms().stream().map(a -> a.getTerminology())
-          .filter(t -> t.equals("NCI")).collect(Collectors.toList()).size() > 0) {
+          .filter(t -> t.equals("NCI")).collect(Collectors.toList())
+          .size() > 0) {
         continue;
       }
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
@@ -407,6 +410,40 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       // Make all SNOMEDCT_US atoms needs review
       for (final Atom atom : concept.getAtoms()) {
         if (atom.getTerminology().equals("SNOMEDCT_US")) {
+          atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          testService = new IntegrationTestServiceRestImpl();
+          testService.updateAtom((AtomJpa) atom, authToken);
+        }
+      }
+    }
+
+    // leftovers
+    getLog().info("  Mark first 100 RXNORM concepts as status N");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(100);
+    contentService = new ContentServiceRestImpl();
+    for (final SearchResult result : contentService.findConcepts(terminology,
+        version, "atoms.terminology:RXNORM", pfs, authToken).getObjects()) {
+      contentService = new ContentServiceRestImpl();
+      final ConceptJpa concept = new ConceptJpa(
+          contentService.getConcept(result.getId(), projectId, authToken),
+          true);
+
+      // skip if any concepts have NCI atoms
+      if (concept.getAtoms().stream().map(a -> a.getTerminology())
+          .filter(t -> t.equals("NCI") || t.equals("SNOMEDCT_US"))
+          .collect(Collectors.toList()).size() > 0) {
+        continue;
+      }
+      concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateConcept(concept, authToken);
+
+      // Make all SNOMEDCT_US atoms needs review
+      for (final Atom atom : concept.getAtoms()) {
+        if (!atom.getTerminology().equals("NCI")
+            && !atom.getTerminology().equals("SNOMEDCT_US")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
           testService.updateAtom((AtomJpa) atom, authToken);
@@ -454,8 +491,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     getLog().info("    Add 'demotions' workflow bin definition");
     WorkflowBinDefinitionJpa definition = new WorkflowBinDefinitionJpa();
     definition.setName("demotions");
-    definition
-        .setDescription("Clustered concepts that failed insertion merges.  Must be either related or merged.");
+    definition.setDescription(
+        "Clustered concepts that failed insertion merges.  Must be either related or merged.");
     definition.setQuery("select from_id clusterId, from_id conceptId "
         + "from concept_relationships "
         + "where terminology = :terminology and workflowStatus = 'DEMOTION' "
@@ -563,14 +600,28 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
     // Get bins
     workflowService = new WorkflowServiceRestImpl();
-    final List<WorkflowBin> bins =
-        workflowService.getWorkflowBins(projectId,
-            WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    final List<WorkflowBin> bins = workflowService.getWorkflowBins(projectId,
+        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
     // For each editable bin, make two worklists of size 5
     Worklist lastWorklist = null;
     int chk = 100;
     for (final WorkflowBin bin : bins) {
+      // Log all
+      getLog().info(
+          "  bin " + bin.getName() + " = " + bin.getTrackingRecords().size());
+
+      // Log "chem" count
+      workflowService = new WorkflowServiceRestImpl();
+      int chemRecords = workflowService
+          .findTrackingRecordsForWorkflowBin(projectId, bin.getId(), null,
+              authToken)
+          .getObjects().stream().filter(r -> r.getClusterType().equals("chem"))
+          .collect(Collectors.toList()).size();
+      getLog().info("    chem = " + chemRecords);
+      getLog().info(
+          "    non chem = " + (bin.getTrackingRecords().size() - chemRecords));
+
       if (bin.isEditable()) {
         pfs = new PfsParameterJpa();
         pfs.setStartIndex(0);
@@ -584,9 +635,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         workflowService.createWorklist(projectId, bin.getId(), null, pfs,
             authToken);
         workflowService = new WorkflowServiceRestImpl();
-        final Worklist worklist =
-            workflowService.createWorklist(projectId, bin.getId(), null, pfs,
-                authToken);
+        final Worklist worklist = workflowService.createWorklist(projectId,
+            bin.getId(), null, pfs, authToken);
 
         lastWorklist = worklist;
 
@@ -594,8 +644,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         pfs.setMaxResults(10);
         workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
-            "chk_random_nonworklist_" + chk++, "test desc", true, true, "",
-            pfs, authToken);
+            "chk_random_nonworklist_" + chk++, "test desc", true, true, "", pfs,
+            authToken);
         workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
             "chk_random_worklist_" + chk++, "test desc", true, false, "", pfs,
@@ -655,10 +705,10 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     // SCUI "merge" bins
     getLog().info("    Add required SCUI merge bins");
     for (final String terminology : new String[] {
-      "nci"
+        "nci"
     }) {
-      getLog().info(
-          "    Add '" + terminology + "_merge' workflow bin definition");
+      getLog()
+          .info("    Add '" + terminology + "_merge' workflow bin definition");
       definition = new WorkflowBinDefinitionJpa();
       definition.setName(terminology + "_merge");
       definition.setDescription("Merged " + terminology.toUpperCase()
@@ -674,8 +724,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       definition.setQueryType(QueryType.SQL);
       definition.setWorkflowConfig(newConfig);
       workflowService = new WorkflowServiceRestImpl();
-      workflowService
-          .addWorkflowBinDefinition(projectId, definition, authToken);
+      workflowService.addWorkflowBinDefinition(projectId, definition,
+          authToken);
     }
 
     // nci_sub_split
@@ -714,8 +764,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     for (final String terminology : new String[] {
         "rxnorm", "cbo"
     }) {
-      getLog().info(
-          "    Add '" + terminology + "_merge' workflow bin definition");
+      getLog()
+          .info("    Add '" + terminology + "_merge' workflow bin definition");
       definition = new WorkflowBinDefinitionJpa();
       definition.setName(terminology + "_merge");
       definition.setDescription("Merged " + terminology.toUpperCase()
@@ -731,8 +781,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       definition.setQueryType(QueryType.SQL);
       definition.setWorkflowConfig(newConfig);
       workflowService = new WorkflowServiceRestImpl();
-      workflowService
-          .addWorkflowBinDefinition(projectId, definition, authToken);
+      workflowService.addWorkflowBinDefinition(projectId, definition,
+          authToken);
     }
 
     // sct_sepfnpt
@@ -768,8 +818,8 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
     // Regenerate bins
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.QUALITY_ASSURANCE, authToken);
+    workflowService.regenerateBins(projectId, WorkflowBinType.QUALITY_ASSURANCE,
+        authToken);
 
   }
 

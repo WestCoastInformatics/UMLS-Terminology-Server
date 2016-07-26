@@ -80,14 +80,6 @@
     </dependency>
 
     <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.wordnik</groupId>
-      <artifactId>swagger-jersey2-jaxrs_2.10</artifactId>
-    </dependency>
-    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>

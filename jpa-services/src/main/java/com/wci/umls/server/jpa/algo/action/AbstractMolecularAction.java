@@ -10,18 +10,27 @@ import java.util.List;
 
 import com.google.common.base.CaseFormat;
 import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.content.RelationshipList;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.algo.AbstractTerminologyAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.ContentService;
+
 /**
  * Abstract {@link MolecularActionAlgorithm}.
  */
-public abstract class AbstractMolecularAction extends
-    AbstractTerminologyAlgorithm implements MolecularActionAlgorithm {
+public abstract class AbstractMolecularAction
+    extends AbstractTerminologyAlgorithm implements MolecularActionAlgorithm {
 
   /** The concept. */
   private Concept concept;
@@ -40,6 +49,9 @@ public abstract class AbstractMolecularAction extends
 
   /** The change status flag. */
   private boolean changeStatusFlag;
+
+  /** The validation checks. */
+  private List<String> validationChecks;
 
   /**
    * Instantiates an empty {@link AbstractMolecularAction}.
@@ -121,6 +133,24 @@ public abstract class AbstractMolecularAction extends
 
   /* see superclass */
   @Override
+  public void setValidationChecks(List<String> validationChecks) {
+    this.validationChecks = validationChecks;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : getValidationHandlersMap().keySet()) {
+      if (validationChecks.contains(key)) {
+        result.merge(getValidationHandlersMap().get(key).validateAction(this));
+      }
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
   public void initialize(Project project, Long conceptId, Long conceptId2,
     String userName, Long lastModified) throws Exception {
 
@@ -137,7 +167,7 @@ public abstract class AbstractMolecularAction extends
     Collections.sort(conceptIdList);
 
     this.concept = null;
-    this.concept2 = null;    
+    this.concept2 = null;
     for (final Long i : conceptIdList) {
       Concept tempConcept = null;
 
@@ -172,7 +202,7 @@ public abstract class AbstractMolecularAction extends
 
     setTerminology(concept.getTerminology());
     setVersion(concept.getVersion());
-    
+
     // construct the molecular action
     final MolecularAction molecularAction = new MolecularActionJpa();
     molecularAction.setTerminology(this.concept.getTerminology());
@@ -207,4 +237,53 @@ public abstract class AbstractMolecularAction extends
           "Concept has changed since last read, please refresh and try again");
     }
   }
+
+  /**
+   * Find inverse relationship.
+   *
+   * @param relationship the relationship
+   * @return the relationship<? extends component info,? extends component info>
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> findInverseRelationship(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception {
+
+    // instantiate required services
+    final ContentService contentService = new ContentServiceJpa();
+
+    RelationshipList relList =
+        contentService.getInverseRelationships(relationship);
+
+    // If there's only one inverse relationship returned, that's the one we
+    // want.
+    if (relList.getCount() == 1) {
+      return relList.getObjects().get(0);
+    }
+    // If more than one inverse relationship is returned (can happen in the case
+    // of demotions), return the appropriate one.
+    else {
+      if (relationship.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+        for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
+            .getObjects()) {
+          if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+            return rel;
+          }
+        }
+      }
+      else{
+        for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
+            .getObjects()) {
+          if (!rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+            return rel;
+          }
+        }
+      }      
+
+    }
+
+    return null;
+  }
+
 }

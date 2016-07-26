@@ -21,12 +21,12 @@
       {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
         class="hidden-xs">
         <a ng-class="{'nolink' : !callbacks.getComponent}"
-          ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+          ng-click="callbacks.getComponent(item.toId, metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
           uib-tooltip="{{component.terminology}} {{component.type | lowercase}}">{{item.toTerminologyId}}</a>
         {{item.toName}} [{{item.terminology}}]
       </span> <span class="visible-xs-inline">
         <a ng-class="{'nolink' : !callbacks.getComponent}"
-          ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+          ng-click="callbacks.getComponent(item.toId, metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
           uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toName}}
           [{{item.terminology}}]</a>
       </span> &nbsp;</li>

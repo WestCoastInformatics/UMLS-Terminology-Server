@@ -1,62 +1,26 @@
 'use strict';
 
+// For dynamic configuring of routes
+// See:
+// http://blog.brunoscopelliti.com/how-to-defer-route-definition-in-an-angularjs-web-app/
+var $routeProviderReference;
+
 var tsApp = angular
   .module(
     'tsApp',
     [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ui.tinymce', 'ngCookies', 'ngTable',
-      'angularFileUpload' ]).config(function($rootScopeProvider) {
+      'angularFileUpload' ]).config(function($rootScopeProvider, $routeProvider) {
 
     // Set recursive digest limit higher to handle very deep trees.
     $rootScopeProvider.digestTtl(15);
+    // Save reference to route provider
+    $routeProviderReference = $routeProvider;
 
   });
 
-// Declare top level URL vars
-tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureService, utilService,
-  securityService) {
-
-  var errMsg = '';
-
-  // if appConfig not set or contains nonsensical values, throw error
-  if (!appConfig) {
-    errMsg += 'Application configuration (appConfig.js) could not be found';
-  }
-
-  console.debug('Application configuration variables set:');
-
-  // Iterate through app config variables and verify interpolation
-  for ( var key in appConfig) {
-    if (appConfig.hasOwnProperty(key)) {
-      console.debug('  ' + key + ': ' + appConfig[key]);
-      if (appConfig[key].startsWith('${')) {
-        errMsg += 'Configuration property ' + key + ' not set in project or configuration file';
-      }
-    }
-
-    // if login not enabled, set guest user
-    if (appConfig.loginEnabled !== 'true') {
-      securityService.setGuestUser();
-    }
-
-  }
-
-  // TODO Move this into a scope-accessible object of some kind (e.g. site-tracking directive analogous to header/footer)
-  $rootScope.siteTrackingCode = appConfig['siteTrackingCode'];
-
-  if (errMsg.length > 0) {
-    // Send an embedded 'data' object
-    utilService.handleError({
-      data : 'Configuration Error:\n' + errMsg
-    });
-  }
-
-  // check and set whether application is configured
-  $http.get(configureUrl + '/configured').then(function(response) {
-    $rootScope.isConfigured = response.data;
-  }, function() {
-    console.error('Could not determine configuration status');
-    $rootScope.isConfigured = false;
-  });
+// Declare any $rootScope vars
+tsApp.run(function($rootScope) {
+  // n/a
 });
 
 // Simple glass pane controller

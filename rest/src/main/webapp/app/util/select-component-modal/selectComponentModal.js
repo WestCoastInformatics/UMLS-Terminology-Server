@@ -123,7 +123,7 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
   // set the top level component from a tree node
   $scope.getComponentFromTree = function(type, nodeScope) {
     var tree = nodeScope.$modelValue;
-    $scope.getComponent(type, tree.nodeTerminologyId, tree.terminology, tree.version);
+    $scope.getComponent(tree.nodeId, type, tree.nodeTerminologyId, tree.terminology, tree.version);
   };
   //
   // Initialization

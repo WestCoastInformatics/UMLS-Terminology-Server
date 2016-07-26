@@ -224,7 +224,12 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
   @Test
   public void testModelXmlTransient() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+    object.setTrackingRecords(new ArrayList<>());
+    TrackingRecordJpa record = new TrackingRecordJpa();
+    record.setId(1L);
+    object.getTrackingRecords().add(record);
     String xml = ConfigUtility.getStringForGraph(object);
+    System.out.println(xml);
     assertTrue(xml.contains("<projectId>"));
     assertFalse(xml.contains("<project>"));
   }

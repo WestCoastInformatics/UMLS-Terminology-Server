@@ -11,13 +11,14 @@ tsApp
       'utilService',
       'tabService',
       'securityService',
-      'validationService',
       'metadataService',
       'projectService',
       'configureService',
       function($scope, $http, $location, $uibModal, gpService, utilService, tabService,
-        securityService, validationService, metadataService, projectService, configureService) {
+        securityService, metadataService, projectService, configureService) {
         console.debug('configure AdminCtrl');
+
+        tabService.setShowing(true);
 
         // Clear error
         utilService.clearError();
@@ -109,12 +110,11 @@ tsApp
           if ($scope.user.applicationRole == 'ADMINISTRATOR') {
             pfs.queryRestriction = null;
           }
-          projectService.findProjects($scope.paging['project'].filter, pfs).then(
-            function(data) {
-              $scope.projects = data.projects;
-              $scope.projects.totalCount = data.totalCount;
+          projectService.findProjects($scope.paging['project'].filter, pfs).then(function(data) {
+            $scope.projects = data.projects;
+            $scope.projects.totalCount = data.totalCount;
 
-            });
+          });
 
         };
 
@@ -382,7 +382,7 @@ tsApp
         };
 
         $scope.getValidationChecks = function() {
-          validationService.getValidationCheckNames().then(
+          projectService.getValidationCheckNames().then(
           // Success
           function(data) {
             $scope.validationChecks = data.keyValuePairs;

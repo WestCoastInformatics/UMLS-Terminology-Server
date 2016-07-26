@@ -31,6 +31,8 @@ import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -57,6 +59,7 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.content.AbstractAtomClass;
 import com.wci.umls.server.jpa.content.AbstractComponent;
@@ -2012,13 +2015,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Creates the inverse concept relationship.
-   *
-   * @param relationship the relationship
-   * @return the concept relationship
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public ConceptRelationship createInverseConceptRelationship(
@@ -2030,8 +2026,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
       ConceptRelationship inverseRelationship =
           new ConceptRelationshipJpa(relationship, false);
       inverseRelationship.setId(null);
+      inverseRelationship.setTerminologyId("");
       inverseRelationship.setFrom(relationship.getTo());
       inverseRelationship.setTo(relationship.getFrom());
+      inverseRelationship.setPublishable(relationship.isPublishable());
       inverseRelationship.setRelationshipType(
           getRelationshipType(relationship.getRelationshipType(),
               relationship.getTerminology(), relationship.getVersion())
@@ -2039,6 +2037,43 @@ public class ContentServiceJpa extends MetadataServiceJpa
       inverseRelationship.setAssertedDirection(false);
 
       return inverseRelationship;
+    } else {
+
+      return null;
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public RelationshipList getInverseRelationships(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get the inverse of concept relationship "
+            + relationship);
+
+    // Relationship<? extends ComponentInfo, ? extends ComponentInfo>
+    // inverseRelationship = null;
+
+    if (relationship != null) {
+      String inverseRelType =
+          getRelationshipType(relationship.getRelationshipType(),
+              relationship.getTerminology(), relationship.getVersion())
+                  .getInverse().getAbbreviation();
+
+      RelationshipList relList =
+          findRelationshipsForComponentHelper(null, null, null, Branch.ROOT,
+              "fromId:" + relationship.getTo().getId() + " AND toId:"
+                  + relationship.getFrom().getId() + " AND relationshipType:"
+                  + inverseRelType,
+              false, null, relationship.getClass());
+
+      if (relList.getCount() == 0) {
+        throw new Exception("Unexpected missing inverse relationship");
+      } else {
+        return relList;
+      }
+
     } else {
 
       return null;
@@ -3861,10 +3896,17 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       for (Method m : allClassMethods) {
 
-        final String oldValue =
-            m.invoke(oldComponent, new Object[] {}).toString();
-        final String newValue =
-            m.invoke(newComponent, new Object[] {}).toString();
+        final Object oldObject = m.invoke(oldComponent, new Object[] {});
+        final Object newObject = m.invoke(newComponent, new Object[] {});
+
+        String oldValue = "";
+        if (oldObject != null) {
+          oldValue = m.invoke(oldComponent, new Object[] {}).toString();
+        }
+        String newValue = "";
+        if (newObject != null) {
+          newValue = m.invoke(newComponent, new Object[] {}).toString();
+        }
 
         if (!oldValue.equals(newValue)) {
 
@@ -4003,7 +4045,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .debug("Content Service - find relationships for concept " + conceptId
             + "/" + terminology + "/" + version + "/" + branch + "/" + query
             + "/" + inverseFlag);
-    
+
     return findRelationshipsForComponentHelper(conceptId, terminology, version,
         branch, query, inverseFlag, pfs, ConceptRelationshipJpa.class);
   }
@@ -4287,44 +4329,43 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     final RelationshipList results = new RelationshipListJpa();
 
-    // Prepare the query string
-    final StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query == null ? "" : query);
-    if (!finalQuery.toString().isEmpty()) {
-      finalQuery.append(" AND ");
+    final List<String> clauses = new ArrayList<>();
+    // Parts to combine
+    // 1. query
+    clauses.add(query);
+
+    // 2. to/fromTerminologyId
+    if (inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
+      clauses.add("toTerminologyId:" + terminologyId);
+    }
+    if (!inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
+      clauses.add("fromTerminologyId:" + terminologyId);
     }
 
-    // add id/terminology/version constraints based on inverse flag
-    if (inverseFlag == true) {
-      if (terminologyId != null) {
-        finalQuery.append("toTerminologyId:" + terminologyId);
-      }
-      if (!finalQuery.toString().isEmpty()) {
-        finalQuery.append(" AND ");
-      }
-      if (terminology != null && version != null) {
-        finalQuery.append(
-            "toTerminology:" + terminology + " AND toVersion:" + version);
-      }
-    } else {
-      if (terminologyId != null) {
-        finalQuery.append("fromTerminologyId:" + terminologyId);
-      }
-      if (!finalQuery.toString().isEmpty()) {
-        finalQuery.append(" AND ");
-      }
-      if (terminology != null && version != null) {
-        finalQuery.append(
-            "fromTerminology:" + terminology + " AND fromVersion:" + version);
-      }
+    // 3. to/fromTerminology
+    if (inverseFlag && !ConfigUtility.isEmpty(terminology)) {
+      clauses.add("toTerminology:" + terminology);
     }
+    if (!inverseFlag && !ConfigUtility.isEmpty(terminology)) {
+      clauses.add("fromTerminology:" + terminology);
+    }
+
+    // r. to/fromVersion clause
+    if (inverseFlag && !ConfigUtility.isEmpty(version)) {
+      clauses.add("toVersion:" + version);
+    }
+    if (!inverseFlag && !ConfigUtility.isEmpty(version)) {
+      clauses.add("fromVersion:" + version);
+    }
+
+    final String finalQuery = ConfigUtility.composeQuery("AND", clauses);
 
     final SearchHandler searchHandler = getSearchHandler(terminology);
     final int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
     results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery.toString(), "toNameSort", ConceptRelationshipJpa.class,
-        clazz, pfs, totalCt, manager));
+        finalQuery, "toNameSort", ConceptRelationshipJpa.class, clazz, pfs,
+        totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
     for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : results
@@ -5552,4 +5593,52 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return results;
   }
 
+  /* see superclass */
+  @Override
+  public ValidationResult validateConcept(Project project, Concept concept) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : getValidationHandlersMap().keySet()) {
+      if (project.getValidationChecks().contains(key)) {
+        result.merge(getValidationHandlersMap().get(key).validate(concept));
+      }
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateAtom(Project project, Atom atom) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : getValidationHandlersMap().keySet()) {
+      if (project.getValidationChecks().contains(key)) {
+        result.merge(getValidationHandlersMap().get(key).validate(atom));
+      }
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateDescriptor(Project project,
+    Descriptor descriptor) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : getValidationHandlersMap().keySet()) {
+      if (project.getValidationChecks().contains(key)) {
+        result.merge(getValidationHandlersMap().get(key).validate(descriptor));
+      }
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateCode(Project project, Code code) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : getValidationHandlersMap().keySet()) {
+      if (project.getValidationChecks().contains(key)) {
+        result.merge(getValidationHandlersMap().get(key).validate(code));
+      }
+    }
+    return result;
+  }
 }

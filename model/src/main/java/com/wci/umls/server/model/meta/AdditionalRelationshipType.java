@@ -10,6 +10,20 @@ package com.wci.umls.server.model.meta;
 public interface AdditionalRelationshipType extends Abbreviation {
 
   /**
+   * Indicates whether or not the relationship type is necessarily hierarchical.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isHierarchical();
+
+  /**
+   * Sets the hierarchical flag.
+   *
+   * @param hierarchical the hierarchical
+   */
+  public void setHierarchical(boolean hierarchical);
+
+  /**
    * Returns the inverse type.
    * 
    * @return the inverse type

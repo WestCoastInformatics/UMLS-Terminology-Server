@@ -72,7 +72,8 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 delta data.
  */
-public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
+public class Rf2DeltaLoaderAlgorithm
+    extends AbstractTerminologyLoaderAlgorithm {
 
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
@@ -179,9 +180,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     logInfo("  version = " + getVersion());
     logInfo("  inputPath = " + getInputPath());
     logInfo("  sorting files = " + isSortFiles());
-    logInfo("  releaseVersion = "
-        + (getReleaseVersion() == null ? "COMPUTE FROM FILES"
-            : getReleaseVersion()));
+    logInfo("  releaseVersion = " + (getReleaseVersion() == null
+        ? "COMPUTE FROM FILES" : getReleaseVersion()));
     logInfo("  readers = " + (readers == null ? null : "PASSED IN"));
 
     long startTimeOrig = System.nanoTime();
@@ -212,7 +212,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     setLastModifiedFlag(false);
     // Turn off action handling
     setMolecularActionFlag(false);
-    
+
     // faster performance.
     beginTransaction();
 
@@ -241,8 +241,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       setReleaseVersion(getFileVersion());
     }
     releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(getReleaseVersion());
-    Logger.getLogger(getClass()).info(
-        "  releaseVersion = " + getReleaseVersion());
+    Logger.getLogger(getClass())
+        .info("  releaseVersion = " + getReleaseVersion());
 
     // Open readers if not opened externally
     boolean leaveReadersOpen = readers != null;
@@ -289,8 +289,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       if (!pn.equals(concept.getName())) {
         ct++;
         concept.setName(pn);
-        Logger.getLogger(getClass()).debug(
-            "      compute concept pn = " + concept);
+        Logger.getLogger(getClass())
+            .debug("      compute concept pn = " + concept);
         updateConcept(concept);
       }
       if (ct > 0 && ct % logCt == 0) {
@@ -387,8 +387,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     if (info == null) {
       info = new ReleaseInfoJpa();
       info.setName(getReleaseVersion());
-      info.setDescription(getTerminology() + " " + getReleaseVersion()
-          + " release");
+      info.setDescription(
+          getTerminology() + " " + getReleaseVersion() + " release");
       info.setPlanned(false);
       info.setPublished(true);
       info.setTerminology(getTerminology());
@@ -407,8 +407,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     // Remove sort directory if sorting was done locally
     if (isSortFiles()) {
-      ConfigUtility.deleteDirectory(new File(getInputPath(),
-          "/RF2-sorted-temp/"));
+      ConfigUtility
+          .deleteDirectory(new File(getInputPath(), "/RF2-sorted-temp/"));
     }
 
     // Final logging messages
@@ -453,9 +453,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   /* see superclass */
   @Override
   public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + getTerminology() + "/"
-            + getVersion());
+    Logger.getLogger(getClass()).info("  Compute transitive closure from  "
+        + getTerminology() + "/" + getVersion());
     try {
       transClosureAlgorithm.setCycleTolerant(false);
       transClosureAlgorithm.setIdType(IdType.CONCEPT);
@@ -471,8 +470,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           getVersion(), Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
         if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
+          Logger.getLogger(getClass())
+              .info("  Create label set for subset = " + subset);
           labelSetAlgorithm.setTerminology(getTerminology());
           labelSetAlgorithm.setVersion(getVersion());
           labelSetAlgorithm.setSubset(conceptSubset);
@@ -545,9 +544,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // Check if concept exists from before
-        Concept concept =
-            idMap.containsKey(fields[0]) ? getConcept(idMap.get(fields[0]))
-                : null;
+        Concept concept = idMap.containsKey(fields[0])
+            ? getConcept(idMap.get(fields[0])) : null;
 
         // Setup delta concept (either new or based on existing one)
         Concept concept2 = null;
@@ -618,8 +616,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // If concept has changed, update it and any changed attributes
         else if (!Rf2EqualityUtility.equals(concept2, concept)) {
           if (!concept.equals(concept2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update concept - " + concept2);
+            Logger.getLogger(getClass())
+                .debug("      update concept - " + concept2);
             updateConcept(concept2);
             pnRecomputeIds.add(concept2.getId());
           }
@@ -698,8 +696,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           // if the concept is new, it will have been added
           // if the concept is existing it will either have been udpated
           // or will be in the existing concept cache
-          throw new Exception("Concept of atom should already exist: "
-              + fields[4]);
+          throw new Exception(
+              "Concept of atom should already exist: " + fields[4]);
         }
 
         // if the concept is not null
@@ -800,8 +798,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
           if ((objectsAdded + objectsUpdated) % logCt == 0) {
             for (final Concept modifiedConcept : modifiedConcepts) {
-              Logger.getLogger(getClass()).debug(
-                  "      update concept - " + modifiedConcept);
+              Logger.getLogger(getClass())
+                  .debug("      update concept - " + modifiedConcept);
               updateConcept(modifiedConcept);
               pnRecomputeIds.add(modifiedConcept.getId());
             }
@@ -815,16 +813,16 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Major error if there is a delta atom with a
         // non-existent concept
         else {
-          throw new Exception("Could not find concept " + fields[4]
-              + " for atom " + fields[0]);
+          throw new Exception(
+              "Could not find concept " + fields[4] + " for atom " + fields[0]);
         }
       }
     }
 
     // Handle modified concepts
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
       pnRecomputeIds.add(modifiedConcept.getId());
     }
@@ -878,8 +876,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           // if the concept is new, it will have been added
           // if the concept is existing it will either have been udpated
           // or will be in the existing concept cache
-          throw new Exception("Concept of atom should already exist: "
-              + fields[4]);
+          throw new Exception(
+              "Concept of atom should already exist: " + fields[4]);
         }
 
         // if the concept is not null
@@ -966,8 +964,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           // If atom has changed, update it
           else if (!Rf2EqualityUtility.equals(def2, def)) {
             if (!def.equals(def2)) {
-              Logger.getLogger(getClass()).debug(
-                  "      update definition - " + def2);
+              Logger.getLogger(getClass())
+                  .debug("      update definition - " + def2);
               updateAtom(def2);
               concept.getAtoms().remove(def);
               concept.getAtoms().add(def2);
@@ -979,8 +977,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
           if ((objectsAdded + objectsUpdated) % logCt == 0) {
             for (final Concept modifiedConcept : modifiedConcepts) {
-              Logger.getLogger(getClass()).debug(
-                  "      update concept - " + modifiedConcept);
+              Logger.getLogger(getClass())
+                  .debug("      update concept - " + modifiedConcept);
               updateConcept(modifiedConcept);
               pnRecomputeIds.add(modifiedConcept.getId());
             }
@@ -994,15 +992,15 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Major error if there is a delta atom with a
         // non-existent concept
         else {
-          throw new Exception("Could not find concept " + fields[4]
-              + " for atom " + fields[0]);
+          throw new Exception(
+              "Could not find concept " + fields[4] + " for atom " + fields[0]);
         }
       }
     }
 
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
       pnRecomputeIds.add(modifiedConcept.getId());
     }
@@ -1021,11 +1019,9 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   private void loadLanguageRefsetMembers() throws Exception {
 
     // Cache atom subset members
-    final Query query =
-        manager
-            .createQuery("select a.terminologyId, a.id from AtomSubsetMemberJpa a "
-                + "where version = :version "
-                + "and terminology = :terminology ");
+    final Query query = manager
+        .createQuery("select a.terminologyId, a.id from AtomSubsetMemberJpa a "
+            + "where version = :version " + "and terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
@@ -1064,9 +1060,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Ensure effective time is set on all appropriate objects
         AtomSubsetMember member = null;
         if (idMap.containsKey(fields[0])) {
-          member =
-              (AtomSubsetMember) getSubsetMember(idMap.get(fields[0]),
-                  AtomSubsetMemberJpa.class);
+          member = (AtomSubsetMember) getSubsetMember(idMap.get(fields[0]),
+              AtomSubsetMemberJpa.class);
         }
 
         // Setup delta language entry (either new or based on existing
@@ -1106,8 +1101,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             addAttribute(att, member2);
           }
 
-          Logger.getLogger(getClass()).debug(
-              "      add language refset member = " + member2);
+          Logger.getLogger(getClass())
+              .debug("      add language refset member = " + member2);
           member2 = (AtomSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
           atom.getMembers().add(member2);
@@ -1116,15 +1111,14 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // If language refset entry is changed, update it
-        else if (!member2.equals(member)
-            || !Rf2EqualityUtility.compareAttributes(member2, member,
-                new String[] {
-                    "moduleId", "acceptabilityId"
-                })) {
+        else if (!member2.equals(member) || !Rf2EqualityUtility
+            .compareAttributes(member2, member, new String[] {
+                "moduleId", "acceptabilityId"
+        })) {
           Logger.getLogger(getClass()).debug("  update language - " + member2);
           if (!member.equals(member2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update langauge refset member - " + member2);
+            Logger.getLogger(getClass())
+                .debug("      update langauge refset member - " + member2);
             updateSubsetMember(member2);
             atom.getMembers().remove(member);
             atom.getMembers().add(member2);
@@ -1137,8 +1131,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
           for (final Atom modifiedAtom : modifiedAtoms) {
-            Logger.getLogger(getClass()).debug(
-                "      update atom - " + modifiedAtom);
+            Logger.getLogger(getClass())
+                .debug("      update atom - " + modifiedAtom);
             updateAtom(modifiedAtom);
           }
           logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
@@ -1169,11 +1163,9 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   private void loadSimpleRefSetMembers() throws Exception {
 
     // Cache concept subset members
-    final Query query =
-        manager
-            .createQuery("select a.terminologyId, a.id from ConceptSubsetMemberJpa a "
-                + "where version = :version "
-                + "and terminology = :terminology ");
+    final Query query = manager.createQuery(
+        "select a.terminologyId, a.id from ConceptSubsetMemberJpa a "
+            + "where version = :version " + "and terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
@@ -1212,9 +1204,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Ensure effective time is set on all appropriate objects
         ConceptSubsetMember member = null;
         if (idMap.containsKey(fields[0])) {
-          member =
-              (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
-                  ConceptSubsetMemberJpa.class);
+          member = (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
+              ConceptSubsetMemberJpa.class);
         }
 
         // Setup delta simple entry (either new or based on existing
@@ -1242,8 +1233,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             addAttribute(att, member2);
           }
 
-          Logger.getLogger(getClass()).debug(
-              "      add simple refset member = " + member2);
+          Logger.getLogger(getClass())
+              .debug("      add simple refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
           concept.getMembers().add(member2);
@@ -1252,15 +1243,14 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // If simple refset entry is changed, update it
-        else if (!member2.equals(member)
-            || !Rf2EqualityUtility.compareAttributes(member2, member,
-                new String[] {
-                  "moduleId"
-                })) {
+        else if (!member2.equals(member) || !Rf2EqualityUtility
+            .compareAttributes(member2, member, new String[] {
+                "moduleId"
+        })) {
           Logger.getLogger(getClass()).debug("  update simple - " + member2);
           if (!member.equals(member2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update simple refset member - " + member2);
+            Logger.getLogger(getClass())
+                .debug("      update simple refset member - " + member2);
             updateSubsetMember(member2);
             concept.getMembers().remove(member);
             concept.getMembers().add(member2);
@@ -1273,8 +1263,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
           for (final Concept modifiedConcept : modifiedConcepts) {
-            Logger.getLogger(getClass()).debug(
-                "      update concept - " + modifiedConcept);
+            Logger.getLogger(getClass())
+                .debug("      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
           logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
@@ -1286,8 +1276,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     }
 
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
     }
     commitClearBegin();
@@ -1335,9 +1325,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Ensure effective time is set on all appropriate objects
         ConceptSubsetMember member = null;
         if (idMap.containsKey(fields[0])) {
-          member =
-              (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
-                  ConceptSubsetMemberJpa.class);
+          member = (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
+              ConceptSubsetMemberJpa.class);
         }
 
         // Setup delta simple map entry (either new or based on existing
@@ -1378,8 +1367,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             addAttribute(att, member2);
           }
 
-          Logger.getLogger(getClass()).debug(
-              "      add simple map refset member = " + member2);
+          Logger.getLogger(getClass())
+              .debug("      add simple map refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
           concept.getMembers().add(member2);
@@ -1388,15 +1377,14 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // If simple refset entry is changed, update it
-        else if (!member2.equals(member)
-            || !Rf2EqualityUtility.compareAttributes(member2, member,
-                new String[] {
-                    "moduleId", "mapTarget"
-                })) {
+        else if (!member2.equals(member) || !Rf2EqualityUtility
+            .compareAttributes(member2, member, new String[] {
+                "moduleId", "mapTarget"
+        })) {
           Logger.getLogger(getClass()).debug("  update simple - " + member2);
           if (!member.equals(member2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update simple map refset member - " + member2);
+            Logger.getLogger(getClass())
+                .debug("      update simple map refset member - " + member2);
             updateSubsetMember(member2);
             concept.getMembers().remove(member);
             concept.getMembers().add(member2);
@@ -1409,8 +1397,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
           for (final Concept modifiedConcept : modifiedConcepts) {
-            Logger.getLogger(getClass()).debug(
-                "      update concept - " + modifiedConcept);
+            Logger.getLogger(getClass())
+                .debug("      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
           logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
@@ -1422,8 +1410,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     }
 
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
     }
     commitClearBegin();
@@ -1454,9 +1442,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     }
 
     // Cache mapsets
-    query =
-        manager.createQuery("select a from MapSetJpa a "
-            + "where version = :version " + "and terminology = :terminology ");
+    query = manager.createQuery("select a from MapSetJpa a "
+        + "where version = :version " + "and terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
@@ -1540,8 +1527,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // If mapping has changed, update it
         else if (!Rf2EqualityUtility.equals(mapping2, mapping)) {
           if (!mapping.equals(mapping2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update mapping - " + mapping2);
+            Logger.getLogger(getClass())
+                .debug("      update mapping - " + mapping2);
             updateMapping(mapping2);
           }
           updateAttributes(mapping2, mapping);
@@ -1598,9 +1585,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Ensure effective time is set on all appropriate objects
         ConceptSubsetMember member = null;
         if (idMap.containsKey(fields[0])) {
-          member =
-              (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
-                  ConceptSubsetMemberJpa.class);
+          member = (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
+              ConceptSubsetMemberJpa.class);
         }
 
         // Setup delta simple entry (either new or based on existing
@@ -1653,8 +1639,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             addAttribute(att, member2);
           }
 
-          Logger.getLogger(getClass()).debug(
-              "      add atom type refset member = " + member2);
+          Logger.getLogger(getClass())
+              .debug("      add atom type refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
           concept.getMembers().add(member2);
@@ -1663,16 +1649,15 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // If atom type refset entry is changed, update it
-        else if (!member2.equals(member)
-            || !Rf2EqualityUtility.compareAttributes(member2, member,
-                new String[] {
-                    "moduleId", "descriptionFormat", "descriptionLength"
-                })) {
+        else if (!member2.equals(member) || !Rf2EqualityUtility
+            .compareAttributes(member2, member, new String[] {
+                "moduleId", "descriptionFormat", "descriptionLength"
+        })) {
           Logger.getLogger(getClass())
               .debug("  update atom type  - " + member2);
           if (!member.equals(member2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update atom type refset member - " + member2);
+            Logger.getLogger(getClass())
+                .debug("      update atom type refset member - " + member2);
             updateSubsetMember(member2);
             concept.getMembers().remove(member);
             concept.getMembers().add(member2);
@@ -1685,8 +1670,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
           for (final Concept modifiedConcept : modifiedConcepts) {
-            Logger.getLogger(getClass()).debug(
-                "      update concept - " + modifiedConcept);
+            Logger.getLogger(getClass())
+                .debug("      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
           logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
@@ -1698,8 +1683,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     }
 
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
     }
     commitClearBegin();
@@ -1747,9 +1732,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Ensure effective time is set on all appropriate objects
         ConceptSubsetMember member = null;
         if (idMap.containsKey(fields[0])) {
-          member =
-              (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
-                  ConceptSubsetMemberJpa.class);
+          member = (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
+              ConceptSubsetMemberJpa.class);
         }
 
         // Setup delta module dependency entry (either new or based on existing
@@ -1813,8 +1797,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             addAttribute(att, member2);
           }
 
-          Logger.getLogger(getClass()).debug(
-              "      add refset descriptor refset member = " + member2);
+          Logger.getLogger(getClass())
+              .debug("      add refset descriptor refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
           concept.getMembers().add(member2);
@@ -1823,14 +1807,13 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // If refset descriptor refset entry is changed, update it
-        else if (!member2.equals(member)
-            || !Rf2EqualityUtility.compareAttributes(member2, member,
-                new String[] {
-                    "moduleId", "attributeDescription", "attributeType",
-                    "attributeOrder"
-                })) {
-          Logger.getLogger(getClass()).debug(
-              "  update refset descriptor  - " + member2);
+        else if (!member2.equals(member) || !Rf2EqualityUtility
+            .compareAttributes(member2, member, new String[] {
+                "moduleId", "attributeDescription", "attributeType",
+                "attributeOrder"
+        })) {
+          Logger.getLogger(getClass())
+              .debug("  update refset descriptor  - " + member2);
           if (!member.equals(member2)) {
             Logger.getLogger(getClass()).debug(
                 "      update refset descriptor refset member - " + member2);
@@ -1846,8 +1829,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
           for (final Concept modifiedConcept : modifiedConcepts) {
-            Logger.getLogger(getClass()).debug(
-                "      update concept - " + modifiedConcept);
+            Logger.getLogger(getClass())
+                .debug("      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
           logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
@@ -1859,8 +1842,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     }
 
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
     }
     commitClearBegin();
@@ -1908,9 +1891,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Ensure effective time is set on all appropriate objects
         ConceptSubsetMember member = null;
         if (idMap.containsKey(fields[0])) {
-          member =
-              (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
-                  ConceptSubsetMemberJpa.class);
+          member = (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
+              ConceptSubsetMemberJpa.class);
         }
 
         // Setup delta module dependency entry (either new or based on existing
@@ -1964,8 +1946,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             addAttribute(att, member2);
           }
 
-          Logger.getLogger(getClass()).debug(
-              "      add module dependency refset member = " + member2);
+          Logger.getLogger(getClass())
+              .debug("      add module dependency refset member = " + member2);
           member2 = (ConceptSubsetMember) addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
           concept.getMembers().add(member2);
@@ -1974,13 +1956,12 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // If module dependency refset entry is changed, update it
-        else if (!member2.equals(member)
-            || !Rf2EqualityUtility.compareAttributes(member2, member,
-                new String[] {
-                    "moduleId", "sourceEffectiveTime", "targetEffectiveTime"
-                })) {
-          Logger.getLogger(getClass()).debug(
-              "  update module dependency  - " + member2);
+        else if (!member2.equals(member) || !Rf2EqualityUtility
+            .compareAttributes(member2, member, new String[] {
+                "moduleId", "sourceEffectiveTime", "targetEffectiveTime"
+        })) {
+          Logger.getLogger(getClass())
+              .debug("  update module dependency  - " + member2);
           if (!member.equals(member2)) {
             Logger.getLogger(getClass()).debug(
                 "      update module dependency refset member - " + member2);
@@ -1996,8 +1977,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
           for (final Concept modifiedConcept : modifiedConcepts) {
-            Logger.getLogger(getClass()).debug(
-                "      update concept - " + modifiedConcept);
+            Logger.getLogger(getClass())
+                .debug("      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
           logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
@@ -2009,8 +1990,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     }
 
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
     }
     commitClearBegin();
@@ -2062,12 +2043,11 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             null;
         if (idMap.containsKey(fields[0])) {
           if (isConcept) {
-            member =
-                getSubsetMember(idMap.get(fields[0]),
-                    ConceptSubsetMemberJpa.class);
+            member = getSubsetMember(idMap.get(fields[0]),
+                ConceptSubsetMemberJpa.class);
           } else {
-            member =
-                getSubsetMember(idMap.get(fields[0]), AtomSubsetMemberJpa.class);
+            member = getSubsetMember(idMap.get(fields[0]),
+                AtomSubsetMemberJpa.class);
           }
         }
 
@@ -2119,8 +2099,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             addAttribute(att, member2);
           }
 
-          Logger.getLogger(getClass()).debug(
-              "      add attribute value refset member = " + member2);
+          Logger.getLogger(getClass())
+              .debug("      add attribute value refset member = " + member2);
           member2 = addSubsetMember(member2);
           idMap.put(member2.getTerminologyId(), member2.getId());
           if (isConcept) {
@@ -2134,11 +2114,10 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         }
 
         // If refset entry is changed, update it
-        else if (!member2.equals(member)
-            || !Rf2EqualityUtility.compareAttributes(member2, member,
-                new String[] {
-                    "moduleId", "valueId"
-                })) {
+        else if (!member2.equals(member) || !Rf2EqualityUtility
+            .compareAttributes(member2, member, new String[] {
+                "moduleId", "valueId"
+        })) {
           Logger.getLogger(getClass()).debug("  update simple - " + member2);
           if (!member.equals(member2)) {
             Logger.getLogger(getClass()).debug(
@@ -2162,13 +2141,13 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Periodic commit
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
           for (final Concept modifiedConcept : modifiedConcepts) {
-            Logger.getLogger(getClass()).debug(
-                "      update concept - " + modifiedConcept);
+            Logger.getLogger(getClass())
+                .debug("      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
           for (final Atom modifiedAtom : modifiedAtoms) {
-            Logger.getLogger(getClass()).debug(
-                "      update atom - " + modifiedAtom);
+            Logger.getLogger(getClass())
+                .debug("      update atom - " + modifiedAtom);
             updateAtom(modifiedAtom);
           }
           logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
@@ -2182,13 +2161,13 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     // Commit any remaining concept or atom changes
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
     }
     for (final Atom modifiedAtom : modifiedAtoms) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedAtom);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedAtom);
       updateAtom(modifiedAtom);
     }
     commitClearBegin();
@@ -2248,11 +2227,9 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           associationConcept = getConcept(idMap.get(fields[4]));
         }
         if (associationConcept == null) {
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent refset with terminology id "
-                      + fields[5]);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent refset with terminology id "
+                  + fields[5]);
           logWarn("  Line: " + line);
           continue;
           /*
@@ -2266,11 +2243,9 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           sourceConcept = getConcept(idMap.get(fields[5]));
         }
         if (sourceConcept == null) {
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent source object with terminology id "
-                      + fields[5]);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent source object with terminology id "
+                  + fields[5]);
           logWarn("  Line: " + line);
           continue;
           /*
@@ -2284,11 +2259,9 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           destinationConcept = getConcept(idMap.get(fields[6]));
         }
         if (destinationConcept == null) {
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent target object with terminology id "
-                      + fields[6]);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent target object with terminology id "
+                  + fields[6]);
           logWarn("  Line: " + line);
           continue;
           /*
@@ -2300,9 +2273,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Retrieve relationship if it exists
         ConceptRelationship rel = null;
         if (idMap.containsKey(fields[0])) {
-          rel =
-              (ConceptRelationship) getRelationship(idMap.get(fields[0]),
-                  ConceptRelationshipJpa.class);
+          rel = (ConceptRelationship) getRelationship(idMap.get(fields[0]),
+              ConceptRelationshipJpa.class);
         }
 
         // Setup delta relationship (either new or based on existing one)
@@ -2400,8 +2372,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
               RootService.commitCt);
           for (final Concept modifiedConcept : modifiedConcepts) {
-            Logger.getLogger(getClass()).debug(
-                "      update concept - " + modifiedConcept);
+            Logger.getLogger(getClass())
+                .debug("      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
           modifiedConcepts.clear();
@@ -2412,8 +2384,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     // Commit any remaining concept or atom changes
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
     }
 
@@ -2433,11 +2405,9 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   private void loadRelationships() throws Exception {
 
     // Cache description (and definition) ids
-    final Query query =
-        manager
-            .createQuery("select a.terminologyId, a.id from ConceptRelationshipJpa a "
-                + "where version = :version "
-                + "and terminology = :terminology ");
+    final Query query = manager.createQuery(
+        "select a.terminologyId, a.id from ConceptRelationshipJpa a "
+            + "where version = :version " + "and terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
@@ -2499,9 +2469,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Retrieve relationship if it exists
         ConceptRelationship rel = null;
         if (idMap.containsKey(fields[0])) {
-          rel =
-              (ConceptRelationship) getRelationship(idMap.get(fields[0]),
-                  ConceptRelationshipJpa.class);
+          rel = (ConceptRelationship) getRelationship(idMap.get(fields[0]),
+              ConceptRelationshipJpa.class);
         }
 
         // Setup delta relationship (either new or based on existing one)
@@ -2520,8 +2489,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         rel2.setObsolete(fields[2].equals("0")); // active
         rel2.setSuppressible(rel2.isObsolete());
         rel2.setGroup(fields[6].intern()); // relationshipGroup
-        rel2.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
-            : "other"); // typeId
+        rel2.setRelationshipType(
+            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
         rel2.setHierarchical(rel2.getRelationshipType().equals("Is a"));
         rel2.setAdditionalRelationshipType(fields[7]); // typeId
         generalEntryValues.add(rel2.getAdditionalRelationshipType());
@@ -2620,8 +2589,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
               RootService.commitCt);
           for (final Concept modifiedConcept : modifiedConcepts) {
-            Logger.getLogger(getClass()).debug(
-                "      update concept - " + modifiedConcept);
+            Logger.getLogger(getClass())
+                .debug("      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
           modifiedConcepts.clear();
@@ -2633,8 +2602,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
         RootService.commitCt);
     for (final Concept modifiedConcept : modifiedConcepts) {
-      Logger.getLogger(getClass()).debug(
-          "      update concept - " + modifiedConcept);
+      Logger.getLogger(getClass())
+          .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
     }
     modifiedConcepts.clear();
@@ -2662,7 +2631,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           updateAttribute(a1, c1);
         }
       } else {
-        throw new Exception("Unexpected mismatching attribute: " + a1.getName());
+        throw new Exception(
+            "Unexpected mismatching attribute: " + a1.getName());
       }
     }
 
@@ -2675,10 +2645,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
    */
   private void cacheSubsetsAndMembers() throws Exception {
     // Cache existing subsets
-    Query query =
-        manager.createQuery("select a from AtomSubsetJpa a "
-            + "where a.version = :version "
-            + "and a.terminology = :terminology ");
+    Query query = manager.createQuery("select a from AtomSubsetJpa a "
+        + "where a.version = :version " + "and a.terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
@@ -2689,10 +2657,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       result.getAttributes().size();
     }
 
-    query =
-        manager.createQuery("select a from ConceptSubsetJpa a "
-            + "where a.version = :version "
-            + "and a.terminology = :terminology ");
+    query = manager.createQuery("select a from ConceptSubsetJpa a "
+        + "where a.version = :version " + "and a.terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
@@ -2704,11 +2670,10 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     }
 
     // Cache subset members
-    query =
-        manager
-            .createQuery("select a.terminologyId, a.id from AtomSubsetMemberJpa a "
-                + "where a.version = :version "
-                + "and a.terminology = :terminology ");
+    query = manager
+        .createQuery("select a.terminologyId, a.id from AtomSubsetMemberJpa a "
+            + "where a.version = :version "
+            + "and a.terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
@@ -2717,11 +2682,10 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       idMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
     }
 
-    query =
-        manager
-            .createQuery("select a.terminologyId, a.id from ConceptSubsetMemberJpa a "
-                + "where a.version = :version "
-                + "and a.terminology = :terminology ");
+    query = manager.createQuery(
+        "select a.terminologyId, a.id from ConceptSubsetMemberJpa a "
+            + "where a.version = :version "
+            + "and a.terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
@@ -2757,8 +2721,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     }
 
     if (member.getMember() == null) {
-      throw new Exception("Refset member connected to nonexistent object - "
-          + fields[5]);
+      throw new Exception(
+          "Refset member connected to nonexistent object - " + fields[5]);
     }
 
     // Universal RefSet attributes
@@ -2832,8 +2796,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Update object and attributes as needed
         if (!Rf2EqualityUtility.equals(subset2, subset)) {
           if (!subset.equals(subset2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update map set - " + subset2);
+            Logger.getLogger(getClass())
+                .debug("      update map set - " + subset2);
             updateSubset(subset2);
           }
           updateAttributes(subset2, subset);
@@ -2875,8 +2839,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Update object and attributes as needed
         if (!Rf2EqualityUtility.equals(subset2, subset)) {
           if (!subset.equals(subset2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update map set - " + subset2);
+            Logger.getLogger(getClass())
+                .debug("      update map set - " + subset2);
             updateSubset(subset2);
           }
           updateAttributes(subset2, subset);
@@ -2961,8 +2925,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       // Continue - this is a known issue in SNOMED
       return;
     } else {
-      throw new Exception("Mapping member connected to nonexistent object - "
-          + fields[5]);
+      throw new Exception(
+          "Mapping member connected to nonexistent object - " + fields[5]);
     }
 
     // Universal mapping attributes
@@ -3062,8 +3026,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         // Update object and attributes as needed
         if (!Rf2EqualityUtility.equals(mapSet2, mapSet)) {
           if (!mapSet.equals(mapSet2)) {
-            Logger.getLogger(getClass()).debug(
-                "      update map set - " + mapSet2);
+            Logger.getLogger(getClass())
+                .debug("      update map set - " + mapSet2);
             updateMapSet(mapSet2);
           }
           updateAttributes(mapSet2, mapSet);
@@ -3242,6 +3206,11 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       type.setPublished(true);
       type.setExpandedForm(getConcept(idMap.get(rela)).getName());
       type.setAbbreviation(rela);
+      // Hierarchical
+      type.setHierarchical(false);
+      if (rela.equals(isaTypeRel)) {
+        type.setHierarchical(true);
+      }
       // $nevergrouped{"123005000"} = "T"; # part-of is never grouped
       // $nevergrouped{"272741003"} = "T"; # laterality is never grouped
       // $nevergrouped{"127489000"} = "T"; # has-active-ingredient is never
@@ -3292,7 +3261,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     // $rightid{"363701004"} = "127489000"; # direct-substance o
     // has-active-ingredient -> direct-substance
     // Add if not already added
-    if (this.getPropertyChains(getTerminology(), getVersion()).getCount() == 0) {
+    if (this.getPropertyChains(getTerminology(), getVersion())
+        .getCount() == 0) {
       PropertyChain chain = new PropertyChainJpa();
       chain.setTerminology(getTerminology());
       chain.setVersion(getVersion());
@@ -3300,8 +3270,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       chain.setLastModifiedBy(loader);
       chain.setPublishable(true);
       chain.setPublished(true);
-      chain
-          .setAbbreviation("direct-substance o has-active-ingredient -> direct-substance");
+      chain.setAbbreviation(
+          "direct-substance o has-active-ingredient -> direct-substance");
       chain.setExpandedForm(chain.getAbbreviation());
       List<AdditionalRelationshipType> list = new ArrayList<>();
       list.add(directSubstance);

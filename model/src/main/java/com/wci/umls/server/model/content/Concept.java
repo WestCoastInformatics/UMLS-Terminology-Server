@@ -1,8 +1,9 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.content;
 
+import java.util.Date;
 import java.util.List;
 
 import com.wci.umls.server.helpers.HasComponentHistory;
@@ -89,4 +90,32 @@ public interface Concept extends AtomClass, ComponentHasDefinitions,
    */
   public void setUsesRelationshipUnion(boolean flag);
 
+  /**
+   * Returns the last approved by.
+   *
+   * @return the last approved by
+   */
+  public String getLastApprovedBy();
+
+  /**
+   * Sets the last approved by.
+   *
+   * @param lastApprovedBy the last approved by
+   */
+  public void setLastApprovedBy(String lastApprovedBy);
+
+  /**
+   * Returns the last approved.
+   *
+   * @return the last approved
+   */
+  public Date getLastApproved();
+
+  /**
+   * Sets the last approved.
+   *
+   * @param lastApproved the last approved
+   */
+  public void setLastApproved(Date lastApproved);
+  
 }

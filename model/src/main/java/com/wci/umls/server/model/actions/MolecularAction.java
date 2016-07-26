@@ -59,4 +59,34 @@ public interface MolecularAction extends HasTerminologyId, HasLastModified,
    */
   public void setTerminologyId2(String referencedTerminologyId);
 
+  /**
+   * Returns the batch id. Represents a collection of connected molecular
+   * actions.
+   *
+   * @return the batch id
+   */
+  public String getBatchId();
+
+  /**
+   * Sets the batch id.
+   *
+   * @param batchId the batch id
+   */
+  public void setBatchId(String batchId);
+
+  /**
+   * Returns the work id. Represents a collection of connected batches of
+   * molecular actions.
+   *
+   * @return the work id
+   */
+  public String getWorkId();
+
+  /**
+   * Sets the work id.
+   *
+   * @param workId the work id
+   */
+  public void setWorkId(String workId);
+
 }
