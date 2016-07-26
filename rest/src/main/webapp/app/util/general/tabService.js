@@ -42,15 +42,14 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
             this.tabs.push({
               link : 'workflow',
               label : 'Workflow',
-              role : false
+              projectRole : true
             });
             break;
           case 'admin':
             this.tabs.push({
               link : 'admin',
               label : 'Admin',
-              role : 'ADMINISTRATOR'
-
+              role : 'USER'
             });
 
             break;

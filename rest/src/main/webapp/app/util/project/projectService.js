@@ -173,7 +173,8 @@ tsApp
 
           // Make PUT call
           gpService.increment();
-          $http.post(projectUrl + + '/' + projectId + '/users?query=' + utilService.prepQuery(query),
+          $http.post(
+            projectUrl + +'/' + projectId + '/users?query=' + utilService.prepQuery(query),
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {
@@ -300,8 +301,7 @@ tsApp
           $http.get(projectUrl + '/user/anyrole').then(
           // success
           function(response) {
-            console.debug('  anyrole = ' + response.data);
-            userProjectsInfo.anyRole = (response.data != 'false');
+            userProjectsInfo.anyrole = (response.data != 'false');
             gpService.decrement();
             deferred.resolve(response.data);
           },

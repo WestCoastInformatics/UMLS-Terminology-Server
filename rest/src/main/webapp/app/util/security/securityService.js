@@ -121,19 +121,19 @@ tsApp.service('securityService', [
       return $http.defaults.headers.common.Authorization == 'guest';
     };
 
-    // Set admin user
-    this.setAdminUser = function() {
-      user.userName = 'admin';
-      user.name = 'Administrator';
-      user.authToken = 'admin';
-      user.password = 'admin';
-      user.applicationRole = 'VIEWER';
-      user.userPreferences = {};
-
-      // Whenever set user is called, we should save a cookie
-      $cookies.put('user', JSON.stringify(user));
-
-    };
+    // // Set admin user
+    // this.setAdminUser = function() {
+    // user.userName = 'admin';
+    // user.name = 'Administrator';
+    // user.authToken = 'admin';
+    // user.password = 'admin';
+    // user.applicationRole = 'VIEWER';
+    // user.userPreferences = {};
+    //
+    // // Whenever set user is called, we should save a cookie
+    // $cookies.put('user', JSON.stringify(user));
+    //
+    // };
 
     // Clears the user
     this.clearUser = function() {
@@ -176,17 +176,17 @@ tsApp.service('securityService', [
 
     // isAdmin function
     this.isAdmin = function() {
-      return user.userRole === 'ADMINISTRATOR';
+      return user.applicationRole === 'ADMINISTRATOR';
     };
 
     // isUser function
     this.isUser = function() {
-      return user.userRole === 'USER';
+      return user.applicationRole === 'USER';
     };
 
     // isViewer function
     this.isViewer = function() {
-      return user.userRole === 'VIEWER';
+      return user.applicationRole === 'VIEWER';
     };
     // Authenticate user
     this.authenticate = function(userName, password) {

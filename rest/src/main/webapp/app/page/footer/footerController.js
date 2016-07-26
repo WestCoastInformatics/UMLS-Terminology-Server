@@ -1,6 +1,7 @@
 // Content controller
-tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce', 'gpService', 'securityService',
-  'appConfig', function($rootScope, $location, $routeParams, $sce, gpService, securityService, appConfig) {
+tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce', 'gpService',
+  'securityService', 'appConfig',
+  function($rootScope, $location, $routeParams, $sce, gpService, securityService, appConfig) {
     console.debug('configure footer directive');
     return {
       restrict : 'A',
@@ -22,6 +23,7 @@ tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce',
 
         // Convert to trusted HTML
         scope.deployPresentedBy = $sce.trustAsHtml(scope.appConfig.deployPresentedBy);
+        scope.siteTrackingCode = $sce.trustAsHtml(scope.appConfig.siteTrackingCode);
 
         // Declare user
         scope.user = securityService.getUser();
@@ -45,13 +47,13 @@ tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce',
         scope.getGlassPaneCounter = function() {
           return gpService.glassPane.counter;
         };
-        
+
         // get truncated version (no dashed content)
         scope.getTruncatedVersion = function(version) {
           if (version && version.indexOf('-') != -1) {
             return version.substring(0, version.indexOf('-'));
-          }
-          else return version;
+          } else
+            return version;
         };
       }
     };
