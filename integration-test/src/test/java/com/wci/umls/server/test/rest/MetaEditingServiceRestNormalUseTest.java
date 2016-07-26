@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -2088,6 +2089,178 @@ public class MetaEditingServiceRestNormalUseTest
     logEntry = projectService.getLog(project.getId(), originatingC.getId(), 1,
         authToken);
     assertTrue(logEntry.contains("SPLIT " + concept.getId()));
+
+  }
+
+  /**
+   * Test approve concept.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testApproveConcept() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass()).info("TEST - Approve concept CONCEPTID, "
+        + umlsTerminology + ", " + umlsVersion + authToken);
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // Populate concept components
+    populateConcepts();
+
+    // get the concept
+    Concept c =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(c);
+
+    // Now that the concepts are all set up, merge them.
+    ValidationResult v = metaEditingService.approveConcept(project.getId(),
+        c.getId(), c.getLastModified().getTime(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Verify concept now has a workflow status of "READY_FOR_PUBLICATION"
+    assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
+
+    // Verify the concept has lastApproved and lastApprovedBy correctly populated
+    assertEquals(adminUser, c.getLastApprovedBy());
+    assertNotNull(c.getLastApproved());
+    assertTrue(c.getLastApproved().compareTo(startDate) >= 0);
+    
+    // Verify that all of the concept's atoms have a status of
+    // "READY_FOR_PUBLICATION"
+    boolean allAtomsReadyForPub = true;
+    for (Atom atm : c.getAtoms()) {
+      if (!atm.getWorkflowStatus()
+          .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
+        allAtomsReadyForPub = false;
+      }
+    }
+    assertTrue(allAtomsReadyForPub);
+
+    // Verify that all of the concept's semantic types have a status of
+    // "READY_FOR_PUBLICATION"
+    boolean allStyReadyForPub = true;
+    for (SemanticTypeComponent sty : c.getSemanticTypes()) {
+      if (!sty.getWorkflowStatus()
+          .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
+        allStyReadyForPub = false;
+      }
+    }
+    assertTrue(allStyReadyForPub);
+
+    // Verify that all of the concept's relationships and inverses have a status
+    // of "READY_FOR_PUBLICATION", and a RelationshipType of RO, RB, RN, or XR
+    RelationshipList relList =
+        contentService.findConceptRelationships(c.getTerminologyId(),
+            c.getTerminology(), c.getVersion(), null, null, authToken);
+
+    final List<String> typeList = Arrays.asList("RO", "RB", "RN", "XR");
+    
+    boolean allRelsReadyForPub = true;
+    boolean allRelsCorrectType = true;
+    boolean allInverseRelsReadyForPub = true;
+    boolean allInverseRelsCorrectType = true;
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (!rel.getWorkflowStatus()
+          .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
+        allRelsReadyForPub = false;
+      }
+      if(!typeList.contains(rel.getRelationshipType())){
+        allRelsCorrectType = false;        
+      }
+
+      // Check its inverse also
+      String inverseRelType = "";
+      if (rel.getRelationshipType().equals("RN")) {
+        inverseRelType = "RB";
+      }
+      if (rel.getRelationshipType().equals("RB")) {
+        inverseRelType = "RN";
+      }
+      // This will return the single inverse relationship
+      RelationshipList inverseRelList =
+          contentService
+              .findConceptRelationships(rel.getTo().getTerminologyId(),
+                  rel.getTo().getTerminology(),
+                  rel.getTo().getVersion(), "toId:" + rel.getFrom().getId()
+                      + " AND relationshipType:" + inverseRelType,
+                  null, authToken);
+      if (!inverseRelList.getObjects().get(0).getWorkflowStatus()
+          .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
+        allInverseRelsReadyForPub = false;
+      }
+      if(!typeList.contains(inverseRelList.getObjects().get(0).getRelationshipType())){
+        allInverseRelsCorrectType = false;        
+      }      
+    }
+    assertTrue(allRelsReadyForPub);
+    assertTrue(allRelsCorrectType);
+    assertTrue(allInverseRelsReadyForPub);
+    assertTrue(allInverseRelsCorrectType);
+
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list =
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.getCount() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Verify that atomic actions exists for updating atoms, semantic types,
+    // relationships, and concept
+    // 2 for Atom updates
+    // 1 for Concept update
+    // 4 for Relationship updates
+    // 1 for Semantic Types update
+    pfs.setSortField("idType");
+    pfs.setAscending(true);
+
+    List<AtomicAction> atomicActions = projectService
+        .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
+    assertEquals(8, atomicActions.size());
+    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    assertNotNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+    assertEquals("ATOM", atomicActions.get(1).getIdType().toString());
+    assertNotNull(atomicActions.get(1).getOldValue());
+    assertNotNull(atomicActions.get(1).getNewValue());
+    assertEquals(atomicActions.get(2).getIdType().toString(), "CONCEPT");
+    assertNotNull(atomicActions.get(2).getOldValue());
+    assertNotNull(atomicActions.get(2).getNewValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(3).getIdType().toString());
+    assertNotNull(atomicActions.get(3).getOldValue());
+    assertNotNull(atomicActions.get(3).getNewValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(4).getIdType().toString());
+    assertNotNull(atomicActions.get(4).getOldValue());
+    assertNotNull(atomicActions.get(4).getNewValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(5).getIdType().toString());
+    assertNotNull(atomicActions.get(5).getOldValue());
+    assertNotNull(atomicActions.get(5).getNewValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(6).getIdType().toString());
+    assertNotNull(atomicActions.get(6).getOldValue());
+    assertNotNull(atomicActions.get(6).getNewValue());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(7).getIdType().toString());
+    assertNotNull(atomicActions.get(7).getOldValue());
+    assertNotNull(atomicActions.get(7).getNewValue());
+
+    // Verify the log entry exists
+    String logEntry =
+        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry.contains("APPROVE " + c));
 
   }
 

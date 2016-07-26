@@ -347,6 +347,8 @@ public class IndexUtility {
     excludedFields.add("timestamp");
     excludedFields.add("lastModified");
     excludedFields.add("lastModifiedBy");
+    excludedFields.add("lastApproved");
+    excludedFields.add("lastApprovedBy");
     excludedFields.add("terminology");
     excludedFields.add("branch");
     excludedFields.add("branchedTo");
@@ -361,31 +363,70 @@ public class IndexUtility {
       }
 
       // Try get first - find a getXXX method that takes no parameters
+      final String accessorName1 =
+          "get" + field.getName().substring(0, 1).toUpperCase()
+              + field.getName().substring(1);
+      Method getMethod;
       try {
-        final String accessorName1 =
-            "get" + field.getName().substring(0, 1).toUpperCase()
-                + field.getName().substring(1);
-        final Method getMethod =
-            clazz.getMethod(accessorName1, new Class<?>[] {});
-        if (getMethod != null) {
-          allClassMethods.add(getMethod);
-        }
+        getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});
       } catch (Exception e) {
-        // Otherwise, use is - find an isXXX method that takes no parameters
-        final String accessorName2 =
-            "is" + field.getName().substring(0, 1).toUpperCase()
-                + field.getName().substring(1);
-        final Method isMethod =
-            clazz.getMethod(accessorName2, new Class<?>[] {});
-        if (isMethod != null) {
-          allClassMethods.add(isMethod);
-        }
+        getMethod = null;
+      }
+      try {
+        getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});
+      } catch (Exception e) {
+        getMethod = null;
+      }
+
+      if (getMethod != null){
+        allClassMethods.add(getMethod);
+        continue;
+      }
+      // Otherwise, use is - find an isXXX method that takes no parameters
+      final String accessorName2 =
+          "is" + field.getName().substring(0, 1).toUpperCase()
+              + field.getName().substring(1);
+      Method isMethod;
+      try {
+        isMethod = clazz.getMethod(accessorName2, new Class<?>[] {});
+      } catch (Exception e) {
+        isMethod = null;
+      }
+
+      if (isMethod != null) {
+        allClassMethods.add(isMethod);
+        continue;
       }
     }
+  //
+  // try {
+  // final String accessorName1 =
+  // "get" + field.getName().substring(0, 1).toUpperCase()
+  // + field.getName().substring(1);
+  // final Method getMethod =
+  // clazz.getMethod(accessorName1, new Class<?>[] {});
+  // if (getMethod != null && (getMethod.getModifiers() & Modifier.PRIVATE) ==
+  // 0) {
+  // allClassMethods.add(getMethod);
+  // }
+  // } catch (Exception e) {
+  // // Otherwise, use is - find an isXXX method that takes no parameters
+  // final String accessorName2 =
+  // "is" + field.getName().substring(0, 1).toUpperCase()
+  // + field.getName().substring(1);
+  // final Method isMethod =
+  // clazz.getMethod(accessorName2, new Class<?>[] {});
+  // if (isMethod != null && (isMethod.getModifiers() & Modifier.PRIVATE) == 0)
+  // {
+  // allClassMethods.add(isMethod);
+  // }
+  // }
+  // }
 
-    // Cache for later runs
-    allAccessorMethods.put(clazz, allClassMethods);
-    return allClassMethods;
+  // Cache for later runs
+  allAccessorMethods.put(clazz,allClassMethods);
+  return allClassMethods;
+
   }
 
   /**

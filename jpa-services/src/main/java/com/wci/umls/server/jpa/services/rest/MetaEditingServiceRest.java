@@ -201,4 +201,19 @@ public interface MetaEditingServiceRest {
     boolean copyRelationships, boolean copySemanticTypes,
     String relationshipType, String authToken) throws Exception;
 
+  /**
+   * Approve concept.
+   *
+   * @param projectId the project id
+   * @param conceptId the concept id
+   * @param timestamp the timestamp
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult approveConcept(Long projectId, Long conceptId,
+    Long timestamp, boolean overrideWarnings, String authToken)
+    throws Exception;
+
 }

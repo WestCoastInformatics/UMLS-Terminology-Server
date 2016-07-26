@@ -25,6 +25,7 @@ import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAttributeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.MoveMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveAtomMolecularAction;
@@ -1039,127 +1040,82 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   }
 
-  // /**
-  // * Helper function to:
-  // *
-  // * <pre>
-  // * (1) Set transaction mode and begin transaction
-  // * (1) retrieve and lock concept,
-  // * (2) prepare molecular action
-  // * (3) configure the service
-  // * (5) validate project/concept
-  // * (6) Check dirty flag (concept lastModifiedBy)
-  // * </pre>
-  // *
-  // * .
-  // *
-  // * @param contentService the content service
-  // * @param project the project
-  // * @param conceptId the concept id
-  // * @param conceptId2 the concept id 2
-  // * @param userName the user name
-  // * @param actionType the action type
-  // * @param lastModified the last modified
-  // * @param result the result
-  // * @return the concept
-  // * @throws Exception the exception
-  // */
-  // @SuppressWarnings("static-method")
-  // private List<Concept> initialize(ContentService contentService,
-  // Project project, Long conceptId, Long conceptId2, String userName,
-  // String actionType, long lastModified, ValidationResult result)
-  // throws Exception {
-  //
-  // // Set transaction mode and start transaction
-  // contentService.setTransactionPerOperation(false);
-  // contentService.beginTransaction();
-  //
-  // List<Concept> conceptList = new ArrayList<Concept>();
-  //
-  // List<Long> conceptIdList = new ArrayList<Long>();
-  // conceptIdList.add(conceptId);
-  // if (conceptId2 != null && !(conceptId.equals(conceptId2))) {
-  // conceptIdList.add(conceptId2);
-  // }
-  //
-  // Collections.sort(conceptIdList);
-  //
-  // Concept mainConcept = null;
-  // Concept secondaryConcept = null;
-  //
-  // for (final Long i : conceptIdList) {
-  // Concept tempConcept;
-  //
-  // synchronized (i.toString().intern()) {
-  //
-  // // retrieve the concept
-  // tempConcept = contentService.getConcept(i);
-  //
-  // // Verify concept exists
-  // if (tempConcept == null) {
-  // throw new Exception("Concept does not exist " + i);
-  // }
-  //
-  // if (i == conceptId) {
-  // mainConcept = tempConcept;
-  // }
-  // if (i == conceptId2) {
-  // secondaryConcept = tempConcept;
-  // }
-  //
-  // // Fail if already locked - this is secondary protection
-  // if (contentService.isObjectLocked(tempConcept)) {
-  // throw new Exception("Fatal error: concept is locked " + i);
-  // }
-  //
-  // // lock the concept via JPA
-  // contentService.lockObject(tempConcept);
-  //
-  // // add the concept to the list
-  // conceptList.add(new ConceptJpa(tempConcept, true));
-  //
-  // }
-  // }
-  // if (secondaryConcept == null) {
-  // secondaryConcept = mainConcept;
-  // }
-  //
-  // // construct the molecular action
-  // final MolecularAction molecularAction = new MolecularActionJpa();
-  // molecularAction.setTerminology(mainConcept.getTerminology());
-  // molecularAction.setTerminologyId(mainConcept.getTerminologyId());
-  // if (conceptId2 != null) {
-  // molecularAction.setTerminologyId2(secondaryConcept.getTerminologyId());
-  // }
-  // molecularAction.setVersion(mainConcept.getVersion());
-  // molecularAction.setName(actionType);
-  // molecularAction.setTimestamp(new Date());
-  //
-  // // Prepare the service
-  // contentService.setMolecularActionFlag(true);
-  // contentService.setLastModifiedFlag(true);
-  // contentService.setLastModifiedBy(userName);
-  //
-  // // Add the molecular action and pass to the service.
-  // // It needs to be added now so that when atomic actions
-  // // are created by the service, this object already has
-  // // an identifier.
-  // final MolecularAction newMolecularAction =
-  // contentService.addMolecularAction(molecularAction);
-  // contentService.setMolecularAction(newMolecularAction);
-  //
-  // // throw exception on terminology mismatch
-  // if (!mainConcept.getTerminology().equals(project.getTerminology())) {
-  // throw new Exception("Project and concept terminologies do not match");
-  // }
-  //
-  // if (mainConcept.getLastModified().getTime() != lastModified) {
-  // throw new LocalException(
-  // "Concept has changed since last read, please refresh and try again");
-  // }
-  //
-  // // Return concept list
-  // return conceptList;
-  // }
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/concept/approve")
+  @ApiOperation(value = "Approve concept", notes = "Approve concept on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult approveConcept(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /concept/" + projectId + "/"
+            + conceptId + "/approve for user " + authToken);
+
+    // Instantiate services
+    final ApproveMolecularAction action = new ApproveMolecularAction();
+    try {
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setChangeStatusFlag(true);
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(action, projectId,
+          securityService, authToken, "approving concept", UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = action.getProject(projectId);
+      action.setValidationChecks(project.getValidationChecks());
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      action.initialize(project, conceptId, null, userName, lastModified);
+
+      //
+      // Check prerequisites
+      //
+      final ValidationResult validationResult = action.checkPreconditions();
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        action.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action
+      //
+      action.compute();
+
+      // commit (also removes the lock)
+      action.commit();
+
+      // Websocket notification - one for the updating of the toConcept, and one
+      // for the deletion of the fromConcept
+      final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
+          action.getName(), authToken, IdType.CONCEPT.toString(),
+          action.getConceptPreUpdates(), action.getConceptPostUpdates(), null);
+      sendChangeEvent(event);
+
+      return validationResult;
+
+    } catch (Exception e) {
+
+      handleException(e, "merging concepts");
+      return null;
+    } finally {
+      action.close();
+      securityService.close();
+    }
+
+  }
 
 }
