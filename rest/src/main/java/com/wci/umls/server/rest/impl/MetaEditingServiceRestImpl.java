@@ -1094,6 +1094,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
       action.compute();
 
+      // TODO - update any tracking record that references this concept
+      
       // commit (also removes the lock)
       action.commit();
 
