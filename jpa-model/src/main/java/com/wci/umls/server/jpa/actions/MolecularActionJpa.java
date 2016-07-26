@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -33,7 +34,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
  */
 @Entity
 @Table(name = "molecular_actions", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "id"
+    "id"
 }))
 @Indexed
 @XmlRootElement(name = "molecularActions")
@@ -305,12 +306,10 @@ public class MolecularActionJpa implements MolecularAction {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result =
-        prime * result
-            + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result
+        + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
     result = prime * result + ((batchId == null) ? 0 : batchId.hashCode());
     result = prime * result + ((workId == null) ? 0 : workId.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());

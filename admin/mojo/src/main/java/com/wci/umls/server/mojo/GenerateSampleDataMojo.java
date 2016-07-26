@@ -58,6 +58,7 @@ import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.SemanticType;
+import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
@@ -628,42 +629,74 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         pfs.setMaxResults(5);
         workflowService = new WorkflowServiceRestImpl();
         // Create a chem worklist
-        workflowService.createWorklist(projectId, bin.getId(), "chem", pfs,
-            authToken);
+        Worklist worklist = workflowService.createWorklist(projectId,
+            bin.getId(), "chem", pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForWorklist(projectId,
+                worklist.getId(), pfs, authToken).getTotalCount());
+
         // Create two non-chem worklist
         workflowService = new WorkflowServiceRestImpl();
         workflowService.createWorklist(projectId, bin.getId(), null, pfs,
             authToken);
         workflowService = new WorkflowServiceRestImpl();
-        final Worklist worklist = workflowService.createWorklist(projectId,
-            bin.getId(), null, pfs, authToken);
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForWorklist(projectId,
+                worklist.getId(), pfs, authToken).getTotalCount());
+
+        workflowService = new WorkflowServiceRestImpl();
+        worklist = workflowService.createWorklist(projectId, bin.getId(), null,
+            pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForWorklist(projectId,
+                worklist.getId(), pfs, authToken).getTotalCount());
 
         lastWorklist = worklist;
 
         // Create some checklist
         pfs.setMaxResults(10);
         workflowService = new WorkflowServiceRestImpl();
-        workflowService.createChecklist(projectId, bin.getId(), null,
-            "chk_random_nonworklist_" + chk++, "test desc", true, true, "", pfs,
-            authToken);
+        Checklist checklist = workflowService.createChecklist(projectId,
+            bin.getId(), null, "chk_random_nonworklist_" + chk++, "test desc",
+            true, true, "", pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForChecklist(projectId,
+                checklist.getId(), pfs, authToken).getTotalCount());
+
         workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
             "chk_random_worklist_" + chk++, "test desc", true, false, "", pfs,
             authToken);
         workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForChecklist(projectId,
+                checklist.getId(), pfs, authToken).getTotalCount());
+
+        workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
             "chk_nonrandom_noworklist_" + chk++, "test desc", false, true, "",
             pfs, authToken);
         workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForChecklist(projectId,
+                checklist.getId(), pfs, authToken).getTotalCount());
+
+        workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
             "chk_nonrandom_worklist_" + chk++, "test desc", false, false, "",
             pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForChecklist(projectId,
+                checklist.getId(), pfs, authToken).getTotalCount());
 
       }
     }
 
     // March "last worklist" through some workflow changes so other dates show
-    // up.
     Logger.getLogger(getClass()).debug("  Walk worklist through workflow");
     // Assign
     workflowService = new WorkflowServiceRestImpl();

@@ -388,8 +388,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final String userName = authorizeProject(workflowService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
-      return workflowService.addWorkflowBinDefinition(binDefinition);
 
+      // Add definition
+      final WorkflowBinDefinition def =
+          workflowService.addWorkflowBinDefinition(binDefinition);
+
+      // Add to list in workflow config and save
+      final WorkflowConfig config = workflowService
+          .getWorkflowConfig(binDefinition.getWorkflowConfig().getId());
+      config.getWorkflowBinDefinitions().add(def);
+      workflowService.updateWorkflowConfig(config);
+
+      return def;
     } catch (Exception e) {
       handleException(e, "trying to add workflow bin definition");
       return null;
@@ -1505,11 +1515,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       }
 
       Collections.sort(bins, (o1, o2) -> o1.getRank() - o2.getRank());
-      for (final WorkflowBin bin : bins) {
-        for (final TrackingRecord record : bin.getTrackingRecords()) {
-          workflowService.handleLazyInit(record);
-        }
-      }
+
       return bins;
 
     } catch (Exception e) {

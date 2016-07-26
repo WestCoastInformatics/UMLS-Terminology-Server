@@ -19,6 +19,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -48,6 +50,8 @@ import com.wci.umls.server.model.workflow.WorkflowBinType;
     "name", "type", "project_id"
 }))
 @Indexed
+
+@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "workflowBin")
 public class WorkflowBinJpa implements WorkflowBin {
 

@@ -230,6 +230,8 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     object.getTrackingRecords().add(record);
     String xml = ConfigUtility.getStringForGraph(object);
     System.out.println(xml);
+    String json = ConfigUtility.getJsonForGraph(object);
+    System.out.println(json);
     assertTrue(xml.contains("<projectId>"));
     assertFalse(xml.contains("<project>"));
   }

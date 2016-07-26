@@ -51,7 +51,6 @@ tsApp.controller('TabCtrl', [
 
     // for ng-show on an individual tab
     $scope.isTabShowing = function(tab) {
-      console.debug("IS TAB SHOWING", tab, $scope.userProjectsInfo);
       // show tabs without a role requirement
       if (!tab.role && !tab.projectRole) {
         return true;
@@ -66,7 +65,6 @@ tsApp.controller('TabCtrl', [
       if (tab.projectRole && $scope.userProjectsInfo.anyrole) {
         return true;
       }
-      console.debug("  false");
     };
 
     // end

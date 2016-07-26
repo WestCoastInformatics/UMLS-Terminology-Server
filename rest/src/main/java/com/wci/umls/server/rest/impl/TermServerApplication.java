@@ -13,16 +13,18 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.apache.log4j.Logger;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.jsonp.JsonProcessingFeature;
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.ibm.icu.util.Calendar;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.services.MetadataService;
 
 import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.util.Json;
+import io.swagger.util.Yaml;
 
 /**
  * The application (for jersey). Also serves the role of the initialization
@@ -64,6 +66,9 @@ public class TermServerApplication extends Application {
       beanConfig.setScan(true);
       beanConfig.setPrettyPrint(true);
     }
+
+    // this makes Swagger honor JAXB annotations
+    Json.mapper().registerModule(new JaxbAnnotationModule());
 
     // Set up a timer task to run at 2AM every day
     TimerTask task = new InitializationTask();
@@ -136,12 +141,7 @@ public class TermServerApplication extends Application {
     // register swagger classes
     classes.add(io.swagger.jaxrs.listing.ApiListingResource.class);
     classes.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
-    // classes
-    // .add(com.wordnik.swagger.jersey.listing.ApiListingResourceJSON.class);
-    // classes
-    // .add(com.wordnik.swagger.jersey.listing.JerseyApiDeclarationProvider.class);
-    // classes
-    // .add(com.wordnik.swagger.jersey.listing.JerseyResourceListingProvider.class);
+
     return classes;
   }
 
@@ -149,11 +149,11 @@ public class TermServerApplication extends Application {
   @Override
   public Set<Object> getSingletons() {
     final Set<Object> instances = new HashSet<Object>();
-    instances.add(new JacksonFeature());
-    instances.add(new JsonProcessingFeature());
+    // instances.add(new JacksonFeature());
+    // instances.add(new JsonProcessingFeature());
 
     // Enable for LOTS of logging of HTTP requests
-    // instances.add(new LoggingFilter());
+    instances.add(new LoggingFilter());
     return instances;
   }
 
