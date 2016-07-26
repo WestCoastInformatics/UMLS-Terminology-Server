@@ -55,8 +55,8 @@ import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 /**
  * Workflow Service JPA implementation.
  */
-public class WorkflowServiceJpa extends ContentServiceJpa
-    implements WorkflowService {
+public class WorkflowServiceJpa extends HistoryServiceJpa implements
+    WorkflowService {
 
   /** The workflow action handlers. */
   static Map<String, WorkflowActionHandler> workflowHandlerMap =
