@@ -83,7 +83,7 @@ tsApp.service('metadataService', [
         // get metadata
         gpService.increment();
         $http.get(
-          metadataUrl + 'all/terminology/' + terminology.terminology + '/' + terminology.version)
+          metadataUrl + '/all/terminology/' + terminology.terminology + '/' + terminology.version)
           .then(
           // success
           function(response) {
@@ -178,7 +178,7 @@ tsApp.service('metadataService', [
         var deferred2 = $q.defer();
         gpService.increment();
         $http
-          .get(metadataUrl + 'precedence/' + terminology.terminology + '/' + terminology.version)
+          .get(metadataUrl + '/precedence/' + terminology.terminology + '/' + terminology.version)
           .then(
           // success
           function(response) {
@@ -244,7 +244,7 @@ tsApp.service('metadataService', [
 
       // Get terminologies
       gpService.increment();
-      $http.get(metadataUrl + 'terminology/terminologies').then(
+      $http.get(metadataUrl + '/terminology/current').then(
       // success
       function(response) {
         console.debug("  terminologies = ", response.data);

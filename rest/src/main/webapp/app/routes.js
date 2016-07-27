@@ -8,9 +8,10 @@ tsApp.run([
   '$location',
   '$q',
   'configureService',
+  'securityService',
   'appConfig',
   'tabService',
-  function configureRoutes($rootScope, $location, $q, configureService, appConfig, tabService) {
+  function configureRoutes($rootScope, $location, $q, configureService, securityService, appConfig, tabService) {
 
     console.debug('Configuring routes', appConfig);
 
