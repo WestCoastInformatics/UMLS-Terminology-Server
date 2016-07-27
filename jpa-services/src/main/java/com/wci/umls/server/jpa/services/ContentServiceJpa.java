@@ -2001,6 +2001,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         final AtomicAction atomicAction = new AtomicActionJpa();
         atomicAction.setField("concept");
         atomicAction.setIdType(IdType.getIdType(atm));
+        atomicAction.setClassName(toConcept.getClass().getName());
         atomicAction.setMolecularAction(molecularAction);
         atomicAction.setOldValue(fromConcept.getId().toString());
         atomicAction.setNewValue(toConcept.getId().toString());
@@ -3854,6 +3855,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");
       atomicAction.setIdType(IdType.getIdType(newComponent));
+      atomicAction.setClassName(newComponent.getClass().getName());
       atomicAction.setMolecularAction(molecularAction);
       atomicAction.setOldValue(null);
       atomicAction.setNewValue(newComponent.getId().toString());
@@ -3915,6 +3917,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           final AtomicAction atomicAction = new AtomicActionJpa();
           atomicAction.setField(IndexUtility.getFieldNameFromMethod(m, null));
           atomicAction.setIdType(IdType.getIdType(oldComponent));
+          atomicAction.setClassName(newComponent.getClass().getName());
           atomicAction.setMolecularAction(molecularAction);
           atomicAction.setOldValue(oldValue);
           atomicAction.setNewValue(newValue);
@@ -4006,11 +4009,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // check for molecular action flag
     if (isMolecularActionFlag()) {
       final MolecularAction molecularAction = getMolecularAction();
-
+      
       // construct the atomic action
       final AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");
       atomicAction.setIdType(IdType.getIdType(clazz));
+      atomicAction.setClassName(clazz.getName());
       atomicAction.setMolecularAction(molecularAction);
       atomicAction.setObjectId(id);
       atomicAction.setOldValue(id.toString());

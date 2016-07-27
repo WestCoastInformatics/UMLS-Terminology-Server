@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.actions;
 
 import javax.persistence.Column;
@@ -67,6 +70,10 @@ public class AtomicActionJpa implements AtomicAction {
   @Enumerated(EnumType.STRING)
   private IdType idType;
 
+  /** The class name. */
+  @Column(nullable = false)
+  private String className;
+
   /** The molecular action. */
   @ManyToOne(targetEntity = MolecularActionJpa.class, optional = false)
   @JoinColumn(nullable = false)
@@ -91,6 +98,7 @@ public class AtomicActionJpa implements AtomicAction {
     newValue = action.getNewValue();
     field = action.getField();
     idType = action.getIdType();
+    className = action.getClassName();
     objectId = action.getObjectId();
     molecularAction = action.getMolecularAction();
   }
@@ -149,7 +157,7 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
-  @FieldBridge(impl=EnumBridge.class)
+  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getIdType() {
     return idType;
@@ -159,6 +167,17 @@ public class AtomicActionJpa implements AtomicAction {
   @Override
   public void setIdType(IdType idType) {
     this.idType = idType;
+  }
+
+  /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getClassName() {
+    return className;
+  }
+
+  /* see superclass */
+  public void setClassName(String className) {
+    this.className = className;
   }
 
   /* see superclass */
@@ -214,18 +233,21 @@ public class AtomicActionJpa implements AtomicAction {
     this.newValue = newValue;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((field == null) ? 0 : field.hashCode());
     result = prime * result + ((idType == null) ? 0 : idType.hashCode());
+    result = prime * result + ((className == null) ? 0 : className.hashCode());
     result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
     result = prime * result + ((objectId == null) ? 0 : objectId.hashCode());
     result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -241,6 +263,11 @@ public class AtomicActionJpa implements AtomicAction {
     } else if (!field.equals(other.field))
       return false;
     if (idType != other.idType)
+      return false;
+    if (className == null) {
+      if (other.className != null)
+        return false;
+    } else if (!className.equals(other.className))
       return false;
     if (newValue == null) {
       if (other.newValue != null)
@@ -260,11 +287,12 @@ public class AtomicActionJpa implements AtomicAction {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "AtomicActionJpa [id=" + id + ", objectId=" + objectId
-        + ", oldValue=" + oldValue + ", newValue=" + newValue + ", field="
-        + field + ", idType=" + idType + "]";
+        + ", className=" + className + ", oldValue=" + oldValue + ", newValue="
+        + newValue + ", field=" + field + ", idType=" + idType + "]";
   }
 
 }
