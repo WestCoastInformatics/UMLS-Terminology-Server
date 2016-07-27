@@ -13,7 +13,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.apache.log4j.Logger;
-import org.glassfish.jersey.filter.LoggingFilter;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
@@ -24,7 +24,6 @@ import com.wci.umls.server.services.MetadataService;
 
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.util.Json;
-import io.swagger.util.Yaml;
 
 /**
  * The application (for jersey). Also serves the role of the initialization
@@ -153,7 +152,7 @@ public class TermServerApplication extends Application {
     // instances.add(new JsonProcessingFeature());
 
     // Enable for LOTS of logging of HTTP requests
-    instances.add(new LoggingFilter());
+    instances.add(new LoggingFeature());
     return instances;
   }
 

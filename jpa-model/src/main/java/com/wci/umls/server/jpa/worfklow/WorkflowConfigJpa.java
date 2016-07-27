@@ -88,7 +88,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
 
   /** The workflow bin definitions. */
   @OneToMany(mappedBy = "workflowConfig", targetEntity = WorkflowBinDefinitionJpa.class)
-  @OrderColumn(nullable = false)
+  @OrderColumn
   private List<WorkflowBinDefinition> workflowBinDefinitions =
       new ArrayList<>();
 

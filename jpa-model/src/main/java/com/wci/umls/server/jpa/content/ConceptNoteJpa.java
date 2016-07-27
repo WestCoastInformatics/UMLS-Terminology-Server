@@ -37,7 +37,7 @@ public class ConceptNoteJpa extends AbstractNote {
    * Instantiates a new concept note jpa.
    */
   public ConceptNoteJpa() {
-
+    // n/a
   }
 
   /**

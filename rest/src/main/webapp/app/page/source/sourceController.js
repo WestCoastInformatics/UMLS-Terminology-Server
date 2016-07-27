@@ -1,5 +1,4 @@
 // Source data controller
-var sourceDataUrl = 'file';
 tsApp
   .controller(
     'SourceCtrl',

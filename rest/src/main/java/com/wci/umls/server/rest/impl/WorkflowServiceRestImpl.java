@@ -195,24 +195,23 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Worklist to update", required = true) WorklistJpa worklist,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful POST call (Workflow): /worklist/update/" + projectId + " "
-            + worklist.getId() + " " + authToken);
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Workflow): /worklist/update/" + projectId
+            + " " + worklist.getId() + " " + authToken);
 
     final String action = "trying to update a worklist";
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       // authorize and get user name from the token
-      final String userName =
-          authorizeProject(workflowService, projectId, securityService,
-              authToken, action, UserRole.AUTHOR);
+      final String userName = authorizeProject(workflowService, projectId,
+          securityService, authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
-      
+
       // reconnect tracking records before saving worklist
       // (parameter worklist will have no records on it)
       Worklist origWorklist = workflowService.getWorklist(worklist.getId());
       worklist.setTrackingRecords(origWorklist.getTrackingRecords());
-      
+
       workflowService.updateWorklist(worklist);
 
     } catch (Exception e) {
@@ -223,7 +222,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-  
+
   /* see superclass */
   @Override
   @DELETE
@@ -667,8 +666,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") WorkflowBinType type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Workflow): /definition/" + name + " " + projectId);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /definition/" + name + " " + projectId);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -759,7 +758,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         // Load the project and workflow config
         Project project = workflowService.getProject(projectId);
-        
+
         // Start by clearing the bins
         // remove bins and all of the tracking records in the bins
         final List<WorkflowBin> results =
@@ -767,13 +766,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         for (final WorkflowBin workflowBin : results) {
           workflowService.removeWorkflowBin(workflowBin.getId(), true);
         }
-        
+
         workflowService.commit();
         workflowService.beginTransaction();
-        
+
         // reread after the commit
         project = workflowService.getProject(projectId);
-        
+
         final WorkflowConfig workflowConfig =
             workflowService.getWorkflowConfig(project, type);
 
@@ -2157,10 +2156,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
     // Handle simple concept type
     if (conceptQuery && !dualConceptQuery && !clusterQuery) {
-      final List<Object[]> list = jpaQuery.getResultList();
+      final List<Object> list = jpaQuery.getResultList();
       final List<Long[]> results = new ArrayList<>();
-      for (final Object[] entry : list) {
-        final Long conceptId = ((BigInteger) entry[0]).longValue();
+      for (final Object entry : list) {
+        final Long conceptId = ((BigInteger) entry).longValue();
         final Long[] result = new Long[2];
         result[0] = conceptId;
         result[1] = conceptId;

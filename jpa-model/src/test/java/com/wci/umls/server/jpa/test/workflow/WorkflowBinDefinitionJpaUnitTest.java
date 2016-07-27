@@ -79,6 +79,7 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
     tester.include("query");
     tester.include("queryType");
     tester.include("editable");
+    tester.include("enabled");
     tester.include("required");
 
     assertTrue(tester.testIdentityFieldEquals());
@@ -130,8 +131,8 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
     tester.include("description");
     tester.include("query");
     tester.include("queryType");
-
     tester.include("editable");
+    tester.include("enabled");
     tester.include("required");
     tester.include("workflowConfig");
     assertTrue(tester.testNotNullFields());
@@ -156,6 +157,7 @@ public class WorkflowBinDefinitionJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModifiedBy");
     tester.include("name");
     tester.include("editable");
+    tester.include("enabled");
     tester.include("required");
     tester.include("queryType");
     tester.include("workflowConfigId");
