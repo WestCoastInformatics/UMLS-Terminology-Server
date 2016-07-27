@@ -266,9 +266,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     int result = super.hashCode();
     result = prime * result + ((authors == null) ? 0 : authors.hashCode());
     result = prime * result + ((reviewers == null) ? 0 : reviewers.hashCode());
-    result =
-        prime * result
-            + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
+    result = prime * result
+        + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
     result = prime * result + ((team == null) ? 0 : team.hashCode());
     return result;
   }
@@ -309,11 +308,11 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   /* see superclass */
   @Override
   public String toString() {
-    return "WorklistJpa [authors=" + authors + ", reviewers=" + reviewers
-        + ", team=" + team + ", workflowBin=" + workflowBinName
-        + ", workflowStatus=" + workflowStatus + ", number=" + number + ", "
-        + ", authorTime=" + authorTime + ", reviewerTime=" + reviewerTime
-        + ", workflowStateHistory=" + workflowStateHistory + "]";
+    return "WorklistJpa [id=" + getId() + ", authors=" + authors
+        + ", reviewers=" + reviewers + ", team=" + team + ", workflowBin="
+        + workflowBinName + ", workflowStatus=" + workflowStatus + ", number="
+        + number + ", " + ", authorTime=" + authorTime + ", reviewerTime="
+        + reviewerTime + ", workflowStateHistory=" + workflowStateHistory + "]";
   }
 
 }

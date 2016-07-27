@@ -1,5 +1,5 @@
 /*
- * Copyright 2 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.content;
 
@@ -17,18 +17,25 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
-import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorNoteJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
 
 /**
- * Unit testing for {@link ConceptJpa}.
+ * Unit testing for {@link DescriptorNoteJpa}.
  */
-public class ConceptJpaUnitTest extends ModelUnitSupport {
+public class DescriptorNoteJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
-  private ConceptJpa object;
+  private DescriptorNoteJpa object;
+
+  /** The fixture c1. */
+  private Descriptor d1;
+
+  /** The fixture c2. */
+  private Descriptor d2;
 
   /**
    * Setup class.
@@ -44,8 +51,12 @@ public class ConceptJpaUnitTest extends ModelUnitSupport {
    */
   @Before
   public void setup() throws Exception {
-    object = new ConceptJpa();
+    object = new DescriptorNoteJpa();
 
+    d1 = new DescriptorJpa();
+    d1.setId(1L);
+    d2 = new DescriptorJpa();
+    d2.setId(2L);
   }
 
   /**
@@ -57,7 +68,6 @@ public class ConceptJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("type");
     tester.test();
   }
 
@@ -70,19 +80,11 @@ public class ConceptJpaUnitTest extends ModelUnitSupport {
   public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("publishable");
-    tester.include("published");
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
+    tester.include("descriptor");
+    tester.include("note");
 
-    tester.include("name");
-    tester.include("fullyDefined");
-    tester.include("anonymous");
-    tester.include("usesRelationshipIntersection");
-    tester.include("usesRelationshipUnion");
+    tester.proxy(Descriptor.class, 1, d1);
+    tester.proxy(Descriptor.class, 2, d2);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -101,7 +103,9 @@ public class ConceptJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructorDeep(Concept.class));
+    tester.proxy(Descriptor.class, 1, d1);
+    tester.proxy(Descriptor.class, 2, d2);
+    assertTrue(tester.testCopyConstructor(DescriptorNoteJpa.class));
   }
 
   /**
@@ -113,6 +117,8 @@ public class ConceptJpaUnitTest extends ModelUnitSupport {
   public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
+    tester.proxy(Descriptor.class, 1, d1);
+    tester.proxy(Descriptor.class, 2, d2);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -128,19 +134,7 @@ public class ConceptJpaUnitTest extends ModelUnitSupport {
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
-    tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("version");
-    tester.include("name");
-    tester.include("fullyDefined");
-    tester.include("anonymous");
-    tester.include("usesRelationshipIntersection");
-    tester.include("usesRelationshipUnion");
-    tester.include("workflowStatus");
+    tester.include("note");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -156,30 +150,17 @@ public class ConceptJpaUnitTest extends ModelUnitSupport {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("name");
-    tester.include("labels");
+    tester.include("note");
+    tester.include("descriptorName");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
-    tester.include("id");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("suppressible");
-    tester.include("obsolete");
-    tester.include("published");
-    tester.include("publishable");
-    tester.include("terminologyId");
-    tester.include("terminology");
-    tester.include("version");
-    tester.include("fullyDefined");
-    tester.include("anonymous");
-    tester.include("nameSort");
-    tester.include("workflowStatus");
-    tester.include("branch");
-    tester.include("branchedTo");
-
+    tester.include("descriptorId");
+    tester.include("descriptorTerminologyId");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

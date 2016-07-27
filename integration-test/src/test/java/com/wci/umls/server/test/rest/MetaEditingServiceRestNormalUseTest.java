@@ -2114,9 +2114,10 @@ public class MetaEditingServiceRestNormalUseTest
     // Populate concept components
     populateConcepts();
 
-    // Wait a half second (if populate and approve happen to closely together, the log entries can get reversed
+    // Wait a half second (if populate and approve happen to closely together,
+    // the log entries can get reversed
     Thread.sleep(500);
-    
+
     // get the concept
     Concept c =
         contentService.getConcept(concept.getId(), project.getId(), authToken);
@@ -2196,6 +2197,9 @@ public class MetaEditingServiceRestNormalUseTest
         case "XR":
           inverseRelType = "XR";
           break;
+        default:
+          throw new Exception(
+              "Unexpedted relationship type: " + rel.getRelationshipType());
       }
 
       // This will return the single inverse relationship

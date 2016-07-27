@@ -43,7 +43,7 @@
     </div>
     <!-- Basic Worklist info -->
     <span ng-show="worklists.totalCount == 0" style="display: block;"
-      class="alert alert-warning">No worklists.</span>
+      class="alert alert-warning">No {{value}}s.</span>
     <table ng-show="worklists.totalCount > 0" class="table">
       <thead class="table-select-row">
         <tr>
@@ -54,7 +54,7 @@
           <!-- Author/Reviewer Time header -->
           <th ng-show="value == 'Worklist'" class="col-md-3 col-xs-3">
               Editor
-            / <span title="Group">Group
+            / <span title="Team">Team
             </span> / <span title="Time">Time
             </span></th>
 
@@ -162,12 +162,14 @@
             <td>{{selected.worklist.workflowBinName}}</td>
           </tr>
           
+          
           <tr ng-show="value == 'Worklist'">
             <td>
-              <b>Group</b>
+              <b>Team</b>
             </td>
-            <td>{{selected.worklist.worklistGroup}}</td>
+            <td>{{selected.worklist.team}}</td>
           </tr>
+          
           <tr>
             <td>
               <b>Cluster/Concept Counts</b>

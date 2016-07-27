@@ -17,6 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -88,12 +89,14 @@ public class PrecedenceListJpa implements PrecedenceList {
   @ElementCollection
   @CollectionTable(name = "precedence_list_terminologies")
   @JoinColumn(nullable = false)
+  @OrderColumn
   private List<String> terminologies;
 
   /** The term types. */
   @ElementCollection
   @CollectionTable(name = "precedence_list_term_types")
   @JoinColumn(nullable = false)
+  @OrderColumn
   private List<String> termTypes;
 
   /**
@@ -295,9 +298,8 @@ public class PrecedenceListJpa implements PrecedenceList {
     result = prime * result + ((terminology == null) ? 0 : version.hashCode());
     result = prime * result + ((version == null) ? 0 : terminology.hashCode());
     result = prime * result + ((termTypes == null) ? 0 : termTypes.hashCode());
-    result =
-        prime * result
-            + ((terminologies == null) ? 0 : terminologies.hashCode());
+    result = prime * result
+        + ((terminologies == null) ? 0 : terminologies.hashCode());
     return result;
   }
 

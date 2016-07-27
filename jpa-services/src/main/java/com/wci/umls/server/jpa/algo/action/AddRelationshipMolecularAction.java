@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.algo.action;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
-import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -54,8 +53,6 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     // Perform action specific validation - n/a
 
-    RelationshipTypeList relList = getRelationshipTypes(relationship.getTerminology(), relationship.getVersion());
-    
     // Metadata referential integrity checking
     if (getRelationshipType(relationship.getRelationshipType(),
         relationship.getTerminology(), relationship.getVersion()) == null) {

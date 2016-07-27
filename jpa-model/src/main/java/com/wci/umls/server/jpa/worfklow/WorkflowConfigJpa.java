@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -87,6 +88,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
 
   /** The workflow bin definitions. */
   @OneToMany(mappedBy = "workflowConfig", targetEntity = WorkflowBinDefinitionJpa.class)
+  @OrderColumn
   private List<WorkflowBinDefinition> workflowBinDefinitions =
       new ArrayList<>();
 
@@ -181,7 +183,8 @@ public class WorkflowConfigJpa implements WorkflowConfig {
 
   /* see superclass */
   @Override
-  public void setWorkflowBinDefinitions(List<WorkflowBinDefinition> definitions) {
+  public void setWorkflowBinDefinitions(
+    List<WorkflowBinDefinition> definitions) {
     this.workflowBinDefinitions = definitions;
   }
 
@@ -269,11 +272,8 @@ public class WorkflowConfigJpa implements WorkflowConfig {
     result = prime * result + (mutuallyExclusive ? 1231 : 1237);
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((project == null) ? 0 : project.hashCode());
-    result =
-        prime
-            * result
-            + ((workflowBinDefinitions == null) ? 0 : workflowBinDefinitions
-                .hashCode());
+    result = prime * result + ((workflowBinDefinitions == null) ? 0
+        : workflowBinDefinitions.hashCode());
     return result;
   }
 
@@ -310,9 +310,8 @@ public class WorkflowConfigJpa implements WorkflowConfig {
     return "WorkflowConfigJpa [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", type=" + type + ", mutuallyExclusive=" + mutuallyExclusive
-        + ", lastPartitionTime=" + lastPartitionTime
-        + ", workflowBinDefinitions=" + workflowBinDefinitions
-        + ", getProjectId()=" + getProjectId() + "]";
+        + ", lastPartitionTime=" + lastPartitionTime + ", getProjectId()="
+        + getProjectId() + "]";
   }
 
 }

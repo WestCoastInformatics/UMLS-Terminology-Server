@@ -320,7 +320,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     WorkflowBinDefinitionJpa definition2 = new WorkflowBinDefinitionJpa();
     definition2.setName("testJQL");
     definition2.setDescription("Test JQL.");
-    definition2.setQuery("select a.id, a.id from ConceptJpa a "
+    definition2.setQuery("select a.id conceptId from ConceptJpa a "
         + "where a.terminology = :terminology "
         + "  and a.workflowStatus = 'NEEDS_REVIEW'");
     definition2.setEditable(true);
@@ -1306,4 +1306,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         authToken);
 
   }
+  
+  //TODO: need an integration test for concept approval causing a tracking
+  // record status to change (include the multilpe concept case)
 }

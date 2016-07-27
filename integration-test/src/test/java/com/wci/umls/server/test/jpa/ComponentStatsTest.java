@@ -68,7 +68,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Non-obsolete CodeTransitiveRelationshipJpa", 0);
     cmpStats.put("Non-obsolete CodeTreePositionJpa", 0);
     cmpStats.put("Non-obsolete ConceptJpa", 5596);
-    cmpStats.put("Non-obsolete ConceptRelationshipJpa", 3597);
+    cmpStats.put("Non-obsolete ConceptRelationshipJpa", 4074);
     cmpStats.put("Non-obsolete ConceptSubsetJpa", 0);
     cmpStats.put("Non-obsolete ConceptSubsetMemberJpa", 0);
     cmpStats.put("Non-obsolete ConceptTransitiveRelationshipJpa", 0);
@@ -100,7 +100,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Total CodeTransitiveRelationshipJpa", 0);
     cmpStats.put("Total CodeTreePositionJpa", 0);
     cmpStats.put("Total ConceptJpa", 5596);
-    cmpStats.put("Total ConceptRelationshipJpa", 3597);
+    cmpStats.put("Total ConceptRelationshipJpa", 4074);
     cmpStats.put("Total ConceptSubsetJpa", 0);
     cmpStats.put("Total ConceptSubsetMemberJpa", 0);
     cmpStats.put("Total ConceptTransitiveRelationshipJpa", 0);
@@ -137,7 +137,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     for (final String key : cmpStats.keySet()) {
       Logger.getLogger(getClass()).info("    checking " + key);
       // if (!cmpStats.get(key).equals(umlsStats.get(key))) {
-      // System.out.println("DIFF:  " + key + " " + cmpStats.get(key) + " -> "
+      // System.out.println("DIFF: " + key + " " + cmpStats.get(key) + " -> "
       // + umlsStats.get(key));
       // }
 
@@ -162,7 +162,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Non-obsolete AtomRelationshipJpa", 52);
     cmpStats.put("Non-obsolete AtomSubsetJpa", 4);
     cmpStats.put("Non-obsolete AtomSubsetMemberJpa", 24981);
-    cmpStats.put("Non-obsolete AttributeJpa", 100218);
+    cmpStats.put("Non-obsolete AttributeJpa", 100219);
     cmpStats.put("Non-obsolete CodeJpa", 3902);
     cmpStats.put("Non-obsolete CodeRelationshipJpa", 0);
     cmpStats.put("Non-obsolete CodeTransitiveRelationshipJpa", 0);
@@ -186,7 +186,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Non-obsolete ComponentHistoryJpa", 0);
     cmpStats.put("Non-obsolete ComponentInfoRelationshipJpa", 1550);
     cmpStats.put("Non-obsolete GeneralConceptAxiomJpa", 0);
-    cmpStats.put("Non-obsolete MapSetJpa", 0);
+    cmpStats.put("Non-obsolete MapSetJpa", 1);
     cmpStats.put("Non-obsolete MappingJpa", 28);
     cmpStats.put("Total AdditionalRelationshipTypeJpa", 0);
     cmpStats.put("Total AdditionalRelationshipTypeJpa", 0);
@@ -194,7 +194,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Total AtomRelationshipJpa", 52);
     cmpStats.put("Total AtomSubsetJpa", 4);
     cmpStats.put("Total AtomSubsetMemberJpa", 31429);
-    cmpStats.put("Total AttributeJpa", 150794);
+    cmpStats.put("Total AttributeJpa", 150795);
     cmpStats.put("Total AttributeNameJpa", 0);
     cmpStats.put("Total CodeJpa", 3902);
     cmpStats.put("Total CodeRelationshipJpa", 0);
@@ -226,7 +226,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Total ComponentInfoRelationshipJpa", 1552);
     cmpStats.put("Total GeneralConceptAxiomJpa", 0);
     cmpStats.put("Total LabelSetJpa", 0);
-    cmpStats.put("Total MapSetJpa", 0);
+    cmpStats.put("Total MapSetJpa", 1);
     cmpStats.put("Total MappingJpa", 334);
 
     // System.out.println("snomed keys");
@@ -239,7 +239,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     for (final String key : cmpStats.keySet()) {
       Logger.getLogger(getClass()).info("    checking " + key);
       // if (!cmpStats.get(key).equals(snomedStats.get(key))) {
-      // System.out.println("DIFF:  " + key + " " + cmpStats.get(key) + " -> "
+      // System.out.println("DIFF: " + key + " " + cmpStats.get(key) + " -> "
       // + snomedStats.get(key));
       // }
       assertEquals(cmpStats.get(key), snomedStats.get(key));

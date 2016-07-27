@@ -209,22 +209,7 @@ tsApp
                 $scope.getRecords(worklist);
               };
 
-              // Selects a concept (setting $scope.selected.concept)
-              $scope.selectConcept = function(concept) {
-                // Set the concept for display
-                $scope.selected.concept = {
-                  terminologyId : concept.terminologyId,
-                  terminology : concept.terminology,
-                  version : concept.version,
-                  type : 'CONCEPT',
-                  id : concept.id
-                };
-                reportService.getConceptReport($scope.project.id, $scope.selected.concept.id).then(
-                // Success
-                function(data) {
-                  $scope.selected.concept.report = data;
-                });
-              };
+
 
               $scope.unassignWorklist = function(worklist) {
                 workflowService.performWorkflowAction($scope.project.id, worklist.id,
@@ -264,11 +249,13 @@ tsApp
                   workflowService.removeWorklist(projectId, worklist.id).then(function() {
                     $scope.selected.worklist = null;
                     workflowService.fireWorklistChanged(worklist);
+                    workflowService.fireWorkflowBinsChanged(worklist);
                   });
                 } else {
                   workflowService.removeChecklist(projectId, worklist.id).then(function() {
                     $scope.selected.worklist = null;
                     workflowService.fireWorklistChanged(worklist);
+                    workflowService.fireWorkflowBinsChanged(worklist);
                   });
                 }
                 // });
@@ -307,7 +294,7 @@ tsApp
                 }
                 return $sce.trustAsHtml('');
               };
-
+              
               $scope.getWorklists();
 
               //

@@ -13,6 +13,10 @@ tsApp.service('workflowService', [
     this.fireWorklistChanged = function(worklist) {
       $rootScope.$broadcast('workflow:worklistChanged', worklist);
     };
+    
+    this.fireWorkflowBinsChanged = function(worklist) {
+      $rootScope.$broadcast('workflow:workflowBinsChanged', worklist);
+    };
 
     // get all workflow paths
     this.getWorkflowPaths = function() {
@@ -81,6 +85,30 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // update worklist
+    this.updateWorklist = function(projectId, worklist) {
+      console.debug();
+      var deferred = $q.defer();
+
+      // Update worklist
+      gpService.increment();
+      $http.post(workflowUrl + '/worklist/update?projectId=' + projectId, worklist).then(
+      // success
+      function(response) {
+        console.debug('  worklist = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    
     // remove workflow config
     this.removeWorkflowConfig = function(workflowConfig) {
       console.debug();
@@ -105,14 +133,14 @@ tsApp.service('workflowService', [
     };
 
     // add workflow bin Definition
-    this.addWorkflowBinDefinition = function(projectId, workflowConfigId, workflowBinDefinition) {
+    this.addWorkflowBinDefinition = function(projectId, workflowBinDefinition) {
       console.debug('addWorkflowBinDefinition');
       var deferred = $q.defer();
 
       // Add workflow bin Definition
       gpService.increment();
       $http.post(
-        workflowUrl + '/definition/add?projectId=' + projectId + '&configId=' + workflowConfigId,
+        workflowUrl + '/definition/add?projectId=' + projectId,
         workflowBinDefinition).then(
       // success
       function(response) {
@@ -434,6 +462,27 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // get workflow bin definition
+    this.getWorkflowBinDefinition = function(projectId, definitionName, binType) {
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(workflowUrl + '/definition?projectId=' + projectId +
+        '&name=' + definitionName + '&type=' + binType).then(
+      // success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
     // get all workflow bins
     this.getWorkflowBins = function(projectId, type) {
       var deferred = $q.defer();
@@ -801,6 +850,52 @@ tsApp.service('workflowService', [
 
       gpService.increment();
       $http['delete'](workflowUrl + '/worklist/note/' + noteId + '/remove?projectId=' + projectId)
+        .then(
+        // success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      return deferred.promise;
+    };
+    
+    // regenerate bins
+    this.regenerateBins = function(projectId, workflowBinType) {
+      console.debug('regenerate bins');
+      var deferred = $q.defer();
+
+      // find tracking records
+      gpService.increment();
+      $http.get(workflowUrl + '/bin/regenerate/all?projectId=' + projectId + '&type=' + workflowBinType)
+        .then(
+        // success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      return deferred.promise;
+    };
+    
+    // clear bins
+    this.clearBins = function(projectId, workflowBinType) {
+      console.debug('clear bins');
+      var deferred = $q.defer();
+
+      // find tracking records
+      gpService.increment();
+      $http.get(workflowUrl + '/bin/clear/all?projectId=' + projectId + '&type=' + workflowBinType)
         .then(
         // success
         function(response) {

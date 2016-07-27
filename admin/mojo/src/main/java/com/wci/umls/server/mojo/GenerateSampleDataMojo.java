@@ -58,6 +58,7 @@ import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.SemanticType;
+import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinType;
@@ -500,6 +501,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "where terminology = :terminology and workflowStatus = 'DEMOTION' "
         + "order by 1");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -519,6 +521,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + " where a.id = d.concepts_id and d.atoms_id = e.id "
         + " and e.publishable = 1);");
     definition.setEditable(false);
+    definition.setEnabled(true);
     definition.setRequired(false);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -532,6 +535,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setDescription("Concepts that do not require review.");
     definition.setQuery("NOT workflowStatus:NEEDS_REVIEW");
     definition.setEditable(false);
+    definition.setEnabled(true);
     definition.setRequired(false);
     definition.setQueryType(QueryType.LUCENE);
     definition.setWorkflowConfig(newConfig);
@@ -549,6 +553,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "  and a.terminology = :terminology and c.terminology='NCI' "
         + "  and c.workflowStatus = 'NEEDS_REVIEW'");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -566,6 +571,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "  and a.terminology = :terminology and c.terminology='SNOMEDCT_US' "
         + "  and c.workflowStatus = 'NEEDS_REVIEW'");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -580,6 +586,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setQuery("select a.id clusterId, a.id conceptId "
         + "from concepts a where a.workflowStatus = 'NEEDS_REVIEW'");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -628,42 +635,74 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         pfs.setMaxResults(5);
         workflowService = new WorkflowServiceRestImpl();
         // Create a chem worklist
-        workflowService.createWorklist(projectId, bin.getId(), "chem", pfs,
-            authToken);
+        Worklist worklist = workflowService.createWorklist(projectId,
+            bin.getId(), "chem", pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForWorklist(projectId,
+                worklist.getId(), pfs, authToken).getTotalCount());
+
         // Create two non-chem worklist
         workflowService = new WorkflowServiceRestImpl();
         workflowService.createWorklist(projectId, bin.getId(), null, pfs,
             authToken);
         workflowService = new WorkflowServiceRestImpl();
-        final Worklist worklist = workflowService.createWorklist(projectId,
-            bin.getId(), null, pfs, authToken);
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForWorklist(projectId,
+                worklist.getId(), pfs, authToken).getTotalCount());
+
+        workflowService = new WorkflowServiceRestImpl();
+        worklist = workflowService.createWorklist(projectId, bin.getId(), null,
+            pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForWorklist(projectId,
+                worklist.getId(), pfs, authToken).getTotalCount());
 
         lastWorklist = worklist;
 
         // Create some checklist
         pfs.setMaxResults(10);
         workflowService = new WorkflowServiceRestImpl();
-        workflowService.createChecklist(projectId, bin.getId(), null,
-            "chk_random_nonworklist_" + chk++, "test desc", true, true, "", pfs,
-            authToken);
+        Checklist checklist = workflowService.createChecklist(projectId,
+            bin.getId(), null, "chk_random_nonworklist_" + chk++, "test desc",
+            true, true, "", pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForChecklist(projectId,
+                checklist.getId(), pfs, authToken).getTotalCount());
+
         workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
             "chk_random_worklist_" + chk++, "test desc", true, false, "", pfs,
             authToken);
         workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForChecklist(projectId,
+                checklist.getId(), pfs, authToken).getTotalCount());
+
+        workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
             "chk_nonrandom_noworklist_" + chk++, "test desc", false, true, "",
             pfs, authToken);
         workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForChecklist(projectId,
+                checklist.getId(), pfs, authToken).getTotalCount());
+
+        workflowService = new WorkflowServiceRestImpl();
         workflowService.createChecklist(projectId, bin.getId(), null,
             "chk_nonrandom_worklist_" + chk++, "test desc", false, false, "",
             pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForChecklist(projectId,
+                checklist.getId(), pfs, authToken).getTotalCount());
 
       }
     }
 
     // March "last worklist" through some workflow changes so other dates show
-    // up.
     Logger.getLogger(getClass()).debug("  Walk worklist through workflow");
     // Assign
     workflowService = new WorkflowServiceRestImpl();
@@ -720,6 +759,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
           + "  and c.terminology='" + terminology.toUpperCase() + "'  "
           + "group by a.id having count(distinct c.conceptId)>1");
       definition.setEditable(true);
+      definition.setEnabled(true);
       definition.setRequired(true);
       definition.setQueryType(QueryType.SQL);
       definition.setWorkflowConfig(newConfig);
@@ -741,6 +781,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "  and c.terminology='" + terminology.toUpperCase() + "'  "
         + "group by a.id having count(distinct c.conceptId)>1");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -777,6 +818,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
           + "  and c.terminology='" + terminology.toUpperCase() + "'  "
           + "group by a.id having count(distinct c.conceptId)>1");
       definition.setEditable(true);
+      definition.setEnabled(true);
       definition.setRequired(false);
       definition.setQueryType(QueryType.SQL);
       definition.setWorkflowConfig(newConfig);

@@ -53,6 +53,7 @@ public class ResetDevDatabase {
    * Start an editing cycle for "UMLS"
    * stop here and the db is ready to use
    * </pre>
+   * 
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
@@ -76,7 +77,7 @@ public class ResetDevDatabase {
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_UMLS");
     request.setProperties(p);
-    request.setDebug(true);
+    request.setDebug(false);
     Invoker invoker = new DefaultInvoker();
     InvocationResult result = invoker.execute(request);
     if (result.getExitCode() != 0) {

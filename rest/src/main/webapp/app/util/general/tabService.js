@@ -67,14 +67,11 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
 
     // Set a flag indicating whether tabs are to be showing
     this.setShowing = function(showTabs) {
-      console.debug("SET SHOWING", showTabs);
       this.showTabs = showTabs;
     };
 
     // Indicates whether tabs are showing at all
     this.isShowing = function() {
-      console.debug("IS SHOWING", this.showTabs);
-
       return this.showTabs;
     };
 

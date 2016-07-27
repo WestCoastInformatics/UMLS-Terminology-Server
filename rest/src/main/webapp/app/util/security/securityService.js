@@ -252,6 +252,30 @@ tsApp.service('securityService', [
       }
     };
 
+    
+    // Get user by name
+    this.getUserByName = function(userName) {
+
+      var deferred = $q.defer();
+      
+        gpService.increment();
+
+        // logout
+        $http.get(securityUrl + '/user/name/' + userName).then(
+        // success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+        return deferred.promise;
+    }
+    
     // get all users
     this.getUsers = function() {
       var deferred = $q.defer();

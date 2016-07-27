@@ -31,7 +31,7 @@ import com.wci.umls.server.model.workflow.Checklist;
 @Entity
 @Table(name = "checklist_notes")
 @Audited
-@XmlRootElement(name = "note")
+@XmlRootElement(name = "checklistNote")
 public class ChecklistNoteJpa extends AbstractNote {
 
   /** The Checklist. */
@@ -104,7 +104,7 @@ public class ChecklistNoteJpa extends AbstractNote {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((checklist == null) ? 0 : checklist.hashCode());
+    result = prime * result + ((getChecklistId() == null) ? 0 : getChecklistId().hashCode());
     return result;
   }
 
@@ -118,10 +118,10 @@ public class ChecklistNoteJpa extends AbstractNote {
     if (getClass() != obj.getClass())
       return false;
     ChecklistNoteJpa other = (ChecklistNoteJpa) obj;
-    if (checklist == null) {
-      if (other.checklist != null)
+    if (getChecklistId() == null) {
+      if (other.getChecklistId() != null)
         return false;
-    } else if (!checklist.equals(other.checklist))
+    } else if (!getChecklistId().equals(other.getChecklistId()))
       return false;
     return true;
   }
