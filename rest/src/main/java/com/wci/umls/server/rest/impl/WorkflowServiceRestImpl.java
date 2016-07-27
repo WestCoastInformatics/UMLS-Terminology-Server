@@ -2435,7 +2435,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         }
         record.setIndexedData(conceptNames.toString());
 
-        System.out.println("CREATE TRACKING RECORD - " + record);
         workflowService.addTrackingRecord(record);
         bin.getTrackingRecords().add(record);
       }
