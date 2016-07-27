@@ -75,6 +75,20 @@ public interface MolecularAction
   public void setBatchId(String batchId);
 
   /**
+   * Returns the activity id.
+   *
+   * @return the activity id
+   */
+  public String getActivityId();
+
+  /**
+   * Sets the activity id.
+   *
+   * @param activityId the activity id
+   */
+  public void setActivityId(String activityId);
+
+  /**
    * Returns the work id. Represents a collection of connected batches of
    * molecular actions.
    *
