@@ -501,6 +501,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "where terminology = :terminology and workflowStatus = 'DEMOTION' "
         + "order by 1");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -520,6 +521,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + " where a.id = d.concepts_id and d.atoms_id = e.id "
         + " and e.publishable = 1);");
     definition.setEditable(false);
+    definition.setEnabled(true);
     definition.setRequired(false);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -533,6 +535,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setDescription("Concepts that do not require review.");
     definition.setQuery("NOT workflowStatus:NEEDS_REVIEW");
     definition.setEditable(false);
+    definition.setEnabled(true);
     definition.setRequired(false);
     definition.setQueryType(QueryType.LUCENE);
     definition.setWorkflowConfig(newConfig);
@@ -550,6 +553,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "  and a.terminology = :terminology and c.terminology='NCI' "
         + "  and c.workflowStatus = 'NEEDS_REVIEW'");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -567,6 +571,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "  and a.terminology = :terminology and c.terminology='SNOMEDCT_US' "
         + "  and c.workflowStatus = 'NEEDS_REVIEW'");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -581,6 +586,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setQuery("select a.id clusterId, a.id conceptId "
         + "from concepts a where a.workflowStatus = 'NEEDS_REVIEW'");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -753,6 +759,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
           + "  and c.terminology='" + terminology.toUpperCase() + "'  "
           + "group by a.id having count(distinct c.conceptId)>1");
       definition.setEditable(true);
+      definition.setEnabled(true);
       definition.setRequired(true);
       definition.setQueryType(QueryType.SQL);
       definition.setWorkflowConfig(newConfig);
@@ -774,6 +781,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
         + "  and c.terminology='" + terminology.toUpperCase() + "'  "
         + "group by a.id having count(distinct c.conceptId)>1");
     definition.setEditable(true);
+    definition.setEnabled(true);
     definition.setRequired(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
@@ -810,6 +818,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
           + "  and c.terminology='" + terminology.toUpperCase() + "'  "
           + "group by a.id having count(distinct c.conceptId)>1");
       definition.setEditable(true);
+      definition.setEnabled(true);
       definition.setRequired(false);
       definition.setQueryType(QueryType.SQL);
       definition.setWorkflowConfig(newConfig);
