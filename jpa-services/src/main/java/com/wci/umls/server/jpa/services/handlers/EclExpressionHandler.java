@@ -178,7 +178,7 @@ public class EclExpressionHandler implements ExpressionHandler {
           results.getObjects().add(result);
         }
         Logger.getLogger(getClass()).info(
-            "  results = " + results.getCount() + ", query = " + luceneQuery);
+            "  results = " + results.size() + ", query = " + luceneQuery);
         return results;
       } catch (ParseException e) {
         throw new InternalError("Error parsing internal search query.", e);

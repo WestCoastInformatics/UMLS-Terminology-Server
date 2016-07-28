@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Entity;
@@ -20,7 +23,8 @@ import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Code;
 
 /**
- * JPA and JAXB enabled implementation of a {@link Note} connected to a {@link Code}.
+ * JPA and JAXB enabled implementation of a {@link Note} connected to a
+ * {@link Code}.
  */
 @Entity
 @Table(name = "code_notes")
@@ -80,7 +84,7 @@ public class CodeNoteJpa extends AbstractNote {
   public Long getCodeId() {
     return (code != null) ? code.getId() : 0;
   }
-  
+
   /**
    * Returns the code name.
    *
@@ -91,9 +95,9 @@ public class CodeNoteJpa extends AbstractNote {
   public String getCodeName() {
     return (code != null) ? code.getName() : "";
   }
-  
+
   /**
-   * Returns the code name.
+   * Returns the code name. For indexing and JAXB
    *
    * @return the code name
    */
@@ -115,7 +119,32 @@ public class CodeNoteJpa extends AbstractNote {
     }
     code.setId(codeId);
   }
-  
+
+  /**
+   * Sets the code terminology id.
+   *
+   * @param terminologyId the code terminology id
+   */
+  @SuppressWarnings("unused")
+  private void setCodeTerminologyId(String terminologyId) {
+    if (code == null) {
+      code = new CodeJpa();
+    }
+    code.setTerminologyId(terminologyId);
+  }
+
+  /**
+   * Sets the code name.
+   *
+   * @param name the code name
+   */
+  @SuppressWarnings("unused")
+  private void setCodeName(String name) {
+    if (code == null) {
+      code = new CodeJpa();
+    }
+    code.setName(name);
+  }
 
   /* see superclass */
   @Override
@@ -128,7 +157,8 @@ public class CodeNoteJpa extends AbstractNote {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((getCodeId() == null) ? 0 : getCodeId().hashCode());
+    result =
+        prime * result + ((getCodeId() == null) ? 0 : getCodeId().hashCode());
     return result;
   }
 

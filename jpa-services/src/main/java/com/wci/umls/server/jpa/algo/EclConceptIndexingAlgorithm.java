@@ -291,7 +291,7 @@ public class EclConceptIndexingAlgorithm implements Algorithm {
         final Concept c = contentService.getConcept(sr.getId());
         iwriter.addDocument(getConceptDocument(c));
       }
-      pos += concepts.getCount();
+      pos += concepts.size();
       Logger.getLogger(getClass()).info(
           "  " + pos + "/" + relationshipCt + "/" + ancestorCt + "/" + subsetCt
               + " concepts/relationships/ancestors/members processed");

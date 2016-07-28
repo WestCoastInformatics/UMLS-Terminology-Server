@@ -16,7 +16,7 @@ public interface ResultList<T> {
    * Returns the number of objects in the list.
    * @return the number of objects in the list
    */
-  public int getCount();
+  public int size();
 
   /**
    * Returns the total count.

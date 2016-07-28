@@ -267,9 +267,9 @@ public class EclExpressionHandlerTest {
         "Expecting " + expectedCount + " results:" + eclQuery);
     try {
       SearchResultList results = handler.resolve(eclQuery);
-      if (expectedCount != results.getCount()) {
+      if (expectedCount != results.size()) {
         fail("Expected/actual count: " + expectedCount + "/"
-            + results.getCount() + " for query: " + eclQuery);
+            + results.size() + " for query: " + eclQuery);
       }
       return results;
     } catch (Exception e) {

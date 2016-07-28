@@ -1,20 +1,18 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
 
 import org.apache.log4j.Logger;
-import org.glassfish.jersey.logging.LoggingFeature;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ResourceConfig;
 
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.ibm.icu.util.Calendar;
@@ -30,7 +28,7 @@ import io.swagger.util.Json;
  * listener.
  */
 @ApplicationPath("/")
-public class TermServerApplication extends Application {
+public class TermServerApplication extends ResourceConfig {
 
   /** The API_VERSION - also used in "swagger.htmL" */
   public final static String API_VERSION = "1.0.0";
@@ -44,7 +42,36 @@ public class TermServerApplication extends Application {
    * @throws Exception the exception
    */
   public TermServerApplication() throws Exception {
+    // Register providers and features
+    super(ObjectMapperProvider.class, JacksonFeature.class,
+        MultiPartFeature.class);
     Logger.getLogger(getClass()).info("TERM SERVER APPLICATION START");
+
+    // register REST implementations
+    register(SecurityServiceRestImpl.class);
+    register(ContentServiceRestImpl.class);
+    register(HistoryServiceRestImpl.class);
+    register(MetadataServiceRestImpl.class);
+    register(ProjectServiceRestImpl.class);
+    register(SourceDataServiceRestImpl.class);
+    register(ConfigureServiceRestImpl.class);
+    register(MetaEditingServiceRestImpl.class);
+    register(WorkflowServiceRestImpl.class);
+    register(ReportServiceRestImpl.class);
+    // Make integration test rest services available in dev environment
+    try {
+      if (ConfigUtility.getConfigProperties().containsKey("base.url")
+          && ConfigUtility.getConfigProperties().getProperty("base.url")
+              .contains("localhost:8080")) {
+        register(IntegrationTestServiceRestImpl.class);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+    // register swagger classes
+    register(io.swagger.jaxrs.listing.ApiListingResource.class);
+    register(io.swagger.jaxrs.listing.SwaggerSerializers.class);
 
     // Instantiate bean config
     BeanConfig beanConfig = new BeanConfig();
@@ -105,55 +132,6 @@ public class TermServerApplication extends Application {
         Logger.getLogger(getClass()).error("Error running the process to xxx.");
       }
     }
-  }
-
-  /* see superclass */
-  @Override
-  public Set<Class<?>> getClasses() {
-    final Set<Class<?>> classes = new HashSet<Class<?>>();
-
-    // register REST implementations
-    classes.add(SecurityServiceRestImpl.class);
-    classes.add(ContentServiceRestImpl.class);
-    classes.add(HistoryServiceRestImpl.class);
-    classes.add(MetadataServiceRestImpl.class);
-    classes.add(ProjectServiceRestImpl.class);
-    classes.add(SourceDataServiceRestImpl.class);
-    classes.add(ConfigureServiceRestImpl.class);
-    classes.add(MetaEditingServiceRestImpl.class);
-    classes.add(WorkflowServiceRestImpl.class);
-    classes.add(ReportServiceRestImpl.class);
-    // Make integration test rest services available in dev environment
-    try {
-      if (ConfigUtility.getConfigProperties().containsKey("base.url")
-          && ConfigUtility.getConfigProperties().getProperty("base.url")
-              .contains("localhost:8080")) {
-        classes.add(IntegrationTestServiceRestImpl.class);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-
-    // register file upload support classes
-    classes.add(MultiPartFeature.class);
-
-    // register swagger classes
-    classes.add(io.swagger.jaxrs.listing.ApiListingResource.class);
-    classes.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
-
-    return classes;
-  }
-
-  /* see superclass */
-  @Override
-  public Set<Object> getSingletons() {
-    final Set<Object> instances = new HashSet<Object>();
-    // instances.add(new JacksonFeature());
-    // instances.add(new JsonProcessingFeature());
-
-    // Enable for LOTS of logging of HTTP requests
-    instances.add(new LoggingFeature());
-    return instances;
   }
 
 }

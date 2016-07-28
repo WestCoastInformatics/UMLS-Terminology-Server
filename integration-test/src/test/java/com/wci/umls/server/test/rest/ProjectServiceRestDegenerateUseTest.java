@@ -56,7 +56,7 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
 
     // Get all projects and choose the first one.
     ProjectList projectList = projectService.getProjects(adminAuthToken);
-    Assert.assertTrue(projectList.getCount() > 0);
+    Assert.assertTrue(projectList.size() > 0);
     ProjectJpa project = (ProjectJpa) projectList.getObjects().get(0);
 
     // Call "add project" using this project (attempting to add a duplicate)

@@ -133,14 +133,15 @@ tsApp.service('workflowService', [
     };
 
     // add workflow bin Definition
-    this.addWorkflowBinDefinition = function(projectId, workflowBinDefinition) {
+    this.addWorkflowBinDefinition = function(projectId, workflowBinDefinition, positionAfterId) {
       console.debug('addWorkflowBinDefinition');
       var deferred = $q.defer();
 
       // Add workflow bin Definition
       gpService.increment();
       $http.post(
-        workflowUrl + '/definition/add?projectId=' + projectId,
+        workflowUrl + '/definition/add?projectId=' + projectId + 
+        (positionAfterId ? '&positionAfterId=' + positionAfterId : ''),
         workflowBinDefinition).then(
       // success
       function(response) {

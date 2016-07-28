@@ -95,6 +95,7 @@ tsApp.service('securityService', [
       user.applicationRole = data.applicationRole;
       user.userPreferences = data.userPreferences;
       $http.defaults.headers.common.Authorization = data.authToken;
+      // TODO: doesn't work well with landing page/controller
       projectService.getUserHasAnyRole();
 
       // Whenver set user is called, we should save a cookie

@@ -8,12 +8,13 @@ tsApp.controller('WorkflowCtrl', [
   'tabService',
   'securityService',
   'workflowService',
+  'utilService',
   'configureService',
   'projectService',
   'reportService', 
   '$uibModal',
   function($scope, $http, $location, gpService, utilService, tabService, securityService,
-    workflowService, configureService, projectService, reportService, $uibModal) {
+    workflowService, utilService, configureService, projectService, reportService, $uibModal) {
     console.debug("configure WorkflowCtrl");
 
     // Clear error
@@ -149,6 +150,9 @@ tsApp.controller('WorkflowCtrl', [
         for (i=0; i<$scope.workflowConfigs.length; i++) {
           $scope.binTypeOptions.push($scope.workflowConfigs[i].type);
         }
+        if ($scope.binTypeOptions.length == 1) {
+          $scope.setBinType($scope.binTypeOptions[0]);
+        }
       });
     };
     
@@ -200,7 +204,7 @@ tsApp.controller('WorkflowCtrl', [
 
       }
 
-        workflowService.findTrackingRecordsForWorkflowBin(bin.projectId, bin.id,
+        workflowService.findTrackingRecordsForWorkflowBin($scope.currentProject.id, bin.id,
           pfs).then(
         // Success
         function(data) {
@@ -269,6 +273,11 @@ tsApp.controller('WorkflowCtrl', [
     $scope.toDate = function(lastModified) {
       return utilService.toDate(lastModified);
     };
+    
+    // link to error handling
+    function handleError(errors, error) {
+      utilService.handleDialogError(errors, error);
+    }
     
     //
     // MODALS
@@ -370,6 +379,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
+        $scope.regenerateBins();
       });
     };
 
@@ -409,6 +419,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
+        $scope.regenerateBins();
       });
     };
     
@@ -448,6 +459,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
+        $scope.regenerateBins();
       });
     };
   } ]);

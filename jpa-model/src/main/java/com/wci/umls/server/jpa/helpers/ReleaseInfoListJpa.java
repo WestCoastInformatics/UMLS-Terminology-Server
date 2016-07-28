@@ -31,7 +31,7 @@ public class ReleaseInfoListJpa extends AbstractResultList<ReleaseInfo>
   @Override
   public String toString() {
     return "ReleaseInfoListJpa [releaseInfos=" + getObjects() + ", getCount()="
-        + getCount() + "]";
+        + size() + "]";
   }
 
 }

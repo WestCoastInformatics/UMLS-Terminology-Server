@@ -323,20 +323,14 @@ public class MolecularActionJpa implements MolecularAction {
     this.workId = workId;
   }
 
-  /**
-   * Indicates whether or not undone flag is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  /* see superclass */
+  @Override
   public boolean isUndoneFlag() {
     return undoneFlag;
   }
 
-  /**
-   * Sets the undone flag.
-   *
-   * @param undoneFlag the undone flag
-   */
+  /* see superclass */
+  @Override
   public void setUndoneFlag(boolean undoneFlag) {
     this.undoneFlag = undoneFlag;
   }
@@ -356,7 +350,8 @@ public class MolecularActionJpa implements MolecularAction {
     result = prime * result
         + ((componentId2 == null) ? 0 : componentId2.hashCode());
     result = prime * result + ((batchId == null) ? 0 : batchId.hashCode());
-    result = prime * result + ((activityId == null) ? 0 : activityId.hashCode());
+    result =
+        prime * result + ((activityId == null) ? 0 : activityId.hashCode());
     result = prime * result + ((workId == null) ? 0 : workId.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
@@ -427,8 +422,8 @@ public class MolecularActionJpa implements MolecularAction {
         + componentId2 + ", terminology=" + terminology + ", name=" + name
         + ", lastModified=" + lastModified + ", lastModifiedBy="
         + lastModifiedBy + ", timestamp=" + timestamp + ", macroAction="
-        + macroAction + ", undoneFlag=" + undoneFlag + ", batchId=" + batchId+ ", activityId=" + activityId
-        + ", workId=" + workId + "]";
+        + macroAction + ", undoneFlag=" + undoneFlag + ", batchId=" + batchId
+        + ", activityId=" + activityId + ", workId=" + workId + "]";
   }
 
 }

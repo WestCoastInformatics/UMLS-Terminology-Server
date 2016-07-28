@@ -1,6 +1,6 @@
 // Edit bin controller
-var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, bin, workflowConfig, 
-  bins, binType, project, projects, action) {
+var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, utilService, 
+  bin, workflowConfig, bins, binType, project, projects, action) {
   console.debug('Entered edit bin modal control');
 
   $scope.action = action;
@@ -8,6 +8,8 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, bin,
   $scope.bins = bins;
   $scope.binType = binType;
   $scope.workflowBinDefinition;
+  $scope.positionBin;
+  $scope.positionAfterDef;
   $scope.workflowConfig = workflowConfig;
   $scope.project = project;
   $scope.projects = projects;
@@ -28,6 +30,23 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, bin,
       description : ''
     };
   }
+  
+  $scope.positionAfterBin = function(bin) {
+    workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.binType).then(
+      function(response) {
+        $scope.positionAfterDef = response;
+      },
+      function(response) {
+        handleError($scope.errors, response);
+      }
+    );
+  }
+  
+  //link to error handling
+  function handleError(errors, error) {
+    utilService.handleDialogError(errors, error);
+  }
+  
   // Update bin definition
   $scope.submitDefinition = function(bin, definition) {
 
@@ -65,7 +84,8 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, bin,
         });
     } else if (action == 'Clone') {
       definition.id = null;
-      workflowService.addWorkflowBinDefinition($scope.project.id, definition).then(
+      workflowService.addWorkflowBinDefinition($scope.project.id, definition, 
+        $scope.positionAfterDef ? $scope.positionAfterDef.id : null).then(
       // Success - add definition
       function(data) {
         $uibModalInstance.close(definition);
@@ -75,8 +95,10 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, bin,
         handleError($scope.errors, data);
       });
     } else if (action == 'Add') {
-      workflowService.addWorkflowBinDefinition($scope.project.id, definition).then(
-        //definition.workflowConfigId = $scope.workflowConfig.id;
+      definition.workflowConfigId = $scope.workflowConfig.id;
+      definition.enabled = true;
+      workflowService.addWorkflowBinDefinition($scope.project.id, definition, 
+        $scope.positionAfterDef ? $scope.positionAfterDef.id : null).then(
         // Success - add definition
         function(data) {
           $uibModalInstance.close(definition);
@@ -97,7 +119,7 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, bin,
 
 // Dismiss modal
 $scope.cancel = function() {
-  $uibModalInstance.close(bin);
+  $uibModalInstance.dismiss('cancel');
 };
 
 };
