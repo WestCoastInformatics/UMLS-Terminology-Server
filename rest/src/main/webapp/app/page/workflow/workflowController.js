@@ -27,7 +27,7 @@ tsApp.controller('WorkflowCtrl', [
     $scope.projectRole;
     $scope.binTypeOptions = []; 
     $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
-    $scope.currentProject = {id : 1239500};
+    $scope.currentProject; 
     $scope.recordTypes = [ 'N', 'R' ];
     $scope.projects;
     $scope.selected = {

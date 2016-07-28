@@ -31,8 +31,8 @@ import com.wci.umls.server.rest.client.IntegrationTestClientRest;
 /**
  * Implementation of the "MetaEditing Service REST Edge Cases" Test Cases.
  */
-public class MetaEditingServiceRestEdgeCasesTest extends
-    MetaEditingServiceRestTest {
+public class MetaEditingServiceRestEdgeCasesTest
+    extends MetaEditingServiceRestTest {
 
   /** The auth tokens. */
   static String authToken;
@@ -67,7 +67,7 @@ public class MetaEditingServiceRestEdgeCasesTest extends
 
     // ensure there is a concept associated with the project
     ProjectList projects = projectService.getProjects(authToken);
-    assertTrue(projects.getCount() > 0);
+    assertTrue(projects.size() > 0);
     project = projects.getObjects().get(0);
 
     // verify terminology and branch are expected values
@@ -75,9 +75,8 @@ public class MetaEditingServiceRestEdgeCasesTest extends
     // assertTrue(project.getBranch().equals(Branch.ROOT));
 
     // Copy existing concept to avoid messing with actual database data.
-    concept =
-        new ConceptJpa(contentService.getConcept("C0000294", umlsTerminology,
-            umlsVersion, null, authToken), false);
+    concept = new ConceptJpa(contentService.getConcept("C0000294",
+        umlsTerminology, umlsVersion, null, authToken), false);
     concept.setId(null);
     concept.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     concept = (ConceptJpa) testService.addConcept(concept, authToken);
@@ -108,19 +107,13 @@ public class MetaEditingServiceRestEdgeCasesTest extends
     sty.setTimestamp(new Date());
 
     // add the sty
-    result =
-        metaEditingService.addSemanticType(project.getId(), c1.getId(), c1
-            .getTimestamp().getTime(), (SemanticTypeComponentJpa) sty, false,
-            authToken);
-    if (!result.isValid()) {
-      Logger.getLogger(getClass()).info("Invalid result: " + result.toString());
-    }
+    result = metaEditingService.addSemanticType(project.getId(), c1.getId(),
+        c1.getLastModified().getTime(), (SemanticTypeComponentJpa) sty, false,
+        authToken);
     assertTrue(result.isValid());
 
     // get the concept
-    c1 =
-        contentService.getConcept("C0000530", umlsTerminology, umlsVersion,
-            null, authToken);
+    c1 = contentService.getConcept(concept.getId(), null, authToken);
 
     sty = null;
     for (SemanticTypeComponent s : c1.getSemanticTypes()) {
@@ -131,12 +124,12 @@ public class MetaEditingServiceRestEdgeCasesTest extends
     assertNotNull(sty);
 
     final Long cId = c1.getId();
-    final Long cDate = c1.getTimestamp().getTime();
+    final Long cDate = c1.getLastModified().getTime();
     final Long styId = sty.getId();
 
     // number of repeated calls to make
     final int[] nThreads = {
-      10
+        10
     };
 
     // runnable instanes
@@ -148,13 +141,13 @@ public class MetaEditingServiceRestEdgeCasesTest extends
     // accessible index, success, and exception counters
     int ct[] = new int[1];
     int completeCt[] = {
-      0
+        0
     };
     int successCt[] = {
-      0
+        0
     };
     int exceptionCt[] = {
-      0
+        0
     };
 
     for (int i = 0; i < nThreads[0]; i++) {
@@ -177,18 +170,18 @@ public class MetaEditingServiceRestEdgeCasesTest extends
               Logger.getLogger(getClass()).info("  Thread returned success");
               successCt[0]++;
             } else {
-              Logger.getLogger(getClass()).info(
-                  "  Thread returned expected failure");
+              Logger.getLogger(getClass())
+                  .info("  Thread returned expected failure");
             }
           } catch (Exception e) {
-            Logger.getLogger(getClass()).info(
-                "  Unexpected exception encountered");
+            Logger.getLogger(getClass())
+                .info("  Unexpected exception encountered");
             exceptionCt[0]++;
           } finally {
             completeCt[0]++;
-            Logger.getLogger(getClass()).info(
-                "Thread complete: " + completeCt[0] + "/" + nThreads[0] + " ("
-                    + exceptionCt[0] + " exceptions, " + successCt[0]
+            Logger.getLogger(getClass())
+                .info("Thread complete: " + completeCt[0] + "/" + nThreads[0]
+                    + " (" + exceptionCt[0] + " exceptions, " + successCt[0]
                     + " successes)");
             // on all threads complete, expect only one valid result and no
             // exceptions
@@ -211,8 +204,10 @@ public class MetaEditingServiceRestEdgeCasesTest extends
       threads[i].start();
     }
 
-    // wait an arbitrary amount of time
-    Thread.sleep(20000);
+    // Wait for all threads to finish
+    for (int i = 0; i < nThreads[0]; i++) {
+      threads[i].join();
+    }
 
   }
 

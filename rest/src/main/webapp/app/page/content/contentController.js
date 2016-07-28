@@ -123,9 +123,9 @@ tsApp
 
           // set the autocomplete url, with pattern:
           // /type/{terminology}/{version}/autocomplete/{searchTerm}
-          $scope.autocompleteUrl = $scope.metadata.terminology.organizingClassType.toLowerCase() + '/'
-            + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
-            + "/autocomplete/";
+          $scope.autocompleteUrl = $scope.metadata.terminology.organizingClassType.toLowerCase()
+            + '/' + $scope.metadata.terminology.terminology + '/'
+            + $scope.metadata.terminology.version + "/autocomplete/";
 
         });
 
@@ -301,7 +301,7 @@ tsApp
             }
             return;
           }
-          
+
           contentService.findComponentsAsList($scope.searchParams.query,
             $scope.metadata.terminology.organizingClassType,
             $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
@@ -339,7 +339,7 @@ tsApp
             $scope.searchResults.tree.push(data); // treeList
             // array of size 1
             $scope.searchResults.tree.totalCount = data.totalCount;
-            $scope.searchResults.tree.count = data.count;
+            $scope.searchResults.tree.objects.length = data.objects.length;
             // Load first functionality is not obvious here
             // so leave it alone for now.
 
@@ -352,7 +352,8 @@ tsApp
         $scope.getComponentFromTree = function(type, nodeScope) {
           console.debug('getComponentFromTree', type, nodeScope);
           var tree = nodeScope.$modelValue;
-          $scope.getComponent(tree.nodeId, type, tree.nodeTerminologyId, tree.terminology, tree.version);
+          $scope.getComponent(tree.nodeId, type, tree.nodeTerminologyId, tree.terminology,
+            tree.version);
         };
 
         // helper function to get component from wrapper
@@ -384,7 +385,7 @@ tsApp
             $scope.searchResults.tree.push(data);
             // treeList array of size 1
             $scope.searchResults.tree.totalCount = data.totalCount;
-            $scope.searchResults.tree.count = data.count;
+            $scope.searchResults.tree.objects.length = data.objects.length
           });
         };
 
@@ -803,8 +804,9 @@ tsApp
                       function() {
 
                         // get the component
-                        $scope.getComponent($routeParams.id, $routeParams.type, $routeParams.terminologyId,
-                          $routeParams.terminology, $routeParams.version);
+                        $scope.getComponent($routeParams.id, $routeParams.type,
+                          $routeParams.terminologyId, $routeParams.terminology,
+                          $routeParams.version);
                       });
                   }
                 }

@@ -1048,7 +1048,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
       final MapSetList list =
           contentService.getMapSets(terminology, version, Branch.ROOT);
-      for (int i = 0; i < list.getCount(); i++) {
+      for (int i = 0; i < list.size(); i++) {
         contentService.getGraphResolutionHandler(terminology)
             .resolve(list.getObjects().get(i));
       }
@@ -2412,7 +2412,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       final SubsetList list =
           contentService.getAtomSubsets(terminology, version, Branch.ROOT);
-      for (int i = 0; i < list.getCount(); i++) {
+      for (int i = 0; i < list.size(); i++) {
         contentService.getGraphResolutionHandler(terminology)
             .resolve(list.getObjects().get(i));
       }
@@ -2454,7 +2454,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
       final SubsetList list =
           contentService.getConceptSubsets(terminology, version, Branch.ROOT);
-      for (int i = 0; i < list.getCount(); i++) {
+      for (int i = 0; i < list.size(); i++) {
         contentService.getGraphResolutionHandler(terminology)
             .resolve(list.getObjects().get(i));
       }
@@ -3205,7 +3205,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       Tree rootTree = null;
       // if a terminology with a single root concept
-      if (rootTreePositions.getCount() == 1) {
+      if (rootTreePositions.size() == 1) {
 
         // construct root tree from single root
         rootTree = new TreeJpa(rootTreePositions.getObjects().get(0));
@@ -3291,7 +3291,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       Tree rootTree = null;
 
       // if a terminology with a single root descriptor
-      if (rootTreePositions.getCount() == 1) {
+      if (rootTreePositions.size() == 1) {
 
         // construct root tree from single root
         rootTree = new TreeJpa(rootTreePositions.getObjects().get(0));
@@ -3377,7 +3377,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       Tree rootTree = null;
 
       // if a terminology with a single root code
-      if (rootTreePositions.getCount() == 1) {
+      if (rootTreePositions.size() == 1) {
 
         // construct root tree from single root
         rootTree = new TreeJpa(rootTreePositions.getObjects().get(0));
@@ -4095,7 +4095,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       }
 
       // set total count
-      results.setTotalCount(results.getCount());
+      results.setTotalCount(results.size());
 
       // apply paging/sorting
       final int totalCt[] = new int[1];

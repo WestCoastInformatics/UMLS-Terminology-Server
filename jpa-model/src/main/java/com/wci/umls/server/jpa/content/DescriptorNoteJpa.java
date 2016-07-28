@@ -20,7 +20,8 @@ import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Descriptor;
 
 /**
- * JPA and JAXB enabled implementation of a {@link Note} connected to a {@link Descriptor}.
+ * JPA and JAXB enabled implementation of a {@link Note} connected to a
+ * {@link Descriptor}.
  */
 @Entity
 @Table(name = "descriptor_notes")
@@ -80,7 +81,6 @@ public class DescriptorNoteJpa extends AbstractNote {
   public Long getDescriptorId() {
     return (descriptor != null) ? descriptor.getId() : 0;
   }
-  
 
   /**
    * Returns the descriptor name.
@@ -92,7 +92,7 @@ public class DescriptorNoteJpa extends AbstractNote {
   public String getDescriptorName() {
     return (descriptor != null) ? descriptor.getName() : "";
   }
-  
+
   /**
    * Returns the descriptor name.
    *
@@ -117,10 +117,37 @@ public class DescriptorNoteJpa extends AbstractNote {
     descriptor.setId(descriptorId);
   }
 
+  /**
+   * Sets the descriptor terminology id.
+   *
+   * @param terminologyId the descriptor terminology id
+   */
+  @SuppressWarnings("unused")
+  private void setDescriptorTerminologyId(String terminologyId) {
+    if (descriptor == null) {
+      descriptor = new DescriptorJpa();
+    }
+    descriptor.setTerminologyId(terminologyId);
+  }
+
+  /**
+   * Sets the descriptor name.
+   *
+   * @param name the descriptor name
+   */
+  @SuppressWarnings("unused")
+  private void setDescriptorName(String name) {
+    if (descriptor == null) {
+      descriptor = new DescriptorJpa();
+    }
+    descriptor.setName(name);
+  }
+
   /* see superclass */
   @Override
   public String toString() {
-    return "DescriptorNoteJpa [descriptorId=" + getDescriptorId() + "] " + super.toString();
+    return "DescriptorNoteJpa [descriptorId=" + getDescriptorId() + "] "
+        + super.toString();
   }
 
   /* see superclass */
@@ -128,7 +155,8 @@ public class DescriptorNoteJpa extends AbstractNote {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((getDescriptorId() == null) ? 0 : getDescriptorId().hashCode());
+    result = prime * result
+        + ((getDescriptorId() == null) ? 0 : getDescriptorId().hashCode());
     return result;
   }
 
@@ -149,5 +177,5 @@ public class DescriptorNoteJpa extends AbstractNote {
       return false;
     return true;
   }
-  
+
 }

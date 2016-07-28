@@ -50,10 +50,10 @@ public class MolecularActionListUnitTest extends
     list2 = new MolecularActionListJpa();
     c1 = new MolecularActionJpa();
     c1.setId(1L);
-    c1.setTerminologyId("1");
+    c1.setComponentId(1L);
     c2 = new MolecularActionJpa();
     c2.setId(2L);
-    c2.setTerminologyId("2");
+    c2.setComponentId(2L);
 
   }
 

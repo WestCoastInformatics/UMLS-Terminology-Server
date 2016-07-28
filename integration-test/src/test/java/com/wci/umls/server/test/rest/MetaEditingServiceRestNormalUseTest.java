@@ -95,7 +95,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // ensure there is a concept associated with the project
     ProjectList projects = projectService.getProjects(authToken);
-    assertTrue(projects.getCount() > 0);
+    assertTrue(projects.size() > 0);
     project = projects.getObjects().get(0);
 
     // verify terminology and branch are expected values
@@ -426,10 +426,10 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularActionList list =
         projectService.findMolecularActions(c.getTerminologyId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -499,10 +499,10 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     list = projectService.findMolecularActions(c.getTerminologyId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
 
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
@@ -550,10 +550,10 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     list = projectService.findMolecularActions(c.getTerminologyId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -659,10 +659,10 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularActionList list =
         projectService.findMolecularActions(c.getTerminologyId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -749,10 +749,10 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     list = projectService.findMolecularActions(c.getTerminologyId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -797,10 +797,10 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     list = projectService.findMolecularActions(c.getTerminologyId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -912,10 +912,10 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularActionList list =
         projectService.findMolecularActions(c.getTerminologyId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -1010,10 +1010,10 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     list = projectService.findMolecularActions(c.getTerminologyId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -1058,10 +1058,10 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     list = projectService.findMolecularActions(c.getTerminologyId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -1202,10 +1202,10 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularActionList list =
         projectService.findMolecularActions(c.getTerminologyId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -1309,10 +1309,10 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     list = projectService.findMolecularActions(c.getTerminologyId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -1366,10 +1366,10 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     list = projectService.findMolecularActions(c.getTerminologyId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -1451,7 +1451,8 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(concept3.getId(), project.getId(), authToken);
     assertNotNull(relatedC);
 
-    // Save fromC's ID for to check relationship once Concept is removed
+    // Save fromC's ID to check molecular Action and relationship once Concept
+    // is removed
     final Long fromCId = concept2.getId();
 
     // Now that the concepts are all set up, merge them.
@@ -1525,10 +1526,11 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularActionList list =
         projectService.findMolecularActions(toC.getTerminologyId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(toC.getTerminologyId()));
+    assertEquals(toC.getId(), ma.getComponentId());
+    assertEquals(fromCId, ma.getComponentId2());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -1665,10 +1667,11 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularActionList list =
         projectService.findMolecularActions(fromC.getTerminologyId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(fromC.getTerminologyId()));
+    assertEquals(fromC.getId(), ma.getComponentId());
+    assertEquals(toC.getId(), ma.getComponentId2());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -1859,10 +1862,10 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularActionList list =
         projectService.findMolecularActions(originatingC.getTerminologyId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(originatingC.getTerminologyId()));
+    assertEquals(originatingC.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -2057,10 +2060,10 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setAscending(false);
     list = projectService.findMolecularActions(originatingC.getTerminologyId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(originatingC.getTerminologyId()));
+    assertEquals(originatingC.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -2231,10 +2234,10 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularActionList list =
         projectService.findMolecularActions(c.getTerminologyId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
-    assertTrue(ma.getTerminologyId().equals(c.getTerminologyId()));
+    assertEquals(c.getId(), ma.getComponentId());
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
@@ -2321,6 +2324,84 @@ public class MetaEditingServiceRestNormalUseTest
     }
     // logout
     securityService.logout(authToken);
+
+  }
+
+  /**
+   * Test undo.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testUndo() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass())
+        .info("TEST - Perform and undo each action type, " + umlsTerminology
+            + ", " + umlsVersion + authToken);
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // get the concept
+    Concept c =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(c);
+
+    //
+    // Create and add an atom to concept, and then undo
+    //
+    AtomJpa atom = new AtomJpa();
+    atom.setBranch(Branch.ROOT);
+    atom.setName("DCB");
+    atom.setTerminologyId("TestId");
+    atom.setTerminology(umlsTerminology);
+    atom.setVersion(umlsVersion);
+    atom.setTimestamp(new Date());
+    atom.setPublishable(true);
+    atom.setCodeId("C44314");
+    atom.setConceptId("M0023181");
+    atom.getConceptTerminologyIds().put(concept.getTerminology(),
+        concept.getTerminologyId());
+    atom.setDescriptorId("");
+    atom.setLanguage("ENG");
+    atom.setTermType("AB");
+    atom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
+        c.getLastModified().getTime(), atom, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Get the add atom molecular action
+
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list =
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.size() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(c.getId(), ma.getComponentId());
+    assertEquals(null, ma.getComponentId2());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    v = metaEditingService.undoAction(project.getId(), ma.getId(),
+        ma.getLastModified().getTime(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    // // Verify the log entry exists
+    // String logEntry =
+    // projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    // assertTrue(logEntry.contains("MOVE"));
 
   }
 

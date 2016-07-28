@@ -117,7 +117,7 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
     final SubsetMemberList members =
         findConceptSubsetMembers(subset.getTerminologyId(),
             subset.getTerminology(), subset.getVersion(), Branch.ROOT, "", null);
-    logInfo("  subset members = " + members.getCount());
+    logInfo("  subset members = " + members.size());
 
     // Look up ancestors
     fireProgressEvent(5, "Look up ancestors");

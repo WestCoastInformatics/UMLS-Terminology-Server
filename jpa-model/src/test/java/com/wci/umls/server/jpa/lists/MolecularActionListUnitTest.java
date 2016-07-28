@@ -48,11 +48,11 @@ public class MolecularActionListUnitTest extends AbstractListUnit<MolecularActio
     list2 = new MolecularActionListJpa();
     a1 = new MolecularActionJpa();
     a1.setId(1L);
-    a1.setTerminologyId("1");
+    a1.setComponentId(1L);
    
     a2 = new MolecularActionJpa();
     a2.setId(2L);
-    a2.setTerminologyId("2");
+    a2.setComponentId(2L);
 
   }
 

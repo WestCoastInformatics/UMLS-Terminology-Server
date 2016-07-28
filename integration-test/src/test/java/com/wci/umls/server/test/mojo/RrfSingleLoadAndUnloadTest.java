@@ -112,7 +112,7 @@ public class RrfSingleLoadAndUnloadTest {
     Assert
         .assertEquals(0,
             service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
-                .getCount());
+                .size());
     service.close();
     service.closeFactory();
 
@@ -142,7 +142,7 @@ public class RrfSingleLoadAndUnloadTest {
     Assert
         .assertEquals(3903,
             service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
-                .getCount());
+                .size());
 
     // Print component Stats
     Logger.getLogger(getClass()).info(
@@ -270,7 +270,7 @@ public class RrfSingleLoadAndUnloadTest {
     Assert
         .assertEquals(0,
             service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
-                .getCount());
+                .size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "

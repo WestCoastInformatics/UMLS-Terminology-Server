@@ -2,7 +2,6 @@
 var configureUrl = 'configure';
 tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'gpService',
   'utilService',
-
   function($rootScope, $http, $q, $location, gpService, utilService) {
     console.debug("configure configureService");
 

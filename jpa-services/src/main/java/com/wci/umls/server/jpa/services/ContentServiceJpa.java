@@ -2069,7 +2069,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
                   + inverseRelType,
               false, null, relationship.getClass());
 
-      if (relList.getCount() == 0) {
+      if (relList.size() == 0) {
         throw new Exception("Unexpected missing inverse relationship");
       } else {
         return relList;
@@ -3093,7 +3093,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       exprResults = exprHandler.resolve(localPfs.getExpression());
 
       // if results found, constuct a query restriction
-      if (exprResults.getCount() > 0) {
+      if (exprResults.size() > 0) {
         String exprQueryRestr = (localPfs.getQueryRestriction() != null
             && !localPfs.getQueryRestriction().isEmpty() ? " AND " : "")
             + "terminologyId:(";
@@ -3103,7 +3103,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         // trim last space, close parenthesis and add boost based on count
         exprQueryRestr =
             exprQueryRestr.substring(0, exprQueryRestr.length() - 1) + ")^"
-                + exprResults.getCount();
+                + exprResults.size();
         localPfs.setQueryRestriction((localPfs.getQueryRestriction() != null
             ? localPfs.getQueryRestriction() : "") + exprQueryRestr);
       }
@@ -3121,7 +3121,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // if no expression, or expression with results, perform lucene query
-    if (exprResults == null || exprResults.getCount() > 0) {
+    if (exprResults == null || exprResults.size() > 0) {
       luceneResults = searchHandler.getQueryResults(terminology, version,
           branch, query, "atoms.nameSort", fieldNamesKey, clazz, localPfs,
           totalCt, manager);
@@ -4474,7 +4474,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // If the list has <30 entries and all are roman numerals
     // and the sortField is "nodeTerminologyId" then use a roman numeral sort
     // This is a hack for roman numeral sorted top-level hierarchies
-    if (list.getCount() < 30 && pfs != null && pfs.getSortField() != null
+    if (list.size() < 30 && pfs != null && pfs.getSortField() != null
         && pfs.getSortField().equals("nodeTerminologyId")) {
       boolean nonRomanFound = false;
       for (final TreePosition treepos : list.getObjects()) {
@@ -4858,7 +4858,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     TreePositionList tpList = findTreePositionsHelper(terminologyId,
         terminology, version, branch, "", childPfs, clazz);
 
-    if (tpList.getCount() == 0) {
+    if (tpList.size() == 0) {
       return new TreePositionListJpa();
     }
     final TreePosition<? extends ComponentHasAttributesAndName> treePosition =
@@ -4881,7 +4881,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // If the list has <30 entries and all are roman numerals
     // and the sortField is "nodeTerminologyId" then use a roman numeral sort
-    if (list.getCount() < 30 && pfs != null && pfs.getSortField() != null
+    if (list.size() < 30 && pfs != null && pfs.getSortField() != null
         && pfs.getSortField().equals("nodeTerminologyId")) {
       boolean nonRomanFound = false;
       for (final TreePosition treepos : list.getObjects()) {

@@ -76,7 +76,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
 
     }
     Logger.getLogger(getClass()).info("  Verify count = 68");
-    assertEquals(128, list.getCount());
+    assertEquals(128, list.size());
 
     Logger
         .getLogger(getClass())
@@ -99,7 +99,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
 
     }
     // Test 10 objects
-    assertEquals(10, list.getCount());
+    assertEquals(10, list.size());
     List<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> list2 =
         new ArrayList<>(list.getObjects());
 

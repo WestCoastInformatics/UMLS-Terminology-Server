@@ -170,12 +170,14 @@ public class AtomicActionJpa implements AtomicAction {
   }
 
   /* see superclass */
+  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getClassName() {
     return className;
   }
 
   /* see superclass */
+  @Override
   public void setClassName(String className) {
     this.className = className;
   }

@@ -36,6 +36,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
@@ -607,13 +608,13 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
     // Get bins
     workflowService = new WorkflowServiceRestImpl();
-    final List<WorkflowBin> bins = workflowService.getWorkflowBins(projectId,
+    final WorkflowBinList bins = workflowService.getWorkflowBins(projectId,
         WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
 
     // For each editable bin, make two worklists of size 5
     Worklist lastWorklist = null;
     int chk = 100;
-    for (final WorkflowBin bin : bins) {
+    for (final WorkflowBin bin : bins.getObjects()) {
       // Log all
       getLog().info(
           "  bin " + bin.getName() + " = " + bin.getTrackingRecords().size());

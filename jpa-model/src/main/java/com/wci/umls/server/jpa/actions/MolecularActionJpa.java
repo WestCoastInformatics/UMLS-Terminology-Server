@@ -52,13 +52,13 @@ public class MolecularActionJpa implements MolecularAction {
   @Column(nullable = false)
   private String version;
 
-  /** The terminology id. */
+  /** The component id. */
   @Column(nullable = false)
-  private String terminologyId;
+  private Long componentId;
 
-  /** The terminology id 2. */
+  /** The component id 2. */
   @Column(nullable = true)
-  private String terminologyId2;
+  private Long componentId2;
 
   /** The terminology. */
   @Column(nullable = false)
@@ -126,8 +126,8 @@ public class MolecularActionJpa implements MolecularAction {
     lastModifiedBy = action.getLastModifiedBy();
     version = action.getVersion();
     version = action.getVersion();
-    terminologyId = action.getTerminologyId();
-    terminologyId2 = action.getTerminologyId2();
+    componentId = action.getComponentId();
+    componentId2 = action.getComponentId2();
     terminology = action.getTerminology();
     macroAction = action.isMacroAction();
     undoneFlag = action.isUndoneFlag();
@@ -155,27 +155,27 @@ public class MolecularActionJpa implements MolecularAction {
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getTerminologyId() {
-    return terminologyId;
+  public Long getComponentId() {
+    return componentId;
   }
 
   /* see superclass */
   @Override
-  public void setTerminologyId(String terminologyId) {
-    this.terminologyId = terminologyId;
+  public void setComponentId(Long componentId) {
+    this.componentId = componentId;
   }
 
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getTerminologyId2() {
-    return terminologyId2;
+  public Long getComponentId2() {
+    return componentId2;
   }
 
   /* see superclass */
   @Override
-  public void setTerminologyId2(String terminologyId2) {
-    this.terminologyId2 = terminologyId2;
+  public void setComponentId2(Long componentId2) {
+    this.componentId2 = componentId2;
   }
 
   /* see superclass */
@@ -323,20 +323,14 @@ public class MolecularActionJpa implements MolecularAction {
     this.workId = workId;
   }
 
-  /**
-   * Indicates whether or not undone flag is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  /* see superclass */
+  @Override
   public boolean isUndoneFlag() {
     return undoneFlag;
   }
 
-  /**
-   * Sets the undone flag.
-   *
-   * @param undoneFlag the undone flag
-   */
+  /* see superclass */
+  @Override
   public void setUndoneFlag(boolean undoneFlag) {
     this.undoneFlag = undoneFlag;
   }
@@ -352,11 +346,12 @@ public class MolecularActionJpa implements MolecularAction {
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+        + ((componentId == null) ? 0 : componentId.hashCode());
     result = prime * result
-        + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
+        + ((componentId2 == null) ? 0 : componentId2.hashCode());
     result = prime * result + ((batchId == null) ? 0 : batchId.hashCode());
-    result = prime * result + ((activityId == null) ? 0 : activityId.hashCode());
+    result =
+        prime * result + ((activityId == null) ? 0 : activityId.hashCode());
     result = prime * result + ((workId == null) ? 0 : workId.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
@@ -386,15 +381,15 @@ public class MolecularActionJpa implements MolecularAction {
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (terminologyId == null) {
-      if (other.terminologyId != null)
+    if (componentId == null) {
+      if (other.componentId != null)
         return false;
-    } else if (!terminologyId.equals(other.terminologyId))
+    } else if (!componentId.equals(other.componentId))
       return false;
-    if (terminologyId2 == null) {
-      if (other.terminologyId2 != null)
+    if (componentId2 == null) {
+      if (other.componentId2 != null)
         return false;
-    } else if (!terminologyId2.equals(other.terminologyId2))
+    } else if (!componentId2.equals(other.componentId2))
       return false;
     if (version == null) {
       if (other.version != null)
@@ -423,12 +418,12 @@ public class MolecularActionJpa implements MolecularAction {
   @Override
   public String toString() {
     return "MolecularActionJpa [id=" + id + ", version=" + version
-        + ", terminologyId=" + terminologyId + ", terminologyId2="
-        + terminologyId2 + ", terminology=" + terminology + ", name=" + name
+        + ", componentId=" + componentId + ", componentId2="
+        + componentId2 + ", terminology=" + terminology + ", name=" + name
         + ", lastModified=" + lastModified + ", lastModifiedBy="
         + lastModifiedBy + ", timestamp=" + timestamp + ", macroAction="
-        + macroAction + ", undoneFlag=" + undoneFlag + ", batchId=" + batchId+ ", activityId=" + activityId
-        + ", workId=" + workId + "]";
+        + macroAction + ", undoneFlag=" + undoneFlag + ", batchId=" + batchId
+        + ", activityId=" + activityId + ", workId=" + workId + "]";
   }
 
 }

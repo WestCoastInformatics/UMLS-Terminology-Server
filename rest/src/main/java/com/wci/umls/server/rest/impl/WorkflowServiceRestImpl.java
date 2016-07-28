@@ -47,11 +47,15 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -88,12 +92,15 @@ import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link WorkflowServiceRest}.
  */
 @Path("/workflow")
-@Api(value = "/workflow", description = "Operations supporting workflow")
+@Api(value = "/workflow")
+@SwaggerDefinition(info = @Info(description = "Operations supporting workflow", title = "Workflow API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
@@ -294,7 +301,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @GET
   @Path("/config/all")
   @ApiOperation(value = "Get workflow configs", notes = "Gets a workflow configs", response = WorkflowConfigJpa.class, responseContainer = "List")
-  public List<WorkflowConfig> getWorkflowConfigs(
+  public WorkflowConfigList getWorkflowConfigs(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -312,7 +319,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       for (WorkflowConfig config : configs) {
         workflowService.handleLazyInit(config);
       }
-      return configs;
+      final WorkflowConfigList list = new WorkflowConfigListJpa();
+      list.setObjects(configs);
+      list.setTotalCount(list.size());
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to get a workflow config");
@@ -417,7 +427,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Workflow): /definition/add/" + projectId + " "
-            + positionAfterId + " " + binDefinition.getName() + " " + authToken);
+            + positionAfterId + " " + binDefinition.getName() + " "
+            + authToken);
 
     final String action = "trying to add workflow bin definition";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -431,9 +442,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Add to list in workflow config and save
       final WorkflowConfig config = workflowService
           .getWorkflowConfig(binDefinition.getWorkflowConfig().getId());
-      List<WorkflowBinDefinition> definitions = config.getWorkflowBinDefinitions();
-      
-      
+      List<WorkflowBinDefinition> definitions =
+          config.getWorkflowBinDefinitions();
 
       final WorkflowBinDefinition def;
       // if no position stated, add definition at the end of the list
@@ -443,7 +453,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       } else {
         // otherwise, add definition at position indicated by user
         int afterThisBinIndex = definitions.size();
-        for (int i=0; i<definitions.size(); i++) {
+        for (int i = 0; i < definitions.size(); i++) {
           if (definitions.get(i).getId().equals(positionAfterId)) {
             afterThisBinIndex = i + 1;
             break;
@@ -920,16 +930,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       final Project project = workflowService.getProject(projectId);
       final Checklist checklist = workflowService.getChecklist(id);
-      // Compose query of all of the tracking record ids
-      final List<String> clauses = checklist.getTrackingRecords().stream()
-          .map(r -> "id:" + r.getId()).collect(Collectors.toList());
-      final String query = ConfigUtility.composeQuery("OR", clauses);
-      if (query.isEmpty()) {
-        return new TrackingRecordListJpa();
-      }
 
-      final TrackingRecordList list =
-          workflowService.findTrackingRecords(project, query, pfs);
+      // Can just search on checklist name because the only tracking
+      // records with the checklist name will be attached to this checklist
+      final TrackingRecordList list = workflowService.findTrackingRecords(
+          project, "checklistName:\"" + checklist.getName() + "\"", pfs);
       for (final TrackingRecord record : list.getObjects()) {
         lookupTrackingRecordConcepts(record, workflowService);
       }
@@ -996,7 +1001,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       final Project project = workflowService.getProject(projectId);
       final Worklist worklist = workflowService.getWorklist(id);
+
       // Compose query of all of the tracking record ids
+      // Can not just use worklist name because the workflow bin
+      // tracking records ALSO have the worklist name set.
       final List<String> clauses = worklist.getTrackingRecords().stream()
           .map(r -> "id:" + r.getId()).collect(Collectors.toList());
       final String query = ConfigUtility.composeQuery("OR", clauses);
@@ -1004,7 +1012,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       if (query.isEmpty()) {
         return new TrackingRecordListJpa();
       }
-
       final TrackingRecordList list =
           workflowService.findTrackingRecords(project, query, pfs);
       for (final TrackingRecord record : list.getObjects()) {
@@ -1347,7 +1354,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           // Skip records with a clusterType if cluster type doesn't match
           .filter(record -> !(excludeOnWorklist
               && !ConfigUtility.isEmpty(record.getWorklistName()))
-              && !(clusterType != null
+              && !(!ConfigUtility.isEmpty(clusterType)
                   && !record.getClusterType().equals(clusterType)))
           .map(r -> "id:" + r.getId()).collect(Collectors.toList());
       final String idQuery = ConfigUtility.composeQuery("OR", clauses);
@@ -1450,11 +1457,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         worklistQueryPfs.setSortField("name");
         worklistQueryPfs.setAscending(false);
         final StringBuilder query = new StringBuilder();
+        // Must use nameSort for non-analyzed field
         if (clusterType == null) {
-          query.append("name:").append("wrk").append(currentEpoch.getName()
-              + "_" + workflowBin.getName() + "_0" + '*');
+          query.append("nameSort:").append("wrk").append(
+              currentEpoch.getName() + "_" + workflowBin.getName() + "_" + '*');
         } else {
-          query.append("name:").append("wrk").append(currentEpoch.getName()
+          query.append("nameSort:").append("wrk").append(currentEpoch.getName()
               + "_" + workflowBin.getName() + "_" + clusterType + '*');
         }
         final WorklistList worklistList = workflowService.findWorklists(project,
@@ -1466,9 +1474,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         // build query to retrieve tracking records that will be in worklist
         final StringBuilder sb = new StringBuilder();
+        // Find records from this workflow bin that
+        // are not on a worklist and not owned by a checklist
         sb.append("workflowBinName:").append(workflowBin.getName());
-        sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-        if (clusterType != null) {
+        sb.append(" AND ").append("NOT worklistName:[* TO *] ")
+            .append("NOT checklistName:[* TO *] ");
+        if (!ConfigUtility.isEmpty(clusterType)) {
           sb.append(" AND ").append("clusterType:").append(clusterType);
         } else {
           sb.append(" AND NOT clusterType:[* TO *]");
@@ -1482,7 +1493,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             .findTrackingRecords(project, sb.toString(), localPfs);
 
         // Bail if there are no more records to make worklists from
-        if (recordResultList.getCount() == 0) {
+        if (recordResultList.size() == 0) {
           throw new LocalException(
               "No more unassigned clusters in workflow bin");
         }
@@ -1508,6 +1519,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           worklistRecord.setId(null);
           worklistRecord.setWorklistName(worklistName.toString());
           workflowService.addTrackingRecord(worklistRecord);
+
           newWorklist.getTrackingRecords().add(worklistRecord);
         }
         workflowService.updateWorklist(newWorklist);
@@ -1528,7 +1540,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @GET
   @Path("/bin/all")
   @ApiOperation(value = "Get workflow bins", notes = "Gets the workflow bins for the project and type.", response = WorkflowBinJpa.class, responseContainer = "List")
-  public List<WorkflowBin> getWorkflowBins(
+  public WorkflowBinList getWorkflowBins(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin type, e.g. MUTUALLY_EXCLUSIVE", required = false) @QueryParam("type") WorkflowBinType type,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
@@ -1617,11 +1629,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       Collections.sort(bins, (o1, o2) -> o1.getRank() - o2.getRank());
 
-      // TODO: remove when XmlTransient is working
-      for (WorkflowBin bin : bins) {
-        bin.setTrackingRecords(new ArrayList<TrackingRecord>());
-      }
-      return bins;
+      final WorkflowBinList list = new WorkflowBinListJpa();
+      list.setObjects(bins);
+      list.setTotalCount(list.size());
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to get workflow bin stats");
@@ -2216,7 +2227,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final List<Object> list = jpaQuery.getResultList();
       final List<Long[]> results = new ArrayList<>();
       for (final Object entry : list) {
-        final Long conceptId = ((BigInteger) entry).longValue();
+        Long conceptId = null;
+        if (entry instanceof BigInteger) {
+          conceptId = ((BigInteger) entry).longValue();
+        } else if (entry instanceof Long) {
+          conceptId = (Long) entry;
+        }
         final Long[] result = new Long[2];
         result[0] = conceptId;
         result[1] = conceptId;
@@ -2232,8 +2248,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final Map<Long, Set<Long>> parChd = new HashMap<>();
       final Map<Long, Set<Long>> chdPar = new HashMap<>();
       for (final Object[] entry : list) {
-        final Long conceptId1 = ((BigInteger) entry[0]).longValue();
-        final Long conceptId2 = ((BigInteger) entry[1]).longValue();
+        Long conceptId1 = null;
+        if (entry[0] instanceof BigInteger) {
+          conceptId1 = ((BigInteger) entry[0]).longValue();
+        } else if (entry[0] instanceof Long) {
+          conceptId1 = (Long) entry[0];
+        }
+        Long conceptId2 = null;
+        if (entry[1] instanceof BigInteger) {
+          conceptId2 = ((BigInteger) entry[1]).longValue();
+        } else if (entry[1] instanceof Long) {
+          conceptId2 = (Long) entry[1];
+        }
         final Long par = Math.min(conceptId1, conceptId2);
         final Long chd = Math.max(conceptId1, conceptId2);
         // skip self-ref
@@ -2283,12 +2309,24 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     final List<Object[]> list = jpaQuery.getResultList();
     final List<Long[]> results = new ArrayList<>();
     for (final Object[] entry : list) {
+      Long clusterId = null;
+      if (entry[0] instanceof BigInteger) {
+        clusterId = ((BigInteger) entry[0]).longValue();
+      } else if (entry[0] instanceof Long) {
+        clusterId = (Long) entry[0];
+      }
+      Long conceptId = null;
+      if (entry[1] instanceof BigInteger) {
+        conceptId = ((BigInteger) entry[1]).longValue();
+      } else if (entry[1] instanceof Long) {
+        conceptId = (Long) entry[1];
+      }
       final Long[] result = new Long[] {
-          ((BigInteger) entry[0]).longValue(),
-          ((BigInteger) entry[1]).longValue()
+          clusterId, conceptId
       };
       results.add(result);
     }
+
     return results;
 
   }

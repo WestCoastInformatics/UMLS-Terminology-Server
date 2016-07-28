@@ -7,13 +7,13 @@ import java.util.List;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
-import com.wci.umls.server.helpers.HasTerminologyId;
+import com.wci.umls.server.helpers.HasTerminology;
 
 /**
  * The Interface MolecularAction.
  */
 public interface MolecularAction
-    extends HasTerminologyId, HasLastModified, HasName {
+    extends HasTerminology, HasLastModified, HasName {
 
   /**
    * Gets the atomic actions.
@@ -44,20 +44,34 @@ public interface MolecularAction
   public void setMacroAction(boolean macroAction);
 
   /**
-   * Returns the referenced terminology id. This is the termionlogyId on the
+   * Returns the component id. This is the id of the component the action is performed upon 
+   *
+   * @return the component id
+   */
+  public Long getComponentId();
+
+  /**
+   * Sets the component id.
+   *
+   * @param componentId the component id
+   */
+  public void setComponentId(Long componentId);  
+  
+  /**
+   * Returns the referenced component id. This is the component Id on the
    * other end of an action like inserting a relationship, merging, moving, or
    * splitting atoms.
    *
-   * @return the referenced terminology id
+   * @return the referenced component id
    */
-  public String getTerminologyId2();
+  public Long getComponentId2();
 
   /**
-   * Sets the referenced terminology id.
+   * Sets the referenced component id.
    *
-   * @param referencedTerminologyId the referenced terminology id
+   * @param referencedComponentId2 the referenced component id
    */
-  public void setTerminologyId2(String referencedTerminologyId);
+  public void setComponentId2(Long referencedComponentId2);
 
   /**
    * Returns the batch id. Represents a collection of connected molecular
