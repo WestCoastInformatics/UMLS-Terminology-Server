@@ -118,6 +118,7 @@ public class PrecedenceListJpa implements PrecedenceList {
     terminology = precedenceList.getTerminology();
     version = precedenceList.getVersion();
     branch = precedenceList.getBranch();
+    defaultList = precedenceList.isDefaultList();
   }
 
   /* see superclass */

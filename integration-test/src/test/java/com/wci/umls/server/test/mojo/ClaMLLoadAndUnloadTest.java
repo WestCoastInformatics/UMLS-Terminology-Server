@@ -110,7 +110,7 @@ public class ClaMLLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 
@@ -140,7 +140,7 @@ public class ClaMLLoadAndUnloadTest {
     service = new ContentServiceJpa();
     // Test a non-UMLS terminology too
     Assert.assertEquals(103974,
-        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 
@@ -264,7 +264,7 @@ public class ClaMLLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no ICD10CM contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 

@@ -58,12 +58,12 @@ public class ContentServiceFindRelationshipsTest extends IntegrationUnitSupport 
     RelationshipList list =
         service.findConceptRelationships("C0364349", "UMLS", "latest",
             Branch.ROOT, null, false, null);
-    assertEquals(1, list.getCount());
+    assertEquals(1, list.size());
 
     list =
         service.findConceptRelationships("C0364349", "UMLS", "latest",
             Branch.ROOT, "relationshipType:RO", false, null);
-    assertEquals(1, list.getCount());
+    assertEquals(1, list.size());
   }
 
   /**

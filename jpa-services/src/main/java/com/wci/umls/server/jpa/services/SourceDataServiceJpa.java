@@ -153,7 +153,7 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
       List<SourceDataFile> sourceDataFiles = query.getResultList();
       SourceDataFileList sourceDataFileList = new SourceDataFileListJpa();
       sourceDataFileList.setObjects(sourceDataFiles);
-      sourceDataFileList.setTotalCount(sourceDataFileList.getCount());
+      sourceDataFileList.setTotalCount(sourceDataFileList.size());
 
       return sourceDataFileList;
     } catch (NoResultException e) {

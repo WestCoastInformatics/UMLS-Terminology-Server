@@ -109,7 +109,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, service
-        .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
+        .getAllConcepts("UMLS", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 
@@ -138,7 +138,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     service = new ContentServiceJpa();
     // Test a non-UMLS terminology too
     Assert.assertEquals(10293,
-        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 
@@ -262,7 +262,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 

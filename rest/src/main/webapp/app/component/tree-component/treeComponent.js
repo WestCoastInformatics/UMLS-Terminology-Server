@@ -75,7 +75,7 @@ tsApp.directive('treeComponent', [
 
               // set the count and position variables
               scope.treeCount = data.totalCount;
-              if (data.count > 0)
+              if (data.objects.length > 0)
                 scope.treeViewed = startIndex;
               else
                 scope.treeViewed = 0;

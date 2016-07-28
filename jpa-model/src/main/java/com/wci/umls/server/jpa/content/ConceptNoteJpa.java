@@ -20,7 +20,8 @@ import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Concept;
 
 /**
- * JPA and JAXB enabled implementation of a {@link Note} connected to a {@link Concept}.
+ * JPA and JAXB enabled implementation of a {@link Note} connected to a
+ * {@link Concept}.
  */
 @Entity
 @Table(name = "concept_notes")
@@ -80,7 +81,7 @@ public class ConceptNoteJpa extends AbstractNote {
   public Long getConceptId() {
     return (concept != null) ? concept.getId() : 0;
   }
-  
+
   /**
    * Returns the concept name.
    *
@@ -91,7 +92,7 @@ public class ConceptNoteJpa extends AbstractNote {
   public String getConceptName() {
     return (concept != null) ? concept.getName() : "";
   }
-  
+
   /**
    * Returns the concept name.
    *
@@ -102,7 +103,7 @@ public class ConceptNoteJpa extends AbstractNote {
   public String getConceptTerminologyId() {
     return (concept != null) ? concept.getTerminologyId() : "";
   }
-  
+
   /**
    * Sets the concept id.
    *
@@ -116,10 +117,37 @@ public class ConceptNoteJpa extends AbstractNote {
     concept.setId(conceptId);
   }
 
+  /**
+   * Sets the concept terminology id.
+   *
+   * @param terminologyId the concept terminology id
+   */
+  @SuppressWarnings("unused")
+  private void setConceptTerminologyId(String terminologyId) {
+    if (concept == null) {
+      concept = new ConceptJpa();
+    }
+    concept.setTerminologyId(terminologyId);
+  }
+
+  /**
+   * Sets the concept name.
+   *
+   * @param name the concept name
+   */
+  @SuppressWarnings("unused")
+  private void setConceptName(String name) {
+    if (concept == null) {
+      concept = new ConceptJpa();
+    }
+    concept.setName(name);
+  }
+
   /* see superclass */
   @Override
   public String toString() {
-    return "ConceptNoteJpa [conceptId=" + getConceptId() + "] " + super.toString();
+    return "ConceptNoteJpa [conceptId=" + getConceptId() + "] "
+        + super.toString();
   }
 
   /* see superclass */
@@ -127,7 +155,8 @@ public class ConceptNoteJpa extends AbstractNote {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((getConceptId() == null) ? 0 : getConceptId().hashCode());
+    result = prime * result
+        + ((getConceptId() == null) ? 0 : getConceptId().hashCode());
     return result;
   }
 
@@ -148,6 +177,5 @@ public class ConceptNoteJpa extends AbstractNote {
       return false;
     return true;
   }
-  
-  
+
 }

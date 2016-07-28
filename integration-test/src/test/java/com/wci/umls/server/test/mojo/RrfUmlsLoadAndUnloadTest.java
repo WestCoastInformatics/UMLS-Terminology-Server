@@ -110,7 +110,7 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, service
-        .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
+        .getAllConcepts("UMLS", "latest", Branch.ROOT).size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
@@ -143,7 +143,7 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(2014,
-        service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("UMLS", "latest", Branch.ROOT).size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
@@ -152,7 +152,7 @@ public class RrfUmlsLoadAndUnloadTest {
     // Test a non-UMLS terminology too
     Assert.assertEquals(3903,
         service.getAllConcepts("SNOMEDCT_US", "2016_03_01", Branch.ROOT)
-            .getCount());
+            .size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
@@ -285,7 +285,7 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no UMLS contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0, service
-        .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
+        .getAllConcepts("UMLS", "latest", Branch.ROOT).size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
@@ -313,7 +313,7 @@ public class RrfUmlsLoadAndUnloadTest {
     // Verify no contents
     service = new ContentServiceJpa();
     Assert.assertEquals(0, service.getAllConcepts("SRC", "latest", Branch.ROOT)
-        .getCount());
+        .size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
@@ -361,12 +361,12 @@ public class RrfUmlsLoadAndUnloadTest {
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
         service.getAllConcepts("MSH", "2016_2016_02_26", Branch.ROOT)
-            .getCount());
+            .size());
     Assert.assertEquals(0,
         service.getAllDescriptors("MSH", "2016_2016_02_26", Branch.ROOT)
-            .getCount());
+            .size());
     Assert.assertEquals(0,
-        service.getAllCodes("MSH", "2016_2016_02_26", Branch.ROOT).getCount());
+        service.getAllCodes("MSH", "2016_2016_02_26", Branch.ROOT).size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
@@ -378,7 +378,7 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0, service.getAllConcepts("MTH", "latest", Branch.ROOT)
-        .getCount());
+        .size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
@@ -409,7 +409,7 @@ public class RrfUmlsLoadAndUnloadTest {
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
         service.getAllConcepts("SNOMEDCT_US", "2016_03_01", Branch.ROOT)
-            .getCount());
+            .size());
 
     // Print component Stats
     Logger.getLogger(getClass()).info(

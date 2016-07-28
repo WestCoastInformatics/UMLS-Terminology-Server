@@ -630,7 +630,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(0, list.getTotalCount());
-    assertEquals(0, list.getCount());
+    assertEquals(0, list.size());
 
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
@@ -643,7 +643,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(0, list.getTotalCount());
-    assertEquals(0, list.getCount());
+    assertEquals(0, list.size());
 
     // Test with invalid terminology - empty results
     Logger.getLogger(getClass()).info("TEST invalid terminology ");

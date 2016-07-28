@@ -3262,7 +3262,7 @@ public class Rf2DeltaLoaderAlgorithm
     // has-active-ingredient -> direct-substance
     // Add if not already added
     if (this.getPropertyChains(getTerminology(), getVersion())
-        .getCount() == 0) {
+        .size() == 0) {
       PropertyChain chain = new PropertyChainJpa();
       chain.setTerminology(getTerminology());
       chain.setVersion(getVersion());

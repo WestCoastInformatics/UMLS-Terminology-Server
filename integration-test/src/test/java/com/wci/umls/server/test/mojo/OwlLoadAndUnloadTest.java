@@ -110,7 +110,7 @@ public class OwlLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 
@@ -138,7 +138,7 @@ public class OwlLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify SNOMEDCT contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(11715,
-        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).size());
 
     service.close();
     service.closeFactory();
@@ -263,7 +263,7 @@ public class OwlLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify SNOMEDCT removed");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 

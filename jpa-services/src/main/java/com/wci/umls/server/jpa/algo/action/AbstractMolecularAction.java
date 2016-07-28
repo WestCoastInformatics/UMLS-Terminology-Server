@@ -258,7 +258,7 @@ public abstract class AbstractMolecularAction
 
     // If there's only one inverse relationship returned, that's the one we
     // want.
-    if (relList.getCount() == 1) {
+    if (relList.size() == 1) {
       return relList.getObjects().get(0);
     }
     // If more than one inverse relationship is returned (can happen in the case

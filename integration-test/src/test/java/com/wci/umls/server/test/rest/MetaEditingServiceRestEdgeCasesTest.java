@@ -67,7 +67,7 @@ public class MetaEditingServiceRestEdgeCasesTest extends
 
     // ensure there is a concept associated with the project
     ProjectList projects = projectService.getProjects(authToken);
-    assertTrue(projects.getCount() > 0);
+    assertTrue(projects.size() > 0);
     project = projects.getObjects().get(0);
 
     // verify terminology and branch are expected values

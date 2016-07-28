@@ -312,7 +312,8 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
         + ", reviewers=" + reviewers + ", team=" + team + ", workflowBin="
         + workflowBinName + ", workflowStatus=" + workflowStatus + ", number="
         + number + ", " + ", authorTime=" + authorTime + ", reviewerTime="
-        + reviewerTime + ", workflowStateHistory=" + workflowStateHistory + "]";
+        + reviewerTime + ", workflowStateHistory=" + workflowStateHistory + "] "
+        + super.toString();
   }
 
 }
