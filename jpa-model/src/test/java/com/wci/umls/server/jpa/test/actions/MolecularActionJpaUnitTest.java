@@ -95,7 +95,9 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("macroAction");
     tester.include("batchId");
+    tester.include("activityId");
     tester.include("workId");
+    tester.include("undoneFlag");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -151,6 +153,7 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("name");
     tester.include("macroAction");
+    tester.include("undoneFlag");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -178,6 +181,7 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("name");
     tester.include("batchId");
+    tester.include("activityId");
     tester.include("workId");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());

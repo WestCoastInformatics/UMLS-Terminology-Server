@@ -87,6 +87,7 @@ public class AtomicActionJpaUnitTest extends ModelUnitSupport {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
     tester.include("idType");
+    tester.include("className");
     tester.include("objectId");
     tester.include("oldValue");
     tester.include("newValue");
@@ -146,6 +147,7 @@ public class AtomicActionJpaUnitTest extends ModelUnitSupport {
 
     tester.include("id");
     tester.include("idType");
+    tester.include("className");
     tester.include("objectId");
     tester.include("field");
     tester.include("molecularAction");
@@ -169,6 +171,7 @@ public class AtomicActionJpaUnitTest extends ModelUnitSupport {
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
     tester.include("idType");
+    tester.include("className");
     tester.include("objectId");
     tester.include("field");
     tester.include("oldValue");
