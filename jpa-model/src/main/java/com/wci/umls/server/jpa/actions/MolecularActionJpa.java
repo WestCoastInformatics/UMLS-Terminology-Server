@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.actions;
 
 import java.util.ArrayList;
@@ -83,6 +86,10 @@ public class MolecularActionJpa implements MolecularAction {
   @Column(nullable = true)
   private String batchId;
 
+  /** The activity id. */
+  @Column(nullable = true)
+  private String activityId;
+
   /** The work id. */
   @Column(nullable = true)
   private String workId;
@@ -90,6 +97,10 @@ public class MolecularActionJpa implements MolecularAction {
   /** The macro action. */
   @Column(nullable = false)
   private boolean macroAction;
+
+  /** The undone flag. */
+  @Column(nullable = false)
+  private boolean undoneFlag = false;
 
   /** The molecular action. */
   @IndexedEmbedded(targetElement = AtomicActionJpa.class)
@@ -119,7 +130,9 @@ public class MolecularActionJpa implements MolecularAction {
     terminologyId2 = action.getTerminologyId2();
     terminology = action.getTerminology();
     macroAction = action.isMacroAction();
+    undoneFlag = action.isUndoneFlag();
     batchId = action.getBatchId();
+    activityId = action.getActivityId();
     workId = action.getWorkId();
     name = action.getName();
     if (deepCopy) {
@@ -287,6 +300,19 @@ public class MolecularActionJpa implements MolecularAction {
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getActivityId() {
+    return activityId;
+  }
+
+  /* see superclass */
+  @Override
+  public void setActivityId(String activityId) {
+    this.activityId = activityId;
+  }
+
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getWorkId() {
     return workId;
   }
@@ -297,12 +323,31 @@ public class MolecularActionJpa implements MolecularAction {
     this.workId = workId;
   }
 
+  /**
+   * Indicates whether or not undone flag is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isUndoneFlag() {
+    return undoneFlag;
+  }
+
+  /**
+   * Sets the undone flag.
+   *
+   * @param undoneFlag the undone flag
+   */
+  public void setUndoneFlag(boolean undoneFlag) {
+    this.undoneFlag = undoneFlag;
+  }
+
   /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + (macroAction ? 1231 : 1237);
+    result = prime * result + (undoneFlag ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
@@ -311,6 +356,7 @@ public class MolecularActionJpa implements MolecularAction {
     result = prime * result
         + ((terminologyId2 == null) ? 0 : terminologyId2.hashCode());
     result = prime * result + ((batchId == null) ? 0 : batchId.hashCode());
+    result = prime * result + ((activityId == null) ? 0 : activityId.hashCode());
     result = prime * result + ((workId == null) ? 0 : workId.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
@@ -327,6 +373,8 @@ public class MolecularActionJpa implements MolecularAction {
       return false;
     MolecularActionJpa other = (MolecularActionJpa) obj;
     if (macroAction != other.macroAction)
+      return false;
+    if (undoneFlag != other.undoneFlag)
       return false;
     if (name == null) {
       if (other.name != null)
@@ -358,6 +406,11 @@ public class MolecularActionJpa implements MolecularAction {
         return false;
     } else if (!batchId.equals(other.batchId))
       return false;
+    if (activityId == null) {
+      if (other.activityId != null)
+        return false;
+    } else if (!activityId.equals(other.activityId))
+      return false;
     if (workId == null) {
       if (other.workId != null)
         return false;
@@ -374,7 +427,8 @@ public class MolecularActionJpa implements MolecularAction {
         + terminologyId2 + ", terminology=" + terminology + ", name=" + name
         + ", lastModified=" + lastModified + ", lastModifiedBy="
         + lastModifiedBy + ", timestamp=" + timestamp + ", macroAction="
-        + macroAction + ", batchId=" + batchId + ", workId=" + workId + "]";
+        + macroAction + ", undoneFlag=" + undoneFlag + ", batchId=" + batchId+ ", activityId=" + activityId
+        + ", workId=" + workId + "]";
   }
 
 }

@@ -12,8 +12,8 @@ import com.wci.umls.server.helpers.HasTerminologyId;
 /**
  * The Interface MolecularAction.
  */
-public interface MolecularAction extends HasTerminologyId, HasLastModified,
-    HasName {
+public interface MolecularAction
+    extends HasTerminologyId, HasLastModified, HasName {
 
   /**
    * Gets the atomic actions.
@@ -75,6 +75,20 @@ public interface MolecularAction extends HasTerminologyId, HasLastModified,
   public void setBatchId(String batchId);
 
   /**
+   * Returns the activity id.
+   *
+   * @return the activity id
+   */
+  public String getActivityId();
+
+  /**
+   * Sets the activity id.
+   *
+   * @param activityId the activity id
+   */
+  public void setActivityId(String activityId);
+
+  /**
    * Returns the work id. Represents a collection of connected batches of
    * molecular actions.
    *
@@ -88,5 +102,19 @@ public interface MolecularAction extends HasTerminologyId, HasLastModified,
    * @param workId the work id
    */
   public void setWorkId(String workId);
+
+  /**
+   * Returns the uundone flag.
+   *
+   * @return the uundone flag
+   */
+  public boolean isUndoneFlag();
+
+  /**
+   * Sets the uundone flag.
+   *
+   * @param undoneFlag the uundone flag
+   */
+  public void setUndoneFlag(boolean undoneFlag);
 
 }

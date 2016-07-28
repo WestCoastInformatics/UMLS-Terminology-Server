@@ -1,5 +1,7 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.model.actions;
-
 
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.model.meta.IdType;
@@ -14,14 +16,14 @@ public interface AtomicAction extends HasId {
    *
    * @return the molecular action
    */
-   public MolecularAction getMolecularAction();
+  public MolecularAction getMolecularAction();
 
   /**
    * Sets the molecular action.
    *
    * @param molecularAction the new molecular action
    */
-   public void setMolecularAction(MolecularAction molecularAction);
+  public void setMolecularAction(MolecularAction molecularAction);
 
   /**
    * Gets the id type.
@@ -42,7 +44,7 @@ public interface AtomicAction extends HasId {
    *
    * @return the field
    */
-   public String getField();
+  public String getField();
 
   /**
    * Sets the field.
@@ -92,5 +94,19 @@ public interface AtomicAction extends HasId {
    * @param id the new object id
    */
   public void setObjectId(Long id);
+
+  /**
+   * Returns the class name.
+   *
+   * @return the class name
+   */
+  public String getClassName();
+
+  /**
+   * Sets the class name.
+   *
+   * @param className the class name
+   */
+  public void setClassName(String className);
 
 }
