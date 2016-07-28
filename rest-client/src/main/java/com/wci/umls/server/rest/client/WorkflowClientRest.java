@@ -261,7 +261,7 @@ public class WorkflowClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId,
+  public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId, Long positionAfterId,
     WorkflowBinDefinitionJpa binDefinition, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - add workflow bin definition " + projectId + ", "
@@ -272,7 +272,7 @@ public class WorkflowClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/workflow/definition/add?projectId=" + projectId);
+            + "/workflow/definition/add?projectId=" + projectId + "&positionAfterId=" + positionAfterId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)

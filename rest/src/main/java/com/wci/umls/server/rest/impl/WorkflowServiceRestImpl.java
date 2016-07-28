@@ -411,12 +411,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Add a workflow bin definition", notes = "Add a workflow bin definition", response = WorkflowBinDefinitionJpa.class)
   public WorkflowBinDefinition addWorkflowBinDefinition(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "New definition should be positioned after this bin definition, e.g. 1", required = false) @QueryParam("positionAfterId") Long positionAfterId,
     @ApiParam(value = "Workflow bin definition to add", required = true) WorkflowBinDefinitionJpa binDefinition,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Workflow): /definition/add/" + projectId + " "
-            + binDefinition.getName() + " " + authToken);
+            + positionAfterId + " " + binDefinition.getName() + " " + authToken);
 
     final String action = "trying to add workflow bin definition";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -427,16 +428,32 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
-      // Add definition
-      final WorkflowBinDefinition def =
-          workflowService.addWorkflowBinDefinition(binDefinition);
-
       // Add to list in workflow config and save
       final WorkflowConfig config = workflowService
           .getWorkflowConfig(binDefinition.getWorkflowConfig().getId());
-      config.getWorkflowBinDefinitions().add(def);
-      workflowService.updateWorkflowConfig(config);
+      List<WorkflowBinDefinition> definitions = config.getWorkflowBinDefinitions();
+      
+      
 
+      final WorkflowBinDefinition def;
+      // if no position stated, add definition at the end of the list
+      if (positionAfterId == null) {
+        def = workflowService.addWorkflowBinDefinition(binDefinition);
+        definitions.add(def);
+      } else {
+        // otherwise, add definition at position indicated by user
+        int afterThisBinIndex = definitions.size();
+        for (int i=0; i<definitions.size(); i++) {
+          if (definitions.get(i).getId() == positionAfterId) {
+            afterThisBinIndex = i + 1;
+            break;
+          }
+        }
+        def = workflowService.addWorkflowBinDefinition(binDefinition);
+        definitions.add(afterThisBinIndex, def);
+      }
+
+      workflowService.updateWorkflowConfig(config);
       return def;
     } catch (Exception e) {
       handleException(e, "trying to add workflow bin definition");
@@ -1600,6 +1617,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       Collections.sort(bins, (o1, o2) -> o1.getRank() - o2.getRank());
 
+      // TODO: remove when XmlTransient is working
+      for (WorkflowBin bin : bins) {
+        bin.setTrackingRecords(new ArrayList<TrackingRecord>());
+      }
       return bins;
 
     } catch (Exception e) {
