@@ -210,9 +210,9 @@ public abstract class AbstractMolecularAction
     // construct the molecular action
     final MolecularAction molecularAction = new MolecularActionJpa();
     molecularAction.setTerminology(this.concept.getTerminology());
-    molecularAction.setTerminologyId(this.concept.getTerminologyId());
+    molecularAction.setComponentId(this.concept.getId());
     if (conceptId2 != null) {
-      molecularAction.setTerminologyId2(this.concept2.getTerminologyId());
+      molecularAction.setComponentId2(this.concept2.getId());
     }
     molecularAction.setVersion(concept.getVersion());
     molecularAction.setName(getName());

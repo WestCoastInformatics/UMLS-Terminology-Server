@@ -160,24 +160,24 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult mergeConcepts(Long projectId, Long conceptId,
-    Long timestamp, Long conceptId2, boolean overrideWarnings,
-    String authToken) throws Exception;
+    Long timestamp, Long conceptId2, boolean overrideWarnings, String authToken)
+    throws Exception;
 
   /**
    * Move atoms.
    *
    * @param projectId the project id
-   * @param fromConceptId the from concept id
+   * @param conceptId the concept id
    * @param timestamp the timestamp
-   * @param toConceptId the to concept id
+   * @param conceptId2 the concept id 2
    * @param atomIds the atom ids
    * @param overrideWarnings the override warnings
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult moveAtoms(Long projectId, Long fromConceptId,
-    Long timestamp, Long toConceptId, List<Long> atomIds,
+  public ValidationResult moveAtoms(Long projectId, Long conceptId,
+    Long timestamp, Long conceptId2, List<Long> atomIds,
     boolean overrideWarnings, String authToken) throws Exception;
 
   /**
@@ -212,6 +212,21 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult approveConcept(Long projectId, Long conceptId,
+    Long timestamp, boolean overrideWarnings, String authToken)
+    throws Exception;
+
+  /**
+   * Undo action.
+   *
+   * @param projectId the project id
+   * @param molecularActionId the molecular action id
+   * @param timestamp the timestamp
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult undoAction(Long projectId, Long molecularActionId,
     Long timestamp, boolean overrideWarnings, String authToken)
     throws Exception;
 

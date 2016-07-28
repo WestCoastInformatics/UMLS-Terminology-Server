@@ -203,6 +203,10 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     createdConcept = addConcept(createdConcept);
     createdConcept.setTerminologyId(createdConcept.getId().toString());
     updateConcept(createdConcept);
+    
+    //Add newly created concept Id to the molecular action (undo action uses this)
+    getMolecularAction().setComponentId2(createdConcept.getId());
+    updateMolecularAction(getMolecularAction());
 
     // Add each listed atom from originatingConcept to createdConcept, delete
     // from

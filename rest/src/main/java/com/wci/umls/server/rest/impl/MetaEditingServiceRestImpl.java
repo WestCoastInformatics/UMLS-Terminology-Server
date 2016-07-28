@@ -34,6 +34,7 @@ import com.wci.umls.server.jpa.algo.action.RemoveAttributeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.SplitMolecularAction;
+import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -179,8 +180,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
+        .info("RESTful POST call (MetaEditing): /sty/remove " + projectId + ","
+            + conceptId + " for user " + authToken + " with id "
             + semanticTypeComponentId);
 
     // Instantiate services
@@ -260,8 +261,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
-            + conceptId + "/add for user " + authToken
+        .info("RESTful POST call (MetaEditing): /attribute/add " + projectId + ","
+            + conceptId + " for user " + authToken
             + " with attribute value " + attribute.getName());
 
     // Instantiate services
@@ -349,8 +350,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
+        .info("RESTful POST call (MetaEditing): /attribute/remove " + projectId + ","
+            + conceptId + " for user " + authToken + " with id "
             + attributeId);
 
     // Instantiate services
@@ -428,8 +429,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/" + projectId + "/"
-            + conceptId + "/add for user " + authToken + " with atom value "
+        .info("RESTful POST call (MetaEditing): /atom/add " + projectId + ","
+            + conceptId + " for user " + authToken + " with atom value "
             + atom.getName());
 
     // Instantiate services
@@ -508,8 +509,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/" + projectId + "/"
-            + conceptId + "/remove for user " + authToken + " with id "
+        .info("RESTful POST call (MetaEditing): /atom/remove " + projectId + ","
+            + conceptId + " remove for user " + authToken + " with id "
             + atomId);
 
     // Instantiate services
@@ -586,8 +587,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /relationship/" + projectId
-            + "/" + conceptId + "/add for user " + authToken
+        .info("RESTful POST call (MetaEditing): /relationship/add " + projectId
+            + "," + conceptId + " for user " + authToken
             + " with relationship value " + relationship);
 
     // Instantiate services
@@ -669,8 +670,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /relationship/" + projectId
-            + "/" + conceptId + "/remove for user " + authToken + " with id "
+        .info("RESTful POST call (MetaEditing): /relationship/remove " + projectId
+            + "," + conceptId + " for user " + authToken + " with id "
             + relationshipId);
 
     // Instantiate services
@@ -757,9 +758,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/" + projectId + "/"
-            + conceptId + "/merge for user " + authToken + " with concept "
-            + conceptId2);
+        .info("RESTful POST call (MetaEditing): /concept/merge " + projectId + ","
+            + conceptId + " with concept "
+                + conceptId2 + " for user " + authToken );
 
     // Instantiate services
     final MergeMolecularAction action = new MergeMolecularAction();
@@ -859,8 +860,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/move/" + projectId
-            + "/" + conceptId + "/move atoms for user " + authToken
+        .info("RESTful POST call (MetaEditing): /concept/move " + projectId
+            + "," + conceptId + " move atoms for user " + authToken
             + " to concept " + conceptId2);
 
     // Instantiate services
@@ -959,8 +960,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/" + projectId + "/"
-            + conceptId + "/split for user " + authToken);
+        .info("RESTful POST call (MetaEditing): /concept/split " + projectId + ","
+            + conceptId + " for user " + authToken);
 
     // Instantiate services
     final SplitMolecularAction action = new SplitMolecularAction();
@@ -1056,8 +1057,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/" + projectId + "/"
-            + conceptId + "/approve for user " + authToken);
+        .info("RESTful POST call (MetaEditing): /concept/approve " + projectId + ","
+            + conceptId + " for user " + authToken);
 
     // Instantiate services
     final ApproveMolecularAction action = new ApproveMolecularAction();
@@ -1133,4 +1134,83 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/action/undo")
+  @ApiOperation(value = "Undo action", notes = "Undo a previously performed action", response = ValidationResultJpa.class)
+  public ValidationResult undoAction(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Molecular Action id, e.g. 2", required = true) @QueryParam("molecularActionId") Long molecularActionId,
+    @ApiParam(value = "Molecular Action lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /action/undo " + projectId + ", undo action with id "
+            + molecularActionId + " for user " + authToken);
+
+    
+    // Instantiate services
+    final UndoMolecularAction action = new UndoMolecularAction();
+    try {
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setMolecularActionId(molecularActionId);
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(action, projectId,
+          securityService, authToken, "undoing action", UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = action.getProject(projectId);
+      action.setValidationChecks(project.getValidationChecks());
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      action.initialize(project, action.getMolecularAction(molecularActionId).getComponentId(), action.getMolecularAction(molecularActionId).getComponentId2(), userName, lastModified);
+
+      //
+      // Check prerequisites
+      //
+      final ValidationResult validationResult = action.checkPreconditions();
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        action.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action
+      //
+      action.compute();
+
+      // commit (also removes the lock)
+      action.commit();
+
+      // Websocket notification
+      // TODO - what put in here?
+//      final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
+//          action.getName(), authToken, IdType.CONCEPT.toString(),
+//          action.getConceptPreUpdates(), action.getConceptPostUpdates(), null);
+//      sendChangeEvent(event);
+
+      return validationResult;
+
+    } catch (Exception e) {
+
+      handleException(e, "undoing action");
+      return null;
+    } finally {
+      action.close();
+      securityService.close();
+    }
+
+  }  
+  
 }
