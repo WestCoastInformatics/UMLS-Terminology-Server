@@ -23,36 +23,19 @@
       <artifactId>hibernate-entitymanager</artifactId>
     </dependency>
 
-
-    <!-- Required for Jersey and JSON -->
-    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.media</groupId>
-      <artifactId>jersey-media-json-jackson</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.module</groupId>
-      <artifactId>jackson-module-jaxb-annotations</artifactId>
-    </dependency>
-
-
-
     <!-- Model interfaces. -->
     <dependency>
       <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-model</artifactId>
     </dependency>
+
+
+    <!-- Apache commons-lang3 - for FastDateTime -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+
 
     <!-- Logging -->
     <dependency>

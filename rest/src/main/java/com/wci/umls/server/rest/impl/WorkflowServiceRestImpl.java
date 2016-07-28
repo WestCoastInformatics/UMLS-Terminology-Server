@@ -47,11 +47,15 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -88,12 +92,15 @@ import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link WorkflowServiceRest}.
  */
 @Path("/workflow")
-@Api(value = "/workflow", description = "Operations supporting workflow")
+@Api(value = "/workflow")
+@SwaggerDefinition(info = @Info(description = "Operations supporting workflow", title = "Workflow API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
@@ -294,7 +301,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @GET
   @Path("/config/all")
   @ApiOperation(value = "Get workflow configs", notes = "Gets a workflow configs", response = WorkflowConfigJpa.class, responseContainer = "List")
-  public List<WorkflowConfig> getWorkflowConfigs(
+  public WorkflowConfigList getWorkflowConfigs(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -312,7 +319,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       for (WorkflowConfig config : configs) {
         workflowService.handleLazyInit(config);
       }
-      return configs;
+      final WorkflowConfigList list = new WorkflowConfigListJpa();
+      list.setObjects(configs);
+      list.setTotalCount(list.getCount());
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to get a workflow config");
@@ -1511,7 +1521,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @GET
   @Path("/bin/all")
   @ApiOperation(value = "Get workflow bins", notes = "Gets the workflow bins for the project and type.", response = WorkflowBinJpa.class, responseContainer = "List")
-  public List<WorkflowBin> getWorkflowBins(
+  public WorkflowBinList getWorkflowBins(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin type, e.g. MUTUALLY_EXCLUSIVE", required = false) @QueryParam("type") WorkflowBinType type,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
@@ -1600,7 +1610,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       Collections.sort(bins, (o1, o2) -> o1.getRank() - o2.getRank());
 
-      return bins;
+      final WorkflowBinList list = new WorkflowBinListJpa();
+      list.setObjects(bins);
+      list.setTotalCount(list.getCount());
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to get workflow bin stats");

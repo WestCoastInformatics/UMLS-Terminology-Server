@@ -1033,7 +1033,7 @@ public abstract class RootServiceJpa implements RootService {
    * @param clazz the clazz
    * @return the checks for object
    * @throws Exception the exception
-   */
+   */ 
   protected <T extends Object> T getObject(final Long id, final Class<T> clazz)
     throws Exception {
     // Get transaction and object

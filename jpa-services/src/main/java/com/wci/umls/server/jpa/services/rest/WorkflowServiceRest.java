@@ -3,13 +3,13 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import java.util.List;
-
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorkflowBinList;
+import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -130,8 +130,8 @@ public interface WorkflowServiceRest {
    * @return the workflow bin definition
    * @throws Exception the exception
    */
-  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId,
-    Long id, String authToken) throws Exception;
+  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId, Long id,
+    String authToken) throws Exception;
 
   /**
    * Clear bins.
@@ -388,8 +388,8 @@ public interface WorkflowServiceRest {
    * @return the workflow bin stats
    * @throws Exception the exception
    */
-  public List<WorkflowBin> getWorkflowBins(Long projectId,
-    WorkflowBinType type, String authToken) throws Exception;
+  public WorkflowBinList getWorkflowBins(Long projectId, WorkflowBinType type,
+    String authToken) throws Exception;
 
   /**
    * Clear bin.
@@ -488,8 +488,8 @@ public interface WorkflowServiceRest {
    * @return the workflow configs
    * @throws Exception the exception
    */
-  public List<WorkflowConfig> getWorkflowConfigs(Long projectId,
-    String authToken) throws Exception;
+  public WorkflowConfigList getWorkflowConfigs(Long projectId, String authToken)
+    throws Exception;
 
   /**
    * Removes the note.
@@ -559,8 +559,8 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateWorklist(Long projectId, WorklistJpa config, String authToken)
-    throws Exception;
+  public void updateWorklist(Long projectId, WorklistJpa config,
+    String authToken) throws Exception;
 
   /**
    * Returns the workflow bin definition.
@@ -572,6 +572,6 @@ public interface WorkflowServiceRest {
    * @return the workflow bin definition
    * @throws Exception the exception
    */
-  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId, String name,
-    WorkflowBinType type, String authToken) throws Exception;
+  public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId,
+    String name, WorkflowBinType type, String authToken) throws Exception;
 }

@@ -229,6 +229,14 @@ tsApp
           return year + month + day;
         };
 
+        // Uniq an array of simple data types
+        this.uniq = function uniq(a) {
+          var seen = {};
+          return a.filter(function(item) {
+            return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+          });
+        };
+        
         // Table sorting mechanism
         this.setSortField = function(table, field, paging) {
           paging[table].sortField = field;
@@ -304,11 +312,10 @@ tsApp
 
           newArray = array;
           // apply suppressible/obsolete
-          /*if (!paging.showHidden) {
-            newArray = newArray.filter(function(item) {
-              return !item.suppressible && !item.obsolete;
-            });
-          }*/
+          /*
+           * if (!paging.showHidden) { newArray = newArray.filter(function(item) {
+           * return !item.suppressible && !item.obsolete; }); }
+           */
 
           // apply sort if specified
           if (paging.sortField) {

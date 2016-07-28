@@ -19,8 +19,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -50,8 +48,6 @@ import com.wci.umls.server.model.workflow.WorkflowBinType;
     "name", "type", "project_id"
 }))
 @Indexed
-
-@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "workflowBin")
 public class WorkflowBinJpa implements WorkflowBin {
 
@@ -301,7 +297,7 @@ public class WorkflowBinJpa implements WorkflowBin {
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
-  
+
   /* see superclass */
   @Override
   @FieldBridge(impl = BooleanBridge.class)
@@ -461,9 +457,8 @@ public class WorkflowBinJpa implements WorkflowBin {
     result = prime * result + rank;
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
@@ -522,12 +517,11 @@ public class WorkflowBinJpa implements WorkflowBin {
   public String toString() {
     return "WorkflowBinJpa [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description
-        + ", terminologyId=" + terminologyId + ", terminology=" + terminology
-        + ", version=" + version + ", type=" + type + ", rank=" + rank
-        + ", editable=" + editable + ", required=" + required
-        + ", creationTime=" + creationTime + ", stats=" + stats + ", enabled=" 
-        + enabled + "]";
+        + ", name=" + name + ", description=" + description + ", terminologyId="
+        + terminologyId + ", terminology=" + terminology + ", version="
+        + version + ", type=" + type + ", rank=" + rank + ", editable="
+        + editable + ", required=" + required + ", creationTime=" + creationTime
+        + ", stats=" + stats + ", enabled=" + enabled + "]";
   }
 
 }
