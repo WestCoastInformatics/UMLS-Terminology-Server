@@ -174,7 +174,7 @@ tsApp
           // Make PUT call
           gpService.increment();
           $http.post(
-            projectUrl + +'/' + projectId + '/users?query=' + utilService.prepQuery(query),
+            projectUrl + '/' + projectId + '/users?query=' + utilService.prepQuery(query),
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {

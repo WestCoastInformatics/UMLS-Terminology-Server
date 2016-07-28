@@ -14,6 +14,7 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, util
   $scope.project = project;
   $scope.projects = projects;
   $scope.errors = [];
+  $scope.messages = [];
   // TODO: get these dynamically
   $scope.queryTypes = ["JQL", "SQL", "LUCENE", "PROGRAM"];
   
@@ -35,6 +36,19 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, util
     workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.binType).then(
       function(response) {
         $scope.positionAfterDef = response;
+      },
+      function(response) {
+        handleError($scope.errors, response);
+      }
+    );
+  }
+  
+  $scope.testQuery = function(binDefinition) {
+    $scope.errors = [];
+    $scope.messages = [];
+    workflowService.testQuery($scope.project.id, binDefinition.query, binDefinition.queryType).then(
+      function(response) {
+        $scope.messages.push("Query met validation requirements.");
       },
       function(response) {
         handleError($scope.errors, response);

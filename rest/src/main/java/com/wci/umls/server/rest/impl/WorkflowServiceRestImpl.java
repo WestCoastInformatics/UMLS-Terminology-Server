@@ -444,7 +444,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // otherwise, add definition at position indicated by user
         int afterThisBinIndex = definitions.size();
         for (int i=0; i<definitions.size(); i++) {
-          if (definitions.get(i).getId() == positionAfterId) {
+          if (definitions.get(i).getId().equals(positionAfterId)) {
             afterThisBinIndex = i + 1;
             break;
           }
@@ -2056,6 +2056,42 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/definition/test")
+  @ApiOperation(value = "Test query.", notes = "Test workflow bin definition query.")
+  public void testQuery(
+    @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Query, e.g. NOT workflowStatus:NEEDS_REVIEW", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Query type", required = true) @QueryParam("queryType") QueryType queryType,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Workflow): /definition/test ");
+
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get workflow paths",
+          UserRole.VIEWER);
+
+      Project project = workflowService.getProject(projectId);
+      final Map<String, String> params = new HashMap<>();
+      params.put("terminology", project.getTerminology());
+
+      List<Long[]> results =
+          executeQuery(query, queryType, params, workflowService);
+
+    } catch (Exception e) {
+      handleException(e, "trying to test query");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+     
+  }
+  
   /**
    * Execute query.
    *

@@ -10,6 +10,10 @@ tsApp.service('workflowService', [
     console.debug('configure workflowService');
 
     // broadcasts a workflow change
+    this.fireProjectChanged = function(project) {
+      $rootScope.$broadcast('workflow:projectChanged', project);
+    };
+    
     this.fireWorklistChanged = function(worklist) {
       $rootScope.$broadcast('workflow:worklistChanged', worklist);
     };
@@ -909,6 +913,28 @@ tsApp.service('workflowService', [
           gpService.decrement();
           deferred.reject(response.data);
         });
+      return deferred.promise;
+    };
+    
+    // test query
+    this.testQuery = function(projectId, query, queryType) {
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(workflowUrl + '/definition/test?projectId=' + projectId +
+        '&query=' + utilService.prepQuery(query) + '&queryType=' + queryType).then(
+      // success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     };
     // end
