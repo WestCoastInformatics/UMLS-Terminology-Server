@@ -179,6 +179,8 @@ public abstract class AbstractMolecularAction
 
         // Verify concept exists
         if (tempConcept == null) {
+          // unlock concepts and fail
+          rollback();
           throw new Exception("Concept does not exist " + i);
         }
 
@@ -191,6 +193,8 @@ public abstract class AbstractMolecularAction
 
         // Fail if already locked - this is secondary protection
         if (isObjectLocked(tempConcept)) {
+          // unlock concepts and fail
+          rollback();
           throw new Exception("Fatal error: concept is locked " + i);
         }
 
@@ -229,10 +233,14 @@ public abstract class AbstractMolecularAction
 
     // throw exception on terminology mismatch
     if (!concept.getTerminology().equals(project.getTerminology())) {
+      // unlock concepts and fail
+      rollback();
       throw new Exception("Project and concept terminologies do not match");
     }
 
     if (concept.getLastModified().getTime() != lastModified) {
+      // unlock concepts and fail
+      rollback();
       throw new LocalException(
           "Concept has changed since last read, please refresh and try again");
     }
@@ -271,15 +279,14 @@ public abstract class AbstractMolecularAction
             return rel;
           }
         }
-      }
-      else{
+      } else {
         for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
             .getObjects()) {
           if (!rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
             return rel;
           }
         }
-      }      
+      }
 
     }
 
