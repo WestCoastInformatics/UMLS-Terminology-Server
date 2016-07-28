@@ -427,7 +427,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Workflow): /definition/add/" + projectId + " "
-            + positionAfterId + " " + binDefinition.getName() + " " + authToken);
+            + positionAfterId + " " + binDefinition.getName() + " "
+            + authToken);
 
     final String action = "trying to add workflow bin definition";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -441,9 +442,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Add to list in workflow config and save
       final WorkflowConfig config = workflowService
           .getWorkflowConfig(binDefinition.getWorkflowConfig().getId());
-      List<WorkflowBinDefinition> definitions = config.getWorkflowBinDefinitions();
-      
-      
+      List<WorkflowBinDefinition> definitions =
+          config.getWorkflowBinDefinitions();
 
       final WorkflowBinDefinition def;
       // if no position stated, add definition at the end of the list
@@ -453,7 +453,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       } else {
         // otherwise, add definition at position indicated by user
         int afterThisBinIndex = definitions.size();
-        for (int i=0; i<definitions.size(); i++) {
+        for (int i = 0; i < definitions.size(); i++) {
           if (definitions.get(i).getId() == positionAfterId) {
             afterThisBinIndex = i + 1;
             break;
@@ -1354,7 +1354,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           // Skip records with a clusterType if cluster type doesn't match
           .filter(record -> !(excludeOnWorklist
               && !ConfigUtility.isEmpty(record.getWorklistName()))
-              && !(clusterType != null
+              && !(!ConfigUtility.isEmpty(clusterType)
                   && !record.getClusterType().equals(clusterType)))
           .map(r -> "id:" + r.getId()).collect(Collectors.toList());
       final String idQuery = ConfigUtility.composeQuery("OR", clauses);
@@ -1474,9 +1474,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         // build query to retrieve tracking records that will be in worklist
         final StringBuilder sb = new StringBuilder();
+        // Find records from this workflow bin that
+        // are not on a worklist and not owned by a checklist
         sb.append("workflowBinName:").append(workflowBin.getName());
-        sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-        if (clusterType != null) {
+        sb.append(" AND ").append("NOT worklistName:[* TO *] ")
+            .append("NOT checklistName:[* TO *] ");
+        if (!ConfigUtility.isEmpty(clusterType)) {
           sb.append(" AND ").append("clusterType:").append(clusterType);
         } else {
           sb.append(" AND NOT clusterType:[* TO *]");

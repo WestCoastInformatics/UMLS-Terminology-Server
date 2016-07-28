@@ -1221,7 +1221,7 @@ public abstract class RootServiceJpa implements RootService {
   public void updateMolecularAction(MolecularAction action) throws Exception {
     Logger.getLogger(getClass())
         .debug("Action Service - update molecular action " + action);
-    updateObject(action);
+    updateHasLastModified(action);
   }
 
   /* see superclass */
@@ -1238,7 +1238,7 @@ public abstract class RootServiceJpa implements RootService {
     Logger.getLogger(getClass())
         .debug("Action Service - get molecular action " + id);
 
-    return getObject(id, MolecularActionJpa.class);
+    return getHasLastModified(id, MolecularActionJpa.class);
   }
 
   /* see superclass */
