@@ -609,7 +609,7 @@ tsApp.service('workflowService', [
       gpService.increment();
       $http.post(
         workflowUrl + '/checklist/add?projectId=' + projectId + '&workflowBinId=' + workflowBinId
-          + '&clusterType=' + clusterType + '&name=' + name + '&description=' + description
+          + (clusterType != 'default' ? '&clusterType=' + clusterType : '') + '&name=' + name + '&description=' + description
           + '&randomize=' + randomize + '&excludeOnWorklist=' + excludeOnWorklist + '&query='
           + query, utilService.prepPfs(pfs)).then(
       // success
@@ -639,7 +639,7 @@ tsApp.service('workflowService', [
       gpService.increment();
       $http.post(
         workflowUrl + '/worklist/add?projectId=' + projectId + '&workflowBinId=' + workflowBinId
-          + '&clusterType=' + clusterType, utilService.prepPfs(pfs)).then(
+          + (clusterType != 'default' ? '&clusterType=' + clusterType : ''), utilService.prepPfs(pfs)).then(
       // success
       function(response) {
         console.debug('  output = ', response.data);
