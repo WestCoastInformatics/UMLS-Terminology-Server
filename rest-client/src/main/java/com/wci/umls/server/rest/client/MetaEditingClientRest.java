@@ -479,4 +479,35 @@ public class MetaEditingClientRest extends RootClientRest
         ValidationResultJpa.class);
   }
 
+  @Override
+  public ValidationResult undoAction(Long projectId, Long molecularActionId,
+    Long lastModified, boolean overrideWarnings, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+    .debug("MetaEditing Client - undo action " + molecularActionId + ", "
+        + lastModified + ", " + overrideWarnings + ", " + authToken);
+
+validateNotEmpty(projectId, "projectId");
+validateNotEmpty(molecularActionId, "molecularActionId");
+
+final Client client = ClientBuilder.newClient();
+final WebTarget target = client.target(config.getProperty("base.url")
+    + "/meta/action/undo?projectId=" + projectId + "&molecularActionId="
+    + molecularActionId + "&lastModified=" + lastModified);
+
+final Response response = target.request(MediaType.APPLICATION_XML)
+    .header("Authorization", authToken).post(Entity.json(null));
+
+final String resultString = response.readEntity(String.class);
+if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+  // n/a
+} else {
+  throw new Exception(response.toString());
+}
+
+// converting to object
+return ConfigUtility.getGraphForString(resultString,
+    ValidationResultJpa.class);
+  }
+
 }

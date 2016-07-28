@@ -88,8 +88,8 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
-    tester.include("terminologyId");
-    tester.include("terminologyId2");
+    tester.include("componentId");
+    tester.include("componentId2");
     tester.include("terminology");
     tester.include("version");
     tester.include("name");
@@ -149,7 +149,7 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("terminology");
-    tester.include("terminologyId");
+    tester.include("componentId");
     tester.include("version");
     tester.include("name");
     tester.include("macroAction");
@@ -175,8 +175,8 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("terminologyId");
-    tester.include("terminologyId2");
+    tester.include("componentId");
+    tester.include("componentId2");
     tester.include("terminology");
     tester.include("version");
     tester.include("name");
