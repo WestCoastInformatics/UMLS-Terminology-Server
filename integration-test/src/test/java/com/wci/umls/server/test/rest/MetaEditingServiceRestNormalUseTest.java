@@ -2386,7 +2386,7 @@ public class MetaEditingServiceRestNormalUseTest
     MolecularActionList list =
         projectService.findMolecularActions(c.getTerminologyId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
-    assertTrue(list.getCount() > 0);
+    assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
     assertEquals(c.getId(), ma.getComponentId());
