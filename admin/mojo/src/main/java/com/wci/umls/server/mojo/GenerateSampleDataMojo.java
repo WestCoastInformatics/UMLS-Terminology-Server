@@ -507,7 +507,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // norelease
     getLog().info("    Add 'norelease' workflow bin definition");
@@ -527,7 +527,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // reviewed
     getLog().info("    Add 'reviewed' workflow bin definition");
@@ -541,7 +541,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setQueryType(QueryType.LUCENE);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // ncithesaurus
     getLog().info("    Add 'ncithesaurus' workflow bin definition");
@@ -559,7 +559,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // snomedct_us
     getLog().info("    Add 'snomedct_us' workflow bin definition");
@@ -577,7 +577,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // leftovers
     getLog().info("    Add 'leftovers' workflow bin definition");
@@ -592,7 +592,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate ME bins");
@@ -765,7 +765,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       definition.setQueryType(QueryType.SQL);
       definition.setWorkflowConfig(newConfig);
       workflowService = new WorkflowServiceRestImpl();
-      workflowService.addWorkflowBinDefinition(projectId, definition,
+      workflowService.addWorkflowBinDefinition(projectId, null, definition,
           authToken);
     }
 
@@ -787,7 +787,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // sct_sepfnpt
     // cdsty_coc
@@ -824,7 +824,7 @@ public class GenerateSampleDataMojo extends AbstractMojo {
       definition.setQueryType(QueryType.SQL);
       definition.setWorkflowConfig(newConfig);
       workflowService = new WorkflowServiceRestImpl();
-      workflowService.addWorkflowBinDefinition(projectId, definition,
+      workflowService.addWorkflowBinDefinition(projectId, null, definition,
           authToken);
     }
 

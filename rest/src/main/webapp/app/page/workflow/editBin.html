@@ -70,9 +70,9 @@
           <b>Position bin after:</b>
         </td>
         <td>
-          <select ng-model="positionAfterBin"
-            ng-change="positionAfterBin(bin)"
-            ng-options="bin.name for bin in bins">
+          <select ng-model="positionBin"
+            ng-change="positionAfterBin(positionBin)"
+            ng-options="positionBin.name for positionBin in bins">
           </select>
         </td>
       </tr>

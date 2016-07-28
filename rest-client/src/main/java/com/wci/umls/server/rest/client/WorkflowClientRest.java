@@ -243,7 +243,7 @@ public class WorkflowClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId,
+  public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId, Long positionAfterId,
     WorkflowBinDefinitionJpa binDefinition, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Workflow Client - add workflow bin definition " + projectId

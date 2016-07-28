@@ -83,7 +83,7 @@ tsApp.service('metadataService', [
         // get metadata
         gpService.increment();
         $http.get(
-          metadataUrl + '/all/terminology/' + terminology.terminology + '/' + terminology.version)
+          metadataUrl + '/all/' + terminology.terminology + '/' + terminology.version)
           .then(
           // success
           function(response) {
