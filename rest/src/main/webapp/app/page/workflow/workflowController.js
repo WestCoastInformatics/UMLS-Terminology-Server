@@ -27,7 +27,7 @@ tsApp.controller('WorkflowCtrl', [
     $scope.projectRole;
     $scope.binTypeOptions = []; 
     $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
-    $scope.currentProject; 
+    $scope.currentProject = {id : 1239500};
     $scope.recordTypes = [ 'N', 'R' ];
     $scope.projects;
     $scope.selected = {
@@ -120,7 +120,7 @@ tsApp.controller('WorkflowCtrl', [
       console.debug('getBins', projectId, type);
 
       workflowService.getWorkflowBins(projectId, type).then(function(response) {
-        $scope.bins = response;
+        $scope.bins = response.worklists;
         $scope.bins.totalCount = $scope.bins.length;
       });
     };
@@ -154,8 +154,8 @@ tsApp.controller('WorkflowCtrl', [
 
       workflowService.getWorkflowConfigs($scope.currentProject.id).then(function(response) {
         $scope.workflowConfigs = response;
-        for (i=0; i<$scope.workflowConfigs.length; i++) {
-          $scope.binTypeOptions.push($scope.workflowConfigs[i].type);
+        for (var i=0; i<$scope.workflowConfigs.totalCount; i++) {
+          $scope.binTypeOptions.push($scope.workflowConfigs.worklists[i].type);
         }
         if ($scope.binTypeOptions.length == 1) {
           $scope.setBinType($scope.binTypeOptions[0]);
