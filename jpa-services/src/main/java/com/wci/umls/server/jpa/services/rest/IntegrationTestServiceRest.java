@@ -9,8 +9,10 @@ package com.wci.umls.server.jpa.services.rest;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.Worklist;
 
 /**
@@ -81,5 +83,27 @@ public interface IntegrationTestServiceRest {
    */
   public Worklist getWorklist(Long worklistId, String authToken)
     throws Exception;
+
+  /**
+   * Returns the atom.
+   *
+   * @param atomId the atom id
+   * @param authToken the auth token
+   * @return the atom
+   * @throws Exception the exception
+   */
+  public Atom getAtom(Long atomId, String authToken) throws Exception;
+
+  /**
+   * Returns the semantic type component.
+   *
+   * @param conceptId the concept id
+   * @param styId the sty id
+   * @param authToken the auth token
+   * @return the semantic type component
+   * @throws Exception the exception
+   */
+  public SemanticTypeComponent getSemanticTypeComponent(Long conceptId,
+    Long styId, String authToken) throws Exception;
 
 }

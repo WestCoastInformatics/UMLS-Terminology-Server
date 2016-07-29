@@ -123,7 +123,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified);
+      action.initialize(project, conceptId, null, userName, lastModified, true);
 
       //
       // Check prerequisites
@@ -205,7 +205,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified);
+      action.initialize(project, conceptId, null, userName, lastModified, true);
 
       //
       // Check prerequisites
@@ -261,8 +261,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/add " + projectId + ","
-            + conceptId + " for user " + authToken
+        .info("RESTful POST call (MetaEditing): /attribute/add " + projectId
+            + "," + conceptId + " for user " + authToken
             + " with attribute value " + attribute.getName());
 
     // Instantiate services
@@ -285,7 +285,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified);
+      action.initialize(project, conceptId, null, userName, lastModified, true);
 
       //
       // Check prerequisites
@@ -350,8 +350,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/remove " + projectId + ","
-            + conceptId + " for user " + authToken + " with id "
+        .info("RESTful POST call (MetaEditing): /attribute/remove " + projectId
+            + "," + conceptId + " for user " + authToken + " with id "
             + attributeId);
 
     // Instantiate services
@@ -374,7 +374,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified);
+      action.initialize(project, conceptId, null, userName, lastModified, true);
 
       //
       // Check prerequisites
@@ -452,7 +452,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified);
+      action.initialize(project, conceptId, null, userName, lastModified, true);
 
       //
       // Check prerequisites
@@ -532,7 +532,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified);
+      action.initialize(project, conceptId, null, userName, lastModified, true);
 
       //
       // Check prerequisites
@@ -612,7 +612,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Do some standard intialization and precondition checking
       // action and prep services
       action.initialize(project, conceptId, relationship.getTo().getId(),
-          userName, lastModified);
+          userName, lastModified, true);
 
       //
       // Check prerequisites
@@ -670,9 +670,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /relationship/remove " + projectId
-            + "," + conceptId + " for user " + authToken + " with id "
-            + relationshipId);
+        .info("RESTful POST call (MetaEditing): /relationship/remove "
+            + projectId + "," + conceptId + " for user " + authToken
+            + " with id " + relationshipId);
 
     // Instantiate services
     final RemoveRelationshipMolecularAction action =
@@ -700,7 +700,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, conceptId2, userName, lastModified);
+      action.initialize(project, conceptId, conceptId2, userName, lastModified,
+          true);
 
       //
       // Check prerequisites
@@ -758,9 +759,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/merge " + projectId + ","
-            + conceptId + " with concept "
-                + conceptId2 + " for user " + authToken );
+        .info("RESTful POST call (MetaEditing): /concept/merge " + projectId
+            + "," + conceptId + " with concept " + conceptId2 + " for user "
+            + authToken);
 
     // Instantiate services
     final MergeMolecularAction action = new MergeMolecularAction();
@@ -787,7 +788,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Do some standard intialization and precondition checking
       // action and prep services
       action.initialize(project, toConceptId, fromConceptId, userName,
-          lastModified);
+          lastModified, true);
 
       //
       // Check prerequisites
@@ -820,15 +821,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
-      final ChangeEvent<Concept> event =
-          new ChangeEventJpa<Concept>(action.getName(), authToken,
-              IdType.CONCEPT.toString(), action.getToConceptPreUpdates(),
-              action.getToConceptPostUpdates(), null);
+      final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
+          action.getName(), authToken, IdType.CONCEPT.toString(),
+          action.getToConceptPreUpdates(), action.getToConceptPostUpdates(),
+          action.getToConceptPostUpdates());
       sendChangeEvent(event);
 
-      final ChangeEvent<Concept> event2 = new ChangeEventJpa<Concept>(
-          action.getName(), authToken, IdType.CONCEPT.toString(),
-          action.getFromConceptPreUpdates(), null, null);
+      final ChangeEvent<Concept> event2 =
+          new ChangeEventJpa<Concept>(action.getName(), authToken,
+              IdType.CONCEPT.toString(), action.getFromConceptPreUpdates(),
+              null, action.getFromConceptPreUpdates());
       sendChangeEvent(event2);
 
       return validationResult;
@@ -883,7 +885,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, conceptId2, userName, lastModified);
+      action.initialize(project, conceptId, conceptId2, userName, lastModified,
+          true);
 
       //
       // Check prerequisites
@@ -917,16 +920,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification - one each for the updating the from and
       // toConcept
-      final ChangeEvent<Concept> event =
-          new ChangeEventJpa<Concept>(action.getName(), authToken,
-              IdType.CONCEPT.toString(), action.getToConceptPreUpdates(),
-              action.getToConceptPostUpdates(), null);
+      final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
+          action.getName(), authToken, IdType.CONCEPT.toString(),
+          action.getToConceptPreUpdates(), action.getToConceptPostUpdates(),
+          action.getToConceptPostUpdates());
       sendChangeEvent(event);
 
-      final ChangeEvent<Concept> event2 =
-          new ChangeEventJpa<Concept>(action.getName(), authToken,
-              IdType.CONCEPT.toString(), action.getFromConceptPreUpdates(),
-              action.getFromConceptPostUpdates(), null);
+      final ChangeEvent<Concept> event2 = new ChangeEventJpa<Concept>(
+          action.getName(), authToken, IdType.CONCEPT.toString(),
+          action.getFromConceptPreUpdates(), action.getFromConceptPostUpdates(),
+          action.getFromConceptPostUpdates());
       sendChangeEvent(event2);
 
       return validationResult;
@@ -960,8 +963,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/split " + projectId + ","
-            + conceptId + " for user " + authToken);
+        .info("RESTful POST call (MetaEditing): /concept/split " + projectId
+            + "," + conceptId + " for user " + authToken);
 
     // Instantiate services
     final SplitMolecularAction action = new SplitMolecularAction();
@@ -985,7 +988,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified);
+      action.initialize(project, conceptId, null, userName, lastModified, true);
 
       //
       // Check prerequisites
@@ -1022,12 +1025,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
           action.getName(), authToken, IdType.CONCEPT.toString(),
           action.getOriginatingConceptPreUpdates(),
-          action.getOriginatingConceptPostUpdates(), null);
+          action.getOriginatingConceptPostUpdates(),
+          action.getOriginatingConceptPostUpdates());
       sendChangeEvent(event);
 
       final ChangeEvent<Concept> event2 = new ChangeEventJpa<Concept>(
           action.getName(), authToken, IdType.CONCEPT.toString(), null,
-          action.getCreatedConceptPostUpdates(), null);
+          action.getCreatedConceptPostUpdates(),
+          action.getCreatedConceptPostUpdates());
       sendChangeEvent(event2);
 
       return validationResult;
@@ -1057,8 +1062,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/approve " + projectId + ","
-            + conceptId + " for user " + authToken);
+        .info("RESTful POST call (MetaEditing): /concept/approve " + projectId
+            + "," + conceptId + " for user " + authToken);
 
     // Instantiate services
     final ApproveMolecularAction action = new ApproveMolecularAction();
@@ -1078,7 +1083,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified);
+      action.initialize(project, conceptId, null, userName, lastModified, true);
 
       //
       // Check prerequisites
@@ -1148,10 +1153,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /action/undo " + projectId + ", undo action with id "
-            + molecularActionId + " for user " + authToken);
+        .info("RESTful POST call (MetaEditing): /action/undo " + projectId
+            + ", undo action with id " + molecularActionId + " for user "
+            + authToken);
 
-    
     // Instantiate services
     final UndoMolecularAction action = new UndoMolecularAction();
     try {
@@ -1170,7 +1175,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Do some standard intialization and precondition checking
       // action and prep services
-      action.initialize(project, action.getMolecularAction(molecularActionId).getComponentId(), action.getMolecularAction(molecularActionId).getComponentId2(), userName, lastModified);
+      // Note - the undo action doesn't create its own molecular and atomic
+      // actions
+      action.initialize(project,
+          action.getMolecularAction(molecularActionId).getComponentId(),
+          action.getMolecularAction(molecularActionId).getComponentId2(),
+          userName, lastModified, false);
 
       //
       // Check prerequisites
@@ -1194,11 +1204,19 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.commit();
 
       // Websocket notification
-      // TODO - what put in here?
-//      final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
-//          action.getName(), authToken, IdType.CONCEPT.toString(),
-//          action.getConceptPreUpdates(), action.getConceptPostUpdates(), null);
-//      sendChangeEvent(event);
+      final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
+          action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
+          action.getConcept(
+              action.getMolecularAction(molecularActionId).getComponentId()));
+      sendChangeEvent(event);
+
+      if (action.getMolecularAction(molecularActionId).getComponentId2() != null) {
+        final ChangeEvent<Concept> event2 = new ChangeEventJpa<Concept>(
+            action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
+            action.getConcept(
+                action.getMolecularAction(molecularActionId).getComponentId2()));
+        sendChangeEvent(event2);
+      }
 
       return validationResult;
 
@@ -1211,6 +1229,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
 
-  }  
-  
+  }
+
 }

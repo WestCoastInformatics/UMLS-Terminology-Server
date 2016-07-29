@@ -88,9 +88,10 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
    * @param oldValue the old value
    * @param newValue the new value
    * @param container the container
+   * @throws Exception 
    */
   public ChangeEventJpa(String name, String sessionId, String type, T oldValue,
-      T newValue, ComponentInfo container) {
+      T newValue, ComponentInfo container) throws Exception {
     if (newValue != null) {
       id = newValue.getId();
       timestamp = newValue.getTimestamp();
@@ -107,7 +108,7 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
     this.type = type;
     this.oldValue = oldValue;
     this.newValue = newValue;
-    this.container = container;
+    this.container = new ComponentInfoJpa(container);
   }
 
   /* see superclass */

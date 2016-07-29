@@ -152,7 +152,8 @@ public abstract class AbstractMolecularAction
   /* see superclass */
   @Override
   public void initialize(Project project, Long conceptId, Long conceptId2,
-    String userName, Long lastModified) throws Exception {
+    String userName, Long lastModified, boolean molecularActionFlag)
+    throws Exception {
 
     this.project = project;
     this.userName = userName;
@@ -203,29 +204,31 @@ public abstract class AbstractMolecularAction
     setTerminology(concept.getTerminology());
     setVersion(concept.getVersion());
 
-    // construct the molecular action
-    final MolecularAction molecularAction = new MolecularActionJpa();
-    molecularAction.setTerminology(this.concept.getTerminology());
-    molecularAction.setComponentId(this.concept.getId());
-    if (conceptId2 != null) {
-      molecularAction.setComponentId2(this.concept2.getId());
-    }
-    molecularAction.setVersion(concept.getVersion());
-    molecularAction.setName(getName());
-    molecularAction.setTimestamp(new Date());
-
     // Prepare the service
-    setMolecularActionFlag(true);
+    setMolecularActionFlag(molecularActionFlag);
     setLastModifiedFlag(true);
     setLastModifiedBy(userName);
+    
+    // construct the molecular action
+    if (molecularActionFlag) {
+      final MolecularAction molecularAction = new MolecularActionJpa();
+      molecularAction.setTerminology(this.concept.getTerminology());
+      molecularAction.setComponentId(this.concept.getId());
+      if (conceptId2 != null) {
+        molecularAction.setComponentId2(this.concept2.getId());
+      }
+      molecularAction.setVersion(concept.getVersion());
+      molecularAction.setName(getName());
+      molecularAction.setTimestamp(new Date());
 
-    // Add the molecular action and pass to the service.
-    // It needs to be added now so that when atomic actions
-    // are created by the service, this object already has
-    // an identifier.
-    final MolecularAction newMolecularAction =
-        addMolecularAction(molecularAction);
-    setMolecularAction(newMolecularAction);
+      // Add the molecular action and pass to the service.
+      // It needs to be added now so that when atomic actions
+      // are created by the service, this object already has
+      // an identifier.
+      final MolecularAction newMolecularAction =
+          addMolecularAction(molecularAction);
+      setMolecularAction(newMolecularAction);
+    }
 
     // throw exception on terminology mismatch
     if (!concept.getTerminology().equals(project.getTerminology())) {
@@ -271,15 +274,14 @@ public abstract class AbstractMolecularAction
             return rel;
           }
         }
-      }
-      else{
+      } else {
         for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
             .getObjects()) {
           if (!rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
             return rel;
           }
         }
-      }      
+      }
 
     }
 
