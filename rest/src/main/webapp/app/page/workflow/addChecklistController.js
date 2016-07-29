@@ -3,7 +3,10 @@
 
       $scope.bin = bin;
       $scope.clusterType = clusterType
-
+      $scope.checklist = { 
+        excludeOnWorklist : false,
+        randomize : false      
+      };
       $scope.errors = [];
 
 

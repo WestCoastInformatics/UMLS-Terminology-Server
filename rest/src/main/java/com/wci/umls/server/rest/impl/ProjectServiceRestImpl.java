@@ -28,6 +28,7 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
@@ -372,6 +373,32 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/queryTypes")
+  @ApiOperation(value = "Get query types", notes = "Gets list of valid query types", response = StringList.class)
+  public StringList getQueryTypes(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful POST call (Project): /queryTypes");
+
+    try {
+      authorizeApp(securityService, authToken, "get query types", UserRole.VIEWER);
+      final StringList list = new StringList();
+      list.setTotalCount(3);
+      list.getObjects().add(QueryType.JQL.toString());
+      list.getObjects().add(QueryType.SQL.toString());
+      list.getObjects().add(QueryType.LUCENE.toString());
+      list.getObjects().add(QueryType.PROGRAM.toString());
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to get query types");
+      return null;
+    } finally {
+      securityService.close();
+    }
+  }
   /* see superclass */
   @Override
   @POST

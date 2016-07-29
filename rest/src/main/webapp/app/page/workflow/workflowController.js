@@ -77,7 +77,6 @@ tsApp.controller('WorkflowCtrl', [
           $scope.projects = data.projects;
           $scope.currentProject = $scope.projects[0];
           $scope.projectRole = $scope.currentProject.userRoleMap[$scope.user.userName];
-          //$scope.projects.role = $scope.projects.assignedUsers[i].projectRoleMap[$scope.project.id];
           if ($scope.projectRole == 'ADMINISTRATOR') {
             $scope.roleOptions = [ 'ADMINISTRATOR', 'REVIEWER', 'AUTHOR' ];
           } else if ($scope.projectRole == 'REVIEWER') {
