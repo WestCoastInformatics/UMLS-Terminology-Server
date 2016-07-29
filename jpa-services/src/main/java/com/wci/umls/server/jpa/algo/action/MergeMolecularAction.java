@@ -140,7 +140,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     // Add each atom from fromConcept to toConcept, delete from
     // fromConcept, and set to NEEDS_REVIEW
     final List<Atom> fromAtoms = new ArrayList<>(getFromConcept().getAtoms());
-    moveAtoms(getToConcept(), getFromConcept(), fromAtoms);
+    moveAtoms(getFromConcept(), getToConcept(), fromAtoms);
 
     if (getChangeStatusFlag()) {
       for (Atom atm : fromAtoms) {
@@ -287,7 +287,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
-        getName() + " " + getFromConcept() + " into concept "
+        getName() + " concept " + getFromConcept().getId() + " into concept "
             + getToConcept().getId());
 
     // Make copy of toConcept to pass into change event

@@ -1123,7 +1123,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // for the deletion of the fromConcept
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
           action.getName(), authToken, IdType.CONCEPT.toString(),
-          action.getConceptPreUpdates(), action.getConceptPostUpdates(), null);
+          action.getConceptPreUpdates(), action.getConceptPostUpdates(), action.getConceptPostUpdates());
       sendChangeEvent(event);
 
       return validationResult;

@@ -1994,7 +1994,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void moveAtoms(Concept toConcept, Concept fromConcept,
+  public void moveAtoms(Concept fromConcept, Concept toConcept,
     List<Atom> fromAtoms) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - move atoms " + fromAtoms + " from concept "
@@ -2002,8 +2002,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // for each atom, remove from fromConcept and add toConcept
     for (Atom atm : fromAtoms) {
-      toConcept.getAtoms().add(atm);
+      if (fromConcept != null){
       fromConcept.getAtoms().remove(atm);
+      }
+      if (toConcept != null){
+      toConcept.getAtoms().add(atm);
+      }
 
       // check for molecular action flag
       if (isMolecularActionFlag()) {
@@ -2015,10 +2019,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
         final AtomicAction atomicAction = new AtomicActionJpa();
         atomicAction.setField("concept");
         atomicAction.setIdType(IdType.getIdType(atm));
-        atomicAction.setClassName(toConcept.getClass().getName());
+        atomicAction.setClassName(AtomJpa.class.getName());
         atomicAction.setMolecularAction(molecularAction);
-        atomicAction.setOldValue(fromConcept.getId().toString());
-        atomicAction.setNewValue(toConcept.getId().toString());
+        atomicAction.setOldValue((fromConcept==null) ? null : fromConcept.getId().toString());
+        atomicAction.setNewValue((toConcept==null) ? null : toConcept.getId().toString());
         atomicAction.setObjectId(atm.getId());
 
         // persist the atomic action and add the persisted version to the

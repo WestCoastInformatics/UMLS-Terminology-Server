@@ -211,7 +211,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     // Add each listed atom from originatingConcept to createdConcept, delete
     // from
     // fromConcept, and set to NEEDS_REVIEW (if needed).
-    moveAtoms(createdConcept, getOriginatingConcept(), moveAtoms);
+    moveAtoms(getOriginatingConcept(), createdConcept, moveAtoms);
 
     if (getChangeStatusFlag()) {
       for (Atom atm : moveAtoms) {
@@ -331,7 +331,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getOriginatingConcept()
-        .getId(), getName() + " " + getOriginatingConcept().getId()
+        .getId(), getName() + " concept " + getOriginatingConcept().getId()
         + " into concept " + getCreatedConcept().getId());
     // Make copy of toConcept to pass into change event
     // Make copy of toConcept to pass into change event
