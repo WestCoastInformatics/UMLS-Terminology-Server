@@ -1352,6 +1352,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final List<String> clauses = workflowBin.getTrackingRecords().stream()
           // Skip records on worklists if excludeWorklist is used
           // Skip records with a clusterType if cluster type doesn't match
+          // Skip records without a clusterType if cluster type is set
           .filter(record -> !(excludeOnWorklist
               && !ConfigUtility.isEmpty(record.getWorklistName()))
               && !(!ConfigUtility.isEmpty(clusterType)

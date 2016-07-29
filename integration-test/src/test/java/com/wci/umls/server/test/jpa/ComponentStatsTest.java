@@ -68,7 +68,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Non-obsolete CodeTransitiveRelationshipJpa", 0);
     cmpStats.put("Non-obsolete CodeTreePositionJpa", 0);
     cmpStats.put("Non-obsolete ConceptJpa", 5596);
-    cmpStats.put("Non-obsolete ConceptRelationshipJpa", 4074);
+    cmpStats.put("Non-obsolete ConceptRelationshipJpa", 3754);
     cmpStats.put("Non-obsolete ConceptSubsetJpa", 0);
     cmpStats.put("Non-obsolete ConceptSubsetMemberJpa", 0);
     cmpStats.put("Non-obsolete ConceptTransitiveRelationshipJpa", 0);
@@ -100,7 +100,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Total CodeTransitiveRelationshipJpa", 0);
     cmpStats.put("Total CodeTreePositionJpa", 0);
     cmpStats.put("Total ConceptJpa", 5596);
-    cmpStats.put("Total ConceptRelationshipJpa", 4074);
+    cmpStats.put("Total ConceptRelationshipJpa", 3754);
     cmpStats.put("Total ConceptSubsetJpa", 0);
     cmpStats.put("Total ConceptSubsetMemberJpa", 0);
     cmpStats.put("Total ConceptTransitiveRelationshipJpa", 0);
