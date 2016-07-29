@@ -42,6 +42,7 @@ import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -2323,8 +2324,8 @@ public class MetaEditingServiceRestNormalUseTest
     atom.setPublishable(true);
     atom.setCodeId("C44314");
     atom.setConceptId("M0023181");
-    atom.getConceptTerminologyIds().put(concept.getTerminology(),
-        concept.getTerminologyId());
+    atom.getConceptTerminologyIds().put(c.getTerminology(),
+        c.getTerminologyId());
     atom.setDescriptorId("");
     atom.setLanguage("ENG");
     atom.setTermType("AB");
@@ -2333,7 +2334,7 @@ public class MetaEditingServiceRestNormalUseTest
     ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
         c.getLastModified().getTime(), atom, false, authToken);
     assertTrue(v.getErrors().isEmpty());
-    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
 
     // Save a copy of the added atom
     Atom addedAtom = null;
@@ -2422,7 +2423,7 @@ public class MetaEditingServiceRestNormalUseTest
     v = metaEditingService.addSemanticType(project.getId(), c.getId(),
         c.getLastModified().getTime(), semanticType, false, authToken);
     assertTrue(v.getErrors().isEmpty());
-    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
 
     // Save a copy of the added atom
     SemanticTypeComponent addedSty = null;
@@ -2458,7 +2459,7 @@ public class MetaEditingServiceRestNormalUseTest
         ma.getLastModified().getTime(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
-    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
 
     // Verify the molecular action undone flag is set, and the lastModified has
     // been updated
@@ -2491,6 +2492,139 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), ma.getId(), 1, authToken);
     assertTrue(logEntry.contains("UNDO molecular action " + ma.getId()));
+    
+    //
+    // Create and add a relationship to concepts, and then undo
+    //
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);    
+    Concept c2 =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);       
+    
+    ConceptRelationshipJpa relationship = new ConceptRelationshipJpa();
+    relationship.setBranch(Branch.ROOT);
+    relationship.setRelationshipType("RN");
+    relationship.setAdditionalRelationshipType("");
+    relationship.setFrom(c);
+    relationship.setTo(c2);
+    relationship.setTerminologyId("TestId");
+    relationship.setTerminology(umlsTerminology);
+    relationship.setVersion(umlsVersion);
+    relationship.setTimestamp(new Date());
+    relationship.setPublishable(true);
+    relationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+    v = metaEditingService.addRelationship(project.getId(), c.getId(),
+        c.getLastModified().getTime(), relationship, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    c =
+        contentService.getConcept(c.getId(), project.getId(), authToken);
+    c2 =
+        contentService.getConcept(c2.getId(), project.getId(), authToken);   
+
+    // Save a copy of the added relationship
+    Relationship<?, ?> addedRel = null;
+    
+    RelationshipList relList =
+        contentService.findConceptRelationships(c.getTerminologyId(),
+            c.getTerminology(), c.getVersion(), null, null, authToken);
+
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getRelationshipType().equals("RN")
+            && rel.getTo().getId().equals(c2.getId())){
+        addedRel = rel;
+      }
+    }
+    assertNotNull(addedRel);
+
+    Long addedRelId = addedRel.getId();
+
+    // Save a copy of the added inverse relationship
+    Relationship<?, ?> inverseAddedRel = null;
+    
+    relList =
+        contentService.findConceptRelationships(c2.getTerminologyId(),
+            c2.getTerminology(), c2.getVersion(), null, null, authToken);
+
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (rel.getRelationshipType().equals("RB")
+            && rel.getTo().getId().equals(c.getId())){
+        inverseAddedRel = rel;
+      }
+    }
+    assertNotNull(inverseAddedRel);
+
+    Long inverseAddedRelId = inverseAddedRel.getId();    
+    
+    // Get the add relationship molecular action
+
+    // verify the molecular action exists
+    pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    list = projectService.findMolecularActions(c.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.size() > 0);
+    ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(c.getId(), ma.getComponentId());
+    assertEquals(c2.getId(), ma.getComponentId2());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Save the molecular action lastModified to compare against later
+    modDate = ma.getLastModified();
+
+    // Wait half a second
+    Thread.sleep(500);
+    
+    v = metaEditingService.undoAction(project.getId(), ma.getId(),
+        ma.getLastModified().getTime(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+    c2 = contentService.getConcept(c2.getId(), project.getId(), authToken);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(false, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+
+    // Verify the relationship was removed from concept
+    boolean relRemoved = true;
+    for (ConceptRelationship rel : c.getRelationships()) {
+      if (rel.getId() == addedRelId) {
+        relRemoved = false;
+      }
+    }
+    assertTrue(relRemoved);
+    
+    // Verify the inverse relationship was removed from the toConcept
+    boolean inverseRelRemoved = true;
+    for (ConceptRelationship rel : c2.getRelationships()) {
+      if (rel.getId() == inverseAddedRelId) {
+        inverseRelRemoved = false;
+      }
+    }
+    assertTrue(inverseRelRemoved);    
+
+    // Verify the relationship was deleted entirely (if the service
+    // can't find it, it throws an error)
+    //TODO - get this working
+//    boolean relDeleted = false;
+//    try {
+//      testService.getConceptRelationship(addedRelId,
+//          authToken);
+//    } catch (Exception e) {
+//      relDeleted = true;
+//    }
+//    assertTrue(relDeleted);
+
+    // Verify the concept workflow status was set back to previous state
+    assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
+
+    // Verify the log entry exists
+    logEntry = projectService.getLog(project.getId(), ma.getId(), 1, authToken);
+    assertTrue(logEntry.contains("UNDO molecular action " + ma.getId()));    
 
   }
 

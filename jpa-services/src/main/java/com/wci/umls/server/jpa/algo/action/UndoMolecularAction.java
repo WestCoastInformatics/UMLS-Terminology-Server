@@ -11,6 +11,10 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -112,46 +116,44 @@ public class UndoMolecularAction extends AbstractMolecularAction {
       // Undo add
       //
       if (a.getOldValue() == null && a.getField().equals("id")) {
-         // Get the object that was added, and make sure it still exists
-         Object referencedObject =
-         getObject(a.getObjectId(), Class.forName(a.getClassName()));
-        
-         if (referencedObject == null) {
-         throw new Exception("Cannot find object with class "
-         + a.getClassName() + " and an id of " + a.getObjectId());
-         }
-        
-         // For Atoms, remove the Atom from the containing concept, and remove
-         // the Atom.
-         if (a.getClassName()
-         .equals("com.wci.umls.server.jpa.content.AtomJpa")) {
-         getConcept().getAtoms().remove(referencedObject);
-         updateHasLastModified(getConcept());
-         removeObject(referencedObject, Object.class);
-        
-         }
-         // For Semantic Types, remove the Semantic Type from the containing
-         // concept, and remove the Semantic Type.
-         else if (a.getClassName().equals(
-         "com.wci.umls.server.jpa.content.SemanticTypeComponentJpa")) {
-         getConcept().getSemanticTypes().remove(referencedObject);
-         updateHasLastModified(getConcept());
-         removeObject(referencedObject, Object.class);
-         }
-         // For ConceptRelationships, remove the relationship.
-         else if (a.getClassName()
-         .equals("com.wci.umls.server.jpa.content.ConceptRelationshipJpa")) {
-         removeObject(referencedObject, Object.class);
-         }
-         // For Concepts, we should be able to just remove it (nothing Should be
-         // left on it, if the undo functionality is working correctly.
-         else if (a.getClassName()
-         .equals("com.wci.umls.server.jpa.content.ConceptJpa")) {
-         removeObject(referencedObject, Object.class);
-         } else {
-         throw new LocalException("Undoing an add for " + a.getClassName()
-         + " is unhandled. Update UndoMolecularAction.java");
-         }
+        // Get the object that was added, and make sure it still exists
+        Object referencedObject =
+            getObject(a.getObjectId(), Class.forName(a.getClassName()));
+
+        if (referencedObject == null) {
+          throw new Exception("Cannot find object with class "
+              + a.getClassName() + " and an id of " + a.getObjectId());
+        }
+
+        // For Atoms, remove the Atom from the containing concept, and remove
+        // the Atom.
+        if (a.getClassName().equals(AtomJpa.class.getName())) {
+          getConcept().getAtoms().remove(referencedObject);
+          updateHasLastModified(getConcept());
+          removeObject(referencedObject, Object.class);
+
+        }
+        // For Semantic Types, remove the Semantic Type from the containing
+        // concept, and remove the Semantic Type.
+        else if (a.getClassName()
+            .equals(SemanticTypeComponentJpa.class.getName())) {
+          getConcept().getSemanticTypes().remove(referencedObject);
+          updateHasLastModified(getConcept());
+          removeObject(referencedObject, Object.class);
+        }
+        // For ConceptRelationships, remove the relationship
+        else if (a.getClassName()
+            .equals(ConceptRelationshipJpa.class.getName())) {
+          removeObject(referencedObject, Object.class);
+        }
+        // For Concepts, we should be able to just remove it (nothing Should be
+        // left on it, if the undo functionality is working correctly.
+        else if (a.getClassName().equals(ConceptJpa.class.getName())) {
+          removeObject(referencedObject, Object.class);
+        } else {
+          throw new LocalException("Undoing an add for " + a.getClassName()
+              + " is unhandled. Update UndoMolecularAction.java");
+        }
       }
 
       //
@@ -166,7 +168,7 @@ public class UndoMolecularAction extends AbstractMolecularAction {
       //
       else if (a.getField().equals("concept") && a.getIdType().equals("ATOM")) {
         System.out.println("TESTTEST - we're undoing a move");
-        
+
       }
 
       //
@@ -181,16 +183,18 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         // If the referenced object is one of the concepts associated with this
         // molecular action, use that concept instead (later actions may call
         // updateHasLastModified again, and it can override these changes)
-        if (getConcept()!= null && referencedObject.getClass().toString()
-            .equals("class com.wci.umls.server.jpa.content.ConceptJpa")
+        if (getConcept() != null
+            && referencedObject.getClass().getName()
+                .equals(ConceptJpa.class.getName())
             && referencedObject.getId() == getConcept().getId()) {
           referencedObject = getConcept();
         }
-        if (getConcept2()!=null && referencedObject.getClass().toString()
-            .equals("class com.wci.umls.server.jpa.content.ConceptJpa")
+        if (getConcept2() != null
+            && referencedObject.getClass().getName()
+                .equals(ConceptJpa.class.getName())
             && referencedObject.getId() == getConcept2().getId()) {
           referencedObject = getConcept2();
-        }        
+        }
 
         if (referencedObject == null) {
           throw new Exception("Cannot find object with class "
