@@ -176,12 +176,11 @@
             </td>
             <td>{{selected.worklist.stats.clusterCt}}/{{selected.worklist.stats.conceptCt}}</td>
           </tr>
-          <!-- TODO: make dates dynamic in table based on workflowStateHistory keys -->
-          <tr>
+          <tr ng-repeat="state in stateHistory">
             <td>
-              <b>Create date</b>
+              <b>{{state.name}} date:</b>
             </td>
-            <td>{{toDate(selected.worklist.timestamp)}}</td>
+            <td>{{toDate(state.timestamp)}}</td>
           </tr>
 
         </tbody>

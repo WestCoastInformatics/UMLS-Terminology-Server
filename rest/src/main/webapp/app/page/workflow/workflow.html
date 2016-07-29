@@ -7,7 +7,7 @@
         Project: <select ng-model="currentProject" ng-show="projects.length > 1"
           ng-options="item.name for item in projects"
           ng-change="setProject(currentProject);"></select>
-        <span ng-show="projects.length == 1">{{currentProject}}</span>
+        <span ng-show="projects.length == 1">{{currentProject.name}}</span>
       </span>
       <span>
         &nbsp;&nbsp;Role: <select ng-model="projectRole" ng-show="roleOptions.length > 1"

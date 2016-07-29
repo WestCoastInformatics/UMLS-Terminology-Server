@@ -178,7 +178,24 @@ tsApp.controller('WorkflowCtrl', [
       $scope.getRecords($scope.selected.bin);
     };
 
-    // Get $scope.records
+    // Selects a concept (setting $scope.selected.concept)
+    $scope.selectConcept = function(concept) {
+      // Set the concept for display
+      $scope.selected.concept = {
+        terminologyId : concept.terminologyId,
+        terminology : concept.terminology,
+        version : concept.version,
+        id : concept.id
+      };
+      reportService.getConceptReport($scope.currentProject.id, $scope.selected.concept.id).then(
+      // Success
+      function(data) {
+        $scope.selected.concept.report = data;
+      });
+    };
+
+    
+    // Get records
     $scope.getRecords = function(bin) {
       
       var pfs = {
