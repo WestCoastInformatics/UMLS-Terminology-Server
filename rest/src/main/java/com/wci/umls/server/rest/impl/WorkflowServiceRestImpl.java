@@ -1447,8 +1447,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         final StringBuilder worklistName = new StringBuilder();
         worklistName.append("wrk").append(currentEpoch.getName()).append("_");
         worklistName.append(workflowBin.getName()).append("_");
-        if (clusterType != null)
+        // Append clusterType or "default"
+        if (!ConfigUtility.isEmpty(clusterType)) {
           worklistName.append(clusterType).append("_");
+        } else {
+          worklistName.append("default_");
+        }
 
         // Obtain the next worklist number for this naming scheme
         final PfsParameter worklistQueryPfs = new PfsParameterJpa();
@@ -1458,12 +1462,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         worklistQueryPfs.setAscending(false);
         final StringBuilder query = new StringBuilder();
         // Must use nameSort for non-analyzed field
-        if (clusterType == null) {
-          query.append("nameSort:").append("wrk").append(
-              currentEpoch.getName() + "_" + workflowBin.getName() + "_" + '*');
+        if (!ConfigUtility.isEmpty(clusterType)) {
+          query.append("nameSort:").append("wrk").append(currentEpoch.getName()
+              + "_" + workflowBin.getName() + "_" + clusterType + "_*");
         } else {
           query.append("nameSort:").append("wrk").append(currentEpoch.getName()
-              + "_" + workflowBin.getName() + "_" + clusterType + '*');
+              + "_" + workflowBin.getName() + "_default_" + '*');
         }
         final WorklistList worklistList = workflowService.findWorklists(project,
             query.toString(), worklistQueryPfs);
@@ -1509,7 +1513,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         worklist.setWorkflowBinName(workflowBin.getName());
 
         final Worklist newWorklist = workflowService.addWorklist(worklist);
-
+        System.out.println("ADD WORKLIST = " + worklist);
         for (final TrackingRecord record : recordResultList.getObjects()) {
           // Set worklist name of bin's copy of tracking record
           record.setWorklistName(worklistName.toString());
