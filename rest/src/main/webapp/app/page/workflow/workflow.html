@@ -2,6 +2,21 @@
 <div class="row">
   <!-- Workflow -->
   <div class="col-md-12 col-xs-12">
+    <h5>
+      <span>
+        Project: <select ng-model="currentProject" ng-show="projects.length > 1"
+          ng-options="item.name for item in projects"
+          ng-change="setProject(currentProject);"></select>
+        <span ng-show="projects.length == 1">{{currentProject}}</span>
+      </span>
+      <span>
+        &nbsp;&nbsp;Role: <select ng-model="projectRole" ng-show="roleOptions.length > 1"
+                ng-options="item for item in roleOptions"></select>
+        <span ng-show="roleOptions.length == 1">{{projects.role}}</span>
+      </span>
+    </h5>
+  </div>
+  <div class="col-md-12 col-xs-12">
     <!-- Accordion -->
     <uib-accordion> <!-- A1 - Bins --> <uib-accordion-group>
     <uib-accordion-heading>
@@ -11,11 +26,7 @@
     </uib-accordion-heading>
     <div class="row m10">
       <div class="col-md-12 col-xs-12">
-        <select ng-model="currentProject" ng-show="projects.length > 1"
-          ng-options="item for item in projectOptions"
-          ng-change="setProject(currentProject);"></select> 
-        <select
-          ng-model="currentBinType" ng-show="binTypeOptions.length > 1"
+        <select ng-model="currentBinType" ng-show="binTypeOptions.length > 1"
           ng-options="item for item in binTypeOptions"
           ng-change="setBinType(currentBinType);"></select>
         <h4><span ng-show="binTypeOptions.length == 1">{{currentBinType}}
@@ -23,18 +34,19 @@
                   ng-click="regenerateBins(); $event.stopPropagation()"
                   class="noul glyphicon glyphicon-repeat"></i>
         </span>
-        <span style="float: right;">
+        <span ng-show="projectRole == 'ADMINISTRATOR'" style="float: right;">
           <button ng-click="openAddBinModal()" title="Add new bin"
             class="btn btn-xs btn-primary">Add Bin</button>
         </span>
         </h4>
       </div>
       <div class="col-md-12 col-xs-12">
+      <span ng-show="bins.length == 0" style="display: block;"
+        class="alert alert-warning">No Workflow Bins.</span>
         <table class="table table-hover" style="margin-top: 10px;"
           ng-show="bins.length > 0">
           <thead class="table-select-row">
             <tr>
-              <th ng-show="projectRole == 'ADMINISTRATOR'" class="col-md-1 col-xs-1"></th>
               <th class="col-md-1 col-xs-1">Rank</th>
               <th class="col-md-3 col-xs-3">Name</th>
               <th class="col-md-3 col-xs-3">Dates</th>
@@ -48,23 +60,23 @@
           <tbody ng-repeat="bin in bins">
             <tr ng-click="selectBin(bin, 'all');" ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
               ng-class="{selected: bin.id == selected.bin.id}">
-              <td rowspan="4" ng-show="projectRole == 'ADMINISTRATOR'" >
-                <input type="checkbox" title="Enable/Disable Bin"
-                ng-model="bin.enabled" ng-change="toggleEnable(bin)"></input>   </br>             
-                <i ng-click="openEditBinModal(bin); $event.stopPropagation()" ng-show="bin.enabled"
-                  title="Edit Bin"   
-                  class="noul glyphicon glyphicon-pencil"></i>
-                <i ng-click="removeBin(bin); $event.stopPropagation()" ng-show="bin.enabled"
-                  title="Remove Bin"   
-                  class="noul glyphicon glyphicon-trash"></i>
-                <i ng-click="openCloneBinModal(bin); $event.stopPropagation()" ng-show="bin.enabled"
-                  title="Clone Bin"   
-                  class="noul glyphicon glyphicon-copy"></i>
-              </td>
               <td rowspan="4">{{bin.rank}}</td>
               <td rowspan="4">
                 <i uib-tooltip="{{bin.description}}"
-                  class="noul glyphicon glyphicon-question-sign"></i>&nbsp;{{bin.name}}
+                  class="noul glyphicon glyphicon-question-sign"></i>&nbsp;{{bin.name}}</br>
+                  <span  ng-show="projectRole == 'ADMINISTRATOR'">
+                  <input type="checkbox" title="Enable/Disable Bin"
+                ng-model="bin.enabled" ng-change="toggleEnable(bin)"></input>                
+                <i ng-click="openEditBinModal(bin); $event.stopPropagation()" ng-show="bin.enabled"
+                  title="Edit Bin"   
+                  class="noul glyphicon glyphicon-pencil"></i>
+                <i ng-click="openCloneBinModal(bin); $event.stopPropagation()" ng-show="bin.enabled"
+                  title="Clone Bin"   
+                  class="noul glyphicon glyphicon-copy"></i>
+                <i ng-click="removeBin(bin); $event.stopPropagation()" ng-show="bin.enabled"
+                  title="Remove Bin"   
+                  class="noul glyphicon glyphicon-trash"></i>
+                  </span>
               </td>
               <td rowspan="4">
                 Created: {{toDate(bin.creationTime)}} <br />Modified:

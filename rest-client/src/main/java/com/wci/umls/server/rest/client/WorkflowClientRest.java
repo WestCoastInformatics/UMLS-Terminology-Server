@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -20,6 +20,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -243,8 +244,9 @@ public class WorkflowClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId, Long positionAfterId,
-    WorkflowBinDefinitionJpa binDefinition, String authToken) throws Exception {
+  public WorkflowBinDefinition addWorkflowBinDefinition(Long projectId,
+    Long positionAfterId, WorkflowBinDefinitionJpa binDefinition,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Workflow Client - add workflow bin definition " + projectId
             + ", " + binDefinition.toString() + ", " + authToken);
@@ -1279,6 +1281,33 @@ public class WorkflowClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         WorkflowBinDefinitionJpa.class);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void testQuery(Long projectId, String query, QueryType type,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Client - test query - " + type + ", " + query);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(projectId, "query");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/workflow/definition/test?projectId="
+            + projectId + "&queryType=" + type + "&query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
 
   }
 }

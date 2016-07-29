@@ -34,6 +34,7 @@ tsApp
 
               // Variables
               $scope.user = securityService.getUser();
+              //$scope.project = project;
               $scope.userProjectsInfo = projectService.getUserProjectsInfo();
               $scope.selected = {
                 worklist : null,
@@ -70,8 +71,8 @@ tsApp
               });
 
               // Project Changed Handler
-              $scope.$on('worklist:projectChanged', function(event, data) {
-                console.debug('on worklist:projectChanged', data);
+              $scope.$on('workflow:projectChanged', function(event, data) {
+                console.debug('on workflow:projectChanged', data);
                 // Set project, refresh worklist list
                 $scope.setProject(data);
               });
@@ -294,6 +295,8 @@ tsApp
                 }
                 return $sce.trustAsHtml('');
               };
+              
+              // initialize
               
               $scope.getWorklists();
 

@@ -427,7 +427,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Workflow): /definition/add/" + projectId + " "
-            + positionAfterId + " " + binDefinition.getName() + " " + authToken);
+            + positionAfterId + " " + binDefinition.getName() + " "
+            + authToken);
 
     final String action = "trying to add workflow bin definition";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -441,9 +442,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Add to list in workflow config and save
       final WorkflowConfig config = workflowService
           .getWorkflowConfig(binDefinition.getWorkflowConfig().getId());
-      List<WorkflowBinDefinition> definitions = config.getWorkflowBinDefinitions();
-      
-      
+      List<WorkflowBinDefinition> definitions =
+          config.getWorkflowBinDefinitions();
 
       final WorkflowBinDefinition def;
       // if no position stated, add definition at the end of the list
@@ -453,8 +453,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       } else {
         // otherwise, add definition at position indicated by user
         int afterThisBinIndex = definitions.size();
-        for (int i=0; i<definitions.size(); i++) {
-          if (definitions.get(i).getId() == positionAfterId) {
+        for (int i = 0; i < definitions.size(); i++) {
+          if (definitions.get(i).getId().equals(positionAfterId)) {
             afterThisBinIndex = i + 1;
             break;
           }
@@ -1354,7 +1354,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           // Skip records with a clusterType if cluster type doesn't match
           .filter(record -> !(excludeOnWorklist
               && !ConfigUtility.isEmpty(record.getWorklistName()))
-              && !(clusterType != null
+              && !(!ConfigUtility.isEmpty(clusterType)
                   && !record.getClusterType().equals(clusterType)))
           .map(r -> "id:" + r.getId()).collect(Collectors.toList());
       final String idQuery = ConfigUtility.composeQuery("OR", clauses);
@@ -1447,8 +1447,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         final StringBuilder worklistName = new StringBuilder();
         worklistName.append("wrk").append(currentEpoch.getName()).append("_");
         worklistName.append(workflowBin.getName()).append("_");
-        if (clusterType != null)
+        // Append clusterType or "default"
+        if (!ConfigUtility.isEmpty(clusterType)) {
           worklistName.append(clusterType).append("_");
+        } else {
+          worklistName.append("default_");
+        }
 
         // Obtain the next worklist number for this naming scheme
         final PfsParameter worklistQueryPfs = new PfsParameterJpa();
@@ -1458,12 +1462,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         worklistQueryPfs.setAscending(false);
         final StringBuilder query = new StringBuilder();
         // Must use nameSort for non-analyzed field
-        if (clusterType == null) {
-          query.append("nameSort:").append("wrk").append(
-              currentEpoch.getName() + "_" + workflowBin.getName() + "_" + '*');
+        if (!ConfigUtility.isEmpty(clusterType)) {
+          query.append("nameSort:").append("wrk").append(currentEpoch.getName()
+              + "_" + workflowBin.getName() + "_" + clusterType + "_*");
         } else {
           query.append("nameSort:").append("wrk").append(currentEpoch.getName()
-              + "_" + workflowBin.getName() + "_" + clusterType + '*');
+              + "_" + workflowBin.getName() + "_default_" + '*');
         }
         final WorklistList worklistList = workflowService.findWorklists(project,
             query.toString(), worklistQueryPfs);
@@ -1474,9 +1478,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         // build query to retrieve tracking records that will be in worklist
         final StringBuilder sb = new StringBuilder();
+        // Find records from this workflow bin that
+        // are not on a worklist and not owned by a checklist
         sb.append("workflowBinName:").append(workflowBin.getName());
-        sb.append(" AND ").append("NOT worklistName:[* TO *] ");
-        if (clusterType != null) {
+        sb.append(" AND ").append("NOT worklistName:[* TO *] ")
+            .append("NOT checklistName:[* TO *] ");
+        if (!ConfigUtility.isEmpty(clusterType)) {
           sb.append(" AND ").append("clusterType:").append(clusterType);
         } else {
           sb.append(" AND NOT clusterType:[* TO *]");
@@ -1506,7 +1513,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         worklist.setWorkflowBinName(workflowBin.getName());
 
         final Worklist newWorklist = workflowService.addWorklist(worklist);
-
+        System.out.println("ADD WORKLIST = " + worklist);
         for (final TrackingRecord record : recordResultList.getObjects()) {
           // Set worklist name of bin's copy of tracking record
           record.setWorklistName(worklistName.toString());
@@ -2064,6 +2071,42 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/definition/test")
+  @ApiOperation(value = "Test query.", notes = "Test workflow bin definition query.")
+  public void testQuery(
+    @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Query, e.g. NOT workflowStatus:NEEDS_REVIEW", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Query type", required = true) @QueryParam("queryType") QueryType queryType,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Workflow): /definition/test ");
+
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get workflow paths",
+          UserRole.VIEWER);
+
+      Project project = workflowService.getProject(projectId);
+      final Map<String, String> params = new HashMap<>();
+      params.put("terminology", project.getTerminology());
+
+      List<Long[]> results =
+          executeQuery(query, queryType, params, workflowService);
+
+    } catch (Exception e) {
+      handleException(e, "trying to test query");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+     
+  }
+  
   /**
    * Execute query.
    *

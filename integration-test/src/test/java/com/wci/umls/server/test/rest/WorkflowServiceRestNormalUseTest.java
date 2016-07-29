@@ -141,7 +141,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition.setEnabled(true);
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
-    definition = workflowService.addWorkflowBinDefinition(projectId,
+    definition = workflowService.addWorkflowBinDefinition(projectId, null,
         (WorkflowBinDefinitionJpa) definition, authToken);
 
     // verify terminology matches
@@ -218,7 +218,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Add workflow bin definition
     WorkflowBinDefinition newDefinition = workflowService
-        .addWorkflowBinDefinition(projectId, definition, authToken);
+        .addWorkflowBinDefinition(projectId, null, definition, authToken);
     Logger.getLogger(getClass()).debug("    definition = " + newDefinition);
     assertEquals("test name", newDefinition.getName());
     assertEquals("test description", newDefinition.getDescription());
@@ -274,7 +274,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.SQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, defn, authToken);
+        .addWorkflowBinDefinition(projectId, null,defn, authToken);
 
     // Add a required SQL bin definition CONCEPT CONCEPT
     Logger.getLogger(getClass())
@@ -293,7 +293,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.SQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, defn, authToken);
+        .addWorkflowBinDefinition(projectId, null,defn, authToken);
 
     // Add a required SQL bin definition CONCEPT CONCEPT
     Logger.getLogger(getClass())
@@ -312,7 +312,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.SQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, defn, authToken);
+        .addWorkflowBinDefinition(projectId, null,defn, authToken);
 
     // Add a disabled SQL bin
     Logger.getLogger(getClass()).info("  Add disabled SQL bin definition");
@@ -330,7 +330,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.SQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, defn, authToken);
+        .addWorkflowBinDefinition(projectId, null,defn, authToken);
 
     // Add a required JQL bin definition
     Logger.getLogger(getClass())
@@ -347,7 +347,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.JQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, defn, authToken);
+        .addWorkflowBinDefinition(projectId, null,defn, authToken);
 
     // Add a required LUCENE bin definition
     Logger.getLogger(getClass()).info("  Add required LUCENE bin definition");
@@ -361,7 +361,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.LUCENE);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, defn, authToken);
+        .addWorkflowBinDefinition(projectId, null,defn, authToken);
 
     // Regenerate bins
     Logger.getLogger(getClass()).info("  Regenerate bins");
@@ -438,7 +438,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
     definition = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, definition, authToken);
+        .addWorkflowBinDefinition(projectId, null,definition, authToken);
 
     // Add same SQL definition
     Logger.getLogger(getClass()).info("    Add same SQL definition");
@@ -456,7 +456,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition2.setQueryType(QueryType.SQL);
     definition2.setWorkflowConfig(config);
     definition2 = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, definition2, authToken);
+        .addWorkflowBinDefinition(projectId, null,definition2, authToken);
 
     // Regenerate bins
     workflowService.regenerateBins(projectId,
@@ -529,7 +529,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
     definition = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, definition, authToken);
+        .addWorkflowBinDefinition(projectId, null,definition, authToken);
 
     // Add same SQL definition
     Logger.getLogger(getClass()).info("    Add same SQL definition");
@@ -547,7 +547,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition2.setQueryType(QueryType.SQL);
     definition2.setWorkflowConfig(config);
     definition2 = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, definition2, authToken);
+        .addWorkflowBinDefinition(projectId, null,definition2, authToken);
 
     // Regenerate bins
     workflowService.regenerateBins(projectId,
@@ -1131,7 +1131,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
     definition = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, definition, authToken);
+        .addWorkflowBinDefinition(projectId, null,definition, authToken);
 
     // Add same not-editable definition
     Logger.getLogger(getClass()).info("    Add same nonEditable definition");
@@ -1145,7 +1145,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition2.setQueryType(QueryType.LUCENE);
     definition2.setWorkflowConfig(config);
     definition2 = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, definition2, authToken);
+        .addWorkflowBinDefinition(projectId, null,definition2, authToken);
 
     // Regenerate bins
     workflowService.regenerateBins(projectId,
@@ -1298,7 +1298,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
     definition = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, definition, authToken);
+        .addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // Regenerate bins
     workflowService.regenerateBins(projectId,

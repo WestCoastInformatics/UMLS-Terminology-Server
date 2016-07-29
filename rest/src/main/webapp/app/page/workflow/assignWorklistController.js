@@ -27,7 +27,11 @@ var AssignWorklistModalCtrl = function($scope, $uibModalInstance, $sce, workflow
           }
         }
       } else {
-        $scope.assignedUsers = $scope.prospectiveUsers;
+        for (var i = 0; i < $scope.allUsers.length; i++) {
+          if ($scope.prospectiveUsers.indexOf($scope.allUsers[i].userName)) {
+            $scope.assignedUsers.push($scope.allUsers[i]);
+          }
+        }
       }
       $scope.assignedUsers = $scope.assignedUsers.sort(utilService.sort_by('userName'));
     },
