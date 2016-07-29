@@ -1355,7 +1355,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           .filter(record -> !(excludeOnWorklist
               && !ConfigUtility.isEmpty(record.getWorklistName()))
               && !(!ConfigUtility.isEmpty(clusterType)
-                  && !record.getClusterType().equals(clusterType)))
+                  && !record.getClusterType().equals(clusterType))
+              && !(ConfigUtility.isEmpty(clusterType)
+                  && !ConfigUtility.isEmpty(record.getClusterType())))
           .map(r -> "id:" + r.getId()).collect(Collectors.toList());
       final String idQuery = ConfigUtility.composeQuery("OR", clauses);
       final String finalQuery =
@@ -2095,8 +2097,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final Map<String, String> params = new HashMap<>();
       params.put("terminology", project.getTerminology());
 
-      List<Long[]> results =
-          executeQuery(query, queryType, params, workflowService);
+      executeQuery(query, queryType, params, workflowService);
 
     } catch (Exception e) {
       handleException(e, "trying to test query");
@@ -2104,9 +2105,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.close();
       securityService.close();
     }
-     
+
   }
-  
+
   /**
    * Execute query.
    *

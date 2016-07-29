@@ -2339,7 +2339,7 @@ public class MetaEditingServiceRestNormalUseTest
     Atom addedAtom = null;
     for (Atom a : c.getAtoms()) {
       if (a.getName().equals("DCB")) {
-        addedAtom = (AtomJpa) a;
+        addedAtom = a;
       }
     }
     assertNotNull(addedAtom);
