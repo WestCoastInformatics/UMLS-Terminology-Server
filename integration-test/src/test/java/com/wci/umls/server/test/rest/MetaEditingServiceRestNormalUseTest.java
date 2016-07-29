@@ -2286,48 +2286,6 @@ public class MetaEditingServiceRestNormalUseTest
   }
 
   /**
-   * Teardown.
-   *
-   * @throws Exception the exception
-   */
-  @Override
-  @After
-  public void teardown() throws Exception {
-
-    // Copy existing concept to avoid messing with actual database data.
-    if (concept != null && contentService.getConcept(concept.getId(),
-        project.getId(), authToken) != null) {
-      IntegrationTestClientRest testService =
-          new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-      testService.removeConcept(concept.getId(), true, authToken);
-    }
-
-    if (concept2 != null && contentService.getConcept(concept2.getId(),
-        project.getId(), authToken) != null) {
-      testService =
-          new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-      testService.removeConcept(concept2.getId(), true, authToken);
-    }
-
-    if (concept3 != null && contentService.getConcept(concept3.getId(),
-        project.getId(), authToken) != null) {
-      testService =
-          new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-      testService.removeConcept(concept3.getId(), true, authToken);
-    }
-
-    if (concept4 != null && contentService.getConcept(concept4.getId(),
-        project.getId(), authToken) != null) {
-      testService =
-          new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
-      testService.removeConcept(concept4.getId(), true, authToken);
-    }
-    // logout
-    securityService.logout(authToken);
-
-  }
-
-  /**
    * Test undo.
    *
    * @throws Exception the exception
@@ -2377,6 +2335,17 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
+    // Save a copy of the added atom
+    Atom addedAtom = null;
+    for (Atom a : c.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        addedAtom = (AtomJpa) a;
+      }
+    }
+    assertNotNull(addedAtom);
+
+    Long addedAtomID = addedAtom.getId();
+
     // Get the add atom molecular action
 
     // verify the molecular action exists
@@ -2394,14 +2363,176 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
+    // Save the molecular action lastModified to compare against later
+    Date modDate = ma.getLastModified();
+
+    // Wait half a second
+    Thread.sleep(500);
+    
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
         ma.getLastModified().getTime(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
-    // // Verify the log entry exists
-    // String logEntry =
-    // projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    // assertTrue(logEntry.contains("MOVE"));
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(false, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+
+    // Verify the atom was removed from concept
+    boolean atomRemoved = true;
+    for (Atom a : c.getAtoms()) {
+      if (a.getId() == addedAtomID) {
+        atomRemoved = false;
+      }
+    }
+    assertTrue(atomRemoved);
+
+    // Verify the atom was deleted entirely (if the service can't find it, it
+    // throws an error)
+    boolean atomDeleted = false;
+    try {
+      testService.getAtom(addedAtomID, authToken);
+    } catch (Exception e) {
+      atomDeleted = true;
+    }
+    assertTrue(atomDeleted);
+
+    // Verify the concept workflow status was set back to previous state
+    assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
+
+    // Verify the log entry exists
+    String logEntry =
+        projectService.getLog(project.getId(), ma.getId(), 1, authToken);
+    assertTrue(logEntry.contains("UNDO molecular action " + ma.getId()));
+
+    //
+    // Create and add a semantic type to concept, and then undo
+    //
+    SemanticTypeComponentJpa semanticType = new SemanticTypeComponentJpa();
+    semanticType.setBranch(Branch.ROOT);
+    semanticType.setSemanticType("Lipid");
+    semanticType.setTerminologyId("TestId");
+    semanticType.setTerminology(umlsTerminology);
+    semanticType.setVersion(umlsVersion);
+    semanticType.setTimestamp(new Date());
+    semanticType.setPublishable(true);
+
+    v = metaEditingService.addSemanticType(project.getId(), c.getId(),
+        c.getLastModified().getTime(), semanticType, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Save a copy of the added atom
+    SemanticTypeComponent addedSty = null;
+    for (SemanticTypeComponent sty : c.getSemanticTypes()) {
+      if (sty.getSemanticType().equals("Lipid")) {
+        addedSty = sty;
+      }
+    }
+    assertNotNull(addedAtom);
+
+    Long addedSemanticTypeId = addedSty.getId();
+
+    // Get the add semantic Type molecular action
+
+    // verify the molecular action exists
+    pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    list = projectService.findMolecularActions(c.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.size() > 0);
+    ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(c.getId(), ma.getComponentId());
+    assertEquals(null, ma.getComponentId2());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Save the molecular action lastModified to compare against later
+    modDate = ma.getLastModified();
+
+    v = metaEditingService.undoAction(project.getId(), ma.getId(),
+        ma.getLastModified().getTime(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(false, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+
+    // Verify the semanticType was removed from concept
+    boolean semanticTypeRemoved = true;
+    for (SemanticTypeComponent sty : c.getSemanticTypes()) {
+      if (sty.getId() == addedSemanticTypeId) {
+        semanticTypeRemoved = false;
+      }
+    }
+    assertTrue(semanticTypeRemoved);
+
+    // Verify the semantic type component was deleted entirely (if the service
+    // can't find it, it throws an error)
+    boolean styDeleted = false;
+    try {
+      testService.getSemanticTypeComponent(c.getId(), addedSemanticTypeId,
+          authToken);
+    } catch (Exception e) {
+      styDeleted = true;
+    }
+    assertTrue(styDeleted);
+
+    // Verify the concept workflow status was set back to previous state
+    assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
+
+    // Verify the log entry exists
+    logEntry = projectService.getLog(project.getId(), ma.getId(), 1, authToken);
+    assertTrue(logEntry.contains("UNDO molecular action " + ma.getId()));
+
+  }
+
+  /**
+   * Teardown.
+   *
+   * @throws Exception the exception
+   */
+  @Override
+  @After
+  public void teardown() throws Exception {
+
+    // Copy existing concept to avoid messing with actual database data.
+    if (concept != null && contentService.getConcept(concept.getId(),
+        project.getId(), authToken) != null) {
+      IntegrationTestClientRest testService =
+          new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+      testService.removeConcept(concept.getId(), true, authToken);
+    }
+
+    if (concept2 != null && contentService.getConcept(concept2.getId(),
+        project.getId(), authToken) != null) {
+      testService =
+          new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+      testService.removeConcept(concept2.getId(), true, authToken);
+    }
+
+    if (concept3 != null && contentService.getConcept(concept3.getId(),
+        project.getId(), authToken) != null) {
+      testService =
+          new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+      testService.removeConcept(concept3.getId(), true, authToken);
+    }
+
+    if (concept4 != null && contentService.getConcept(concept4.getId(),
+        project.getId(), authToken) != null) {
+      testService =
+          new IntegrationTestClientRest(ConfigUtility.getConfigProperties());
+      testService.removeConcept(concept4.getId(), true, authToken);
+    }
+    // logout
+    securityService.logout(authToken);
 
   }
 

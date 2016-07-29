@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -210,7 +211,75 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     }
 
   }
+ 
+  @Override
+  @GET
+  @Path("/sty/{id}/{styId}")
+  @ApiOperation(value = "Get a semantic type component", notes = "Get a semantic type component", response = SemanticTypeComponent.class)
+  public SemanticTypeComponent getSemanticTypeComponent(
+    @ApiParam(value = "Concept id, e.g. 1", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Semantic Type Component id, e.g. 1", required = true) @PathParam("styId") Long styId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Integration Test): /sty/" + styId);
 
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "get atom", UserRole.ADMINISTRATOR);
+      Concept concept = contentService.getConcept(id);
+      SemanticTypeComponent newSty = null;
+      for(SemanticTypeComponent sty : concept.getSemanticTypes()){
+        if(sty.getId() == styId){
+          newSty = sty;
+        }
+      }
+      
+      contentService.getGraphResolutionHandler(ConfigUtility.DEFAULT).resolve(newSty);
+      return newSty;
+    } catch (Exception e) {
+
+      handleException(e, "trying to get a semantic type component");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+    return null;
+  }  
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/atom/{id}")
+  @ApiOperation(value = "Get an atom", notes = "Get an atom", response = Atom.class)
+  public Atom getAtom(
+    @ApiParam(value = "Atom id, e.g. 1", required = true) @PathParam("id") Long atomId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Integration Test): /atom/" + atomId);
+
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "get atom", UserRole.ADMINISTRATOR);
+      
+      Atom newAtom = contentService.getAtom(atomId);
+      contentService.getGraphResolutionHandler(ConfigUtility.DEFAULT).resolve(newAtom);
+      return newAtom;
+      
+      //return contentService.getAtom(atomId);
+    } catch (Exception e) {
+
+      handleException(e, "trying to get an atom");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+    return null;
+  }  
+  
   /* see superclass */
   @Override
   @PUT

@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
@@ -49,6 +51,12 @@ public class UndoMolecularAction extends AbstractMolecularAction {
     this.molecularActionId = molecularActionId;
   }
 
+  /**
+   * Check preconditions.
+   *
+   * @return the validation result
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
@@ -58,7 +66,7 @@ public class UndoMolecularAction extends AbstractMolecularAction {
     // Metadata referential integrity checking
 
     // Check if action has already been undone
-    if (getMolecularAction().isUndoneFlag()) {
+    if (getMolecularAction(molecularActionId).isUndoneFlag()) {
       throw new LocalException("Cannot undo Molecular action "
           + molecularActionId + " - it has already been undone.");
     }
@@ -69,6 +77,11 @@ public class UndoMolecularAction extends AbstractMolecularAction {
     return validationResult;
   }
 
+  /**
+   * Compute.
+   *
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -77,10 +90,14 @@ public class UndoMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
+    // Call up the molecular Action we're undoing
+    final MolecularAction undoMolecularAction =
+        getMolecularAction(molecularActionId);
+
     // Perform the opposite action for each of the molecular action's atomic
     // actions
     final List<AtomicAction> atomicActions =
-        getMolecularAction(molecularActionId).getAtomicActions();
+        undoMolecularAction.getAtomicActions();
 
     // Sort atomic actions, so they can be un-done in reverse order
     final List<AtomicAction> sortedAtomicActions =
@@ -91,43 +108,95 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         });
 
     for (AtomicAction a : sortedAtomicActions) {
-      // Undo creation
+      //
+      // Undo add
+      //
       if (a.getOldValue() == null && a.getField().equals("id")) {
-        // Get the object that was added, and make sure it still exists
-        Object referencedObject =
-            getObject(a.getObjectId(), Class.forName(a.getClassName()));
-
-        Class clazz = Class.forName(a.getClassName());
-        clazz.cast(referencedObject);
+         // Get the object that was added, and make sure it still exists
+         Object referencedObject =
+         getObject(a.getObjectId(), Class.forName(a.getClassName()));
         
-        if (referencedObject == null) {
-          throw new Exception("Cannot find object with class " + a.getClassName() + " and an id of " + a.getObjectId());
-        }    
+         if (referencedObject == null) {
+         throw new Exception("Cannot find object with class "
+         + a.getClassName() + " and an id of " + a.getObjectId());
+         }
         
-        System.out.println("TESTTEST - stop here");
-        //Remove the object
-        //TODO - figure out how to get a Class<T> out of an object
-        removeObject(referencedObject, Object.class);
-        updateObject(referencedObject);
-        System.out.println("TESTTEST - stop here");
+         // For Atoms, remove the Atom from the containing concept, and remove
+         // the Atom.
+         if (a.getClassName()
+         .equals("com.wci.umls.server.jpa.content.AtomJpa")) {
+         getConcept().getAtoms().remove(referencedObject);
+         updateHasLastModified(getConcept());
+         removeObject(referencedObject, Object.class);
         
+         }
+         // For Semantic Types, remove the Semantic Type from the containing
+         // concept, and remove the Semantic Type.
+         else if (a.getClassName().equals(
+         "com.wci.umls.server.jpa.content.SemanticTypeComponentJpa")) {
+         getConcept().getSemanticTypes().remove(referencedObject);
+         updateHasLastModified(getConcept());
+         removeObject(referencedObject, Object.class);
+         }
+         // For ConceptRelationships, remove the relationship.
+         else if (a.getClassName()
+         .equals("com.wci.umls.server.jpa.content.ConceptRelationshipJpa")) {
+         removeObject(referencedObject, Object.class);
+         }
+         // For Concepts, we should be able to just remove it (nothing Should be
+         // left on it, if the undo functionality is working correctly.
+         else if (a.getClassName()
+         .equals("com.wci.umls.server.jpa.content.ConceptJpa")) {
+         removeObject(referencedObject, Object.class);
+         } else {
+         throw new LocalException("Undoing an add for " + a.getClassName()
+         + " is unhandled. Update UndoMolecularAction.java");
+         }
       }
 
-      // Undo deletion
+      //
+      // Undo remove
+      //
       else if (a.getNewValue() == null && a.getField().equals("id")) {
-        System.out.println("TESTTEST - we're undoing a deletion");
+        System.out.println("TESTTEST - we're undoing a remove");
       }
 
-      // Undo a field modification
+      //
+      // Undo move
+      //
+      else if (a.getField().equals("concept") && a.getIdType().equals("ATOM")) {
+        System.out.println("TESTTEST - we're undoing a move");
+        
+      }
+
+      //
+      // Undo a field change
+      //
       else if (a.getOldValue() != null && a.getNewValue() != null) {
         // Get the object that was modified, and make sure it still exists
-        Object referencedObject =
-            getObject(a.getObjectId(), Class.forName(a.getClassName()));
+        HasLastModified referencedObject =
+            (HasLastModified) getObject(a.getObjectId(),
+                Class.forName(a.getClassName()));
+
+        // If the referenced object is one of the concepts associated with this
+        // molecular action, use that concept instead (later actions may call
+        // updateHasLastModified again, and it can override these changes)
+        if (getConcept()!= null && referencedObject.getClass().toString()
+            .equals("class com.wci.umls.server.jpa.content.ConceptJpa")
+            && referencedObject.getId() == getConcept().getId()) {
+          referencedObject = getConcept();
+        }
+        if (getConcept2()!=null && referencedObject.getClass().toString()
+            .equals("class com.wci.umls.server.jpa.content.ConceptJpa")
+            && referencedObject.getId() == getConcept2().getId()) {
+          referencedObject = getConcept2();
+        }        
 
         if (referencedObject == null) {
-          throw new Exception("Cannot find object with class " + a.getClassName() + " and an id of " + a.getObjectId());
-        }    
-        
+          throw new Exception("Cannot find object with class "
+              + a.getClassName() + " and an id of " + a.getObjectId());
+        }
+
         // Get the get/set methods for the field
         Method accessorMethod = null;
         Method setMethod = null;
@@ -159,44 +228,41 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         // If all is well, set the field back to the previous value
         Object setObject = null;
 
-        switch (accessorMethod.invoke(referencedObject).getClass()
-            .getSimpleName()) {
-          case "String":
+        switch (accessorMethod.invoke(referencedObject).getClass().getName()) {
+          case "java.lang.String":
             setObject = a.getOldValue();
             break;
-          case "Long":
+          case "java.lang.Long":
             setObject = Long.parseLong(a.getOldValue());
             break;
-          case "WorkflowStatus":
+          case "com.wci.umls.server.model.workflow.WorkflowStatus":
             setObject = WorkflowStatus.valueOf(a.getOldValue());
             break;
-            default: throw new LocalException ("Field type " + accessorMethod.invoke(referencedObject).getClass()
-                .getSimpleName() + " unhandled.  Update UndoMolecularAction.");
-        }
-        
-        if (setObject == null){
-          throw new Exception ("Unable to successfully construct value for assigning to field " + accessorMethod.invoke(referencedObject).getClass()
-              .getSimpleName());
+          default:
+            throw new LocalException("Undoing modifications for field type "
+                + accessorMethod.invoke(referencedObject).getClass().getName()
+                + " is unhandled.  Update UndoMolecularAction.java");
         }
 
-        setMethod.invoke(referencedObject,
-            setObject);
-        updateObject(referencedObject);
+        if (setObject == null) {
+          throw new Exception(
+              "Unable to successfully construct value for assigning to field "
+                  + accessorMethod.invoke(referencedObject).getClass()
+                      .getSimpleName());
+        }
+        setMethod.invoke(referencedObject, setObject);
+        updateHasLastModified(referencedObject);
 
       }
     }
 
-    System.out.println("TESTTEST - Stop here");
-
-    // update the concept(s)
-    updateConcept(getConcept());
-    if (getConcept2() != null) {
-      updateConcept(getConcept2());
-    }
+    // Set the molecular action undone flag
+    undoMolecularAction.setUndoneFlag(true);
+    updateObject(undoMolecularAction);
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), molecularActionId,
-        getName() + " molecular action + " + molecularActionId);
+        getName() + " molecular action " + molecularActionId);
 
   }
 

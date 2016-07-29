@@ -84,10 +84,11 @@ public interface MolecularActionAlgorithm extends Algorithm {
    * @param conceptId2 the concept id2
    * @param userName the user name
    * @param lastModified the last modified
+   * @param molecularActionFlag the molecular action flag
    * @throws Exception the exception
    */
   public void initialize(Project project, Long conceptId, Long conceptId2,
-    String userName, Long lastModified) throws Exception;
+    String userName, Long lastModified, boolean molecularActionFlag) throws Exception;
 
   /**
    * Check preconditions for action. This will make use of data structures
