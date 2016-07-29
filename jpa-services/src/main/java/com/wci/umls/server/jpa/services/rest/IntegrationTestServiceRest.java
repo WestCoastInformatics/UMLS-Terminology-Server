@@ -98,14 +98,13 @@ public interface IntegrationTestServiceRest {
   /**
    * Returns the semantic type component.
    *
-   * @param conceptId the concept id
    * @param styId the sty id
    * @param authToken the auth token
    * @return the semantic type component
    * @throws Exception the exception
    */
-  public SemanticTypeComponent getSemanticTypeComponent(Long conceptId,
-    Long styId, String authToken) throws Exception;
+  public SemanticTypeComponent getSemanticTypeComponent(Long styId,
+    String authToken) throws Exception;
 
   /**
    * Returns the concept relationship.

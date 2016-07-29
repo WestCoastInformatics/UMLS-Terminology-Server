@@ -183,7 +183,7 @@ public class MoveMolecularAction extends AbstractMolecularAction {
       getFromConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
 
-    // update the to concept, and delete the from concept
+    // update the to concept and from concept
     updateConcept(getToConcept());
     updateConcept(getFromConcept());
 

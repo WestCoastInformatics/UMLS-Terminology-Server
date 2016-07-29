@@ -246,7 +246,7 @@ public class IntegrationTestClientRest extends RootClientRest implements
   }
 
   @Override
-  public SemanticTypeComponent getSemanticTypeComponent(Long conceptId, Long styId, String authToken) throws Exception {
+  public SemanticTypeComponent getSemanticTypeComponent(Long styId, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Integration Test Client - get semantic type component: " + styId);
 
@@ -254,8 +254,7 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/sty/" + conceptId + "/"
-            + styId);
+        client.target(config.getProperty("base.url") + "/test/sty/" + styId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();

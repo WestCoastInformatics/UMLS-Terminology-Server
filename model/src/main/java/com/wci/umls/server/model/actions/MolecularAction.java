@@ -118,9 +118,9 @@ public interface MolecularAction
   public void setWorkId(String workId);
 
   /**
-   * Returns the uundone flag.
+   * Returns the undone flag.
    *
-   * @return the uundone flag
+   * @return the undone flag
    */
   public boolean isUndoneFlag();
 

@@ -1147,7 +1147,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult undoAction(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Molecular Action id, e.g. 2", required = true) @QueryParam("molecularActionId") Long molecularActionId,
-    @ApiParam(value = "Molecular Action lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1210,7 +1210,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
               action.getMolecularAction(molecularActionId).getComponentId()));
       sendChangeEvent(event);
 
-      if (action.getMolecularAction(molecularActionId).getComponentId2() != null) {
+      if (action.getMolecularAction(molecularActionId).getComponentId2() != null && action.getConcept(
+          action.getMolecularAction(molecularActionId).getComponentId2()) != null) {
         final ChangeEvent<Concept> event2 = new ChangeEventJpa<Concept>(
             action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
             action.getConcept(

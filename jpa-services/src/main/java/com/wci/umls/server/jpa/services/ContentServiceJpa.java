@@ -895,6 +895,20 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /**
+   * Returns the semantic type component.
+   *
+   * @param id the id
+   * @return the semantic type component
+   * @throws Exception the exception
+   */
+  public SemanticTypeComponent getSemanticTypeComponent(Long id)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get semantic type component " + id);
+    return getComponent(id, SemanticTypeComponentJpa.class);
+  }
+
+  /**
    * Adds the semantic type component.
    *
    * @param component the component
@@ -4009,7 +4023,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // check for molecular action flag
     if (isMolecularActionFlag()) {
       final MolecularAction molecularAction = getMolecularAction();
-      
+
       // construct the atomic action
       final AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");

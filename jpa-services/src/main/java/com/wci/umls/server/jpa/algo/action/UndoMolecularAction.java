@@ -18,6 +18,8 @@ import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
@@ -144,8 +146,7 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         }
         // For Attributes, remove the Attribute from the containing
         // concept, and remove the Attribute.
-        else if (a.getClassName()
-            .equals(AttributeJpa.class.getName())) {
+        else if (a.getClassName().equals(AttributeJpa.class.getName())) {
           getConcept().getAttributes().remove(referencedObject);
           updateHasLastModified(getConcept());
           removeObject(referencedObject, Object.class);
@@ -175,9 +176,18 @@ public class UndoMolecularAction extends AbstractMolecularAction {
       //
       // Undo move
       //
-      else if (a.getField().equals("concept") && a.getIdType().equals("ATOM")) {
-        System.out.println("TESTTEST - we're undoing a move");
+      else if (a.getField().equals("concept") && a.getIdType().equals(IdType.ATOM)) {
+        Atom movedAtom = this.getAtom(a.getObjectId());
 
+        // The molecular action's Concept is always where the atom was moved
+        // from, and Concept2 is where it was moved to.
+        getConcept().getAtoms().add(movedAtom);
+        updateHasLastModified(getConcept());
+
+        getConcept2().getAtoms().remove(movedAtom);
+        updateHasLastModified(getConcept2());
+
+        updateHasLastModified(movedAtom);
       }
 
       //

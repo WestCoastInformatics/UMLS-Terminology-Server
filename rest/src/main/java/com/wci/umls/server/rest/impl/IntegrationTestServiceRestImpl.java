@@ -214,10 +214,9 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
   @Override
   @GET
-  @Path("/sty/{id}/{styId}")
+  @Path("/sty/{styId}")
   @ApiOperation(value = "Get a semantic type component", notes = "Get a semantic type component", response = SemanticTypeComponent.class)
   public SemanticTypeComponent getSemanticTypeComponent(
-    @ApiParam(value = "Concept id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Semantic Type Component id, e.g. 1", required = true) @PathParam("styId") Long styId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -226,15 +225,9 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
     ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "get atom",
+      authorizeApp(securityService, authToken, "get semantic type component",
           UserRole.ADMINISTRATOR);
-      Concept concept = contentService.getConcept(id);
-      SemanticTypeComponent newSty = null;
-      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-        if (sty.getId() == styId) {
-          newSty = sty;
-        }
-      }
+      SemanticTypeComponent newSty = contentService.getSemanticTypeComponent(styId);
       if (newSty == null) {
         return null;
       } else {
