@@ -12,6 +12,7 @@ import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
@@ -138,6 +139,14 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         else if (a.getClassName()
             .equals(SemanticTypeComponentJpa.class.getName())) {
           getConcept().getSemanticTypes().remove(referencedObject);
+          updateHasLastModified(getConcept());
+          removeObject(referencedObject, Object.class);
+        }
+        // For Attributes, remove the Attribute from the containing
+        // concept, and remove the Attribute.
+        else if (a.getClassName()
+            .equals(AttributeJpa.class.getName())) {
+          getConcept().getAttributes().remove(referencedObject);
           updateHasLastModified(getConcept());
           removeObject(referencedObject, Object.class);
         }

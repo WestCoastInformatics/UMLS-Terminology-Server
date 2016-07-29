@@ -2390,15 +2390,8 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertTrue(atomRemoved);
 
-    // Verify the atom was deleted entirely (if the service can't find it, it
-    // throws an error)
-    boolean atomDeleted = false;
-    try {
-      testService.getAtom(addedAtomID, authToken);
-    } catch (Exception e) {
-      atomDeleted = true;
-    }
-    assertTrue(atomDeleted);
+    // Verify the atom was deleted entirely
+    assertNull(testService.getAtom(addedAtomID, authToken));
 
     // Verify the concept workflow status was set back to previous state
     assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
@@ -2475,16 +2468,94 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertTrue(semanticTypeRemoved);
 
-    // Verify the semantic type component was deleted entirely (if the service
-    // can't find it, it throws an error)
-    boolean styDeleted = false;
-    try {
-      testService.getSemanticTypeComponent(c.getId(), addedSemanticTypeId,
-          authToken);
-    } catch (Exception e) {
-      styDeleted = true;
+    // Verify the semantic type component was deleted entirely
+    assertNull(testService.getSemanticTypeComponent(c.getId(), addedSemanticTypeId,
+        authToken));
+
+    // Verify the concept workflow status was set back to previous state
+    assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
+
+    // Verify the log entry exists
+    logEntry = projectService.getLog(project.getId(), ma.getId(), 1, authToken);
+    assertTrue(logEntry.contains("UNDO molecular action " + ma.getId()));    
+    
+    //
+    // Create and add an attribute to concept, and then undo
+    //
+    
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+    
+    AttributeJpa attribute = new AttributeJpa();
+    attribute.setBranch(Branch.ROOT);
+    attribute.setName("UMLSRELA");
+    attribute.setValue("VALUE");
+    attribute.setTerminologyId("TestId");
+    attribute.setTerminology(umlsTerminology);
+    attribute.setVersion(umlsVersion);
+    attribute.setTimestamp(new Date());
+    attribute.setPublishable(true);
+
+    v = metaEditingService.addAttribute(project.getId(), c.getId(),
+        c.getLastModified().getTime(), attribute, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+
+    // Save a copy of the added atom
+    Attribute addedAttribute = null;
+    for (Attribute atr : c.getAttributes()) {
+      if (attribute.getName().equals("UMLSRELA")) {
+        addedAttribute = atr;
+      }
     }
-    assertTrue(styDeleted);
+    assertNotNull(addedAttribute);
+
+    Long addedAttributeId = addedAttribute.getId();
+
+    // Get the add semantic Type molecular action
+
+    // verify the molecular action exists
+    pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    list = projectService.findMolecularActions(c.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.size() > 0);
+    ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(c.getId(), ma.getComponentId());
+    assertEquals(null, ma.getComponentId2());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Save the molecular action lastModified to compare against later
+    modDate = ma.getLastModified();
+
+    // Wait half a second
+    Thread.sleep(500);    
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+    
+    v = metaEditingService.undoAction(project.getId(), ma.getId(),
+        ma.getLastModified().getTime(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(false, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+
+    // Verify the attribute was removed from concept
+    boolean attributeRemoved = true;
+    for (Attribute attr : c.getAttributes()) {
+      if (attr.getId() == addedSemanticTypeId) {
+        attributeRemoved = false;
+      }
+    }
+    assertTrue(attributeRemoved);
+
+    // Verify the attribute was deleted entirely
+    assertNull(testService.getAttribute(addedAttributeId,authToken));
 
     // Verify the concept workflow status was set back to previous state
     assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
@@ -2607,17 +2678,10 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertTrue(inverseRelRemoved);    
 
-    // Verify the relationship was deleted entirely (if the service
-    // can't find it, it throws an error)
-    //TODO - get this working
-//    boolean relDeleted = false;
-//    try {
-//      testService.getConceptRelationship(addedRelId,
-//          authToken);
-//    } catch (Exception e) {
-//      relDeleted = true;
-//    }
-//    assertTrue(relDeleted);
+    
+    // Verify the attribute was deleted entirely
+    assertNull(testService.getConceptRelationship(addedRelId,
+        authToken));
 
     // Verify the concept workflow status was set back to previous state
     assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
@@ -2626,6 +2690,8 @@ public class MetaEditingServiceRestNormalUseTest
     logEntry = projectService.getLog(project.getId(), ma.getId(), 1, authToken);
     assertTrue(logEntry.contains("UNDO molecular action " + ma.getId()));    
 
+    
+    
   }
 
   /**
