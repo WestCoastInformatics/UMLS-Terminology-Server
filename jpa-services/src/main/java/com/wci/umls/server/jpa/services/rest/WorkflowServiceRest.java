@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.services.rest;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
@@ -578,4 +579,16 @@ public interface WorkflowServiceRest {
    */
   public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId,
     String name, WorkflowBinType type, String authToken) throws Exception;
+
+  /**
+   * Test query.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param type the type
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void testQuery(Long projectId, String query, QueryType type, String authToken)
+    throws Exception;
 }

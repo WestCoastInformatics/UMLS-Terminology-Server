@@ -27,7 +27,6 @@ tsApp.controller('WorkflowCtrl', [
     $scope.projectRole;
     $scope.binTypeOptions = []; 
     $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
-    // TODO: need to bootstrap this
     $scope.currentProject = {id : 1239500};
     $scope.recordTypes = [ 'N', 'R' ];
     $scope.projects;
@@ -75,11 +74,18 @@ tsApp.controller('WorkflowCtrl', [
         // success
         function(data) {
 
-          $scope.projects = data;
-          $scope.projects = data;
-          $scope.currentProject = $scope.projects.projects[0];
+          $scope.projects = data.projects;
+          $scope.currentProject = $scope.projects[0];
           $scope.projectRole = $scope.currentProject.userRoleMap[$scope.user.userName];
-
+          //$scope.projects.role = $scope.projects.assignedUsers[i].projectRoleMap[$scope.project.id];
+          if ($scope.projectRole == 'ADMINISTRATOR') {
+            $scope.roleOptions = [ 'ADMINISTRATOR', 'REVIEWER', 'AUTHOR' ];
+          } else if ($scope.projectRole == 'REVIEWER') {
+            $scope.roleOptions = [ 'REVIEWER', 'AUTHOR' ];
+          } else if ($scope.projectRole == 'AUTHOR') {
+            $scope.roleOptions = [ 'AUTHOR' ];
+          }
+          
           $scope.getBins($scope.currentProject.id, $scope.currentBinType);
           $scope.getBinTypes();
         });
@@ -114,7 +120,7 @@ tsApp.controller('WorkflowCtrl', [
       console.debug('getBins', projectId, type);
 
       workflowService.getWorkflowBins(projectId, type).then(function(response) {
-        $scope.bins = response;
+        $scope.bins = response.worklists;
         $scope.bins.totalCount = $scope.bins.length;
       });
     };
@@ -122,6 +128,7 @@ tsApp.controller('WorkflowCtrl', [
     // Set the project
     $scope.setProject = function(project) {
       $scope.currentProject = project;
+      workflowService.fireProjectChanged($scope.currentProject);
       //$scope.user.userPreferences.project = $scope.currentProject;
       //securityService.updateUserPreferences($scope.user.userPreferences);
       //$scope.getProjects();
@@ -147,8 +154,8 @@ tsApp.controller('WorkflowCtrl', [
 
       workflowService.getWorkflowConfigs($scope.currentProject.id).then(function(response) {
         $scope.workflowConfigs = response;
-        for (i=0; i<$scope.workflowConfigs.length; i++) {
-          $scope.binTypeOptions.push($scope.workflowConfigs[i].type);
+        for (var i=0; i<$scope.workflowConfigs.totalCount; i++) {
+          $scope.binTypeOptions.push($scope.workflowConfigs.worklists[i].type);
         }
         if ($scope.binTypeOptions.length == 1) {
           $scope.setBinType($scope.binTypeOptions[0]);
