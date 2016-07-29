@@ -53,14 +53,14 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
         service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "lett");
-    assertEquals(19, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
     results = service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "let");
-    assertEquals(19, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
 
     results = service.autocompleteConcepts("UMLS", "latest", "lett");
-    assertEquals(20, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
     results = service.autocompleteConcepts("UMLS", "latest", "let");
-    assertEquals(20, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
   }
 
   /**
@@ -73,9 +73,9 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
         service.autocompleteDescriptors("MSH", "2016_2016_02_26", "infr");
-    assertEquals(20, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
     results = service.autocompleteDescriptors("MSH", "2016_2016_02_26", "inf");
-    assertEquals(20, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
     results = service.autocompleteDescriptors("MSH", "2016_2016_02_26", "in");
     assertEquals(7, results.getObjects().size());
     results = service.autocompleteDescriptors("MSH", "2016_2016_02_26", "i");
@@ -93,9 +93,9 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
         service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "lett");
-    assertEquals(19, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
     results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "let");
-    assertEquals(19, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
     results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "le");
     assertTrue(results.getObjects().isEmpty());
     results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "l");
@@ -126,9 +126,9 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
     results = service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "l");
     assertEquals(2, results.getObjects().size());
     results = service.autocompleteConcepts("UMLS", "latest", "le");
-    assertEquals(20, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
     results = service.autocompleteConcepts("UMLS", "latest", "l");
-    assertEquals(20, results.getObjects().size());
+    assertTrue(results.getObjects().size()>10);
 
   }
 

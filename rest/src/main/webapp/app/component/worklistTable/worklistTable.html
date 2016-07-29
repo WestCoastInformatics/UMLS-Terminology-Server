@@ -256,8 +256,8 @@
                   <option value="">All</option>
               </select></th>
               <th class="col-md-2 col-xs-2">Concept Id</th>
-              <th class="col-md-5 col-xs-5">Concept Name</th>
-              <th class="col-md-2 col-xs-2">Last Modified</th>
+              <th class="col-md-4 col-xs-4">Concept Name</th>
+              <th class="col-md-4 col-xs-4">Last Modified</th>
             </tr>
           </thead>
           <tbody ng-repeat="record in selected.worklist.records">
@@ -281,7 +281,7 @@
                 {{concept.name}}
               </td>
               <td>
-                {{toDate(record.concepts[0].lastModified)}}<br />{{record.concepts[0].lastModifiedBy}}
+                {{toDate(record.lastModified)}}<br />{{record.lastModifiedBy}}
               </td> 
             </tr>
           </tbody>

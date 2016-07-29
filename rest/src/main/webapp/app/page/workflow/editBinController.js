@@ -1,6 +1,6 @@
 // Edit bin controller
 var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, utilService, 
-  bin, workflowConfig, bins, binType, project, projects, action) {
+  projectService, bin, workflowConfig, bins, binType, project, projects, action) {
   console.debug('Entered edit bin modal control');
 
   $scope.action = action;
@@ -15,22 +15,26 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, util
   $scope.projects = projects;
   $scope.errors = [];
   $scope.messages = [];
-  // TODO: get these dynamically
-  $scope.queryTypes = ["JQL", "SQL", "LUCENE", "PROGRAM"];
-  
 
-  if ($scope.bin) {
-    workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.binType).then(
-    function(response) {
-      $scope.workflowBinDefinition = response;
+
+  $scope.initialize = function() {
+    projectService.getQueryTypes().then(function(response) {
+      $scope.queryTypes = response.strings;
     });
+
+    if ($scope.bin) {
+      workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.binType).then(
+        function(response) {
+          $scope.workflowBinDefinition = response;
+        });
+    } else if ($scope.bin == undefined) {
+      $scope.bin = {
+        name : '',
+        description : ''
+      };
+    }
   }
-  if ($scope.bin == undefined) {
-    $scope.bin = {
-      name : '',
-      description : ''
-    };
-  }
+  
   
   $scope.positionAfterBin = function(bin) {
     workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.binType).then(
@@ -135,5 +139,8 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, util
 $scope.cancel = function() {
   $uibModalInstance.dismiss('cancel');
 };
+
+
+  $scope.initialize();
 
 };
