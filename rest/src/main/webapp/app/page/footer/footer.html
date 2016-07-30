@@ -9,11 +9,11 @@
     <div id="mobileFooter" class="visible-xs hidden-md col-xs-12">
       <button class="btn btn-sm btn-primary btn-structure"
         style="margin-top: 10px" ng-click="logout()"
-        ng-show="user.authToken != null && appConfig.loginEnabled === 'true'">Logout</button>
+        ng-show="user.authToken != null && appConfig['login.enabled'] === 'true'">Logout</button>
       &nbsp; &nbsp;
-      <a ng-href="mailto:{{appConfig.deployFeedbackEmail}}">
+      <a ng-href="mailto:{{appConfig['deploy.feedback.email']}}">
         <button class="btn btn-sm btn-primary btn-structure "
-          style="margin-top: 10px;" ng-show="appConfig.deployFeedbackEmail">Feedback</button>
+          style="margin-top: 10px;" ng-show="appConfig['deploy.feedback.email']">Feedback</button>
       </a>
     </div>
   </div>
@@ -24,17 +24,17 @@
       <div class="navbar-header">
         <ul class="nav navbar-nav navbar-left">
           <li><p class="navbar-text">
-              <a class="navbar-link" href="{{appConfig.deployLink}}">{{appConfig.deployCopyright}}</a>
+              <a class="navbar-link" href="{{appConfig['deploy.link']}}">{{appConfig['deploy.copyright']}}</a>
             </p></li>
           <li ng-show="user.name != 'Guest'"><p class="navbar-text">{{user.name}}</p></li>
           <li>
             <!--  Return to login screen -->
             <button
-              ng-show="user.authToken != null && appConfig.loginEnabled === 'true'"
+              ng-show="user.authToken != null && appConfig['login.enabled'] === 'true'"
               class="btn btn-sm btn-primary btn-structure"
               style="margin-top: 10px" ng-click="logout()">Logout</button> <!--  Return to landing screen -->
             <button
-              ng-show="user.name === 'Guest' && appConfig.landingEnabled === 'true' && appConfig.loginEnabled == 'false'"
+              ng-show="user.name === 'Guest' && appConfig['landing.enabled'] === 'true' && appConfig['login.enabled'] == 'false'"
               class="btn btn-sm btn-primary btn-structure"
               style="margin-top: 10px" ng-click="logout()">Exit</button>
           </li>
@@ -57,9 +57,10 @@
             <p class="navbar-text" ng-bind-html="deployPresentedBy"></p>
           </li>
           <li style="margin-right: 15px;"><a
-              ng-href="mailto:{{appConfig.deployFeedbackEmail}}">
+              ng-href="mailto:{{appConfig['deploy.feedback.email']}}">
               <button class="btn btn-sm btn-primary btn-structure"
-                style="margin-top: 0px" ng-show="appConfig.deployFeedbackEmail">Feedback</button>
+                style="margin-top: 0px"
+                ng-show="appConfig['deploy.feedback.email']">Feedback</button>
             </a></li>
         </ul>
       </div>

@@ -302,6 +302,10 @@ public class ConfigUtility {
           || str.equals("base.url")) {
         p.put(prop, config.getProperty(prop.toString()));
       }
+
+      if (str.startsWith("security") && str.contains("url")) {
+        p.put(prop, config.getProperty(prop.toString()));
+      }
     }
     return p;
 

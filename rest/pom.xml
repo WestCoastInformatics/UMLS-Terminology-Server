@@ -199,7 +199,6 @@
               <directory>src/main/webapp</directory>
               <filtering>true</filtering>
               <includes>
-                Webapp config inject ${project.version}
                 <include>app/appConfig.js</include>
               </includes>
             </resource>
@@ -207,7 +206,6 @@
               <directory>src/main/webapp</directory>
               <filtering>false</filtering>
               <excludes>
-                Webapp config
                 <exclude>app/appConfig.js</exclude>
               </excludes>
             </resource>

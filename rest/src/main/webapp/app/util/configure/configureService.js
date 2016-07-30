@@ -79,6 +79,7 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
 
     // Get config properties
     this.getConfigProperties = function() {
+      console.debug("get config properties");
       var deferred = $q.defer();
 
       gpService.increment();
