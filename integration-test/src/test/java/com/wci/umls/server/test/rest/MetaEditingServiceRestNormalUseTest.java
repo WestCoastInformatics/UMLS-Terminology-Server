@@ -3041,6 +3041,130 @@ public class MetaEditingServiceRestNormalUseTest
   }
 
   /**
+   * Test undo merge concepts.
+   *
+   * @throws Exception the exception
+   */
+  public void testUndoMergeConcepts() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass())
+        .info("TEST - Merge concept CONCEPTID into concept CONCEPTID2, "
+            + umlsTerminology + ", " + umlsVersion + authToken);
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // Populate concept components
+    populateConcepts();
+
+    // get the fromConcept, toConcept, and relatedConcept
+    Concept toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(toC);
+    Concept fromC =
+        contentService.getConcept(concept2.getId(), project.getId(), authToken);
+    assertNotNull(fromC);
+    Concept relatedC =
+        contentService.getConcept(concept3.getId(), project.getId(), authToken);
+    assertNotNull(relatedC);
+
+    // Save fromC and ID to check molecular Action and relationship once Concept
+    // is removed
+    final Long fromCId = concept2.getId();
+
+    // Save the components in the fromConcept to check later
+    final List<Atom> fromAtomsList = fromC.getAtoms();
+    final List<SemanticTypeComponent> fromStyList = fromC.getSemanticTypes();
+    final List<ConceptRelationship> fromRelList = fromC.getRelationships();
+    // Save the 
+    
+    // Now that the concepts are all set up, merge them.
+    ValidationResult v =
+        metaEditingService.mergeConcepts(project.getId(), toC.getId(),
+            toC.getLastModified().getTime(), fromC.getId(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    relatedC =
+        contentService.getConcept(concept3.getId(), project.getId(), authToken);
+
+    // Get the merge molecular action    
+    
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list =
+        projectService.findMolecularActions(toC.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.size() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(toC.getId(), ma.getComponentId());
+    assertEquals(fromCId, ma.getComponentId2());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Save the molecular action lastModified to compare against later
+    Date modDate = ma.getLastModified();
+
+    v = metaEditingService.undoAction(project.getId(), ma.getId(),
+        toC.getLastModified().getTime(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    toC = contentService.getConcept(toC.getId(),
+        project.getId(), authToken);
+    fromC =
+        contentService.getConcept(fromCId, project.getId(), authToken);
+    relatedC =
+        contentService.getConcept(relatedC.getId(), project.getId(), authToken);
+    ma = projectService.findMolecularActions(toC.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(true, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+
+    
+    // Verify the from concept has been recreated
+    //TODO
+    //assertNotNull(contentService.getConcept(fromCId, project.getId(), authToken));
+    
+    // Verify the atoms have been returned from the toConcept to the fromConcept
+    for (Atom a : fromAtomsList){
+      assertTrue(fromC.getAtoms().contains(a));
+    }
+    for (Atom a : toC.getAtoms()) {
+      assertTrue(!fromAtomsList.contains(a));
+    }
+
+    // Verify all semantic types have been returned to the fromConcept
+    //TODO
+    for (SemanticTypeComponent sty : fromStyList){
+      assertTrue(true);
+    }
+    
+    // Verify all relationships have been returned to the fromConcept
+    //TODO
+    for(ConceptRelationship rel : fromRelList){
+      assertTrue(true);
+    }
+ 
+    // Verify the log entry exists
+    String logEntry =
+        projectService.getLog(project.getId(), toC.getId(), 1, authToken);
+    assertTrue(logEntry.contains("UNDO molecular action " + ma.getId()));
+
+  }  
+  
+  /**
    * Teardown.
    *
    * @throws Exception the exception
