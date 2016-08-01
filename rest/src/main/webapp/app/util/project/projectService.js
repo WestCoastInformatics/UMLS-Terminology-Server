@@ -19,8 +19,9 @@ tsApp
 
         // broadcasts a new project id
         this.fireProjectChanged = function(project) {
-          $rootScope.$broadcast('refset:projectChanged', project);
+          $rootScope.$broadcast('project:projectChanged', project);
         };
+        
 
         // Gets the user projects info
         this.getUserProjectsInfo = function() {

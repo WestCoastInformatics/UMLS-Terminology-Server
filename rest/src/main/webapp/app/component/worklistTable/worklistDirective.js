@@ -71,8 +71,8 @@ tsApp
               });
 
               // Project Changed Handler
-              $scope.$on('workflow:projectChanged', function(event, data) {
-                console.debug('on workflow:projectChanged', data);
+              $scope.$on('project:projectChanged', function(event, data) {
+                console.debug('on project:projectChanged', data);
                 // Set project, refresh worklist list
                 $scope.setProject(data);
               });
@@ -207,7 +207,9 @@ tsApp
                 $scope.selected.terminology = worklist.terminology;
                 $scope.selected.version = worklist.version;
                 $scope.selected.concept = null;
-                $scope.parseStateHistory(worklist);
+                if ($scope.value == 'Worklist') {
+                  $scope.parseStateHistory(worklist);
+                }
                 $scope.getRecords(worklist);
               };
 

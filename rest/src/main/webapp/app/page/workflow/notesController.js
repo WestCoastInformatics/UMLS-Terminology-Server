@@ -9,7 +9,7 @@ var NotesModalCtrl = function($scope, $uibModalInstance, $sce, utilService, work
   $scope.newNote = null;
 
   // Paging parameters
-  $scope.pageSize = 5;
+  //$scope.pageSize = 5;
   $scope.pagedNotes = [];
   $scope.paging = {};
   $scope.paging['notes'] = {
@@ -17,7 +17,8 @@ var NotesModalCtrl = function($scope, $uibModalInstance, $sce, utilService, work
     filter : '',
     typeFilter : '',
     sortField : 'lastModified',
-    ascending : true
+    ascending : true,
+    pageSize : 5
   };
   $scope.errors = [];
 

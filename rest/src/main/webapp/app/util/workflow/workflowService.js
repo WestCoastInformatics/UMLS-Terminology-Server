@@ -10,10 +10,7 @@ tsApp.service('workflowService', [
     console.debug('configure workflowService');
 
     // broadcasts a workflow change
-    this.fireProjectChanged = function(project) {
-      $rootScope.$broadcast('workflow:projectChanged', project);
-    };
-    
+  
     this.fireWorklistChanged = function(worklist) {
       $rootScope.$broadcast('workflow:worklistChanged', worklist);
     };
@@ -349,7 +346,7 @@ tsApp.service('workflowService', [
       // Make POST call
       gpService.increment();
       $http.post(
-        workflowUrl + '/worklists/available?projectId=' + projectId + '&userName=' + userName,
+        workflowUrl + '/worklist/available?projectId=' + projectId + '&userName=' + userName,
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {

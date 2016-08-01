@@ -127,7 +127,7 @@ tsApp.controller('WorkflowCtrl', [
     // Set the project
     $scope.setProject = function(project) {
       $scope.currentProject = project;
-      workflowService.fireProjectChanged($scope.currentProject);
+      projectService.fireProjectChanged($scope.currentProject);
       //$scope.user.userPreferences.project = $scope.currentProject;
       //securityService.updateUserPreferences($scope.user.userPreferences);
       //$scope.getProjects();
@@ -167,6 +167,7 @@ tsApp.controller('WorkflowCtrl', [
     $scope.selectBin = function(bin, clusterType) {
       $scope.selected.bin = bin;   
       $scope.selected.clusterType = clusterType;
+      $scope.selected.concept = null;
       
       if (clusterType && clusterType == 'default') {
         $scope.paging['record'].filter = ' NOT clusterType:[* TO *]';
