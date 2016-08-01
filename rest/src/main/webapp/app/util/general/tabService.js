@@ -45,6 +45,13 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
               projectRole : true
             });
             break;
+          case 'edit':
+            this.tabs.push({
+              link : 'edit',
+              label : 'Edit',
+              projectRole : true
+            });
+            break;
           case 'admin':
             this.tabs.push({
               link : 'admin',

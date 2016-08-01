@@ -80,7 +80,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     } else {
       sb.append("role:" + role.name());
     }
-    sb.append(" AND ").append("(NOT editor:[* TO *])");
+    sb.append(" AND ").append("(NOT authors:[* TO *])");
 
     return service.findWorklists(project, sb.toString(), pfs);
 

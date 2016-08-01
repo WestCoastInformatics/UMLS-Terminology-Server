@@ -166,6 +166,16 @@ tsApp.run([
             });
           }
 
+          // Edit View
+          if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('edit') != -1) {
+            console.debug('Route enabled: /edit');
+            $routeProviderReference.when('/edit', {
+              templateUrl : 'app/page/edit/edit.html',
+              controller : 'EditCtrl',
+              reloadOnSearch : false
+            });
+          }
+
           // Administrative Page
           if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('admin') != -1) {
             console.debug('Route enabled: /admin');
