@@ -212,7 +212,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     // Add each listed atom from originatingConcept to createdConcept, delete
     // from
     // fromConcept, and set to NEEDS_REVIEW (if needed).
-    moveAtoms(createdConcept, getOriginatingConcept(), moveAtoms);
+    moveAtoms(getOriginatingConcept(), createdConcept, moveAtoms);
 
     if (getChangeStatusFlag()) {
       for (Atom atm : moveAtoms) {

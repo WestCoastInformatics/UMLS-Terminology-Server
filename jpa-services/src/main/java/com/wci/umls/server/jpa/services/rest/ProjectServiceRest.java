@@ -216,4 +216,13 @@ public interface ProjectServiceRest {
    */
   public KeyValuePairList getValidationChecks(String authToken)
     throws Exception;
+
+  /**
+   * Returns the query types.
+   *
+   * @param authToken the auth token
+   * @return the query types
+   * @throws Exception the exception
+   */
+  public StringList getQueryTypes(String authToken) throws Exception;
 }

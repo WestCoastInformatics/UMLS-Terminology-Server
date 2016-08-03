@@ -610,8 +610,9 @@ tsApp.service('workflowService', [
       $http.post(
         workflowUrl + '/checklist/add?projectId=' + projectId + '&workflowBinId=' + workflowBinId
           + (clusterType != 'default' ? '&clusterType=' + clusterType : '') + '&name=' + name + '&description=' + description
-          + '&randomize=' + randomize + '&excludeOnWorklist=' + excludeOnWorklist + '&query='
-          + query, utilService.prepPfs(pfs)).then(
+          + '&randomize=' + randomize 
+          + '&excludeOnWorklist=' + excludeOnWorklist
+          + (query != '' && query != null ? '&query=' + query : ''), utilService.prepPfs(pfs)).then(
       // success
       function(response) {
         console.debug('  output = ', response.data);

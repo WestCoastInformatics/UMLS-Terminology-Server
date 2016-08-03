@@ -164,12 +164,12 @@ public class MoveMolecularAction extends AbstractMolecularAction {
 
     // Make copy of toConcept and fromConcept before changes, to pass into
     // change event
-    toConceptPreUpdates = new ConceptJpa(getToConcept(), false);
     fromConceptPreUpdates = new ConceptJpa(getFromConcept(), false);
+    toConceptPreUpdates = new ConceptJpa(getToConcept(), false);
 
     // Add each listed atom from fromConcept to toConcept, delete from
     // fromConcept, and set to NEEDS_REVIEW (if needed).
-    moveAtoms(getToConcept(), getFromConcept(), moveAtoms);
+    moveAtoms(getFromConcept(), getToConcept(), moveAtoms);
 
     if (getChangeStatusFlag()) {
       for (Atom atm : moveAtoms) {
@@ -180,7 +180,7 @@ public class MoveMolecularAction extends AbstractMolecularAction {
       getFromConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
 
-    // update the to concept, and delete the from concept
+    // update the to concept and from concept
     updateConcept(getToConcept());
     updateConcept(getFromConcept());
 

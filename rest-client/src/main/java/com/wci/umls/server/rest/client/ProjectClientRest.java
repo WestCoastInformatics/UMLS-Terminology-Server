@@ -273,6 +273,32 @@ public class ProjectClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
+  public StringList getQueryTypes(String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Project Client - getQueryTypes");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/project/queryTypes");
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    StringList list =
+        ConfigUtility.getGraphForString(resultString, StringList.class);
+    return list;
+  }
+  
+  
+  /* see superclass */
+  @Override
   public UserList findAssignedUsersForProject(Long projectId, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
     validateNotEmpty(projectId, "projectId");

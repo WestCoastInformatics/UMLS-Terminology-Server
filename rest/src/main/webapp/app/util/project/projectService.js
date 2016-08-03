@@ -291,6 +291,28 @@ tsApp
           return deferred.promise;
         };
 
+        // get query types
+        this.getQueryTypes = function() {
+          console.debug('getQueryTypes');
+          var deferred = $q.defer();
+
+          // Get project roles
+          gpService.increment();
+          $http.get(projectUrl + '/queryTypes').then(
+          // success
+          function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };
+        
         // does user have any role on any project
         this.getUserHasAnyRole = function() {
           console.debug('getUserHasAnyRole');
