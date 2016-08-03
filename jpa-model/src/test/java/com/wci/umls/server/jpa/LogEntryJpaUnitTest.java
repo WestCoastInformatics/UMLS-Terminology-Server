@@ -73,7 +73,8 @@ public class LogEntryJpaUnitTest extends ModelUnitSupport {
     tester.include("projectId");
     tester.include("terminology");
     tester.include("version");
-    tester.include("activity");
+    tester.include("activityId");
+    tester.include("workId");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -145,7 +146,8 @@ public class LogEntryJpaUnitTest extends ModelUnitSupport {
     tester.include("projectId");
     tester.include("terminology");
     tester.include("version");
-    tester.include("activity");
+    tester.include("activityId");
+    tester.include("workId");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

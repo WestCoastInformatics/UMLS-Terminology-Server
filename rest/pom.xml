@@ -18,6 +18,7 @@
 
   <properties>
     <!-- Specify the config artifact parameters -->
+    <run.config.label>umls</run.config.label>
     <config.groupId>com.wcinformatics.umls.server</config.groupId>
     <config.artifactId>term-server-config-dev-windows</config.artifactId>
     <config.version>${project.version}</config.version>

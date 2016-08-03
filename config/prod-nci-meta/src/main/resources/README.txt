@@ -7,7 +7,7 @@ git clone https://github.com/WestCoastInformatics/UMLS-Terminology-Server.git co
 
 cd ~/ncim/code
 git pull
-mvn -Dconfig.artifactId=term-server-config-prod-ncim clean install
+mvn -Dconfig.artifactId=term-server-config-prod-nci-meta clean install
 
 # unpack sample data
 cd ~/ncim/code
@@ -15,7 +15,7 @@ unzip ~/ncim/code/config/target/term*.zip -d ~/ncim/data
 
 # unpack config and scripts
 cd ~/ncim
-unzip ~/ncim/code/config/prod-ncim/target/term*.zip -d config
+unzip ~/ncim/code/config/prod-nci-meta/target/term*.zip -d config
 ln -s config/bin
 cp config/config.properties config/config-load.properties
 # edit config.properties, the -load version uses DEFAULT security
@@ -50,7 +50,7 @@ REDEPLOY INSTRUCTIONS
 
 cd ~/ncim/code
 git pull
-mvn -Dconfig.artifactId=term-server-config-prod-ncim clean install
+mvn clean install -Drun.config.label=ncim -Dconfig.artifactId=term-server-config-prod-nci-meta 
 
 /bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/ncim-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/ncim-server-rest

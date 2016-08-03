@@ -111,7 +111,7 @@ RELOADING DATA
 
 cd ~/claml/code
 git pull
-mvn -Dconfig.artifactId=term-server-config-prod-claml clean install
+mvn -Drun.config.label=claml -Dconfig.artifactId=term-server-config-prod-claml clean install
 
 * undeploy app and put up maintenance page
 /bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/claml-server-rest

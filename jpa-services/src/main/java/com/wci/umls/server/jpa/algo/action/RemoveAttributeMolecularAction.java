@@ -109,6 +109,7 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " " + attribute.getName() + " from concept "
             + getConcept().getTerminologyId());
 

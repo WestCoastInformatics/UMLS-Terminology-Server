@@ -306,7 +306,11 @@ public class ConfigUtility {
       if (str.startsWith("security") && str.contains("url")) {
         p.put(prop, config.getProperty(prop.toString()));
       }
-    }
+
+      if (str.contains("enabled")) {
+        p.put(prop, config.getProperty(prop.toString()));
+      }
+}
     return p;
 
   }

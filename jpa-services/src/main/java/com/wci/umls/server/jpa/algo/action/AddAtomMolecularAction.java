@@ -61,14 +61,14 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     if (getTermType(atom.getTermType(), getConcept().getTerminology(),
         getConcept().getVersion()) == null) {
       rollback();
-      throw new LocalException("Cannot add atom with invalid term type - "
-          + atom.getTermType());
+      throw new LocalException(
+          "Cannot add atom with invalid term type - " + atom.getTermType());
     }
     if (getLanguage(atom.getLanguage(), getConcept().getTerminology(),
         getConcept().getVersion()) == null) {
       rollback();
-      throw new LocalException("Cannot add atom with invalid language - "
-          + atom.getLanguage());
+      throw new LocalException(
+          "Cannot add atom with invalid language - " + atom.getLanguage());
     }
     if (getTerminology(atom.getTerminology(), atom.getVersion()) == null) {
       rollback();
@@ -132,6 +132,7 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " " + atom.getName());
 
   }

@@ -42,7 +42,7 @@ tsApp.run([
         // Success
         function(data) {
           // Configure 'appConfig' so it matches prior specification
-          for ( var key in response.data) {
+          for ( var key in data) {
             appConfig[key] = data[key];
           }
 
@@ -63,13 +63,13 @@ tsApp.run([
               }
             }
 
-            // if login not enabled, set guest user
-            if (appConfig['login.enabled'] !== 'true') {
-              console.debug("LOGIN not enabled - set guest user");
-              securityService.setGuestUser();
-            }
-
           }
+          // if login not enabled, set guest user
+          if (appConfig['login.enabled'] !== 'true') {
+            console.debug("LOGIN not enabled - set guest user");
+            securityService.setGuestUser();
+          }
+
 
           if (errMsg.length > 0) {
             // Send an embedded 'data' object
@@ -81,7 +81,7 @@ tsApp.run([
           if (!appConfig) {
             console.error('Application configuration could not be retrieved, see appConfig.js');
           }
-          if (appConfig && !appConfigd['enabled.tabs']) {
+          if (appConfig && !appConfig['enabled.tabs']) {
             console.error('No tabs specified for user view in appConfig.js');
           }
 

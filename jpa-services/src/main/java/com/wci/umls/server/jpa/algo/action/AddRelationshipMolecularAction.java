@@ -167,6 +167,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " " + relationship + " to concept "
             + getConcept().getTerminologyId());
 

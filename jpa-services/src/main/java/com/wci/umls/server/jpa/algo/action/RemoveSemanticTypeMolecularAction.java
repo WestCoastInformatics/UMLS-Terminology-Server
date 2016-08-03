@@ -99,6 +99,7 @@ public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " " + sty.getSemanticType() + " from concept "
             + getConcept().getTerminologyId());
 

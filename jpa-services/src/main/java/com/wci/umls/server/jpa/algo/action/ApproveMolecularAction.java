@@ -140,16 +140,16 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     if (getConcept().getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
       getConcept().setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     }
-    
+
     updateConcept(getConcept());
 
-    
     // Make copy of the Concept and fromConcept before changes, to pass into
     // change event
     conceptPostUpdates = new ConceptJpa(getConcept(), false);
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " " + getConcept());
 
   }

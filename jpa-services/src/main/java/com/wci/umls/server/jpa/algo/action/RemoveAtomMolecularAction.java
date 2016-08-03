@@ -96,6 +96,7 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " " + atom.getName() + " from concept "
             + getConcept().getTerminologyId());
 
