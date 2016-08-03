@@ -29,19 +29,19 @@ import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
- * A molecular action for undoing a previously performed action.
+ * A molecular action for redoing a previously undone action.
  */
-public class UndoMolecularAction extends AbstractMolecularAction {
+public class RedoMolecularAction extends AbstractMolecularAction {
 
   /** The molecular action id. */
   private Long molecularActionId;
 
   /**
-   * Instantiates an empty {@link UndoMolecularAction}.
+   * Instantiates an empty {@link RedoMolecularAction}.
    *
    * @throws Exception the exception
    */
-  public UndoMolecularAction() throws Exception {
+  public RedoMolecularAction() throws Exception {
     super();
     // n/a
   }
@@ -78,10 +78,10 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
     // Metadata referential integrity checking
 
-    // Check if action has already been undone
-    if (getMolecularAction(molecularActionId).isUndoneFlag()) {
-      throw new LocalException("Cannot undo Molecular action "
-          + molecularActionId + " - it has already been undone.");
+    // Check to make sure action has already been undone
+    if (!getMolecularAction(molecularActionId).isUndoneFlag()) {
+      throw new LocalException("Cannot redo Molecular action "
+          + molecularActionId + " - it has not been undone.");
     }
 
     // Check preconditions
@@ -99,35 +99,102 @@ public class UndoMolecularAction extends AbstractMolecularAction {
   @Override
   public void compute() throws Exception {
 
-    // Call up the molecular Action we're undoing
-    final MolecularAction undoMolecularAction =
+    // Call up the molecular Action we're redoing
+    final MolecularAction redoMolecularAction =
         getMolecularAction(molecularActionId);
 
     // Perform the opposite action for each of the molecular action's atomic
     // actions
     final List<AtomicAction> atomicActions =
-        undoMolecularAction.getAtomicActions();
+        redoMolecularAction.getAtomicActions();
 
-    // Sort atomic actions, so they can be un-done in reverse order
+    // Sort atomic actions, so they can be re-done in the same order they were
+    // originally done.
     final List<AtomicAction> sortedAtomicActions =
         new ArrayList<AtomicAction>();
     atomicActions.stream()
-        .sorted((a1, a2) -> Long.compare(a2.getId(), a1.getId())).forEach(a -> {
+        .sorted((a1, a2) -> Long.compare(a1.getId(), a2.getId())).forEach(a -> {
           sortedAtomicActions.add(a);
         });
 
     for (AtomicAction a : sortedAtomicActions) {
       //
-      // Undo add
+      // Redo add
       //
       if (a.getOldValue() == null && a.getField().equals("id")) {
-        // Get the object that was added, and make sure it still exists
+
+        // Get the class of the object we're looking for, so we can pass it into
+        // the Hibernate query
+        
+        final AuditReader reader = AuditReaderFactory.get(manager);
+        final AuditQuery query =
+            reader.createQuery()
+                // last updated revision
+                .forRevisionsOfEntity(Class.forName(a.getClassName()), true,
+                    true)
+                .addProjection(AuditEntity.revisionNumber().max())
+                // add id and owner as constraints
+                .add(AuditEntity.property("id").eq(a.getObjectId()));
+        final Number revision = (Number) query.getSingleResult();
+        final HasLastModified returnedObject =
+            (HasLastModified) reader.find(Class.forName(a.getClassName()),
+                a.getClassName(), a.getObjectId(), revision, true);
+
+        // Set the concept the component will be readded to (different depending on molecular action type)
+        Concept containingConcept = null;
+        if (getMolecularAction(molecularActionId).getName().equals("SPLIT")){
+          containingConcept = getConcept2();
+        }
+        else{
+          containingConcept = getConcept();
+        }
+        
+         // Add the object back in, using the method appropriate to its type
+        if (a.getClassName().equals(AtomJpa.class.getName())) {
+          updateHasLastModified(returnedObject);
+          containingConcept.getAtoms().add((AtomJpa) returnedObject);
+          updateHasLastModified(containingConcept);
+        } else if (a.getClassName().equals(AttributeJpa.class.getName())) {
+          updateHasLastModified(returnedObject);
+          containingConcept.getAttributes().add((AttributeJpa) returnedObject);
+          updateHasLastModified(containingConcept);
+        } else if (a.getClassName()
+            .equals(SemanticTypeComponentJpa.class.getName())) {
+          updateHasLastModified(returnedObject);
+          containingConcept.getSemanticTypes()
+              .add((SemanticTypeComponentJpa) returnedObject);
+          updateHasLastModified(containingConcept);
+        } else if (a.getClassName()
+            .equals(ConceptRelationshipJpa.class.getName())) {
+          updateHasLastModified(returnedObject);
+        } else if (a.getClassName().equals(ConceptJpa.class.getName())) {
+          //TODO - This is a total hack - figure out why Concept pulled back from the dead has all of its relationships.
+          ConceptJpa returnedConcept = new ConceptJpa((Concept) returnedObject, false);
+          updateHasLastModified(returnedConcept);
+          //If this concept is referenced in the molecular action, set this actions concept2.
+          //This wasn't set at initialization since the concept was deleted at the time
+          if (returnedObject.getId().equals(getMolecularAction(molecularActionId).getComponentId2())){
+            concept2 = returnedConcept;
+          }
+        } else {
+          throw new LocalException("Redoing an add for " + a.getClassName()
+              + " is unhandled. Update RedoMolecularAction.java");
+        }
+      }
+
+      //
+      // Redo remove
+      //
+      else if (a.getNewValue() == null && a.getField().equals("id")) {
+
+        // Get the object that was restored, and make sure it still exists
         Object referencedObject =
             getObject(a.getObjectId(), Class.forName(a.getClassName()));
 
         if (referencedObject == null) {
-          throw new Exception("Undo add failed: cannot find object with class "
-              + a.getClassName() + " and an id of " + a.getObjectId());
+          throw new Exception(
+              "Redo remove failed: cannot find object with class "
+                  + a.getClassName() + " and an id of " + a.getObjectId());
         }
 
         // For Atoms, remove the Atom from the containing concept, and remove
@@ -155,98 +222,23 @@ public class UndoMolecularAction extends AbstractMolecularAction {
           removeObject(referencedObject, Object.class);
         }
 
-        // For ConceptRelationships, remove the relationship from the containing
-        // concept, remove the relationship
+        // For ConceptRelationships, remove the relationship
         else if (a.getClassName()
             .equals(ConceptRelationshipJpa.class.getName())) {
           removeObject(referencedObject, Object.class);
         }
         // For Concepts, we should be able to just remove it (nothing Should be
-        // left on it, if the undo functionality is working correctly.
+        // left on it, if the redo functionality is working correctly.
         else if (a.getClassName().equals(ConceptJpa.class.getName())) {
           removeObject(referencedObject, Object.class);
         } else {
-          throw new LocalException("Undoing an add for " + a.getClassName()
-              + " is unhandled. Update UndoMolecularAction.java");
-        }
-      }
-
-      //
-      // Undo remove
-      //
-      else if (a.getNewValue() == null && a.getField().equals("id")) {
-
-        // Get the class of the object we're looking for, so we can pass it into
-        // the Hibernate query
-
-        final AuditReader reader = AuditReaderFactory.get(manager);
-        final AuditQuery query =
-            reader.createQuery()
-                // last updated revision
-                .forRevisionsOfEntity(Class.forName(a.getClassName()), true,
-                    true)
-                .addProjection(AuditEntity.revisionNumber().max())
-                // add id and owner as constraints
-                .add(AuditEntity.property("id").eq(a.getObjectId()));
-        final Number revision = (Number) query.getSingleResult();
-        final HasLastModified returnedObject =
-            (HasLastModified) reader.find(Class.forName(a.getClassName()),
-                a.getClassName(), a.getObjectId(), revision, true);
-
-        // Set the concept the component will be readded to (different depending on molecular action type)
-        Concept containingConcept = null;
-        if (getMolecularAction(molecularActionId).getName().equals("MERGE")){
-          containingConcept = getConcept2();
-        }
-        else{
-          containingConcept = getConcept();
-        }        
-        
-        // Add the object back in, using the method appropriate to its type
-        // Atom
-        if (a.getClassName().equals(AtomJpa.class.getName())) {
-          updateHasLastModified(returnedObject);
-          containingConcept.getAtoms().add((AtomJpa) returnedObject);
-          updateHasLastModified(containingConcept);
-          //Attribute
-        } else if (a.getClassName().equals(AttributeJpa.class.getName())) {
-          updateHasLastModified(returnedObject);
-          containingConcept.getAttributes().add((AttributeJpa) returnedObject);
-          updateHasLastModified(containingConcept);
-          //SemanticTypeComponent
-        } else if (a.getClassName()
-            .equals(SemanticTypeComponentJpa.class.getName())) {
-          updateHasLastModified(returnedObject);
-          containingConcept.getSemanticTypes()
-              .add((SemanticTypeComponentJpa) returnedObject);
-          updateHasLastModified(containingConcept);
-          //ConceptRelationship
-        } else if (a.getClassName()
-            .equals(ConceptRelationshipJpa.class.getName())) {
-          updateHasLastModified(returnedObject);
-          //((ConceptRelationshipJpa) returnedObject).getFrom().getRelationships()
-          //    .add((ConceptRelationshipJpa) returnedObject);
-          //updateHasLastModified(
-          //    ((ConceptRelationshipJpa) returnedObject).getFrom());
-          //Concept
-        } else if (a.getClassName().equals(ConceptJpa.class.getName())) {
-          //TODO - This is a total hack - figure out why Concept pulled back from the dead has all of its relationships.
-          ConceptJpa returnedConcept = new ConceptJpa((Concept) returnedObject, false);
-          updateHasLastModified(returnedConcept);
-          //If this concept is referenced in the molecular action, set this actions concept2.
-          //This wasn't set at initialization since the concept was deleted at the time
-          if (returnedObject.getId().equals(getMolecularAction(molecularActionId).getComponentId2())){
-            concept2 = returnedConcept;
-          }          
-        } else {
-          throw new LocalException("Undoing an remove for " + a.getClassName()
+          throw new LocalException("Redoing a remove for " + a.getClassName()
               + " is unhandled. Update RedoMolecularAction.java");
         }
-
       }
 
       //
-      // Undo move
+      // Redo move
       //
       else if (a.getField().equals("concept")
           && a.getIdType().equals(IdType.ATOM)) {
@@ -262,32 +254,32 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         else{
           originatingConcept = getConcept2();
           sentToConcept = getConcept();          
-        }        
+        }               
         
-        // Ensure that the listed atom exists in the concept it claims it is in,
-        // and doesn't already exist in the concept it would be moved into
-        if (!sentToConcept.getAtoms().contains(movedAtom)) {
-          throw new Exception("Undo move failed: Atom " + movedAtom
-              + " not in Concept " + sentToConcept);
+        // Ensure that the listed atom exists in the concept it originally came from,
+        // and doesn't already exist in the concept it was previously moved into
+        if (!originatingConcept.getAtoms().contains(movedAtom)) {
+          throw new Exception("Redo move failed: Atom " + movedAtom
+              + " not in Concept " + originatingConcept);
         }
-        if (originatingConcept.getAtoms().contains(movedAtom)) {
-          throw new Exception("Undo move failed: Atom " + movedAtom
-              + " already in Concept " + originatingConcept);
+        if (sentToConcept.getAtoms().contains(movedAtom)) {
+          throw new Exception("Redo move failed: Atom " + movedAtom
+              + " already in Concept " + sentToConcept);
         }
 
-        // Move the Atom back to the concept it originated from.
-        originatingConcept.getAtoms().add(movedAtom);
-        updateHasLastModified(originatingConcept);
-
-        // Remove the Atom from the concept it was sent to
-        sentToConcept.getAtoms().remove(movedAtom);
+        // Move the Atom back to the concept it was sent to
+        sentToConcept.getAtoms().add(movedAtom);
         updateHasLastModified(sentToConcept);
+
+        // Remove the Atom from the concept it originally came from
+        originatingConcept.getAtoms().remove(movedAtom);
+        updateHasLastModified(originatingConcept);
 
         updateHasLastModified(movedAtom);
       }
 
       //
-      // Undo a field change
+      // Redo a field change
       //
       else if (a.getOldValue() != null && a.getNewValue() != null) {
         // Get the object that was modified, and make sure it still exists
@@ -336,12 +328,12 @@ public class UndoMolecularAction extends AbstractMolecularAction {
               + a.getField() + " in class " + a.getClassName());
         }
 
-        // Check to make sure the field is still in the state it was set to in
-        // the action
+        // Check to make sure the field is still in the state it was set to
+        // after the action was undone
         if (!accessorMethod.invoke(referencedObject).toString()
-            .equals(a.getNewValue().toString())) {
+            .equals(a.getOldValue().toString())) {
           throw new Exception("Error: field " + a.getField() + " in "
-              + referencedObject + " no longer has value: " + a.getNewValue());
+              + referencedObject + " no longer has value: " + a.getOldValue());
         }
 
         // If all is well, set the field back to the previous value
@@ -349,17 +341,17 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
         if (accessorMethod.invoke(referencedObject).getClass().getName()
             .equals(String.class.getName())) {
-          setObject = a.getOldValue();
+          setObject = a.getNewValue();
         } else if (accessorMethod.invoke(referencedObject).getClass().getName()
             .equals(Long.class.getName())) {
-          setObject = Long.parseLong(a.getOldValue());
+          setObject = Long.parseLong(a.getNewValue());
         } else if (accessorMethod.invoke(referencedObject).getClass().getName()
             .equals(WorkflowStatus.class.getName())) {
-          setObject = WorkflowStatus.valueOf(a.getOldValue());
+          setObject = WorkflowStatus.valueOf(a.getNewValue());
         } else {
-          throw new LocalException("Undoing modifications for field type "
+          throw new LocalException("Redoing modifications for field type "
               + accessorMethod.invoke(referencedObject).getClass().getName()
-              + " is unhandled.  Update UndoMolecularAction.java");
+              + " is unhandled.  Update RedoMolecularAction.java");
         }
 
         if (setObject == null) {
@@ -372,41 +364,11 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         updateHasLastModified(referencedObject);
 
       }
-
-      //
-      // Undo approve
-      //
-      // TODO
-      else if (a.getField().equals("concept")
-          && a.getIdType().equals(IdType.ATOM)) {
-        Atom movedAtom = this.getAtom(a.getObjectId());
-
-        // Ensure that the listed atom exists in the concept it claims it is in,
-        // and doesn't already exist in the concept it would be moved into
-        if (!getConcept2().getAtoms().contains(movedAtom)) {
-          throw new Exception("Undo move failed: Atom " + movedAtom
-              + " not in Concept " + getConcept2());
-        }
-        if (getConcept().getAtoms().contains(movedAtom)) {
-          throw new Exception("Undo move failed: Atom " + movedAtom
-              + " already in Concept " + getConcept());
-        }
-
-        // The molecular action's Concept is always where the atom was moved
-        // from, and Concept2 is where it was moved to.
-        getConcept().getAtoms().add(movedAtom);
-        updateHasLastModified(getConcept());
-
-        getConcept2().getAtoms().remove(movedAtom);
-        updateHasLastModified(getConcept2());
-
-        updateHasLastModified(movedAtom);
-      }
     }
 
     // Set the molecular action undone flag
-    undoMolecularAction.setUndoneFlag(true);
-    updateObject(undoMolecularAction);
+    redoMolecularAction.setUndoneFlag(false);
+    updateObject(redoMolecularAction);
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), molecularActionId,

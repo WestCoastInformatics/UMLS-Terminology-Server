@@ -10,6 +10,7 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
@@ -23,6 +24,7 @@ import com.wci.umls.server.model.workflow.Checklist;
 @Table(name = "checklists", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "project_id"
 }))
+@Audited
 @Indexed
 @XmlRootElement(name = "checklist")
 public class ChecklistJpa extends AbstractChecklist {

@@ -10,11 +10,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -35,14 +35,20 @@ import com.wci.umls.server.model.meta.IdType;
 @Audited
 @MappedSuperclass
 @XmlSeeAlso({
-  ConceptJpa.class
+    ConceptJpa.class
 })
 public abstract class AbstractComponent implements Component {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
+  @GenericGenerator(name = "ExistingOrGeneratedId", strategy = "com.wci.umls.server.jpa.helpers.UseExistingOrGenerateIdGenerator"
+//  , parameters = {
+//      @org.hibernate.annotations.Parameter(name = "table_name", value = "table_generator"),
+//      @org.hibernate.annotations.Parameter(name = "pkColumnValue", value = "Entity")
+//  }
+  )
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "ExistingOrGeneratedId")
+
   private Long id;
 
   /** the timestamp. */
@@ -333,9 +339,8 @@ public abstract class AbstractComponent implements Component {
     result = prime * result + (suppressible ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }

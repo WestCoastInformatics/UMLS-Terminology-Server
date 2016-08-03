@@ -29,6 +29,7 @@ import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
 import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.MoveMolecularAction;
+import com.wci.umls.server.jpa.algo.action.RedoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveAttributeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveRelationshipMolecularAction;
@@ -1163,6 +1164,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     try {
       // Start transaction
       action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(false);
       action.beginTransaction();
       action.setMolecularActionId(molecularActionId);
 
@@ -1244,4 +1246,109 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/action/redo")
+  @ApiOperation(value = "Redo action", notes = "Redo a previously undone action", response = ValidationResultJpa.class)
+  public ValidationResult redoAction(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Molecular Action id, e.g. 2", required = true) @QueryParam("molecularActionId") Long molecularActionId,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /action/redo " + projectId
+            + ", redo action with id " + molecularActionId + " for user "
+            + authToken);
+
+    // Instantiate services
+    final RedoMolecularAction action = new RedoMolecularAction();
+    try {
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(false);
+      action.beginTransaction();
+      action.setMolecularActionId(molecularActionId);
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(action, projectId,
+          securityService, authToken, "undoing action", UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = action.getProject(projectId);
+      action.setValidationChecks(project.getValidationChecks());
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      // Note - the redo action doesn't create its own molecular and atomic
+      // actions
+      // Note - if we're redoing a split, ComponentId2 won't point to an
+      // existing concept, so leave that null.
+      Long componentId2;
+      if (action.getMolecularAction(molecularActionId).getName()
+          .equals("SPLIT")) {
+        componentId2 = null;
+      } else {
+        componentId2 =
+            action.getMolecularAction(molecularActionId).getComponentId2();
+      }
+
+      action.initialize(project,
+          action.getMolecularAction(molecularActionId).getComponentId(),
+          componentId2, userName, lastModified, false);
+
+      //
+      // Check prerequisites
+      //
+      final ValidationResult validationResult = action.checkPreconditions();
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        action.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action
+      //
+      action.compute();
+
+      // commit (also removes the lock)
+      action.commit();
+
+      // Websocket notification
+      final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
+          action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
+          action.getConcept(
+              action.getMolecularAction(molecularActionId).getComponentId()));
+      sendChangeEvent(event);
+
+      if (action.getMolecularAction(molecularActionId).getComponentId2() != null
+          && action.getConcept(action.getMolecularAction(molecularActionId)
+              .getComponentId2()) != null) {
+        final ChangeEvent<Concept> event2 =
+            new ChangeEventJpa<Concept>(action.getName(), authToken,
+                IdType.CONCEPT.toString(), null, null, action.getConcept(action
+                    .getMolecularAction(molecularActionId).getComponentId2()));
+        sendChangeEvent(event2);
+      }
+
+      return validationResult;
+
+    } catch (Exception e) {
+
+      handleException(e, "undoing action");
+      return null;
+    } finally {
+      action.close();
+      securityService.close();
+    }
+
+  }  
+  
 }

@@ -36,7 +36,7 @@ public abstract class AbstractMolecularAction
   private Concept concept;
 
   /** The concept2. */
-  private Concept concept2;
+  protected Concept concept2;
 
   /** The project. */
   private Project project;

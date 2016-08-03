@@ -28,7 +28,6 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.UserRole;
@@ -46,7 +45,6 @@ import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
-import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
@@ -84,7 +82,7 @@ import com.wci.umls.server.services.SecurityService;
  * @goal generate-sample-data
  * @phase package
  */
-public class GenerateSampleDataMojo extends AbstractMojo {
+public class GenerateSampleDataMojo extends AbstractLoaderMojo {
 
   /**
    * Mode - for recreating db.
@@ -122,35 +120,19 @@ public class GenerateSampleDataMojo extends AbstractMojo {
 
       // Handle creating the database if the mode parameter is set
       final Properties properties = ConfigUtility.getConfigProperties();
-      if (mode != null && mode.equals("create")) {
-        getLog().info("Recreate database");
-        // This will trigger a rebuild of the db
-        properties.setProperty("hibernate.hbm2ddl.auto", mode);
-        // Trigger a JPA event
-        new ProjectServiceJpa().close();
-        properties.remove("hibernate.hbm2ddl.auto");
-      }
 
+      //Rebuild the database
+      if (mode != null && mode.equals("create")) {
+        createDb(false);
+      }      
+      
       // authenticate
       final SecurityService service = new SecurityServiceJpa();
       final String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
       service.close();
-
-      // Handle reindexing database if mode is set
-      if (mode != null && mode.equals("create")) {
-        ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.luceneReindex(null, authToken);
-      }
-
-      boolean serverRunning = ConfigUtility.isServerActive();
-      getLog()
-          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
-      if (serverRunning) {
-        throw new Exception("Server must not be running to generate data");
-      }
-
+      
       loadSampleData(authToken);
 
       getLog().info("done ...");

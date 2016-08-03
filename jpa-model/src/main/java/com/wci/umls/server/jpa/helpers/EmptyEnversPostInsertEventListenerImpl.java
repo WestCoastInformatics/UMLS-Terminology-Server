@@ -1,0 +1,43 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
+package com.wci.umls.server.jpa.helpers;
+
+import org.hibernate.envers.configuration.spi.AuditConfiguration;
+import org.hibernate.envers.event.spi.EnversPostInsertEventListenerImpl;
+import org.hibernate.envers.internal.synchronization.AuditProcess;
+import org.hibernate.envers.internal.synchronization.work.AddWorkUnit;
+import org.hibernate.envers.internal.synchronization.work.AuditWorkUnit;
+import org.hibernate.event.spi.PostInsertEvent;
+import org.hibernate.persister.entity.EntityPersister;
+
+/**
+ * Reference implementation of {@link CustomEnversPostDeleteEventListener}.
+ * Includes hibernate tags for MEME database.
+ */
+public class EmptyEnversPostInsertEventListenerImpl
+    extends EnversPostInsertEventListenerImpl {
+
+  /**
+   * Instantiates a {@link EmptyEnversPostInsertEventListenerImpl} from the
+   * specified parameters.
+   *
+   * @param enversConfiguration the envers configuration
+   */
+  public EmptyEnversPostInsertEventListenerImpl(
+      AuditConfiguration enversConfiguration) {
+    super(enversConfiguration);
+  }
+
+  @Override
+  public void onPostInsert(PostInsertEvent event) {
+    //Do Nothing
+  }
+
+  @Override
+  public boolean requiresPostCommitHanding(EntityPersister persister) {
+    // Do nothing
+    return false;
+  }  
+  
+}

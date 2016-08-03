@@ -296,7 +296,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken, "get attribute",
           UserRole.ADMINISTRATOR);
-
+      
       return contentService.getAttribute(attributeId);
 
     } catch (Exception e) {

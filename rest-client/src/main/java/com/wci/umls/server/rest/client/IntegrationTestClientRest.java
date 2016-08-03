@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
@@ -300,7 +301,7 @@ public class IntegrationTestClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility.getGraphForString(resultString, ConceptRelationship.class);
+    return ConfigUtility.getGraphForString(resultString, ConceptRelationshipJpa.class);
   }
   
   @Override
@@ -329,7 +330,7 @@ public class IntegrationTestClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility.getGraphForString(resultString, Attribute.class);
+    return ConfigUtility.getGraphForString(resultString, AttributeJpa.class);
   }  
   
 }

@@ -5,11 +5,9 @@ package com.wci.umls.server.mojo;
 
 import java.util.Properties;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
@@ -24,7 +22,7 @@ import com.wci.umls.server.services.SecurityService;
  * 
  * @phase package
  */
-public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
+public class TerminologyRrfSingleLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Name of terminology to be loaded.
@@ -89,20 +87,10 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
 
       Properties properties = ConfigUtility.getConfigProperties();
 
-      if (mode != null && mode.equals("create")) {
-        getLog().info("Recreate database");
-        // This will trigger a rebuild of the db
-        properties.setProperty("hibernate.hbm2ddl.auto", mode);
-        // Trigger a JPA event
-        new MetadataServiceJpa().close();
-        properties.remove("hibernate.hbm2ddl.auto");
-
-      }
-
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -114,21 +102,20 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
             "Mojo expects server to be running, but server is down");
       }
 
+      //Create the database
+      if (mode != null && mode.equals("create")) {
+        createDb(serverRunning);
+      }        
+      
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
-      service.close();
-
+      service.close();        
+      
       if (!serverRunning) {
         getLog().info("Running directly");
-
-        // Handle reindexing
-        if (mode != null && mode.equals("create")) {
-          ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-          contentService.luceneReindex(null, authToken);
-        }
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
         contentService.loadTerminologyRrf(terminology, version, true, true,
@@ -140,11 +127,7 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
 
-        // handle reindexing
-        if (mode != null && mode.equals("create")) {
-          client.luceneReindex(null, authToken);
-        }
-
+        // load terminology
         client.loadTerminologyRrf(terminology, version, true, true, inputDir,
             prefix == null ? "MR" : prefix, authToken);
       }

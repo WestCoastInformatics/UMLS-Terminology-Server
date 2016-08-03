@@ -280,7 +280,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     if (getChangeStatusFlag()) {
       getToConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-
+    
     // update the to concept, and delete the from concept
     updateConcept(getToConcept());
     removeConcept(getFromConcept().getId());
