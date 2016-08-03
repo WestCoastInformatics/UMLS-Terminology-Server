@@ -139,8 +139,6 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   }
 
   /* see superclass */
-  // TODO: need a field that renders atom ids for indexing
-  // e.g. ComponentIdToCsvBridge
   @XmlElement(type = AtomJpa.class)
   @Override
   public List<Atom> getAtoms() {

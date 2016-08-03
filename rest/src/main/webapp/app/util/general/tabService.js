@@ -11,9 +11,9 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
     // Setup tabs array based on "enabled tabs"]
     // Called at the end of routes.js
     this.initEnabledTabs = function() {
-      if (appConfig.enabledTabs) {
+      if (appConfig['enabled.tabs']) {
 
-        var tabArray = appConfig.enabledTabs.split(',');
+        var tabArray = appConfig['enabled.tabs'].split(',');
         for (var i = 0; i < tabArray.length; i++) {
           switch (tabArray[i]) {
           case 'source':
@@ -103,7 +103,7 @@ tsApp.service('tabService', [ '$route', '$location', 'utilService', 'gpService',
       if (userPreferences && userPreferences.lastTab) {
 
         // Ensure user preferences lastTab is valid
-        if (appConfig.enabledTabs.indexOf(userPreferences.lastTab.replace('/', '')) != -1) {
+        if (appConfig['enabled.tabs'].indexOf(userPreferences.lastTab.replace('/', '')) != -1) {
           $location.path(userPreferences.lastTab);
         }
 

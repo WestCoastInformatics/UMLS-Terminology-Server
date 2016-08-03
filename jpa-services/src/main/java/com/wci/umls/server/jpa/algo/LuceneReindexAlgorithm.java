@@ -199,4 +199,5 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
     // n/a
   }
 
+
 }

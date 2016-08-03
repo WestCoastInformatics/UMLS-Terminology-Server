@@ -33,10 +33,10 @@ tsApp.service('securityService', [
       var deferred = $q.defer();
       var expireDate = new Date();
       expireDate.setDate(expireDate.getDate() + 30);
-      $cookies.put('WCI ' + appConfig.deployTitle, 'license_accepted', {
+      $cookies.put('WCI ' + appConfig['deploy.title'], 'license_accepted', {
         expires : expireDate
       });
-      var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
+      var cookie = $cookies.get('WCI ' + appConfig['deploy.title']);
       // console.debug('Set cookie:', cookie);
       deferred.resolve();
       return deferred.promise;
@@ -46,11 +46,11 @@ tsApp.service('securityService', [
     this.checkLicense = function() {
       var deferred = $q.defer();
 
-      if (appConfig.licenseEnabled !== 'true') {
+      if (appConfig['license.enabled'] !== 'true') {
         deferred.resolve();
       } else {
 
-        var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
+        var cookie = $cookies.get('WCI ' + appConfig['deploy.title']);
         // console.debug('License cookie', cookie);
         if (!cookie) {
           deferred.reject();
@@ -67,7 +67,7 @@ tsApp.service('securityService', [
     this.getUser = function() {
 
       // if login is not enabled, set and return the Guest user
-      if (appConfig.loginEnabled && appConfig.loginEnabled !== 'true') {
+      if (appConfig['login.enabled'] === 'true' && appConfig['login.enabled'] !== 'true') {
         this.setGuestUser();
       }
       // otherwise, determine if user is already logged in

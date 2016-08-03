@@ -12,7 +12,7 @@
         ng-click="login(user.userName, user.password)">Login</button>
       <p>
         <br />
-        <a href="{{appConfig.deployPasswordReset}}">Forgot Password?</a>
+        <a href="{{appConfig['deploy.password.reset']}}">Forgot Password?</a>
         <br /> <br />
       </p>
       <div ng-include src="'app/page/general/loginContent.html'"></div>

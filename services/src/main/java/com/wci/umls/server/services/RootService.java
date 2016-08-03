@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -11,7 +11,6 @@ import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
-import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
@@ -127,8 +126,8 @@ public interface RootService {
    * @return the list
    * @throws Exception the exception
    */
-  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
-    int[] totalCt, PfsParameter pfs) throws Exception;
+  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz, int[] totalCt,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Checks if is last modified flag.
@@ -247,13 +246,15 @@ public interface RootService {
    * @param userName the user name
    * @param terminology the terminology
    * @param version the version
-   * @param activity the activity
+   * @param activityId the activity id
+   * @param workId the work id
    * @param message the message
    * @return the log entry
    * @throws Exception the exception
    */
   public LogEntry addLogEntry(String userName, String terminology,
-    String version, LogActivity activity, String message) throws Exception;
+    String version, String activityId, String workId, String message)
+    throws Exception;
 
   /**
    * Adds the log entry.
@@ -261,12 +262,14 @@ public interface RootService {
    * @param userName the user name
    * @param projectId the project id
    * @param objectId the object id
+   * @param activityId the activity id
+   * @param workId the work id
    * @param message the message
    * @return the log entry
    * @throws Exception the exception
    */
   public LogEntry addLogEntry(String userName, Long projectId, Long objectId,
-    String message) throws Exception;
+    String activityId, String workId, String message) throws Exception;
 
   /**
    * Lock Hibernate object.

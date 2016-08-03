@@ -118,6 +118,7 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " " + attribute.getName() + " to concept "
             + getConcept().getTerminologyId());
   }

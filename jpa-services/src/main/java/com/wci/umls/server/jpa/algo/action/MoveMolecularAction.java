@@ -126,16 +126,13 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     }
 
     // Moving concepts must be from the same terminology
-    if (!(getFromConcept().getTerminology().toString().equals(getToConcept()
-        .getTerminology().toString()))) {
+    if (!(getFromConcept().getTerminology().toString()
+        .equals(getToConcept().getTerminology().toString()))) {
       throw new LocalException(
           "Two concepts must be from the same terminology to have atoms moved between them, but concept "
-              + getFromConcept().getId()
-              + " has terminology "
-              + getFromConcept().getTerminology()
-              + ", and Concept "
-              + getToConcept().getId()
-              + " has terminology "
+              + getFromConcept().getId() + " has terminology "
+              + getFromConcept().getTerminology() + ", and Concept "
+              + getToConcept().getId() + " has terminology "
               + getToConcept().getTerminology());
     }
 
@@ -189,6 +186,7 @@ public class MoveMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " " + atomIds + " from Concept " + getFromConcept().getId()
             + " to concept " + getToConcept().getId());
 

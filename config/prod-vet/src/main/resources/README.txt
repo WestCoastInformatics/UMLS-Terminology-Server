@@ -96,7 +96,7 @@ REDEPLOY INSTRUCTIONS
 
 cd ~/vet/code
 git pull
-mvn -Dconfig.artifactId=term-server-config-prod-vet clean install
+mvn -Drun.config.label=vet -Dconfig.artifactId=term-server-config-prod-vet clean install
 
 /bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/vet-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/vet-server-rest

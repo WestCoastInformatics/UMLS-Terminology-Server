@@ -245,7 +245,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
         if (existingRel != null) {
           existingRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           findInverseRelationship(existingRel)
-          .setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+              .setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
         } else {
           // set the relationship component last modified
           rel.setId(null);
@@ -287,7 +287,8 @@ public class MergeMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
-        getName() + " concept " + getFromConcept().getId() + " into concept "
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        getName() + " " + getFromConcept() + " into concept "
             + getToConcept().getId());
 
     // Make copy of toConcept to pass into change event

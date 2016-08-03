@@ -46,7 +46,6 @@ import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
-import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -1129,16 +1128,16 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   public LogEntry addLogEntry(final String userName, final Long projectId,
-    final Long objectId, final String message) throws Exception {
+    final Long objectId, final String activityId, final String workId,
+    final String message) throws Exception {
     final LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setObjectId(objectId);
     entry.setProjectId(projectId);
     entry.setTimestamp(new Date());
+    entry.setActivityId(activityId);
+    entry.setWorkId(workId);
     entry.setMessage(message);
-
-    // Leave activity null
-    entry.setActivity(null);
 
     // Add component
     return addLogEntry(entry);
@@ -1148,15 +1147,16 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   public LogEntry addLogEntry(final String userName, final String terminology,
-    final String version, final LogActivity activity, final String message)
-    throws Exception {
+    final String version, final String activityId, final String workId,
+    final String message) throws Exception {
     LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setTerminology(terminology);
     entry.setVersion(version);
     entry.setTimestamp(new Date());
     entry.setMessage(message);
-    entry.setActivity(activity);
+    entry.setActivityId(activityId);
+    entry.setWorkId(workId);
 
     // Add component
     return addLogEntry(entry);

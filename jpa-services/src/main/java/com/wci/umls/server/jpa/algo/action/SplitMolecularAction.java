@@ -168,8 +168,8 @@ public class SplitMolecularAction extends AbstractMolecularAction {
         getRelationshipType(relationshipType, getTerminology(), getVersion());
 
     if (type == null) {
-      throw new LocalException("RelationshipType " + relationshipType
-          + " not found.");
+      throw new LocalException(
+          "RelationshipType " + relationshipType + " not found.");
     }
 
     // Check preconditions
@@ -203,8 +203,9 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     createdConcept = addConcept(createdConcept);
     createdConcept.setTerminologyId(createdConcept.getId().toString());
     updateConcept(createdConcept);
-    
-    //Add newly created concept Id to the molecular action (undo action uses this)
+
+    // Add newly created concept Id to the molecular action (undo action uses
+    // this)
     getMolecularAction().setComponentId2(createdConcept.getId());
     updateMolecularAction(getMolecularAction());
 
@@ -229,8 +230,8 @@ public class SplitMolecularAction extends AbstractMolecularAction {
             new SemanticTypeComponentJpa(sty);
         newSemanticType.setId(null);
         SemanticTypeComponentJpa newAddedSemanticType =
-            (SemanticTypeComponentJpa) addSemanticTypeComponent(
-                newSemanticType, createdConcept);
+            (SemanticTypeComponentJpa) addSemanticTypeComponent(newSemanticType,
+                createdConcept);
 
         // add the semantic type and set the last modified by
         getCreatedConcept().getSemanticTypes().add(newAddedSemanticType);
@@ -317,7 +318,8 @@ public class SplitMolecularAction extends AbstractMolecularAction {
 
     // construct inverse relationship
     ConceptRelationshipJpa inverseBetweenRel =
-        (ConceptRelationshipJpa) createInverseConceptRelationship(newBetweenRel);
+        (ConceptRelationshipJpa) createInverseConceptRelationship(
+            newBetweenRel);
 
     // set the inverse relationship component last modified
     ConceptRelationshipJpa newInverseBetweenRel =
@@ -330,9 +332,11 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     updateConcept(getCreatedConcept());
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(), getOriginatingConcept()
-        .getId(), getName() + " concept " + getOriginatingConcept().getId()
-        + " into concept " + getCreatedConcept().getId());
+    addLogEntry(getUserName(), getProject().getId(),
+        getOriginatingConcept().getId(), getMolecularAction().getActivityId(),
+        getMolecularAction().getWorkId(),
+        getName() + " " + getOriginatingConcept().getId() + " into concept "
+            + getCreatedConcept().getId());
     // Make copy of toConcept to pass into change event
     // Make copy of toConcept to pass into change event
     originatingConceptPostUpdates =

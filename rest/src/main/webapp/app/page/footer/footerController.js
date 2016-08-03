@@ -22,15 +22,15 @@ tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce',
         scope.appConfig = appConfig;
 
         // Convert to trusted HTML
-        scope.deployPresentedBy = $sce.trustAsHtml(scope.appConfig.deployPresentedBy);
-        scope.siteTrackingCode = $sce.trustAsHtml(scope.appConfig.siteTrackingCode);
+        scope.deployPresentedBy = $sce.trustAsHtml(scope.appConfig['deploy.presented.by']);
+        scope.siteTrackingCode = $sce.trustAsHtml(scope.appConfig['site.tracking.code']);
 
         // Declare user
         scope.user = securityService.getUser();
 
         // Logout method
         scope.logout = function() {
-          if (scope.appConfig.loginEnabled === 'true') {
+          if (scope.appConfig['login.enabled'] === 'true') {
             securityService.logout();
           } else {
             securityService.clearUser();

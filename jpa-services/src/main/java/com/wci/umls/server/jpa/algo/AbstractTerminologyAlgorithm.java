@@ -11,7 +11,6 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasTerminology;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
-import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
@@ -96,7 +95,7 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
     }
 
     if (objectCt % logCt == 0) {
-      addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+      addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
           "    count = " + objectCt);
     }
     super.logAndCommit(objectCt, logCt, commitCt);
@@ -109,7 +108,7 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
    * @throws Exception the exception
    */
   public void logInfo(String message) throws Exception {
-    addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+    addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
         message);
     Logger.getLogger(getClass()).info(message);
   }
@@ -121,7 +120,7 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
    * @throws Exception the exception
    */
   public void logWarn(String message) throws Exception {
-    addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+    addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
         "WARNING: " + message);
     Logger.getLogger(getClass()).warn(message);
     commitClearBegin();
@@ -135,7 +134,7 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
    */
 
   public void logError(String message) throws Exception {
-    addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+    addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
         "ERROR: " + message);
     Logger.getLogger(getClass()).error(message);
     // Attempt to commit the error -though sometimes this doesn't work
@@ -173,7 +172,7 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
    * @return the total elapsed time str
    */
   @SuppressWarnings({
-    "boxing"
+      "boxing"
   })
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;
