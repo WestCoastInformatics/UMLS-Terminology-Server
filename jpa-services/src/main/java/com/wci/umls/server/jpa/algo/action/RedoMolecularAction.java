@@ -175,9 +175,6 @@ public class RedoMolecularAction extends AbstractMolecularAction {
         else {
           throw new Exception("Unexpected combination of old/new values - "
               + a.getOldValue() + ", " + a.getNewValue());
-        } else {
-          originatingConcept = getConcept2();
-          sentToConcept = getConcept();
         }
 
         // Update the container object
