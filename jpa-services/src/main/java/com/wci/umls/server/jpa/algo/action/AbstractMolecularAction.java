@@ -41,10 +41,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   private Concept concept;
 
   /** The concept2. */
-  protected Concept concept2;
-
-  /** The project. */
-  private Project project;
+  private Concept concept2;
 
   /** The user name. */
   private String userName;
@@ -88,16 +85,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   @Override
   public Concept getConcept2() {
     return concept2;
-  }
-
-  /**
-   * Returns the project.
-   *
-   * @return the project
-   */
-  @Override
-  public Project getProject() {
-    return project;
   }
 
   /* see superclass */
@@ -160,7 +147,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     String userName, Long lastModified, boolean molecularActionFlag)
     throws Exception {
 
-    this.project = project;
+    setProject(project);
     this.userName = userName;
     this.lastModified = lastModified;
 

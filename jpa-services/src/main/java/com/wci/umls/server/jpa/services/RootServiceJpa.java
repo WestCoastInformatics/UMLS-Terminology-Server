@@ -981,7 +981,6 @@ public abstract class RootServiceJpa implements RootService {
    *
    * @param <T> the
    * @param object the object
-   * @param clazz the clazz
    * @return the t
    * @throws Exception the exception
    */
@@ -1101,6 +1100,7 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public LogEntry addLogEntry(final LogEntry logEntry) throws Exception {
     // Use add object to bypass the last modified checks
+    logEntry.setLastModified(new Date());
     return addObject(logEntry);
   }
 
@@ -1108,6 +1108,7 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public void updateLogEntry(final LogEntry logEntry) throws Exception {
     // Use add object to bypass the last modified checks
+    logEntry.setLastModified(new Date());
     updateObject(logEntry);
   }
 
@@ -1148,7 +1149,38 @@ public abstract class RootServiceJpa implements RootService {
   public LogEntry addLogEntry(final String userName, final String terminology,
     final String version, final String activityId, final String workId,
     final String message) throws Exception {
-    LogEntry entry = new LogEntryJpa();
+    final LogEntry entry = new LogEntryJpa();
+    entry.setLastModifiedBy(userName);
+    entry.setTerminology(terminology);
+    entry.setVersion(version);
+    entry.setTimestamp(new Date());
+    entry.setMessage(message);
+    entry.setActivityId(activityId);
+    entry.setWorkId(workId);
+
+    // Add component
+    return addLogEntry(entry);
+
+  }
+
+  /**
+   * Adds the log entry.
+   *
+   * @param projectId the project id
+   * @param userName the user name
+   * @param terminology the terminology
+   * @param version the version
+   * @param activityId the activity id
+   * @param workId the work id
+   * @param message the message
+   * @return the log entry
+   * @throws Exception the exception
+   */
+  public LogEntry addLogEntry(final Long projectId, final String userName,
+    final String terminology, final String version, final String activityId,
+    final String workId, final String message) throws Exception {
+    final LogEntry entry = new LogEntryJpa();
+    entry.setProjectId(projectId);
     entry.setLastModifiedBy(userName);
     entry.setTerminology(terminology);
     entry.setVersion(version);

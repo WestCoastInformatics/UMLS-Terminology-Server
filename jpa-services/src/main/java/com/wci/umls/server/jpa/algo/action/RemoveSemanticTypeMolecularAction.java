@@ -87,13 +87,16 @@ public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
 
     // Remove the semantic type from the concept
     getConcept().getSemanticTypes().remove(sty);
-    if (getChangeStatusFlag()) {
-      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-    }
     updateConcept(getConcept());
 
     // remove the semantic type component
     removeSemanticTypeComponent(semanticTypeComponentId);
+
+    // Change status of concept
+    if (getChangeStatusFlag()) {
+      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    }
+    updateConcept(getConcept());
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),

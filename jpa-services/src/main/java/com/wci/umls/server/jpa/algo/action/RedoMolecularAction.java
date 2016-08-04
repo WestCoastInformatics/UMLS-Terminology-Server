@@ -216,9 +216,9 @@ public class RedoMolecularAction extends AbstractMolecularAction {
         }
 
         // If all is well, set the field to the new value
-        final Object setObject =
+        final Object value =
             getObjectForValue(getMethod.getReturnType(), a.getNewValue());
-        setMethod.invoke(referencedObject, setObject);
+        setMethod.invoke(referencedObject, value);
         updateHasLastModified(referencedObject);
 
       }
@@ -233,8 +233,16 @@ public class RedoMolecularAction extends AbstractMolecularAction {
     addLogEntry(getUserName(), getProject().getId(),
         redoMolecularAction.getComponentId(),
         getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
-        "REDO " + redoMolecularAction.getName() + ", " + molecularActionId);
+        getName() + " " + redoMolecularAction.getName() + ", "
+            + molecularActionId);
 
+    if (redoMolecularAction.getComponentId2() != null) {
+      addLogEntry(getUserName(), getProject().getId(),
+          redoMolecularAction.getComponentId2(),
+          getMolecularAction().getActivityId(),
+          getMolecularAction().getWorkId(), getName() + " "
+              + redoMolecularAction.getName() + ", " + molecularActionId);
+    }
   }
 
 }

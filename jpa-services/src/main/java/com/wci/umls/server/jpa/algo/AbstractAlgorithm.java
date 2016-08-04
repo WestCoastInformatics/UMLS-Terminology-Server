@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -46,6 +47,9 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
 
   /** The work id. */
   private String workId;
+
+  /** The project. */
+  private Project project;
 
   /**
    * Instantiates an empty {@link AbstractAlgorithm}.
@@ -96,8 +100,14 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    * @throws Exception the exception
    */
   public void logInfo(String message) throws Exception {
-    addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
-        message);
+    if (project != null) {
+      addLogEntry(project.getId(), userName, getTerminology(), getVersion(),
+          activityId, workId, message);
+    } else {
+      addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
+          message);
+
+    }
     Logger.getLogger(getClass()).info(message);
   }
 
@@ -108,8 +118,13 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    * @throws Exception the exception
    */
   public void logWarn(String message) throws Exception {
-    addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
-        "WARNING: " + message);
+    if (project != null) {
+      addLogEntry(project.getId(), userName, getTerminology(), getVersion(),
+          activityId, workId, "WARNING: " + message);
+    } else {
+      addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
+          "WARNING: " + message);
+    }
     Logger.getLogger(getClass()).warn(message);
     commitClearBegin();
   }
@@ -120,10 +135,14 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    * @param message the message
    * @throws Exception the exception
    */
-
   public void logError(String message) throws Exception {
-    addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
-        "ERROR: " + message);
+    if (project != null) {
+      addLogEntry(project.getId(), userName, getTerminology(), getVersion(),
+          activityId, workId, "ERROR: " + message);
+    } else {
+      addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
+          "ERROR: " + message);
+    }
     Logger.getLogger(getClass()).error(message);
     // Attempt to commit the error -though sometimes this doesn't work
     // because of a rollback or other reason why the transaction doesn't exist
@@ -248,6 +267,21 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   @Override
   public void setWorkId(String workId) {
     this.workId = workId;
+  }
+
+  /**
+   * Returns the project.
+   *
+   * @return the project
+   */
+  public Project getProject() {
+    return project;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProject(Project project) {
+    this.project = project;
   }
 
   /* see superclass */
