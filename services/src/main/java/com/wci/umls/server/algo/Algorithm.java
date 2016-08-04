@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.algo;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.services.RootService;
@@ -64,4 +65,11 @@ public interface Algorithm extends RootService, ProgressReporter, Configurable {
    * @param workId the work id
    */
   public void setWorkId(String workId);
+
+  /**
+   * Sets the project.
+   *
+   * @param project the project
+   */
+  public void setProject(Project project);
 }

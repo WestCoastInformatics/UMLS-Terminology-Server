@@ -16,25 +16,14 @@ public interface AlgorithmConfig
     extends HasLastModified, HasTerminology, Configurable {
 
   // Need to figure how to scope and define configuration capabilities.
-  // One option, each algorithm could also implement an algorithm config and it could return
+  // One option, each algorithm could also implement an algorithm config and it
+  // could return
   // an object that contained types of representations with default values, etc.
-  // e.g. algorithm.getAlgorithmConfig(...) - each algo is a service so it can look stuff up.
-  // The config could itself have fields that get sent back in javascript containign UI details
+  // e.g. algorithm.getAlgorithmConfig(...) - each algo is a service so it can
+  // look stuff up.
+  // The config could itself have fields that get sent back in javascript
+  // containign UI details
   // like picklist contents or default values (placeholder text).s
-
-  /**
-   * Returns the name.
-   * 
-   * @return the name
-   */
-  public String getName();
-
-  /**
-   * Sets the name.
-   * 
-   * @param name the name
-   */
-  public void setName(String name);
 
   /**
    * Returns the process.

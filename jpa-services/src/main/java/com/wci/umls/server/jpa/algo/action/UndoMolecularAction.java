@@ -20,8 +20,6 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 
-import jersey.repackaged.com.google.common.collect.Lists;
-
 /**
  * A molecular action for undoing a previously performed action.
  */
@@ -114,8 +112,9 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         undoMolecularAction.getAtomicActions();
 
     // REVERSE Sort actions by id (order inserted into DB)
-    Collections.sort(atomicActions, (a1, a2) -> a2.getId().compareTo(a1.getId()));
-    
+    Collections.sort(atomicActions,
+        (a1, a2) -> a2.getId().compareTo(a1.getId()));
+
     // Iterate through atomic actions IN REVERSE ORDER
     for (final AtomicAction a : atomicActions) {
 
