@@ -5,7 +5,6 @@ package com.wci.umls.server.services;
 
 import java.util.Map;
 
-import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
@@ -35,7 +34,7 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 /**
  * Services to retrieve metadata objects.
  */
-public interface MetadataService extends ProjectService, Configurable {
+public interface MetadataService extends ProjectService {
 
   /**
    * An enum for the keys of the get all metadata call.
@@ -506,8 +505,8 @@ public interface MetadataService extends ProjectService, Configurable {
    * @return the general metadata entry
    * @throws Exception the exception
    */
-  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
-    throws Exception;
+  public GeneralMetadataEntry addGeneralMetadataEntry(
+    GeneralMetadataEntry entry) throws Exception;
 
   /**
    * Update general metadata entry.

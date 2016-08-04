@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -50,6 +50,7 @@ import org.semanticweb.owlapi.model.OWLSubPropertyChainOfAxiom;
 import org.semanticweb.owlapi.util.SimpleRootClassChecker;
 
 import com.wci.umls.server.ReleaseInfo;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -57,6 +58,7 @@ import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -114,12 +116,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** The commit count. */
   private final static int commitCt = 2000;
-
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
 
   /** release version. */
   private String releaseVersion;
@@ -202,26 +198,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  @Override
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  /**
    * Returns the input file.
    *
    * @return the input file
@@ -239,6 +215,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     this.inputFile = inputFile;
   }
 
+  /* see superclass */
   @Override
   public String getFileVersion() throws Exception {
     final FileInputStream in = new FileInputStream(new File(inputFile));
@@ -259,8 +236,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   public void compute() throws Exception {
     logInfo("Starting loading Owl terminology");
     logInfo("  inputFile = inputFile");
-    logInfo("  terminology = " + terminology);
-    logInfo("  version = " + version);
+    logInfo("  terminology = " + getTerminology());
+    logInfo("  version = " + getVersion());
 
     long startTimeOrig = System.nanoTime();
 
@@ -289,10 +266,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Check compliance
     //
     logInfo("Testing compliance ");
-    logInfo("  profile = " + getConfigurableValue(terminology, "profile"));
-    if ("EL".equals(getConfigurableValue(terminology, "profile"))) {
+    logInfo("  profile = " + getConfigurableValue(getTerminology(), "profile"));
+    if ("EL".equals(getConfigurableValue(getTerminology(), "profile"))) {
       OwlUtility.checkOWL2ELProfile(directOntology);
-    } else if ("DL".equals(getConfigurableValue(terminology, "profile"))) {
+    } else if ("DL".equals(getConfigurableValue(getTerminology(), "profile"))) {
       OwlUtility.checkOWL2DLProfile(directOntology);
     } else {
       // no profile checking - other assumptions will be tested
@@ -309,7 +286,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         releaseVersionDate = new Date();
       }
     } else {
-      releaseVersion = version;
+      releaseVersion = getVersion();
       releaseVersionDate = currentDate;
     }
     logInfo("  release version = " + releaseVersion);
@@ -318,12 +295,12 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Set "load as inferred" flag
     //
     loadInferred =
-        "true".equals(getConfigurableValue(terminology, "loadInferred"));
+        "true".equals(getConfigurableValue(getTerminology(), "loadInferred"));
 
     //
     // Add the root concept, if configured to do so
     //
-    if ("true".equals(getConfigurableValue(terminology, "top"))) {
+    if ("true".equals(getConfigurableValue(getTerminology(), "top"))) {
       loadTopConcept(directOntology);
     }
 
@@ -349,7 +326,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
     // Handle reasoner and inferences
     //
-    if ("true".equals(getConfigurableValue(terminology, "computeInferred"))) {
+    if ("true"
+        .equals(getConfigurableValue(getTerminology(), "computeInferred"))) {
       for (final OWLOntology ontology : directOntology.getImportsClosure()) {
         logInfo("Processing inferred ontology - " + ontology);
         loadInferred(ontology);
@@ -385,8 +363,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // some terminologies may have cycles, allow these for now.
       treePosAlgorithm.setCycleTolerant(true);
       treePosAlgorithm.setComputeSemanticType(true);
-      treePosAlgorithm.setTerminology(terminology);
-      treePosAlgorithm.setVersion(version);
+      treePosAlgorithm.setTerminology(getTerminology());
+      treePosAlgorithm.setVersion(getVersion());
       treePosAlgorithm.reset();
       treePosAlgorithm.compute();
       treePosAlgorithm.close();
@@ -400,13 +378,13 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /* see superclass */
   @Override
   public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + terminology + "/" + version);
+    Logger.getLogger(getClass()).info("  Compute transitive closure from  "
+        + getTerminology() + "/" + getVersion());
     try {
       transClosureAlgorithm.setCycleTolerant(false);
       transClosureAlgorithm.setIdType(IdType.CONCEPT);
-      transClosureAlgorithm.setTerminology(terminology);
-      transClosureAlgorithm.setVersion(version);
+      transClosureAlgorithm.setTerminology(getTerminology());
+      transClosureAlgorithm.setVersion(getVersion());
       transClosureAlgorithm.reset();
       transClosureAlgorithm.compute();
       transClosureAlgorithm.close();
@@ -507,7 +485,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     for (final String tty : termTypes) {
       if (isPreferredType(tty)) {
         final KeyValuePair pair = new KeyValuePair();
-        pair.setKey(terminology);
+        pair.setKey(getTerminology());
         pair.setValue(tty);
         lkvp.add(pair);
       }
@@ -515,20 +493,20 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Next, do label (unless already done)
     if (!isPreferredType(label)) {
       KeyValuePair pr = new KeyValuePair();
-      pr.setKey(terminology);
+      pr.setKey(getTerminology());
       pr.setValue(label);
       lkvp.add(pr);
     }
     // then comment
     KeyValuePair pr = new KeyValuePair();
-    pr.setKey(terminology);
+    pr.setKey(getTerminology());
     pr.setValue(comment);
     lkvp.add(pr);
     // next do anything else that is not the preferred type or label or comment
     for (final String tty : termTypes) {
       if (!isPreferredType(tty) && !tty.equals(label) && !tty.equals(comment)) {
         final KeyValuePair pair = new KeyValuePair();
-        pair.setKey(terminology);
+        pair.setKey(getTerminology());
         pair.setValue(tty);
         lkvp.add(pair);
       }
@@ -541,13 +519,13 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     list.setLastModified(releaseVersionDate);
     list.setLastModifiedBy(loader);
     list.setName("DEFAULT");
-    list.setTerminology(terminology);
-    list.setVersion(version);
+    list.setTerminology(getTerminology());
+    list.setVersion(getVersion());
     addPrecedenceList(list);
 
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
-    root.setFamily(terminology);
+    root.setFamily(getTerminology());
     root.setHierarchicalName(topConcept.getName());
     // Unable to determine overall "language" from OWL (unless maybe in headers)
     root.setLanguage(null);
@@ -557,22 +535,22 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     root.setPolyhierarchy(true);
     root.setPreferredName(topConcept.getName());
     root.setRestrictionLevel(-1);
-    root.setTerminology(terminology);
+    root.setTerminology(getTerminology());
     addRootTerminology(root);
 
     // Terminology
     Terminology term = new TerminologyJpa();
-    term.setTerminology(terminology);
-    term.setVersion(version);
+    term.setTerminology(getTerminology());
+    term.setVersion(getVersion());
     term.setTimestamp(releaseVersionDate);
     term.setLastModified(releaseVersionDate);
     term.setLastModifiedBy(loader);
     term.setAssertsRelDirection(true);
     term.setCurrent(true);
     term.setDescriptionLogicTerminology(true);
-    if ("EL".equals(getConfigurableValue(terminology, "profile"))) {
+    if ("EL".equals(getConfigurableValue(getTerminology(), "profile"))) {
       term.setDescriptionLogicProfile(el2Profile);
-    } else if ("DL".equals(getConfigurableValue(terminology, "profile"))) {
+    } else if ("DL".equals(getConfigurableValue(getTerminology(), "profile"))) {
       term.setDescriptionLogicProfile(dl2Profile);
     }
     term.setOrganizingClassType(IdType.CONCEPT);
@@ -609,8 +587,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     lat.setTimestamp(releaseVersionDate);
     lat.setLastModified(releaseVersionDate);
     lat.setLastModifiedBy(loader);
-    lat.setTerminology(terminology);
-    lat.setVersion(version);
+    lat.setTerminology(getTerminology());
+    lat.setVersion(getVersion());
     lat.setPublished(true);
     lat.setPublishable(true);
     lat.setISO3Code("ENG");
@@ -638,7 +616,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
     // otherwise, just use the terminology name
-    return terminology;
+    return getTerminology();
   }
 
   /**
@@ -655,7 +633,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     classifier.setIdMap(idMap);
     classifier.setExprMap(exprMap);
     // perform classification (or precompute inferences)
-    classifier.preClassify(terminology, version, null);
+    classifier.preClassify(getTerminology(), getVersion(), null);
     classifier.compute();
 
     // verify consistent
@@ -699,16 +677,16 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @throws Exception the exception
    */
   private void loadReleaseInfo() throws Exception {
-    ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+    ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
     if (info == null) {
       info = new ReleaseInfoJpa();
       info.setName(releaseVersion);
-      info.setDescription(terminology + " " + releaseVersion + " release");
+      info.setDescription(getTerminology() + " " + releaseVersion + " release");
       info.setPlanned(false);
       info.setPublished(true);
       info.setReleaseBeginDate(releaseVersionDate);
       info.setReleaseFinishDate(releaseVersionDate);
-      info.setTerminology(terminology);
+      info.setTerminology(getTerminology());
       info.setVersion(releaseVersion);
       info.setLastModified(releaseVersionDate);
       info.setLastModified(new Date());
@@ -961,7 +939,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // This is an "isa" rel.
     rel.setRelationshipType("subClassOf");
     rel.setHierarchical(true);
-    String subClassOfRel = getConfigurableValue(terminology, "subClassOf");
+    String subClassOfRel = getConfigurableValue(getTerminology(), "subClassOf");
     if (subClassOfRel == null) {
       rel.setAdditionalRelationshipType("");
     } else if (relaMap.containsKey(subClassOfRel)) {
@@ -1230,7 +1208,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Check whether to add a link to "top concept"
       if (rootClassChecker.isRootClass(owlClass)) {
-        if ("true".equals(getConfigurableValue(terminology, "top"))) {
+        if ("true".equals(getConfigurableValue(getTerminology(), "top"))) {
           ConceptRelationship rel =
               getSubClassOfRelationship(concept, topConcept);
           Logger.getLogger(getClass()).debug("  add top relationship = " + rel);
@@ -1299,9 +1277,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private boolean isObsolete(OWLClass owlClass, OWLOntology ontology)
     throws Exception {
     String obsoletePattern =
-        getConfigurableValue(terminology, "obsoletePattern");
+        getConfigurableValue(getTerminology(), "obsoletePattern");
     String obsoleteAnnotation =
-        getConfigurableValue(terminology, "obsoleteAnnotation");
+        getConfigurableValue(getTerminology(), "obsoleteAnnotation");
     if (obsoletePattern == null || obsoleteAnnotation == null) {
       return false;
     }
@@ -1831,9 +1809,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       subset.setTerminologyId("");
       subset.setDisjointSubset(true);
       subset.setLabelSubset(false);
-      subset.setName(terminology + " disjoint subset " + ct++);
+      subset.setName(getTerminology() + " disjoint subset " + ct++);
       subset.setDescription(
-          "Collection of disjoint concepts from " + terminology);
+          "Collection of disjoint concepts from " + getTerminology());
       Logger.getLogger(getClass()).debug("    subset = " + subset);
       addSubset(subset);
       commitClearBegin();
@@ -2316,7 +2294,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
 
     String atomAnnotations =
-        getConfigurableValue(terminology, "atomAnnotations");
+        getConfigurableValue(getTerminology(), "atomAnnotations");
     if (atomAnnotations != null) {
       for (final String field : FieldedStringTokenizer.split(atomAnnotations,
           ",")) {
@@ -2343,7 +2321,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     throws Exception {
     String name = getName(annotation);
     String atomAnnotations =
-        getConfigurableValue(terminology, "definitionAnnotations");
+        getConfigurableValue(getTerminology(), "definitionAnnotations");
     if (atomAnnotations != null) {
       for (final String field : FieldedStringTokenizer.split(atomAnnotations,
           ",")) {
@@ -2374,12 +2352,12 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private boolean isPreferredType(String tty) throws Exception {
 
-    if (tty.equals(getConfigurableValue(terminology, "preferredType"))) {
+    if (tty.equals(getConfigurableValue(getTerminology(), "preferredType"))) {
       return true;
     }
 
     // Don't look further if the configurable type is set
-    if (getConfigurableValue(terminology, "preferredType") != null) {
+    if (getConfigurableValue(getTerminology(), "preferredType") != null) {
       return false;
     }
 
@@ -2417,8 +2395,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private void setCommonFields(Component component) {
     component.setTerminologyId("");
-    component.setTerminology(terminology);
-    component.setVersion(version);
+    component.setTerminology(getTerminology());
+    component.setVersion(getVersion());
     component.setTimestamp(releaseVersionDate);
     component.setLastModified(releaseVersionDate);
     component.setLastModifiedBy(loader);
@@ -2444,8 +2422,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @param abbreviation the common fields
    */
   private void setCommonFields(Abbreviation abbreviation) {
-    abbreviation.setTerminology(terminology);
-    abbreviation.setVersion(version);
+    abbreviation.setTerminology(getTerminology());
+    abbreviation.setVersion(getVersion());
     abbreviation.setTimestamp(releaseVersionDate);
     abbreviation.setLastModified(releaseVersionDate);
     abbreviation.setLastModifiedBy(loader);
@@ -2456,17 +2434,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public String getTerminology() {
-    return terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public String getVersion() {
-    return version;
-  }
-
-  @Override
   public void computeExpressionIndexes() throws Exception {
     final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
     algo.setTerminology(getTerminology());
@@ -2474,4 +2441,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     algo.compute();
   }
 
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
+  }
 }

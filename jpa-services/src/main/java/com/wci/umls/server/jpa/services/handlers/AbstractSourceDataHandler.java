@@ -1,61 +1,38 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.services.handlers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Abstract implementation of SourceDataHandler.
  */
-public abstract class AbstractSourceDataHandler implements SourceDataHandler {
+public abstract class AbstractSourceDataHandler extends AbstractAlgorithm
+    implements SourceDataHandler {
 
-  /** Listeners. */
-  protected List<ProgressListener> listeners = new ArrayList<>();
+  /**
+   * Instantiates an empty {@link AbstractSourceDataHandler}.
+   *
+   * @throws Exception the exception
+   */
+  public AbstractSourceDataHandler() throws Exception {
+    super();
+    // n/a
+  }
 
   /** The source data. */
   protected SourceData sourceData;
-
-  @Override
-  public abstract void reset() throws Exception;
-
-  @Override
-  public abstract void compute() throws Exception;
-
-  /**
-   * Fires a {@link ProgressEvent}.
-   * @param pct percent done
-   * @param note progress note
-   */
-  public void fireProgressEvent(int pct, String note) {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
 
   /* see superclass */
   @Override
@@ -73,8 +50,8 @@ public abstract class AbstractSourceDataHandler implements SourceDataHandler {
           sourceDataService.getRunningProcessForId(sourceData.getId());
       algo.cancel();
     } catch (Exception e) {
-      Logger.getLogger(getClass()).info(
-          "Error attempting to cancel process for source data "
+      Logger.getLogger(getClass())
+          .info("Error attempting to cancel process for source data "
               + sourceData.getName());
       throw new Exception(e);
     } finally {
@@ -140,11 +117,5 @@ public abstract class AbstractSourceDataHandler implements SourceDataHandler {
 
     }
   }
-
-  @Override
-  public abstract String getName();
-
-  @Override
-  public abstract boolean checkPreconditions() throws Exception;
 
 }

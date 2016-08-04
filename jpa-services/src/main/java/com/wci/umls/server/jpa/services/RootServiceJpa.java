@@ -985,8 +985,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends Object> T removeObject(final T object,
-    final Class<T> clazz) throws Exception {
+  protected <T extends Object> T removeObject(final T object) throws Exception {
     try {
       // Get transaction and object
       tx = manager.getTransaction();
@@ -1116,7 +1115,7 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public void removeLogEntry(final Long id) throws Exception {
     // Use add object to bypass the last modified checks
-    removeObject(getObject(id, LogEntryJpa.class), LogEntryJpa.class);
+    removeObject(getObject(id, LogEntryJpa.class));
   }
 
   /* see superclass */
@@ -1283,7 +1282,7 @@ public abstract class RootServiceJpa implements RootService {
     Logger.getLogger(getClass())
         .debug("Action Service - remove atomic action " + id);
     AtomicActionJpa action = getObject(id, AtomicActionJpa.class);
-    removeObject(action, AtomicActionJpa.class);
+    removeObject(action);
   }
 
   /* see superclass */

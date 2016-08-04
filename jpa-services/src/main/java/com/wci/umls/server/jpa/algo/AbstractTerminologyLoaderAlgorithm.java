@@ -7,7 +7,7 @@ import com.wci.umls.server.helpers.CancelException;
  * Abstract support for loader algorithms.
  */
 public abstract class AbstractTerminologyLoaderAlgorithm
-    extends AbstractTerminologyAlgorithm implements TerminologyLoaderAlgorithm {
+    extends AbstractAlgorithm implements TerminologyLoaderAlgorithm {
 
   /** LOADER constant for use as userName. */
   public final static String LOADER = "loader";
@@ -27,7 +27,8 @@ public abstract class AbstractTerminologyLoaderAlgorithm
    * @throws Exception the exception
    */
   public AbstractTerminologyLoaderAlgorithm() throws Exception {
-    // n/a
+    setUserName(LOADER);
+    setWorkId("LOADER");
   }
 
   /* see superclass */

@@ -90,19 +90,17 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
-    // add the semantic type component itself and set the last modified
+    // Add the semantic type component
     if (getChangeStatusFlag()) {
       sty.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
     sty = addSemanticTypeComponent(sty, getConcept());
 
-    // add the semantic type and set the last modified by
+    // Handle changes to the concept
     getConcept().getSemanticTypes().add(sty);
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-
-    // update the concept
     updateConcept(getConcept());
 
     // log the REST call

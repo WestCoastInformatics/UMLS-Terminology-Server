@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.algo;
 
 import java.util.ArrayList;
@@ -17,17 +20,17 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Abstract support for loader algorithms.
  */
-public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
+public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     implements Algorithm, HasTerminology {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
-  /** LOADER constant for use as userName. */
-  public final static String LOADER = "loader";
-
   /** The cancel flag. */
   private boolean cancelFlag = false;
+
+  /** The properties. */
+  private Properties properties = new Properties();
 
   /** The terminology. */
   private String terminology = null;
@@ -35,37 +38,22 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
   /** The version. */
   private String version = null;
 
+  /** The user name. */
+  private String userName;
+
+  /** The activity id. */
+  private String activityId;
+
+  /** The work id. */
+  private String workId;
+
   /**
-   * Instantiates an empty {@link AbstractTerminologyAlgorithm}.
+   * Instantiates an empty {@link AbstractAlgorithm}.
    *
    * @throws Exception the exception
    */
-  public AbstractTerminologyAlgorithm() throws Exception {
+  public AbstractAlgorithm() throws Exception {
     // n/a
-  }
-
-  /* see superclass */
-  @Override
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public String getTerminology() {
-    return this.terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  /* see superclass */
-  @Override
-  public String getVersion() {
-    return this.version;
   }
 
   /* see superclass */
@@ -95,7 +83,7 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
     }
 
     if (objectCt % logCt == 0) {
-      addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
+      addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
           "    count = " + objectCt);
     }
     super.logAndCommit(objectCt, logCt, commitCt);
@@ -108,7 +96,7 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
    * @throws Exception the exception
    */
   public void logInfo(String message) throws Exception {
-    addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
+    addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
         message);
     Logger.getLogger(getClass()).info(message);
   }
@@ -120,7 +108,7 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
    * @throws Exception the exception
    */
   public void logWarn(String message) throws Exception {
-    addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
+    addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
         "WARNING: " + message);
     Logger.getLogger(getClass()).warn(message);
     commitClearBegin();
@@ -134,7 +122,7 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
    */
 
   public void logError(String message) throws Exception {
-    addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
+    addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
         "ERROR: " + message);
     Logger.getLogger(getClass()).error(message);
     // Attempt to commit the error -though sometimes this doesn't work
@@ -205,9 +193,73 @@ public abstract class AbstractTerminologyAlgorithm extends WorkflowServiceJpa
     listeners.add(l);
   }
 
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
+  }
+
+  /**
+   * Returns the properties.
+   *
+   * @return the properties
+   */
+  public Properties getProperties() {
+    return properties;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTerminology(String terminology) {
+    this.terminology = terminology;
+  }
+
+  /* see superclass */
+  @Override
+  public String getTerminology() {
+    return this.terminology;
+  }
+
+  /* see superclass */
+  @Override
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+  /* see superclass */
+  @Override
+  public String getVersion() {
+    return this.version;
+  }
+
+  /* see superclass */
+  @Override
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+
+  /* see superclass */
+  @Override
+  public void setActivityId(String activityId) {
+    this.activityId = activityId;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkId(String workId) {
+    this.workId = workId;
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    properties = p;
   }
 
   /**

@@ -216,7 +216,7 @@ public class LogEntryJpa implements LogEntry {
   /* see superclass */
   @Override
   public void setWorkId(String workId) {
-    this.workId = activityId;
+    this.workId = workId;
   }
 
   /* see superclass */

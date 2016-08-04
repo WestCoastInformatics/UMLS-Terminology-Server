@@ -9,11 +9,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -40,7 +44,7 @@ import com.wci.umls.server.services.RootService;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
+public class TransitiveClosureAlgorithm extends AbstractAlgorithm {
 
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
@@ -138,15 +142,13 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
     if (idType == IdType.ATOM) {
       tableName = "AtomRelationshipJpa";
     }
-    final javax.persistence.Query query =
-        manager
-            .createQuery(
-                "select r.from.id, r.to.id from " + tableName
-                    + " r where obsolete = 0 and inferred = 1 "
-                    + "and terminology = :terminology "
-                    + "and version = :version " + "and hierarchical = 1")
-            .setParameter("terminology", getTerminology())
-            .setParameter("version", getVersion());
+    final javax.persistence.Query query = manager
+        .createQuery("select r.from.id, r.to.id from " + tableName
+            + " r where obsolete = 0 and inferred = 1 "
+            + "and terminology = :terminology " + "and version = :version "
+            + "and hierarchical = 1")
+        .setParameter("terminology", getTerminology())
+        .setParameter("version", getVersion());
 
     @SuppressWarnings("unchecked")
     final List<Object[]> rels = query.getResultList();
@@ -362,8 +364,8 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
    */
   private Set<Long> getDescendants(Long par, Map<Long, Set<Long>> parChd,
     List<Long> ancPath) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "  Get descendants for " + par + ", " + ancPath);
+    Logger.getLogger(getClass())
+        .debug("  Get descendants for " + par + ", " + ancPath);
 
     if (isCancelled()) {
       rollback();
@@ -407,4 +409,22 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
     return descendants;
   }
 
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    // n/a
+    return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
+  }
 }

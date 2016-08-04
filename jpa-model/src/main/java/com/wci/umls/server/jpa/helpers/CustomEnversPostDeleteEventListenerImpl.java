@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers;
 
@@ -7,8 +7,12 @@ import org.hibernate.envers.configuration.spi.AuditConfiguration;
 import org.hibernate.envers.event.spi.EnversPostDeleteEventListenerImpl;
 
 /**
- * Reference implementation of {@link CustomEnversPostDeleteEventListener}.
- * Includes hibernate tags for MEME database.
+ * Envers "post delete" event listener to log deletes. This expects the
+ * config.properties file to have this setting:
+ * 
+ * <pre>
+ * org.hibernate.envers.store_data_at_delete = true
+ * </pre>
  */
 public class CustomEnversPostDeleteEventListenerImpl
     extends EnversPostDeleteEventListenerImpl {

@@ -6,7 +6,6 @@ package com.wci.umls.server.algo.action;
 import java.util.List;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.model.content.Concept;
 
@@ -88,22 +87,7 @@ public interface MolecularActionAlgorithm extends Algorithm {
    * @throws Exception the exception
    */
   public void initialize(Project project, Long conceptId, Long conceptId2,
-    String userName, Long lastModified, boolean molecularActionFlag) throws Exception;
-
-  /**
-   * Check preconditions for action. This will make use of data structures
-   * configured in the action.
-   *
-   * @return true, if successful
-   * @throws Exception the exception
-   */
-  public ValidationResult checkPreconditions() throws Exception;
-
-  /**
-   * Returns the action name.
-   *
-   * @return the action name
-   */
-  public String getName();
+    String userName, Long lastModified, boolean molecularActionFlag)
+    throws Exception;
 
 }

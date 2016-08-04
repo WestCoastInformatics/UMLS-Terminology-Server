@@ -74,6 +74,10 @@ public class AtomicActionJpa implements AtomicAction {
   @Column(nullable = false)
   private String className;
 
+  /** The collection class name. */
+  @Column(nullable = true)
+  private String collectionClassName;
+
   /** The molecular action. */
   @ManyToOne(targetEntity = MolecularActionJpa.class, optional = false)
   @JoinColumn(nullable = false)
@@ -99,6 +103,7 @@ public class AtomicActionJpa implements AtomicAction {
     field = action.getField();
     idType = action.getIdType();
     className = action.getClassName();
+    collectionClassName = action.getClassName();
     objectId = action.getObjectId();
     molecularAction = action.getMolecularAction();
   }
@@ -184,6 +189,18 @@ public class AtomicActionJpa implements AtomicAction {
 
   /* see superclass */
   @Override
+  public String getCollectionClassName() {
+    return collectionClassName;
+  }
+
+  /* see superclass */
+  @Override
+  public void setCollectionClassName(String collectionClassName) {
+    this.collectionClassName = collectionClassName;
+  }
+
+  /* see superclass */
+  @Override
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getObjectId() {
@@ -243,6 +260,8 @@ public class AtomicActionJpa implements AtomicAction {
     result = prime * result + ((field == null) ? 0 : field.hashCode());
     result = prime * result + ((idType == null) ? 0 : idType.hashCode());
     result = prime * result + ((className == null) ? 0 : className.hashCode());
+    result = prime * result
+        + ((collectionClassName == null) ? 0 : collectionClassName.hashCode());
     result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
     result = prime * result + ((objectId == null) ? 0 : objectId.hashCode());
     result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
@@ -271,6 +290,11 @@ public class AtomicActionJpa implements AtomicAction {
         return false;
     } else if (!className.equals(other.className))
       return false;
+    if (collectionClassName == null) {
+      if (other.collectionClassName != null)
+        return false;
+    } else if (!collectionClassName.equals(other.collectionClassName))
+      return false;
     if (newValue == null) {
       if (other.newValue != null)
         return false;
@@ -293,7 +317,8 @@ public class AtomicActionJpa implements AtomicAction {
   @Override
   public String toString() {
     return "AtomicActionJpa [id=" + id + ", objectId=" + objectId
-        + ", className=" + className + ", oldValue=" + oldValue + ", newValue="
+        + ", className=" + className + ", collectionClassName="
+        + collectionClassName + ", oldValue=" + oldValue + ", newValue="
         + newValue + ", field=" + field + ", idType=" + idType + "]";
   }
 
