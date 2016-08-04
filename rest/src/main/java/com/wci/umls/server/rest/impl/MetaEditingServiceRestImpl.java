@@ -849,7 +849,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/concept/move")
+  @Path("/atom/move")
   @ApiOperation(value = "Move atoms from concept to concept", notes = "Move atoms from concept to concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult moveAtoms(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
