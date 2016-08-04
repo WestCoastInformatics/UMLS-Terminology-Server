@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo.action;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.envers.AuditReader;
@@ -112,8 +113,11 @@ public class UndoMolecularAction extends AbstractMolecularAction {
     final List<AtomicAction> atomicActions =
         undoMolecularAction.getAtomicActions();
 
+    // REVERSE Sort actions by id (order inserted into DB)
+    Collections.sort(atomicActions, (a1, a2) -> a2.getId().compareTo(a1.getId()));
+    
     // Iterate through atomic actions IN REVERSE ORDER
-    for (final AtomicAction a : Lists.reverse(atomicActions)) {
+    for (final AtomicAction a : atomicActions) {
 
       //
       // Undo add (null old value with "id" field)

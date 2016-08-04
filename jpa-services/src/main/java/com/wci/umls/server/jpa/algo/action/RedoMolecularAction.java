@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo.action;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.envers.AuditReader;
@@ -101,6 +102,10 @@ public class RedoMolecularAction extends AbstractMolecularAction {
     // actions
     final List<AtomicAction> atomicActions =
         redoMolecularAction.getAtomicActions();
+
+    // Sort actions by id (order inserted into DB)
+    Collections.sort(atomicActions,
+        (a1, a2) -> a1.getId().compareTo(a2.getId()));
 
     // Iterate through atomic actions IN ORDER
     for (final AtomicAction a : atomicActions) {
