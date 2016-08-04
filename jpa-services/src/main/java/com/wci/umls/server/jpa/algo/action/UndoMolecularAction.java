@@ -124,7 +124,7 @@ public class UndoMolecularAction extends AbstractMolecularAction {
       if (isAddAction(a)) {
 
         // Get the object that was added, and make sure it still exists
-        final Object referencedObject = getReferencedObject(a);
+        final HasLastModified referencedObject = getReferencedObject(a);
         removeObject(referencedObject);
 
       }
@@ -222,9 +222,9 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         }
 
         // If all is well, set the field back to the previous value
-        final Object setObject =
+        final Object value =
             getObjectForValue(getMethod.getReturnType(), a.getOldValue());
-        setMethod.invoke(referencedObject, setObject);
+        setMethod.invoke(referencedObject, value);
         updateHasLastModified(referencedObject);
 
       }
@@ -239,8 +239,15 @@ public class UndoMolecularAction extends AbstractMolecularAction {
     addLogEntry(getUserName(), getProject().getId(),
         undoMolecularAction.getComponentId(),
         getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
-        "UNDO " + undoMolecularAction.getName() + ", " + molecularActionId);
-
+        getName() + " " + undoMolecularAction.getName() + ", "
+            + molecularActionId);
+    if (undoMolecularAction.getComponentId2() != null) {
+      addLogEntry(getUserName(), getProject().getId(),
+          undoMolecularAction.getComponentId2(),
+          getMolecularAction().getActivityId(),
+          getMolecularAction().getWorkId(), getName() + " "
+              + undoMolecularAction.getName() + ", " + molecularActionId);
+    }
   }
 
 }
