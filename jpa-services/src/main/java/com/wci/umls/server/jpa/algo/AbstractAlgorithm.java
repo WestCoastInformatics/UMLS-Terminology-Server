@@ -40,13 +40,13 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   private String version = null;
 
   /** The user name. */
-  private String userName;
+  private String userName = "admin";
 
   /** The activity id. */
   private String activityId;
 
   /** The work id. */
-  private String workId;
+  private String workId = "ADMIN";
 
   /** The project. */
   private Project project;
