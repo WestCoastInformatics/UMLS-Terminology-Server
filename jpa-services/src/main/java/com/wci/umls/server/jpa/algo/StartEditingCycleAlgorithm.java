@@ -1,45 +1,28 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.services.HistoryService;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * An algorithm for starting an editing cycle.
  * 
  * Mostly, this creates a {@link ReleaseInfo} for the upcoming release.
  */
-public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
-    Algorithm {
+public class StartEditingCycleAlgorithm extends AbstractAlgorithm {
 
   /** The release version. */
   private String releaseVersion = null;
-
-  /** The terminology. */
-  private String terminology = null;
-
-  /** The version. */
-  private String version = null;
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The request cancel flag. */
-  boolean requestCancel = false;
 
   /** The user. */
   private String user;
@@ -56,8 +39,8 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
       String version) throws Exception {
     super();
     this.releaseVersion = releaseVersion;
-    this.terminology = terminology;
-    this.version = version;
+    setTerminology(terminology);
+    setVersion(version);
   }
 
   /* see superclass */
@@ -88,16 +71,16 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Starting editing cycle for " + releaseVersion);
+    Logger.getLogger(getClass())
+        .info("Starting editing cycle for " + releaseVersion);
 
     // Check that there is a planned release info entry that has not yet been
     // started
     final HistoryService service = new HistoryServiceJpa();
-    ReleaseInfo info =
-        service.getReleaseInfo(terminology, releaseVersion);
+    ReleaseInfo info = service.getReleaseInfo(getTerminology(), releaseVersion);
     if (info != null) {
-      throw new Exception("Editing cycle already started for " + releaseVersion);
+      throw new Exception(
+          "Editing cycle already started for " + releaseVersion);
     }
 
     // Attempt to parse release revision for release date
@@ -107,8 +90,8 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
     info.setName(releaseVersion);
     info.setPlanned(true);
     info.setPublished(false);
-    info.setTerminology(terminology);
-    info.setVersion(version);
+    info.setTerminology(getTerminology());
+    info.setVersion(getVersion());
     info.setLastModifiedBy(user);
     info.setReleaseBeginDate(new Date());
     service.addReleaseInfo(info);
@@ -120,34 +103,7 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
 
   /* see superclass */
   @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
   }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() {
-    requestCancel = true;
-  }
-
-  /**
-   * Fire progress event.
-   *
-   * @param pct the pct
-   * @param note the note
-   */
-  public void fireProgressEvent(int pct, String note) {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
-  }
-
 }

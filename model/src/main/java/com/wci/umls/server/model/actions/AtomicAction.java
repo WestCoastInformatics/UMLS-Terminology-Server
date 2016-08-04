@@ -109,4 +109,18 @@ public interface AtomicAction extends HasId {
    */
   public void setClassName(String className);
 
+  /**
+   * Returns the collection class name.
+   *
+   * @return the collection class name
+   */
+  public String getCollectionClassName();
+
+  /**
+   * Sets the collection class name.
+   *
+   * @param collectionClassName the collection class name
+   */
+  public void setCollectionClassName(String collectionClassName);
+
 }

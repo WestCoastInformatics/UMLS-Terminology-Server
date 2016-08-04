@@ -88,6 +88,7 @@ public class AtomicActionJpaUnitTest extends ModelUnitSupport {
 
     tester.include("idType");
     tester.include("className");
+    tester.include("collectionClassName");
     tester.include("objectId");
     tester.include("oldValue");
     tester.include("newValue");

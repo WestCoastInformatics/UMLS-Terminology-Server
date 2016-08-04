@@ -8,10 +8,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
@@ -43,7 +45,7 @@ import com.wci.umls.server.services.RootService;
  * positions, so the algorithm for computing semantic types is also included
  * here.
  */
-public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
+public class TreePositionAlgorithm extends AbstractAlgorithm {
 
   /** The id type. */
   private IdType idType;
@@ -138,16 +140,14 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
       tableName2 = "AtomJpa";
     }
     @SuppressWarnings("unchecked")
-    final List<Object[]> relationships =
-        manager
-            .createQuery(
-                "select r.from.id, r.to.id from " + tableName + " r where "
-                    + "version = :version and terminology = :terminology "
-                    + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
-                    + "and r.from in (select o from " + tableName2
-                    + " o where obsolete = 0)")
-            .setParameter("terminology", getTerminology())
-            .setParameter("version", getVersion()).getResultList();
+    final List<Object[]> relationships = manager
+        .createQuery("select r.from.id, r.to.id from " + tableName + " r where "
+            + "version = :version and terminology = :terminology "
+            + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
+            + "and r.from in (select o from " + tableName2
+            + " o where obsolete = 0)")
+        .setParameter("terminology", getTerminology())
+        .setParameter("version", getVersion()).getResultList();
 
     int ct = 0;
     final Map<Long, Set<Long>> parChd = new HashMap<>();
@@ -357,9 +357,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
         return descConceptIds;
       } else {
         // add error to validation result
-        validationResult.getErrors().add(
-            "Cycle detected for concept " + id + ", ancestor path is "
-                + ancestorPath);
+        validationResult.getErrors().add("Cycle detected for concept " + id
+            + ", ancestor path is " + ancestorPath);
       }
 
       // return empty set of descendants to truncate calculation on this path
@@ -465,8 +464,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
     if (descConceptIds.contains(id)) {
 
       // add error to validation result
-      validationResult.getErrors().add(
-          "Concept " + id + " claims itself as a child");
+      validationResult.getErrors()
+          .add("Concept " + id + " claims itself as a child");
 
       // remove this terminology id to prevent infinite loop
       descConceptIds.remove(id);
@@ -507,4 +506,22 @@ public class TreePositionAlgorithm extends AbstractTerminologyAlgorithm {
     this.computeSemanticTypes = flag;
   }
 
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    // n/a
+    return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
+  }
 }

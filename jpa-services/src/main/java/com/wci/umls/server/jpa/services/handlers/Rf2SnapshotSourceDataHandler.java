@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -11,9 +11,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.Rf2SnapshotLoaderAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
@@ -28,8 +30,10 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
 
   /**
    * Instantiates an empty {@link Rf2SnapshotSourceDataHandler}.
+   *
+   * @throws Exception the exception
    */
-  public Rf2SnapshotSourceDataHandler() {
+  public Rf2SnapshotSourceDataHandler() throws Exception {
     // n/a
   }
 
@@ -51,9 +55,8 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
   @Override
   public void compute() throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "Loading RF2 Delta for "
-            + (sourceData == null ? "null" : sourceData.getName()));
+    Logger.getLogger(getClass()).info("Loading RF2 Delta for "
+        + (sourceData == null ? "null" : sourceData.getName()));
 
     // check pre-requisites
     if (sourceData == null) {
@@ -87,12 +90,12 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + sourceData.getId().toString();
 
-    Logger.getLogger(getClass()).info(
-        "  Source data base directory: " + inputDir);
+    Logger.getLogger(getClass())
+        .info("  Source data base directory: " + inputDir);
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException("Source data directory is not a directory: "
-          + inputDir);
+      throw new LocalException(
+          "Source data directory is not a directory: " + inputDir);
     }
 
     // find the SNAPSHOT directory
@@ -128,8 +131,8 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
           "Uploaded files must contain 'Snapshot' folder containing snapshot release");
     }
 
-    Logger.getLogger(getClass()).info(
-        "  Source data 'Snapshot' directory: " + revisedInputDir);
+    Logger.getLogger(getClass())
+        .info("  Source data 'Snapshot' directory: " + revisedInputDir);
 
     // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();
@@ -168,28 +171,34 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
     }
   }
 
+  /* see superclass */
   @Override
-  public boolean checkPreconditions() throws Exception {
+  public ValidationResult checkPreconditions() throws Exception {
+
+    final ValidationResult result = new ValidationResultJpa();
     ContentService contentService = null;
     try {
       contentService = new ContentServiceJpa();
 
-      // concepts must not exist with this terminology/version
+      // concepts must exist with this terminology/version
       if (contentService.findConcepts(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfsParameterJpa())
-          .getTotalCount() == 0) {
-        return true;
-      } else {
-        return false;
+          .getTotalCount() > 0) {
+        result.addError("Unexpected lack of concepts for "
+            + sourceData.getTerminology() + ", " + sourceData.getVersion());
       }
+
+      return result;
     } catch (Exception e) {
       throw e;
     } finally {
       if (contentService != null)
         contentService.close();
     }
+
   }
 
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing

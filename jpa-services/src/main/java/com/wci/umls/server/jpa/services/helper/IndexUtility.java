@@ -65,8 +65,16 @@ public class IndexUtility {
   private static Map<Class<?>, java.lang.reflect.Field[]> allFields =
       new HashMap<>();
 
-  /** The all methods. */
-  private static Map<Class<?>, List<Method>> allAccessorMethods =
+  /** The all column methods. */
+  private static Map<Class<?>, List<Method>> allColumnGetMethods =
+      new HashMap<>();
+
+  /** The all column set methods. */
+  private static Map<Class<?>, List<Method>> allColumnSetMethods =
+      new HashMap<>();
+
+  /** The all @OneToMany methods. */
+  private static Map<Class<?>, List<Method>> allOneToManyGetMethods =
       new HashMap<>();
 
   // Initialize the field names maps
@@ -279,6 +287,8 @@ public class IndexUtility {
       return StringUtils.uncapitalize(m.getName().substring(3));
     } else if (m.getName().startsWith("is")) {
       return StringUtils.uncapitalize(m.getName().substring(2));
+    } else if (m.getName().startsWith("set")) {
+      return StringUtils.uncapitalize(m.getName().substring(3));
     } else
       return m.getName();
 
@@ -325,21 +335,21 @@ public class IndexUtility {
   }
 
   /**
-   * Returns the all methods.
+   * Returns the getXXX methods for @Column annotated fields.
    *
    * @param clazz the clazz
    * @return the all methods
    * @throws Exception the exception
    */
-  public static List<Method> getAllAccessorMethods(Class<?> clazz)
+  public static List<Method> getAllColumnGetMethods(Class<?> clazz)
     throws Exception {
 
     // If already initialized, return computed values
-    if (allAccessorMethods.containsKey(clazz)) {
-      return allAccessorMethods.get(clazz);
+    if (allColumnGetMethods.containsKey(clazz)) {
+      return allColumnGetMethods.get(clazz);
     }
 
-    List<Method> allClassMethods = new ArrayList<Method>();
+    final List<Method> allClassMethods = new ArrayList<Method>();
 
     // exclude fields that can't be modified directly from the UI
     final Set<String> excludedFields = new HashSet<>();
@@ -378,7 +388,7 @@ public class IndexUtility {
         getMethod = null;
       }
 
-      if (getMethod != null){
+      if (getMethod != null) {
         allClassMethods.add(getMethod);
         continue;
       }
@@ -398,34 +408,73 @@ public class IndexUtility {
         continue;
       }
     }
-  //
-  // try {
-  // final String accessorName1 =
-  // "get" + field.getName().substring(0, 1).toUpperCase()
-  // + field.getName().substring(1);
-  // final Method getMethod =
-  // clazz.getMethod(accessorName1, new Class<?>[] {});
-  // if (getMethod != null && (getMethod.getModifiers() & Modifier.PRIVATE) ==
-  // 0) {
-  // allClassMethods.add(getMethod);
-  // }
-  // } catch (Exception e) {
-  // // Otherwise, use is - find an isXXX method that takes no parameters
-  // final String accessorName2 =
-  // "is" + field.getName().substring(0, 1).toUpperCase()
-  // + field.getName().substring(1);
-  // final Method isMethod =
-  // clazz.getMethod(accessorName2, new Class<?>[] {});
-  // if (isMethod != null && (isMethod.getModifiers() & Modifier.PRIVATE) == 0)
-  // {
-  // allClassMethods.add(isMethod);
-  // }
-  // }
-  // }
 
-  // Cache for later runs
-  allAccessorMethods.put(clazz,allClassMethods);
-  return allClassMethods;
+    // Cache for later runs
+    allColumnGetMethods.put(clazz, allClassMethods);
+    return allClassMethods;
+
+  }
+
+  /**
+   * Returns the setXXX methods for @Column annotated fields.
+   *
+   * @param clazz the clazz
+   * @return the all methods
+   * @throws Exception the exception
+   */
+  public static List<Method> getAllColumnSetMethods(Class<?> clazz)
+    throws Exception {
+
+    // If already initialized, return computed values
+    if (allColumnSetMethods.containsKey(clazz)) {
+      return allColumnSetMethods.get(clazz);
+    }
+
+    final List<Method> allClassMethods = new ArrayList<Method>();
+
+    // exclude fields that can't be modified directly from the UI
+    final Set<String> excludedFields = new HashSet<>();
+    excludedFields.add("id");
+    excludedFields.add("timestamp");
+    excludedFields.add("lastModified");
+    excludedFields.add("lastModifiedBy");
+    excludedFields.add("lastApproved");
+    excludedFields.add("lastApprovedBy");
+    excludedFields.add("terminology");
+    excludedFields.add("branch");
+    excludedFields.add("branchedTo");
+
+    for (final java.lang.reflect.Field field : getAllFields(clazz)) {
+      if (excludedFields.contains(field.getName())) {
+        continue;
+      }
+      if (!field.isAnnotationPresent(Column.class)) {
+        continue;
+      }
+
+      // Try get first - find a setXXX method that takes 1 parameter
+      final String accessorName1 =
+          "set" + field.getName().substring(0, 1).toUpperCase()
+              + field.getName().substring(1);
+      Method setMethod = null;
+      // Iterate through methods
+      for (final Method m : clazz.getMethods()) {
+        // Find matching name with 1 paramter
+        if (m.getName().equals(accessorName1)
+            && m.getParameterTypes().length == 1) {
+          setMethod = m;
+          break;
+        }
+      }
+
+      if (setMethod != null) {
+        allClassMethods.add(setMethod);
+      }
+    }
+
+    // Cache for later runs
+    allColumnSetMethods.put(clazz, allClassMethods);
+    return allClassMethods;
 
   }
 
@@ -660,6 +709,67 @@ public class IndexUtility {
 
     }
     return fullTextQuery;
+  }
+
+  /**
+   * Returns the methods for @OneToMany annotated fields.
+   *
+   * @param clazz the clazz
+   * @return the all methods
+   * @throws Exception the exception
+   */
+  public static List<Method> getAllOneToManyAccessorMethods(Class<?> clazz)
+    throws Exception {
+
+    // If already initialized, return computed values
+    if (allOneToManyGetMethods.containsKey(clazz)) {
+      return allOneToManyGetMethods.get(clazz);
+    }
+
+    final List<Method> allClassMethods = new ArrayList<Method>();
+
+    // exclude fields that can't be modified directly from the UI
+    final Set<String> excludedFields = new HashSet<>();
+    // no excluded fields for the moment
+
+    for (final java.lang.reflect.Field field : getAllFields(clazz)) {
+
+      if (excludedFields.contains(field.getName())) {
+        continue;
+      }
+      if (!field.isAnnotationPresent(OneToMany.class)) {
+        continue;
+      }
+
+      // Try get first - find a getXXX method that takes no parameters
+      final String accessorName1 =
+          "get" + field.getName().substring(0, 1).toUpperCase()
+              + field.getName().substring(1);
+      Method getMethod;
+      try {
+        getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});
+      } catch (Exception e) {
+        getMethod = null;
+      }
+      try {
+        getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});
+      } catch (Exception e) {
+        getMethod = null;
+      }
+
+      if (getMethod != null) {
+        allClassMethods.add(getMethod);
+        continue;
+      }
+
+      // No need to worry about "is" here because these are collection methods
+
+    }
+
+    // Cache for later runs
+    allOneToManyGetMethods.put(clazz, allClassMethods);
+    return allClassMethods;
+
   }
 
 }

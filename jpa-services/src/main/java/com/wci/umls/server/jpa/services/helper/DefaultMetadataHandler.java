@@ -270,7 +270,7 @@ public class DefaultMetadataHandler extends RootServiceJpa
   /* see superclass */
   @Override
   public String getName() {
-    return "Standard Metadata Handler";
+    return "Default Metadata Handler";
   }
 
   /* see superclass */

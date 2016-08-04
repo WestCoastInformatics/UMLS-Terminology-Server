@@ -33,7 +33,8 @@ import com.wci.umls.server.services.handlers.ValidationCheck;
 /**
  * JPA and JAXB enabled implementation of {@link ProjectService}.
  */
-public class ProjectServiceJpa extends RootServiceJpa implements ProjectService {
+public class ProjectServiceJpa extends RootServiceJpa
+    implements ProjectService {
 
   /** The config properties. */
   protected static Properties config = null;
@@ -80,8 +81,8 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public ConceptList findConceptsInScope(Project project, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Project Service - get project scope - " + project);
+    Logger.getLogger(getClass())
+        .info("Project Service - get project scope - " + project);
 
     return null;
   }
@@ -119,9 +120,9 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public UserRole getUserRoleForProject(String username, Long projectId)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Service - get user role for project - " + username + ", "
-            + projectId);
+    Logger.getLogger(getClass())
+        .debug("Project Service - get user role for project - " + username
+            + ", " + projectId);
     final Project project = getProject(projectId);
     if (project == null) {
       throw new Exception("No project found for " + projectId);
@@ -178,8 +179,8 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   /* see superclass */
   @Override
   public Project addProject(Project project) {
-    Logger.getLogger(getClass()).debug(
-        "Project Service - add project - " + project);
+    Logger.getLogger(getClass())
+        .debug("Project Service - add project - " + project);
     try {
       // Set last modified date
       project.setLastModified(new Date());
@@ -205,8 +206,8 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   /* see superclass */
   @Override
   public void updateProject(Project project) {
-    Logger.getLogger(getClass()).debug(
-        "Project Service - update project - " + project);
+    Logger.getLogger(getClass())
+        .debug("Project Service - update project - " + project);
 
     try {
       // Set modification date
@@ -318,12 +319,12 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
             try {
               // handle dates explicitly
               if (o2 instanceof Date) {
-                return ((Date) sortField.get(o1)).compareTo((Date) sortField
-                    .get(o2));
+                return ((Date) sortField.get(o1))
+                    .compareTo((Date) sortField.get(o2));
               } else {
                 // otherwise, sort based on conversion to string
-                return (sortField.get(o1).toString()).compareTo(sortField.get(
-                    o2).toString());
+                return (sortField.get(o1).toString())
+                    .compareTo(sortField.get(o2).toString());
               }
             } catch (IllegalAccessException e) {
               // on exception, return equality
@@ -339,12 +340,12 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
             try {
               // handle dates explicitly
               if (o2 instanceof Date) {
-                return ((Date) sortField.get(o1)).compareTo((Date) sortField
-                    .get(o2));
+                return ((Date) sortField.get(o1))
+                    .compareTo((Date) sortField.get(o2));
               } else {
                 // otherwise, sort based on conversion to string
-                return (sortField.get(o1).toString()).compareTo(sortField.get(
-                    o2).toString());
+                return (sortField.get(o1).toString())
+                    .compareTo(sortField.get(o2).toString());
               }
             } catch (IllegalAccessException e) {
               // on exception, return equality
@@ -364,14 +365,13 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public ProjectList findProjects(String query, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Project Service - find projects " + "/" + query);
+    Logger.getLogger(getClass())
+        .info("Project Service - find projects " + "/" + query);
 
     int[] totalCt = new int[1];
-    List<Project> list =
-        (List<Project>) getQueryResults(query == null || query.isEmpty()
-            ? "id:[* TO *]" : query, ProjectJpa.class, ProjectJpa.class, pfs,
-            totalCt);
+    List<Project> list = (List<Project>) getQueryResults(
+        query == null || query.isEmpty() ? "id:[* TO *]" : query,
+        ProjectJpa.class, ProjectJpa.class, pfs, totalCt);
     final ProjectList result = new ProjectListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);

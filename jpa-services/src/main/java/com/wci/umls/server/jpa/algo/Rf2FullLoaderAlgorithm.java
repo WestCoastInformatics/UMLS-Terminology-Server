@@ -15,10 +15,12 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ReleaseInfo;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Subset;
@@ -309,6 +311,12 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     algo.setTerminology(getTerminology());
     algo.setVersion(getVersion());
     algo.compute();
+  }
+  
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
   }
 
 }

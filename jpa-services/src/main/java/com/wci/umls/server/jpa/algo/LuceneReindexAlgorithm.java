@@ -1,12 +1,10 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,21 +15,14 @@ import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.reflections.Reflections;
 
-import com.wci.umls.server.algo.Algorithm;
-import com.wci.umls.server.jpa.services.RootServiceJpa;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
+import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 
 /**
- * Implementation of an algorithm to reindex all classes annotated with @Indexed
+ * Implementation of an algorithm to reindex all classes annotated
+ * with @Indexed.
  */
-public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The request cancel flag. */
-  boolean requestCancel = false;
+public class LuceneReindexAlgorithm extends AbstractAlgorithm {
 
   /** The terminology. */
   private String indexedObjects;
@@ -162,42 +153,16 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
     }
   }
 
-  /**
-   * Fires a {@link ProgressEvent}.
-   * @param pct percent done
-   * @param note progress note
-   */
-  public void fireProgressEvent(int pct, String note) {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() {
-    requestCancel = true;
-  }
-
   /* see superclass */
   @Override
   public void refreshCaches() throws Exception {
     // n/a
   }
 
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
+  }
 
 }

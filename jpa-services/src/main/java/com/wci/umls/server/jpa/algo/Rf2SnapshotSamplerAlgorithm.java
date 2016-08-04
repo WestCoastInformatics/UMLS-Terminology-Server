@@ -3,35 +3,29 @@
  */
 package com.wci.umls.server.jpa.algo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
+public class Rf2SnapshotSamplerAlgorithm extends AbstractAlgorithm {
 
   /** The input path. */
   protected String inputPath = null;
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The output concepts. */
   private Set<String> outputConcepts;
@@ -87,11 +81,11 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
       Logger.getLogger(getClass()).info("  Load relationships");
       loadRelationshipMaps();
 
-      Logger.getLogger(getClass()).info(
-          "    chdPar count = " + chdParMap.size());
-      // Logger.getLogger(getClass()).info("    chdPar = " + chdParMap);
+      Logger.getLogger(getClass())
+          .info("    chdPar count = " + chdParMap.size());
+      // Logger.getLogger(getClass()).info(" chdPar = " + chdParMap);
       Logger.getLogger(getClass()).info("    other count = " + otherMap.size());
-      // Logger.getLogger(getClass()).info("    other = " + otherMap);
+      // Logger.getLogger(getClass()).info(" other = " + otherMap);
 
       Logger.getLogger(getClass()).info("  Find initial concepts");
       // 1. Find initial concepts
@@ -113,8 +107,8 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
       Logger.getLogger(getClass()).info("  Add distance 1 related concepts");
       for (final String concept : new HashSet<>(concepts)) {
         if (otherMap.get(concept) != null) {
-          Logger.getLogger(getClass()).info(
-              "    add concepts = " + otherMap.get(concept));
+          Logger.getLogger(getClass())
+              .info("    add concepts = " + otherMap.get(concept));
           concepts.addAll(otherMap.get(concept));
         }
       }
@@ -130,47 +124,47 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
         // 3. Find metadata concepts (definitionStatusId, typeId,
         Logger.getLogger(getClass()).info("  Get metadata concepts");
         addConceptMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after concepts) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after concepts) = " + concepts.size());
 
         addDescriptionMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after descriptions) = " + concepts.size());
-        Logger.getLogger(getClass()).info(
-            "    count of descriptions (after descriptions) = "
+        Logger.getLogger(getClass())
+            .info("    count (after descriptions) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count of descriptions (after descriptions) = "
                 + descriptions.size());
 
         addRelationshipMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after relationships) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after relationships) = " + concepts.size());
 
         addAttributeValueMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after attribute value) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after attribute value) = " + concepts.size());
 
         addAssociationReferenceMetadata(concepts, descriptions);
         Logger.getLogger(getClass()).info(
             "    count (after association reference) = " + concepts.size());
 
         addSimpleMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after simple) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after simple) = " + concepts.size());
 
         addSimpleMapMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after simple map) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after simple map) = " + concepts.size());
 
         addComplexMapMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after complex map) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after complex map) = " + concepts.size());
 
         addLanguageMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after language) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after language) = " + concepts.size());
 
         addMetadataMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after metadata) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after metadata) = " + concepts.size());
 
         // 4. Find all concepts on path to root (e.g. walk up ancestors)
         for (final String chd : chdParMap.keySet()) {
@@ -178,8 +172,8 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
             concepts.addAll(chdParMap.get(chd));
           }
         }
-        Logger.getLogger(getClass()).info(
-            "    count (after ancestors) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after ancestors) = " + concepts.size());
         Logger.getLogger(getClass()).info("    prev count = " + prevCt);
 
       } while (concepts.size() != prevCt);
@@ -600,15 +594,15 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
             chdParMap.put(rel.getFrom().getTerminologyId(),
                 new HashSet<String>());
           }
-          chdParMap.get(rel.getFrom().getTerminologyId()).add(
-              rel.getTo().getTerminologyId());
+          chdParMap.get(rel.getFrom().getTerminologyId())
+              .add(rel.getTo().getTerminologyId());
 
           if (!parChdMap.containsKey(rel.getTo().getTerminologyId())) {
-            parChdMap
-                .put(rel.getTo().getTerminologyId(), new HashSet<String>());
+            parChdMap.put(rel.getTo().getTerminologyId(),
+                new HashSet<String>());
           }
-          parChdMap.get(rel.getTo().getTerminologyId()).add(
-              rel.getFrom().getTerminologyId());
+          parChdMap.get(rel.getTo().getTerminologyId())
+              .add(rel.getFrom().getTerminologyId());
         }
 
         // active, not isa => other
@@ -618,8 +612,8 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
             otherMap.put(rel.getFrom().getTerminologyId(),
                 new HashSet<String>());
           }
-          otherMap.get(rel.getFrom().getTerminologyId()).add(
-              rel.getTo().getTerminologyId());
+          otherMap.get(rel.getFrom().getTerminologyId())
+              .add(rel.getTo().getTerminologyId());
 
         }
       }
@@ -630,39 +624,6 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
   @Override
   public void reset() throws Exception {
     // do nothing
-  }
-
-  /**
-   * Fires a {@link ProgressEvent}.
-   *
-   * @param pct percent done
-   * @param note progress note
-   * @throws Exception the exception
-   */
-  public void fireProgressEvent(int pct, String note) throws Exception {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
   }
 
   /* see superclass */
@@ -749,6 +710,12 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
       descendants.addAll(getDescendantsHelper(chd));
     }
     return descendants;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
   }
 
 }

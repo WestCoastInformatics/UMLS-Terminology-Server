@@ -5,15 +5,12 @@ package com.wci.umls.server.jpa.helpers;
 
 import org.hibernate.envers.configuration.spi.AuditConfiguration;
 import org.hibernate.envers.event.spi.EnversPostInsertEventListenerImpl;
-import org.hibernate.envers.internal.synchronization.AuditProcess;
-import org.hibernate.envers.internal.synchronization.work.AddWorkUnit;
-import org.hibernate.envers.internal.synchronization.work.AuditWorkUnit;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.persister.entity.EntityPersister;
 
 /**
- * Reference implementation of {@link CustomEnversPostDeleteEventListener}.
- * Includes hibernate tags for MEME database.
+ * Empty implementation of "post insert" listener because the custom integrator
+ * requries at least one post insert listener.
  */
 public class EmptyEnversPostInsertEventListenerImpl
     extends EnversPostInsertEventListenerImpl {
@@ -29,15 +26,17 @@ public class EmptyEnversPostInsertEventListenerImpl
     super(enversConfiguration);
   }
 
+  /* see superclass */
   @Override
   public void onPostInsert(PostInsertEvent event) {
-    //Do Nothing
+    // Do Nothing
   }
 
+  /* see superclass */
   @Override
   public boolean requiresPostCommitHanding(EntityPersister persister) {
     // Do nothing
     return false;
-  }  
-  
+  }
+
 }
