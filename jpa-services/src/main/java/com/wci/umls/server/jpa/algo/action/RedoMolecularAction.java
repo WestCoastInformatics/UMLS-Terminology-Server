@@ -125,7 +125,7 @@ public class RedoMolecularAction extends AbstractMolecularAction {
 
         // Get the class of the object we're looking for, so we can pass it into
         // the Hibernate query
-        
+
         final AuditReader reader = AuditReaderFactory.get(manager);
         final AuditQuery query =
             reader.createQuery()
@@ -140,16 +140,16 @@ public class RedoMolecularAction extends AbstractMolecularAction {
             (HasLastModified) reader.find(Class.forName(a.getClassName()),
                 a.getClassName(), a.getObjectId(), revision, true);
 
-        // Set the concept the component will be readded to (different depending on molecular action type)
+        // Set the concept the component will be readded to (different depending
+        // on molecular action type)
         Concept containingConcept = null;
-        if (getMolecularAction(molecularActionId).getName().equals("SPLIT")){
+        if (getMolecularAction(molecularActionId).getName().equals("SPLIT")) {
           containingConcept = getConcept2();
-        }
-        else{
+        } else {
           containingConcept = getConcept();
         }
-        
-         // Add the object back in, using the method appropriate to its type
+
+        // Add the object back in, using the method appropriate to its type
         if (a.getClassName().equals(AtomJpa.class.getName())) {
           updateHasLastModified(returnedObject);
           containingConcept.getAtoms().add((AtomJpa) returnedObject);
@@ -168,12 +168,17 @@ public class RedoMolecularAction extends AbstractMolecularAction {
             .equals(ConceptRelationshipJpa.class.getName())) {
           updateHasLastModified(returnedObject);
         } else if (a.getClassName().equals(ConceptJpa.class.getName())) {
-          //TODO - This is a total hack - figure out why Concept pulled back from the dead has all of its relationships.
-          ConceptJpa returnedConcept = new ConceptJpa((Concept) returnedObject, false);
+          // TODO - This is a total hack - figure out why Concept pulled back
+          // from the dead has all of its relationships.
+          ConceptJpa returnedConcept =
+              new ConceptJpa((Concept) returnedObject, false);
           updateHasLastModified(returnedConcept);
-          //If this concept is referenced in the molecular action, set this actions concept2.
-          //This wasn't set at initialization since the concept was deleted at the time
-          if (returnedObject.getId().equals(getMolecularAction(molecularActionId).getComponentId2())){
+          // If this concept is referenced in the molecular action, set this
+          // actions concept2.
+          // This wasn't set at initialization since the concept was deleted at
+          // the time
+          if (returnedObject.getId().equals(
+              getMolecularAction(molecularActionId).getComponentId2())) {
             concept2 = returnedConcept;
           }
         } else {
@@ -247,16 +252,16 @@ public class RedoMolecularAction extends AbstractMolecularAction {
         // Set the concepts that the atoms came from and went to
         Concept originatingConcept = null;
         Concept sentToConcept = null;
-        if (a.getOldValue().equals(getConcept().getId().toString())){
+        if (a.getOldValue().equals(getConcept().getId().toString())) {
           originatingConcept = getConcept();
           sentToConcept = getConcept2();
-        }
-        else{
+        } else {
           originatingConcept = getConcept2();
-          sentToConcept = getConcept();          
-        }               
-        
-        // Ensure that the listed atom exists in the concept it originally came from,
+          sentToConcept = getConcept();
+        }
+
+        // Ensure that the listed atom exists in the concept it originally came
+        // from,
         // and doesn't already exist in the concept it was previously moved into
         if (!originatingConcept.getAtoms().contains(movedAtom)) {
           throw new Exception("Redo move failed: Atom " + movedAtom
@@ -372,6 +377,7 @@ public class RedoMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), molecularActionId,
+        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " molecular action " + molecularActionId);
 
   }

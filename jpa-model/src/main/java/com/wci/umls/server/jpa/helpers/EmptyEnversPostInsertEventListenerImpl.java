@@ -5,9 +5,6 @@ package com.wci.umls.server.jpa.helpers;
 
 import org.hibernate.envers.configuration.spi.AuditConfiguration;
 import org.hibernate.envers.event.spi.EnversPostInsertEventListenerImpl;
-import org.hibernate.envers.internal.synchronization.AuditProcess;
-import org.hibernate.envers.internal.synchronization.work.AddWorkUnit;
-import org.hibernate.envers.internal.synchronization.work.AuditWorkUnit;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.persister.entity.EntityPersister;
 
