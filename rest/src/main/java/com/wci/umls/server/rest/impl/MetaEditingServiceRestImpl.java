@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -22,6 +23,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAttributeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
@@ -84,6 +86,55 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     securityService = new SecurityServiceJpa();
   }
 
+  private void postActionMaintenance(AbstractMolecularAction action) throws Exception {
+
+    List<Concept> conceptList = new ArrayList<Concept>();
+    conceptList.add(action.getConcept());
+    conceptList.add(action.getConcept2());
+
+    // Only concepts that exist and contain atoms will need to go through this
+    // process
+    for (Concept c : conceptList) {
+      if (c != null && !c.getAtoms().isEmpty()) {
+
+        // Start a new action that doesn't create molecular/atomic actions
+        action.beginTransaction();
+        action.setMolecularActionFlag(false);
+
+        //
+        // Recompute tracking record workflow status
+        //
+
+        // Any tracking record that references this concept may potentially be
+        // updated.
+        final TrackingRecordList trackingRecords = action
+            .findTrackingRecordsForConcept(action.getProject(), c, null, null);
+
+        // Set trackingRecord to READY_FOR_PUBLICATION if all contained
+        // concepts and atoms are all set to READY_FOR_PUBLICATION.
+        if (trackingRecords != null) {
+          for (TrackingRecord rec : trackingRecords.getObjects()) {
+            final WorkflowStatus status =
+                action.computeTrackingRecordStatus(rec);
+            rec.setWorkflowStatus(status);
+            action.updateTrackingRecord(rec);
+          }
+        }
+
+        //
+        // Recompute the concept's preferred name
+        //
+
+        c.setName(action.getComputePreferredNameHandler(c.getTerminology())
+            .computePreferredName(c.getAtoms(), action
+                .getDefaultPrecedenceList(c.getTerminology(), c.getVersion())));
+
+        action.commit();
+      }
+    }
+
+  }  
+  
   /* see superclass */
   @Override
   @POST
@@ -146,6 +197,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
@@ -228,6 +282,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
@@ -317,6 +374,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
           action.getName(), authToken, IdType.ATTRIBUTE.toString(), null,
@@ -398,6 +458,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
           action.getName(), authToken, IdType.ATTRIBUTE.toString(),
@@ -475,6 +538,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>("adding an atom",
@@ -556,6 +622,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(action.getName(),
           authToken, IdType.ATTRIBUTE.toString(), action.getAtom(), null,
@@ -635,6 +704,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
@@ -725,6 +797,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
           new ChangeEventJpa<ConceptRelationship>(action.getName(), authToken,
@@ -811,6 +886,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
@@ -909,6 +987,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
@@ -1011,6 +1092,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
@@ -1120,6 +1204,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
       final ChangeEvent<Concept> event =
@@ -1182,6 +1269,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // actions
       // Note - if we're undoing a merge, ComponentId2 won't point to an
       // existing concept, so leave that null.
+      Long componentId =
+          action.getMolecularAction(molecularActionId).getComponentId();
       Long componentId2;
       if (action.getMolecularAction(molecularActionId).getName()
           .equals("MERGE")) {
@@ -1191,9 +1280,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             action.getMolecularAction(molecularActionId).getComponentId2();
       }
 
-      action.initialize(project,
-          action.getMolecularAction(molecularActionId).getComponentId(),
-          componentId2, userName, lastModified, false);
+      action.initialize(project, componentId, componentId2, userName,
+          lastModified, false);
 
       //
       // Check prerequisites
@@ -1215,6 +1303,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
@@ -1287,6 +1378,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // actions
       // Note - if we're redoing a split, ComponentId2 won't point to an
       // existing concept, so leave that null.
+      Long componentId =
+          action.getMolecularAction(molecularActionId).getComponentId();
       Long componentId2;
       if (action.getMolecularAction(molecularActionId).getName()
           .equals("SPLIT")) {
@@ -1296,9 +1389,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             action.getMolecularAction(molecularActionId).getComponentId2();
       }
 
-      action.initialize(project,
-          action.getMolecularAction(molecularActionId).getComponentId(),
-          componentId2, userName, lastModified, false);
+      action.initialize(project, componentId, componentId2, userName,
+          lastModified, false);
 
       //
       // Check prerequisites
@@ -1320,6 +1412,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
@@ -1349,6 +1444,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
 
-  }  
-  
+  }
+
 }

@@ -66,7 +66,7 @@ public class IntegrationTestClientRest extends RootClientRest implements
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).put(Entity.xml(conceptString));
-
+    
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a

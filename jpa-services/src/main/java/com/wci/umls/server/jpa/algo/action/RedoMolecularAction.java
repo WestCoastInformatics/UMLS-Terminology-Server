@@ -119,12 +119,14 @@ public class RedoMolecularAction extends AbstractMolecularAction {
         // the Hibernate query
 
         final AuditReader reader = AuditReaderFactory.get(manager);
-        final AuditQuery query = reader.createQuery()
-            // last updated revision
-            .forRevisionsOfEntity(Class.forName(a.getClassName()), true, true)
-            .addProjection(AuditEntity.revisionNumber().max())
-            // add id and owner as constraints
-            .add(AuditEntity.property("id").eq(a.getObjectId()));
+        final AuditQuery query =
+            reader.createQuery()
+                // last updated revision
+                .forRevisionsOfEntity(Class.forName(a.getClassName()), true,
+                    true)
+                .addProjection(AuditEntity.revisionNumber().max())
+                // add id and owner as constraints
+                .add(AuditEntity.property("id").eq(a.getObjectId()));
         final Number revision = (Number) query.getSingleResult();
         final HasLastModified returnedObject =
             (HasLastModified) reader.find(Class.forName(a.getClassName()),
@@ -167,7 +169,7 @@ public class RedoMolecularAction extends AbstractMolecularAction {
         }
 
         // If the action was to remove from the collection, remove it
-        else if (a.getOldValue() == null && a.getNewValue() != null) {
+        else if (a.getNewValue() == null && a.getOldValue() != null) {
           collection.remove(referencedObject);
         }
 
@@ -228,17 +230,15 @@ public class RedoMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(),
-        redoMolecularAction.getComponentId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        redoMolecularAction.getComponentId(), getActivityId(), getWorkId(),
         getName() + " " + redoMolecularAction.getName() + ", "
             + molecularActionId);
 
     if (redoMolecularAction.getComponentId2() != null) {
       addLogEntry(getUserName(), getProject().getId(),
-          redoMolecularAction.getComponentId2(),
-          getMolecularAction().getActivityId(),
-          getMolecularAction().getWorkId(), getName() + " "
-              + redoMolecularAction.getName() + ", " + molecularActionId);
+          redoMolecularAction.getComponentId2(), getActivityId(), getWorkId(),
+          getName() + " " + redoMolecularAction.getName() + ", "
+              + molecularActionId);
     }
   }
 

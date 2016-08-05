@@ -333,8 +333,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(),
-        getOriginatingConcept().getId(), getMolecularAction().getActivityId(),
-        getMolecularAction().getWorkId(),
+        getOriginatingConcept().getId(), getActivityId(), getWorkId(),
         getName() + " " + getOriginatingConcept().getId() + " into concept "
             + getCreatedConcept().getId());
     // Make copy of toConcept to pass into change event

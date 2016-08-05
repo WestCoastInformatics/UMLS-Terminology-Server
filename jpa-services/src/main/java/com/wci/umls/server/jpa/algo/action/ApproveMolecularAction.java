@@ -149,7 +149,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        getActivityId(), getWorkId(),
         getName() + " " + getConcept());
 
   }

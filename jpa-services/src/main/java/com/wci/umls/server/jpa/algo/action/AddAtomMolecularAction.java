@@ -95,9 +95,6 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     // an atom"s for CRUD
     // operations)
     //
-    if (getChangeStatusFlag()) {
-      atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-    }
 
     // Assign alternateTerminologyId
     final IdentifierAssignmentHandler handler =
@@ -118,21 +115,28 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     final String altId = handler.getTerminologyId(atom);
     atom.getAlternateTerminologyIds().put(getConcept().getTerminology(), altId);
 
-    // add the atom and set the last modified by
+    // Change status of the atom
+    if (getChangeStatusFlag()) {
+      atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    }
+    
+    // Add the atom
     atom = addAtom(atom);
-
-    // add the atom and set the last modified by
-    getConcept().getAtoms().add(atom);
+    
+    // Change status of the concept
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
+    
+    // Add the atom to concept
+    getConcept().getAtoms().add(atom);
 
     // update the concept
     updateConcept(getConcept());
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        getActivityId(), getWorkId(),
         getName() + " " + atom.getName());
 
   }

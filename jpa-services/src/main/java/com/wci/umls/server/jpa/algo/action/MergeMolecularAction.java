@@ -5,13 +5,13 @@ package com.wci.umls.server.jpa.algo.action;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -137,159 +137,208 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     toConceptPreUpdates = new ConceptJpa(getToConcept(), false);
     fromConceptPreUpdates = new ConceptJpa(getFromConcept(), false);
 
-    // Add each atom from fromConcept to toConcept, delete from
-    // fromConcept, and set to NEEDS_REVIEW
+    //
+    // Make a copy of each object in the fromConcept
+    //
     final List<Atom> fromAtoms = new ArrayList<>(getFromConcept().getAtoms());
-    moveAtoms(getFromConcept(), getToConcept(), fromAtoms);
-
-    if (getChangeStatusFlag()) {
-      for (Atom atm : fromAtoms) {
-        atm.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      }
-    }
-
-    // Add each semanticType from fromConcept to toConcept, and delete from
-    // fromConcept
-    // NOTE: Only add semantic type if it doesn't already exist in toConcept
     final List<SemanticTypeComponent> fromStys =
-        new ArrayList<>(getFromConcept().getSemanticTypes());
-    final List<SemanticTypeComponent> toStys =
-        getToConcept().getSemanticTypes();
-
-    for (SemanticTypeComponent sty : fromStys) {
-      // remove the semantic type from the fromConcept
-      getFromConcept().getSemanticTypes().remove(sty);
-
-      // remove the semantic type component
-      removeSemanticTypeComponent(sty.getId());
-
-      if (!toStys.contains(sty)) {
-        sty.setId(null);
-        SemanticTypeComponentJpa newSemanticType =
-            (SemanticTypeComponentJpa) addSemanticTypeComponent(sty,
-                getToConcept());
-        if (getChangeStatusFlag()) {
-          newSemanticType.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-        }
-
-        // add the semantic type and set the last modified by
-        getToConcept().getSemanticTypes().add(newSemanticType);
-      }
-
-    }
-
-    // Add each relationship from/to fromConcept to be attached to toConcept,
-    // and delete from fromConcept
-
-    List<ConceptRelationship> fromRelationships =
-        new ArrayList<>(getFromConcept().getRelationships());
-
-    List<ConceptRelationship> toRelationships =
-        new ArrayList<>(getToConcept().getRelationships());
-
-    // Go through all relationships in the fromConcept
+        new CopyOnWriteArrayList<>(getFromConcept().getSemanticTypes());
+    final List<ConceptRelationship> fromRelationships =
+        new CopyOnWriteArrayList<>(getFromConcept().getRelationships());
+    // Also copy the inverse relationships
+    List<ConceptRelationship> inverseRelationships =
+        new CopyOnWriteArrayList<ConceptRelationship>();
     for (final ConceptRelationship rel : fromRelationships) {
+      inverseRelationships
+          .add((ConceptRelationship) findInverseRelationship(rel));
+    }
 
-      // Any relationship between from and toConcept is deleted
-      if (getToConcept().getId() == rel.getTo().getId()) {
-
-        // remove the relationship type component from the concept and update
-        getFromConcept().getRelationships().remove(rel);
-        // remove the relationship component and its inverse
-        removeRelationship(rel.getId(), rel.getClass());
-
-        // remove the inverse relationship type component from the concept
-        // and update
-        getToConcept().getRelationships().remove(findInverseRelationship(rel));
-
-        // remove the inverse relationship component
-        removeRelationship(findInverseRelationship(rel).getId(),
-            rel.getClass());
-
+    //
+    // Remove all objects from the fromConcept
+    //
+    for (final Atom atom : fromAtoms) {
+      getFromConcept().getAtoms().remove(atom);
+    }
+    for (final SemanticTypeComponent sty : fromStys) {
+      getFromConcept().getSemanticTypes().remove(sty);
+    }
+    for (final ConceptRelationship rel : fromRelationships) {
+      getFromConcept().getRelationships().remove(rel);
+    }
+    for (final ConceptRelationship rel : inverseRelationships) {
+      rel.getFrom().getRelationships().remove(rel);
+      //Since getToConcept is its own object, keep its status up to date as well.
+      if (rel.getFrom().getId().equals(getToConcept().getId())) {
+        getToConcept().getRelationships().remove(rel);
       }
-      // If relationship is not between two merging concepts, add relationship
-      // and inverse toConcept and remove from fromConcept
-      else {
-        //
-        // Remove relationship and inverseRelationship
-        //
-        // remove the relationship type component from the concept and update
-        getFromConcept().getRelationships().remove(rel);
+    }
 
-        // remove the relationship component and the inverse
-        removeRelationship(rel.getId(), rel.getClass());
+    //
+    // Update fromConcept and all concepts affected by relationship
+    //
+    updateConcept(getToConcept());
+    updateConcept(getFromConcept());
+    for (final ConceptRelationship rel : inverseRelationships) {
+      updateConcept(rel.getFrom());
+    }
 
-        // remove the inverse relationship type component from the concept
-        // and update
-        Concept thirdConcept = rel.getTo();
-        thirdConcept.getRelationships().remove(findInverseRelationship(rel));
+    //
+    // Remove the objects from the database
+    //
+    // Note: don't remove atoms - we just move them instead
+    for (final SemanticTypeComponent sty : fromStys) {
+      removeSemanticTypeComponent(sty.getId());
+    }
+    for (final ConceptRelationship rel : fromRelationships) {
+      removeRelationship(rel.getId(), rel.getClass());
+    }
+    for (final ConceptRelationship rel : inverseRelationships) {
+      removeRelationship(rel.getId(), rel.getClass());
+    }
 
-        // remove the inverse relationship component
-        removeRelationship(findInverseRelationship(rel).getId(),
-            rel.getClass());
+    //
+    // Remove objects that won't be added to the toConcept
+    //
 
-        //
-        // Create and add relationship and inverseRelationship
-        //
-        // If relationship already exists between to and related concept, don't
-        // add any more - set worklow status of existing relationship to Needs
-        // Review
+    // Don't add semantic type if it already exists in toConcept
+    for (SemanticTypeComponent sty : fromStys) {
+      if (getToConcept().getSemanticTypes().contains(sty)) {
+        fromStys.remove(sty);
+      }
+    }
+    // Remove any relationship between from and to concept
+    for (final ConceptRelationship rel : fromRelationships) {
+      if (rel.getTo().getId().equals(getToConcept().getId())) {
+        fromRelationships.remove(rel);
+      }
+    }
+    for (final ConceptRelationship rel : inverseRelationships) {
+      if (rel.getFrom().getId().equals(getToConcept().getId())) {
+        inverseRelationships.remove(rel);
+      }
+    }
+    // If a relationship exists between to and related concept that would get
+    // overwritten,
+    // don't add it in. Instead, keep copy of existing relationship to set to
+    // Needs Review later.
+    List<ConceptRelationship> existingRels = new ArrayList<>();
 
-        ConceptRelationship existingRel = null;
-        for (final ConceptRelationship toRel : toRelationships) {
-          if (toRel.getTo().getId() == thirdConcept.getId()) {
-            existingRel = toRel;
-          }
+    for (final ConceptRelationship rel : fromRelationships) {
+      for (final ConceptRelationship toRel : getToConcept()
+          .getRelationships()) {
+        if (rel.getTo().getId().equals(toRel.getTo().getId())) {
+          fromRelationships.remove(rel);
+          existingRels.add(toRel);
         }
-
-        if (existingRel != null) {
-          existingRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-          findInverseRelationship(existingRel)
-              .setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-        } else {
-          // set the relationship component last modified
-          rel.setId(null);
-          rel.setFrom(getToConcept());
-          ConceptRelationshipJpa newRel =
-              (ConceptRelationshipJpa) addRelationship(rel);
-
-          // add relationship to concept and set last modified by
-          getToConcept().getRelationships().add(newRel);
-
-          if (getChangeStatusFlag()) {
-            newRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-          }
-
-          // construct inverse relationship
-          ConceptRelationshipJpa inverseRel =
-              (ConceptRelationshipJpa) createInverseConceptRelationship(newRel);
-
-          // set the inverse relationship component last modified
-          ConceptRelationshipJpa newInverseRel =
-              (ConceptRelationshipJpa) addRelationship(inverseRel);
-          if (getChangeStatusFlag()) {
-            newInverseRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-          }
-
-          // add relationship to concept and set last modified by
-          thirdConcept.getRelationships().add(newInverseRel);
+      }
+    }
+    for (final ConceptRelationship rel : inverseRelationships) {
+      for (final ConceptRelationship toRel : getToConcept()
+          .getRelationships()) {
+        ConceptRelationship toInverseRel =
+            (ConceptRelationship) findInverseRelationship(toRel);
+        if (rel.getFrom().getId().equals(toInverseRel.getFrom().getId())) {
+          inverseRelationships.remove(rel);
+          existingRels.add(toRel);
         }
       }
     }
 
+    //
+    // Create new component objects to be attached to the concepts
+    //
+    List<SemanticTypeComponent> newStys = new ArrayList<>();
+    for (SemanticTypeComponent sty : fromStys) {
+      sty.setId(null);
+      newStys.add(addSemanticTypeComponent(sty, getToConcept()));
+    }
+    List<ConceptRelationship> newRels = new ArrayList<>();
+    for (final ConceptRelationship rel : fromRelationships) {
+      ConceptRelationship newRel = new ConceptRelationshipJpa(rel, false);
+      newRel.setId(null);
+      newRel.setFrom(getToConcept());
+      newRels.add((ConceptRelationshipJpa) addRelationship(newRel));
+    }
+    List<ConceptRelationship> newInverseRels = new ArrayList<>();
+    for (final ConceptRelationship rel : inverseRelationships) {
+      ConceptRelationship newRel = new ConceptRelationshipJpa(rel, false);
+      newRel.setId(null);
+      newRel.setTo(getToConcept());
+      newInverseRels.add((ConceptRelationshipJpa) addRelationship(newRel));
+    }
+
+    //
+    // Change status of the components to be added
+    //
     if (getChangeStatusFlag()) {
-      getToConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      for (final Atom atom : fromAtoms) {
+        atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
+      for (SemanticTypeComponent sty : newStys) {
+        sty.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
+      for (final ConceptRelationship rel : newRels) {
+        rel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
+      for (final ConceptRelationship rel : newInverseRels) {
+        rel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
+    }
+    // Also don't forget to update the workflow status on all of the
+    // pre-existing relationships that the merge would have duplicated
+    for (ConceptRelationship rel : existingRels) {
+      rel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    }
+
+    //
+    // Add the components to the concept (and related concepts)
+    //
+    for (final Atom atom : fromAtoms) {
+      getConcept().getAtoms().add(atom);
+    }
+    for (SemanticTypeComponent sty : newStys) {
+      getConcept().getSemanticTypes().add(sty);
+    }
+    for (final ConceptRelationship rel : newRels) {
+      rel.getFrom().getRelationships().add(rel);
+      //Since getToConcept is its own object, keep its status up to date as well.
+      if (rel.getFrom().getId().equals(getToConcept().getId())) {
+        getToConcept().getRelationships().remove(rel);
+      }      
+    }
+    for (final ConceptRelationship rel : newInverseRels) {
+      rel.getFrom().getRelationships().add(rel);
+      //Since getToConcept is its own object, keep its status up to date as well.
+      if (rel.getFrom().getId().equals(getToConcept().getId())) {
+        getToConcept().getRelationships().remove(rel);
+      }      
+    }
+
+    // Change status of the concept
+    if (getChangeStatusFlag()) {
+      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    }
+
+    //
+    // update the to and from Concepts, and all concepts a relationship has been
+    // added to
+    //
+    updateConcept(getToConcept());
+    updateConcept(getFromConcept());
+    for (final ConceptRelationship rel : newInverseRels) {
+      updateConcept(rel.getFrom());
     }
     
-    // update the to concept, and delete the from concept
-    updateConcept(getToConcept());
+    //
+    // Delete the from concept
+    //
     removeConcept(getFromConcept().getId());
+
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
-        getName() + " " + getFromConcept() + " into concept "
-            + getToConcept().getId());
+        getActivityId(), getWorkId(), getName() + " concept " + getFromConcept().getId()
+            + " into concept " + getToConcept().getId());
 
     // Make copy of toConcept to pass into change event
     toConceptPostUpdates = new ConceptJpa(getToConcept(), false);

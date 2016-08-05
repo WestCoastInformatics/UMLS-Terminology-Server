@@ -138,12 +138,14 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         // the Hibernate query
 
         final AuditReader reader = AuditReaderFactory.get(manager);
-        final AuditQuery query = reader.createQuery()
-            // last updated revision
-            .forRevisionsOfEntity(Class.forName(a.getClassName()), true, true)
-            .addProjection(AuditEntity.revisionNumber().max())
-            // add id and owner as constraints
-            .add(AuditEntity.property("id").eq(a.getObjectId()));
+        final AuditQuery query =
+            reader.createQuery()
+                // last updated revision
+                .forRevisionsOfEntity(Class.forName(a.getClassName()), true,
+                    true)
+                .addProjection(AuditEntity.revisionNumber().max())
+                // add id and owner as constraints
+                .add(AuditEntity.property("id").eq(a.getObjectId()));
         final Number revision = (Number) query.getSingleResult();
         final HasLastModified returnedObject =
             (HasLastModified) reader.find(Class.forName(a.getClassName()),
@@ -236,17 +238,19 @@ public class UndoMolecularAction extends AbstractMolecularAction {
     this.updateMolecularAction(undoMolecularAction);
 
     // log the REST call
+
+    // TESTTEST
+    getMolecularAction();
+
     addLogEntry(getUserName(), getProject().getId(),
-        undoMolecularAction.getComponentId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        undoMolecularAction.getComponentId(), getActivityId(), getWorkId(),
         getName() + " " + undoMolecularAction.getName() + ", "
             + molecularActionId);
     if (undoMolecularAction.getComponentId2() != null) {
       addLogEntry(getUserName(), getProject().getId(),
-          undoMolecularAction.getComponentId2(),
-          getMolecularAction().getActivityId(),
-          getMolecularAction().getWorkId(), getName() + " "
-              + undoMolecularAction.getName() + ", " + molecularActionId);
+          undoMolecularAction.getComponentId2(), getActivityId(), getWorkId(),
+          getName() + " " + undoMolecularAction.getName() + ", "
+              + molecularActionId);
     }
   }
 

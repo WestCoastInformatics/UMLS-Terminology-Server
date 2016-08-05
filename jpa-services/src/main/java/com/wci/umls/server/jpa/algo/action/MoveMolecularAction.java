@@ -186,7 +186,7 @@ public class MoveMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        getActivityId(), getWorkId(),
         getName() + " " + atomIds + " from Concept " + getFromConcept().getId()
             + " to concept " + getToConcept().getId());
 

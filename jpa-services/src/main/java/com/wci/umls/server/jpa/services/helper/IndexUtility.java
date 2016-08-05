@@ -718,7 +718,7 @@ public class IndexUtility {
    * @return the all methods
    * @throws Exception the exception
    */
-  public static List<Method> getAllOneToManyAccessorMethods(Class<?> clazz)
+  public static List<Method> getAllCollectionGetMethods(Class<?> clazz)
     throws Exception {
 
     // If already initialized, return computed values
@@ -737,7 +737,7 @@ public class IndexUtility {
       if (excludedFields.contains(field.getName())) {
         continue;
       }
-      if (!field.isAnnotationPresent(OneToMany.class)) {
+      if (!field.isAnnotationPresent(OneToMany.class) && !field.isAnnotationPresent(ManyToMany.class)) {
         continue;
       }
 

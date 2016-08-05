@@ -257,10 +257,28 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     this.userName = userName;
   }
 
+  /**
+   * Returns the activity id.
+   *
+   * @return the activity id
+   */
+  public String getActivityId() {
+    return activityId;
+  }
+
   /* see superclass */
   @Override
   public void setActivityId(String activityId) {
     this.activityId = activityId;
+  }
+
+  /**
+   * Returns the work id.
+   *
+   * @return the work id
+   */
+  public String getWorkId() {
+    return workId;
   }
 
   /* see superclass */

@@ -216,6 +216,8 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       molecularAction.setVersion(concept.getVersion());
       molecularAction.setName(getName());
       molecularAction.setTimestamp(new Date());
+      molecularAction.setActivityId(getActivityId());
+      molecularAction.setWorkId(getWorkId());
 
       // Add the molecular action and pass to the service.
       // It needs to be added now so that when atomic actions
@@ -387,7 +389,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   public Collection getCollection(AtomicAction a, Object containerObject)
     throws Exception {
     final List<Method> oneToManyMethods =
-        IndexUtility.getAllOneToManyAccessorMethods(containerObject.getClass());
+        IndexUtility.getAllCollectionGetMethods(containerObject.getClass());
 
     // Iterate through @OneToMan methods
     for (final Method m : oneToManyMethods) {

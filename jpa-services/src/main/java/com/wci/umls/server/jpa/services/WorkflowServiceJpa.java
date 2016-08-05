@@ -173,8 +173,14 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
         .debug("Workflow Service - find tracking records for concept "
             + project.getId() + ", " + concept.getId() + ", " + query);
 
+    // If concept has no atoms, it won't be on any tracking record list
+    final List<Atom> atoms = concept.getAtoms();
+    if (atoms.size()==0){
+      return null;
+    }
+    
     // Create a query
-    final List<String> clauses = concept.getAtoms().stream()
+    final List<String> clauses = atoms.stream()
         .map(a -> "componentIds:" + a.getId()).collect(Collectors.toList());
     final String atomQuery = ConfigUtility.composeQuery("OR", clauses);
 

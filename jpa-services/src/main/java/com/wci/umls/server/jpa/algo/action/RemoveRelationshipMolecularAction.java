@@ -110,31 +110,32 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
-    // remove the relationship type component from the concept and update
+    
+    // Remove the relationship from the concepts
     getConcept().getRelationships().remove(relationship);
-
-    // remove the relationship component
-    removeRelationship(relationship.getId(), relationship.getClass());
-
-    // remove the inverse relationship type component from the concept and
-    // update
     getConcept2().getRelationships()
-        .remove(findInverseRelationship(relationship));
+    .remove(findInverseRelationship(relationship));
 
-    // remove the inverse relationship component
+    // Update Concepts
+    updateConcept(getConcept());
+    updateConcept(getConcept2());
+
+    // Remove the relationships
+    removeRelationship(relationship.getId(), relationship.getClass());
     removeRelationship(findInverseRelationship(relationship).getId(),
         relationship.getClass());
 
-    updateConcept(getConcept2());
-
+    // Change status of ONLY the source concept
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    updateConcept(getConcept());
+
+    // Update Concepts
+    updateConcept(getConcept()); 
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        getActivityId(), getWorkId(),
         getName() + " " + relationship);
 
   }
