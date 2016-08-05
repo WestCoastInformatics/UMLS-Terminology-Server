@@ -81,11 +81,11 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
       Logger.getLogger(getClass()).info("  Load relationships");
       loadRelationshipMaps();
 
-      Logger.getLogger(getClass()).info(
-          "    chdPar count = " + chdParMap.size());
-      // Logger.getLogger(getClass()).info("    chdPar = " + chdParMap);
+      Logger.getLogger(getClass())
+          .info("    chdPar count = " + chdParMap.size());
+      // Logger.getLogger(getClass()).info(" chdPar = " + chdParMap);
       Logger.getLogger(getClass()).info("    other count = " + otherMap.size());
-      // Logger.getLogger(getClass()).info("    other = " + otherMap);
+      // Logger.getLogger(getClass()).info(" other = " + otherMap);
 
       Logger.getLogger(getClass()).info("  Find initial concepts");
       // 1. Find initial concepts
@@ -98,8 +98,8 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
       Logger.getLogger(getClass()).info("  Add distance 1 related concepts");
       for (String concept : new HashSet<>(concepts)) {
         if (otherMap.get(concept) != null) {
-          Logger.getLogger(getClass()).info(
-              "    add concepts = " + otherMap.get(concept));
+          Logger.getLogger(getClass())
+              .info("    add concepts = " + otherMap.get(concept));
           concepts.addAll(otherMap.get(concept));
         }
       }
@@ -115,47 +115,47 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
         // 3. Find metadata concepts (definitionStatusId, typeId,
         Logger.getLogger(getClass()).info("  Get metadata concepts");
         addConceptMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after concepts) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after concepts) = " + concepts.size());
 
         addDescriptionMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after descriptions) = " + concepts.size());
-        Logger.getLogger(getClass()).info(
-            "    count of descriptions (after descriptions) = "
+        Logger.getLogger(getClass())
+            .info("    count (after descriptions) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count of descriptions (after descriptions) = "
                 + descriptions.size());
 
         addRelationshipMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after relationships) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after relationships) = " + concepts.size());
 
         addAttributeValueMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after attribute value) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after attribute value) = " + concepts.size());
 
         addAssociationReferenceMetadata(concepts, descriptions);
         Logger.getLogger(getClass()).info(
             "    count (after association reference) = " + concepts.size());
 
         addSimpleMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after simple) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after simple) = " + concepts.size());
 
         addSimpleMapMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after simple map) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after simple map) = " + concepts.size());
 
-        addComplexMapMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after complex map) = " + concepts.size());
+        // addComplexMapMetadata(concepts);
+        // Logger.getLogger(getClass()).info(
+        // " count (after complex map) = " + concepts.size());
 
         addLanguageMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after language) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info(" count (after language) = " + concepts.size());
 
         addMetadataMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after metadata) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after metadata) = " + concepts.size());
 
         // 4. Find all concepts on path to root (e.g. walk up ancestors)
         for (String chd : chdParMap.keySet()) {
@@ -163,8 +163,8 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
             concepts.addAll(chdParMap.get(chd));
           }
         }
-        Logger.getLogger(getClass()).info(
-            "    count (after ancestors) = " + concepts.size());
+        Logger.getLogger(getClass())
+            .info("    count (after ancestors) = " + concepts.size());
         Logger.getLogger(getClass()).info("    prev count = " + prevCt);
 
         if (concepts.contains("370570004")) {
@@ -426,44 +426,44 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
    * @param concepts the concepts
    * @throws Exception the exception
    */
-  private void addComplexMapMetadata(Set<String> concepts) throws Exception {
-
-    String line = "";
-
-    PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
-    while ((line = reader.readLine()) != null) {
-
-      line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "\t");
-
-      if (!fields[0].equals("id")) {
-
-        if (concepts.contains(fields[5])) {
-          concepts.add(fields[3]);
-          concepts.add(fields[4]);
-          concepts.add(fields[11]);
-        }
-      }
-    }
-
-    // handle extended too
-
-    reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
-    while ((line = reader.readLine()) != null) {
-
-      line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "\t");
-
-      if (!fields[0].equals("id")) {
-
-        if (concepts.contains(fields[5])) {
-          concepts.add(fields[3]);
-          concepts.add(fields[4]);
-          concepts.add(fields[11]);
-        }
-      }
-    }
-  }
+  // private void addComplexMapMetadata(Set<String> concepts) throws Exception {
+  //
+  // String line = "";
+  //
+  // PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
+  // while ((line = reader.readLine()) != null) {
+  //
+  // line = line.replace("\r", "");
+  // final String fields[] = FieldedStringTokenizer.split(line, "\t");
+  //
+  // if (!fields[0].equals("id")) {
+  //
+  // if (concepts.contains(fields[5])) {
+  // concepts.add(fields[3]);
+  // concepts.add(fields[4]);
+  // concepts.add(fields[11]);
+  // }
+  // }
+  // }
+  //
+  // // handle extended too
+  //
+  // reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
+  // while ((line = reader.readLine()) != null) {
+  //
+  // line = line.replace("\r", "");
+  // final String fields[] = FieldedStringTokenizer.split(line, "\t");
+  //
+  // if (!fields[0].equals("id")) {
+  //
+  // if (concepts.contains(fields[5])) {
+  // concepts.add(fields[3]);
+  // concepts.add(fields[4]);
+  // concepts.add(fields[11]);
+  // }
+  // }
+  // }
+  // }
 
   /**
    * Adds the language metadata.
@@ -591,8 +591,8 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
             chdParMap.put(rel.getFrom().getTerminologyId(),
                 new HashSet<String>());
           }
-          chdParMap.get(rel.getFrom().getTerminologyId()).add(
-              rel.getTo().getTerminologyId());
+          chdParMap.get(rel.getFrom().getTerminologyId())
+              .add(rel.getTo().getTerminologyId());
         }
 
         // active, not isa => other
@@ -602,8 +602,8 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
             otherMap.put(rel.getFrom().getTerminologyId(),
                 new HashSet<String>());
           }
-          otherMap.get(rel.getFrom().getTerminologyId()).add(
-              rel.getTo().getTerminologyId());
+          otherMap.get(rel.getFrom().getTerminologyId())
+              .add(rel.getTo().getTerminologyId());
 
         }
       }

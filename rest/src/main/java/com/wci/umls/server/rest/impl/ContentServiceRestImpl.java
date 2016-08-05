@@ -144,7 +144,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   public void luceneReindex(
     @ApiParam(value = "Comma-separated list of objects to reindex, e.g. ConceptJpa (optional)", required = false) String indexedObjects,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /reindex "
             + (indexedObjects == null ? "with no objects specified"
@@ -183,7 +183,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "The expression to be checked", required = true) @PathParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /expression/count/" + terminology
             + "/version/" + query);
@@ -212,7 +212,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "The expression to be checked", required = true) @PathParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /expression/count/" + terminology
             + "/version/" + query);
@@ -241,7 +241,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /reindex/ecl/" + terminology + "/"
@@ -279,7 +279,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
 
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /terminology/closure/compute/"
@@ -326,7 +326,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
 
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /terminology/treepos/compute/"
@@ -383,7 +383,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Prefix, e.g. MR or RXN", required = false) @QueryParam("prefix") String prefix,
     @ApiParam(value = "RRF input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /terminology/load/rrf/umls/"
@@ -426,7 +426,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "RF2 input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /terminology/load/rf2/delta/"
@@ -473,7 +473,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "RF2 input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /terminology/load/rf2/snapshot/"
@@ -518,7 +518,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "RF2 input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /terminology/load/rf2/full/"
@@ -567,7 +567,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "ClaML input file", required = true) String inputFile,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /terminology/load/claml/"
@@ -635,7 +635,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Owl input file", required = true) String inputFile,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful POST call (Content): /terminology/load/owl/"
@@ -702,7 +702,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful GET call (Content): /terminology/remove/" + terminology
@@ -753,7 +753,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + terminologyId);
@@ -794,7 +794,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "mapSet terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "mapSet terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /mapset/"
         + terminology + "/" + version + "/" + terminologyId);
@@ -830,7 +830,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "MapSet terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "MapSet terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /mapset/all/" + terminology + "/" + version);
@@ -865,7 +865,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -903,7 +903,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -941,7 +941,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -978,7 +978,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Search term, e.g. 'sul'", required = true) @PathParam("searchTerm") String searchTerm,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/autocomplete/" + searchTerm);
@@ -1009,7 +1009,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/"
         + terminology + "/" + version + "/" + terminologyId);
@@ -1053,7 +1053,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     String queryStr = query == null ? "" : query;
@@ -1091,7 +1091,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -1129,7 +1129,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Search term, e.g. 'sul'", required = true) @PathParam("searchTerm") String searchTerm,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/"
         + terminology + "/" + version + "/autocomplete/" + searchTerm);
@@ -1160,7 +1160,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/" + terminologyId);
@@ -1204,7 +1204,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -1242,7 +1242,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Search term, e.g. 'sul'", required = true) @PathParam("searchTerm") String searchTerm,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/autocomplete/" + searchTerm);
@@ -1271,7 +1271,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Lexical class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Lexical class version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /lui/"
         + terminology + "/" + version + "/" + terminologyId);
@@ -1314,7 +1314,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "String class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "String class version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /sui/"
         + terminology + "/" + version + "/" + terminologyId);
@@ -1358,7 +1358,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /concept/" + terminology + "/" + version
@@ -1399,7 +1399,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /concept/" + terminology + "/" + version
@@ -1440,7 +1440,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /descriptor/" + terminology + "/"
@@ -1481,7 +1481,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /descriptor/" + terminology + "/"
@@ -1522,7 +1522,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code/" + terminology + "/" + version
@@ -1561,7 +1561,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code/" + terminology + "/" + version
@@ -1599,7 +1599,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + terminologyId + "/members");
@@ -1637,7 +1637,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Atom version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /aui/"
         + terminology + "/" + version + "/" + terminologyId + "/members");
@@ -1679,7 +1679,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /concept/" + terminology + "/" + version
@@ -1769,7 +1769,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /concept/" + terminology + "/" + version
@@ -1804,7 +1804,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     String queryStr = query == null ? "" : query;
 
@@ -1850,7 +1850,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     String queryStr = query == null ? "" : query;
 
@@ -1891,7 +1891,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Atom version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /aui/"
         + terminology + "/" + version + "/subsets");
@@ -1925,7 +1925,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/subsets");
@@ -1964,7 +1964,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -2005,7 +2005,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -2045,7 +2045,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + terminologyId + "/trees");
@@ -2087,7 +2087,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/"
         + terminology + "/" + version + "/" + terminologyId + "/trees");
     final ContentService contentService = new ContentServiceJpa();
@@ -2130,7 +2130,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Code version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/" + terminologyId + "/trees");
@@ -2172,7 +2172,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -2246,7 +2246,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -2321,7 +2321,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     String queryStr = query == null ? "" : query;
@@ -2394,7 +2394,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept terminologyId, e.g. C0000061", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /concept/" + terminology + "/" + version
@@ -2442,7 +2442,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Code terminologyId, e.g. C0000061", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code/" + terminology + "/" + version
@@ -2490,7 +2490,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Descriptor terminologyId, e.g. D0000061", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /descriptor/" + terminology + "/"
@@ -2537,7 +2537,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + "/trees/roots");
@@ -2612,7 +2612,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Descriptor version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/"
         + terminology + "/" + version + "/" + "/trees/roots");
@@ -2688,7 +2688,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Code version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/" + "/trees/roots");
@@ -2765,7 +2765,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -2806,7 +2806,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -2845,7 +2845,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -2884,7 +2884,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
@@ -2925,7 +2925,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @SuppressWarnings("static-method")
   private PrecedenceList getPrecedenceList(SecurityService service,
     MetadataService metadataService, String userName, AtomClass obj)
-      throws Exception {
+    throws Exception {
     final User user = service.getUser(userName);
     if (user.getUserPreferences() != null
         && user.getUserPreferences().getPrecedenceList() != null) {
@@ -2943,20 +2943,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   public SearchResultList getFavoritesForUser(
     @ApiParam(value = "Paging/filtering/sorting object", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Project): /content/favorites for authToken "
             + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      String userName = authorizeApp(securityService, authToken, "get user favorites",
-          UserRole.VIEWER);
+      String userName = authorizeApp(securityService, authToken,
+          "get user favorites", UserRole.VIEWER);
 
       UserPreferences preferences =
           securityService.getUser(userName).getUserPreferences();
 
       List<ComponentInfo> favorites = new ArrayList<>();
+      if (preferences == null) {
+        return new SearchResultListJpa();
+      }
       for (String str : preferences.getFavorites()) {
         ComponentInfo favorite = new ComponentInfoJpa(str);
         favorites.add(favorite);
@@ -3038,7 +3041,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Note to add", required = true) String noteText,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Project): /concept/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
@@ -3084,7 +3087,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   public void removeConceptNote(
     @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Project): /concept/note" + noteId
             + "/remove for authToken " + authToken);
@@ -3124,7 +3127,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Note to add", required = true) String noteText,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Project): /code/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
@@ -3170,7 +3173,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   public void removeCodeNote(
     @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass()).info("RESTful POST call (Project): /code/note"
         + noteId + "/remove for authToken " + authToken);
 
@@ -3209,7 +3212,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Note to add", required = true) String noteText,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Project): /descriptor/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
@@ -3255,7 +3258,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   public void removeDescriptorNote(
     @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Project): /descriptor/note" + noteId
             + "/remove for authToken " + authToken);
@@ -3292,7 +3295,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query text", required = false) @QueryParam("query") String query,
     @ApiParam(value = "Paging/filtering/sorting object", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Project): /content/component/notes/?query="
             + query + " for authToken " + authToken);
@@ -3303,9 +3306,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "get components with notes for query", UserRole.VIEWER);
 
       final SearchResultList results = new SearchResultListJpa();
-      
+
       final PfsParameter pfsUser = new PfsParameterJpa();
-      
+
       // Restrict results only to those left by the current user
       pfsUser.setQueryRestriction("lastModifiedBy:" + authToken);
 
@@ -3329,8 +3332,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       }
 
       // get descriptor notes for this user with no paging
-      final NoteList descriptorNotes = contentService
-          .findDescriptorNotesForQuery(query, pfsUser);
+      final NoteList descriptorNotes =
+          contentService.findDescriptorNotesForQuery(query, pfsUser);
 
       for (Note note : descriptorNotes.getObjects()) {
         DescriptorNoteJpa descriptorNote = (DescriptorNoteJpa) note;
@@ -3380,15 +3383,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         sortFields.set(sortFields.indexOf("name"), "value");
         pfsLocal.setSortFields(sortFields);
       }
-      
+
       // set total count
       results.setTotalCount(results.getCount());
-      
+
       // apply paging/sorting
       final int totalCt[] = new int[1];
       results.setObjects(contentService.applyPfsToList(results.getObjects(),
           SearchResult.class, totalCt, pfsLocal));
-      
+
       return results;
 
     } catch (Exception e) {

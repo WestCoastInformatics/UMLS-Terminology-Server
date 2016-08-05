@@ -75,7 +75,7 @@ public class Rf2FileCopier {
     dirMap.put("Refset_Simple", "/Refset/Content");
     dirMap.put("AttributeValue", "/Refset/Content");
     dirMap.put("AssociationReference", "/Refset/Content");
-    dirMap.put("ComplexMap", "/Refset/Map");
+    //dirMap.put("ComplexMap", "/Refset/Map");
     dirMap.put("ExtendedMap", "/Refset/Map");
     dirMap.put("SimpleMap", "/Refset/Map");
     dirMap.put("Language", "/Refset/Language");
@@ -92,7 +92,7 @@ public class Rf2FileCopier {
     keyMap.put("Refset_Simple", 5);
     keyMap.put("AttributeValue", 5);
     keyMap.put("AssociationReference", 5);
-    keyMap.put("ComplexMap", 5);
+    //keyMap.put("ComplexMap", 5);
     keyMap.put("ExtendedMap", 5);
     keyMap.put("SimpleMap", 5);
     keyMap.put("Language", 5);
