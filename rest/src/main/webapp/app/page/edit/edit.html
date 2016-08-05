@@ -11,7 +11,7 @@
       </span>
       <span>
         &nbsp;&nbsp;Role: <select ng-model="projectRole" ng-show="roleOptions.length > 1"
-                ng-options="item for item in roleOptions"></select>
+                ng-options="item for item in roleOptions" ng-click="getWorklists()"></select>
         <span ng-show="roleOptions.length == 1">{{projectRole}}</span>
       </span>
     </h5>
