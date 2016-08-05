@@ -239,9 +239,6 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
 
-    // TESTTEST
-    getMolecularAction();
-
     addLogEntry(getUserName(), getProject().getId(),
         undoMolecularAction.getComponentId(), getActivityId(), getWorkId(),
         getName() + " " + undoMolecularAction.getName() + ", "

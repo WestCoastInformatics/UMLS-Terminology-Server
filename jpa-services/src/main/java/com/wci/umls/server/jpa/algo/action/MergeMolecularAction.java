@@ -254,17 +254,15 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     }
     List<ConceptRelationship> newRels = new ArrayList<>();
     for (final ConceptRelationship rel : fromRelationships) {
-      ConceptRelationship newRel = new ConceptRelationshipJpa(rel, false);
-      newRel.setId(null);
-      newRel.setFrom(getToConcept());
-      newRels.add((ConceptRelationshipJpa) addRelationship(newRel));
+      rel.setId(null);
+      rel.setFrom(getToConcept());
+      newRels.add((ConceptRelationshipJpa) addRelationship(rel));
     }
     List<ConceptRelationship> newInverseRels = new ArrayList<>();
     for (final ConceptRelationship rel : inverseRelationships) {
-      ConceptRelationship newRel = new ConceptRelationshipJpa(rel, false);
-      newRel.setId(null);
-      newRel.setTo(getToConcept());
-      newInverseRels.add((ConceptRelationshipJpa) addRelationship(newRel));
+      rel.setId(null);
+      rel.setTo(getToConcept());
+      newInverseRels.add((ConceptRelationshipJpa) addRelationship(rel));
     }
 
     //
