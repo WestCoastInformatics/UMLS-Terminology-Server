@@ -11,6 +11,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
@@ -190,104 +191,103 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     // change event
     originatingConceptPreUpdates =
         new ConceptJpa(getOriginatingConcept(), false);
-    // Create copy of current concept and add to content service
-    createdConcept = new ConceptJpa(getConcept(), false);
-    createdConcept.setId(null);
-    createdConcept.setTerminologyId("");
-    createdConcept.setName(getComputePreferredNameHandler(getTerminology())
-        .computePreferredName(moveAtoms,
-            getDefaultPrecedenceList(getTerminology(), getVersion())));
-    if (getChangeStatusFlag()) {
-      createdConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-    }
-    createdConcept = addConcept(createdConcept);
-    createdConcept.setTerminologyId(createdConcept.getId().toString());
-    updateConcept(createdConcept);
 
-    // Add newly created concept Id to the molecular action (undo action uses
+    //
+    // Make a copy of each object in the originating Concept to be moved
+    //
+    List<Atom> moveAtomsCopies = new ArrayList<>();
+    for (final Atom atom : moveAtoms) {
+      moveAtomsCopies.add(new AtomJpa(atom));
+    }
+
+    List<SemanticTypeComponent> fromStysCopies = new ArrayList<>();
+    if (copySemanticTypes) {
+      for (final SemanticTypeComponent sty : getOriginatingConcept()
+          .getSemanticTypes()) {
+        fromStysCopies.add(new SemanticTypeComponentJpa(sty));
+      }
+    }
+
+    List<ConceptRelationship> fromRelationshipsCopies = new ArrayList<>();
+    List<ConceptRelationship> inverseRelationshipsCopies = new ArrayList<>();
+    if (copyRelationships) {
+      for (final ConceptRelationship rel : getOriginatingConcept()
+          .getRelationships()) {
+        fromRelationshipsCopies.add(new ConceptRelationshipJpa(rel, false));
+      }
+      // Also make copies of the inverse relationships
+      for (final ConceptRelationship rel : getOriginatingConcept()
+          .getRelationships()) {
+        inverseRelationshipsCopies.add(new ConceptRelationshipJpa(
+            (ConceptRelationship) findInverseRelationship(rel), false));
+      }
+    }
+
+    //
+    // Remove objects from the Concept
+    //
+    // Only done for atoms - semantic types and relationships are kept in
+    // originating Concept
+    for (final Atom atom : moveAtomsCopies) {
+      getOriginatingConcept().getAtoms().remove(atom);
+    }
+
+    //
+    // Update originatingConcept
+    //
+    updateConcept(getOriginatingConcept());
+
+    //
+    // Remove the objects from the database
+    //
+    // Not done for Atoms
+
+    //
+    // Create and add the new concept
+    //
+    createdConcept = new ConceptJpa(getConcept(), false);
+    getCreatedConcept().setId(null);
+    getCreatedConcept().setTerminologyId("");
+    createdConcept = new ConceptJpa(addConcept(createdConcept),false);
+    getCreatedConcept().setTerminologyId(createdConcept.getId().toString());
+
+    // Add newly created concept and conceptId to the molecular action (undo
+    // action uses
     // this)
-    getMolecularAction().setComponentId2(createdConcept.getId());
+    getMolecularAction().setComponentId2(getCreatedConcept().getId());
     updateMolecularAction(getMolecularAction());
 
-    // Add each listed atom from originatingConcept to createdConcept, delete
-    // from
-    // fromConcept, and set to NEEDS_REVIEW (if needed).
-    moveAtoms(getOriginatingConcept(), createdConcept, moveAtoms);
+    //
+    // Prepare copies of component objects to be created into new objects
+    //
+    for (SemanticTypeComponent sty : fromStysCopies) {
+      sty.setId(null);
+    }
+    for (final ConceptRelationship rel : fromRelationshipsCopies) {
+      rel.setId(null);
+      rel.setFrom(getCreatedConcept());
+    }
+    for (final ConceptRelationship rel : inverseRelationshipsCopies) {
+      rel.setId(null);
+      rel.setTo(getCreatedConcept());
+    }
 
+    //
+    // Change status of the components to be added
+    //
     if (getChangeStatusFlag()) {
-      for (Atom atm : moveAtoms) {
-        atm.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      for (final Atom atom : moveAtomsCopies) {
+        atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
-    }
-
-    // Add each semanticType from originatingConcept to createdConcept
-    if (copySemanticTypes) {
-      final List<SemanticTypeComponent> fromStys =
-          new ArrayList<>(getOriginatingConcept().getSemanticTypes());
-
-      for (SemanticTypeComponent sty : fromStys) {
-        SemanticTypeComponent newSemanticType =
-            new SemanticTypeComponentJpa(sty);
-        newSemanticType.setId(null);
-        SemanticTypeComponentJpa newAddedSemanticType =
-            (SemanticTypeComponentJpa) addSemanticTypeComponent(newSemanticType,
-                createdConcept);
-
-        // add the semantic type and set the last modified by
-        getCreatedConcept().getSemanticTypes().add(newAddedSemanticType);
+      for (SemanticTypeComponent sty : fromStysCopies) {
+        sty.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
-
-    }
-
-    // Add each relationship from originatingConcept to be attached to
-    // createdConcept
-    if (copyRelationships) {
-      List<ConceptRelationship> originatingRelationships =
-          new ArrayList<>(getOriginatingConcept().getRelationships());
-
-      // Go through all relationships in the originatingConcept
-      for (final ConceptRelationship rel : originatingRelationships) {
-
-        // Create copy of relationships and inverseRelationship, and update
-        // to/from sections accordingly
-
-        //
-        // Create and add relationship and inverseRelationship
-        //
-
-        // Get the other associated concept
-        Concept thirdConcept = rel.getTo();
-
-        // set the relationship component last modified
-        rel.setId(null);
-        ConceptRelationshipJpa newRel =
-            (ConceptRelationshipJpa) addRelationship(rel);
-        newRel.setFrom(getCreatedConcept());
-        if (getChangeStatusFlag()) {
-          newRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-        }
-
-        // construct inverse relationship
-        ConceptRelationshipJpa inverseRel =
-            (ConceptRelationshipJpa) createInverseConceptRelationship(newRel);
-
-        // set the inverse relationship component last modified
-        ConceptRelationshipJpa newInverseRel =
-            (ConceptRelationshipJpa) addRelationship(inverseRel);
-        if (getChangeStatusFlag()) {
-          newInverseRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-        }
-
-        // add relationship and inverse to respective concepts and set last
-        // modified by
-        getCreatedConcept().getRelationships().add(newRel);
-        thirdConcept.getRelationships().add(newInverseRel);
-
+      for (final ConceptRelationship rel : fromRelationshipsCopies) {
+        rel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
-    }
-
-    if (getChangeStatusFlag()) {
-      getOriginatingConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      for (final ConceptRelationship rel : inverseRelationshipsCopies) {
+        rel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
     }
 
     //
@@ -306,38 +306,84 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     newBetweenRel.setPublishable(true);
     newBetweenRel.setAssertedDirection(false);
     newBetweenRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
-    if (getChangeStatusFlag()) {
-      newBetweenRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-    }
 
-    // set the inverse relationship component last modified
-    ConceptRelationshipJpa newAddedBetweenRel =
-        (ConceptRelationshipJpa) addRelationship(newBetweenRel);
-
-    getOriginatingConcept().getRelationships().add(newAddedBetweenRel);
-
-    // construct inverse relationship
+    // construct relationship as well
     ConceptRelationshipJpa inverseBetweenRel =
         (ConceptRelationshipJpa) createInverseConceptRelationship(
             newBetweenRel);
 
-    // set the inverse relationship component last modified
-    ConceptRelationshipJpa newInverseBetweenRel =
+    //
+    // Create the new components to be added, and update modified objects
+    //
+    for (final Atom atom : moveAtomsCopies) {
+      updateAtom(atom);
+    }
+
+    List<SemanticTypeComponent> newStys = new ArrayList<>();
+    for (SemanticTypeComponent sty : fromStysCopies) {
+      newStys.add(addSemanticTypeComponent(sty, getCreatedConcept()));
+    }
+
+    List<ConceptRelationship> newRels = new ArrayList<>();
+    for (final ConceptRelationship rel : fromRelationshipsCopies) {
+      newRels.add((ConceptRelationshipJpa) addRelationship(rel));
+    }
+
+    List<ConceptRelationship> newInverseRels = new ArrayList<>();
+    for (final ConceptRelationship rel : inverseRelationshipsCopies) {
+      newInverseRels.add((ConceptRelationshipJpa) addRelationship(rel));
+    }
+
+    newBetweenRel = (ConceptRelationshipJpa) addRelationship(newBetweenRel);
+    inverseBetweenRel =
         (ConceptRelationshipJpa) addRelationship(inverseBetweenRel);
 
-    getCreatedConcept().getRelationships().add(newInverseBetweenRel);
+    //
+    // Add the components to the created concept (and related concepts)
+    //
+    for (final Atom atom : moveAtomsCopies) {
+      getCreatedConcept().getAtoms().add(atom);
+    }
+    for (SemanticTypeComponent sty : newStys) {
+      getCreatedConcept().getSemanticTypes().add(sty);
+    }
+    for (final ConceptRelationship rel : newRels) {
+      getCreatedConcept().getRelationships().add(rel);
+    }
+    for (final ConceptRelationship rel : newInverseRels) {
+      rel.getFrom().getRelationships().add(rel);
+    }
+    getOriginatingConcept().getRelationships().add(newBetweenRel);
+    getCreatedConcept().getRelationships().add(inverseBetweenRel);
 
-    // update the concepts
+    //
+    // Change status of the concepts
+    //
+    if (getChangeStatusFlag()) {
+      getOriginatingConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      getCreatedConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    }
+
+    //
+    // update the to and from Concepts, and all concepts a relationship has been
+    // added to
+    //
     updateConcept(getOriginatingConcept());
     updateConcept(getCreatedConcept());
+    for (final ConceptRelationship rel : newInverseRels) {
+      if (!rel.getFrom().getId().equals(getCreatedConcept().getId())
+          && !rel.getFrom().getId().equals(getOriginatingConcept().getId())) {
+        updateConcept(rel.getFrom());
+      }
+    }
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(),
         getOriginatingConcept().getId(), getActivityId(), getWorkId(),
-        getName() + " " + getOriginatingConcept().getId() + " into concept "
-            + getCreatedConcept().getId());
-    // Make copy of toConcept to pass into change event
-    // Make copy of toConcept to pass into change event
+        getName() + " concept " + getOriginatingConcept().getId()
+            + " into concept " + getCreatedConcept().getId());
+
+    // Make copy of to and fromConcept to pass into change event
     originatingConceptPostUpdates =
         new ConceptJpa(getOriginatingConcept(), false);
     createdConceptPostUpdates = new ConceptJpa(getCreatedConcept(), false);

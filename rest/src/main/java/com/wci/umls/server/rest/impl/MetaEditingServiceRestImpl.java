@@ -45,6 +45,7 @@ import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.actions.ChangeEvent;
+import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
@@ -1377,7 +1378,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Note - the redo action doesn't create its own molecular and atomic
       // actions
       // Note - if we're redoing a split, ComponentId2 won't point to an
-      // existing concept, so leave that null.
+      // existing concept, so leave that null.      
       Long componentId =
           action.getMolecularAction(molecularActionId).getComponentId();
       Long componentId2;

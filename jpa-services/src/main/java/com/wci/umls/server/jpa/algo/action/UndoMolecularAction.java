@@ -17,6 +17,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 
@@ -153,7 +154,15 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
         // Recover the object here (id is set already so this works better than
         // "add")
+        // TODO - hack alert. If the object returned is a concept, it will have
+        // all of its relationships intact, and they need to be stripped out
+        // before it can be re-added
+
+        if (returnedObject.getClass().equals(ConceptJpa.class)) {
+          ((ConceptJpa)returnedObject).getRelationships().clear();
+        }       
         updateHasLastModified(returnedObject);
+
 
       }
 

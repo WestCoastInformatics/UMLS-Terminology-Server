@@ -1252,7 +1252,8 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
     assertNotNull(ma.getAtomicActions());
 
-    // Verify that five atomic actions exists for add and attach relationships to both concepts, and update
+    // Verify that five atomic actions exists for add and attach relationships
+    // to both concepts, and update
     // Concept WorkflowStatus for the source concept
     pfs.setSortField(null);
 
@@ -1693,8 +1694,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals("CONCEPT", atomicActions.get(22).getIdType().toString());
     assertNotNull(atomicActions.get(22).getOldValue());
     assertNull(atomicActions.get(22).getNewValue());
-    
-    
+
     // Verify the log entry exists
     String logEntry =
         projectService.getLog(project.getId(), toC.getId(), 1, authToken);
@@ -1817,18 +1817,29 @@ public class MetaEditingServiceRestNormalUseTest
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
     Collections.sort(atomicActions,
         (a1, a2) -> a1.getId().compareTo(a2.getId()));
-    assertEquals(2, atomicActions.size());
-    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    assertEquals(4, atomicActions.size());
+    assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
-    assertNotNull(atomicActions.get(0).getNewValue());
-    assertEquals("ATOM", atomicActions.get(1).getIdType().toString());
+    assertNull(atomicActions.get(0).getNewValue());
+    assertEquals("atoms", atomicActions.get(0).getField());
+    assertEquals("CONCEPT", atomicActions.get(1).getIdType().toString());
     assertNotNull(atomicActions.get(1).getOldValue());
-    assertNotNull(atomicActions.get(1).getNewValue());
+    assertNull(atomicActions.get(1).getNewValue());
+    assertEquals("atoms", atomicActions.get(1).getField());
+    assertEquals("CONCEPT", atomicActions.get(2).getIdType().toString());
+    assertNull(atomicActions.get(2).getOldValue());
+    assertNotNull(atomicActions.get(2).getNewValue());
+    assertEquals("atoms", atomicActions.get(2).getField());
+    assertEquals("CONCEPT", atomicActions.get(3).getIdType().toString());
+    assertNull(atomicActions.get(3).getOldValue());
+    assertNotNull(atomicActions.get(3).getNewValue());
+    assertEquals("atoms", atomicActions.get(3).getField());
 
     // Verify the log entry exists
     String logEntry =
         projectService.getLog(project.getId(), fromC.getId(), 1, authToken);
-    assertTrue(logEntry.contains("MOVE " + moveList));
+    assertTrue(logEntry.contains("MOVE " + moveList + " from Concept "
+        + fromC.getId() + " to concept " + toC.getId()));
 
   }
 
@@ -2008,30 +2019,87 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify that atomic actions exists for splitting off atoms, creating new
     // Concept
     // adding Semantic Types, and for adding Relationships
-    // 1 for Atom move
-    // 1 for fromConcept creation
-    // 6 for Relationships creations
-    // 1 for Semantic Type creation
+    // 1 for removing Atom from originatingConcept
+    // 1 for creating createdConcept
+    // 1 for creating Semantic Types for createdConcept
+    // 6 for creating Relationships for createdConcept, originatingConcept, and related concepts.
+    // 1 for adding relationship to originatingConcept
+    // 1 for updating TerminologyId on the createdConcept
+    // 1 for adding Atom to createdConcept
+    // 3 for adding Relationships to createdConcept
+    // 1 for adding SemanticType to createdConcept
+    // 2 for adding Relationships to related concepts
     pfs.setSortField(null);
 
     List<AtomicAction> atomicActions = projectService
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
     Collections.sort(atomicActions,
         (a1, a2) -> a1.getId().compareTo(a2.getId()));
-    assertEquals(9, atomicActions.size());
-    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    assertEquals(18, atomicActions.size());
+    assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
-    assertNotNull(atomicActions.get(0).getNewValue());
-    assertEquals(atomicActions.get(1).getIdType().toString(), "CONCEPT");
+    assertNull(atomicActions.get(0).getNewValue());
+    assertEquals("atoms", atomicActions.get(0).getField());
+    assertEquals("CONCEPT", atomicActions.get(1).getIdType().toString());
     assertNull(atomicActions.get(1).getOldValue());
     assertNotNull(atomicActions.get(1).getNewValue());
-    assertEquals("RELATIONSHIP", atomicActions.get(2).getIdType().toString());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(2).getIdType().toString());
+    assertNull(atomicActions.get(2).getOldValue());
+    assertNotNull(atomicActions.get(2).getNewValue());
     assertEquals("RELATIONSHIP", atomicActions.get(3).getIdType().toString());
+    assertNull(atomicActions.get(3).getOldValue());
+    assertNotNull(atomicActions.get(3).getNewValue());
     assertEquals("RELATIONSHIP", atomicActions.get(4).getIdType().toString());
+    assertNull(atomicActions.get(4).getOldValue());
+    assertNotNull(atomicActions.get(4).getNewValue());
     assertEquals("RELATIONSHIP", atomicActions.get(5).getIdType().toString());
+    assertNull(atomicActions.get(5).getOldValue());
+    assertNotNull(atomicActions.get(5).getNewValue());
     assertEquals("RELATIONSHIP", atomicActions.get(6).getIdType().toString());
+    assertNull(atomicActions.get(6).getOldValue());
+    assertNotNull(atomicActions.get(6).getNewValue());
     assertEquals("RELATIONSHIP", atomicActions.get(7).getIdType().toString());
-    assertEquals("SEMANTIC_TYPE", atomicActions.get(8).getIdType().toString());
+    assertNull(atomicActions.get(7).getOldValue());
+    assertNotNull(atomicActions.get(7).getNewValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(8).getIdType().toString());
+    assertNull(atomicActions.get(8).getOldValue());
+    assertNotNull(atomicActions.get(8).getNewValue());
+    assertEquals("CONCEPT", atomicActions.get(9).getIdType().toString());
+    assertNull(atomicActions.get(9).getOldValue());
+    assertNotNull(atomicActions.get(9).getNewValue());
+    assertEquals("relationships", atomicActions.get(9).getField());
+    assertEquals("CONCEPT", atomicActions.get(10).getIdType().toString());
+    assertEquals("", atomicActions.get(10).getOldValue());
+    assertNotNull(atomicActions.get(10).getNewValue());
+    assertEquals("terminologyId", atomicActions.get(10).getField());
+    assertEquals("CONCEPT", atomicActions.get(11).getIdType().toString());
+    assertNull(atomicActions.get(11).getOldValue());
+    assertNotNull(atomicActions.get(11).getNewValue());
+    assertEquals("atoms", atomicActions.get(11).getField());
+    assertEquals("CONCEPT", atomicActions.get(12).getIdType().toString());
+    assertNull(atomicActions.get(12).getOldValue());
+    assertNotNull(atomicActions.get(12).getNewValue());
+    assertEquals("relationships", atomicActions.get(12).getField());
+    assertEquals("CONCEPT", atomicActions.get(13).getIdType().toString());
+    assertNull(atomicActions.get(13).getOldValue());
+    assertNotNull(atomicActions.get(13).getNewValue());
+    assertEquals("relationships", atomicActions.get(13).getField());
+    assertEquals("CONCEPT", atomicActions.get(14).getIdType().toString());
+    assertNull(atomicActions.get(14).getOldValue());
+    assertNotNull(atomicActions.get(14).getNewValue());
+    assertEquals("relationships", atomicActions.get(14).getField());
+    assertEquals("CONCEPT", atomicActions.get(15).getIdType().toString());
+    assertNull(atomicActions.get(15).getOldValue());
+    assertNotNull(atomicActions.get(15).getNewValue());
+    assertEquals("semanticTypes", atomicActions.get(15).getField());
+    assertEquals("CONCEPT", atomicActions.get(16).getIdType().toString());
+    assertNull(atomicActions.get(16).getOldValue());
+    assertNotNull(atomicActions.get(16).getNewValue());
+    assertEquals("relationships", atomicActions.get(16).getField());
+    assertEquals("CONCEPT", atomicActions.get(17).getIdType().toString());
+    assertNull(atomicActions.get(17).getOldValue());
+    assertNotNull(atomicActions.get(17).getNewValue());
+    assertEquals("relationships", atomicActions.get(17).getField());
 
     // Verify the log entry exists
     String logEntry = projectService.getLog(project.getId(),
@@ -2207,29 +2275,56 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify that atomic actions exists for splitting off atoms, creating new
     // Concept
     // adding Semantic Types, and for adding Relationships
-    // 1 for Atom move
-    // 1 for fromConcept creation
-    // 2 for Relationship creations
+    // 1 for removing Atom from originatingConcept
+    // 1 for creating createdConcept
+    // 2 for creating Relationships for createdConcept and originatingConcept
+    // 1 for adding relationship to originatingConcept
+    // 1 for updating TerminologyId on the createdConcept
+    // 1 for adding Atom to createdConcept
+    // 1 for adding Relationships to createdConcept
+
     pfs.setSortField(null);
 
     atomicActions = projectService
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
     Collections.sort(atomicActions,
         (a1, a2) -> a1.getId().compareTo(a2.getId()));
-    assertEquals(4, atomicActions.size());
-    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    assertEquals(8, atomicActions.size());
+    assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
-    assertNotNull(atomicActions.get(0).getNewValue());
-    assertEquals(atomicActions.get(1).getIdType().toString(), "CONCEPT");
+    assertNull(atomicActions.get(0).getNewValue());
+    assertEquals("atoms", atomicActions.get(0).getField());
+    assertEquals("CONCEPT", atomicActions.get(1).getIdType().toString());
     assertNull(atomicActions.get(1).getOldValue());
     assertNotNull(atomicActions.get(1).getNewValue());
     assertEquals("RELATIONSHIP", atomicActions.get(2).getIdType().toString());
+    assertNull(atomicActions.get(2).getOldValue());
+    assertNotNull(atomicActions.get(2).getNewValue());
     assertEquals("RELATIONSHIP", atomicActions.get(3).getIdType().toString());
-
+    assertNull(atomicActions.get(3).getOldValue());
+    assertNotNull(atomicActions.get(3).getNewValue());
+    assertEquals("CONCEPT", atomicActions.get(4).getIdType().toString());
+    assertNull(atomicActions.get(4).getOldValue());
+    assertNotNull(atomicActions.get(4).getNewValue());
+    assertEquals("relationships", atomicActions.get(4).getField());
+    assertEquals("CONCEPT", atomicActions.get(5).getIdType().toString());
+    assertEquals("",atomicActions.get(5).getOldValue());
+    assertNotNull(atomicActions.get(5).getNewValue());
+    assertEquals("terminologyId", atomicActions.get(5).getField());
+    assertEquals("CONCEPT", atomicActions.get(6).getIdType().toString());
+    assertNull(atomicActions.get(6).getOldValue());
+    assertNotNull(atomicActions.get(6).getNewValue());
+    assertEquals("atoms", atomicActions.get(6).getField());
+    assertEquals("CONCEPT", atomicActions.get(7).getIdType().toString());
+    assertNull(atomicActions.get(7).getOldValue());
+    assertNotNull(atomicActions.get(7).getNewValue());
+    assertEquals("relationships", atomicActions.get(7).getField());
+    
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), originatingC.getId(), 1,
         authToken);
-    assertTrue(logEntry.contains("SPLIT concept " + concept.getId()));
+    assertTrue(logEntry.contains("SPLIT concept " + concept.getId()
+        + " into concept " + ma.getComponentId2()));
 
   }
 
@@ -3665,7 +3760,8 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals(2, atomCount);
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), fromC.getId(), 1, authToken);
+    logEntry =
+        projectService.getLog(project.getId(), fromC.getId(), 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
   }
 
@@ -3818,8 +3914,8 @@ public class MetaEditingServiceRestNormalUseTest
     assertNull(createdC);
 
     // Verify the log entry exists
-    String logEntry =
-        projectService.getLog(project.getId(), originatingC.getId(), 1, authToken);
+    String logEntry = projectService.getLog(project.getId(),
+        originatingC.getId(), 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     // Redo the split action
@@ -3929,7 +4025,8 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(relationshipPresent);
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), originatingC.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), originatingC.getId(), 1,
+        authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
   }
