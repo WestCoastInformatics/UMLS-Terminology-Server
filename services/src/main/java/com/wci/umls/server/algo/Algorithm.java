@@ -1,22 +1,28 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.algo;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Configurable;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressReporter;
 
 /**
- * Represents an algortihm. Implementations must fully configure
- * themselves before the compute call is made.
+ * Represents an algortihm. Implementations must fully configure themselves
+ * before the compute call is made.
  */
-public interface Algorithm extends ProgressReporter {
+public interface Algorithm extends RootService, ProgressReporter, Configurable {
 
   /**
-   * Rests to initial conditions.
+   * Check preconditions for action. This will make use of data structures
+   * configured in the action.
    *
+   * @return true, if successful
    * @throws Exception the exception
    */
-  public void reset() throws Exception;
+  public ValidationResult checkPreconditions() throws Exception;
 
   /**
    * Compute.
@@ -26,6 +32,13 @@ public interface Algorithm extends ProgressReporter {
   public void compute() throws Exception;
 
   /**
+   * Rests to initial conditions.
+   *
+   * @throws Exception the exception
+   */
+  public void reset() throws Exception;
+
+  /**
    * Cancel.
    *
    * @throws Exception the exception
@@ -33,11 +46,30 @@ public interface Algorithm extends ProgressReporter {
   public void cancel() throws Exception;
 
   /**
-   * Close.
+   * Sets the user name.
    *
-   * @throws Exception the exception
+   * @param userName the user name
    */
-  public void close() throws Exception;
-  
-  
+  public void setUserName(String userName);
+
+  /**
+   * Sets the activity id.
+   *
+   * @param activityId the activity id
+   */
+  public void setActivityId(String activityId);
+
+  /**
+   * Sets the work id.
+   *
+   * @param workId the work id
+   */
+  public void setWorkId(String workId);
+
+  /**
+   * Sets the project.
+   *
+   * @param project the project
+   */
+  public void setProject(Project project);
 }

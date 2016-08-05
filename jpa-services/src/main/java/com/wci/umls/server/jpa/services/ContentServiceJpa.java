@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.services;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
@@ -36,6 +38,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -892,6 +895,21 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // Remove the component
     removeComponent(id, DefinitionJpa.class);
 
+  }
+
+  /**
+   * Returns the semantic type component.
+   *
+   * @param id the id
+   * @return the semantic type component
+   * @throws Exception the exception
+   */
+  @Override
+  public SemanticTypeComponent getSemanticTypeComponent(Long id)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get semantic type component " + id);
+    return getComponent(id, SemanticTypeComponentJpa.class);
   }
 
   /**
@@ -1980,7 +1998,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void moveAtoms(Concept toConcept, Concept fromConcept,
+  public void moveAtoms(Concept fromConcept, Concept toConcept,
     List<Atom> fromAtoms) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - move atoms " + fromAtoms + " from concept "
@@ -1988,8 +2006,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     // for each atom, remove from fromConcept and add toConcept
     for (Atom atm : fromAtoms) {
-      toConcept.getAtoms().add(atm);
-      fromConcept.getAtoms().remove(atm);
+      if (fromConcept != null) {
+        fromConcept.getAtoms().remove(atm);
+      }
+      if (toConcept != null) {
+        toConcept.getAtoms().add(atm);
+      }
 
       // check for molecular action flag
       if (isMolecularActionFlag()) {
@@ -2001,10 +2023,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
         final AtomicAction atomicAction = new AtomicActionJpa();
         atomicAction.setField("concept");
         atomicAction.setIdType(IdType.getIdType(atm));
-        atomicAction.setClassName(toConcept.getClass().getName());
+        atomicAction.setClassName(AtomJpa.class.getName());
         atomicAction.setMolecularAction(molecularAction);
-        atomicAction.setOldValue(fromConcept.getId().toString());
-        atomicAction.setNewValue(toConcept.getId().toString());
+        atomicAction.setOldValue(
+            (fromConcept == null) ? null : fromConcept.getId().toString());
+        atomicAction.setNewValue(
+            (toConcept == null) ? null : toConcept.getId().toString());
         atomicAction.setObjectId(atm.getId());
 
         // persist the atomic action and add the persisted version to the
@@ -3892,28 +3916,26 @@ public class ContentServiceJpa extends MetadataServiceJpa
           (Class<T>) newComponent.getClass());
 
       // Create an atomic action when old value is different from new value.
+      // For fields annotated with @Column
+      final List<Method> columnMethods =
+          IndexUtility.getAllColumnGetMethods(oldComponent.getClass());
 
-      List<Method> allClassMethods =
-          IndexUtility.getAllAccessorMethods(oldComponent.getClass());
+      // Iterate through "column" methods
+      for (final Method m : columnMethods) {
 
-      for (Method m : allClassMethods) {
-
+        // Obtain previous and current values
         final Object oldObject = m.invoke(oldComponent, new Object[] {});
         final Object newObject = m.invoke(newComponent, new Object[] {});
 
-        String oldValue = "";
-        if (oldObject != null) {
-          oldValue = m.invoke(oldComponent, new Object[] {}).toString();
-        }
-        String newValue = "";
-        if (newObject != null) {
-          newValue = m.invoke(newComponent, new Object[] {}).toString();
-        }
+        // Obtain string values
+        final String oldValue = (oldObject == null ? ""
+            : m.invoke(oldComponent, new Object[] {}).toString());
+        final String newValue = (newObject == null ? ""
+            : m.invoke(newComponent, new Object[] {}).toString());
 
+        // If different, construct an atomic action and attach to molecular
+        // action
         if (!oldValue.equals(newValue)) {
-
-          // construct the atomic action
-
           final AtomicAction atomicAction = new AtomicActionJpa();
           atomicAction.setField(IndexUtility.getFieldNameFromMethod(m, null));
           atomicAction.setIdType(IdType.getIdType(oldComponent));
@@ -3922,16 +3944,76 @@ public class ContentServiceJpa extends MetadataServiceJpa
           atomicAction.setOldValue(oldValue);
           atomicAction.setNewValue(newValue);
           atomicAction.setObjectId(oldComponent.getId());
-
-          // persist the atomic action and add the persisted version to the
-          // molecular action
           final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
-
           molecularAction.getAtomicActions().add(newAtomicAction);
         }
 
       }
 
+      // Create an atomic action for each element of a collection that is
+      // different for fields with @OneToMany annotations
+      final List<Method> oneToManyMethods =
+          IndexUtility.getAllCollectionGetMethods(oldComponent.getClass());
+
+      // Iterate through @OneToMan methods
+      for (final Method m : oneToManyMethods) {
+
+        // Obtain the old/new identifier lists
+        final Set<?> oldSet = new HashSet<>(
+            (Collection<?>) m.invoke(oldComponent, new Object[] {}));
+        final Set<Long> oldIds = (oldSet.stream().map(x -> ((HasId) x).getId())
+            .collect(Collectors.toSet()));
+
+        final Set<?> newSet = new HashSet<>(
+            (Collection<?>) m.invoke(newComponent, new Object[] {}));
+        final Set<Long> newIds = (newSet.stream().map(x -> ((HasId) x).getId())
+            .collect(Collectors.toSet()));
+
+        // Get the collection class name
+        String collectionClassName = null;
+        if (oldSet.size() > 0) {
+          collectionClassName = oldSet.iterator().next().getClass().getName();
+        } else if (newSet.size() > 0) {
+          collectionClassName = newSet.iterator().next().getClass().getName();
+        }
+
+        // Obtain (old MINUS new) and create "remove" actions
+        for (final Long id : oldIds) {
+          if (!newIds.contains(id)) {
+            // Indicate movement of the object out of the component
+            final AtomicAction atomicAction = new AtomicActionJpa();
+            atomicAction.setField(IndexUtility.getFieldNameFromMethod(m, null));
+            atomicAction.setIdType(IdType.getIdType(oldComponent));
+            atomicAction.setClassName(newComponent.getClass().getName());
+            atomicAction.setCollectionClassName(collectionClassName);
+            atomicAction.setMolecularAction(molecularAction);
+            atomicAction.setOldValue(id.toString());
+            atomicAction.setNewValue(null);
+            atomicAction.setObjectId(oldComponent.getId());
+            final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
+            molecularAction.getAtomicActions().add(newAtomicAction);
+          }
+        }
+
+        // Obtain (new MINUS old) and create "add" actions
+        for (final Long id : newIds) {
+          if (!oldIds.contains(id)) {
+            // Indicate movement of the object intoof the component
+            final AtomicAction atomicAction = new AtomicActionJpa();
+            atomicAction.setField(IndexUtility.getFieldNameFromMethod(m, null));
+            atomicAction.setIdType(IdType.getIdType(oldComponent));
+            atomicAction.setClassName(newComponent.getClass().getName());
+            atomicAction.setCollectionClassName(collectionClassName);
+            atomicAction.setMolecularAction(molecularAction);
+            atomicAction.setOldValue(null);
+            atomicAction.setNewValue(id.toString());
+            atomicAction.setObjectId(oldComponent.getId());
+            final AtomicAction newAtomicAction = addAtomicAction(atomicAction);
+            molecularAction.getAtomicActions().add(newAtomicAction);
+          }
+        }
+
+      }
     }
 
     // handle as a normal "has last modified"
@@ -4009,7 +4091,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // check for molecular action flag
     if (isMolecularActionFlag()) {
       final MolecularAction molecularAction = getMolecularAction();
-      
+
       // construct the atomic action
       final AtomicAction atomicAction = new AtomicActionJpa();
       atomicAction.setField("id");

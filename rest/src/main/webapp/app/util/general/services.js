@@ -125,7 +125,7 @@ tsApp
           if (this.error.message && this.error.message.indexOf('AuthToken') != -1) {
             // Reroute back to login page with 'auth token has
             // expired' message
-            if (appConfig.loginEnabled) {
+            if (appConfig['login.enabled'] === 'true') {
               $location.path('/login');
             } else {
               $location.path('/');

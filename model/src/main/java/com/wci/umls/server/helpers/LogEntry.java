@@ -1,9 +1,7 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
-
-import com.wci.umls.server.model.meta.LogActivity;
 
 /**
  * Represents a log entry.
@@ -53,18 +51,32 @@ public interface LogEntry extends HasLastModified {
   public void setProjectId(Long projectId);
 
   /**
-   * Gets the activity.
+   * Gets the activity id.
    *
-   * @return the activity
+   * @return the activity id
    */
-  public LogActivity getActivity();
+  public String getActivityId();
 
   /**
-   * Sets the activity.
+   * Sets the activity id.
    *
-   * @param activity the new activity
+   * @param activityId the activity id
    */
-  public void setActivity(LogActivity activity);
+  public void setActivityId(String activityId);
+
+  /**
+   * Gets the work id.
+   *
+   * @return the work id
+   */
+  public String getWorkId();
+
+  /**
+   * Sets the work id.
+   *
+   * @param workId the work id
+   */
+  public void setWorkId(String workId);
 
   /**
    * Gets the version.

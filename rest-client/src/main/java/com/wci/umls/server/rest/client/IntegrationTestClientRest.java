@@ -17,12 +17,14 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -64,7 +66,7 @@ public class IntegrationTestClientRest extends RootClientRest implements
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).put(Entity.xml(conceptString));
-
+    
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -245,7 +247,7 @@ public class IntegrationTestClientRest extends RootClientRest implements
   }
 
   @Override
-  public SemanticTypeComponent getSemanticTypeComponent(Long conceptId, Long styId, String authToken) throws Exception {
+  public SemanticTypeComponent getSemanticTypeComponent(Long styId, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Integration Test Client - get semantic type component: " + styId);
 
@@ -253,8 +255,7 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/sty/" + conceptId + "/"
-            + styId);
+        client.target(config.getProperty("base.url") + "/test/sty/" + styId);
     final Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -273,5 +274,63 @@ public class IntegrationTestClientRest extends RootClientRest implements
     // converting to object
     return ConfigUtility.getGraphForString(resultString, SemanticTypeComponentJpa.class);
   }
+  
+  @Override
+  public ConceptRelationship getConceptRelationship(Long relId, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Integration Test Client - get concept relationship : " + relId);
 
+    validateNotEmpty(relId, "relId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/test/relationship/" + relId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    if (response.getStatus() == 204) {
+      return null;
+    }
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, ConceptRelationshipJpa.class);
+  }
+  
+  @Override
+  public Attribute getAttribute(Long attributeId, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Integration Test Client - get attribute : " + attributeId);
+
+    validateNotEmpty(attributeId, "attributeId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/test/attribute/" + attributeId);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    if (response.getStatus() == 204) {
+      return null;
+    }
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, AttributeJpa.class);
+  }  
+  
 }

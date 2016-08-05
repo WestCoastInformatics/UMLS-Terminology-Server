@@ -109,7 +109,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       Project newProject = projectService.addProject(project);
 
       projectService.addLogEntry(authUser, project.getId(), project.getId(),
-          "ADD project - " + project);
+          null, null, "ADD project - " + project);
 
       return newProject;
     } catch (Exception e) {
@@ -157,7 +157,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       projectService.updateProject(project);
 
       projectService.addLogEntry(authUser, project.getId(), project.getId(),
-          "UPDATE project " + project);
+          null, null, "UPDATE project " + project);
 
     } catch (Exception e) {
       handleException(e, "trying to update a project");
@@ -188,7 +188,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       // Create service and configure transaction scope
       projectService.removeProject(id);
 
-      projectService.addLogEntry(authUser, id, id, "REMOVE project " + id);
+      projectService.addLogEntry(authUser, id, id, null, null,
+          "REMOVE project " + id);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a project");
@@ -290,7 +291,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       user.getProjectRoleMap().put(projectCopy, UserRole.valueOf(role));
       securityService.updateUser(user);
 
-      projectService.addLogEntry(authUser, projectId, projectId,
+      projectService.addLogEntry(authUser, projectId, projectId, null, null,
           "ASSIGN user to project - " + userName);
 
       return project;
@@ -519,7 +520,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       user.getProjectRoleMap().remove(projectCopy);
       securityService.updateUser(user);
 
-      projectService.addLogEntry(authUser, projectId, projectId,
+      projectService.addLogEntry(authUser, projectId, projectId, null, null,
           "UNASSIGN user from project - " + userName);
 
       return project;

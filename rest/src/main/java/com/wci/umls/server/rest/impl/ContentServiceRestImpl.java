@@ -105,7 +105,6 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.ProjectService;
@@ -852,8 +851,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       Logger.getLogger(getClass()).info("done ...");
 
-      securityService.addLogEntry(authUser, terminology, version,
-          LogActivity.RELEASE, "Remove terminology");
+      securityService.addLogEntry(authUser, terminology, version, null,
+          "REMOVER", "Remove terminology");
 
       return true;
 

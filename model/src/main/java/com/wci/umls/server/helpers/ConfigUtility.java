@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -300,6 +300,14 @@ public class ConfigUtility {
 
       if (str.startsWith("deploy.") || str.startsWith("site.")
           || str.equals("base.url")) {
+        p.put(prop, config.getProperty(prop.toString()));
+      }
+
+      if (str.startsWith("security") && str.contains("url")) {
+        p.put(prop, config.getProperty(prop.toString()));
+      }
+
+      if (str.contains("enabled")) {
         p.put(prop, config.getProperty(prop.toString()));
       }
     }
@@ -1108,4 +1116,16 @@ public class ConfigUtility {
     return sb.toString();
   }
 
+  /**
+   * Returns the name from class by stripping package and putting spaces where
+   * CamelCase is used.
+   *
+   * @param clazz the clazz
+   * @return the name from class
+   */
+  public static String getNameFromClass(Class<?> clazz) {
+    return clazz.getName().substring(clazz.getName().lastIndexOf('.') + 1)
+        .replaceAll(String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])",
+            "(?<=[^A-Z])(?=[A-Z])", "(?<=[A-Za-z])(?=[^A-Za-z])"), " ");
+  }
 }

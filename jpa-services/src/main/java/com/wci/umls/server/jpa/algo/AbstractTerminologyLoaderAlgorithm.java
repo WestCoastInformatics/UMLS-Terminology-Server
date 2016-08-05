@@ -2,13 +2,12 @@ package com.wci.umls.server.jpa.algo;
 
 import com.wci.umls.server.algo.TerminologyLoaderAlgorithm;
 import com.wci.umls.server.helpers.CancelException;
-import com.wci.umls.server.model.meta.LogActivity;
 
 /**
  * Abstract support for loader algorithms.
  */
-public abstract class AbstractTerminologyLoaderAlgorithm extends
-    AbstractTerminologyAlgorithm implements TerminologyLoaderAlgorithm {
+public abstract class AbstractTerminologyLoaderAlgorithm
+    extends AbstractAlgorithm implements TerminologyLoaderAlgorithm {
 
   /** LOADER constant for use as userName. */
   public final static String LOADER = "loader";
@@ -28,7 +27,8 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
    * @throws Exception the exception
    */
   public AbstractTerminologyLoaderAlgorithm() throws Exception {
-    // n/a
+    setUserName(LOADER);
+    setWorkId("LOADER");
   }
 
   /* see superclass */
@@ -111,7 +111,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     }
 
     if (objectCt % logCt == 0) {
-      addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+      addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
           "    count = " + objectCt);
     }
     super.logAndCommit(objectCt, logCt, commitCt);
@@ -124,7 +124,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
    * @return the total elapsed time str
    */
   @SuppressWarnings({
-    "boxing"
+      "boxing"
   })
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;

@@ -85,17 +85,27 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-
-    // remove the atom from the concept and update
+    
+    // Remove the atom from the concept
     getConcept().getAtoms().remove(atom);
-    getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+    // Update Concept
     updateConcept(getConcept());
 
-    // remove the atom
+    // Remove the atom
     removeAtom(atom.getId());
 
+    // Change status of concept
+    if (getChangeStatusFlag()) {
+      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    }
+    // Update Concept
+    updateConcept(getConcept());
+    
+    
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getActivityId(), getWorkId(),
         getName() + " " + atom.getName() + " from concept "
             + getConcept().getTerminologyId());
 

@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -13,13 +15,16 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
-import com.wci.umls.server.jpa.algo.AbstractTerminologyAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.services.helper.IndexUtility;
+import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
@@ -29,17 +34,14 @@ import com.wci.umls.server.services.ContentService;
 /**
  * Abstract {@link MolecularActionAlgorithm}.
  */
-public abstract class AbstractMolecularAction
-    extends AbstractTerminologyAlgorithm implements MolecularActionAlgorithm {
+public abstract class AbstractMolecularAction extends AbstractAlgorithm
+    implements MolecularActionAlgorithm {
 
   /** The concept. */
   private Concept concept;
 
   /** The concept2. */
   private Concept concept2;
-
-  /** The project. */
-  private Project project;
 
   /** The user name. */
   private String userName;
@@ -83,16 +85,6 @@ public abstract class AbstractMolecularAction
   @Override
   public Concept getConcept2() {
     return concept2;
-  }
-
-  /**
-   * Returns the project.
-   *
-   * @return the project
-   */
-  @Override
-  public Project getProject() {
-    return project;
   }
 
   /* see superclass */
@@ -155,7 +147,7 @@ public abstract class AbstractMolecularAction
     String userName, Long lastModified, boolean molecularActionFlag)
     throws Exception {
 
-    this.project = project;
+    setProject(project);
     this.userName = userName;
     this.lastModified = lastModified;
 
@@ -212,7 +204,7 @@ public abstract class AbstractMolecularAction
     setMolecularActionFlag(molecularActionFlag);
     setLastModifiedFlag(true);
     setLastModifiedBy(userName);
-    
+
     // construct the molecular action
     if (molecularActionFlag) {
       final MolecularAction molecularAction = new MolecularActionJpa();
@@ -224,6 +216,8 @@ public abstract class AbstractMolecularAction
       molecularAction.setVersion(concept.getVersion());
       molecularAction.setName(getName());
       molecularAction.setTimestamp(new Date());
+      molecularAction.setActivityId(getActivityId());
+      molecularAction.setWorkId(getWorkId());
 
       // Add the molecular action and pass to the service.
       // It needs to be added now so that when atomic actions
@@ -294,6 +288,189 @@ public abstract class AbstractMolecularAction
     }
 
     return null;
+  }
+
+  /**
+   * Indicates whether or not delete action is the case.
+   *
+   * @param action the action
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @SuppressWarnings("static-method")
+  public boolean isRemoveAction(AtomicAction action) {
+    return action.getNewValue() == null && action.getField().equals("id");
+  }
+
+  /**
+   * Indicates whether or not insert action is the case.
+   *
+   * @param action the action
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @SuppressWarnings("static-method")
+  public boolean isAddAction(AtomicAction action) {
+    return action.getOldValue() == null && action.getField().equals("id");
+  }
+
+  /**
+   * Indicates whether or not change action is the case.
+   *
+   * @param action the action
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @SuppressWarnings("static-method")
+  public boolean isChangeAction(AtomicAction action) {
+    return action.getOldValue() != null && action.getNewValue() != null
+        && action.getCollectionClassName() == null;
+  }
+
+  /**
+   * Indicates whether or not collections action is the case.
+   *
+   * @param action the action
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @SuppressWarnings("static-method")
+  public boolean isCollectionsAction(AtomicAction action) {
+    return action.getCollectionClassName() != null;
+  }
+
+  /**
+   * Returns the referenced object.
+   *
+   * @param action the action
+   * @return the referenced object
+   * @throws Exception the exception
+   */
+  public HasLastModified getReferencedObject(AtomicAction action)
+    throws Exception {
+    final Object referencedObject =
+        getObject(action.getObjectId(), Class.forName(action.getClassName()));
+
+    if (referencedObject == null) {
+      throw new Exception("Unable to find referenced object for "
+          + action.getObjectId() + ", " + action.getClassName());
+    }
+    return (HasLastModified) referencedObject;
+  }
+
+  /**
+   * Returns the referenced collection object.
+   *
+   * @param action the action
+   * @return the referenced collection object
+   * @throws Exception the exception
+   */
+  public HasLastModified getReferencedCollectionObject(AtomicAction action)
+    throws Exception {
+    final String id = action.getOldValue() == null ? action.getNewValue()
+        : action.getOldValue();
+    final Object referencedObject = getObject(Long.parseLong(id),
+        Class.forName(action.getCollectionClassName()));
+
+    if (referencedObject == null) {
+      throw new Exception("Unable to find referenced (collection) object for "
+          + id + ", " + action.getCollectionClassName());
+    }
+    return (HasLastModified) referencedObject;
+  }
+
+  /**
+   * Returns the collection.
+   *
+   * @param a the a
+   * @param containerObject the referenced object
+   * @return the collection
+   * @throws Exception the exception
+   */
+  @SuppressWarnings({
+      "static-method", "rawtypes"
+  })
+  public Collection getCollection(AtomicAction a, Object containerObject)
+    throws Exception {
+    final List<Method> oneToManyMethods =
+        IndexUtility.getAllCollectionGetMethods(containerObject.getClass());
+
+    // Iterate through @OneToMan methods
+    for (final Method m : oneToManyMethods) {
+      if (IndexUtility.getFieldNameFromMethod(m, null).equals(a.getField())) {
+        return (Collection) m.invoke(containerObject, new Object[] {});
+      }
+    }
+
+    throw new Exception(
+        "Unable to find collection method for: " + a.getField());
+  }
+
+  /**
+   * Returns the column method.
+   *
+   * @param a the a
+   * @return the column method
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public Method getColumnGetMethod(AtomicAction a) throws Exception {
+    final List<Method> oneToManyMethods =
+        IndexUtility.getAllColumnGetMethods(Class.forName(a.getClassName()));
+
+    // Iterate through @OneToMan methods
+    for (final Method m : oneToManyMethods) {
+      if (IndexUtility.getFieldNameFromMethod(m, null).equals(a.getField())) {
+        return m;
+      }
+    }
+
+    throw new Exception(
+        "Unable to find column get method for: " + a.getField());
+  }
+
+  /**
+   * Returns the column set method.
+   *
+   * @param a the a
+   * @return the column set method
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public Method getColumnSetMethod(AtomicAction a) throws Exception {
+    final List<Method> oneToManyMethods =
+        IndexUtility.getAllColumnSetMethods(Class.forName(a.getClassName()));
+
+    // Iterate through @OneToMan methods
+    for (final Method m : oneToManyMethods) {
+      if (IndexUtility.getFieldNameFromMethod(m, null).equals(a.getField())) {
+        return m;
+      }
+    }
+
+    throw new Exception(
+        "Unable to find column set method for: " + a.getField());
+  }
+
+  /**
+   * Returns the object for value.
+   *
+   * @param type the type
+   * @param value the value
+   * @return the object for value
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public Object getObjectForValue(Class<?> type, String value)
+    throws Exception {
+    Object setObject = null;
+    if (type == String.class) {
+      setObject = value;
+    } else if (type == Long.class) {
+      setObject = Long.parseLong(value);
+    } else if (type == WorkflowStatus.class) {
+      setObject = WorkflowStatus.valueOf(value);
+    } else {
+      throw new Exception(
+          "Unrecognized getter method type for undo operation - " + type);
+    }
+    return setObject;
   }
 
 }

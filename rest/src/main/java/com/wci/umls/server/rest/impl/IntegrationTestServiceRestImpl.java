@@ -211,13 +211,12 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     }
 
   }
- 
+
   @Override
   @GET
-  @Path("/sty/{id}/{styId}")
+  @Path("/sty/{styId}")
   @ApiOperation(value = "Get a semantic type component", notes = "Get a semantic type component", response = SemanticTypeComponent.class)
   public SemanticTypeComponent getSemanticTypeComponent(
-    @ApiParam(value = "Concept id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Semantic Type Component id, e.g. 1", required = true) @PathParam("styId") Long styId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -226,18 +225,16 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
     ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken,
-          "get atom", UserRole.ADMINISTRATOR);
-      Concept concept = contentService.getConcept(id);
-      SemanticTypeComponent newSty = null;
-      for(SemanticTypeComponent sty : concept.getSemanticTypes()){
-        if(sty.getId() == styId){
-          newSty = sty;
-        }
+      authorizeApp(securityService, authToken, "get semantic type component",
+          UserRole.ADMINISTRATOR);
+      SemanticTypeComponent newSty = contentService.getSemanticTypeComponent(styId);
+      if (newSty == null) {
+        return null;
+      } else {
+        contentService.getGraphResolutionHandler(ConfigUtility.DEFAULT)
+            .resolve(newSty);
+        return newSty;
       }
-      
-      contentService.getGraphResolutionHandler(ConfigUtility.DEFAULT).resolve(newSty);
-      return newSty;
     } catch (Exception e) {
 
       handleException(e, "trying to get a semantic type component");
@@ -246,8 +243,72 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
     return null;
-  }  
-  
+  }
+
+  @Override
+  @GET
+  @Path("/relationship/{id}")
+  @ApiOperation(value = "Get a concept relationship", notes = "Get a concept relationship", response = ConceptRelationship.class)
+  public ConceptRelationship getConceptRelationship(
+    @ApiParam(value = "Concept Relationship id, e.g. 1", required = true) @PathParam("id") Long relationshipId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Integration Test): /relationship/" + relationshipId);
+
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get concept relationship",
+          UserRole.ADMINISTRATOR);
+
+      ConceptRelationship newRel = (ConceptRelationship) contentService
+          .getRelationship(relationshipId, ConceptRelationshipJpa.class);
+      if (newRel == null) {
+        return null;
+      } else {
+        contentService.getGraphResolutionHandler(ConfigUtility.DEFAULT)
+            .resolve(newRel);
+        return newRel;
+      }
+
+    } catch (Exception e) {
+
+      handleException(e, "trying to get a concept relationship");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  @Override
+  @GET
+  @Path("/attribute/{attributeId}")
+  @ApiOperation(value = "Get an attribute", notes = "Get an attributee", response = Attribute.class)
+  public Attribute getAttribute(
+    @ApiParam(value = "Attribute id, e.g. 1", required = true) @PathParam("attributeId") Long attributeId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Integration Test): /attribute/" + attributeId);
+
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get attribute",
+          UserRole.ADMINISTRATOR);
+      
+      return contentService.getAttribute(attributeId);
+
+    } catch (Exception e) {
+
+      handleException(e, "trying to get an attribute");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
   /* see superclass */
   @Override
   @GET
@@ -262,14 +323,17 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
     ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken,
-          "get atom", UserRole.ADMINISTRATOR);
-      
+      authorizeApp(securityService, authToken, "get atom",
+          UserRole.ADMINISTRATOR);
+
       Atom newAtom = contentService.getAtom(atomId);
-      contentService.getGraphResolutionHandler(ConfigUtility.DEFAULT).resolve(newAtom);
-      return newAtom;
-      
-      //return contentService.getAtom(atomId);
+      if (newAtom == null) {
+        return null;
+      } else {
+        contentService.getGraphResolutionHandler(ConfigUtility.DEFAULT)
+            .resolve(newAtom);
+        return newAtom;
+      }
     } catch (Exception e) {
 
       handleException(e, "trying to get an atom");
@@ -278,8 +342,8 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
     return null;
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   @PUT

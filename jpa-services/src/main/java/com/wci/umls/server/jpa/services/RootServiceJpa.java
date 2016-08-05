@@ -46,7 +46,6 @@ import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
-import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -841,9 +840,7 @@ public abstract class RootServiceJpa implements RootService {
       }
 
     }
-
     return addObject(hasLastModified);
-
   }
 
   /**
@@ -984,12 +981,10 @@ public abstract class RootServiceJpa implements RootService {
    *
    * @param <T> the
    * @param object the object
-   * @param clazz the clazz
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends Object> T removeObject(final T object,
-    final Class<T> clazz) throws Exception {
+  protected <T extends Object> T removeObject(final T object) throws Exception {
     try {
       // Get transaction and object
       tx = manager.getTransaction();
@@ -1027,7 +1022,7 @@ public abstract class RootServiceJpa implements RootService {
    * @param clazz the clazz
    * @return the checks for object
    * @throws Exception the exception
-   */ 
+   */
   protected <T extends Object> T getObject(final Long id, final Class<T> clazz)
     throws Exception {
     // Get transaction and object
@@ -1105,6 +1100,7 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public LogEntry addLogEntry(final LogEntry logEntry) throws Exception {
     // Use add object to bypass the last modified checks
+    logEntry.setLastModified(new Date());
     return addObject(logEntry);
   }
 
@@ -1112,6 +1108,7 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public void updateLogEntry(final LogEntry logEntry) throws Exception {
     // Use add object to bypass the last modified checks
+    logEntry.setLastModified(new Date());
     updateObject(logEntry);
   }
 
@@ -1119,7 +1116,7 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public void removeLogEntry(final Long id) throws Exception {
     // Use add object to bypass the last modified checks
-    removeObject(getObject(id, LogEntryJpa.class), LogEntryJpa.class);
+    removeObject(getObject(id, LogEntryJpa.class));
   }
 
   /* see superclass */
@@ -1131,16 +1128,16 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   public LogEntry addLogEntry(final String userName, final Long projectId,
-    final Long objectId, final String message) throws Exception {
+    final Long objectId, final String activityId, final String workId,
+    final String message) throws Exception {
     final LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setObjectId(objectId);
     entry.setProjectId(projectId);
     entry.setTimestamp(new Date());
+    entry.setActivityId(activityId);
+    entry.setWorkId(workId);
     entry.setMessage(message);
-
-    // Leave activity null
-    entry.setActivity(null);
 
     // Add component
     return addLogEntry(entry);
@@ -1150,15 +1147,47 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   public LogEntry addLogEntry(final String userName, final String terminology,
-    final String version, final LogActivity activity, final String message)
-    throws Exception {
-    LogEntry entry = new LogEntryJpa();
+    final String version, final String activityId, final String workId,
+    final String message) throws Exception {
+    final LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setTerminology(terminology);
     entry.setVersion(version);
     entry.setTimestamp(new Date());
     entry.setMessage(message);
-    entry.setActivity(activity);
+    entry.setActivityId(activityId);
+    entry.setWorkId(workId);
+
+    // Add component
+    return addLogEntry(entry);
+
+  }
+
+  /**
+   * Adds the log entry.
+   *
+   * @param projectId the project id
+   * @param userName the user name
+   * @param terminology the terminology
+   * @param version the version
+   * @param activityId the activity id
+   * @param workId the work id
+   * @param message the message
+   * @return the log entry
+   * @throws Exception the exception
+   */
+  public LogEntry addLogEntry(final Long projectId, final String userName,
+    final String terminology, final String version, final String activityId,
+    final String workId, final String message) throws Exception {
+    final LogEntry entry = new LogEntryJpa();
+    entry.setProjectId(projectId);
+    entry.setLastModifiedBy(userName);
+    entry.setTerminology(terminology);
+    entry.setVersion(version);
+    entry.setTimestamp(new Date());
+    entry.setMessage(message);
+    entry.setActivityId(activityId);
+    entry.setWorkId(workId);
 
     // Add component
     return addLogEntry(entry);
@@ -1285,7 +1314,7 @@ public abstract class RootServiceJpa implements RootService {
     Logger.getLogger(getClass())
         .debug("Action Service - remove atomic action " + id);
     AtomicActionJpa action = getObject(id, AtomicActionJpa.class);
-    removeObject(action, AtomicActionJpa.class);
+    removeObject(action);
   }
 
   /* see superclass */

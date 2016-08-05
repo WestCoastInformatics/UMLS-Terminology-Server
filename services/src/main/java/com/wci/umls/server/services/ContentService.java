@@ -779,7 +779,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public void removeRelationship(Long id,
-    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass) throws Exception;
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
+    throws Exception;
 
   /**
    * Get transitive relationship.
@@ -1166,6 +1167,15 @@ public interface ContentService extends MetadataService {
    */
   public Definition addDefinition(Definition definition,
     ComponentHasDefinitions component) throws Exception;
+
+  /**
+   * Returns the semantic type component.
+   *
+   * @param id the id
+   * @return the semantic type component
+   * @throws Exception the exception
+   */
+  public SemanticTypeComponent getSemanticTypeComponent(Long id) throws Exception;
 
   /**
    * Remove semantic type component.

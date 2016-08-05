@@ -3,11 +3,9 @@ package com.wci.umls.server.mojo;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.rest.client.ContentClientRest;
@@ -22,7 +20,7 @@ import com.wci.umls.server.services.SecurityService;
  * @goal load-claml
  * @phase package
  */
-public class TerminologyClamlLoaderMojo extends AbstractMojo {
+public class TerminologyClamlLoaderMojo extends AbstractLoaderMojo {
 
   /** The date format. */
   final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
@@ -76,16 +74,6 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
 
       Properties properties = ConfigUtility.getConfigProperties();
 
-      if (mode != null && mode.equals("create")) {
-        getLog().info("Recreate database");
-        // This will trigger a rebuild of the db
-        properties.setProperty("hibernate.hbm2ddl.auto", mode);
-        // Trigger a JPA event
-        new MetadataServiceJpa().close();
-        properties.remove("hibernate.hbm2ddl.auto");
-
-      }
-
       boolean serverRunning = ConfigUtility.isServerActive();
 
       getLog().info(
@@ -101,20 +89,19 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
             "Mojo expects server to be running, but server is down");
       }
 
+      //Create the database
+      if (mode != null && mode.equals("create")) {
+        createDb(serverRunning);
+      }      
+      
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
-
+      
       if (!serverRunning) {
         getLog().info("Running directly");
-
-        // Handle reindexing
-        if (mode != null && mode.equals("create")) {
-          ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-          contentService.luceneReindex(null, authToken);
-        }
 
         getLog().info("  Remove concepts");
         ContentServiceRest contentService = new ContentServiceRestImpl();
@@ -126,11 +113,6 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
 
         getLog().info("  Remove concepts");
         ContentClientRest contentService = new ContentClientRest(properties);
-
-        // handle reindexing
-        if (mode != null && mode.equals("create")) {
-          contentService.luceneReindex(null, authToken);
-        }
 
         contentService.loadTerminologyClaml(terminology, version, inputFile,
             authToken);

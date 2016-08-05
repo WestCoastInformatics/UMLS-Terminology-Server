@@ -47,6 +47,7 @@ public class UpdateDbMojo extends AbstractMojo {
       }
       Properties config = ConfigUtility.getConfigProperties();
       config.setProperty("hibernate.hbm2ddl.auto", mode);
+      config.setProperty("hibernate.listeners.envers.autoRegister", "true");
 
       // Trigger a JPA event
       new MetadataServiceJpa().close();

@@ -130,7 +130,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
             + attributeIdentityId);
 
     AttributeIdentity identity = getAttributeIdentity(attributeIdentityId);
-    removeObject(identity, AttributeIdentity.class);
+    removeObject(identity);
   }
 
   /* see superclass */
@@ -228,7 +228,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     SemanticTypeComponentIdentity identity =
         getSemanticTypeComponentIdentity(semanticTypeComponentIdentityId);
-    removeObject(identity, SemanticTypeComponentIdentity.class);
+    removeObject(identity);
   }
 
   /* see superclass */
@@ -314,7 +314,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         "Umls Identity Service - remove atom identity " + atomIdentityId);
 
     AtomIdentity identity = getAtomIdentity(atomIdentityId);
-    removeObject(identity, AtomIdentity.class);
+    removeObject(identity);
   }
 
   /* see superclass */
@@ -396,7 +396,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     StringClassIdentity identity =
         getStringClassIdentity(stringClassIdentityId);
-    removeObject(identity, StringClassIdentity.class);
+    removeObject(identity);
   }
 
   /* see superclass */
@@ -479,7 +479,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     LexicalClassIdentity identity =
         getLexicalClassIdentity(lexicalClassIdentityId);
-    removeObject(identity, LexicalClassIdentity.class);
+    removeObject(identity);
   }
 
   /* see superclass */
@@ -616,7 +616,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     RelationshipIdentity identity =
         getRelationshipIdentity(relationshipIdentityId);
-    removeObject(identity, RelationshipIdentity.class);
+    removeObject(identity);
   }
 
 }

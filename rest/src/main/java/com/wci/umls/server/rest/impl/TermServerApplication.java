@@ -60,9 +60,9 @@ public class TermServerApplication extends ResourceConfig {
     register(ReportServiceRestImpl.class);
     // Make integration test rest services available in dev environment
     try {
-      if (ConfigUtility.getConfigProperties().containsKey("base.url")
-          && ConfigUtility.getConfigProperties().getProperty("base.url")
-              .contains("localhost:8080")) {
+      if (!ConfigUtility.getConfigProperties().containsKey("deploy.mode")
+          || !ConfigUtility.getConfigProperties().getProperty("deploy.mode")
+              .contains("PROD")) {
         register(IntegrationTestServiceRestImpl.class);
       }
     } catch (Exception e) {

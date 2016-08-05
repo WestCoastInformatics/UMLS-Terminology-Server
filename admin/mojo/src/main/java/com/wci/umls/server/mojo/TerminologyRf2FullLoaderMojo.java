@@ -5,11 +5,9 @@ package com.wci.umls.server.mojo;
 
 import java.util.Properties;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
@@ -24,7 +22,7 @@ import com.wci.umls.server.services.SecurityService;
  * 
  * @phase package
  */
-public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
+public class TerminologyRf2FullLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Name of terminology to be loaded.
@@ -82,16 +80,6 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
 
       Properties properties = ConfigUtility.getConfigProperties();
 
-      if (mode != null && mode.equals("create")) {
-        getLog().info("Recreate database");
-        // This will trigger a rebuild of the db
-        properties.setProperty("hibernate.hbm2ddl.auto", mode);
-        // Trigger a JPA event
-        new MetadataServiceJpa().close();
-        properties.remove("hibernate.hbm2ddl.auto");
-
-      }
-
       boolean serverRunning = ConfigUtility.isServerActive();
 
       getLog().info(
@@ -107,21 +95,21 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
             "Mojo expects server to be running, but server is down");
       }
 
+      //Create the database
+      if (mode != null && mode.equals("create")) {
+        createDb(serverRunning);
+      }    
+      
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
       service.close();
-
+      
+      
       if (!serverRunning) {
         getLog().info("Running directly");
-
-        // Handle reindexing
-        if (mode != null && mode.equals("create")) {
-          ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-          contentService.luceneReindex(null, authToken);
-        }
 
         // Reopen content service rest after reindex
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
@@ -132,11 +120,8 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
       } else {
         getLog().info("Running against server");
 
-        // handle reindexing
+        // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        if (mode != null && mode.equals("create")) {
-          client.luceneReindex(null, authToken);
-        }
 
         // load terminology
         client

@@ -18,6 +18,7 @@
 
   <properties>
     <!-- Specify the config artifact parameters -->
+    <run.config.label>umls</run.config.label>
     <config.groupId>com.wcinformatics.umls.server</config.groupId>
     <config.artifactId>term-server-config-dev-windows</config.artifactId>
     <config.version>${project.version}</config.version>
@@ -199,7 +200,6 @@
               <directory>src/main/webapp</directory>
               <filtering>true</filtering>
               <includes>
-                Webapp config inject ${project.version}
                 <include>app/appConfig.js</include>
               </includes>
             </resource>
@@ -207,7 +207,6 @@
               <directory>src/main/webapp</directory>
               <filtering>false</filtering>
               <excludes>
-                Webapp config
                 <exclude>app/appConfig.js</exclude>
               </excludes>
             </resource>

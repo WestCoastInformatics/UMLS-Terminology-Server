@@ -5,24 +5,7 @@
 console.debug("Initialize appConfig");
 tsApp.constant('appConfig', {
 
-  // deployment display variables
-  deployLink : '',
-  deployTitle : '',
-  deployPasswordReset : '',
-  deployPresentedBy : '',
-  deployCopyright : '',
-  deployFeedbackEmail : '',
-
   // project variables
   projectVersion : '${project.version}',
-
-  // routing variables
-  enabledTabs : '',
-  landingEnabled : '',
-  licenseEnabled : '',
-  loginEnabled : '',
-
-  // other
-  siteTrackingCode : ''
 
 });

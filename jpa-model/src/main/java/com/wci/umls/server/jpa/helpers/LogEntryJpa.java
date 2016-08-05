@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers;
 
@@ -7,8 +7,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,7 +25,6 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.helpers.LogEntry;
-import com.wci.umls.server.model.meta.LogActivity;
 
 /**
  * The JPA and JAXB enabled implementation of the log entry object.
@@ -74,9 +71,12 @@ public class LogEntryJpa implements LogEntry {
   private String version;
 
   /** The from id type. */
-  @Enumerated(EnumType.STRING)
   @Column(nullable = true)
-  private LogActivity activity;
+  private String activityId;
+
+  /** The from id type. */
+  @Column(nullable = true)
+  private String workId;
 
   /** the timestamp. */
   @Column(nullable = false)
@@ -105,7 +105,8 @@ public class LogEntryJpa implements LogEntry {
     projectId = logEntry.getProjectId();
     terminology = logEntry.getTerminology();
     version = logEntry.getVersion();
-    activity = logEntry.getActivity();
+    activityId = logEntry.getActivityId();
+    workId = logEntry.getWorkId();
     timestamp = logEntry.getTimestamp();
   }
 
@@ -195,14 +196,27 @@ public class LogEntryJpa implements LogEntry {
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public LogActivity getActivity() {
-    return activity;
+  public String getActivityId() {
+    return activityId;
   }
 
   /* see superclass */
   @Override
-  public void setActivity(LogActivity activity) {
-    this.activity = activity;
+  public void setActivityId(String activityId) {
+    this.activityId = activityId;
+  }
+
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getWorkId() {
+    return workId;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkId(String workId) {
+    this.workId = workId;
   }
 
   /* see superclass */
@@ -236,7 +250,9 @@ public class LogEntryJpa implements LogEntry {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((activity == null) ? 0 : activity.hashCode());
+    result =
+        prime * result + ((activityId == null) ? 0 : activityId.hashCode());
+    result = prime * result + ((workId == null) ? 0 : workId.hashCode());
     result = prime * result + ((message == null) ? 0 : message.hashCode());
     result = prime * result + ((objectId == null) ? 0 : objectId.hashCode());
     result = prime * result + ((projectId == null) ? 0 : projectId.hashCode());
@@ -256,12 +272,20 @@ public class LogEntryJpa implements LogEntry {
     if (getClass() != obj.getClass())
       return false;
     LogEntryJpa other = (LogEntryJpa) obj;
-    if (activity != other.activity)
-      return false;
     if (message == null) {
       if (other.message != null)
         return false;
     } else if (!message.equals(other.message))
+      return false;
+    if (activityId == null) {
+      if (other.activityId != null)
+        return false;
+    } else if (!activityId.equals(other.activityId))
+      return false;
+    if (workId == null) {
+      if (other.workId != null)
+        return false;
+    } else if (!workId.equals(other.workId))
       return false;
     if (objectId == null) {
       if (other.objectId != null)
@@ -293,7 +317,8 @@ public class LogEntryJpa implements LogEntry {
         + ", lastModifiedBy=" + lastModifiedBy + ", message=" + message
         + ", objectId=" + objectId + ", projectId=" + projectId
         + ", terminology=" + terminology + ", version=" + version
-        + ", activity=" + activity + ", timestamp=" + timestamp + "]";
+        + ", activityId=" + activityId + ", workId=" + workId + ", timestamp="
+        + timestamp + "]";
   }
 
   /* see superclass */

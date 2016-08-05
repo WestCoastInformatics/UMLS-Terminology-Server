@@ -10,6 +10,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -97,13 +98,34 @@ public interface IntegrationTestServiceRest {
   /**
    * Returns the semantic type component.
    *
-   * @param conceptId the concept id
    * @param styId the sty id
    * @param authToken the auth token
    * @return the semantic type component
    * @throws Exception the exception
    */
-  public SemanticTypeComponent getSemanticTypeComponent(Long conceptId,
-    Long styId, String authToken) throws Exception;
+  public SemanticTypeComponent getSemanticTypeComponent(Long styId,
+    String authToken) throws Exception;
+
+  /**
+   * Returns the concept relationship.
+   *
+   * @param relationshipId the relationship id
+   * @param authToken the auth token
+   * @return the concept relationship
+   * @throws Exception the exception
+   */
+  public ConceptRelationship getConceptRelationship(Long relationshipId,
+    String authToken) throws Exception;
+
+  /**
+   * Returns the attribute.
+   *
+   * @param attributeId the attribute id
+   * @param authToken the auth token
+   * @return the attribute
+   * @throws Exception the exception
+   */
+  public Attribute getAttribute(Long attributeId, String authToken)
+    throws Exception;
 
 }

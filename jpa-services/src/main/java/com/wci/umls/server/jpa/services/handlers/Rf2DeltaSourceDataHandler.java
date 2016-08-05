@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -8,9 +8,11 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
@@ -25,8 +27,10 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
 
   /**
    * Instantiates an empty {@link Rf2DeltaSourceDataHandler}.
+   *
+   * @throws Exception the exception
    */
-  public Rf2DeltaSourceDataHandler() {
+  public Rf2DeltaSourceDataHandler() throws Exception {
     // n/a
   }
 
@@ -47,9 +51,8 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
    */
   @Override
   public void compute() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Loading RF2 Delta for "
-            + (sourceData == null ? "null" : sourceData.getName()));
+    Logger.getLogger(getClass()).info("Loading RF2 Delta for "
+        + (sourceData == null ? "null" : sourceData.getName()));
 
     // check pre-requisites
     if (sourceData == null) {
@@ -84,8 +87,8 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
             + File.separator + sourceData.getId().toString();
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException("Source data directory is not a directory: "
-          + inputDir);
+      throw new LocalException(
+          "Source data directory is not a directory: " + inputDir);
     }
 
     // RF2 Loads require locating a base directory containing two folders
@@ -140,9 +143,11 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
     }
   }
 
+  /* see superclass */
   @Override
-  public boolean checkPreconditions() throws Exception {
+  public ValidationResult checkPreconditions() throws Exception {
 
+    final ValidationResult result = new ValidationResultJpa();
     ContentService contentService = null;
     try {
       contentService = new ContentServiceJpa();
@@ -151,18 +156,21 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
       if (contentService.findConcepts(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfsParameterJpa())
           .getTotalCount() > 0) {
-        return true;
-      } else {
-        return false;
+        result.addError("Unexpected lack of concepts for "
+            + sourceData.getTerminology() + ", " + sourceData.getVersion());
       }
+
+      return result;
     } catch (Exception e) {
       throw e;
     } finally {
       if (contentService != null)
         contentService.close();
     }
+
   }
 
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing

@@ -94,21 +94,27 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
     //
     // Perform the action
     //
-
-    // remove the attribute type component from the concept and update
+    
+    // Remove the attribute from the concept
     getConcept().getAttributes().remove(attribute);
+   
+    // Update Concept
+    updateConcept(getConcept());
+
+    // Remove the attribute
+    removeAttribute(attributeId);
+
+    // Change status of concept
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-
-    // remove the attribute component
-    removeAttribute(attributeId);
-
-    // update the concept
+    
+    // Update Concept
     updateConcept(getConcept());
-
+    
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getActivityId(), getWorkId(),
         getName() + " " + attribute.getName() + " from concept "
             + getConcept().getTerminologyId());
 
