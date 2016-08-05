@@ -794,7 +794,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Check prerequisites
       //
       final ValidationResult validationResult = action.checkPreconditions();
-
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
           || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
@@ -1123,14 +1122,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // for the deletion of the fromConcept
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
           action.getName(), authToken, IdType.CONCEPT.toString(),
-          action.getConceptPreUpdates(), action.getConceptPostUpdates(), null);
+          action.getConceptPreUpdates(), action.getConceptPostUpdates(), action.getConceptPostUpdates());
       sendChangeEvent(event);
 
       return validationResult;
 
     } catch (Exception e) {
 
-      handleException(e, "merging concepts");
+      handleException(e, "approving concept");
       return null;
     } finally {
       action.close();

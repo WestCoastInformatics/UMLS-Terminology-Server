@@ -1089,7 +1089,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Workflow): /worklist/assigned ");
+        .info("RESTful POST call (Workflow): /worklist/assigned, " + projectId + ", " + userName + ", " + role);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -1249,7 +1249,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /action "
-        + projectId + ", " + worklistId + ", " + userName);
+        + projectId + ", " + worklistId + ", " + userName + ", " + action);
 
     // Test preconditions
     if (projectId == null || userName == null) {

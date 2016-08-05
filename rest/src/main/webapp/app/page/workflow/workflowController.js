@@ -17,11 +17,14 @@ tsApp.controller('WorkflowCtrl', [
     workflowService, utilService, configureService, projectService, reportService, $uibModal) {
     console.debug("configure WorkflowCtrl");
 
+    tabService.setShowing(true);
+
     // Clear error
     utilService.clearError();
 
-    // Handle resetting tabs on "back" button
+    // Handle resetting tabs on 'back' and 'reload' events button
     tabService.setSelectedTabByLabel('Workflow');
+
 
     $scope.user = securityService.getUser();
     $scope.projectRole;

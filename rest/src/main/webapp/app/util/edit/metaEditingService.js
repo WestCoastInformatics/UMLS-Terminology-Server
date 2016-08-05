@@ -17,7 +17,7 @@ tsApp.service('metaEditingService', [
       gpService.increment();
       $http.post(metaEditingUrl + '/atom/add?projectId=' + projectId
         + '&conceptId=' + concept.id + '&lastModified=' + concept.lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         atom).then(
       // success
       function(response) {
@@ -42,7 +42,7 @@ tsApp.service('metaEditingService', [
       gpService.increment();
       $http.post(metaEditingUrl + '/attribute/add?projectId=' + projectId
         + '&conceptId=' + concept.id + '&lastModified=' + concept.lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '',  
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''),  
         attribute).then(
       // success
       function(response) {
@@ -67,7 +67,7 @@ tsApp.service('metaEditingService', [
       gpService.increment();
       $http.post(metaEditingUrl + '/relationship/add?projectId=' + projectId
         + '&conceptId=' + concept.id + '&lastModified=' + concept.lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '',            
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''),            
         relationship).then(
       // success
       function(response) {
@@ -92,7 +92,7 @@ tsApp.service('metaEditingService', [
       gpService.increment();
       $http.post(metaEditingUrl + '/sty/add?projectId=' + projectId
         + '&conceptId=' + concept.id + '&lastModified=' + concept.lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         semanticType).then(
       // success
       function(response) {
@@ -110,14 +110,14 @@ tsApp.service('metaEditingService', [
     };
     
     // approve concept
-    this.approveConcept = function(projectId, concept, semanticType, overrideWarnings) {
+    this.approveConcept = function(projectId, concept, overrideWarnings) {
       console.debug('approve concept');
       var deferred = $q.defer();
 
       gpService.increment();
       $http.post(metaEditingUrl + '/concept/approve?projectId=' + projectId
         + '&conceptId=' + concept.id + '&lastModified=' + concept.lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         null).then(
       // success
       function(response) {
@@ -144,7 +144,7 @@ tsApp.service('metaEditingService', [
       $http.post(metaEditingUrl + '/concept/merge?projectId=' + projectId
         + '&conceptId=' + concept1.id + '&lastModified=' + concept1.lastModified 
         + '&conceptId2=' + concept2.id 
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         null).then(
       // success
       function(response) {
@@ -170,7 +170,7 @@ tsApp.service('metaEditingService', [
       $http.post(metaEditingUrl + '/atom/move?projectId=' + projectId
         + '&conceptId=' + concept1.id + '&lastModified=' + concept1.lastModified 
         + '&conceptId2=' + concept2.id 
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         atomIds).then(
       // success
       function(response) {
@@ -195,7 +195,7 @@ tsApp.service('metaEditingService', [
       gpService.increment();
       $http.post(metaEditingUrl + '/atom/remove/' + atomId + '?projectId=' + projectId
         + '&conceptId=' + concept.id + '&lastModified=' + concept.lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         null).then(
       // success
       function(response) {
@@ -220,7 +220,7 @@ tsApp.service('metaEditingService', [
       gpService.increment();
       $http.post(metaEditingUrl + '/attribute/remove/' + attributeId + '?projectId=' + projectId
         + '&conceptId=' + concept.id + '&lastModified=' + concept.lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         null).then(
       // success
       function(response) {
@@ -245,7 +245,7 @@ tsApp.service('metaEditingService', [
       gpService.increment();
       $http.post(metaEditingUrl + '/relationship/remove/' + relationshipId + '?projectId=' + projectId
         + '&conceptId=' + concept.id + '&lastModified=' + concept.lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         null).then(
       // success
       function(response) {
@@ -270,7 +270,7 @@ tsApp.service('metaEditingService', [
       gpService.increment();
       $http.post(metaEditingUrl + '/sty/remove/' + semanticTypeId + '?projectId=' + projectId
         + '&conceptId=' + concept.id + '&lastModified=' + concept.lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         null).then(
       // success
       function(response) {
@@ -297,9 +297,9 @@ tsApp.service('metaEditingService', [
       $http.post(metaEditingUrl + '/concept/split?projectId=' + projectId
         + '&conceptId=' + concept1.id + '&lastModified=' + concept1.lastModified 
         + '&conceptId2=' + concept2.id 
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : ''
-        + (copyRelationships != null && copyRelationships != '') ? '&copyRelationships=' + copyRelationships : ''
-        + (copySemanticTypes != null && copySemanticTypes != '') ? '&copySemanticTypes=' + copySemanticTypes : '' 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : '')
+        + (copyRelationships != null && copyRelationships != '' ? '&copyRelationships=' + copyRelationships : '')
+        + (copySemanticTypes != null && copySemanticTypes != '' ? '&copySemanticTypes=' + copySemanticTypes : '') 
         + '&relationshipType=' + relationshipType,       atomIds).then(
       // success
       function(response) {
@@ -324,7 +324,7 @@ tsApp.service('metaEditingService', [
       gpService.increment();
       $http.post(metaEditingUrl + '/action/undo?projectId=' + projectId
         + '&molecularActionId=' + molecularActionId + '&lastModified=' + lastModified
-        + (overrideWarnings != null && overrideWarnings != '') ? '&overrideWarnings=' + overrideWarnings : '', 
+        + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings=' + overrideWarnings : ''), 
         null).then(
       // success
       function(response) {

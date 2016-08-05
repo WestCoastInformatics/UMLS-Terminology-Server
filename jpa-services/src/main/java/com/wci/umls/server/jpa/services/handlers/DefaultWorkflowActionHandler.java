@@ -73,14 +73,14 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     PfsParameter pfs, WorkflowService service) throws Exception {
 
     final StringBuilder sb = new StringBuilder();
-
-    sb.append(" AND ");
-    if (role == null) {
-      sb.append("role:[* TO *]");
+    
+    if (UserRole.AUTHOR == role) {
+      sb.append("NOT authors:[* TO *] AND NOT reviewers:[* TO *]");
+    } else if (UserRole.REVIEWER == role) {
+      sb.append("NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS");
     } else {
-      sb.append("role:" + role.name());
+      throw new Exception("Unexpected user role " + role);
     }
-    sb.append(" AND ").append("(NOT authors:[* TO *])");
 
     return service.findWorklists(project, sb.toString(), pfs);
 
@@ -325,7 +325,8 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     UserRole role, PfsParameter pfs, WorkflowService service) throws Exception {
 
     if (role == UserRole.AUTHOR) {
-      return service.findWorklists(project, "authors:" + userName, pfs);
+      return service.findWorklists(project, "authors:" + userName + 
+          " AND NOT workflowStatus:EDITING_DONE", pfs);
     } else if (role == UserRole.REVIEWER) {
       return service.findWorklists(project, "reviewers:" + userName, pfs);
     }

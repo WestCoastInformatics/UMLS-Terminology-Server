@@ -874,4 +874,76 @@ tsApp
         };
         // end
 
+        // Finds concepts matching general query
+        this.findConceptsForGeneralQuery = function(query, jql, pfs) {
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/concept?query=' + query + 
+              (jql != '' && jql != null ?'&jql=' + jql : ''), pfs).then(
+          // success
+          function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        };
+
+        // function for getting concept
+        this.getConcept = function(conceptId, projectId) {
+          var deferred = $q.defer();
+          
+          gpService.increment();
+          
+          $http.get(
+            contentUrl + '/concept/' + conceptId + '?projectId=' + projectId)
+            .then(function(response) {
+              gpService.decrement();
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+          
+          return deferred.promise;
+        };
+        
+        // Finds concepts 
+        this.findConcepts = function(terminology, version, query, pfs) {
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/concept/' + terminology + '/' + version + '?query=' + query, pfs).then(
+          // success
+          function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        };       
+       
+
       } ]);

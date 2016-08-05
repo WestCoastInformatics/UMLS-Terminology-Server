@@ -281,17 +281,17 @@ tsApp.service('workflowService', [
     };
 
     // Find assigned worklists
-    this.findAssignedWorklists = function(projectId, userName, pfs) {
+    this.findAssignedWorklists = function(projectId, userName, role, pfs) {
 
-      console.debug('findAssignedWorklists', projectId, userName, pfs);
+      console.debug('findAssignedWorklists', projectId, userName, role, pfs);
       // Setup deferred
       var deferred = $q.defer();
 
       // Make POST call
       gpService.increment();
       $http.post(
-        workflowUrl + '/worklists/assigned?projectId=' + projectId + '&userName=' + userName,
-        utilService.prepPfs(pfs)).then(
+        workflowUrl + '/worklist/assigned?projectId=' + projectId + '&userName=' + userName +
+        '&role=' + role, utilService.prepPfs(pfs)).then(
       // success
       function(response) {
         console.debug('  output = ', response.data);
@@ -337,17 +337,17 @@ tsApp.service('workflowService', [
     };
 
     // Find available worklists
-    this.findAvailableWorklists = function(projectId, userName, pfs) {
+    this.findAvailableWorklists = function(projectId, userName, role, pfs) {
 
-      console.debug('findAvailableWorklists', projectId, userName, pfs);
+      console.debug('findAvailableWorklists', projectId, userName, role, pfs);
       // Setup deferred
       var deferred = $q.defer();
 
       // Make POST call
       gpService.increment();
       $http.post(
-        workflowUrl + '/worklist/available?projectId=' + projectId + '&userName=' + userName,
-        utilService.prepPfs(pfs)).then(
+        workflowUrl + '/worklist/available?projectId=' + projectId + '&userName=' + userName
+        + '&role=' + role, utilService.prepPfs(pfs)).then(
       // success
       function(response) {
         console.debug('  output = ', response.data);
