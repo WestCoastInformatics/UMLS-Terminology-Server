@@ -186,6 +186,34 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
+  public void updateRelationship(
+    ConceptRelationshipJpa relationship, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Integration Test Client - update relationship" + relationship);
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client
+            .target(config.getProperty("base.url") + "/test/relationship/update");
+
+    final String relString =
+        ConfigUtility.getStringForGraph(relationship == null
+            ? new ConceptRelationshipJpa() : relationship);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).put(Entity.xml(relString));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+  }  
+  
+  /* see superclass */
+  @Override
   public Worklist getWorklist(Long worklistId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(

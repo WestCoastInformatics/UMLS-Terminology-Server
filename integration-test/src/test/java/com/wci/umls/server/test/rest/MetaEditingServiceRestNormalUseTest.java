@@ -2022,7 +2022,8 @@ public class MetaEditingServiceRestNormalUseTest
     // 1 for removing Atom from originatingConcept
     // 1 for creating createdConcept
     // 1 for creating Semantic Types for createdConcept
-    // 6 for creating Relationships for createdConcept, originatingConcept, and related concepts.
+    // 6 for creating Relationships for createdConcept, originatingConcept, and
+    // related concepts.
     // 1 for adding relationship to originatingConcept
     // 1 for updating TerminologyId on the createdConcept
     // 1 for adding Atom to createdConcept
@@ -2308,7 +2309,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(atomicActions.get(4).getNewValue());
     assertEquals("relationships", atomicActions.get(4).getField());
     assertEquals("CONCEPT", atomicActions.get(5).getIdType().toString());
-    assertEquals("",atomicActions.get(5).getOldValue());
+    assertEquals("", atomicActions.get(5).getOldValue());
     assertNotNull(atomicActions.get(5).getNewValue());
     assertEquals("terminologyId", atomicActions.get(5).getField());
     assertEquals("CONCEPT", atomicActions.get(6).getIdType().toString());
@@ -2319,7 +2320,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertNull(atomicActions.get(7).getOldValue());
     assertNotNull(atomicActions.get(7).getNewValue());
     assertEquals("relationships", atomicActions.get(7).getField());
-    
+
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), originatingC.getId(), 1,
         authToken);
@@ -2350,9 +2351,52 @@ public class MetaEditingServiceRestNormalUseTest
     // Populate concept components
     populateConcepts();
 
-    // Wait a half second (if populate and approve happen to closely together,
-    // the log entries can get reversed
-    Thread.sleep(500);
+    // Set one of the relationships to DEMOTION
+    RelationshipList relList = contentService.findConceptRelationships(
+        concept.getTerminologyId(), concept.getTerminology(),
+        concept.getVersion(), null, null, authToken);
+
+    ConceptRelationshipJpa relationship =
+        (ConceptRelationshipJpa) relList.getObjects().get(0);
+
+    // This will return the single inverse relationship
+    String inverseRelType = "";
+    switch (relationship.getRelationshipType()) {
+      case "RN":
+        inverseRelType = "RB";
+        break;
+      case "RB":
+        inverseRelType = "RN";
+        break;
+      case "RO":
+        inverseRelType = "RO";
+        break;
+      case "XR":
+        inverseRelType = "XR";
+        break;
+      default:
+        throw new Exception("Unexpedted relationship type: "
+            + relationship.getRelationshipType());
+    }
+
+    RelationshipList inverseRelList =
+        contentService
+            .findConceptRelationships(relationship.getTo().getTerminologyId(),
+                relationship.getTo().getTerminology(),
+                relationship.getTo().getVersion(),
+                "toId:" + relationship.getFrom().getId()
+                    + " AND relationshipType:" + inverseRelType,
+                null, authToken);
+    ConceptRelationshipJpa inverseRelationship =
+        (ConceptRelationshipJpa) inverseRelList.getObjects().get(0);
+
+    relationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    inverseRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    testService.updateRelationship(relationship, authToken);
+    testService.updateRelationship(inverseRelationship, authToken);
+
+    final Long demotionRelationshipId = relationship.getId();
+    final Long demotionInverseRelationshipId = relationship.getId();
 
     // get the concept
     Concept c =
@@ -2365,6 +2409,12 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Verify the DEMOTION relationship and its inverse have been deleted
+    assertNull(
+        testService.getConceptRelationship(demotionRelationshipId, authToken));
+    assertNull(testService.getConceptRelationship(demotionInverseRelationshipId,
+        authToken));
 
     // Verify concept now has a workflow status of "READY_FOR_PUBLICATION"
     assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
@@ -2399,9 +2449,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify that all of the concept's relationships and inverses have a status
     // of "READY_FOR_PUBLICATION", and a RelationshipType of RO, RB, RN, or XR
-    RelationshipList relList =
-        contentService.findConceptRelationships(c.getTerminologyId(),
-            c.getTerminology(), c.getVersion(), null, null, authToken);
+    relList = contentService.findConceptRelationships(c.getTerminologyId(),
+        c.getTerminology(), c.getVersion(), null, null, authToken);
 
     final List<String> typeList = Arrays.asList("RO", "RB", "RN", "XR");
 
@@ -2419,7 +2468,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
 
       // Check its inverse also
-      String inverseRelType = "";
+      inverseRelType = "";
       switch (rel.getRelationshipType()) {
         case "RN":
           inverseRelType = "RB";
@@ -2439,7 +2488,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
 
       // This will return the single inverse relationship
-      RelationshipList inverseRelList =
+      inverseRelList =
           contentService
               .findConceptRelationships(rel.getTo().getTerminologyId(),
                   rel.getTo().getTerminology(),
@@ -2476,41 +2525,52 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify that atomic actions exists for updating atoms, semantic types,
     // relationships, and concept
-    // 2 for Atom updates
-    // 1 for Concept update
-    // 4 for Relationship updates
-    // 1 for Semantic Types update
+    // 2 for removing DEMOTION Relationship from Concept and inverse from
+    // related Concept
+    // 2 for deleting DEMOTION relationship and inverse
+    // 2 for updating Atom
+    // 1 for updating Semantic Type
+    // 2 for updating Relationship and inverse
+    // 1 for updating Concept
     pfs.setSortField(null);
 
     List<AtomicAction> atomicActions = projectService
         .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
     Collections.sort(atomicActions,
         (a1, a2) -> a1.getId().compareTo(a2.getId()));
-    assertEquals(8, atomicActions.size());
-    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    assertEquals(10, atomicActions.size());
+    assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
-    assertNotNull(atomicActions.get(0).getNewValue());
-    assertEquals("ATOM", atomicActions.get(1).getIdType().toString());
+    assertNull(atomicActions.get(0).getNewValue());
+    assertEquals("relationships", atomicActions.get(1).getField());
+    assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(1).getOldValue());
-    assertNotNull(atomicActions.get(1).getNewValue());
-    assertEquals(atomicActions.get(2).getIdType().toString(), "CONCEPT");
+    assertNull(atomicActions.get(1).getNewValue());
+    assertEquals("relationships", atomicActions.get(1).getField());
+    assertEquals("RELATIONSHIP", atomicActions.get(2).getIdType().toString());
     assertNotNull(atomicActions.get(2).getOldValue());
-    assertNotNull(atomicActions.get(2).getNewValue());
+    assertNull(atomicActions.get(2).getNewValue());
     assertEquals("RELATIONSHIP", atomicActions.get(3).getIdType().toString());
     assertNotNull(atomicActions.get(3).getOldValue());
-    assertNotNull(atomicActions.get(3).getNewValue());
-    assertEquals("RELATIONSHIP", atomicActions.get(4).getIdType().toString());
+    assertNull(atomicActions.get(3).getNewValue());
+    assertEquals("ATOM", atomicActions.get(4).getIdType().toString());
     assertNotNull(atomicActions.get(4).getOldValue());
     assertNotNull(atomicActions.get(4).getNewValue());
-    assertEquals("RELATIONSHIP", atomicActions.get(5).getIdType().toString());
+    assertEquals("ATOM", atomicActions.get(5).getIdType().toString());
     assertNotNull(atomicActions.get(5).getOldValue());
     assertNotNull(atomicActions.get(5).getNewValue());
-    assertEquals("RELATIONSHIP", atomicActions.get(6).getIdType().toString());
+    assertEquals("SEMANTIC_TYPE", atomicActions.get(6).getIdType().toString());
     assertNotNull(atomicActions.get(6).getOldValue());
     assertNotNull(atomicActions.get(6).getNewValue());
-    assertEquals("SEMANTIC_TYPE", atomicActions.get(7).getIdType().toString());
+    assertEquals("RELATIONSHIP", atomicActions.get(7).getIdType().toString());
     assertNotNull(atomicActions.get(7).getOldValue());
     assertNotNull(atomicActions.get(7).getNewValue());
+    assertEquals("RELATIONSHIP", atomicActions.get(8).getIdType().toString());
+    assertNotNull(atomicActions.get(8).getOldValue());
+    assertNotNull(atomicActions.get(8).getNewValue());
+    assertEquals("CONCEPT", atomicActions.get(9).getIdType().toString());
+    assertNotNull(atomicActions.get(9).getOldValue());
+    assertNotNull(atomicActions.get(9).getNewValue());
 
     // Verify the log entry exists
     String logEntry =
@@ -2606,7 +2666,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Undo Add Action
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2641,7 +2701,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Redo Add Action
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2703,7 +2763,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Undo Remove Action
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2734,7 +2794,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Redo Remove Action
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2845,7 +2905,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Undo Add Action
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2880,7 +2940,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Redo Add Action
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2942,7 +3002,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Undo Remove Action
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2973,7 +3033,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Redo Remove Action
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3084,7 +3144,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Undo Add Action
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3120,7 +3180,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Redo Add Action
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3184,7 +3244,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Undo Remove Action
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3217,7 +3277,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Redo Remove Action
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3358,7 +3418,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Undo Add Action
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3413,7 +3473,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Redo Add Action
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3495,7 +3555,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Undo Remove Action
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3545,7 +3605,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Redo Remove Action
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        c.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3687,7 +3747,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Undo Move Action
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        fromC.getLastModified().getTime(), false, authToken);
+        fromC.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     fromC =
@@ -3727,7 +3787,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Test Redo Move Action
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        fromC.getLastModified().getTime(), false, authToken);
+        fromC.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     fromC =
@@ -3872,10 +3932,12 @@ public class MetaEditingServiceRestNormalUseTest
     // Save the molecular action lastModified to compare against later
     Date modDate = ma.getLastModified();
 
+    //
     // Undo the split action
+    //
 
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        originatingC.getLastModified().getTime(), false, authToken);
+        originatingC.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     originatingC = contentService.getConcept(originatingC.getId(),
@@ -3918,10 +3980,12 @@ public class MetaEditingServiceRestNormalUseTest
         originatingC.getId(), 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
+    //
     // Redo the split action
+    //
 
     v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        originatingC.getLastModified().getTime(), false, authToken);
+        originatingC.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     originatingC = contentService.getConcept(originatingC.getId(),
@@ -4037,7 +4101,7 @@ public class MetaEditingServiceRestNormalUseTest
    * @throws Exception the exception
    */
   @Test
-  public void testUndoMergeConcepts() throws Exception {
+  public void testUndoAndRedoMergeConcepts() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
     Logger.getLogger(getClass())
@@ -4106,8 +4170,12 @@ public class MetaEditingServiceRestNormalUseTest
     // Save the molecular action lastModified to compare against later
     Date modDate = ma.getLastModified();
 
+    //
+    // Undo the merge action
+    //
+
     v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        toC.getLastModified().getTime(), false, authToken);
+        toC.getLastModified().getTime(), false, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     toC = contentService.getConcept(toC.getId(), project.getId(), authToken);
@@ -4148,6 +4216,543 @@ public class MetaEditingServiceRestNormalUseTest
     String logEntry =
         projectService.getLog(project.getId(), toC.getId(), 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
+
+    //
+    // Redo the merge action
+    //
+
+    v = metaEditingService.redoAction(project.getId(), ma.getId(),
+        toC.getLastModified().getTime(), false, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    toC = contentService.getConcept(toC.getId(), project.getId(), authToken);
+    relatedC =
+        contentService.getConcept(relatedC.getId(), project.getId(), authToken);
+    ma = projectService.findMolecularActions(toC.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(false, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+
+    // Verify fromConcept has been re-removed
+    fromC = contentService.getConcept(fromCId, project.getId(), authToken);
+    assertTrue(fromC == null);
+
+    // Verify the atoms have been re-merged from the fromConcept into the
+    // toConcept
+    for (Atom a : fromAtomsList) {
+      assertTrue(toC.getAtoms().contains(a));
+    }
+
+    // Verify all semantic types have been re-merged into the toConcept
+    for (SemanticTypeComponent sty : fromStyList) {
+      assertTrue(toC.getSemanticTypes().contains(sty));
+    }
+
+    // Verify all relationships have been re-merged to the toConcept
+    for (ConceptRelationship rel : fromRelList) {
+      assertTrue(toC.getRelationships().contains(rel));
+    }
+
+    // Verify the log entry exists
+    logEntry =
+        projectService.getLog(project.getId(), toC.getId(), 1, authToken);
+    assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
+
+  }
+
+  /**
+   * Test undo and redo approve concept.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testUndoAndRedoApproveConcept() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass()).info("TEST - Approve concept CONCEPTID, "
+        + umlsTerminology + ", " + umlsVersion + authToken);
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // Populate concept components
+    populateConcepts();
+
+    // Set one of the relationships to DEMOTION
+    RelationshipList relList = contentService.findConceptRelationships(
+        concept.getTerminologyId(), concept.getTerminology(),
+        concept.getVersion(), null, null, authToken);
+
+    ConceptRelationshipJpa relationship =
+        (ConceptRelationshipJpa) relList.getObjects().get(0);
+
+    // This will return the single inverse relationship
+    String inverseRelType = "";
+    switch (relationship.getRelationshipType()) {
+      case "RN":
+        inverseRelType = "RB";
+        break;
+      case "RB":
+        inverseRelType = "RN";
+        break;
+      case "RO":
+        inverseRelType = "RO";
+        break;
+      case "XR":
+        inverseRelType = "XR";
+        break;
+      default:
+        throw new Exception("Unexpedted relationship type: "
+            + relationship.getRelationshipType());
+    }
+
+    RelationshipList inverseRelList =
+        contentService
+            .findConceptRelationships(relationship.getTo().getTerminologyId(),
+                relationship.getTo().getTerminology(),
+                relationship.getTo().getVersion(),
+                "toId:" + relationship.getFrom().getId()
+                    + " AND relationshipType:" + inverseRelType,
+                null, authToken);
+    ConceptRelationshipJpa inverseRelationship =
+        (ConceptRelationshipJpa) inverseRelList.getObjects().get(0);
+
+    relationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    inverseRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    testService.updateRelationship(relationship, authToken);
+    testService.updateRelationship(inverseRelationship, authToken);
+
+    final Long demotionRelationshipId = relationship.getId();
+    final Long demotionInverseRelationshipId = relationship.getId();
+
+    // get the concept
+    Concept c =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(c);
+
+    // Now that the concepts are all set up, approve it.
+    ValidationResult v = metaEditingService.approveConcept(project.getId(),
+        c.getId(), c.getLastModified().getTime(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Get the merge molecular action
+
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list =
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.size() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(c.getId(), ma.getComponentId());
+    assertNull(ma.getComponentId2());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Save the molecular action lastModified to compare against later
+    Date modDate = ma.getLastModified();
+
+    //
+    // Undo the approve action
+    //
+
+    v = metaEditingService.undoAction(project.getId(), ma.getId(),
+        c.getLastModified().getTime(), false, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+    ma = projectService.findMolecularActions(c.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(true, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+
+    // Verify the DEMOTION relationship and its inverse have been re-created
+    assertNotNull(
+        testService.getConceptRelationship(demotionRelationshipId, authToken));
+    assertNotNull(testService
+        .getConceptRelationship(demotionInverseRelationshipId, authToken));
+
+    // Verify concept now a workflow status of "NEEDS_REVIEW"
+    assertEquals(WorkflowStatus.NEEDS_REVIEW, c.getWorkflowStatus());
+
+    // Verify that all of the concept's atoms have a status of
+    // "NEEDS_REVIEW"
+    boolean allAtomsReadyForPub = true;
+    for (Atom atm : c.getAtoms()) {
+      if (!atm.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
+        allAtomsReadyForPub = false;
+      }
+    }
+    assertTrue(allAtomsReadyForPub);
+
+    // Verify that all of the concept's semantic types have a status of
+    // "NEEDS_REVIEW"
+    boolean allStyReadyForPub = true;
+    for (SemanticTypeComponent sty : c.getSemanticTypes()) {
+      if (!sty.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
+        allStyReadyForPub = false;
+      }
+    }
+    assertTrue(allStyReadyForPub);
+
+    // Verify that all of the concept's relationships and inverses have a status
+    // of "NEEDS_REVIEW" or "DEMOTION"
+    relList = contentService.findConceptRelationships(c.getTerminologyId(),
+        c.getTerminology(), c.getVersion(), null, null, authToken);
+
+    boolean allRelsNotReadyForPub = true;
+    boolean allInverseRelsNotReadyForPub = true;
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (!(rel.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)
+          || rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION))) {
+        allRelsNotReadyForPub = false;
+      }
+
+      // Check its inverse also
+      inverseRelType = "";
+      switch (rel.getRelationshipType()) {
+        case "RN":
+          inverseRelType = "RB";
+          break;
+        case "RB":
+          inverseRelType = "RN";
+          break;
+        case "RO":
+          inverseRelType = "RO";
+          break;
+        case "XR":
+          inverseRelType = "XR";
+          break;
+        default:
+          throw new Exception(
+              "Unexpedted relationship type: " + rel.getRelationshipType());
+      }
+
+      // This will return the single inverse relationship
+      inverseRelList =
+          contentService
+              .findConceptRelationships(rel.getTo().getTerminologyId(),
+                  rel.getTo().getTerminology(),
+                  rel.getTo().getVersion(), "toId:" + rel.getFrom().getId()
+                      + " AND relationshipType:" + inverseRelType,
+                  null, authToken);
+      if (!(rel.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)
+          || rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION))) {
+        allInverseRelsNotReadyForPub = false;
+      }
+
+    }
+    assertTrue(allRelsNotReadyForPub);
+    assertTrue(allInverseRelsNotReadyForPub);
+
+    // Verify the log entry exists
+    String logEntry =
+        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
+
+    //
+    // Redo the merge action
+    //
+
+    v = metaEditingService.redoAction(project.getId(), ma.getId(),
+        c.getLastModified().getTime(), false, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+    ma = projectService.findMolecularActions(c.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(false, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+
+    // Verify the DEMOTION relationship and its inverse have been re-deleted
+    assertNull(
+        testService.getConceptRelationship(demotionRelationshipId, authToken));
+    assertNull(testService.getConceptRelationship(demotionInverseRelationshipId,
+        authToken));
+
+    // Verify concept now a workflow status of "READY_FOR_PUBLICATION" again
+    assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
+
+    // Verify that all of the concept's atoms have a status of
+    // "READY_FOR_PUBLICATION" again
+    allAtomsReadyForPub = true;
+    for (Atom atm : c.getAtoms()) {
+      if (!atm.getWorkflowStatus()
+          .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
+        allAtomsReadyForPub = false;
+      }
+    }
+    assertTrue(allAtomsReadyForPub);
+
+    // Verify that all of the concept's semantic types have a status of
+    // "READY_FOR_PUBLICATION" again
+    allStyReadyForPub = true;
+    for (SemanticTypeComponent sty : c.getSemanticTypes()) {
+      if (!sty.getWorkflowStatus()
+          .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
+        allStyReadyForPub = false;
+      }
+    }
+    assertTrue(allStyReadyForPub);
+
+    // Verify that all of the concept's relationships and inverses have a status
+    // of "READY_FOR_PUBLICATION", and a RelationshipType of RO, RB, RN, or XR
+    // again
+    relList = contentService.findConceptRelationships(c.getTerminologyId(),
+        c.getTerminology(), c.getVersion(), null, null, authToken);
+
+    List<String> typeList = Arrays.asList("RO", "RB", "RN", "XR");
+
+    allRelsNotReadyForPub = true;
+    boolean allRelsCorrectType = true;
+    allInverseRelsNotReadyForPub = true;
+    boolean allInverseRelsCorrectType = true;
+    for (final Relationship<?, ?> rel : relList.getObjects()) {
+      if (!rel.getWorkflowStatus()
+          .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
+        allRelsNotReadyForPub = false;
+      }
+      if (!typeList.contains(rel.getRelationshipType())) {
+        allRelsCorrectType = false;
+      }
+
+      // Check its inverse also
+      inverseRelType = "";
+      switch (rel.getRelationshipType()) {
+        case "RN":
+          inverseRelType = "RB";
+          break;
+        case "RB":
+          inverseRelType = "RN";
+          break;
+        case "RO":
+          inverseRelType = "RO";
+          break;
+        case "XR":
+          inverseRelType = "XR";
+          break;
+        default:
+          throw new Exception(
+              "Unexpedted relationship type: " + rel.getRelationshipType());
+      }
+
+      // This will return the single inverse relationship
+      inverseRelList =
+          contentService
+              .findConceptRelationships(rel.getTo().getTerminologyId(),
+                  rel.getTo().getTerminology(),
+                  rel.getTo().getVersion(), "toId:" + rel.getFrom().getId()
+                      + " AND relationshipType:" + inverseRelType,
+                  null, authToken);
+      if (!inverseRelList.getObjects().get(0).getWorkflowStatus()
+          .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
+        allInverseRelsNotReadyForPub = false;
+      }
+      if (!typeList
+          .contains(inverseRelList.getObjects().get(0).getRelationshipType())) {
+        allInverseRelsCorrectType = false;
+      }
+    }
+    assertTrue(allRelsNotReadyForPub);
+    assertTrue(allRelsCorrectType);
+    assertTrue(allInverseRelsNotReadyForPub);
+    assertTrue(allInverseRelsCorrectType);
+
+    // Verify the log entry exists
+    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
+
+  }
+
+  /**
+   * Test force undo and redo.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testForceUndoAndRedo() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass())
+        .info("TEST - Force undoing and redoing changes, " + umlsTerminology
+            + ", " + umlsVersion + authToken);
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // get the concept
+    Concept c =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(c);
+
+    //
+    // Create and add an atom to concept
+    //
+    AtomJpa atom = new AtomJpa();
+    atom.setBranch(Branch.ROOT);
+    atom.setName("DCB");
+    atom.setTerminologyId("TestId");
+    atom.setTerminology(umlsTerminology);
+    atom.setVersion(umlsVersion);
+    atom.setTimestamp(new Date());
+    atom.setPublishable(true);
+    atom.setCodeId("C44314");
+    atom.setConceptId("M0023181");
+    atom.getConceptTerminologyIds().put(c.getTerminology(),
+        c.getTerminologyId());
+    atom.setDescriptorId("");
+    atom.setLanguage("ENG");
+    atom.setTermType("AB");
+    atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+    //
+    // Add the Atom - this will set the concept's WorkflowStatus to NEEDS_REVIEW
+    //
+    ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
+        c.getLastModified().getTime(), atom, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+    assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW));
+
+    // Approve this concept - this will set the status to READY_FOR_PUBLICATION
+    v = metaEditingService.approveConcept(project.getId(), c.getId(),
+        c.getLastModified().getTime(), false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertTrue(
+        c.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION));
+
+    // set the concept's workflow status back to NEEDS_REVIEW
+    c.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    testService.updateConcept((ConceptJpa) c, authToken);
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW));
+
+    // Get the merge molecular action
+
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list =
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.size() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(c.getId(), ma.getComponentId());
+    assertNull(ma.getComponentId2());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Reset the concept's workflow status to "NEEDS_REVIEW".
+    c.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    testService.updateConcept((ConceptJpa) c, authToken);
+
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW));
+
+    //
+    // Try to undo the approve action (this will fail, since the concept's
+    // WorkflowStatus is different than it was
+    //
+    boolean undoFailed = false;
+    try {
+      v = metaEditingService.undoAction(project.getId(), ma.getId(),
+          c.getLastModified().getTime(), false, false, authToken);
+    } catch (Exception e) {
+      undoFailed = true;
+    }
+    assertTrue(undoFailed);
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    
+    //Make sure the workflow status didn't get modified during the failed Undo attempt
+    assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW));
+    
+    //
+    // Force-Undo the approve action
+    //    
+    boolean undoSucceded = true;
+    try {
+      v = metaEditingService.undoAction(project.getId(), ma.getId(),
+          c.getLastModified().getTime(), false, true, authToken);
+    } catch (Exception e) {
+      undoSucceded = false;
+    }
+    assertTrue(undoSucceded);
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    
+    // verify the atom's WorkflowStatus has been reset to NEEDS_REVIEV
+    for(Atom a : c.getAtoms()){
+      assertTrue(a.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW));
+    }
+    
+    //Modify the concept's WorkflowStatus again
+    c.setWorkflowStatus(WorkflowStatus.REVIEW_DONE);
+    testService.updateConcept((ConceptJpa) c, authToken);
+
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.REVIEW_DONE));
+    
+    //
+    // Try to redo the approve action (this will fail, since the concept's
+    // WorkflowStatus is different than it was
+    //
+    boolean redoFailed = false;
+    try {
+      v = metaEditingService.undoAction(project.getId(), ma.getId(),
+          c.getLastModified().getTime(), false, false, authToken);
+    } catch (Exception e) {
+      redoFailed = true;
+    }
+    assertTrue(redoFailed);
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    
+    //Make sure the workflow status didn't get modified during the failed Undo attempt
+    assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.REVIEW_DONE));
+    
+    //
+    // Force-Redo the approve action
+    //    
+    boolean redoSucceded = true;
+    try {
+      v = metaEditingService.redoAction(project.getId(), ma.getId(),
+          c.getLastModified().getTime(), false, true, authToken);
+    } catch (Exception e) {
+      redoSucceded = false;
+    }
+    assertTrue(redoSucceded);
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    
+    // verify the concept and atom's WorkflowStatus has been reset to READY_FOR_PUBLICATION
+    assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION));
+    for(Atom a : c.getAtoms()){
+      assertTrue(a.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION));
+    }    
 
   }
 

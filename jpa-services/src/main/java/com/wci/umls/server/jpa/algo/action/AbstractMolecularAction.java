@@ -27,6 +27,7 @@ import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
@@ -197,6 +198,11 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       }
     }
 
+    // If the action is of a type that can affect other concepts, lock those as well
+    if (this instanceof MergeMolecularAction || this instanceof SplitMolecularAction || this instanceof ApproveMolecularAction){
+      lockRelatedConcepts();
+    }
+    
     setTerminology(concept.getTerminology());
     setVersion(concept.getVersion());
 
@@ -243,6 +249,64 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     }
   }
 
+  /**
+   * Lock related concepts.
+   *
+   * @throws Exception the exception
+   */
+  public void lockRelatedConcepts()
+    throws Exception {
+   
+    Concept sourceConcept = null;
+    //For merges, conceptId2 will have the affected relationships
+    if (this instanceof MergeMolecularAction){
+      sourceConcept = getConcept2();
+    }
+    //For splits and approvals, conceptId will have the affected relationships 
+    if (this instanceof ApproveMolecularAction || this instanceof SplitMolecularAction){
+      sourceConcept = getConcept();
+    }
+    
+    //Get all of the inverse relationships associated with the source concept
+    List<ConceptRelationship> relationships = sourceConcept.getRelationships();    
+    
+    //Lock all of the concepts that are NOT concept or concept2   
+    for (final ConceptRelationship rel : relationships) {
+      // Grab the concept from the relationship
+      Concept associatedConcept = rel.getTo();
+      
+      // Verify concept exists
+      if (associatedConcept == null) {
+        // unlock concepts and fail
+        rollback();
+        throw new Exception("Concept does not exist");
+      }
+      
+      // Make sure we're not trying to re-lock Concept or Concept2
+      if(getConcept().getId().equals(associatedConcept.getId())){
+        continue;
+      }
+      if(getConcept2()!=null && getConcept2().getId().equals(associatedConcept.getId())){
+        continue;
+      }
+      
+      // Lock on the concept id (in Java)
+      synchronized (associatedConcept.getId().toString().intern()) {
+
+        // Fail if already locked - this is secondary protection
+        if (isObjectLocked(associatedConcept)) {
+          // unlock concepts and fail
+          rollback();
+          throw new Exception("Fatal error: concept is locked " + associatedConcept.getId());
+        }
+
+        // lock the concept via JPA
+        lockObject(associatedConcept);
+
+      }
+    }
+  }
+  
   /**
    * Find inverse relationship.
    *

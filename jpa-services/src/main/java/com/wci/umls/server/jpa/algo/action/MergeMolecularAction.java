@@ -328,22 +328,11 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     for (SemanticTypeComponent sty : newStys) {
       getToConcept().getSemanticTypes().add(sty);
     }
-    // TODO - review this
     for (final ConceptRelationship rel : newRels) {
       getToConcept().getRelationships().add(rel);
-      // //Since getToConcept is its own object, keep its status up to date as
-      // well.
-      // if (rel.getFrom().getId().equals(getToConcept().getId())) {
-      // getToConcept().getRelationships().add(rel);
-      // }
     }
     for (final ConceptRelationship rel : newInverseRels) {
       rel.getFrom().getRelationships().add(rel);
-      // //Since getToConcept is its own object, keep its status up to date as
-      // well.
-      // if (rel.getFrom().getId().equals(getToConcept().getId())) {
-      // getToConcept().getRelationships().add(rel);
-      // }
     }
 
     //
@@ -360,7 +349,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     updateConcept(getToConcept());
     updateConcept(getFromConcept());
     for (final ConceptRelationship rel : newInverseRels) {
-      if (!rel.getFrom().getId().equals(getFromConcept().getId())
+      if (!rel.getFrom().getId().equals(getToConcept().getId())
           && !rel.getFrom().getId().equals(getFromConcept().getId())) {
         updateConcept(rel.getFrom());
       }

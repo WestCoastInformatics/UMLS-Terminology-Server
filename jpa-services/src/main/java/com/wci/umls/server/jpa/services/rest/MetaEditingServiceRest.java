@@ -222,12 +222,13 @@ public interface MetaEditingServiceRest {
    * @param molecularActionId the molecular action id
    * @param timestamp the timestamp
    * @param overrideWarnings the override warnings
+   * @param force the force
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
   public ValidationResult undoAction(Long projectId, Long molecularActionId,
-    Long timestamp, boolean overrideWarnings, String authToken)
+    Long timestamp, boolean overrideWarnings, boolean force, String authToken)
     throws Exception;
   
   /**
@@ -237,12 +238,13 @@ public interface MetaEditingServiceRest {
    * @param molecularActionId the molecular action id
    * @param timestamp the timestamp
    * @param overrideWarnings the override warnings
+   * @param force the force
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
   public ValidationResult redoAction(Long projectId, Long molecularActionId,
-    Long timestamp, boolean overrideWarnings, String authToken)
+    Long timestamp, boolean overrideWarnings, boolean force, String authToken)
     throws Exception;  
 
 }

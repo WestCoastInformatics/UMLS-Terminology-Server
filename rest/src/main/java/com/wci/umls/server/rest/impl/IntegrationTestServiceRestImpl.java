@@ -413,6 +413,41 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
+  @PUT
+  @Path("/relationship/update")
+  @ApiOperation(value = "Update relationship", notes = "Updates the relationship", response = ConceptRelationshipJpa.class)
+  public void updateRelationship(
+    @ApiParam(value = "ConceptRelationship", required = true) ConceptRelationshipJpa relationship,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (TEST): /relationship/update " + relationship);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String authUser = authorizeApp(securityService, authToken,
+          "update relationship", UserRole.ADMINISTRATOR);
+      contentService.setLastModifiedBy(authUser);
+      contentService.setMolecularActionFlag(false);
+
+      if (relationship.getId() == null) {
+        throw new Exception(
+            "Only a relationship that exists can be udpated: " + relationship);
+      }      
+      
+      // Update relationship
+      contentService.updateRelationship(relationship);
+      
+    } catch (Exception e) {
+      handleException(e, "trying to add a relationship");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }  
+  
+  /* see superclass */
+  @Override
   @GET
   @Path("/worklist/{id}")
   @ApiOperation(value = "Get a worklist", notes = "Get a worklist", response = WorklistJpa.class)

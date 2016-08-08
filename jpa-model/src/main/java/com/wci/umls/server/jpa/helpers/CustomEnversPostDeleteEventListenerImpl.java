@@ -14,6 +14,7 @@ import org.hibernate.envers.event.spi.EnversPostDeleteEventListenerImpl;
  * org.hibernate.envers.store_data_at_delete = true
  * </pre>
  */
+@SuppressWarnings("serial")
 public class CustomEnversPostDeleteEventListenerImpl
     extends EnversPostDeleteEventListenerImpl {
 

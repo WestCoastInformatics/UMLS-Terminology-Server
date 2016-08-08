@@ -29,6 +29,9 @@ public class RedoMolecularAction extends AbstractMolecularAction {
   /** The molecular action id. */
   private Long molecularActionId;
 
+  /** Whether to force the redo, regardless of current object state. */
+  private Boolean force = false;
+
   /**
    * Instantiates an empty {@link RedoMolecularAction}.
    *
@@ -55,6 +58,15 @@ public class RedoMolecularAction extends AbstractMolecularAction {
    */
   public void setMolecularActionId(Long molecularActionId) {
     this.molecularActionId = molecularActionId;
+  }
+
+  /**
+   * Sets the force.
+   *
+   * @param force the force
+   */
+  public void setForce(Boolean force) {
+    this.force = force;
   }
 
   /**
@@ -129,21 +141,30 @@ public class RedoMolecularAction extends AbstractMolecularAction {
                 // add id and owner as constraints
                 .add(AuditEntity.property("id").eq(a.getObjectId()));
         final Number revision = (Number) query.getSingleResult();
-        final HasLastModified returnedObject =
+        HasLastModified returnedObject =
             (HasLastModified) reader.find(Class.forName(a.getClassName()),
                 a.getClassName(), a.getObjectId(), revision, true);
 
         // Recover the object here (id is set already so this works better than
         // "add")
         // TODO - hack alert. If the object returned is a concept, it will have
-        // all of its relationships intact, and they need to be stripped out
-        // before it can be re-added
+        // all some of its component objects intact, and and they need to be
+        // stripped out before it can be re-added
+        //
+        // In addition, created concepts are coming back with TerminologyId,
+        // even though they were set to "" before being deleted. Reset to "" so
+        // the following modify action field can complete.
 
-        if (returnedObject.getClass().equals(ConceptJpa.class)) {
-          ((ConceptJpa)returnedObject).getRelationships().clear();
-        }      
+        if (returnedObject instanceof ConceptJpa) {
+          returnedObject =
+              (HasLastModified) new ConceptJpa((ConceptJpa) returnedObject,
+                  false);
+          if (((ConceptJpa) returnedObject).getTerminologyId()
+              .equals(((ConceptJpa) returnedObject).getId().toString())) {
+            ((ConceptJpa) returnedObject).setTerminologyId("");
+          }
+        }
         updateHasLastModified(returnedObject);
-
       }
 
       //
@@ -213,11 +234,11 @@ public class RedoMolecularAction extends AbstractMolecularAction {
               "Unable to find set method for field " + a.getField());
         }
 
-        // Check to make sure the field still has the old state
-        // TODO: need a "force" mode to override these kinds of checks (for
-        // other action types too)
+        // If force is not set, check to make sure the field still has the old
+        // state
         final Object origValue = getMethod.invoke(referencedObject);
-        if (!origValue.toString().equals(a.getOldValue().toString())) {
+        if (!force
+            && !origValue.toString().equals(a.getOldValue().toString())) {
           throw new Exception("Error: field " + a.getField() + " in "
               + referencedObject + " no longer has value: " + a.getOldValue());
         }
@@ -232,7 +253,7 @@ public class RedoMolecularAction extends AbstractMolecularAction {
 
     }
 
-    // Unet the molecular action flag
+    // Unset the molecular action flag
     redoMolecularAction.setUndoneFlag(false);
     this.updateMolecularAction(redoMolecularAction);
 

@@ -461,7 +461,8 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/concept/approve?projectId=" + projectId + "&conceptId="
-        + conceptId + "&lastModified=" + lastModified);
+        + conceptId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
@@ -480,8 +481,8 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult undoAction(Long projectId, Long molecularActionId,
-    Long lastModified, boolean overrideWarnings, String authToken)
-    throws Exception {
+    Long lastModified, boolean overrideWarnings, boolean force,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - undo action " + molecularActionId + ", "
             + lastModified + ", " + overrideWarnings + ", " + authToken);
@@ -492,7 +493,9 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/action/undo?projectId=" + projectId + "&molecularActionId="
-        + molecularActionId + "&lastModified=" + lastModified);
+        + molecularActionId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : "")
+        + (force ? "&force=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
@@ -511,8 +514,8 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult redoAction(Long projectId, Long molecularActionId,
-    Long lastModified, boolean overrideWarnings, String authToken)
-    throws Exception {
+    Long lastModified, boolean overrideWarnings, boolean force,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - redo action " + molecularActionId + ", "
             + lastModified + ", " + overrideWarnings + ", " + authToken);
@@ -523,7 +526,9 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/action/redo?projectId=" + projectId + "&molecularActionId="
-        + molecularActionId + "&lastModified=" + lastModified);
+        + molecularActionId + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : "")
+        + (force ? "&force=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
@@ -538,6 +543,6 @@ public class MetaEditingClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
-  }  
-  
+  }
+
 }

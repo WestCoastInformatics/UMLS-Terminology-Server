@@ -29,6 +29,9 @@ public class UndoMolecularAction extends AbstractMolecularAction {
   /** The molecular action id. */
   private Long molecularActionId;
 
+  /** Whether to force the undo, regardless of current object state. */
+  private Boolean force = false;
+
   /**
    * Instantiates an empty {@link UndoMolecularAction}.
    *
@@ -55,6 +58,15 @@ public class UndoMolecularAction extends AbstractMolecularAction {
    */
   public void setMolecularActionId(Long molecularActionId) {
     this.molecularActionId = molecularActionId;
+  }
+
+  /**
+   * Sets the force.
+   *
+   * @param force the force
+   */
+  public void setForce(Boolean force) {
+    this.force = force;
   }
 
   /**
@@ -148,21 +160,22 @@ public class UndoMolecularAction extends AbstractMolecularAction {
                 // add id and owner as constraints
                 .add(AuditEntity.property("id").eq(a.getObjectId()));
         final Number revision = (Number) query.getSingleResult();
-        final HasLastModified returnedObject =
+        HasLastModified returnedObject =
             (HasLastModified) reader.find(Class.forName(a.getClassName()),
                 a.getClassName(), a.getObjectId(), revision, true);
 
         // Recover the object here (id is set already so this works better than
         // "add")
         // TODO - hack alert. If the object returned is a concept, it will have
-        // all of its relationships intact, and they need to be stripped out
-        // before it can be re-added
+        // all some of its component objects intact, and they need to be
+        // stripped out before it can be re-added
 
-        if (returnedObject.getClass().equals(ConceptJpa.class)) {
-          ((ConceptJpa)returnedObject).getRelationships().clear();
-        }       
+        if (returnedObject instanceof ConceptJpa) {
+          returnedObject =
+              (HasLastModified) new ConceptJpa((ConceptJpa) returnedObject,
+                  false);
+        }
         updateHasLastModified(returnedObject);
-
 
       }
 
@@ -222,12 +235,12 @@ public class UndoMolecularAction extends AbstractMolecularAction {
               "Unable to find set method for field " + a.getField());
         }
 
-        // Check to make sure the field is still in the state it was set to in
+        // If "Force" is not set, check to make sure the field is still in the
+        // state it was set to in
         // the action
-        // TODO: need a "force" mode to override these kinds of checks (for
-        // other action types too)
         final Object origValue = getMethod.invoke(referencedObject);
-        if (!origValue.toString().equals(a.getNewValue().toString())) {
+        if (!force
+            && !origValue.toString().equals(a.getNewValue().toString())) {
           throw new Exception("Error: field " + a.getField() + " in "
               + referencedObject + " no longer has value: " + a.getNewValue());
         }

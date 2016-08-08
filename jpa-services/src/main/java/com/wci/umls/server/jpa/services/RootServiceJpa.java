@@ -234,9 +234,7 @@ public abstract class RootServiceJpa implements RootService {
       throw new IllegalStateException(
           "Error attempting to rollback a transaction when using transactions per operation mode.");
     } else if (tx != null && !tx.isActive()) {
-      throw new IllegalStateException(
-          "Error attempting to rollback a transaction when there "
-              + "is no active transaction");
+      //Allow this to do nothing
     } else if (tx != null) {
       tx.rollback();
       manager.clear();

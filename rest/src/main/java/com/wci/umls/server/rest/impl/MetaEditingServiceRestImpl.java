@@ -45,7 +45,6 @@ import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.actions.ChangeEvent;
-import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
@@ -552,7 +551,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "adding an atom");
       return null;
     } finally {
@@ -635,6 +634,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
+      action.rollback(); 
       handleException(e, "removing an atom");
       return null;
     } finally {
@@ -719,7 +719,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "adding a relationship");
       return null;
     } finally {
@@ -813,6 +813,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     } catch (
 
     Exception e) {
+      action.rollback(); 
       handleException(e, "removing a relationship");
       return null;
     } finally {
@@ -916,7 +917,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "merging concepts");
       return null;
     } finally {
@@ -1018,7 +1019,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "moving atoms");
       return null;
     } finally {
@@ -1124,7 +1125,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "splitting concept");
       return null;
     } finally {
@@ -1219,7 +1220,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "merging concepts");
       return null;
     } finally {
@@ -1239,6 +1240,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Molecular Action id, e.g. 2", required = true) @QueryParam("molecularActionId") Long molecularActionId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Force action", required = false) @QueryParam("force") boolean force,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1255,6 +1257,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setMolecularActionFlag(false);
       action.beginTransaction();
       action.setMolecularActionId(molecularActionId);
+      action.setForce(force);
 
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
@@ -1328,10 +1331,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "undoing action");
       return null;
-    } finally {
+    } finally {     
       action.close();
       securityService.close();
     }
@@ -1348,6 +1351,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Molecular Action id, e.g. 2", required = true) @QueryParam("molecularActionId") Long molecularActionId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Force action", required = false) @QueryParam("force") boolean force,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1364,6 +1368,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setMolecularActionFlag(false);
       action.beginTransaction();
       action.setMolecularActionId(molecularActionId);
+      action.setForce(force);
 
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
@@ -1437,7 +1442,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "undoing action");
       return null;
     } finally {
