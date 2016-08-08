@@ -872,7 +872,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Check prerequisites
       //
       final ValidationResult validationResult = action.checkPreconditions();
-
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
           || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
@@ -1221,7 +1220,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
     } catch (Exception e) {
       action.rollback(); 
-      handleException(e, "merging concepts");
+      handleException(e, "approving concept");
       return null;
     } finally {
       action.close();

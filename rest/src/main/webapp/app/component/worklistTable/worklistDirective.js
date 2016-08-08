@@ -54,7 +54,7 @@ tsApp
                 page : 1,
                 filter : '',
                 sortField : 'lastModified',
-                ascending : null
+                ascending : false
               };
               $scope.paging['record'] = {
                 page : 1,
@@ -71,8 +71,8 @@ tsApp
               });
 
               // Project Changed Handler
-              $scope.$on('workflow:projectChanged', function(event, data) {
-                console.debug('on workflow:projectChanged', data);
+              $scope.$on('project:projectChanged', function(event, data) {
+                console.debug('on project:projectChanged', data);
                 // Set project, refresh worklist list
                 $scope.setProject(data);
               });
@@ -207,6 +207,9 @@ tsApp
                 $scope.selected.terminology = worklist.terminology;
                 $scope.selected.version = worklist.version;
                 $scope.selected.concept = null;
+                if ($scope.value == 'Worklist') {
+                  $scope.parseStateHistory(worklist);
+                }
                 $scope.getRecords(worklist);
               };
 
@@ -225,6 +228,18 @@ tsApp
                   $scope.selected.concept.report = data;
                 });
               };
+              
+              // parse workflow state history
+              $scope.parseStateHistory = function(worklist) {
+                $scope.stateHistory = [];
+                var states = Object.keys(worklist.workflowStateHistory);
+                for (var i = 0; i<states.length; i++) {
+                  var state = {name : states[i],
+                             timestamp : worklist.workflowStateHistory[states[i]]
+                  }
+                  $scope.stateHistory.push(state);
+                }
+              }
 
               $scope.unassignWorklist = function(worklist) {
                 workflowService.performWorkflowAction($scope.project.id, worklist.id,
