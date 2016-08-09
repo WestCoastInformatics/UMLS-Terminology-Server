@@ -500,7 +500,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.close();
       algo2.close();
       algo3.close();
-      algo4.close();
+      if (algo4 != null) {
+        algo4.close();
+      }
       contentService.close();
       securityService.close();
     }
