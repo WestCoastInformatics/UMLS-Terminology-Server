@@ -3295,7 +3295,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     param = new AlgorithmParameterJpa("Prefix", "prefix",
         "File name prefix for data set", "MR", -1,
         AlgorithmParameter.Type.STRING);
-    param.setValues(Arrays.asList(new String[] {
+    param.setPossibleValues(Arrays.asList(new String[] {
         "MR", "RXN"
     }));
     params.add(param);

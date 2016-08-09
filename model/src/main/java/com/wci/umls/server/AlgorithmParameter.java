@@ -80,14 +80,14 @@ public interface AlgorithmParameter extends HasName, HasLastModified {
    *
    * @return the values
    */
-  public List<String> getValues();
+  public List<String> getPossibleValues();
 
   /**
    * Sets the values.
    *
    * @param values the values
    */
-  public void setValues(List<String> values);
+  public void setPossibleValues(List<String> values);
 
   /**
    * Returns the value.

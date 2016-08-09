@@ -86,7 +86,7 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
   /** The values. */
   @ElementCollection(fetch = FetchType.EAGER)
   @JoinColumn(nullable = true)
-  private List<String> values;
+  private List<String> possibleValues;
 
   /** The value. */
   @Column(nullable = true, length = 4000)
@@ -112,7 +112,7 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
     placeholder = param.getPlaceholder();
     type = param.getType();
     value = param.getValue();
-    values = new ArrayList<>(param.getValues());
+    possibleValues = new ArrayList<>(param.getPossibleValues());
   }
 
   /**
@@ -256,17 +256,17 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
 
   /* see superclass */
   @Override
-  public List<String> getValues() {
-    if (values == null) {
-      values = new ArrayList<>();
+  public List<String> getPossibleValues() {
+    if (possibleValues == null) {
+      possibleValues = new ArrayList<>();
     }
-    return values;
+    return possibleValues;
   }
 
   /* see superclass */
   @Override
-  public void setValues(List<String> values) {
-    this.values = values;
+  public void setPossibleValues(List<String> values) {
+    this.possibleValues = values;
   }
 
   /* see superclass */
@@ -294,7 +294,7 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
     result =
         prime * result + ((placeholder == null) ? 0 : placeholder.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
-    result = prime * result + ((values == null) ? 0 : values.hashCode());
+    result = prime * result + ((possibleValues == null) ? 0 : possibleValues.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     return result;
   }
@@ -333,10 +333,10 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
       return false;
     if (type != other.type)
       return false;
-    if (values == null) {
-      if (other.values != null)
+    if (possibleValues == null) {
+      if (other.possibleValues != null)
         return false;
-    } else if (!values.equals(other.values))
+    } else if (!possibleValues.equals(other.possibleValues))
       return false;
     if (value == null) {
       if (other.value != null)
@@ -351,7 +351,7 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
   public String toString() {
     return "AlgorithmParameterJpa [name=" + name + ", fieldName=" + fieldName
         + ", placeholder=" + placeholder + ", type=" + type + ", length="
-        + length + ", description=" + description + ", values=" + values
+        + length + ", description=" + description + ", values=" + possibleValues
         + ", value=" + value + "]";
   }
 
