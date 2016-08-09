@@ -3,15 +3,20 @@
  */
 package com.wci.umls.server.jpa.algo;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -716,6 +721,44 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractAlgorithm {
   @Override
   public ValidationResult checkPreconditions() throws Exception {
     return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+
+    checkRequiredProperties(new String[] {
+        "inputDir", "inputConcepts"
+    }, p);
+
+    if (p.getProperty("inputDir") != null) {
+      setInputPath(p.getProperty("inputDir"));
+    }
+
+    if (p.getProperty("inputConcepts") != null) {
+      setInputConcepts(new HashSet<>(
+          Arrays.asList(p.getProperty("inputConcepts").split(","))));
+    }
+
+    if (p.getProperty("keepDescendants") != null) {
+      setKeepDescendants(Boolean.valueOf(p.getProperty("keepDescendants")));
+    }
+    if (p.getProperty("keepInferred") != null) {
+      setKeepDescendants(Boolean.valueOf(p.getProperty("keepInferred")));
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
+        "inputDir", "Input RF2 directory to load", "", 255,
+        AlgorithmParameter.Type.DIRECTORY);
+    params.add(param);
+    return params;
+
   }
 
 }

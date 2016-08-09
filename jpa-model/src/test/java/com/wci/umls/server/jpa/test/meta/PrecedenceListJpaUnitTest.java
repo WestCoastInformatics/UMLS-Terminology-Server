@@ -90,7 +90,6 @@ public class PrecedenceListJpaUnitTest extends ModelUnitSupport {
   public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("defaultList");
     tester.include("name");
     tester.include("terminology");
     tester.include("version");
@@ -131,7 +130,7 @@ public class PrecedenceListJpaUnitTest extends ModelUnitSupport {
     XmlSerializationTester tester = new XmlSerializationTester(object);
     tester.proxy(KeyValuePairList.class, 1, kvp1);
     tester.proxy(KeyValuePairList.class, 1, kvp2);
-    
+
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -150,7 +149,6 @@ public class PrecedenceListJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("version");
     tester.include("name");
-    tester.include("defaultList");
     tester.include("terminologies");
     tester.include("termTypes");
 

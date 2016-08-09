@@ -208,6 +208,7 @@ public class Rf2FileSorter {
 
       Logger.getLogger(getClass()).info("  Sorting for " + key);
       final File file = findFile(new File(inputDir + dirMap.get(key)), key);
+
       Logger.getLogger(getClass()).info("    file = " + file);
 
       // Determine fields to sort by

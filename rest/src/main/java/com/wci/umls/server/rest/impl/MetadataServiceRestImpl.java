@@ -40,12 +40,15 @@ import com.wci.umls.server.services.SecurityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link MetadataServiceRest}.
  */
 @Path("/metadata")
-@Api(value = "/metadata", description = "Operations providing terminology metadata")
+@Api(value = "/metadata")
+@SwaggerDefinition(info = @Info(description = "Operations providing terminology metadata.", title = "Metadata API", version = "1.0.1"))
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
@@ -266,7 +269,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       final PrecedenceList precedenceList =
-          metadataService.getDefaultPrecedenceList(terminology, version);
+          metadataService.getPrecedenceList(terminology, version);
       // Lazy initialize
       precedenceList.getPrecedence().getKeyValuePairs().size();
       return precedenceList;

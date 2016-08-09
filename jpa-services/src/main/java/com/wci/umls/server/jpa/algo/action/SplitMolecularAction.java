@@ -196,7 +196,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     createdConcept.setTerminologyId("");
     createdConcept.setName(getComputePreferredNameHandler(getTerminology())
         .computePreferredName(moveAtoms,
-            getDefaultPrecedenceList(getTerminology(), getVersion())));
+            getPrecedenceList(getTerminology(), getVersion())));
     if (getChangeStatusFlag()) {
       createdConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }

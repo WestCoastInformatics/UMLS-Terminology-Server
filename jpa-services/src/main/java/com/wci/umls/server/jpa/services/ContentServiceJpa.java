@@ -169,8 +169,20 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /** The query timeout. */
   static int queryTimeout = 1000;
 
-  static {
+  /** The helper map. */
+  private static Map<String, ComputePreferredNameHandler> pnHandlerMap = null;
 
+  /** The normalized string handler. */
+  private static NormalizedStringHandler normalizedStringHandler = null;
+
+  static {
+    init();
+  }
+
+  /**
+   * Static initialization (also used by refreshCaches).
+   */
+  private static void init() {
     try {
       if (ConfigUtility.getConfigProperties()
           .containsKey("javax.persistence.query.timeout")) {
@@ -198,12 +210,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       e.printStackTrace();
       idHandlerMap = null;
     }
-  }
 
-  /** The helper map. */
-  private static Map<String, ComputePreferredNameHandler> pnHandlerMap = null;
-
-  static {
     pnHandlerMap = new HashMap<>();
 
     try {
@@ -225,12 +232,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       e.printStackTrace();
       pnHandlerMap = null;
     }
-  }
 
-  /** The normalized string handler. */
-  private static NormalizedStringHandler normalizedStringHandler = null;
-
-  static {
     try {
 
       config = ConfigUtility.getConfigProperties();
@@ -254,27 +256,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
    */
   public ContentServiceJpa() throws Exception {
     super();
-
-    if (idHandlerMap == null) {
-      throw new Exception(
-          "Identifier assignment handler did not properly initialize, serious error.");
-    }
-
-    if (pnHandlerMap == null) {
-      throw new Exception(
-          "Preferred name handler did not properly initialize, serious error.");
-    }
-
-    if (normalizedStringHandler == null) {
-      throw new Exception(
-          "Normalized string handler did not properly initialize, serious error.");
-    }
-
-    if (!searchHandlerNames.contains(ConfigUtility.ATOMCLASS)) {
-      throw new Exception("search.handler." + ConfigUtility.ATOMCLASS
-          + " expected and does not exist.");
-    }
-
+    validateInit();
   }
 
   /**
@@ -5726,5 +5708,41 @@ public class ContentServiceJpa extends MetadataServiceJpa
       }
     }
     return result;
+  }
+
+  /* see superclass */
+  @Override
+  public void refreshCaches() throws Exception {
+    super.refreshCaches();
+    init();
+    validateInit();
+  }
+
+  /**
+   * Validate init.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateInit() throws Exception {
+    if (idHandlerMap == null) {
+      throw new Exception(
+          "Identifier assignment handler did not properly initialize, serious error.");
+    }
+
+    if (pnHandlerMap == null) {
+      throw new Exception(
+          "Preferred name handler did not properly initialize, serious error.");
+    }
+
+    if (normalizedStringHandler == null) {
+      throw new Exception(
+          "Normalized string handler did not properly initialize, serious error.");
+    }
+
+    if (!searchHandlerNames.contains(ConfigUtility.ATOMCLASS)) {
+      throw new Exception("search.handler." + ConfigUtility.ATOMCLASS
+          + " expected and does not exist.");
+    }
   }
 }

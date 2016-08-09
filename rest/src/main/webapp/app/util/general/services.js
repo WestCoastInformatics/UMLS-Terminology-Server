@@ -564,7 +564,13 @@ tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'g
     // handle receipt of a message
     this.connection.onmessage = function(e) {
       var message = e.data;
+      
+      // Need to determine what kind of message it was.
+      // First, if it's a "change event", then we can determine what changed
+      // and whether to fire "concept changed" or "atom changed"
+      
       console.log("MESSAGE: " + message);
+
     };
 
     // Send a message to the websocket server endpoint
@@ -587,4 +593,16 @@ tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'g
       $rootScope.$broadcast('termServer::favoriteChange', data);
     };
 
+    this.fireConceptChange = function(data) {
+      console.debug('websocketService: fireConceptChange event', data);
+      $rootScope.$broadcast('termServer::conceptChange', data);
+    };
+
+    this.fireConceptChange = function(data) {
+      console.debug('websocketService: fireAtomChange event', data);
+      $rootScope.$broadcast('termServer::atomChange', data);
+    };
+
+    
+    
   } ]);

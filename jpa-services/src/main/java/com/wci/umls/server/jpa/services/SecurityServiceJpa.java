@@ -31,16 +31,16 @@ import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 /**
  * Reference implementation of the {@link SecurityService}.
  */
-public class SecurityServiceJpa extends RootServiceJpa implements
-    SecurityService {
+public class SecurityServiceJpa extends RootServiceJpa
+    implements SecurityService {
 
   /** The token username . */
-  private static Map<String, String> tokenUsernameMap = Collections
-      .synchronizedMap(new HashMap<String, String>());
+  private static Map<String, String> tokenUsernameMap =
+      Collections.synchronizedMap(new HashMap<String, String>());
 
   /** The token login time . */
-  private static Map<String, Date> tokenTimeoutMap = Collections
-      .synchronizedMap(new HashMap<String, Date>());
+  private static Map<String, Date> tokenTimeoutMap =
+      Collections.synchronizedMap(new HashMap<String, Date>());
 
   /** The handler. */
   private static SecurityServiceHandler handler = null;
@@ -71,9 +71,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     if (handler == null) {
       timeout = Integer.valueOf(config.getProperty("security.timeout"));
       String handlerName = config.getProperty("security.handler");
-      handler =
-          ConfigUtility.newStandardHandlerInstanceWithConfiguration(
-              "security.handler", handlerName, SecurityServiceHandler.class);
+      handler = ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+          "security.handler", handlerName, SecurityServiceHandler.class);
     }
 
     //
@@ -145,15 +144,14 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     tokenUsernameMap.put(token, authUser.getUserName());
     tokenTimeoutMap.put(token, new Date(new Date().getTime() + timeout));
 
-    Logger.getLogger(getClass()).debug(
-        "User = " + authUser.getUserName() + ", " + authUser);
+    Logger.getLogger(getClass())
+        .debug("User = " + authUser.getUserName() + ", " + authUser);
 
     // Reload the user to populate UserPreferences
     final User result = getUser(userId);
     handleLazyInit(result);
-    Logger.getLogger(getClass()).info(
-        "Result = " + authUser.getUserName() + ", "
-            + result.getUserPreferences());
+    Logger.getLogger(getClass()).info("Result = " + authUser.getUserName()
+        + ", " + result.getUserPreferences());
     result.setAuthToken(token);
 
     return result;
@@ -192,16 +190,15 @@ public class SecurityServiceJpa extends RootServiceJpa implements
           throw new LocalException(
               "AuthToken has expired. Please reload and log in again.");
         }
-        tokenTimeoutMap.put(parsedToken, new Date(new Date().getTime()
-            + timeout));
+        tokenTimeoutMap.put(parsedToken,
+            new Date(new Date().getTime() + timeout));
       }
       return username;
     } else {
 
       // handle guest user unless
-      if (authToken.equals("guest")
-          && "false".equals(ConfigUtility.getConfigProperties().getProperty(
-              "deploy.login.enabled"))) {
+      if (authToken.equals("guest") && "false".equals(ConfigUtility
+          .getConfigProperties().getProperty("deploy.login.enabled"))) {
         return "guest";
       }
 
@@ -211,16 +208,16 @@ public class SecurityServiceJpa extends RootServiceJpa implements
 
   /* see superclass */
   @Override
-  public UserRole getApplicationRoleForToken(String authToken) throws Exception {
+  public UserRole getApplicationRoleForToken(String authToken)
+    throws Exception {
 
     if (authToken == null) {
       throw new LocalException(
           "Attempt to access a service without an AuthToken, the user is likely not logged in.");
     }
     // Handle "guest" user
-    if (authToken.equals("guest")
-        && "true".equals(ConfigUtility.getConfigProperties().getProperty(
-            "security.guest.disabled"))) {
+    if (authToken.equals("guest") && "true".equals(ConfigUtility
+        .getConfigProperties().getProperty("security.guest.disabled"))) {
       return UserRole.VIEWER;
     }
 
@@ -265,9 +262,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public User getUser(String username) throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("select u from UserJpa u where userName = :userName");
+    javax.persistence.Query query = manager
+        .createQuery("select u from UserJpa u where userName = :userName");
     query.setParameter("userName", username);
     try {
       return (User) query.getSingleResult();
@@ -367,12 +363,6 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return mapUserList;
   }
 
-  /* see superclass */
-  @Override
-  public void refreshCaches() throws Exception {
-    // n/a
-  }
-
   /**
    * Handle lazy init.
    *
@@ -388,15 +378,14 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public UserList findUsers(String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Security Service - find users " + query + ", pfs= " + pfs);
+  public UserList findUsers(String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Security Service - find users " + query + ", pfs= " + pfs);
 
     int[] totalCt = new int[1];
-    final List<User> list =
-        (List<User>) getQueryResults(query == null || query.isEmpty()
-            ? "id:[* TO *]" : query, UserJpa.class, UserJpa.class, pfs, totalCt);
+    final List<User> list = (List<User>) getQueryResults(
+        query == null || query.isEmpty() ? "id:[* TO *]" : query, UserJpa.class,
+        UserJpa.class, pfs, totalCt);
     final UserList result = new UserListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
@@ -409,8 +398,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public UserPreferences addUserPreferences(UserPreferences userPreferences) {
-    Logger.getLogger(getClass()).debug(
-        "Security Service - add user preferences " + userPreferences);
+    Logger.getLogger(getClass())
+        .debug("Security Service - add user preferences " + userPreferences);
     try {
       if (getTransactionPerOperation()) {
         tx = manager.getTransaction();
@@ -433,8 +422,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public void removeUserPreferences(Long id) {
-    Logger.getLogger(getClass()).debug(
-        "Security Service - remove user preferences " + id);
+    Logger.getLogger(getClass())
+        .debug("Security Service - remove user preferences " + id);
     tx = manager.getTransaction();
     // retrieve this user
     final UserPreferences mu = manager.find(UserPreferencesJpa.class, id);
@@ -467,8 +456,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public void updateUserPreferences(UserPreferences userPreferences) {
-    Logger.getLogger(getClass()).debug(
-        "Security Service - update user preferences " + userPreferences);
+    Logger.getLogger(getClass())
+        .debug("Security Service - update user preferences " + userPreferences);
     try {
       if (getTransactionPerOperation()) {
         tx = manager.getTransaction();

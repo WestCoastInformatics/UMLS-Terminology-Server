@@ -79,10 +79,25 @@ public abstract class RootServiceJpa implements RootService {
   /** The factory. */
   protected static EntityManagerFactory factory = null;
 
+  /** The search handlers. */
+  protected static Set<String> searchHandlerNames = null;
+
+  // Static initialization
   static {
+    init();
+  }
+
+  /**
+   * Static initialization (also used by refreshCaches).
+   */
+  private static void init() {
+
+    // Clear user map
+    userMap = new HashMap<>();
+
     Logger.getLogger(RootServiceJpa.class)
         .info("Setting root service entity manager factory.");
-    Properties config;
+    Properties config = null;
     try {
       config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
@@ -90,12 +105,7 @@ public abstract class RootServiceJpa implements RootService {
       e.printStackTrace();
       factory = null;
     }
-  }
-
-  /** The search. */
-  protected static Set<String> searchHandlerNames = null;
-
-  static {
+    Logger.getLogger(RootServiceJpa.class).info("Loading search handlers");
     searchHandlerNames = new HashSet<>();
     try {
       if (config == null)
@@ -116,6 +126,7 @@ public abstract class RootServiceJpa implements RootService {
       e.printStackTrace();
       searchHandlerNames = null;
     }
+
   }
 
   /** The manager. */
@@ -257,12 +268,6 @@ public abstract class RootServiceJpa implements RootService {
     if (manager.isOpen()) {
       manager.clear();
     }
-  }
-
-  /* see superclass */
-  @Override
-  public void refreshCaches() throws Exception {
-    // n/a
   }
 
   /**
@@ -1352,6 +1357,14 @@ public abstract class RootServiceJpa implements RootService {
 
     return results;
 
+  }
+
+  /* see superclass */
+  @Override
+  public void refreshCaches() throws Exception {
+    init();
+    closeFactory();
+    openFactory();
   }
 
 }

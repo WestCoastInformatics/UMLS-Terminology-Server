@@ -51,6 +51,9 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 public class UmlsIdentifierAssignmentHandler
     implements IdentifierAssignmentHandler {
 
+  /** The lock. */
+  private static String LOCK = "lock";
+
   /** The ui prefixes. */
   private Map<String, String> prefixMap = new HashMap<>();
 
@@ -124,21 +127,22 @@ public class UmlsIdentifierAssignmentHandler
 
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
-      // Create StringClassIdentity and populate from the stringClass.
-      final StringClassIdentity identity = new StringClassIdentityJpa();
-      identity.setName(stringClass.getName());
-      identity.setLanguage(stringClass.getLanguage());
+      // Block between getting next id and saving the id value
+      synchronized (LOCK) {
+        // Create StringClassIdentity and populate from the stringClass.
+        final StringClassIdentity identity = new StringClassIdentityJpa();
+        identity.setName(stringClass.getName());
+        identity.setLanguage(stringClass.getLanguage());
 
-      final StringClassIdentity identity2 = service.getStringClassIdentity(identity);
+        final StringClassIdentity identity2 =
+            service.getStringClassIdentity(identity);
 
-      // Reuse existing id
-      if (identity2 != null) {
-        return convertId(identity2.getId(), "SUI");
-      }
-      // else generate a new one and add it
-      else {
-        // Block between getting next id and saving the id value
-        synchronized (this) {
+        // Reuse existing id
+        if (identity2 != null) {
+          return convertId(identity2.getId(), "SUI");
+        }
+        // else generate a new one and add it
+        else {
           // Get next id
           final Long nextId = service.getNextStringClassId();
           // Add new identity object
@@ -166,21 +170,21 @@ public class UmlsIdentifierAssignmentHandler
 
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
-      // Create LexicalClassIdentity and populate from the lexicalClass.
-      final LexicalClassIdentity identity = new LexicalClassIdentityJpa();
-      identity.setNormalizedName(lexicalClass.getNormalizedName());
+      // Block between getting next id and saving the id value
+      synchronized (LOCK) {
+        // Create LexicalClassIdentity and populate from the lexicalClass.
+        final LexicalClassIdentity identity = new LexicalClassIdentityJpa();
+        identity.setNormalizedName(lexicalClass.getNormalizedName());
 
-      final LexicalClassIdentity identity2 =
-          service.getLexicalClassIdentity(identity);
+        final LexicalClassIdentity identity2 =
+            service.getLexicalClassIdentity(identity);
 
-      // Reuse existing id
-      if (identity2 != null) {
-        return convertId(identity2.getId(), "LUI");
-      }
-      // else generate a new one and add it
-      else {
-        // Block between getting next id and saving the id value
-        synchronized (this) {
+        // Reuse existing id
+        if (identity2 != null) {
+          return convertId(identity2.getId(), "LUI");
+        }
+        // else generate a new one and add it
+        else {
           // Get next id
           final Long nextId = service.getNextLexicalClassId();
           // Add new identity object
@@ -207,27 +211,26 @@ public class UmlsIdentifierAssignmentHandler
 
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
-      // Create AtomIdentity and populate from the atom.
-      final AtomIdentity identity = new AtomIdentityJpa();
-      identity.setCodeId(atom.getCodeId());
-      identity.setConceptId(atom.getConceptId());
-      identity.setDescriptorId(atom.getDescriptorId());
-      identity.setStringClassId(atom.getStringClassId());
-      identity.setTerminology(atom.getTerminology());
-      identity.setTerminologyId(atom.getTerminologyId());
-      identity.setTermType(atom.getTermType());
+      // Block between getting next id and saving the id value
+      synchronized (LOCK) {
+        // Create AtomIdentity and populate from the atom.
+        final AtomIdentity identity = new AtomIdentityJpa();
+        identity.setCodeId(atom.getCodeId());
+        identity.setConceptId(atom.getConceptId());
+        identity.setDescriptorId(atom.getDescriptorId());
+        identity.setStringClassId(atom.getStringClassId());
+        identity.setTerminology(atom.getTerminology());
+        identity.setTerminologyId(atom.getTerminologyId());
+        identity.setTermType(atom.getTermType());
 
-      final AtomIdentity identity2 =
-          service.getAtomIdentity(identity);
+        final AtomIdentity identity2 = service.getAtomIdentity(identity);
 
-      // Reuse existing id
-      if (identity2 != null) {
-        return convertId(identity2.getId(), "AUI");
-      }
-      // else generate a new one and add it
-      else {
-        // Block between getting next id and saving the id value
-        synchronized (this) {
+        // Reuse existing id
+        if (identity2 != null) {
+          return convertId(identity2.getId(), "AUI");
+        }
+        // else generate a new one and add it
+        else {
           // Get next id
           final Long nextId = service.getNextAtomId();
           // Add new identity object
@@ -255,27 +258,27 @@ public class UmlsIdentifierAssignmentHandler
 
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
-      // Create AttributeIdentity and populate from the attribute.
-      final AttributeIdentity identity = new AttributeIdentityJpa();
-      identity.setHashCode(ConfigUtility.getMd5(attribute.getValue()));
-      identity.setName(attribute.getName());
-      identity.setComponentId(component.getTerminologyId());
-      identity.setComponentTerminology(component.getTerminology());
-      identity.setComponentType(component.getType());
-      identity.setTerminology(attribute.getTerminology());
-      identity.setTerminologyId(attribute.getTerminologyId());
+      synchronized (LOCK) {
+        // Create AttributeIdentity and populate from the attribute.
+        final AttributeIdentity identity = new AttributeIdentityJpa();
+        identity.setHashCode(ConfigUtility.getMd5(attribute.getValue()));
+        identity.setName(attribute.getName());
+        identity.setComponentId(component.getTerminologyId());
+        identity.setComponentTerminology(component.getTerminology());
+        identity.setComponentType(component.getType());
+        identity.setTerminology(attribute.getTerminology());
+        identity.setTerminologyId(attribute.getTerminologyId());
 
-      final AttributeIdentity identity2 =
-          service.getAttributeIdentity(identity);
+        final AttributeIdentity identity2 =
+            service.getAttributeIdentity(identity);
 
-      // Reuse existing id
-      if (identity2 != null) {
-        return convertId(identity2.getId(), "ATUI");
-      }
-      // else generate a new one and add it
-      else {
-        // Block between getting next id and saving the id value
-        synchronized (this) {
+        // Reuse existing id
+        if (identity2 != null) {
+          return convertId(identity2.getId(), "ATUI");
+        }
+        // else generate a new one and add it
+        else {
+          // Block between getting next id and saving the id value
           // Get next id
           final Long nextId = service.getNextAttributeId();
           // Add new identity object
@@ -312,58 +315,61 @@ public class UmlsIdentifierAssignmentHandler
 
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
-      // Create RelationshipIdentity and populate from the relationship.
-      final RelationshipIdentity identity = new RelationshipIdentityJpa();
-      identity.setId(relationship.getId());
-      identity.setTerminology(relationship.getTerminology());
-      identity.setTerminologyId(relationship.getTerminologyId());
-      identity.setRelationshipType(relationship.getRelationshipType());
-      identity.setAdditionalRelationshipType(relationship.getAdditionalRelationshipType());
-      identity.setFromId(relationship.getFrom().getTerminologyId());
-      identity.setFromTerminology(relationship.getFrom().getTerminology());
-      identity.setFromType(relationship.getFrom().getType());
-      identity.setToId(relationship.getTo().getTerminologyId());
-      identity.setToTerminology(relationship.getTo().getTerminology());
-      identity.setToType(relationship.getTo().getType());
+      // Block between getting next id and saving the id value
+      synchronized (LOCK) {
+        // Create RelationshipIdentity and populate from the relationship.
+        final RelationshipIdentity identity = new RelationshipIdentityJpa();
+        identity.setId(relationship.getId());
+        identity.setTerminology(relationship.getTerminology());
+        identity.setTerminologyId(relationship.getTerminologyId());
+        identity.setRelationshipType(relationship.getRelationshipType());
+        identity.setAdditionalRelationshipType(
+            relationship.getAdditionalRelationshipType());
+        identity.setFromId(relationship.getFrom().getTerminologyId());
+        identity.setFromTerminology(relationship.getFrom().getTerminology());
+        identity.setFromType(relationship.getFrom().getType());
+        identity.setToId(relationship.getTo().getTerminologyId());
+        identity.setToTerminology(relationship.getTo().getTerminology());
+        identity.setToType(relationship.getTo().getType());
 
-      final RelationshipIdentity identity2 =
-          service.getRelationshipIdentity(identity);
+        final RelationshipIdentity identity2 =
+            service.getRelationshipIdentity(identity);
 
-      // Reuse existing id
-      if (identity2 != null) {
-        return convertId(identity2.getId(), "RUI");
-      }
-      // else generate a new one and add it
-      else {
-        
-        final RelationshipIdentity inverseIdentity = service.createInverseRelationshipIdentity(identity);
-         // Block between getting next id and saving the id value
-        synchronized (this) {
+        // Reuse existing id
+        if (identity2 != null) {
+          return convertId(identity2.getId(), "RUI");
+        }
+        // else generate a new one and add it
+        else {
+
+          final RelationshipIdentity inverseIdentity =
+              service.createInverseRelationshipIdentity(identity);
           // Get next id and inverse ID
           final Long nextId = service.getNextRelationshipId();
-          
-          //Set ID for the relationship.  Set inverseId to bogus number for now - it will be updated later.
-          identity.setId(nextId);          
-          identity.setInverseId(0L);          
-          
+
+          // Set ID for the relationship. Set inverseId to bogus number for now
+          // - it will be updated later.
+          identity.setId(nextId);
+          identity.setInverseId(0L);
+
           // Add new identity object
           service.addRelationshipIdentity(identity);
 
           // Get next id for inverse relationship
-         //TODO confirm this gives different number.  If not, add 1 to nextId;
+          // TODO confirm this gives different number. If not, add 1 to nextId;
           final Long nextIdInverse = service.getNextRelationshipId();
 
-          //Set ID and inverse IDs for the inverse Id
+          // Set ID and inverse IDs for the inverse Id
           inverseIdentity.setId(nextIdInverse);
           inverseIdentity.setInverseId(nextId);
 
           // Add inverse identity objects
           service.addRelationshipIdentity(inverseIdentity);
-                   
+
           // Update the identity objects with the true InverseId
-          identity.setInverseId(nextIdInverse);          
+          identity.setInverseId(nextIdInverse);
           service.updateRelationshipIdentity(identity);
-          
+
           // return ID for called relationship (inverse can get called later)
           return convertId(nextId, "RUI");
         }
@@ -375,7 +381,7 @@ public class UmlsIdentifierAssignmentHandler
       service.close();
     }
   }
-  
+
   /* see superclass */
   @Override
   public String getInverseTerminologyId(
@@ -390,11 +396,12 @@ public class UmlsIdentifierAssignmentHandler
     try {
       // Create RelationshipIdentity and populate from the relationship.
       final RelationshipIdentity identity = new RelationshipIdentityJpa();
-//      identity.setId(relationship.getId());
+      // identity.setId(relationship.getId());
       identity.setTerminology(relationship.getTerminology());
       identity.setTerminologyId(relationship.getTerminologyId());
       identity.setRelationshipType(relationship.getRelationshipType());
-      identity.setAdditionalRelationshipType(relationship.getAdditionalRelationshipType());
+      identity.setAdditionalRelationshipType(
+          relationship.getAdditionalRelationshipType());
       identity.setFromId(relationship.getFrom().getTerminologyId());
       identity.setFromTerminology(relationship.getFrom().getTerminology());
       identity.setFromType(relationship.getFrom().getType());
@@ -402,8 +409,9 @@ public class UmlsIdentifierAssignmentHandler
       identity.setToTerminology(relationship.getTo().getTerminology());
       identity.setToType(relationship.getTo().getType());
 
-      final RelationshipIdentity inverseIdentity = service.createInverseRelationshipIdentity(identity);
-      
+      final RelationshipIdentity inverseIdentity =
+          service.createInverseRelationshipIdentity(identity);
+
       final RelationshipIdentity identity2 =
           service.getRelationshipIdentity(inverseIdentity);
 
@@ -413,14 +421,15 @@ public class UmlsIdentifierAssignmentHandler
       }
       // else generate a new one and add it
       else {
-        throw new Exception ("Unexpected missing inverse of relationship " + relationship);
+        throw new Exception(
+            "Unexpected missing inverse of relationship " + relationship);
       }
     } catch (Exception e) {
       throw e;
     } finally {
       service.close();
     }
-  }  
+  }
 
   /* see superclass */
   @Override
@@ -466,24 +475,25 @@ public class UmlsIdentifierAssignmentHandler
 
     final UmlsIdentityService service = new UmlsIdentityServiceJpa();
     try {
-      // Create semanticTypeIdentity and populate from the semanticType.
-      final SemanticTypeComponentIdentity identity =
-          new SemanticTypeComponentIdentityJpa();
-      identity.setConceptTerminologyId(concept.getTerminologyId());
-      identity.setSemanticType(semanticTypeComponent.getSemanticType());
-      identity.setTerminology(semanticTypeComponent.getTerminology());
+      // Block between getting next id and saving the id value
+      synchronized (LOCK) {
 
-      final SemanticTypeComponentIdentity identity2 =
-          service.getSemanticTypeComponentIdentity(identity);
+        // Create semanticTypeIdentity and populate from the semanticType.
+        final SemanticTypeComponentIdentity identity =
+            new SemanticTypeComponentIdentityJpa();
+        identity.setConceptTerminologyId(concept.getTerminologyId());
+        identity.setSemanticType(semanticTypeComponent.getSemanticType());
+        identity.setTerminology(semanticTypeComponent.getTerminology());
 
-      // Reuse existing id
-      if (identity2 != null) {
-        return convertId(identity2.getId(), "ATUI");
-      }
-      // else generate a new one and add it
-      else {
-        // Block between getting next id and saving the id value
-        synchronized (this) {
+        final SemanticTypeComponentIdentity identity2 =
+            service.getSemanticTypeComponentIdentity(identity);
+
+        // Reuse existing id
+        if (identity2 != null) {
+          return convertId(identity2.getId(), "ATUI");
+        }
+        // else generate a new one and add it
+        else {
           // Get next id
           final Long nextId = service.getNextSemanticTypeComponentId();
           // Add new identity object

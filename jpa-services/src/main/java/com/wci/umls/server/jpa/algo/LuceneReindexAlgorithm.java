@@ -5,7 +5,9 @@ package com.wci.umls.server.jpa.algo;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -15,7 +17,9 @@ import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.reflections.Reflections;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 
 /**
@@ -155,14 +159,34 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void refreshCaches() throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
   public ValidationResult checkPreconditions() throws Exception {
     return new ValidationResultJpa();
   }
 
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+
+    checkRequiredProperties(new String[] {
+        ""
+    }, p);
+
+    if (p.getProperty("indexedObjects") != null) {
+      indexedObjects = p.getProperty("indexedObjects");
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param =
+        new AlgorithmParameterJpa("Indexed Objects", "indexedObjects",
+            "Comma-separated list of simple object class names to reindex.", "",
+            255, AlgorithmParameter.Type.STRING);
+    params.add(param);
+    return params;
+
+  }
 }

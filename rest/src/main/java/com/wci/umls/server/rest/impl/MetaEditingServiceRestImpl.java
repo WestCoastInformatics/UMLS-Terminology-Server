@@ -57,18 +57,22 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link MetaEditingServiceRest}..
  */
 @Path("/meta")
+@Api(value = "/meta")
+// TODO: consider renaming this to "MetathesaurusRestImpl" vs "Authoring API"
+@SwaggerDefinition(info = @Info(description = "Operations to support metathesaurus editing.", title = "Meta Editing API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-@Api(value = "/meta", description = "Operations for metathesaurus editing")
 public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     implements MetaEditingServiceRest {
 
@@ -1104,6 +1108,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
       action.compute();
 
+      // TODO: ALL actions should do this
       // Update any tracking record that references this concept
       final TrackingRecordList trackingRecords =
           action.findTrackingRecordsForConcept(action.getProject(),
@@ -1349,6 +1354,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
 
-  }  
-  
+  }
+
 }

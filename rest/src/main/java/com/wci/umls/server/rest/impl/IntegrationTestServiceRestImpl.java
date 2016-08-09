@@ -41,18 +41,21 @@ import com.wci.umls.server.services.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link IntegrationTestServiceRest}..
  */
 @Path("/test")
+@Api(value = "/test")
+@SwaggerDefinition(info = @Info(description = "Operations to support integration tests.", title = "Integration test API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-@Api(value = "/test", description = "Support Integration Tests")
 public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     implements IntegrationTestServiceRest {
 
@@ -227,7 +230,8 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken, "get semantic type component",
           UserRole.ADMINISTRATOR);
-      SemanticTypeComponent newSty = contentService.getSemanticTypeComponent(styId);
+      SemanticTypeComponent newSty =
+          contentService.getSemanticTypeComponent(styId);
       if (newSty == null) {
         return null;
       } else {
@@ -296,7 +300,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken, "get attribute",
           UserRole.ADMINISTRATOR);
-      
+
       return contentService.getAttribute(attributeId);
 
     } catch (Exception e) {

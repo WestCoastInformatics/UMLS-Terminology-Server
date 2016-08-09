@@ -15,27 +15,6 @@ public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology {
   public void setInputPath(String inputPath);
 
   /**
-   * Compute transitive closures.
-   *
-   * @throws Exception the exception
-   */
-  public void computeTransitiveClosures() throws Exception;
-
-  /**
-   * Compute tree positions.
-   *
-   * @throws Exception the exception
-   */
-  public void computeTreePositions() throws Exception;
-
-  /**
-   * Create expression indexes.
-   *
-   * @throws Exception the exception
-   */
-  public void computeExpressionIndexes() throws Exception;
-
-  /**
    * Gets the input path.
    *
    * @return the input path

@@ -60,8 +60,8 @@ import org.apache.log4j.Logger;
  * This software may be used for any purpose, commercial or noncommercial, so
  * long as this copyright notice is retained. If you make improvements to the
  * code, you're encouraged (but not required) to send them to me so I can make
- * them available to others. For updates, please check <a
- * href="http://www.plaintivemewling.com/?p=34">here</a>.
+ * them available to others. For updates, please check
+ * <a href="http://www.plaintivemewling.com/?p=34">here</a>.
  * 
  * @author Steven Grimm, koreth@midwinter.com
  * @version 1.0 (2005/11/08).
@@ -114,7 +114,7 @@ public class GetterSetterTester extends ProxyTester {
         continue;
 
       /* Check the field name against our include/exclude list. */
-      if (includes != null && !includes.contains(fieldName.toLowerCase())) {
+      if (!includes.isEmpty() && !includes.contains(fieldName.toLowerCase())) {
         continue;
       }
       if (excludes.contains(fieldName.toLowerCase()))
@@ -157,20 +157,22 @@ public class GetterSetterTester extends ProxyTester {
     Object proxy = makeProxy(argType, 1);
     try {
       set.invoke(this.obj, new Object[] {
-        proxy
+          proxy
       });
     } catch (InvocationTargetException e) {
       e.printStackTrace();
-      throw new RuntimeException("Setter " + set.getDeclaringClass().getName()
-          + "." + set.getName() + " threw " + e.getTargetException().toString());
+      throw new RuntimeException(
+          "Setter " + set.getDeclaringClass().getName() + "." + set.getName()
+              + " threw " + e.getTargetException().toString());
     }
 
     Object getResult;
     try {
       getResult = get.invoke(this.obj, new Object[] {});
     } catch (InvocationTargetException e) {
-      throw new RuntimeException("Setter " + set.getDeclaringClass().getName()
-          + "." + set.getName() + " threw " + e.getTargetException().toString());
+      throw new RuntimeException(
+          "Setter " + set.getDeclaringClass().getName() + "." + set.getName()
+              + " threw " + e.getTargetException().toString());
     }
 
     if (getResult == proxy || proxy.equals(getResult))

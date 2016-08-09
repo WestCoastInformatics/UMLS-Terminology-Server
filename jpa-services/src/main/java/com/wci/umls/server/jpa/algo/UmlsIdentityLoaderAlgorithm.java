@@ -6,9 +6,13 @@ package com.wci.umls.server.jpa.algo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.List;
+import java.util.Properties;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
@@ -289,25 +293,33 @@ public class UmlsIdentityLoaderAlgorithm
 
   /* see superclass */
   @Override
-  public void computeTransitiveClosures() throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTreePositions() throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
-  public void computeExpressionIndexes() throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
   public ValidationResult checkPreconditions() throws Exception {
     return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+
+    checkRequiredProperties(new String[] {
+        "inputDir"
+    }, p);
+
+    if (p.getProperty("inputDir") != null) {
+      setInputPath(p.getProperty("inputDir"));
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
+        "inputDir", "Input UMLS UI Files directory to load", "", 255,
+        AlgorithmParameter.Type.DIRECTORY);
+    params.add(param);
+    return params;
+
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -10,22 +10,23 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.Rf2Readers.Keys;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
@@ -155,16 +156,6 @@ public class Rf2DeltaLoaderAlgorithm
     super();
   }
 
-  /**
-   * Sets the readers.
-   *
-   * @param readers the readers
-   */
-  public void setReaders(Rf2Readers readers) {
-    this.readers = readers;
-    readers.getReader(Keys.ASSOCIATION_REFERENCE);
-  }
-
   /* see superclass */
   @Override
   public String getFileVersion() throws Exception {
@@ -282,7 +273,7 @@ public class Rf2DeltaLoaderAlgorithm
 
     // Compute preferred names
     final PrecedenceList list =
-        this.getDefaultPrecedenceList(getTerminology(), getVersion());
+        this.getPrecedenceList(getTerminology(), getVersion());
     logInfo("  Compute preferred names for modified concepts");
     int ct = 0;
     for (final Long id : this.pnRecomputeIds) {
@@ -427,64 +418,6 @@ public class Rf2DeltaLoaderAlgorithm
   @Override
   public void reset() throws Exception {
     // do nothing
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTreePositions() throws Exception {
-
-    try {
-      logInfo("Computing tree positions");
-      treePosAlgorithm.setCycleTolerant(false);
-      treePosAlgorithm.setIdType(IdType.CONCEPT);
-      // some terminologies may have cycles, allow these for now.
-      treePosAlgorithm.setCycleTolerant(true);
-      treePosAlgorithm.setComputeSemanticType(true);
-      treePosAlgorithm.setTerminology(getTerminology());
-      treePosAlgorithm.setVersion(getVersion());
-      treePosAlgorithm.reset();
-      treePosAlgorithm.compute();
-      treePosAlgorithm.close();
-    } catch (CancelException e) {
-      logInfo("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
-
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info("  Compute transitive closure from  "
-        + getTerminology() + "/" + getVersion());
-    try {
-      transClosureAlgorithm.setCycleTolerant(false);
-      transClosureAlgorithm.setIdType(IdType.CONCEPT);
-      transClosureAlgorithm.setTerminology(getTerminology());
-      transClosureAlgorithm.setVersion(getVersion());
-      transClosureAlgorithm.reset();
-      transClosureAlgorithm.compute();
-      transClosureAlgorithm.close();
-
-      // Compute label sets - after transitive closure
-      // for each subset, compute the label set
-      for (final Subset subset : getConceptSubsets(getTerminology(),
-          getVersion(), Branch.ROOT).getObjects()) {
-        final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass())
-              .info("  Create label set for subset = " + subset);
-          labelSetAlgorithm.setTerminology(getTerminology());
-          labelSetAlgorithm.setVersion(getVersion());
-          labelSetAlgorithm.setSubset(conceptSubset);
-          labelSetAlgorithm.compute();
-          labelSetAlgorithm.close();
-        }
-      }
-    } catch (CancelException e) {
-      logInfo("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
   }
 
   /* see superclass */
@@ -3381,16 +3314,42 @@ public class Rf2DeltaLoaderAlgorithm
 
   /* see superclass */
   @Override
-  public void computeExpressionIndexes() throws Exception {
-    final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
-    algo.setTerminology(getTerminology());
-    algo.setVersion(getVersion());
-    algo.compute();
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
+  }
+
+  /**
+   * Sets the readers.
+   *
+   * @param readers the readers
+   */
+  public void setReaders(Rf2Readers readers) {
+    this.readers = readers;
   }
 
   /* see superclass */
   @Override
-  public ValidationResult checkPreconditions() throws Exception {
-    return new ValidationResultJpa();
+  public void setProperties(Properties p) throws Exception {
+
+    checkRequiredProperties(new String[] {
+        "inputDir"
+    }, p);
+
+    if (p.getProperty("inputDir") != null) {
+      setInputPath(p.getProperty("inputDir"));
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
+        "inputDir", "Input RF2 Delta directory to load", "", 255,
+        AlgorithmParameter.Type.DIRECTORY);
+    params.add(param);
+    return params;
+
   }
 }

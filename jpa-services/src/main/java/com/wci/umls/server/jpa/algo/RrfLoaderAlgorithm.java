@@ -1,18 +1,18 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
-import gnu.trove.strategy.HashingStrategy;
-
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -20,9 +20,9 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -31,6 +31,7 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -106,6 +107,8 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
+import gnu.trove.strategy.HashingStrategy;
+
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
@@ -116,11 +119,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /**
    * An SAB used in a Metathesaurus that really should belong to
-   * getTerminology()
+   * getTerminology().
    */
   /** e.g. MTH is really UMLS */
   // TODO: should be configurable
-  private String proxySab = "MTH";
+  private String proxyTerminology = "MTH";
 
   /** The single mode. */
   private boolean singleMode = false;
@@ -208,6 +211,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The umls identity loader algo. */
   private UmlsIdentityLoaderAlgorithm umlsIdentityLoaderAlgo;
 
+  /**
+   * map track metadata for REL, RELA, ATN, TTY, etc e.g. sab -> type ->
+   * abbreviationSet; Initialized in loadMrsab()
+   */
+  private Map<String, Map<String, Set<String>>> sourceMetadataMap =
+      new HashMap<>();
+
   static {
 
     // from http://www.nationsonline.org/oneworld/country_code_list.htm
@@ -274,6 +284,15 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
+   * Sets the proxy flag.
+   *
+   * @param proxyTerminology the proxy flag
+   */
+  public void setProxyTerminology(String proxyTerminology) {
+    this.proxyTerminology = proxyTerminology;
+  }
+
+  /**
    * Sets the prefix.
    *
    * @param prefix the prefix
@@ -282,6 +301,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     this.prefix = prefix;
   }
 
+  /* see superclass */
   @Override
   public String getFileVersion() throws Exception {
     return new RrfFileSorter().getFileVersion(new File(getInputPath()));
@@ -366,7 +386,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     commitClearBegin();
 
     // Load the content
-    list = getDefaultPrecedenceList(getTerminology(), getVersion());
+    list = getPrecedenceList(getTerminology(), getVersion());
     loadMrconso();
 
     // Definitions
@@ -397,6 +417,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Make subsets and label sets
     loadExtensionLabelSets();
+
+    // Load terminology-specific metadata
+    loadTerminologyMetadata();
 
     // Commit
     commitClearBegin();
@@ -773,6 +796,179 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
+   * Load extension label sets.
+   *
+   * @throws Exception the exception
+   */
+  private void loadTerminologyMetadata() throws Exception {
+    logInfo("  Load individual terminology metadata objects");
+
+    // Get current terminology versions.
+    logInfo("    Load terminology versions");
+    final Map<String, String> versionsMap = new HashMap<>();
+    for (final Terminology terminology : getTerminologyLatestVersions()
+        .getObjects()) {
+      versionsMap.put(terminology.getTerminology(), terminology.getVersion());
+    }
+
+    // Iterate through terminologies
+    for (final String terminology : versionsMap.keySet()) {
+
+      // Skip terminologies not reprsented
+      if (!sourceMetadataMap.containsKey(terminology)) {
+        continue;
+      }
+
+      logInfo("    terminology = " + terminology);
+
+      // Handle LAT
+      if (sourceMetadataMap.get(terminology).containsKey("LAT")) {
+        for (final Language language : getLanguages(getTerminology(),
+            getVersion()).getObjects()) {
+          if (sourceMetadataMap.get(terminology).get("LAT")
+              .contains(language.getAbbreviation())) {
+            final Language copy = new LanguageJpa(language);
+            copy.setId(null);
+            copy.setTerminology(terminology);
+            copy.setVersion(versionsMap.get(terminology));
+            addLanguage(copy);
+          }
+        }
+      }
+
+      // Handle TTY
+      if (sourceMetadataMap.get(terminology).containsKey("TTY")) {
+        for (final TermType tty : getTermTypes(getTerminology(), getVersion())
+            .getObjects()) {
+          if (sourceMetadataMap.get(terminology).get("TTY")
+              .contains(tty.getAbbreviation())) {
+            final TermType copy = new TermTypeJpa(tty);
+            copy.setId(null);
+            copy.setTerminology(terminology);
+            copy.setVersion(versionsMap.get(terminology));
+            addTermType(copy);
+          }
+        }
+      }
+
+      // Handle ATN
+      if (sourceMetadataMap.get(terminology).containsKey("ATN")) {
+        for (final AttributeName atn : getAttributeNames(getTerminology(),
+            getVersion()).getObjects()) {
+          if (sourceMetadataMap.get(terminology).get("ATN")
+              .contains(atn.getAbbreviation())) {
+            final AttributeName copy = new AttributeNameJpa(atn);
+            copy.setId(null);
+            copy.setTerminology(terminology);
+            copy.setVersion(versionsMap.get(terminology));
+            addAttributeName(copy);
+          }
+        }
+      }
+
+      // Handle REL
+      Set<String> seen = new HashSet<>();
+      if (sourceMetadataMap.get(terminology).containsKey("REL")) {
+        for (final RelationshipType rel : getRelationshipTypes(getTerminology(),
+            getVersion()).getObjects()) {
+          // Because inverses are handled inline, skip them when encountered.
+          if (seen.contains(rel.getAbbreviation())) {
+            continue;
+          }
+          if (sourceMetadataMap.get(terminology).get("REL")
+              .contains(rel.getAbbreviation())) {
+            final RelationshipType copy = new RelationshipTypeJpa(rel);
+            copy.setId(null);
+            copy.setTerminology(terminology);
+            copy.setVersion(versionsMap.get(terminology));
+            if (copy.getInverse().getAbbreviation()
+                .equals(copy.getAbbreviation())) {
+              copy.setInverse(copy);
+              addRelationshipType(copy);
+              seen.add(copy.getAbbreviation());
+            } else {
+              final RelationshipType inverseCopy =
+                  new RelationshipTypeJpa(rel.getInverse());
+              inverseCopy.setId(null);
+              inverseCopy.setTerminology(terminology);
+              inverseCopy.setVersion(versionsMap.get(terminology));
+              copy.setInverse(inverseCopy);
+              inverseCopy.setInverse(copy);
+              addRelationshipType(copy);
+              seen.add(copy.getAbbreviation());
+              addRelationshipType(inverseCopy);
+              seen.add(inverseCopy.getAbbreviation());
+            }
+          }
+        }
+      }
+
+      // Handle RELA
+      seen = new HashSet<>();
+      if (sourceMetadataMap.get(terminology).containsKey("RELA")) {
+        for (final AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
+            getTerminology(), getVersion()).getObjects()) {
+          // Because inverses are handled inline, skip them when encountered.
+          if (seen.contains(rela.getAbbreviation())) {
+            continue;
+          }
+          if (sourceMetadataMap.get(terminology).get("RELA")
+              .contains(rela.getAbbreviation())) {
+            final AdditionalRelationshipType copy =
+                new AdditionalRelationshipTypeJpa(rela);
+            copy.setId(null);
+            copy.setTerminology(terminology);
+            copy.setVersion(versionsMap.get(terminology));
+            if (copy.getInverse().getAbbreviation()
+                .equals(copy.getAbbreviation())) {
+              copy.setInverse(copy);
+              addAdditionalRelationshipType(copy);
+              seen.add(copy.getAbbreviation());
+            } else {
+              final AdditionalRelationshipType inverseCopy =
+                  new AdditionalRelationshipTypeJpa(rela.getInverse());
+              inverseCopy.setId(null);
+              inverseCopy.setTerminology(terminology);
+              inverseCopy.setVersion(versionsMap.get(terminology));
+              copy.setInverse(inverseCopy);
+              inverseCopy.setInverse(copy);
+              addAdditionalRelationshipType(copy);
+              seen.add(copy.getAbbreviation());
+              addAdditionalRelationshipType(inverseCopy);
+              seen.add(inverseCopy.getAbbreviation());
+            }
+          }
+        }
+      }
+
+      logInfo("    metadata = " + sourceMetadataMap.get(terminology));
+
+      final PrecedenceList list =
+          getPrecedenceList(getTerminology(), getVersion());
+      final PrecedenceList sourceList = new PrecedenceListJpa();
+      sourceList.setName(getTerminology());
+      sourceList.setTimestamp(releaseVersionDate);
+      sourceList.setLastModified(releaseVersionDate);
+      sourceList.setLastModifiedBy(loader);
+      sourceList.setName(getTerminology());
+      final KeyValuePairList kvpl = new KeyValuePairList();
+      for (final KeyValuePair kvp : list.getPrecedence().getKeyValuePairs()) {
+        // If the default precedence key is the terminology we're tracking
+        // add this one to the new prec list
+        if (terminology.equals(kvp.getKey())) {
+          kvpl.addKeyValuePair(new KeyValuePair(kvp));
+        }
+      }
+      sourceList.setPrecedence(kvpl);
+      addPrecedenceList(list);
+
+      logInfo("    precedence " + sourceList.getPrecedence());
+
+    }
+
+  }
+
+  /**
    * Cache existing terminologies.
    *
    * @throws Exception the exception
@@ -853,9 +1049,22 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Full Update 2014_09_02;Bethesda, MD;National Library of Medicine|
 
       // SKIP SABIN=N - may be an issue later for maps.
-      if (fields[22].equals("N") && !fields[3].equals(proxySab)) {
+      if (fields[22].equals("N") && !fields[3].equals(proxyTerminology)) {
         Logger.getLogger(getClass()).debug("  Skip terminology " + fields[2]);
         continue;
+      }
+
+      // Set up sourceMetadataMap for fields[3]
+      if (!fields[22].equals("N") || fields[3].equals(proxyTerminology)) {
+        final Map<String, Set<String>> typeAbbrMap = new HashMap<>();
+        // NO need to worry about "label sets" or "general entries" here.
+        for (final String type : new String[] {
+            "TTY", "LAT", "ATN", "REL", "RELA"
+        }) {
+          final Set<String> typeSet = new HashSet<>();
+          typeAbbrMap.put(type, typeSet);
+        }
+        sourceMetadataMap.put(fields[3], typeAbbrMap);
       }
 
       String termVersion = null;
@@ -965,7 +1174,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private void loadMrrank() throws Exception {
 
     final PrecedenceList list = new PrecedenceListJpa();
-    list.setDefaultList(true);
     list.setTerminology(getTerminology());
     list.setVersion(getVersion());
 
@@ -1008,7 +1216,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     list.setTimestamp(releaseVersionDate);
     list.setLastModified(releaseVersionDate);
     list.setLastModifiedBy(loader);
-    list.setName("DEFAULT");
+    list.setName(getTerminology());
     addPrecedenceList(list);
 
   }
@@ -1187,6 +1395,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         att.setVersion(loadedTerminologies.get(fields[9]).getVersion());
       }
       att.setName(fields[8]);
+      sourceMetadataMap.get(att.getTerminology()).get("ATN").add(att.getName());
       att.setValue(fields[10]);
 
       // Skip CV_MEMBER attributes for now
@@ -1241,8 +1450,19 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         att.setVersion(getVersion());
         final Concept concept =
             getConcept(conceptIdMap.get(getTerminology() + fields[0]));
-        concept.getAttributes().add(att);
-        addAttribute(att, concept);
+        // Handle, DA, MR, and ST
+        if (att.getName().equals("DA")) {
+          concept.setTimestamp(ConfigUtility.DATE_FORMAT.parse(att.getValue()));
+        } else if (att.getName().equals("MR")) {
+          concept
+              .setLastModified(ConfigUtility.DATE_FORMAT.parse(att.getValue()));
+        } else if (att.getName().equals("ST")) {
+          // n/a - skip ST
+        } else {
+          // Add any other attributes
+          concept.getAttributes().add(att);
+          addAttribute(att, concept);
+        }
       } else if (fields[4].equals("SCUI")) {
         // Get the concept for the terminology and SCUI of the AUI
         final Long conceptId =
@@ -1530,7 +1750,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapping.setPublished(true);
       mapping.setPublishable(true);
       // If really a metathesaurus mapping, use terminology/version
-      if (fields[1].equals(proxySab)) {
+      if (fields[1].equals(proxyTerminology)) {
         mapping.setTerminology(getTerminology());
         mapping.setVersion(getVersion());
       }
@@ -1614,6 +1834,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     att.setTerminology(mapping.getTerminology());
     att.setVersion(mapping.getVersion());
     att.setTerminologyId("");
+    if (!att.getTerminology().equals(getTerminology())) {
+      sourceMetadataMap.get(att.getTerminology()).get("ATN").add(att.getName());
+    }
 
     addAttribute(att, mapping);
     return att;
@@ -1660,7 +1883,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMRSAB")) {
-      if (atv.equals(proxySab)) {
+      if (atv.equals(proxyTerminology)) {
         mapSet.setFromTerminology(getTerminology());
         mapSet.setFromVersion(getVersion());
       } else {
@@ -1673,7 +1896,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
 
     } else if (atn.equals("FROMVSAB")) {
-      if (atv.equals(proxySab)) {
+      if (atv.equals(proxyTerminology)) {
         mapSet.setFromTerminology(getTerminology());
         mapSet.setFromVersion(getVersion());
       } else {
@@ -1717,7 +1940,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapSet.getAttributes().add(att);
     } else if (atn.equals("MAPSETRSAB")) {
       // If really a metathesaurus mapping, use terminology/version
-      if (atv.equals(proxySab)) {
+      if (atv.equals(proxyTerminology)) {
         mapSet.setTerminology(getTerminology());
         mapSet.setVersion(getVersion());
       }
@@ -1737,7 +1960,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapSet.setMapType(atv);
     } else if (atn.equals("MAPSETVSAB")) {
       // If really a metathesaurus mapping, use terminology/version
-      if (atv.equals(proxySab)) {
+      if (atv.equals(proxyTerminology)) {
         mapSet.setTerminology(getTerminology());
         mapSet.setVersion(getVersion());
       }
@@ -1928,6 +2151,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           memberAtt.setPublished(true);
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
+          if (!memberAtt.getTerminology().equals(getTerminology())) {
+            sourceMetadataMap.get(memberAtt.getTerminology()).get("ATN")
+                .add(memberAtt.getName());
+          }
           Logger.getLogger(getClass())
               .debug("        Add member attribute" + memberAtt);
           addAttribute(memberAtt, member);
@@ -2290,9 +2517,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     relationship.setPublished(true);
     relationship.setPublishable(true);
     relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-    relationship.setRelationshipType(fields[3]);
     relationship.setHierarchical(fields[3].equals("CHD"));
-    relationship.setAdditionalRelationshipType(fields[7]);
 
     if (!singleMode) {
       relationship.putAlternateTerminologyId(getTerminology(), fields[8]);
@@ -2310,6 +2535,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (fields[13].equals("Y")) {
       loadedTerminologies.get(fields[10]).setAssertsRelDirection(true);
     }
+
+    relationship.setRelationshipType(fields[3]);
+    sourceMetadataMap.get(relationship.getTerminology()).get("REL")
+        .add(relationship.getRelationshipType());
+    relationship.setAdditionalRelationshipType(fields[7]);
+    sourceMetadataMap.get(relationship.getTerminology()).get("RELA")
+        .add(relationship.getAdditionalRelationshipType());
 
     // zero groups should be represented as blank values
     relationship.setGroup(fields[12] == "0" ? "" : fields[12]);
@@ -2448,7 +2680,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       loadedRootTerminologies.get(fields[11]).setLanguage(fields[1]);
 
       final Atom atom = new AtomJpa();
-      atom.setLanguage(fields[1].intern());
       atom.setTimestamp(releaseVersionDate);
       atom.setLastModified(releaseVersionDate);
       atom.setLastModifiedBy(loader);
@@ -2471,6 +2702,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       atom.setTerminologyId(fields[8]);
       atom.setTermType(fields[12].intern());
+      sourceMetadataMap.get(atom.getTerminology()).get("TTY")
+          .add(atom.getTermType());
+      atom.setLanguage(fields[1].intern());
+      sourceMetadataMap.get(atom.getTerminology()).get("LAT")
+          .add(atom.getLanguage());
       atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
       atom.setCodeId(fields[13]);
@@ -2882,6 +3118,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * Load atoms before computing.
    *
    * @param atomClass the atom class
+   * @param list the list
    * @return the computed preferred name
    * @throws Exception the exception
    */
@@ -2997,77 +3234,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public void computeTreePositions() throws Exception {
-
-    // Compute tree positions
-    // Refresh caches after metadata has changed in loader
-    for (final Terminology t : getTerminologyLatestVersions().getObjects()) {
-      // Only compute for organizing class types
-      if (t.getOrganizingClassType() != null) {
-        treePosAlgorithm = new TreePositionAlgorithm();
-        treePosAlgorithm.setTerminology(t.getTerminology());
-        treePosAlgorithm.setVersion(t.getVersion());
-        treePosAlgorithm.setIdType(t.getOrganizingClassType());
-        // some terminologies may have cycles, allow these for now.
-        treePosAlgorithm.setCycleTolerant(true);
-        // compute "semantic types" for concept hierarchies
-        if (t.getOrganizingClassType() == IdType.CONCEPT) {
-          treePosAlgorithm.setComputeSemanticType(true);
-        }
-        treePosAlgorithm.compute();
-        treePosAlgorithm.close();
-      }
-    }
-
-    // Compute label sets - after transitive closure
-    // for each subset, compute the label set
-    for (final Terminology t : getTerminologyLatestVersions().getObjects()) {
-      for (final Subset subset : getConceptSubsets(t.getTerminology(),
-          t.getVersion(), Branch.ROOT).getObjects()) {
-        final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass())
-              .info("  Create label set for subset = " + subset);
-          labelSetAlgorithm = new LabelSetMarkedParentAlgorithm();
-          labelSetAlgorithm.setTerminology(t.getTerminology());
-          labelSetAlgorithm.setVersion(t.getVersion());
-          labelSetAlgorithm.setSubset(conceptSubset);
-          labelSetAlgorithm.compute();
-          labelSetAlgorithm.close();
-        }
-      }
-    }
-
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info("  Compute transitive closure from  "
-        + getTerminology() + "/" + getVersion());
-
-    // Compute transitive closure
-    // Obtain each terminology and run transitive closure on it with the
-    // correct id type
-    // Refresh caches after metadata has changed in loader
-    refreshCaches();
-    for (final Terminology t : getTerminologyLatestVersions().getObjects()) {
-      // Only compute for organizing class types
-      if (t.getOrganizingClassType() != null) {
-        transClosureAlgorithm = new TransitiveClosureAlgorithm();
-        transClosureAlgorithm.setTerminology(t.getTerminology());
-        transClosureAlgorithm.setVersion(t.getVersion());
-        transClosureAlgorithm.setIdType(t.getOrganizingClassType());
-        // some terminologies may have cycles, allow these for now.
-        transClosureAlgorithm.setCycleTolerant(true);
-        transClosureAlgorithm.compute();
-        transClosureAlgorithm.close();
-      }
-    }
-  }
-
-  /* see superclass */
-  @Override
   public void cancel() throws Exception {
     // cancel any currently running local algorithms
     treePosAlgorithm.cancel();
@@ -3080,14 +3246,65 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     super.cancel();
   }
 
-  @Override
-  public void computeExpressionIndexes() throws Exception {
-    // do nothing
-  }
-  
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
     return new ValidationResultJpa();
   }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "inputDir"
+    }, p);
+
+    if (p.getProperty("codesFlag") != null) {
+      codesFlag = Boolean.valueOf(p.getProperty("codesFlag"));
+    }
+    if (p.getProperty("singleMode") != null) {
+      singleMode = Boolean.valueOf(p.getProperty("singleMode"));
+    }
+    if (p.getProperty("prefix") != null) {
+      prefix = p.getProperty("codesFlag");
+    }
+    if (p.getProperty("proxyTerminology") != null) {
+      proxyTerminology = p.getProperty("proxyTerminology");
+    }
+    if (p.getProperty("inputDir") != null) {
+      setInputPath(p.getProperty("inputDir"));
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
+        "inputDir", "Input RRF directory to load", "", 255,
+        AlgorithmParameter.Type.DIRECTORY);
+    params.add(param);
+    param = new AlgorithmParameterJpa("Codes Flag", "codesFlag",
+        "Indicator of whether to load CodeJpa objects or not", "true", -1,
+        AlgorithmParameter.Type.BOOLEAN);
+    params.add(param);
+    param = new AlgorithmParameterJpa("Single Mode", "singleMode",
+        "Indicator of whether to load a single terminology or all objects or not",
+        "true", -1, AlgorithmParameter.Type.BOOLEAN);
+    params.add(param);
+    param = new AlgorithmParameterJpa("Prefix", "prefix",
+        "File name prefix for data set", "MR", -1,
+        AlgorithmParameter.Type.STRING);
+    param.setValues(Arrays.asList(new String[] {
+        "MR", "RXN"
+    }));
+    params.add(param);
+    param = new AlgorithmParameterJpa("Proxy Terminology", "proxyTerminology",
+        "Proxy terminology value in RRF data", "MTH", 50,
+        AlgorithmParameter.Type.STRING);
+    params.add(param);
+
+    return params;
+  }
+
 }

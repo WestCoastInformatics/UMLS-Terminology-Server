@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
+import java.util.Properties;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -121,6 +123,12 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
         getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
         getName() + " " + attribute.getName() + " to concept "
             + getConcept().getTerminologyId());
+  }
+
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // TODO Auto-generated method stub
+    
   }
 
 }

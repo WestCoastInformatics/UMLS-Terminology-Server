@@ -80,8 +80,8 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -131,6 +131,7 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
       // Load initial snapshot - first release version
       getLog().info("  Run RF2 sampling algorithm");
       Rf2SnapshotSamplerAlgorithm algorithm = new Rf2SnapshotSamplerAlgorithm();
+      algorithm.setLastModifiedBy("admin");
       algorithm.setKeepInferred(true);
       algorithm.setKeepDescendants(true);
       algorithm.setReaders(readers);

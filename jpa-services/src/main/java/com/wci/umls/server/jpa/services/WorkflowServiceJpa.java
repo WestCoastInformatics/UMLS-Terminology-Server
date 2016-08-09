@@ -55,14 +55,21 @@ import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 /**
  * Workflow Service JPA implementation.
  */
-public class WorkflowServiceJpa extends HistoryServiceJpa implements
-    WorkflowService {
+public class WorkflowServiceJpa extends HistoryServiceJpa
+    implements WorkflowService {
 
   /** The workflow action handlers. */
   static Map<String, WorkflowActionHandler> workflowHandlerMap =
       new HashMap<>();
 
   static {
+    init();
+  }
+
+  /**
+   * Static initialization (used by refresh caches).
+   */
+  private static void init() {
     try {
       if (config == null)
         config = ConfigUtility.getConfigProperties();
@@ -94,11 +101,6 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
    */
   public WorkflowServiceJpa() throws Exception {
     super();
-
-    if (workflowHandlerMap == null) {
-      throw new Exception(
-          "Workflow action handler did not properly initialize, serious error.");
-    }
 
   }
 
@@ -850,4 +852,25 @@ public class WorkflowServiceJpa extends HistoryServiceJpa implements
     return localQuery.toString();
   }
 
+  /* see superclass */
+  @Override
+  public void refreshCaches() throws Exception {
+    super.refreshCaches();
+    init();
+    validateInit();
+  }
+
+  /**
+   * Validate init.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateInit() throws Exception {
+
+    if (workflowHandlerMap == null) {
+      throw new Exception(
+          "Workflow action handler did not properly initialize, serious error.");
+    }
+  }
 }

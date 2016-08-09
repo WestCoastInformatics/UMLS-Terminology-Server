@@ -34,12 +34,15 @@ import com.wci.umls.server.services.SecurityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link SecurityServiceRest}.
  */
 @Path("/security")
-@Api(value = "/security", description = "Operations supporting security")
+@Api(value = "/security")
+@SwaggerDefinition(info = @Info(description = "Operations supporting security.", title = "Security API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })

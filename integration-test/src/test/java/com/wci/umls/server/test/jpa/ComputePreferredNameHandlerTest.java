@@ -74,7 +74,7 @@ public class ComputePreferredNameHandlerTest extends IntegrationUnitSupport {
     String pn =
         handlerService.computePreferredName(icdConcept.getAtoms(),
             contentService
-                .getDefaultPrecedenceList("SNOMEDCT_US", "2016_03_01"));
+                .getPrecedenceList("SNOMEDCT_US", "2016_03_01"));
     Logger.getLogger(getClass()).info(pn);
     assertEquals("Dementia associated with acquired immunodeficiency syndrome",
         pn);
@@ -84,7 +84,7 @@ public class ComputePreferredNameHandlerTest extends IntegrationUnitSupport {
         handlerService
             .sortByPreference(
                 icdConcept.getAtoms(),
-                contentService.getDefaultPrecedenceList("SNOMEDCT_US",
+                contentService.getPrecedenceList("SNOMEDCT_US",
                     "2016_03_01")).iterator().next().getName();
     Logger.getLogger(getClass()).info(pn);
     assertEquals("Dementia associated with acquired immunodeficiency syndrome",

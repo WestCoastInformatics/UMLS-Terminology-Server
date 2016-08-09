@@ -11,6 +11,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.ReportService;
 
@@ -55,8 +56,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
     sb.append("CUI ");
     sb.append(concept.getTerminologyId()).append("\t");
-    sb.append("Concept Status is "
-        + concept.getWorkflowStatus().toString().substring(0, 1)).append("\n");
+    sb.append("Concept Status is ")
+        .append(getStatusChar(concept.getWorkflowStatus())).append("\n");
     for (final String id : conceptTerminologyIds) {
       sb.append(id).append("\n");
     }
@@ -64,16 +65,14 @@ public class ReportServiceJpa extends HistoryServiceJpa
     sb.append("STY ");
     for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
       sb.append(sty.getSemanticType()).append("\t");
-      sb.append(sty.getWorkflowStatus().toString().substring(0, 1))
-          .append("\n");
+      sb.append(getStatusChar(sty.getWorkflowStatus())).append("\n");
     }
 
     sb.append("ATOMS").append("\n");
 
     for (final Atom atom : concept.getAtoms()) {
       sb.append("   ");
-      sb.append(atom.getWorkflowStatus().toString().substring(0, 1))
-          .append(" ");
+      sb.append(getStatusChar(atom.getWorkflowStatus())).append(" ");
       // TODO [] what are these brackets for?
       sb.append(atom.getName()).append(" [");
       sb.append(atom.getTerminology()).append("_").append(atom.getVersion())
@@ -86,4 +85,20 @@ public class ReportServiceJpa extends HistoryServiceJpa
     return sb.toString();
   }
 
+  /**
+   * Returns the status char.
+   *
+   * @param status the status
+   * @return the status char
+   */
+  @SuppressWarnings("static-method")
+  private String getStatusChar(WorkflowStatus status) {
+    if (status == WorkflowStatus.NEEDS_REVIEW) {
+      return "N";
+    } else if (status == WorkflowStatus.DEMOTION) {
+      return "D";
+    } else {
+      return "R";
+    }
+  }
 }

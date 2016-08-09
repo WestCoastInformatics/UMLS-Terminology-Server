@@ -17,7 +17,6 @@ import com.wci.umls.server.helpers.meta.RootTerminologyList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
@@ -244,22 +243,6 @@ public interface MetadataService extends ProjectService {
     throws Exception;
 
   /**
-   * Indicates whether or not stated relationship is the case.
-   *
-   * @param relationship the r
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isStatedRelationship(Relationship<?, ?> relationship);
-
-  /**
-   * Indicates whether or not inferred relationship is the case.
-   *
-   * @param relationship the r
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isInferredRelationship(Relationship<?, ?> relationship);
-
-  /**
    * Returns the non grouping relationship types.
    *
    * @param terminology the terminology
@@ -288,7 +271,7 @@ public interface MetadataService extends ProjectService {
    * @return the precedence list
    * @throws Exception the exception
    */
-  public PrecedenceList getDefaultPrecedenceList(String terminology,
+  public PrecedenceList getPrecedenceList(String terminology,
     String version) throws Exception;
 
   /**

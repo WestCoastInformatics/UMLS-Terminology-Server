@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -22,6 +23,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.util.Version;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -30,7 +32,6 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.expr.EclConceptFieldNames;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -44,9 +45,6 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
 
   /** The organizing class type. */
   private IdType idType = null;
-
-  /** The content service. */
-  private ContentServiceJpa contentService = null;
 
   /** The index writer. */
   private IndexWriter iwriter = null;
@@ -106,14 +104,9 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     if (getVersion() == null) {
       throw new Exception("Must specify version");
     }
-    if (contentService == null) {
-      throw new Exception("Must specify content service");
-
-    }
 
     // Get the terminology object itself to retrieve idType
-    Terminology termObj =
-        contentService.getTerminology(getTerminology(), getVersion());
+    Terminology termObj = getTerminology(getTerminology(), getVersion());
     idType = termObj.getOrganizingClassType();
 
     // if not concept, throw exception
@@ -129,7 +122,7 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
         .getExpressionIndexDirectoryName(getTerminology(), getVersion())));
 
     // get entity manager for direct queries
-    EntityManager manager = contentService.getEntityManager();
+    EntityManager manager = getEntityManager();
     List<Object[]> results = new ArrayList<>();
     javax.persistence.Query query = null;
 
@@ -267,8 +260,8 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     // cycle over concepts
     do {
       pfs.setStartIndex(pos);
-      concepts = contentService.findConcepts(getTerminology(), getVersion(),
-          Branch.ROOT, null, pfs);
+      concepts =
+          findConcepts(getTerminology(), getVersion(), Branch.ROOT, null, pfs);
 
       // logging content on first retrieval
       if (pos == 0) {
@@ -277,7 +270,7 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
       }
 
       for (final SearchResult sr : concepts.getObjects()) {
-        final Concept c = contentService.getConcept(sr.getId());
+        final Concept c = getConcept(sr.getId());
         iwriter.addDocument(getConceptDocument(c));
       }
       pos += concepts.size();
@@ -360,20 +353,27 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     }
   }
 
-  /**
-   * Sets the content service.
-   *
-   * @param contentService the new content service
-   */
-  public void setContentService(ContentServiceJpa contentService) {
-    this.contentService = contentService;
-  }
-
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
     // n/a
     return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+
+    checkRequiredProperties(new String[] {
+        ""
+    }, p);
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    return super.getParameters();
   }
 
   @Override

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -792,4 +793,12 @@ public class OwlApiClassifier extends AbstractAlgorithm implements Classifier {
   public ValidationResult checkPreconditions() throws Exception {
     return new ValidationResultJpa();
   }
+
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // Unable to set via properteis
+    throw new UnsupportedOperationException();
+
+  }
+
 }

@@ -3,6 +3,9 @@
  */
 package com.wci.umls.server.algo;
 
+import java.util.List;
+
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Configurable;
@@ -46,13 +49,6 @@ public interface Algorithm extends RootService, ProgressReporter, Configurable {
   public void cancel() throws Exception;
 
   /**
-   * Sets the user name.
-   *
-   * @param userName the user name
-   */
-  public void setUserName(String userName);
-
-  /**
    * Sets the activity id.
    *
    * @param activityId the activity id
@@ -72,4 +68,20 @@ public interface Algorithm extends RootService, ProgressReporter, Configurable {
    * @param project the project
    */
   public void setProject(Project project);
+
+  /**
+   * Returns the parameters.
+   *
+   * @return the parameters
+   */
+  public List<AlgorithmParameter> getParameters();
+
+  /**
+   * Sets the parameters.
+   *
+   * @param parameter the parameters
+   * @throws Exception the exception
+   */
+  public void setParameters(List<AlgorithmParameter> parameter)
+    throws Exception;
 }

@@ -9,10 +9,12 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.helpers.HasTerminology;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -22,7 +24,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * Abstract support for loader algorithms.
  */
 public abstract class AbstractAlgorithm extends WorkflowServiceJpa
-    implements Algorithm, HasTerminology {
+    implements Algorithm, HasTerminology, HasProject {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -30,17 +32,11 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   /** The cancel flag. */
   private boolean cancelFlag = false;
 
-  /** The properties. */
-  private Properties properties = new Properties();
-
   /** The terminology. */
   private String terminology = null;
 
   /** The version. */
   private String version = null;
-
-  /** The user name. */
-  private String userName = "admin";
 
   /** The activity id. */
   private String activityId;
@@ -87,8 +83,8 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     }
 
     if (objectCt % logCt == 0) {
-      addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
-          "    count = " + objectCt);
+      addLogEntry(getLastModifiedBy(), getTerminology(), getVersion(),
+          activityId, workId, "    count = " + objectCt);
     }
     super.logAndCommit(objectCt, logCt, commitCt);
   }
@@ -101,11 +97,11 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    */
   public void logInfo(String message) throws Exception {
     if (project != null) {
-      addLogEntry(project.getId(), userName, getTerminology(), getVersion(),
-          activityId, workId, message);
+      addLogEntry(project.getId(), getLastModifiedBy(), getTerminology(),
+          getVersion(), activityId, workId, message);
     } else {
-      addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
-          message);
+      addLogEntry(getLastModifiedBy(), getTerminology(), getVersion(),
+          activityId, workId, message);
 
     }
     Logger.getLogger(getClass()).info(message);
@@ -119,11 +115,11 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    */
   public void logWarn(String message) throws Exception {
     if (project != null) {
-      addLogEntry(project.getId(), userName, getTerminology(), getVersion(),
-          activityId, workId, "WARNING: " + message);
+      addLogEntry(project.getId(), getLastModifiedBy(), getTerminology(),
+          getVersion(), activityId, workId, "WARNING: " + message);
     } else {
-      addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
-          "WARNING: " + message);
+      addLogEntry(getLastModifiedBy(), getTerminology(), getVersion(),
+          activityId, workId, "WARNING: " + message);
     }
     Logger.getLogger(getClass()).warn(message);
     commitClearBegin();
@@ -137,11 +133,11 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    */
   public void logError(String message) throws Exception {
     if (project != null) {
-      addLogEntry(project.getId(), userName, getTerminology(), getVersion(),
-          activityId, workId, "ERROR: " + message);
+      addLogEntry(project.getId(), getLastModifiedBy(), getTerminology(),
+          getVersion(), activityId, workId, "ERROR: " + message);
     } else {
-      addLogEntry(userName, getTerminology(), getVersion(), activityId, workId,
-          "ERROR: " + message);
+      addLogEntry(getLastModifiedBy(), getTerminology(), getVersion(),
+          activityId, workId, "ERROR: " + message);
     }
     Logger.getLogger(getClass()).error(message);
     // Attempt to commit the error -though sometimes this doesn't work
@@ -218,15 +214,6 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     listeners.remove(l);
   }
 
-  /**
-   * Returns the properties.
-   *
-   * @return the properties
-   */
-  public Properties getProperties() {
-    return properties;
-  }
-
   /* see superclass */
   @Override
   public void setTerminology(String terminology) {
@@ -253,12 +240,6 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
 
   /* see superclass */
   @Override
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
-
-  /* see superclass */
-  @Override
   public void setActivityId(String activityId) {
     this.activityId = activityId;
   }
@@ -269,11 +250,8 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     this.workId = workId;
   }
 
-  /**
-   * Returns the project.
-   *
-   * @return the project
-   */
+  /* see superclass */
+  @Override
   public Project getProject() {
     return project;
   }
@@ -290,27 +268,50 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     return ConfigUtility.getNameFromClass(getClass());
   }
 
+  /**
+   * Sets the parameters.
+   *
+   * @param parameters the parameters
+   */
+  @Override
+  public void setParameters(List<AlgorithmParameter> parameters)
+    throws Exception {
+    final Properties props = new Properties();
+    for (final AlgorithmParameter param : parameters) {
+      props.setProperty(param.getName(), param.getValue());
+    }
+    setProperties(props);
+  }
+
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
-    properties = p;
+  public List<AlgorithmParameter> getParameters() {
+    final List<AlgorithmParameter> params = new ArrayList<>();
+
+    // Terminology/Version/Project/ActivityId/WorkId
+    // are all set by the harness running the process.
+
+    return params;
   }
 
   /**
-   * Returns the configurable value.
+   * Check required properties.
    *
-   * @param terminology the terminology
-   * @param key the key
-   * @return the configurable value
+   * @param required the required
+   * @param p the p
    * @throws Exception the exception
    */
-  public String getConfigurableValue(String terminology, String key)
+  @SuppressWarnings("static-method")
+  public void checkRequiredProperties(String[] required, Properties p)
     throws Exception {
-    Properties p = ConfigUtility.getConfigProperties();
-    String fullKey = getClass().getName() + "." + terminology + "." + key;
-    if (p.containsKey(fullKey)) {
-      return p.getProperty(fullKey);
+    if (p == null) {
+      throw new Exception("Algorithm properties must not be null");
     }
-    return null;
+    for (final String prop : required) {
+      if (!p.containsKey(prop)) {
+        throw new Exception("Required property " + prop + " missing");
+      }
+    }
   }
+
 }

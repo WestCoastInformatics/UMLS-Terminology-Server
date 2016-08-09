@@ -53,12 +53,15 @@ import com.wci.umls.server.services.handlers.SourceDataHandler;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link SourceDataServiceRest}.
  */
 @Path("/file")
-@Api(value = "/file", description = "Operations supporting file")
+@Api(value = "/file")
+@SwaggerDefinition(info = @Info(description = "Operations supporting file uploading and importing.", title = "Source Data API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
@@ -593,29 +596,39 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
         + (sourceData == null ? "No source data" : sourceData.getName()));
 
     try {
-      authorizeApp(securityService, authToken, "load from source data",
-          UserRole.USER);
+      final String userName = authorizeApp(securityService, authToken,
+          "load from source data", UserRole.USER);
 
       final Exception[] exceptions = new Exception[1];
       Thread t = new Thread(new Runnable() {
 
         @Override
         public void run() {
+          SourceDataHandler handler = null;
           try {
             if (sourceData == null) {
               throw new LocalException("Source dat handler is not set");
             }
             // instantiate the handler
-            Class<?> sourceDataHandlerClass =
+            final Class<?> sourceDataHandlerClass =
                 Class.forName(sourceData.getHandler());
-            SourceDataHandler handler =
-                (SourceDataHandler) sourceDataHandlerClass.newInstance();
+            handler = (SourceDataHandler) sourceDataHandlerClass.newInstance();
+            handler.setLastModifiedBy(userName);
             handler.setSourceData(sourceData);
             handler.compute();
 
           } catch (Exception e) {
             exceptions[0] = e;
             handleException(e, " during execution of load from source data");
+          } finally {
+            if (handler != null) {
+              try {
+                handler.close();
+              } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+            }
           }
         }
       });
@@ -648,7 +661,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Source Data): /data/remove");
 
     try {
-      authorizeApp(securityService, authToken,
+      final String userName = authorizeApp(securityService, authToken,
           "remove loaded data from source data", UserRole.ADMINISTRATOR);
 
       final Exception[] exceptions = new Exception[1];
@@ -656,18 +669,28 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
 
         @Override
         public void run() {
+          SourceDataHandler handler = null;
           try {
             // instantiate the handler
             Class<?> sourceDataHandlerClass =
                 Class.forName(sourceData.getHandler());
-            SourceDataHandler handler =
-                (SourceDataHandler) sourceDataHandlerClass.newInstance();
+            handler = (SourceDataHandler) sourceDataHandlerClass.newInstance();
+            handler.setLastModifiedBy(userName);
             handler.setSourceData(sourceData);
             handler.remove();
 
           } catch (Exception e) {
             handleException(e,
                 " during removal of loaded data from source data");
+          } finally {
+            if (handler != null) {
+              try {
+                handler.close();
+              } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+            }
           }
         }
       });
@@ -699,13 +722,14 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
         "RESTful call (Source Data): /data/cancel " + sourceData.toString());
 
     try {
-      authorizeApp(securityService, authToken, "cancel from source data",
-          UserRole.USER);
+      final String userName = authorizeApp(securityService, authToken,
+          "cancel from source data", UserRole.USER);
 
       // instantiate the handler
       Class<?> sourceDataHandlerClass = Class.forName(sourceData.getHandler());
       SourceDataHandler handler =
           (SourceDataHandler) sourceDataHandlerClass.newInstance();
+      handler.setLastModifiedBy(userName);
       handler.setSourceData(sourceData);
       handler.cancel();
 

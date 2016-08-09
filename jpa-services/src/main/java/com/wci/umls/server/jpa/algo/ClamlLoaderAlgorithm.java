@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 
@@ -31,13 +32,14 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -100,9 +102,6 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** counter for objects created, reset in each load section. */
   int objectCt;
 
-  /** The input file. */
-  private String inputFile;
-
   /** The additional relationship types. */
   Set<String> additionalRelationshipTypes = new HashSet<>();
 
@@ -134,7 +133,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /* see superclass */
   @Override
   public String getFileVersion() throws Exception {
-    BufferedReader br = new BufferedReader(new FileReader(inputFile));
+    BufferedReader br = new BufferedReader(new FileReader(getInputPath()));
     String line = null;
     String releaseVersion = null;
     while ((line = br.readLine()) != null) {
@@ -150,44 +149,6 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
     br.close();
     return releaseVersion;
-  }
-
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  @Override
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  /**
-   * Returns the input file.
-   *
-   * @return the input file
-   */
-  public String getInputFile() {
-    return inputFile;
-  }
-
-  /**
-   * Sets the input file.
-   *
-   * @param inputFile the input file
-   */
-  public void setInputFile(String inputFile) {
-    this.inputFile = inputFile;
   }
 
   /* see superclass */
@@ -216,7 +177,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       beginTransaction();
 
-      if (!new File(inputFile).exists()) {
+      if (!new File(getInputPath()).exists()) {
         throw new Exception("Specified input file does not exist");
       }
 
@@ -224,7 +185,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       releaseVersion = getFileVersion();
       logInfo("  release version = " + releaseVersion);
       releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(releaseVersion);
-      findLanguage(inputFile);
+      findLanguage();
 
       // Prep SAX parser
       SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -233,7 +194,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       DefaultHandler handler = new LocalHandler();
 
       // Open XML and begin parsing
-      File file = new File(inputFile);
+      File file = new File(getInputPath());
       fis = new FileInputStream(file);
       inputStream = checkForUtf8BOM(fis);
       reader = new InputStreamReader(inputStream, "UTF-8");
@@ -302,49 +263,6 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void reset() throws Exception {
     // do nothing
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTreePositions() throws Exception {
-
-    try {
-      Logger.getLogger(getClass()).info("Computing tree positions");
-      treePosAlgorithm.setCycleTolerant(false);
-      treePosAlgorithm.setIdType(IdType.CONCEPT);
-      // some terminologies may have cycles, allow these for now.
-      treePosAlgorithm.setCycleTolerant(true);
-      treePosAlgorithm.setComputeSemanticType(true);
-      treePosAlgorithm.setTerminology(terminology);
-      treePosAlgorithm.setVersion(version);
-      treePosAlgorithm.reset();
-      treePosAlgorithm.compute();
-      treePosAlgorithm.close();
-    } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
-
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + terminology + "/" + version);
-    try {
-      transClosureAlgorithm.setCycleTolerant(false);
-      transClosureAlgorithm.setIdType(IdType.CONCEPT);
-      transClosureAlgorithm.setTerminology(terminology);
-      transClosureAlgorithm.setVersion(version);
-      transClosureAlgorithm.reset();
-      transClosureAlgorithm.compute();
-      transClosureAlgorithm.close();
-
-    } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
   }
 
   /* see superclass */
@@ -1865,11 +1783,10 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /**
    * Find language.
    *
-   * @param inputFile the input file
    * @throws Exception the exception
    */
-  public void findLanguage(String inputFile) throws Exception {
-    BufferedReader br = new BufferedReader(new FileReader(inputFile));
+  public void findLanguage() throws Exception {
+    BufferedReader br = new BufferedReader(new FileReader(getInputPath()));
     String line = null;
     while ((line = br.readLine()) != null) {
       // <Meta name="lang" value="en"/>
@@ -2018,8 +1935,6 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Build precedence list
     final PrecedenceList list = new PrecedenceListJpa();
-    list.setDefaultList(true);
-
     final List<KeyValuePair> lkvp = new ArrayList<>();
 
     // Start with preferred
@@ -2143,15 +2058,35 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public void computeExpressionIndexes() throws Exception {
-    // do nothing
+  public ValidationResult checkPreconditions() throws Exception {
+    // n/a
+    return new ValidationResultJpa();
   }
 
   /* see superclass */
   @Override
-  public ValidationResult checkPreconditions() throws Exception {
-    // n/a
-    return new ValidationResultJpa();
+  public void setProperties(Properties p) throws Exception {
+
+    checkRequiredProperties(new String[] {
+        "inputFile"
+    }, p);
+
+    if (p.getProperty("inputFile") != null) {
+      setInputPath(p.getProperty("inputFile"));
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param =
+        new AlgorithmParameterJpa("Input File", "inputFile",
+            "Input ClaML file to load", "", 255, AlgorithmParameter.Type.FILE);
+    params.add(param);
+    return params;
+
   }
 
 }

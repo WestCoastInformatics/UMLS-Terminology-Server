@@ -81,10 +81,6 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Column(nullable = false)
   private String name;
 
-  /** The default list. */
-  @Column(nullable = false)
-  private boolean defaultList = false;
-
   /** The terminology list. */
   @ElementCollection
   @CollectionTable(name = "precedence_list_terminologies")
@@ -118,7 +114,6 @@ public class PrecedenceListJpa implements PrecedenceList {
     terminology = precedenceList.getTerminology();
     version = precedenceList.getVersion();
     branch = precedenceList.getBranch();
-    defaultList = precedenceList.isDefaultList();
   }
 
   /* see superclass */
@@ -131,18 +126,6 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /* see superclass */
-  @Override
-  public boolean isDefaultList() {
-    return defaultList;
-  }
-
-  /* see superclass */
-  @Override
-  public void setDefaultList(boolean defaultList) {
-    this.defaultList = defaultList;
   }
 
   /* see superclass */
@@ -284,9 +267,8 @@ public class PrecedenceListJpa implements PrecedenceList {
     return "PrecedenceListJpa [id=" + id + ", timestamp=" + timestamp
         + ", lastModified=" + lastModified + ", lastModifiedBy="
         + lastModifiedBy + ", terminology=" + terminology + ", version="
-        + version + ", branch=" + branch + ", name=" + name + ", defaultList="
-        + defaultList + ", terminologies=" + terminologies + ", termTypes="
-        + termTypes + "]";
+        + version + ", branch=" + branch + ", name=" + name + ", terminologies="
+        + terminologies + ", termTypes=" + termTypes + "]";
   }
 
   /* see superclass */
@@ -294,7 +276,6 @@ public class PrecedenceListJpa implements PrecedenceList {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (defaultList ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((terminology == null) ? 0 : version.hashCode());
     result = prime * result + ((version == null) ? 0 : terminology.hashCode());
@@ -314,8 +295,6 @@ public class PrecedenceListJpa implements PrecedenceList {
     if (getClass() != obj.getClass())
       return false;
     PrecedenceListJpa other = (PrecedenceListJpa) obj;
-    if (defaultList != other.defaultList)
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;

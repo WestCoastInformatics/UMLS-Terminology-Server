@@ -6,11 +6,13 @@ package com.wci.umls.server.jpa.algo;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -34,7 +36,6 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
-import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
@@ -51,9 +52,6 @@ import com.wci.umls.server.services.RootService;
  */
 public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
 
-  /** The id type. */
-  private IdType idType;
-
   /**
    * Standalone means that it is not also represented as part of a
    * metathesaurus. Default is true.
@@ -69,29 +67,6 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Returns the id type.
-   *
-   * @return the id type
-   */
-  public IdType getIdType() {
-    return idType;
-  }
-
-  /**
-   * Sets the id type.
-   *
-   * @param idType the id type
-   */
-  public void setIdType(IdType idType) {
-    if (idType != IdType.CONCEPT && idType != IdType.DESCRIPTOR
-        && idType != IdType.CODE) {
-      throw new IllegalArgumentException(
-          "Only CONCEPT, DESCRIPTOR, and CODE types are allowed.");
-    }
-    this.idType = idType;
-  }
-
-  /**
    * Sets the standalone flag. For deleting a UMLS terminology, this would be
    * set to false so that the atoms would be removed also from UMLS concepts.
    *
@@ -104,7 +79,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    removeTerminology(getTerminology(), getVersion(), idType);
+    removeTerminology(getTerminology(), getVersion());
   }
 
   /* see superclass */
@@ -118,12 +93,11 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
    *
    * @param terminology the terminology
    * @param version the version
-   * @param idType the id type
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void removeTerminology(String terminology, String version,
-    IdType idType) throws Exception {
+  private void removeTerminology(String terminology, String version)
+    throws Exception {
 
     // NOTE: do not change the order of calls, they are tuned
     // to properly handle foreign key dependencies.
@@ -706,5 +680,16 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
   @Override
   public ValidationResult checkPreconditions() throws Exception {
     return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    return super.getParameters();
+  }
+
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
   }
 }

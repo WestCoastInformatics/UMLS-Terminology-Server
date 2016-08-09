@@ -91,7 +91,9 @@ public interface RootService {
   public void clear() throws Exception;
 
   /**
-   * Refresh caches.
+   * Refresh any cached data or handlers (e.g. reload handlers from the config).
+   * This supports the ability for config.properties to be dynamically changed
+   * and then reloaded within the server.
    *
    * @throws Exception the exception
    */

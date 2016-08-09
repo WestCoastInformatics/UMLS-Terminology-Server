@@ -31,12 +31,15 @@ import com.wci.umls.server.services.SecurityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link HistoryServiceRest}.
  */
 @Path("/history")
-@Api(value = "/history", description = "Operations to retrieve historical RF2 content for a terminology")
+@Api(value = "/history")
+@SwaggerDefinition(info = @Info(description = "Operations to retrieve historical content for a terminology.", title = "History API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
@@ -309,7 +312,8 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken, "start editing cycle",
           UserRole.ADMINISTRATOR);
-      algorithm.setUser(securityService.getUsernameForToken(authToken));
+      algorithm
+          .setLastModifiedBy(securityService.getUsernameForToken(authToken));
       algorithm.compute();
     } catch (Exception e) {
       algorithm.compute();

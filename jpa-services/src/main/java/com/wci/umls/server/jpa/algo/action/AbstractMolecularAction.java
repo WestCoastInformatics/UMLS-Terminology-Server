@@ -9,8 +9,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import com.google.common.base.CaseFormat;
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
@@ -469,6 +471,22 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
           "Unrecognized getter method type for undo operation - " + type);
     }
     return setObject;
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    throw new UnsupportedOperationException(
+        "Individual molecular actions should not "
+            + "be used as configurable algorithms");
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    throw new UnsupportedOperationException(
+        "Individual molecular actions should not "
+            + "be used as configurable algorithms");
   }
 
 }

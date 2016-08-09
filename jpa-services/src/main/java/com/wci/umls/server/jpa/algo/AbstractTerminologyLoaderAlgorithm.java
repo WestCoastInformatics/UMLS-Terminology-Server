@@ -1,7 +1,10 @@
 package com.wci.umls.server.jpa.algo;
 
+import java.util.Properties;
+
 import com.wci.umls.server.algo.TerminologyLoaderAlgorithm;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.helpers.ConfigUtility;
 
 /**
  * Abstract support for loader algorithms.
@@ -27,7 +30,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm
    * @throws Exception the exception
    */
   public AbstractTerminologyLoaderAlgorithm() throws Exception {
-    setUserName(LOADER);
+    setLastModifiedBy(LOADER);
     setWorkId("LOADER");
   }
 
@@ -72,17 +75,6 @@ public abstract class AbstractTerminologyLoaderAlgorithm
   public void setReleaseVersion(String releaseVersion) {
     this.releaseVersion = releaseVersion;
   }
-
-  /* see superclass */
-  @Override
-  public abstract void computeTransitiveClosures() throws Exception;
-
-  /* see superclass */
-  @Override
-  public abstract void computeTreePositions() throws Exception;
-
-  @Override
-  public abstract void computeExpressionIndexes() throws Exception;
 
   /* see superclass */
   @Override
@@ -136,4 +128,22 @@ public abstract class AbstractTerminologyLoaderAlgorithm
     return result;
   }
 
+  /**
+   * Returns the configurable value.
+   *
+   * @param terminology the terminology
+   * @param key the key
+   * @return the configurable value
+   * @throws Exception the exception
+   */
+  @Override
+  public String getConfigurableValue(String terminology, String key)
+    throws Exception {
+    Properties p = ConfigUtility.getConfigProperties();
+    String fullKey = getClass().getName() + "." + terminology + "." + key;
+    if (p.containsKey(fullKey)) {
+      return p.getProperty(fullKey);
+    }
+    return null;
+  }
 }

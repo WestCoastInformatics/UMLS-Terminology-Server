@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -35,8 +35,8 @@ import com.wci.umls.server.model.actions.MolecularActionList;
 /**
  * A client for connecting to a project REST service.
  */
-public class ProjectClientRest extends RootClientRest implements
-    ProjectServiceRest {
+public class ProjectClientRest extends RootClientRest
+    implements ProjectServiceRest {
 
   /** The config. */
   private Properties config = null;
@@ -61,12 +61,10 @@ public class ProjectClientRest extends RootClientRest implements
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/add");
 
-    String projectString =
-        ConfigUtility.getStringForGraph(project == null ? new ProjectJpa()
-            : project);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(projectString));
+    String projectString = ConfigUtility
+        .getStringForGraph(project == null ? new ProjectJpa() : project);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(projectString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -86,18 +84,16 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public void updateProject(ProjectJpa project, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Client - update project " + project);
+    Logger.getLogger(getClass())
+        .debug("Project Client - update project " + project);
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/update");
 
-    String projectString =
-        ConfigUtility.getStringForGraph(project == null ? new ProjectJpa()
-            : project);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(projectString));
+    String projectString = ConfigUtility
+        .getStringForGraph(project == null ? new ProjectJpa() : project);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(projectString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing, successful
@@ -118,9 +114,8 @@ public class ProjectClientRest extends RootClientRest implements
     if (id == null)
       return;
 
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing, successful
@@ -138,9 +133,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/" + id);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -162,9 +156,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/all");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -183,21 +176,19 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public Project assignUserToProject(Long projectId, String userName,
     String role, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Client - assign user to project " + projectId + ", "
+    Logger.getLogger(getClass())
+        .debug("Project Client - assign user to project " + projectId + ", "
             + userName + ", " + role);
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(userName, "userName");
     validateNotEmpty(role, "role");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/assign?projectId=" + projectId + "&userName="
-            + userName + "&role=" + role);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/project/assign?projectId="
+            + projectId + "&userName=" + userName + "&role=" + role);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -217,20 +208,17 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public Project unassignUserFromProject(Long projectId, String userName,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Client - assign user to project " + projectId + ", "
+    Logger.getLogger(getClass())
+        .debug("Project Client - assign user to project " + projectId + ", "
             + userName);
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(userName, "userName");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/unassign?projectId=" + projectId + "&userName="
-            + userName);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/unassign?projectId=" + projectId + "&userName=" + userName);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -254,9 +242,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/roles");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -279,9 +266,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/queryTypes");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -295,8 +281,7 @@ public class ProjectClientRest extends RootClientRest implements
         ConfigUtility.getGraphForString(resultString, StringList.class);
     return list;
   }
-  
-  
+
   /* see superclass */
   @Override
   public UserList findAssignedUsersForProject(Long projectId, String query,
@@ -305,19 +290,14 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(query, "query");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/"
-            + projectId
-            + "/users?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/" + projectId + "/users?query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -340,20 +320,14 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(query, "query");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/users/"
-            + projectId
-            + "/unassigned"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/users/" + projectId + "/unassigned" + "?query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -375,9 +349,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/user/anyrole");
-    Response response =
-        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
-            .get();
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -398,17 +371,13 @@ public class ProjectClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/all"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+        client.target(config.getProperty("base.url") + "/project/all"
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -434,13 +403,11 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(authToken, "Authorization");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/log?"
-            + "projectId=" + projectId + "&objectId=" + objectId + "&lines="
-            + lines);
-    Response response =
-        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
-            .get();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/project/log?" + "projectId="
+            + projectId + "&objectId=" + objectId + "&lines=" + lines);
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -466,13 +433,11 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(authToken, "Authorization");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/log/"
-            + activity + "?" + "terminology=" + terminology + "&version="
-            + version + "&lines=" + lines);
-    Response response =
-        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
-            .get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/log/" + activity + "?" + "terminology=" + terminology
+        + "&version=" + version + "&lines=" + lines);
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -492,29 +457,23 @@ public class ProjectClientRest extends RootClientRest implements
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
 
-    Logger.getLogger(getClass()).debug(
-        "Project Client - find molecular actions " + query);
+    Logger.getLogger(getClass())
+        .debug("Project Client - find molecular actions " + query);
 
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(terminology, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/actions/molecular?terminology="
-            + terminology
-            + "&version="
-            + version
-            + (terminologyId == null ? "" : "&terminologyId="+terminologyId)
-            + "&query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/actions/molecular?terminology=" + terminology + "&version="
+        + version
+        + (terminologyId == null ? "" : "&terminologyId=" + terminologyId)
+        + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -532,25 +491,20 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public AtomicActionList findAtomicActions(Long molecularActionId,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find atomic actions for molecular action "
+    Logger.getLogger(getClass())
+        .debug("Content Client - find atomic actions for molecular action "
             + molecularActionId);
     validateNotEmpty(molecularActionId, "molecularActionId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/project/actions/atomic?molecularActionId="
-            + molecularActionId
-            + (query == null ? "" : "&query="
-            + URLEncoder.encode(query, "UTF-8")
-                .replaceAll("\\+", "%20")));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/actions/atomic?molecularActionId=" + molecularActionId
+        + (query == null ? "" : "&query="
+            + URLEncoder.encode(query, "UTF-8").replaceAll("\\+", "%20")));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -578,9 +532,8 @@ public class ProjectClientRest extends RootClientRest implements
     WebTarget target =
         client.target(config.getProperty("base.url") + "/checks");
 
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -590,8 +543,28 @@ public class ProjectClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility
-        .getGraphForString(resultString, KeyValuePairList.class);
+    return ConfigUtility.getGraphForString(resultString,
+        KeyValuePairList.class);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void reloadConfigProperties(String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Project Client - reload config properties");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/project/reload");
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(""));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing
+    } else {
+      throw new Exception("Unexpected status " + response.getStatus());
+    }
 
   }
 }

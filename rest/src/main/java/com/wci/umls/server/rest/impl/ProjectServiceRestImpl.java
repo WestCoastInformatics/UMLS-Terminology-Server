@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -35,6 +35,7 @@ import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
+import com.wci.umls.server.jpa.algo.maint.ReloadConfigPropertiesAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
@@ -51,18 +52,21 @@ import com.wci.umls.server.services.SecurityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link ProjectServiceRest}..
  */
 @Path("/project")
+@Api(value = "/project")
+@SwaggerDefinition(info = @Info(description = "Operations to interact with project info.", title = "Project API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-@Api(value = "/project", description = "Operations to get project info")
 public class ProjectServiceRestImpl extends RootServiceRestImpl
     implements ProjectServiceRest {
 
@@ -382,10 +386,12 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   public StringList getQueryTypes(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful POST call (Project): /queryTypes");
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Project): /queryTypes");
 
     try {
-      authorizeApp(securityService, authToken, "get query types", UserRole.VIEWER);
+      authorizeApp(securityService, authToken, "get query types",
+          UserRole.VIEWER);
       final StringList list = new StringList();
       list.setTotalCount(3);
       list.getObjects().add(QueryType.JQL.toString());
@@ -400,6 +406,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
   }
+
   /* see superclass */
   @Override
   @POST
@@ -781,8 +788,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   public KeyValuePairList getValidationChecks(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call POST (Validation): /checks ");
+    Logger.getLogger(getClass()).info("RESTful call POST (Project): /checks ");
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -798,6 +804,29 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       projectService.close();
       securityService.close();
     }
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/reload")
+  @ApiOperation(value = "Reload config properties", notes = "Reloads config properties and clears caches", response = KeyValuePairList.class)
+  public void reloadConfigProperties(String authToken) throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call POST (Project): /reload ");
+
+    final ReloadConfigPropertiesAlgorithm algo =
+        new ReloadConfigPropertiesAlgorithm();
+    try {
+      authorizeApp(securityService, authToken, "reload config properties",
+          UserRole.ADMINISTRATOR);
+      algo.compute();
+    } catch (Exception e) {
+      handleException(e, "trying to reload config properties");
+    } finally {
+      algo.close();
+      securityService.close();
+    }
+
   }
 
 }

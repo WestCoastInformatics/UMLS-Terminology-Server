@@ -59,18 +59,18 @@ RELOADING DATA
 
 # deploy data
 cd ~/snomed/data
-wget https://wci1.s3.amazonaws.com/TermServer/snomed-sql.zip
-unzip snomed-sql.zip
+wget https://wci1.s3.amazonaws.com/TermServer/snomedct-sql.zip
+unzip snomedct-sql.zip
 mysqls < ~/snomed/code/admin/mojo/src/main/resources/truncate_all.sql
-mysqls < snomed.sql
+mysqls < snomedct.sql
 mysqls < ~/fixWindowsExportData.sql
 /bin/rm ~/snomed/data/snomed.sql
 
 # deploy indexes
 cd ~/snomed/data
-wget https://wci1.s3.amazonaws.com/TermServer/snomed-indexes.zip
+wget https://wci1.s3.amazonaws.com/TermServer/snomedct-indexes.zip
 /bin/rm -rf /var/lib/tomcat8/indexes/snomedct/*
-unzip snomed-indexes.zip -d /var/lib/tomcat8/indexes
+unzip snomedct-indexes.zip -d /var/lib/tomcat8/indexes
 
 # Deploy and remove maintenance page
 /bin/cp -f ~/snomed/code/rest/target/umls-server-rest*war /var/lib/tomcat8/webapps/snomed-server-rest.war

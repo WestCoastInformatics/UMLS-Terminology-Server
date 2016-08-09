@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,14 +50,15 @@ import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubPropertyChainOfAxiom;
 import org.semanticweb.owlapi.util.SimpleRootClassChecker;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -195,24 +197,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   public OwlLoaderAlgorithm() throws Exception {
     super();
-  }
-
-  /**
-   * Returns the input file.
-   *
-   * @return the input file
-   */
-  public String getInputFile() {
-    return inputFile;
-  }
-
-  /**
-   * Sets the input file.
-   *
-   * @param inputFile the input file
-   */
-  public void setInputFile(String inputFile) {
-    this.inputFile = inputFile;
   }
 
   /* see superclass */
@@ -354,49 +338,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public void computeTreePositions() throws Exception {
-
-    try {
-      Logger.getLogger(getClass()).info("Computing tree positions");
-      treePosAlgorithm.setCycleTolerant(false);
-      treePosAlgorithm.setIdType(IdType.CONCEPT);
-      // some terminologies may have cycles, allow these for now.
-      treePosAlgorithm.setCycleTolerant(true);
-      treePosAlgorithm.setComputeSemanticType(true);
-      treePosAlgorithm.setTerminology(getTerminology());
-      treePosAlgorithm.setVersion(getVersion());
-      treePosAlgorithm.reset();
-      treePosAlgorithm.compute();
-      treePosAlgorithm.close();
-    } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
-
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info("  Compute transitive closure from  "
-        + getTerminology() + "/" + getVersion());
-    try {
-      transClosureAlgorithm.setCycleTolerant(false);
-      transClosureAlgorithm.setIdType(IdType.CONCEPT);
-      transClosureAlgorithm.setTerminology(getTerminology());
-      transClosureAlgorithm.setVersion(getVersion());
-      transClosureAlgorithm.reset();
-      transClosureAlgorithm.compute();
-      transClosureAlgorithm.close();
-
-    } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
-  }
-
-  /* see superclass */
-  @Override
   public void cancel() throws Exception {
     // cancel any currently running local algorithms
     treePosAlgorithm.cancel();
@@ -478,7 +419,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Build precedence list
     final PrecedenceList list = new PrecedenceListJpa();
-    list.setDefaultList(true);
 
     final List<KeyValuePair> lkvp = new ArrayList<>();
     // Start with "preferred"
@@ -2434,16 +2374,33 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public void computeExpressionIndexes() throws Exception {
-    final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
-    algo.setTerminology(getTerminology());
-    algo.setVersion(getVersion());
-    algo.compute();
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
   }
 
   /* see superclass */
   @Override
-  public ValidationResult checkPreconditions() throws Exception {
-    return new ValidationResultJpa();
+  public void setProperties(Properties p) throws Exception {
+
+    checkRequiredProperties(new String[] {
+        "inputFile"
+    }, p);
+
+    if (p.getProperty("inputFile") != null) {
+      setInputPath(p.getProperty("inputFile"));
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param =
+        new AlgorithmParameterJpa("Input File", "inputFile",
+            "Input OWL file to load", "", 255, AlgorithmParameter.Type.FILE);
+    params.add(param);
+    return params;
+
   }
 }

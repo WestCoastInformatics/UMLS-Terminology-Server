@@ -128,9 +128,10 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
       // perform main load
       algo.compute();
 
-      // compute transitive closures and tree positions
-      algo.computeTreePositions();
-      algo.computeTransitiveClosures();
+      // compute tree pos, compute transitive closure
+      // TODO: reowrk this to operate around a "process" and source data service
+      // can register the proccess - or we can fold this all into process
+      // serviceP
 
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
     } catch (Exception e) {

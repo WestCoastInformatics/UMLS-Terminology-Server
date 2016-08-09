@@ -4,15 +4,16 @@
 package com.wci.umls.server.jpa.algo;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
-import com.wci.umls.server.services.HistoryService;
 
 /**
  * An algorithm for starting an editing cycle.
@@ -23,9 +24,6 @@ public class StartEditingCycleAlgorithm extends AbstractAlgorithm {
 
   /** The release version. */
   private String releaseVersion = null;
-
-  /** The user. */
-  private String user;
 
   /**
    * Instantiates an empty {@link StartEditingCycleAlgorithm}.
@@ -50,24 +48,6 @@ public class StartEditingCycleAlgorithm extends AbstractAlgorithm {
 
   }
 
-  /**
-   * Returns the user.
-   *
-   * @return the user
-   */
-  public String getUser() {
-    return user;
-  }
-
-  /**
-   * Sets the user.
-   *
-   * @param user the user
-   */
-  public void setUser(String user) {
-    this.user = user;
-  }
-
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -76,8 +56,7 @@ public class StartEditingCycleAlgorithm extends AbstractAlgorithm {
 
     // Check that there is a planned release info entry that has not yet been
     // started
-    final HistoryService service = new HistoryServiceJpa();
-    ReleaseInfo info = service.getReleaseInfo(getTerminology(), releaseVersion);
+    ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
     if (info != null) {
       throw new Exception(
           "Editing cycle already started for " + releaseVersion);
@@ -92,10 +71,8 @@ public class StartEditingCycleAlgorithm extends AbstractAlgorithm {
     info.setPublished(false);
     info.setTerminology(getTerminology());
     info.setVersion(getVersion());
-    info.setLastModifiedBy(user);
     info.setReleaseBeginDate(new Date());
-    service.addReleaseInfo(info);
-    service.close();
+    addReleaseInfo(info);
 
     Logger.getLogger(getClass()).info("Done starting editing cycle");
 
@@ -106,4 +83,17 @@ public class StartEditingCycleAlgorithm extends AbstractAlgorithm {
   public ValidationResult checkPreconditions() throws Exception {
     return new ValidationResultJpa();
   }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() {
+    return super.getParameters();
+  }
+
 }

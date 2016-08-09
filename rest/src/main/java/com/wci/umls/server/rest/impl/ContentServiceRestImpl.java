@@ -47,9 +47,11 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.EclConceptIndexingAlgorithm;
+import com.wci.umls.server.jpa.algo.LabelSetMarkedParentAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.OwlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
@@ -85,7 +87,6 @@ import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
@@ -95,6 +96,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
@@ -105,6 +107,7 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.ProjectService;
@@ -113,9 +116,12 @@ import com.wci.umls.server.services.SecurityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
- * REST implementation for {@link ContentServiceRest}..
+ * Reference implementation of {@link ContentServiceRest}. Includes hibernate
+ * tags for MEME database.
  */
 @Path("/content")
 @Consumes({
@@ -124,7 +130,8 @@ import io.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-@Api(value = "/content", description = "Operations to retrieve RF2 content for a terminology.")
+@Api(value = "/content")
+@SwaggerDefinition(info = @Info(description = "Operations to retrieve content for a terminology.", title = "Content API", version = "1.0.1"))
 public class ContentServiceRestImpl extends RootServiceRestImpl
     implements ContentServiceRest {
 
@@ -141,13 +148,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Lucene reindex.
-   *
-   * @param indexedObjects the indexed objects
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
   @Override
   @POST
   @Path("/reindex")
@@ -165,8 +165,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     long startTimeOrig = System.nanoTime();
     final LuceneReindexAlgorithm algo = new LuceneReindexAlgorithm();
     try {
-      authorizeApp(securityService, authToken, "reindex",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "reindex", UserRole.ADMINISTRATOR);
+      algo.setLastModifiedBy(userName);
       algo.setIndexedObjects(indexedObjects);
       algo.compute();
       algo.close();
@@ -186,16 +187,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the ecl expression result count.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param authToken the auth token
-   * @return the ecl expression result count
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/expression/count/{terminology}/{version}/{query}")
@@ -226,16 +218,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the ecl expression results.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param authToken the auth token
-   * @return the ecl expression results
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/expression/query/{terminology}/{version}/{query}")
@@ -266,14 +249,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Compute expression indexes.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
   @Override
   @POST
   @Path("/expression/index/{terminology}/{version}")
@@ -292,14 +267,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     // NOTE: Currently only ECL indexing supported
     final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
-    algo.setTerminology(terminology);
-    algo.setVersion(version);
-    algo.setContentService(contentService);
-
     try {
-      authorizeApp(securityService, authToken, "create ECL indexes",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "create ECL indexes", UserRole.ADMINISTRATOR);
+      algo.setLastModifiedBy(userName);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
       algo.compute();
+      algo.close();
+
     } catch (Exception e) {
       handleException(e, "trying to create ECL indexes");
     } finally {
@@ -311,14 +287,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Compute transitive closure.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/terminology/closure/compute/{terminology}/{version}")
@@ -339,8 +308,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     final TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
     try {
-      authorizeApp(securityService, authToken, "compute transitive closure",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "compute transitive closure", UserRole.ADMINISTRATOR);
+      algo.setLastModifiedBy(userName);
 
       // Compute transitive closure
       Logger.getLogger(getClass()).info(
@@ -366,14 +336,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Compute tree positions.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/terminology/treepos/compute/{terminology}/{version}")
@@ -394,8 +357,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     final TreePositionAlgorithm algo = new TreePositionAlgorithm();
     try {
-      authorizeApp(securityService, authToken, "compute tree positions ",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "compute tree positions ", UserRole.ADMINISTRATOR);
+      algo.setLastModifiedBy(userName);
 
       // Compute tree positions
       Logger.getLogger(getClass())
@@ -427,18 +391,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Load terminology rrf.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param singleMode the single mode
-   * @param codeFlag the code flag
-   * @param prefix the prefix
-   * @param inputDir the input dir
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
+
   @Override
   @PUT
   @Path("/terminology/load/rrf")
@@ -460,13 +413,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             + inputDir);
 
     // Track system level information
-    final ContentService contentService = new ContentServiceJpa();
-
+    ContentService contentService = null;
+    RrfLoaderAlgorithm algo = new RrfLoaderAlgorithm();
+    TransitiveClosureAlgorithm algo2 = null;
+    TreePositionAlgorithm algo3 = null;
+    LabelSetMarkedParentAlgorithm algo4 = null;
     try {
-      authorizeApp(securityService, authToken, "load rrf",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "load rrf", UserRole.ADMINISTRATOR);
 
-      RrfLoaderAlgorithm algo = new RrfLoaderAlgorithm();
+      algo = new RrfLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
       algo.setSingleMode(singleMode);
       algo.setCodesFlag(codeFlag);
       algo.setPrefix(prefix);
@@ -474,26 +431,83 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.setVersion(version);
       algo.setInputPath(inputDir);
       algo.compute();
-      algo.computeTransitiveClosures();
-      algo.computeTreePositions();
+      algo.close();
+
+      contentService = new ContentServiceJpa();
+      final TerminologyList list =
+          contentService.getTerminologyLatestVersions();
+      for (final Terminology t : list.getObjects()) {
+        // Only compute for organizing class types
+        if (t.getOrganizingClassType() != null) {
+          algo2 = new TransitiveClosureAlgorithm();
+          algo2.setLastModifiedBy(userName);
+          algo2.setTerminology(t.getTerminology());
+          algo2.setVersion(t.getVersion());
+          algo2.setIdType(t.getOrganizingClassType());
+          // some terminologies may have cycles, allow these for now.
+          algo2.setCycleTolerant(true);
+          algo2.compute();
+          algo2.close();
+        }
+      }
+
+      //
+      // Compute tree positions
+      // Refresh caches after metadata has changed in loader
+      for (final Terminology t : list.getObjects()) {
+        // Only compute for organizing class types
+        if (t.getOrganizingClassType() != null) {
+          algo3 = new TreePositionAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(t.getTerminology());
+          algo3.setVersion(t.getVersion());
+          algo3.setIdType(t.getOrganizingClassType());
+          // some terminologies may have cycles, allow these for now.
+          algo3.setCycleTolerant(true);
+          // compute "semantic types" for concept hierarchies
+          if (t.getOrganizingClassType() == IdType.CONCEPT) {
+            algo3.setComputeSemanticType(true);
+          }
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      for (final Terminology t : list.getObjects()) {
+        for (final Subset subset : contentService
+            .getConceptSubsets(t.getTerminology(), t.getVersion(), Branch.ROOT)
+            .getObjects()) {
+          final ConceptSubset conceptSubset = (ConceptSubset) subset;
+          if (conceptSubset.isLabelSubset()) {
+            Logger.getLogger(getClass())
+                .info("  Create label set for subset = " + subset);
+            algo4 = new LabelSetMarkedParentAlgorithm();
+            algo4.setLastModifiedBy(userName);
+            algo4.setTerminology(t.getTerminology());
+            algo4.setVersion(t.getVersion());
+            algo4.setSubset(conceptSubset);
+            algo4.compute();
+            algo4.close();
+          }
+        }
+      }
 
     } catch (Exception e) {
       handleException(e, "trying to load terminology from RRF directory");
     } finally {
+      algo.close();
+      algo2.close();
+      algo3.close();
+      algo4.close();
       contentService.close();
       securityService.close();
     }
   }
 
   /* see superclass */
-  /**
-   * Load terminology rf2 delta.
-   *
-   * @param terminology the terminology
-   * @param inputDir the input dir
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
+
   @Override
   @PUT
   @Path("/terminology/load/rf2/delta/{terminology}")
@@ -510,43 +524,92 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             + terminology + " from input directory " + inputDir);
 
     // Track system level information
-    final ContentService contentService = new ContentServiceJpa();
-
+    ContentService contentService = null;
+    Rf2DeltaLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    LabelSetMarkedParentAlgorithm algo3 = null;
+    TreePositionAlgorithm algo4 = null;
+    EclConceptIndexingAlgorithm algo5 = null;
     try {
-      authorizeApp(securityService, authToken, "load delta",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "load delta", UserRole.ADMINISTRATOR);
 
-      // get the latest verison for this terminology
-      MetadataService metadataService = new MetadataServiceJpa();
-      String version = metadataService.getLatestVersion(terminology);
-      metadataService.close();
-
-      Rf2DeltaLoaderAlgorithm algo = new Rf2DeltaLoaderAlgorithm();
+      algo = new Rf2DeltaLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
+      String version = algo.getLatestVersion(terminology);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.setInputPath(inputDir);
       algo.compute();
-      algo.computeTransitiveClosures();
-      algo.computeTreePositions();
+      algo.close();
+
+      // Transitive closure
+      algo2 = new TransitiveClosureAlgorithm();
+      algo2.setLastModifiedBy(userName);
+      algo2.setCycleTolerant(false);
+      algo2.setIdType(IdType.CONCEPT);
+      algo2.setTerminology(terminology);
+      algo2.setVersion(terminology);
+      algo2.reset();
+      algo2.compute();
+      algo2.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      contentService = new ContentServiceJpa();
+      for (final Subset subset : getConceptSubsets(terminology, version,
+          Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          Logger.getLogger(getClass())
+              .info("  Create label set for subset = " + subset);
+          algo3 = new LabelSetMarkedParentAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(terminology);
+          algo3.setVersion(version);
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+      // Tree positions
+      algo4 = new TreePositionAlgorithm();
+      algo4.setLastModifiedBy(userName);
+      algo4.setCycleTolerant(false);
+      algo4.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo4.setCycleTolerant(true);
+      algo4.setComputeSemanticType(true);
+      algo4.setTerminology(terminology);
+      algo4.setVersion(version);
+      algo4.reset();
+      algo4.compute();
+      algo4.close();
+
+      // Expressions
+      algo5 = new EclConceptIndexingAlgorithm();
+      algo5.setLastModifiedBy(userName);
+      algo5.setTerminology(terminology);
+      algo5.setVersion(version);
+      algo5.compute();
+      algo5.close();
 
     } catch (Exception e) {
       handleException(e, "trying to load terminology delta from RF2 directory");
     } finally {
+      algo.close();
+      algo2.close();
+      algo3.close();
+      algo4.close();
+      algo5.close();
       contentService.close();
       securityService.close();
     }
   }
 
   /* see superclass */
-  /**
-   * Load terminology rf2 snapshot.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param inputDir the input dir
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
+
   @Override
   @PUT
   @Path("/terminology/load/rf2/snapshot/{terminology}/{version}")
@@ -567,24 +630,83 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             + inputDir);
 
     // Track system level information
-    final ContentService contentService = new ContentServiceJpa();
-
+    ContentService contentService = null;
+    Rf2SnapshotLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    LabelSetMarkedParentAlgorithm algo3 = null;
+    TreePositionAlgorithm algo4 = null;
+    EclConceptIndexingAlgorithm algo5 = null;
     try {
-      authorizeApp(securityService, authToken, "load snapshot",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "load snapshot", UserRole.ADMINISTRATOR);
 
-      Rf2SnapshotLoaderAlgorithm algo = new Rf2SnapshotLoaderAlgorithm();
+      algo = new Rf2SnapshotLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.setInputPath(inputDir);
       algo.compute();
-      algo.computeTransitiveClosures();
-      algo.computeTreePositions();
+      algo.close();
+
+      // Transitive closure
+      algo2 = new TransitiveClosureAlgorithm();
+      algo2.setLastModifiedBy(userName);
+      algo2.setCycleTolerant(false);
+      algo2.setIdType(IdType.CONCEPT);
+      algo2.setTerminology(terminology);
+      algo2.setVersion(version);
+      algo2.reset();
+      algo2.compute();
+      algo2.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      contentService = new ContentServiceJpa();
+      for (final Subset subset : contentService
+          .getConceptSubsets(terminology, version, Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          algo3 = new LabelSetMarkedParentAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(terminology);
+          algo3.setVersion(version);
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+      // Tree positions
+      algo4 = new TreePositionAlgorithm();
+      algo4.setLastModifiedBy(userName);
+      algo4.setCycleTolerant(false);
+      algo4.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo4.setCycleTolerant(true);
+      algo4.setComputeSemanticType(true);
+      algo4.setTerminology(terminology);
+      algo4.setVersion(version);
+      algo4.reset();
+      algo4.compute();
+      algo4.close();
+
+      // expressions
+      algo5 = new EclConceptIndexingAlgorithm();
+      algo5.setLastModifiedBy(userName);
+      algo5.setTerminology(terminology);
+      algo5.setVersion(version);
+      algo5.compute();
+      algo5.close();
 
     } catch (Exception e) {
       handleException(e,
           "trying to load terminology snapshot from RF2 directory");
     } finally {
+      algo.close();
+      algo2.close();
+      algo3.close();
+      algo4.close();
+      algo5.close();
       contentService.close();
       securityService.close();
     }
@@ -592,15 +714,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Load terminology rf2 full.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param inputDir the input dir
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
+
   @Override
   @PUT
   @Path("/terminology/load/rf2/full/{terminology}/{version}")
@@ -621,28 +735,82 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             + inputDir);
 
     // Track system level information
-    final ContentService contentService = new ContentServiceJpa();
-
+    ContentService contentService = null;
+    Rf2FullLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    LabelSetMarkedParentAlgorithm algo3 = null;
+    TreePositionAlgorithm algo4 = null;
+    EclConceptIndexingAlgorithm algo5 = null;
     try {
-      authorizeApp(securityService, authToken, "load full",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "load full", UserRole.ADMINISTRATOR);
 
-      Rf2FullLoaderAlgorithm algo = new Rf2FullLoaderAlgorithm();
+      algo = new Rf2FullLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.setInputPath(inputDir);
       algo.compute();
-      // Re-open algorithm because entity manager is closed at this point
-      algo = new Rf2FullLoaderAlgorithm();
-      algo.setTerminology(terminology);
-      algo.setVersion(version);
-      algo.setInputPath(inputDir);
-      algo.computeTransitiveClosures();
-      algo.computeTreePositions();
+      algo.close();
+
+      // Transitive closure
+      algo2 = new TransitiveClosureAlgorithm();
+      algo2.setLastModifiedBy(userName);
+      algo2.setCycleTolerant(false);
+      algo2.setIdType(IdType.CONCEPT);
+      algo2.setTerminology(terminology);
+      algo2.setVersion(version);
+      algo2.reset();
+      algo2.compute();
+      algo2.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      contentService = new ContentServiceJpa();
+      for (final Subset subset : contentService
+          .getConceptSubsets(terminology, version, Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          algo3 = new LabelSetMarkedParentAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(terminology);
+          algo3.setVersion(version);
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+      // Tree positions
+      algo4 = new TreePositionAlgorithm();
+      algo4.setLastModifiedBy(userName);
+      algo4.setCycleTolerant(false);
+      algo4.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo4.setCycleTolerant(true);
+      algo4.setComputeSemanticType(true);
+      algo4.setTerminology(terminology);
+      algo4.setVersion(version);
+      algo4.reset();
+      algo4.compute();
+      algo4.close();
+
+      // expressions
+      algo5 = new EclConceptIndexingAlgorithm();
+      algo5.setLastModifiedBy(userName);
+      algo5.setTerminology(terminology);
+      algo5.setVersion(version);
+      algo5.compute();
+      algo5.close();
 
     } catch (Exception e) {
       handleException(e, "trying to load terminology full from RF2 directory");
     } finally {
+      algo.close();
+      algo2.close();
+      algo3.close();
+      algo4.close();
+      algo5.close();
       contentService.close();
       securityService.close();
     }
@@ -650,15 +818,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Load terminology claml.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param inputFile the input file
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
   @Override
   @PUT
   @Path("/terminology/load/claml/{terminology}/{version}")
@@ -680,22 +839,29 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    final ClamlLoaderAlgorithm algo = new ClamlLoaderAlgorithm();
-    final TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
-    final TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
+    ClamlLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    TreePositionAlgorithm algo3 = null;
     try {
-      authorizeApp(securityService, authToken, "loading claml",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "loading claml", UserRole.ADMINISTRATOR);
+
+      // TODO: this really has the hallmarks of a "process"
 
       // Load data
       Logger.getLogger(getClass()).info("Load ClaML data from " + inputFile);
+      algo = new ClamlLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.setInputFile(inputFile);
+      algo.setInputPath(inputFile);
       algo.compute();
+      algo.close();
 
       // Let service begin its own transaction
       Logger.getLogger(getClass()).info("Start computing transtive closure");
+      algo2 = new TransitiveClosureAlgorithm();
+      algo2.setLastModifiedBy(userName);
       algo2.setIdType(IdType.CONCEPT);
       algo2.setCycleTolerant(false);
       algo2.setTerminology(terminology);
@@ -704,6 +870,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo2.close();
 
       // compute tree positions
+      algo3 = new TreePositionAlgorithm();
+      algo3.setLastModifiedBy(userName);
       algo3.setCycleTolerant(false);
       algo3.setIdType(IdType.CONCEPT);
       algo3.setComputeSemanticType(true);
@@ -722,20 +890,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     } finally {
       algo.close();
       algo2.close();
+      algo3.close();
       securityService.close();
     }
   }
 
   /* see superclass */
-  /**
-   * Load terminology owl.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param inputFile the input file
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
+
   @Override
   @PUT
   @Path("/terminology/load/owl/{terminology}/{version}")
@@ -757,25 +918,27 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    final OwlLoaderAlgorithm algo = new OwlLoaderAlgorithm();
-    final TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
-    final TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
+    OwlLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    TreePositionAlgorithm algo3 = null;
     try {
-      authorizeApp(securityService, authToken, "loading owl",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "loading owl", UserRole.ADMINISTRATOR);
 
       // Load snapshot
       Logger.getLogger(getClass()).info("Load Owl data from " + inputFile);
+      algo = new OwlLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.setInputFile(inputFile);
+      algo.setInputPath(inputFile);
       algo.compute();
-
-      final MetadataService service = new MetadataServiceJpa();
-      service.refreshCaches();
+      algo.close();
 
       // Let service begin its own transaction
       Logger.getLogger(getClass()).info("Start computing transtive closure");
+      algo2 = new TransitiveClosureAlgorithm();
+      algo2.setLastModifiedBy(userName);
       algo2.setIdType(IdType.CONCEPT);
       algo2.setCycleTolerant(false);
       algo2.setTerminology(terminology);
@@ -784,6 +947,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo2.close();
 
       // compute tree positions
+      algo3 = new TreePositionAlgorithm();
+      algo3.setLastModifiedBy(userName);
       algo3.setCycleTolerant(false);
       algo3.setIdType(IdType.CONCEPT);
       algo3.setComputeSemanticType(true);
@@ -802,20 +967,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     } finally {
       algo.close();
       algo2.close();
+      algo3.close();
       securityService.close();
     }
   }
 
   /* see superclass */
-  /**
-   * Removes the terminology.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @return true, if successful
-   * @throws Exception the exception
-   */
+
   @Override
   @DELETE
   @Path("/terminology/remove/{terminology}/{version}")
@@ -835,12 +993,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     final RemoveTerminologyAlgorithm algo = new RemoveTerminologyAlgorithm();
     try {
-      String authUser = authorizeApp(securityService, authToken,
+      String userName = authorizeApp(securityService, authToken,
           "remove terminology", UserRole.ADMINISTRATOR);
 
       // Remove terminology
       Logger.getLogger(getClass())
           .info("  Remove terminology for  " + terminology + "/" + version);
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.compute();
@@ -851,7 +1010,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       Logger.getLogger(getClass()).info("done ...");
 
-      securityService.addLogEntry(authUser, terminology, version, null,
+      securityService.addLogEntry(userName, terminology, version, null,
           "REMOVER", "Remove terminology");
 
       return true;
@@ -865,17 +1024,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Gets the concept.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the concept
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -921,15 +1069,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the concept.
-   *
-   * @param conceptId the concept id
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the concept
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/concept/{conceptId}")
@@ -973,16 +1113,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the map set.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @return the map set
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/mapset/{terminology}/{version}/{terminologyId}")
@@ -1020,15 +1151,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the map sets.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @return the map sets
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/mapset/all/{terminology}/{version}")
@@ -1062,17 +1185,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find concepts for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the search result list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}")
@@ -1112,16 +1225,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find concepts for general query.
-   *
-   * @param query the query
-   * @param jql the jql
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the search result list
-   * @throws Exception the exception
-   */
   @Override
   @POST
   @Path("/concept")
@@ -1160,16 +1263,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find codes for general query.
-   *
-   * @param query the query
-   * @param jql the jql
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the search result list
-   * @throws Exception the exception
-   */
   @Override
   @POST
   @Path("/code")
@@ -1207,16 +1300,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Autocomplete concepts.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param searchTerm the search term
-   * @param authToken the auth token
-   * @return the string list
-   * @throws Exception the exception
-   */
   @Override
   @GET
   @Path("/concept/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -1248,17 +1331,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the descriptor.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the descriptor
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/descriptor/{terminology}/{version}/{terminologyId}")
@@ -1305,17 +1378,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find descriptors for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the search result list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}")
@@ -1355,16 +1418,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find descriptors for general query.
-   *
-   * @param query the query
-   * @param jql the jql
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the search result list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/descriptor/")
@@ -1403,16 +1457,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Autocomplete descriptors.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param searchTerm the search term
-   * @param authToken the auth token
-   * @return the string list
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/descriptor/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -1444,17 +1489,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the code.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the code
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/code/{terminology}/{version}/{terminologyId}")
@@ -1501,17 +1536,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find codes for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the search result list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}")
@@ -1551,16 +1576,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Autocomplete codes.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param searchTerm the search term
-   * @param authToken the auth token
-   * @return the string list
-   * @throws Exception the exception
-   */
   @Override
   @GET
   @Path("/code/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -1590,17 +1605,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the lexical class.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the lexical class
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/lui/{terminology}/{version}/{terminologyId}")
@@ -2905,17 +2910,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find code tree for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/trees")
@@ -2989,17 +2984,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find concept tree children.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/trees/children")
@@ -3048,17 +3033,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find code tree children.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/trees/children")
@@ -3107,17 +3082,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find descriptor tree children.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/trees/children")
@@ -3166,16 +3131,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find concept tree roots.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree
-   * @throws Exception the exception
-   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/trees/roots")
@@ -3251,16 +3206,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find descriptor tree roots.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree
-   * @throws Exception the exception
-   */
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/trees/roots")
@@ -3337,16 +3282,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find code tree roots.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/trees/roots")
@@ -3423,18 +3359,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find mappings for map set.
-   *
-   * @param mapSetId the map set id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the mapping list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/mapset/{mapSetId}/{terminology}/{version}/mappings")
@@ -3529,18 +3454,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find mappings for code.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the mapping list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/code/{terminologyId}/{terminology}/{version}/mappings")
@@ -3581,18 +3495,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find mappings for descriptor.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the mapping list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/descriptor/{terminologyId}/{terminology}/{version}/mappings")
@@ -3776,13 +3679,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Removes the concept note.
-   *
-   * @param noteId the note id
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
+
   @DELETE
   @Path("/concept/note/{id}/remove")
   @Produces("text/plain")
@@ -3819,16 +3716,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Adds the code note.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
-   * @param noteText the note text
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
+
   @POST
   @Path("/code/note/{terminology}/{version}/{terminologyId}/add")
   @Produces("text/plain")
@@ -4308,7 +4196,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           return projectList;
         } else {
 
-          return metadataService.getDefaultPrecedenceList(obj.getTerminology(),
+          return metadataService.getPrecedenceList(obj.getTerminology(),
               obj.getVersion());
         }
       }

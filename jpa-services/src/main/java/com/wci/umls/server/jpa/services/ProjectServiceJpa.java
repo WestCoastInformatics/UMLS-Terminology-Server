@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -43,6 +43,13 @@ public class ProjectServiceJpa extends RootServiceJpa
   private static Map<String, ValidationCheck> validationHandlersMap = null;
 
   static {
+    init();
+  }
+
+  /**
+   * Static initializer (also used by refresh caches).
+   */
+  private static void init() {
     validationHandlersMap = new HashMap<>();
     try {
       if (config == null)
@@ -70,11 +77,7 @@ public class ProjectServiceJpa extends RootServiceJpa
    */
   public ProjectServiceJpa() throws Exception {
     super();
-
-    if (validationHandlersMap == null) {
-      throw new Exception(
-          "Validation handlers did not properly initialize, serious error.");
-    }
+    validateInit();
   }
 
   /* see superclass */
@@ -335,6 +338,7 @@ public class ProjectServiceJpa extends RootServiceJpa
       } else {
         // make comparator
         return new Comparator<T>() {
+
           @Override
           public int compare(T o2, T o1) {
             try {
@@ -352,6 +356,7 @@ public class ProjectServiceJpa extends RootServiceJpa
               return 0;
             }
           }
+
         };
       }
 
@@ -383,12 +388,6 @@ public class ProjectServiceJpa extends RootServiceJpa
 
   /* see superclass */
   @Override
-  public void refreshCaches() throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
   public KeyValuePairList getValidationCheckNames() {
     final KeyValuePairList keyValueList = new KeyValuePairList();
     for (final Entry<String, ValidationCheck> entry : validationHandlersMap
@@ -400,8 +399,30 @@ public class ProjectServiceJpa extends RootServiceJpa
     return keyValueList;
   }
 
+  /* see superclass */
   @Override
   public Map<String, ValidationCheck> getValidationHandlersMap() {
     return validationHandlersMap;
   }
+
+  /* see superclass */
+  @Override
+  public void refreshCaches() throws Exception {
+    super.refreshCaches();
+    init();
+  }
+
+  /**
+   * Validate init.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateInit() throws Exception {
+    if (validationHandlersMap == null) {
+      throw new Exception(
+          "Validation handlers did not properly initialize, serious error.");
+    }
+  }
+
 }

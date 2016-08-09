@@ -86,4 +86,5 @@ public interface ChangeEvent<T extends Component> extends HasName,
    */
   public void setContainer(ComponentInfo container);
 
+  // TODO: add the moleuclar action id
 }

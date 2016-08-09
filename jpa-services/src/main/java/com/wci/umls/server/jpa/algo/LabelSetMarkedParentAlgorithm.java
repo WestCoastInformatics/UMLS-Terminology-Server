@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import com.wci.umls.server.ValidationResult;
@@ -265,6 +266,13 @@ public class LabelSetMarkedParentAlgorithm extends AbstractAlgorithm {
   @Override
   public ValidationResult checkPreconditions() throws Exception {
     return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // Unable to set via properteis
+    throw new UnsupportedOperationException();
   }
 
 }

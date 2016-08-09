@@ -286,6 +286,15 @@ public class ConfigUtility {
   }
 
   /**
+   * Clear config properties.
+   *
+   * @throws Exception the exception
+   */
+  public static void clearConfigProperties() throws Exception {
+    config = null;
+  }
+
+  /**
    * Returns the ui config properties.
    *
    * @return the ui config properties
