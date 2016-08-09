@@ -3935,7 +3935,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       // Create an atomic action for each element of a collection that is
       // different for fields with @OneToMany annotations
       final List<Method> oneToManyMethods =
-          IndexUtility.getAllOneToManyAccessorMethods(oldComponent.getClass());
+          IndexUtility.getAllCollectionGetMethods(oldComponent.getClass());
 
       // Iterate through @OneToMan methods
       for (final Method m : oneToManyMethods) {

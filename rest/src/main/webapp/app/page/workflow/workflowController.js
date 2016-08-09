@@ -17,11 +17,14 @@ tsApp.controller('WorkflowCtrl', [
     workflowService, utilService, configureService, projectService, reportService, $uibModal) {
     console.debug("configure WorkflowCtrl");
 
+    tabService.setShowing(true);
+
     // Clear error
     utilService.clearError();
 
-    // Handle resetting tabs on "back" button
+    // Handle resetting tabs on 'back' and 'reload' events button
     tabService.setSelectedTabByLabel('Workflow');
+
 
     $scope.user = securityService.getUser();
     $scope.projectRole;
@@ -127,7 +130,7 @@ tsApp.controller('WorkflowCtrl', [
     // Set the project
     $scope.setProject = function(project) {
       $scope.currentProject = project;
-      workflowService.fireProjectChanged($scope.currentProject);
+      projectService.fireProjectChanged($scope.currentProject);
       //$scope.user.userPreferences.project = $scope.currentProject;
       //securityService.updateUserPreferences($scope.user.userPreferences);
       //$scope.getProjects();
@@ -167,6 +170,7 @@ tsApp.controller('WorkflowCtrl', [
     $scope.selectBin = function(bin, clusterType) {
       $scope.selected.bin = bin;   
       $scope.selected.clusterType = clusterType;
+      $scope.selected.concept = null;
       
       if (clusterType && clusterType == 'default') {
         $scope.paging['record'].filter = ' NOT clusterType:[* TO *]';
@@ -178,7 +182,24 @@ tsApp.controller('WorkflowCtrl', [
       $scope.getRecords($scope.selected.bin);
     };
 
-    // Get $scope.records
+    // Selects a concept (setting $scope.selected.concept)
+    $scope.selectConcept = function(concept) {
+      // Set the concept for display
+      $scope.selected.concept = {
+        terminologyId : concept.terminologyId,
+        terminology : concept.terminology,
+        version : concept.version,
+        id : concept.id
+      };
+      reportService.getConceptReport($scope.currentProject.id, $scope.selected.concept.id).then(
+      // Success
+      function(data) {
+        $scope.selected.concept.report = data;
+      });
+    };
+
+    
+    // Get records
     $scope.getRecords = function(bin) {
       
       var pfs = {

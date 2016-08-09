@@ -84,9 +84,11 @@ public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-
+    
     // Remove the semantic type from the concept
     getConcept().getSemanticTypes().remove(sty);
+    
+    // Update Concept
     updateConcept(getConcept());
 
     // remove the semantic type component
@@ -96,11 +98,13 @@ public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    updateConcept(getConcept());
-
+    
+    // Update Concept
+    updateConcept(getConcept());    
+    
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        getActivityId(), getWorkId(),
         getName() + " " + sty.getSemanticType() + " from concept "
             + getConcept().getTerminologyId());
 

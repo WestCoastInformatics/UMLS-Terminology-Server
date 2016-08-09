@@ -167,26 +167,63 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     fromConceptPreUpdates = new ConceptJpa(getFromConcept(), false);
     toConceptPreUpdates = new ConceptJpa(getToConcept(), false);
 
-    // Add each listed atom from fromConcept to toConcept, delete from
-    // fromConcept, and set to NEEDS_REVIEW (if needed).
-    moveAtoms(getFromConcept(), getToConcept(), moveAtoms);
-
-    if (getChangeStatusFlag()) {
-      for (Atom atm : moveAtoms) {
-        atm.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      }
-
-      getToConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      getFromConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-    }
-
-    // update the to concept and from concept
-    updateConcept(getToConcept());
+    //
+    // Make a copy of the atoms to be moved
+    //
+    List<Atom> moveAtomsList = moveAtoms;
+    
+    
+    //
+    // Remove all atoms from the fromConcept
+    //    
+    for (final Atom atom : moveAtomsList) {
+      getFromConcept().getAtoms().remove(atom);
+    }   
+    
+    //
+    // Update fromConcept
+    //    
     updateConcept(getFromConcept());
+
+    //
+    // Remove the objects from the database
+    //
+    // Not done for Atoms
+    
+    //
+    // Change status of the atoms to be added
+    //    
+    if (getChangeStatusFlag()) {
+      for (final Atom atom : moveAtomsList) {
+        atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }    
+    }
+    
+    //
+    // Add the atoms to the toConcept
+    //
+    for (final Atom atom : moveAtomsList) {
+      getToConcept().getAtoms().add(atom);
+    }
+    
+    //
+    // Change status of the concepts
+    //
+    if (getChangeStatusFlag()) {
+      getFromConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      getToConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    }
+    
+    //
+    // Update the to and from Concepts
+    //
+    updateConcept(getToConcept());
+    updateConcept(getFromConcept());    
+    
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        getActivityId(), getWorkId(),
         getName() + " " + atomIds + " from Concept " + getFromConcept().getId()
             + " to concept " + getToConcept().getId());
 

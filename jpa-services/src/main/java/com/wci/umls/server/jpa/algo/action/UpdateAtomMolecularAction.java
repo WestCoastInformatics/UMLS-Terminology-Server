@@ -3,32 +3,32 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.content.LexicalClassJpa;
-import com.wci.umls.server.jpa.content.StringClassJpa;
-import com.wci.umls.server.jpa.services.handlers.LuceneNormalizedStringHandler;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.LexicalClass;
-import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
-import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * A molecular action for adding an atom.
  */
-public class AddAtomMolecularAction extends AbstractMolecularAction {
+public class UpdateAtomMolecularAction extends AbstractMolecularAction {
 
   /** The atom. */
   private Atom atom;
 
   /**
-   * Instantiates an empty {@link AddAtomMolecularAction}.
+   * Instantiates an empty {@link UpdateAtomMolecularAction}.
    *
    * @throws Exception the exception
    */
-  public AddAtomMolecularAction() throws Exception {
+  public UpdateAtomMolecularAction() throws Exception {
     super();
     // n/a
   }
@@ -62,25 +62,41 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
         getConcept().getVersion()) == null) {
       rollback();
       throw new LocalException(
-          "Cannot add atom with invalid term type - " + atom.getTermType());
+          "Cannot update atom with invalid term type - " + atom.getTermType());
     }
     if (getLanguage(atom.getLanguage(), getConcept().getTerminology(),
         getConcept().getVersion()) == null) {
       rollback();
       throw new LocalException(
-          "Cannot add atom with invalid language - " + atom.getLanguage());
+          "Cannot update atom with invalid language - " + atom.getLanguage());
     }
     if (getTerminology(atom.getTerminology(), atom.getVersion()) == null) {
       rollback();
-      throw new LocalException("Cannot add atom with invalid terminology - "
+      throw new LocalException("Cannot update atom with invalid terminology - "
           + atom.getTerminology() + ", version: " + atom.getVersion());
     }
 
-    // Duplicate check
-    for (final Atom a : getConcept().getAtoms()) {
-      if (a.getName().equals(atom.getName())) {
-        rollback();
-        throw new LocalException("Duplicate atom - " + atom.getName());
+    // Cannot change any field that would affect the identity of the atom:
+    // codeId, conceptId, descriptorId, stringClassId, termType, terminology,
+    // terminologyId
+    Atom oldAtom = getAtom(atom.getId());
+
+    List<String> identityFieldGetMethods = Arrays.asList("getCodeId",
+        "getConceptId", "getDescriptorId", "getStringClassId", "getTermType",
+        "getTerminology", "getTerminologyId");
+
+    List<Method> allGetMethods =
+        IndexUtility.getAllColumnGetMethods(AtomJpa.class);
+
+    for (Method method : allGetMethods) {
+      if (identityFieldGetMethods.contains(method.getName())) {
+        final Object origValue = method.invoke(oldAtom);
+        final Object newValue = method.invoke(getAtom());
+        if (!origValue.toString().equals(newValue.toString())) {
+          final String fieldName = method.toString().substring(3, 4).toLowerCase()+ method.toString().substring(4);
+          throw new Exception("Error: change deteced in identity-field " + fieldName + " for atom "
+              + atom.getName());
+        }
       }
     }
 
@@ -96,48 +112,25 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
-    // Assign alternateTerminologyId
-    final IdentifierAssignmentHandler handler =
-        getIdentifierAssignmentHandler(getConcept().getTerminology());
-
-    // Add string and lexical classes to get assign their Ids
-    final StringClass strClass = new StringClassJpa();
-    strClass.setLanguage(atom.getLanguage());
-    strClass.setName(atom.getName());
-    atom.setStringClassId(handler.getTerminologyId(strClass));
-
-    // Get normalization handler
-    final LexicalClass lexClass = new LexicalClassJpa();
-    lexClass.setNormalizedName(new LuceneNormalizedStringHandler()
-        .getNormalizedString(atom.getName()));
-    atom.setLexicalClassId(handler.getTerminologyId(lexClass));
-
-    final String altId = handler.getTerminologyId(atom);
-    atom.getAlternateTerminologyIds().put(getConcept().getTerminology(), altId);
-
     // Change status of the atom
     if (getChangeStatusFlag()) {
       atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    
-    // Add the atom
-    atom = addAtom(atom);
-    
+
+    // Update the atom
+    updateAtom(atom);
+
     // Change status of the concept
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    
-    // Add the atom to concept
-    getConcept().getAtoms().add(atom);
 
     // update the concept
     updateConcept(getConcept());
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(),
-        getName() + " " + atom.getName());
+        getActivityId(), getWorkId(), getName() + " " + atom.getName());
 
   }
 

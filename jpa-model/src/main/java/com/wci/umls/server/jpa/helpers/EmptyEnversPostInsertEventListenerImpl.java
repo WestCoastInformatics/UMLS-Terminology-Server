@@ -12,6 +12,7 @@ import org.hibernate.persister.entity.EntityPersister;
  * Empty implementation of "post insert" listener because the custom integrator
  * requries at least one post insert listener.
  */
+@SuppressWarnings("serial")
 public class EmptyEnversPostInsertEventListenerImpl
     extends EnversPostInsertEventListenerImpl {
 

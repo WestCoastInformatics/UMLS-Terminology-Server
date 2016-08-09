@@ -120,54 +120,63 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-
-    if (getChangeStatusFlag()) {
-      relationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-    }
-    // Assign alternateTerminologyId
-    // final IdentifierAssignmentHandler handler = contentService
-    // .getIdentifierAssignmentHandler(concept.getTerminology());
-    //
-    // final String altId = handler.getTerminologyId(relationship);
-    // relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
-    // altId);
+    
+    // construct inverse relationship
+    final ConceptRelationshipJpa inverseRelationship =
+        (ConceptRelationshipJpa) createInverseConceptRelationship(relationship);
 
     // XR (not related) relationships need to be set to not-released
     if (relationship.getRelationshipType().equals("XR")) {
       relationship.setPublishable(false);
     }
+    if (inverseRelationship.getRelationshipType().equals("XR")) {
+      inverseRelationship.setPublishable(false);
+    }
+    
+    // Assign alternateTerminologyId
+    // final IdentifierAssignmentHandler handler = contentService
+    // .getIdentifierAssignmentHandler(concept.getTerminology());
 
-    // set the relationship component last modified
-    relationship = (ConceptRelationshipJpa) addRelationship(relationship);
+    // final String altId = handler.getTerminologyId(relationship);
+    // relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
+    // altId);
 
-    // construct inverse relationship
-    final ConceptRelationshipJpa inverseRelationship =
-        (ConceptRelationshipJpa) createInverseConceptRelationship(relationship);
-
-    // pass to handler.getTerminologyId
     // final String inverseAltId =
     // handler.getTerminologyId(inverseRelationship);
     // inverseRelationship.getAlternateTerminologyIds()
     // .put(concept.getTerminology(), inverseAltId);
 
-    // set the relationship component last modified
-    final ConceptRelationshipJpa newInverseRelationship =
-        (ConceptRelationshipJpa) addRelationship(inverseRelationship);
-
-    // add the relationship and set the last modified by
-    getConcept().getRelationships().add(relationship);
-    getConcept2().getRelationships().add(newInverseRelationship);
+    // Change status of the relationships
     if (getChangeStatusFlag()) {
-      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      relationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      inverseRelationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
 
-    // update the concept
-    updateConcept(getConcept2());
+    // Add the relationships
+    relationship = (ConceptRelationshipJpa) addRelationship(relationship);
+    final ConceptRelationshipJpa newInverseRelationship =
+        (ConceptRelationshipJpa) addRelationship(inverseRelationship);
+    
+    // Add the relationship to concepts
+    getConcept().getRelationships().add(relationship);
+    getConcept2().getRelationships().add(newInverseRelationship);
+
+    // update the concepts
     updateConcept(getConcept());
+    updateConcept(getConcept2());
+
+    // Change status of ONLY the source concept
+    if (getChangeStatusFlag()) {
+      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    } 
+    
+    // update the concept
+    updateConcept(getConcept());
+
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getMolecularAction().getActivityId(), getMolecularAction().getWorkId(),
+        getActivityId(), getWorkId(),
         getName() + " " + relationship + " to concept "
             + getConcept().getTerminologyId());
 

@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -22,6 +23,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAttributeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
@@ -36,6 +38,7 @@ import com.wci.umls.server.jpa.algo.action.RemoveRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.SplitMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
+import com.wci.umls.server.jpa.algo.action.UpdateAtomMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -88,6 +91,55 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     securityService = new SecurityServiceJpa();
   }
 
+  private void postActionMaintenance(AbstractMolecularAction action) throws Exception {
+
+    List<Concept> conceptList = new ArrayList<Concept>();
+    conceptList.add(action.getConcept());
+    conceptList.add(action.getConcept2());
+
+    // Only concepts that exist and contain atoms will need to go through this
+    // process
+    for (Concept c : conceptList) {
+      if (c != null && !c.getAtoms().isEmpty()) {
+
+        // Start a new action that doesn't create molecular/atomic actions
+        action.beginTransaction();
+        action.setMolecularActionFlag(false);
+
+        //
+        // Recompute tracking record workflow status
+        //
+
+        // Any tracking record that references this concept may potentially be
+        // updated.
+        final TrackingRecordList trackingRecords = action
+            .findTrackingRecordsForConcept(action.getProject(), c, null, null);
+
+        // Set trackingRecord to READY_FOR_PUBLICATION if all contained
+        // concepts and atoms are all set to READY_FOR_PUBLICATION.
+        if (trackingRecords != null) {
+          for (TrackingRecord rec : trackingRecords.getObjects()) {
+            final WorkflowStatus status =
+                action.computeTrackingRecordStatus(rec);
+            rec.setWorkflowStatus(status);
+            action.updateTrackingRecord(rec);
+          }
+        }
+
+        //
+        // Recompute the concept's preferred name
+        //
+
+        c.setName(action.getComputePreferredNameHandler(c.getTerminology())
+            .computePreferredName(c.getAtoms(), action
+                .getDefaultPrecedenceList(c.getTerminology(), c.getVersion())));
+
+        action.commit();
+      }
+    }
+
+  }  
+  
   /* see superclass */
   @Override
   @POST
@@ -150,6 +202,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
@@ -232,6 +287,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
@@ -321,6 +379,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
           action.getName(), authToken, IdType.ATTRIBUTE.toString(), null,
@@ -402,6 +463,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
           action.getName(), authToken, IdType.ATTRIBUTE.toString(),
@@ -480,6 +544,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>("adding an atom",
           authToken, IdType.ATOM.toString(), null, action.getAtom(),
@@ -489,7 +556,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "adding an atom");
       return null;
     } finally {
@@ -560,6 +627,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(action.getName(),
           authToken, IdType.ATTRIBUTE.toString(), action.getAtom(), null,
@@ -569,6 +639,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
+      action.rollback(); 
       handleException(e, "removing an atom");
       return null;
     } finally {
@@ -577,6 +648,88 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/atom/update")
+  @ApiOperation(value = "Update an atom", notes = "Update an atom on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult updateAtom(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Atom to add", required = true) AtomJpa atom,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /atom/update " + projectId + ", for user " + authToken + " with atom value "
+            + atom.getName());
+
+    // Instantiate services
+    final UpdateAtomMolecularAction action = new UpdateAtomMolecularAction();
+    try {
+
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setAtom(atom);
+      action.setChangeStatusFlag(true);
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(action, projectId,
+          securityService, authToken, "updating an atom", UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = action.getProject(projectId);
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      action.initialize(project, conceptId, null, userName, lastModified, true);
+
+      //
+      // Check prerequisites
+      //
+      final ValidationResult validationResult = action.checkPreconditions();
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        action.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action
+      //
+      action.compute();
+
+      // commit (also removes the lock)
+      action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
+      // Websocket notification
+      final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>("updating an atom",
+          authToken, IdType.ATOM.toString(), null, action.getAtom(),
+          action.getConcept());
+      sendChangeEvent(event);
+
+      return validationResult;
+
+    } catch (Exception e) {
+      action.rollback(); 
+      handleException(e, "updating an atom");
+      return null;
+    } finally {
+      action.close();
+      securityService.close();
+    }
+
+  }  
+  
   /* see superclass */
   @Override
   @POST
@@ -640,6 +793,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
           new ChangeEventJpa<ConceptRelationship>(action.getName(), authToken,
@@ -650,7 +806,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "adding a relationship");
       return null;
     } finally {
@@ -729,6 +885,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
           new ChangeEventJpa<ConceptRelationship>(action.getName(), authToken,
@@ -741,6 +900,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     } catch (
 
     Exception e) {
+      action.rollback(); 
       handleException(e, "removing a relationship");
       return null;
     } finally {
@@ -799,7 +959,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Check prerequisites
       //
       final ValidationResult validationResult = action.checkPreconditions();
-
       // if prerequisites fail, return validation result
       if (!validationResult.getErrors().isEmpty()
           || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
@@ -815,6 +974,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // commit (also removes the lock)
       action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
@@ -841,7 +1003,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "merging concepts");
       return null;
     } finally {
@@ -914,6 +1076,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
       GraphResolutionHandler graphHandler = action
@@ -940,7 +1105,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "moving atoms");
       return null;
     } finally {
@@ -1016,6 +1181,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
       GraphResolutionHandler graphHandler = action.getGraphResolutionHandler(
@@ -1043,7 +1211,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "splitting concept");
       return null;
     } finally {
@@ -1125,6 +1293,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
       final ChangeEvent<Concept> event =
@@ -1136,8 +1307,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
-      handleException(e, "merging concepts");
+      action.rollback(); 
+      handleException(e, "approving concept");
       return null;
     } finally {
       action.close();
@@ -1156,6 +1327,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Molecular Action id, e.g. 2", required = true) @QueryParam("molecularActionId") Long molecularActionId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Force action", required = false) @QueryParam("force") boolean force,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1172,6 +1344,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setMolecularActionFlag(false);
       action.beginTransaction();
       action.setMolecularActionId(molecularActionId);
+      action.setForce(force);
 
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
@@ -1187,6 +1360,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // actions
       // Note - if we're undoing a merge, ComponentId2 won't point to an
       // existing concept, so leave that null.
+      Long componentId =
+          action.getMolecularAction(molecularActionId).getComponentId();
       Long componentId2;
       if (action.getMolecularAction(molecularActionId).getName()
           .equals("MERGE")) {
@@ -1196,9 +1371,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             action.getMolecularAction(molecularActionId).getComponentId2();
       }
 
-      action.initialize(project,
-          action.getMolecularAction(molecularActionId).getComponentId(),
-          componentId2, userName, lastModified, false);
+      action.initialize(project, componentId, componentId2, userName,
+          lastModified, false);
 
       //
       // Check prerequisites
@@ -1221,6 +1395,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
           action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
@@ -1241,10 +1418,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "undoing action");
       return null;
-    } finally {
+    } finally {     
       action.close();
       securityService.close();
     }
@@ -1261,6 +1438,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Molecular Action id, e.g. 2", required = true) @QueryParam("molecularActionId") Long molecularActionId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Force action", required = false) @QueryParam("force") boolean force,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1277,6 +1455,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setMolecularActionFlag(false);
       action.beginTransaction();
       action.setMolecularActionId(molecularActionId);
+      action.setForce(force);
 
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
@@ -1291,7 +1470,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Note - the redo action doesn't create its own molecular and atomic
       // actions
       // Note - if we're redoing a split, ComponentId2 won't point to an
-      // existing concept, so leave that null.
+      // existing concept, so leave that null.      
+      Long componentId =
+          action.getMolecularAction(molecularActionId).getComponentId();
       Long componentId2;
       if (action.getMolecularAction(molecularActionId).getName()
           .equals("SPLIT")) {
@@ -1301,9 +1482,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
             action.getMolecularAction(molecularActionId).getComponentId2();
       }
 
-      action.initialize(project,
-          action.getMolecularAction(molecularActionId).getComponentId(),
-          componentId2, userName, lastModified, false);
+      action.initialize(project, componentId, componentId2, userName,
+          lastModified, false);
 
       //
       // Check prerequisites
@@ -1326,6 +1506,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
           action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
@@ -1346,7 +1529,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-
+      action.rollback(); 
       handleException(e, "undoing action");
       return null;
     } finally {

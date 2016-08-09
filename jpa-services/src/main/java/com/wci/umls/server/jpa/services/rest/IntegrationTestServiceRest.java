@@ -75,6 +75,16 @@ public interface IntegrationTestServiceRest {
     ConceptRelationshipJpa relationship, String authToken) throws Exception;
 
   /**
+   * Update relationship.
+   *
+   * @param relationship the relationship
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateRelationship(ConceptRelationshipJpa relationship,
+    String authToken) throws Exception;
+
+  /**
    * Returns the worklist.
    *
    * @param worklistId the worklist id
