@@ -116,6 +116,22 @@ public interface MetaEditingServiceRest {
     throws Exception;
 
   /**
+   * Update atom.
+   *
+   * @param projectId the project id
+   * @param conceptId the concept id
+   * @param timestamp the timestamp
+   * @param atom the atom
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult updateAtom(Long projectId, Long conceptId,
+    Long timestamp, AtomJpa atom, boolean overrideWarnings, String authToken)
+    throws Exception;  
+  
+  /**
    * Adds the relationship.
    *
    * @param projectId the project id

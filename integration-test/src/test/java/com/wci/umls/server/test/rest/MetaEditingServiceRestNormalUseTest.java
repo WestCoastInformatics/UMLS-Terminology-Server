@@ -1142,6 +1142,151 @@ public class MetaEditingServiceRestNormalUseTest
   }
 
   /**
+   * Test update atom.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testUpdateAtom() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass()).info("TEST - Update atom on " + "C0000294,"
+        + umlsTerminology + ", " + umlsVersion + ", " + authToken);
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // get the concept
+    Concept c =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(c);
+
+    // construct an atom not present on concept (here, DCB)
+    AtomJpa atom = new AtomJpa();
+    atom.setBranch(Branch.ROOT);
+    atom.setName("DCB");
+    atom.setTerminologyId("TestId");
+    atom.setTerminology(umlsTerminology);
+    atom.setVersion(umlsVersion);
+    atom.setTimestamp(new Date());
+    atom.setPublishable(true);
+    atom.setCodeId("C44314");
+    atom.setConceptId("M0023181");
+    atom.getConceptTerminologyIds().put(concept.getTerminology(),
+        concept.getTerminologyId());
+    atom.setDescriptorId("");
+    atom.setLanguage("ENG");
+    atom.setTermType("AB");
+    atom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    // add the atom to the concept
+    ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
+        c.getLastModified().getTime(), atom, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    // retrieve the concept
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Save a copy of the added atom
+    AtomJpa addedAtom = null;
+    for (Atom a : c.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        addedAtom = (AtomJpa) a;
+      }
+    }
+    assertNotNull(addedAtom);
+    
+    //
+    // Test updating an identity field on the Atom (this should fail)
+    //
+    addedAtom.setCodeId("C99999");
+
+    boolean updateFailed = false;
+    try {
+      v = metaEditingService.updateAtom(project.getId(), c.getId(),
+          c.getLastModified().getTime(), addedAtom, false, authToken);
+    } catch (Exception e) {
+      updateFailed = true;
+    }
+    assertTrue(updateFailed);
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Pull the atom from the concept, and make sure the codeId didn't get
+    // modified during the failed update attempt
+    addedAtom = null;
+    for (Atom a : c.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        addedAtom = (AtomJpa) a;
+      }
+    }
+    assertNotNull(addedAtom);
+    assertTrue(addedAtom.getCodeId().equals("C44314"));
+
+
+    //
+    // Test updating a non-identity field on the Atom (this should succeed)
+    //
+    addedAtom.setLanguage("JPN");    
+    
+    boolean updateSucceded = true;
+    try {
+      v = metaEditingService.updateAtom(project.getId(), c.getId(),
+          c.getLastModified().getTime(), addedAtom, false, authToken);
+    } catch (Exception e) {
+      updateSucceded = false;
+    }
+    assertTrue(updateSucceded);
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    
+    // Pull the atom from the concept, and make sure the language
+    // updated successfully
+    addedAtom = null;
+    for (Atom a : c.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        addedAtom = (AtomJpa) a;
+      }
+    }
+    assertNotNull(addedAtom);
+    assertTrue(addedAtom.getLanguage().equals("JPN"));
+    
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list =
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.size() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(c.getId(), ma.getComponentId());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Verify that one atomic actions exists for updating atom
+    pfs.setSortField(null);
+
+    List<AtomicAction> atomicActions = projectService
+        .findAtomicActions(ma.getId(), null, pfs, authToken).getObjects();
+    Collections.sort(atomicActions,
+        (a1, a2) -> a1.getId().compareTo(a2.getId()));
+    assertEquals(1, atomicActions.size());
+    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    assertNotNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+
+    // Verify the log entry exists
+    String logEntry =
+        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry.contains("UPDATE_ATOM " + addedAtom.getName()));
+
+  }
+
+  /**
    * Test add and remove relationship to concept.
    *
    * @throws Exception the exception
@@ -4687,13 +4832,14 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertTrue(undoFailed);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
-    
-    //Make sure the workflow status didn't get modified during the failed Undo attempt
+
+    // Make sure the workflow status didn't get modified during the failed Undo
+    // attempt
     assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW));
-    
+
     //
     // Force-Undo the approve action
-    //    
+    //
     boolean undoSucceded = true;
     try {
       v = metaEditingService.undoAction(project.getId(), ma.getId(),
@@ -4704,19 +4850,18 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(undoSucceded);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
-    
     // verify the atom's WorkflowStatus has been reset to NEEDS_REVIEV
-    for(Atom a : c.getAtoms()){
+    for (Atom a : c.getAtoms()) {
       assertTrue(a.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW));
     }
-    
-    //Modify the concept's WorkflowStatus again
+
+    // Modify the concept's WorkflowStatus again
     c.setWorkflowStatus(WorkflowStatus.REVIEW_DONE);
     testService.updateConcept((ConceptJpa) c, authToken);
 
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
     assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.REVIEW_DONE));
-    
+
     //
     // Try to redo the approve action (this will fail, since the concept's
     // WorkflowStatus is different than it was
@@ -4730,13 +4875,14 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertTrue(redoFailed);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
-    
-    //Make sure the workflow status didn't get modified during the failed Undo attempt
+
+    // Make sure the workflow status didn't get modified during the failed Undo
+    // attempt
     assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.REVIEW_DONE));
-    
+
     //
     // Force-Redo the approve action
-    //    
+    //
     boolean redoSucceded = true;
     try {
       v = metaEditingService.redoAction(project.getId(), ma.getId(),
@@ -4747,12 +4893,14 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(redoSucceded);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
-    
-    // verify the concept and atom's WorkflowStatus has been reset to READY_FOR_PUBLICATION
-    assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION));
-    for(Atom a : c.getAtoms()){
-      assertTrue(a.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION));
-    }    
+    // verify the concept and atom's WorkflowStatus has been reset to
+    // READY_FOR_PUBLICATION
+    assertTrue(
+        c.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION));
+    for (Atom a : c.getAtoms()) {
+      assertTrue(
+          a.getWorkflowStatus().equals(WorkflowStatus.READY_FOR_PUBLICATION));
+    }
 
   }
 

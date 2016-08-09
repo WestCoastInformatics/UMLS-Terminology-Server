@@ -38,6 +38,7 @@ import com.wci.umls.server.jpa.algo.action.RemoveRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.RemoveSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.SplitMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
+import com.wci.umls.server.jpa.algo.action.UpdateAtomMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -643,6 +644,88 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/atom/update")
+  @ApiOperation(value = "Update an atom", notes = "Update an atom on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult updateAtom(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Atom to add", required = true) AtomJpa atom,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (MetaEditing): /atom/update " + projectId + ", for user " + authToken + " with atom value "
+            + atom.getName());
+
+    // Instantiate services
+    final UpdateAtomMolecularAction action = new UpdateAtomMolecularAction();
+    try {
+
+      // Start transaction
+      action.setTransactionPerOperation(false);
+      action.beginTransaction();
+      action.setAtom(atom);
+      action.setChangeStatusFlag(true);
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(action, projectId,
+          securityService, authToken, "updating an atom", UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = action.getProject(projectId);
+
+      // Do some standard intialization and precondition checking
+      // action and prep services
+      action.initialize(project, conceptId, null, userName, lastModified, true);
+
+      //
+      // Check prerequisites
+      //
+      final ValidationResult validationResult = action.checkPreconditions();
+
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
+        // rollback -- unlocks the concept and closes transaction
+        action.rollback();
+        return validationResult;
+      }
+
+      //
+      // Perform the action
+      //
+      action.compute();
+
+      // commit (also removes the lock)
+      action.commit();
+
+      // Perform post-action maintenance on affected concept(s)
+      postActionMaintenance(action);
+
+      // Websocket notification
+      final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>("updating an atom",
+          authToken, IdType.ATOM.toString(), null, action.getAtom(),
+          action.getConcept());
+      sendChangeEvent(event);
+
+      return validationResult;
+
+    } catch (Exception e) {
+      action.rollback(); 
+      handleException(e, "updating an atom");
+      return null;
+    } finally {
+      action.close();
+      securityService.close();
+    }
+
+  }  
+  
   /* see superclass */
   @Override
   @POST
