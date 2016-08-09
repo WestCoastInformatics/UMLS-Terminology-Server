@@ -44,7 +44,7 @@ tsApp.controller('LoginCtrl',
               projectService.getUserHasAnyRole();
 
               // if license required, go to license page
-              if (appConfig['license.enabled'] === 'true') {
+              if (appConfig['deploy.license.enabled'] === 'true') {
                 $location.path('/license');
               }
 

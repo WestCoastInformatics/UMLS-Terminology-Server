@@ -65,7 +65,7 @@ tsApp.run([
 
           }
           // if login not enabled, set guest user
-          if (appConfig['login.enabled'] !== 'true') {
+          if (appConfig['deploy.login.enabled'] !== 'true') {
             console.debug("LOGIN not enabled - set guest user");
             securityService.setGuestUser();
           }
@@ -81,7 +81,7 @@ tsApp.run([
           if (!appConfig) {
             console.error('Application configuration could not be retrieved, see appConfig.js');
           }
-          if (appConfig && !appConfig['enabled.tabs']) {
+          if (appConfig && !appConfig['deploy.enabled.tabs']) {
             console.error('No tabs specified for user view in appConfig.js');
           }
 
@@ -93,9 +93,9 @@ tsApp.run([
           });
 
           // Source Data Configurations
-          if (appConfig['enabled.tabs']
-            && appConfig['enabled.tabs'].split(',').indexOf('source') != -1
-            && appConfig['login.enabled'] === 'true') {
+          if (appConfig['deploy.enabled.tabs']
+            && appConfig['deploy.enabled.tabs'].split(',').indexOf('source') != -1
+            && appConfig['deploy.login.enabled'] === 'true') {
             console.debug('Route enabled: /source');
             $routeProviderReference.when('/source', {
               controller : 'SourceCtrl',
@@ -105,8 +105,8 @@ tsApp.run([
           }
 
           // Content -- Default Mode
-          if (appConfig['enabled.tabs']
-            && appConfig['enabled.tabs'].split(',').indexOf('content') != -1) {
+          if (appConfig['deploy.enabled.tabs']
+            && appConfig['deploy.enabled.tabs'].split(',').indexOf('content') != -1) {
             console.debug('Route enabled: /content');
             $routeProviderReference.when('/content', {
               templateUrl : 'app/page/content/content.html',
@@ -138,8 +138,8 @@ tsApp.run([
           }
 
           // Metadata View
-          if (appConfig['enabled.tabs']
-            && appConfig['enabled.tabs'].split(',').indexOf('metadata') != -1) {
+          if (appConfig['deploy.enabled.tabs']
+            && appConfig['deploy.enabled.tabs'].split(',').indexOf('metadata') != -1) {
             console.debug('Route enabled: /metadata');
             $routeProviderReference.when('/metadata', {
               templateUrl : 'app/page/metadata/metadata.html',
@@ -149,8 +149,8 @@ tsApp.run([
           }
 
           // Workflow View
-          if (appConfig['enabled.tabs']
-            && appConfig['enabled.tabs'].split(',').indexOf('workflow') != -1) {
+          if (appConfig['deploy.enabled.tabs']
+            && appConfig['deploy.enabled.tabs'].split(',').indexOf('workflow') != -1) {
             console.debug('Route enabled: /workflow');
             $routeProviderReference.when('/workflow', {
               templateUrl : 'app/page/workflow/workflow.html',
@@ -170,8 +170,8 @@ tsApp.run([
           }
 
           // Administrative Page
-          if (appConfig['enabled.tabs']
-            && appConfig['enabled.tabs'].split(',').indexOf('admin') != -1) {
+          if (appConfig['deploy.enabled.tabs']
+            && appConfig['deploy.enabled.tabs'].split(',').indexOf('admin') != -1) {
             console.debug('Route enabled: /admin');
             $routeProviderReference.when('/admin', {
               templateUrl : 'app/page/admin/admin.html',
@@ -203,34 +203,34 @@ tsApp.run([
           };
 
           // if landing enabled
-          if (appConfig && appConfig['landing.enabled'] === 'true') {
+          if (appConfig && appConfig['deploy.landing.enabled'] === 'true') {
             $routeProviderReference.when('/landing', landingRoute);
             $routeProviderReference.when('/', landingRoute);
             initNextPath = '/landing';
           }
 
           // if login enabled
-          if (appConfig && appConfig['login.enabled'] === 'true') {
+          if (appConfig && appConfig['deploy.login.enabled'] === 'true') {
             $routeProviderReference.when('/login', loginRoute);
-            if (appConfig && appConfig['landing.enabled'] !== 'true') {
+            if (appConfig && appConfig['deploy.landing.enabled'] !== 'true') {
               $routeProviderReference.when('/', loginRoute);
               initNextPath = '/login';
             }
           }
 
           // if license enabled
-          if (appConfig && appConfig['license.enabled'] === 'true') {
+          if (appConfig && appConfig['deploy.license.enabled'] === 'true') {
             $routeProviderReference.when('/license', licenseRoute);
-            if (appConfig && appConfig['landing.enabled'] !== 'true'
-              && appConfig['login.enabled'] !== 'true') {
+            if (appConfig && appConfig['deploy.landing.enabled'] !== 'true'
+              && appConfig['deploy.login.enabled'] !== 'true') {
               $routeProviderReference.when('/', licenseRoute);
               initNextPath = '/license';
             }
           }
 
           // if none enabled, default is content/
-          if (appConfig['landing.enabled'] !== 'true' && appConfig['login.enabled'] !== 'true'
-            && appConfig['license.enabled'] !== 'true') {
+          if (appConfig['deploy.landing.enabled'] !== 'true' && appConfig['deploy.login.enabled'] !== 'true'
+            && appConfig['deploy.license.enabled'] !== 'true') {
             console.debug('No landing, license, or login pages -- default route is /content');
             $routeProviderReference.when('/', {
               templateUrl : 'app/page/content/content.html',

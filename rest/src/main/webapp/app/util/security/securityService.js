@@ -46,7 +46,7 @@ tsApp.service('securityService', [
     this.checkLicense = function() {
       var deferred = $q.defer();
 
-      if (appConfig['license.enabled'] !== 'true') {
+      if (appConfig['deploy.license.enabled'] !== 'true') {
         deferred.resolve();
       } else {
 
@@ -67,7 +67,7 @@ tsApp.service('securityService', [
     this.getUser = function() {
 
       // if login is not enabled, set and return the Guest user
-      if (appConfig['login.enabled'] === 'true' && appConfig['login.enabled'] !== 'true') {
+      if (appConfig['deploy.login.enabled'] === 'true' && appConfig['deploy.login.enabled'] !== 'true') {
         this.setGuestUser();
       }
       // otherwise, determine if user is already logged in

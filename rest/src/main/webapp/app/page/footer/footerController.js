@@ -30,7 +30,7 @@ tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce',
 
         // Logout method
         scope.logout = function() {
-          if (scope.appConfig['login.enabled'] === 'true') {
+          if (scope.appConfig['deploy.login.enabled'] === 'true') {
             securityService.logout();
           } else {
             securityService.clearUser();
