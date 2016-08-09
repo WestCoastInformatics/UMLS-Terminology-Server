@@ -245,6 +245,15 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   }
 
   /**
+   * Returns the activity id.
+   *
+   * @return the activity id
+   */
+  public String getActivityId() {
+    return activityId;
+  }
+
+  /**
    * Returns the work id.
    *
    * @return the work id

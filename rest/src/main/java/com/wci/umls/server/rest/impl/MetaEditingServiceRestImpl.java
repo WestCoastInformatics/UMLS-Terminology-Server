@@ -91,7 +91,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     securityService = new SecurityServiceJpa();
   }
 
-  private void postActionMaintenance(AbstractMolecularAction action) throws Exception {
+  /**
+   * Post action maintenance.
+   *
+   * @param action the action
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void postActionMaintenance(AbstractMolecularAction action)
+    throws Exception {
 
     List<Concept> conceptList = new ArrayList<Concept>();
     conceptList.add(action.getConcept());
@@ -131,15 +139,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         //
 
         c.setName(action.getComputePreferredNameHandler(c.getTerminology())
-            .computePreferredName(c.getAtoms(), action
-                .getDefaultPrecedenceList(c.getTerminology(), c.getVersion())));
+            .computePreferredName(c.getAtoms(),
+                action.getPrecedenceList(c.getTerminology(), c.getVersion())));
 
         action.commit();
       }
     }
 
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   @POST
@@ -556,7 +564,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "adding an atom");
       return null;
     } finally {
@@ -639,7 +647,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "removing an atom");
       return null;
     } finally {
@@ -663,8 +671,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/update " + projectId + ", for user " + authToken + " with atom value "
-            + atom.getName());
+        .info("RESTful POST call (MetaEditing): /atom/update " + projectId
+            + ", for user " + authToken + " with atom value " + atom.getName());
 
     // Instantiate services
     final UpdateAtomMolecularAction action = new UpdateAtomMolecularAction();
@@ -712,15 +720,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       postActionMaintenance(action);
 
       // Websocket notification
-      final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>("updating an atom",
-          authToken, IdType.ATOM.toString(), null, action.getAtom(),
-          action.getConcept());
+      final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(
+          "updating an atom", authToken, IdType.ATOM.toString(), null,
+          action.getAtom(), action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "updating an atom");
       return null;
     } finally {
@@ -728,8 +736,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
 
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   @POST
@@ -806,7 +814,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "adding a relationship");
       return null;
     } finally {
@@ -900,7 +908,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     } catch (
 
     Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "removing a relationship");
       return null;
     } finally {
@@ -1003,7 +1011,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "merging concepts");
       return null;
     } finally {
@@ -1105,7 +1113,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "moving atoms");
       return null;
     } finally {
@@ -1211,7 +1219,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "splitting concept");
       return null;
     } finally {
@@ -1307,7 +1315,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "approving concept");
       return null;
     } finally {
@@ -1418,10 +1426,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "undoing action");
       return null;
-    } finally {     
+    } finally {
       action.close();
       securityService.close();
     }
@@ -1470,7 +1478,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Note - the redo action doesn't create its own molecular and atomic
       // actions
       // Note - if we're redoing a split, ComponentId2 won't point to an
-      // existing concept, so leave that null.      
+      // existing concept, so leave that null.
       Long componentId =
           action.getMolecularAction(molecularActionId).getComponentId();
       Long componentId2;
@@ -1529,7 +1537,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback(); 
+      action.rollback();
       handleException(e, "undoing action");
       return null;
     } finally {
