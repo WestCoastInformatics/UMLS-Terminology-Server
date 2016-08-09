@@ -1284,20 +1284,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       //
       action.compute();
 
-      // TODO: ALL actions should do this
-      // Update any tracking record that references this concept
-      final TrackingRecordList trackingRecords =
-          action.findTrackingRecordsForConcept(action.getProject(),
-              action.getConcept(), null, null);
-
-      // Set trackingRecord to READY_FOR_PUBLICATION if all contained
-      // concepts and atoms are all set to READY_FOR_PUBLICATION.
-      for (TrackingRecord rec : trackingRecords.getObjects()) {
-        final WorkflowStatus status = action.computeTrackingRecordStatus(rec);
-        rec.setWorkflowStatus(status);
-        action.updateTrackingRecord(rec);
-      }
-
       // commit (also removes the lock)
       action.commit();
 
@@ -1324,7 +1310,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-
+  
   /* see superclass */
   @Override
   @POST

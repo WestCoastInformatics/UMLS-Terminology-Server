@@ -83,7 +83,7 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
   @Column(nullable = true, length = 4000)
   private String description;
 
-  /** The values. */
+  /** The possible values. */
   @ElementCollection(fetch = FetchType.EAGER)
   @JoinColumn(nullable = true)
   private List<String> possibleValues;
