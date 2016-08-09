@@ -85,7 +85,7 @@ public class AlgorithmParameterJpaUnitTest extends ModelUnitSupport {
     tester.include("fieldName");
     tester.include("description");
     tester.include("length");
-    tester.include("values");
+    tester.include("possibleValues");
     tester.include("value");
     tester.include("placeholder");
     tester.include("type");
