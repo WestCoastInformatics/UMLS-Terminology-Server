@@ -4728,6 +4728,178 @@ public class MetaEditingServiceRestNormalUseTest
   }
 
   /**
+   * Test undo and redo update atom.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testUndoAndRedoUpdateAtom() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass()).info("TEST - Update atom on " + "C0000294,"
+        + umlsTerminology + ", " + umlsVersion + ", " + authToken);
+
+    //
+    // Prepare the test and check prerequisites
+    //
+    // Due to MySQL rounding to the second, we must also round our comparison
+    // startDate.
+    Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
+
+    // get the concept
+    Concept c =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+    assertNotNull(c);
+
+    // construct an atom not present on concept (here, DCB)
+    AtomJpa atom = new AtomJpa();
+    atom.setBranch(Branch.ROOT);
+    atom.setName("DCB");
+    atom.setTerminologyId("TestId");
+    atom.setTerminology(umlsTerminology);
+    atom.setVersion(umlsVersion);
+    atom.setTimestamp(new Date());
+    atom.setPublishable(true);
+    atom.setCodeId("C44314");
+    atom.setConceptId("M0023181");
+    atom.getConceptTerminologyIds().put(concept.getTerminology(),
+        concept.getTerminologyId());
+    atom.setDescriptorId("");
+    atom.setLanguage("ENG");
+    atom.setTermType("AB");
+    atom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    // add the atom to the concept
+    ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
+        c.getLastModified().getTime(), atom, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    // retrieve the concept
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    // Save a copy of the added atom
+    AtomJpa addedAtom = null;
+    for (Atom a : c.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        addedAtom = (AtomJpa) a;
+      }
+    }
+    assertNotNull(addedAtom);
+    
+    //
+    // Update updating a non-identity field on the Atom
+    //
+    addedAtom.setLanguage("JPN");    
+    
+    boolean updateSucceded = true;
+    try {
+      v = metaEditingService.updateAtom(project.getId(), c.getId(),
+          c.getLastModified().getTime(), addedAtom, false, authToken);
+    } catch (Exception e) {
+      updateSucceded = false;
+    }
+    assertTrue(updateSucceded);
+    c = contentService.getConcept(concept.getId(), project.getId(), authToken);
+    
+    // Pull the atom from the concept, and make sure the language
+    // updated successfully
+    addedAtom = null;
+    for (Atom a : c.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        addedAtom = (AtomJpa) a;
+      }
+    }
+    assertNotNull(addedAtom);
+    assertTrue(addedAtom.getLanguage().equals("JPN"));
+    
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list =
+        projectService.findMolecularActions(c.getTerminologyId(),
+            umlsTerminology, umlsVersion, null, pfs, authToken);
+    assertTrue(list.size() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(c.getId(), ma.getComponentId());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Save the molecular action lastModified to compare against later
+    Date modDate = ma.getLastModified();    
+    
+    //
+    // Undo the update atom action
+    //
+    
+    v = metaEditingService.undoAction(project.getId(), ma.getId(),
+        c.getLastModified().getTime(), false, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+    ma = projectService.findMolecularActions(c.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(true, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+ 
+    // Pull the atom from the concept, and make sure the language
+    // reverted successfully
+    addedAtom = null;
+    for (Atom a : c.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        addedAtom = (AtomJpa) a;
+      }
+    }
+    assertNotNull(addedAtom);
+    assertTrue(addedAtom.getLanguage().equals("ENG"));
+    
+    
+    // Verify the log entry exists
+    String logEntry =
+        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
+
+    //
+    // Redo the merge action
+    //
+
+    v = metaEditingService.redoAction(project.getId(), ma.getId(),
+        c.getLastModified().getTime(), false, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+
+    c = contentService.getConcept(c.getId(), project.getId(), authToken);
+    ma = projectService.findMolecularActions(c.getTerminologyId(),
+        umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
+
+    // Verify the molecular action undone flag is set, and the lastModified has
+    // been updated
+    assertEquals(false, ma.isUndoneFlag());
+    assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
+
+    // Pull the atom from the concept, and make sure the language
+    // re-updated successfully
+    addedAtom = null;
+    for (Atom a : c.getAtoms()) {
+      if (a.getName().equals("DCB")) {
+        addedAtom = (AtomJpa) a;
+      }
+    }
+    assertNotNull(addedAtom);
+    assertTrue(addedAtom.getLanguage().equals("JPN"));
+  
+    
+    // Verify the log entry exists
+    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
+    
+    
+  }  
+  
+  /**
    * Test force undo and redo.
    *
    * @throws Exception the exception
