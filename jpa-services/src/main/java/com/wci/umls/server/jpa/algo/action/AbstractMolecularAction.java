@@ -19,6 +19,7 @@ import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
@@ -31,6 +32,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 
@@ -200,11 +202,14 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       }
     }
 
-    // If the action is of a type that can affect other concepts, lock those as well
-    if (this instanceof MergeMolecularAction || this instanceof SplitMolecularAction || this instanceof ApproveMolecularAction){
+    // If the action is of a type that can affect other concepts, lock those as
+    // well
+    if (this instanceof MergeMolecularAction
+        || this instanceof SplitMolecularAction
+        || this instanceof ApproveMolecularAction) {
       lockRelatedConcepts();
     }
-    
+
     setTerminology(concept.getTerminology());
     setVersion(concept.getVersion());
 
@@ -256,42 +261,43 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    *
    * @throws Exception the exception
    */
-  public void lockRelatedConcepts()
-    throws Exception {
-   
+  public void lockRelatedConcepts() throws Exception {
+
     Concept sourceConcept = null;
-    //For merges, conceptId2 will have the affected relationships
-    if (this instanceof MergeMolecularAction){
+    // For merges, conceptId2 will have the affected relationships
+    if (this instanceof MergeMolecularAction) {
       sourceConcept = getConcept2();
     }
-    //For splits and approvals, conceptId will have the affected relationships 
-    if (this instanceof ApproveMolecularAction || this instanceof SplitMolecularAction){
+    // For splits and approvals, conceptId will have the affected relationships
+    if (this instanceof ApproveMolecularAction
+        || this instanceof SplitMolecularAction) {
       sourceConcept = getConcept();
     }
-    
-    //Get all of the inverse relationships associated with the source concept
-    List<ConceptRelationship> relationships = sourceConcept.getRelationships();    
-    
-    //Lock all of the concepts that are NOT concept or concept2   
+
+    // Get all of the inverse relationships associated with the source concept
+    List<ConceptRelationship> relationships = sourceConcept.getRelationships();
+
+    // Lock all of the concepts that are NOT concept or concept2
     for (final ConceptRelationship rel : relationships) {
       // Grab the concept from the relationship
       Concept associatedConcept = rel.getTo();
-      
+
       // Verify concept exists
       if (associatedConcept == null) {
         // unlock concepts and fail
         rollback();
         throw new Exception("Concept does not exist");
       }
-      
+
       // Make sure we're not trying to re-lock Concept or Concept2
-      if(getConcept().getId().equals(associatedConcept.getId())){
+      if (getConcept().getId().equals(associatedConcept.getId())) {
         continue;
       }
-      if(getConcept2()!=null && getConcept2().getId().equals(associatedConcept.getId())){
+      if (getConcept2() != null
+          && getConcept2().getId().equals(associatedConcept.getId())) {
         continue;
       }
-      
+
       // Lock on the concept id (in Java)
       synchronized (associatedConcept.getId().toString().intern()) {
 
@@ -299,7 +305,8 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         if (isObjectLocked(associatedConcept)) {
           // unlock concepts and fail
           rollback();
-          throw new Exception("Fatal error: concept is locked " + associatedConcept.getId());
+          throw new Exception(
+              "Fatal error: concept is locked " + associatedConcept.getId());
         }
 
         // lock the concept via JPA
@@ -308,7 +315,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       }
     }
   }
-  
+
   /**
    * Find inverse relationship.
    *
@@ -553,6 +560,59 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     throw new UnsupportedOperationException(
         "Individual molecular actions should not "
             + "be used as configurable algorithms");
+  }
+
+  /**
+   * Post action maintenance.
+   *
+   * @throws Exception the exception
+   */
+  public void postActionMaintenance() throws Exception {
+
+    List<Concept> conceptList = new ArrayList<Concept>();
+    conceptList.add(getConcept());
+    conceptList.add(getConcept2());
+
+    // Only concepts that exist and contain atoms will need to go through this
+    // process
+    for (Concept c : conceptList) {
+      if (c != null && !c.getAtoms().isEmpty()) {
+
+        // Start a new action that doesn't create molecular/atomic actions
+        beginTransaction();
+        setMolecularActionFlag(false);
+
+        //
+        // Recompute tracking record workflow status
+        //
+
+        // Any tracking record that references this concept may potentially be
+        // updated.
+        final TrackingRecordList trackingRecords =
+            findTrackingRecordsForConcept(getProject(), c, null, null);
+
+        // Set trackingRecord to READY_FOR_PUBLICATION if all contained
+        // concepts and atoms are all set to READY_FOR_PUBLICATION.
+        if (trackingRecords != null) {
+          for (TrackingRecord rec : trackingRecords.getObjects()) {
+            final WorkflowStatus status = computeTrackingRecordStatus(rec);
+            rec.setWorkflowStatus(status);
+            updateTrackingRecord(rec);
+          }
+        }
+
+        //
+        // Recompute the concept's preferred name
+        //
+
+        c.setName(getComputePreferredNameHandler(c.getTerminology())
+            .computePreferredName(c.getAtoms(),
+                getPrecedenceList(c.getTerminology(), c.getVersion())));
+
+        commit();
+      }
+    }
+
   }
 
 }

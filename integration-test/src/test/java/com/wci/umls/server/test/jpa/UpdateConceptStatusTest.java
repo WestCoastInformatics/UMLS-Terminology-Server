@@ -205,6 +205,9 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
       // commit (also removes the lock)
       action.commit();
 
+      // Perform post-action maintenance on affected concept(s)
+      action.postActionMaintenance();
+      
       // Re-instantiate service object.
       contentService = new ContentServiceJpa();
 
