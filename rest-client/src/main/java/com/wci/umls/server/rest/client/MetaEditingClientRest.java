@@ -514,8 +514,8 @@ public class MetaEditingClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
-  }
-
+  }  
+  
   @Override
   public ValidationResult undoAction(Long projectId, Long molecularActionId,
     Long lastModified, boolean overrideWarnings, boolean force,

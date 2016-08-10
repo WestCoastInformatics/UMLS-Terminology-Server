@@ -129,8 +129,8 @@ public interface MetaEditingServiceRest {
    */
   public ValidationResult updateAtom(Long projectId, Long conceptId,
     Long timestamp, AtomJpa atom, boolean overrideWarnings, String authToken)
-    throws Exception;  
-  
+    throws Exception;
+
   /**
    * Adds the relationship.
    *
@@ -246,7 +246,7 @@ public interface MetaEditingServiceRest {
   public ValidationResult undoAction(Long projectId, Long molecularActionId,
     Long timestamp, boolean overrideWarnings, boolean force, String authToken)
     throws Exception;
-  
+
   /**
    * Redo action.
    *
@@ -261,6 +261,6 @@ public interface MetaEditingServiceRest {
    */
   public ValidationResult redoAction(Long projectId, Long molecularActionId,
     Long timestamp, boolean overrideWarnings, boolean force, String authToken)
-    throws Exception;  
+    throws Exception;
 
 }

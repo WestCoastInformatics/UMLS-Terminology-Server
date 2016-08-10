@@ -31,6 +31,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
@@ -41,6 +42,7 @@ import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
@@ -1365,6 +1367,53 @@ public abstract class RootServiceJpa implements RootService {
     init();
     closeFactory();
     openFactory();
+  }
+
+  /**
+   * Perform molecular action.
+   *
+   * @param action the action
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult performMolecularAction(AbstractMolecularAction action)
+    throws Exception {
+
+    //Start transaction
+      action.beginTransaction();         
+    
+    // Do some standard intialization and precondition checking
+    // action and prep services
+    action.initialize(action.getProject(), action.getConceptId(),
+        action.getConceptId2(), action.getUserName(), action.getLastModified(),
+        molecularActionFlag);
+
+    //
+    // Check prerequisites
+    //
+    final ValidationResult validationResult = action.checkPreconditions();
+    // if prerequisites fail, return validation result
+    if (!validationResult.getErrors().isEmpty()
+        || (!validationResult.getWarnings().isEmpty()
+            && !action.isOverrideWarnings())) {
+      // rollback -- unlocks the concept and closes transaction
+      action.rollback();
+      return validationResult;
+    }
+
+    //
+    // Perform the action
+    //
+    action.compute();
+
+    // commit (also removes the lock)
+    action.commit();
+
+    // Perform post-action maintenance on affected concept(s)
+    action.postActionMaintenance();
+
+    return validationResult;
+
   }
 
   /* see superclass */

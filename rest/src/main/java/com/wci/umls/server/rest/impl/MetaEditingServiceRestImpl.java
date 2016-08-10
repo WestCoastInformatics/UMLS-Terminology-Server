@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.rest.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -20,10 +19,8 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
-import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAttributeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
@@ -52,8 +49,6 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.model.workflow.TrackingRecord;
-import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
@@ -91,63 +86,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     securityService = new SecurityServiceJpa();
   }
 
-  /**
-   * Post action maintenance.
-   *
-   * @param action the action
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("static-method")
-  private void postActionMaintenance(AbstractMolecularAction action)
-    throws Exception {
-
-    List<Concept> conceptList = new ArrayList<Concept>();
-    conceptList.add(action.getConcept());
-    conceptList.add(action.getConcept2());
-
-    // Only concepts that exist and contain atoms will need to go through this
-    // process
-    for (Concept c : conceptList) {
-      if (c != null && !c.getAtoms().isEmpty()) {
-
-        // Start a new action that doesn't create molecular/atomic actions
-        action.beginTransaction();
-        action.setMolecularActionFlag(false);
-
-        //
-        // Recompute tracking record workflow status
-        //
-
-        // Any tracking record that references this concept may potentially be
-        // updated.
-        final TrackingRecordList trackingRecords = action
-            .findTrackingRecordsForConcept(action.getProject(), c, null, null);
-
-        // Set trackingRecord to READY_FOR_PUBLICATION if all contained
-        // concepts and atoms are all set to READY_FOR_PUBLICATION.
-        if (trackingRecords != null) {
-          for (TrackingRecord rec : trackingRecords.getObjects()) {
-            final WorkflowStatus status =
-                action.computeTrackingRecordStatus(rec);
-            rec.setWorkflowStatus(status);
-            action.updateTrackingRecord(rec);
-          }
-        }
-
-        //
-        // Recompute the concept's preferred name
-        //
-
-        c.setName(action.getComputePreferredNameHandler(c.getTerminology())
-            .computePreferredName(c.getAtoms(),
-                action.getPrecedenceList(c.getTerminology(), c.getVersion())));
-
-        action.commit();
-      }
-    }
-
-  }
-
   /* see superclass */
   @Override
   @POST
@@ -172,12 +110,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         new AddSemanticTypeMolecularAction();
     try {
 
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setSemanticTypeComponent(semanticType);
-      action.setChangeStatusFlag(true);
-
       // Authorize project role, get userName
       final String userName =
           authorizeProject(action, projectId, securityService, authToken,
@@ -186,33 +118,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified, true);
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(null);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
-
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
+      action.setSemanticTypeComponent(semanticType);
+      
       // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
@@ -256,13 +176,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     final RemoveSemanticTypeMolecularAction action =
         new RemoveSemanticTypeMolecularAction();
     try {
-
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setSemanticTypeComponentId(semanticTypeComponentId);
-      action.setChangeStatusFlag(true);
-
       // Authorize project role, get userName
       final String userName =
           authorizeProject(action, projectId, securityService, authToken,
@@ -271,33 +184,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified, true);
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(null);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
+      action.setSemanticTypeComponentId(semanticTypeComponentId);
 
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
@@ -341,12 +242,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         new AddAttributeMolecularAction();
     try {
 
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setAttribute(attribute);
-      action.setChangeStatusFlag(true);
-
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
           securityService, authToken, "adding an attribute", UserRole.AUTHOR);
@@ -354,41 +249,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified, true);
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(null);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
+      action.setAttribute(attribute);
 
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
@@ -433,12 +308,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         new RemoveAttributeMolecularAction();
     try {
 
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setAttributeId(attributeId);
-      action.setChangeStatusFlag(true);
-
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
           securityService, authToken, "removing an attribute", UserRole.AUTHOR);
@@ -446,34 +315,22 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified, true);
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(null);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
+      action.setAttributeId(attributeId);
 
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
-
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
+      
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
           action.getName(), authToken, IdType.ATTRIBUTE.toString(),
@@ -514,12 +371,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     final AddAtomMolecularAction action = new AddAtomMolecularAction();
     try {
 
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setAtom(atom);
-      action.setChangeStatusFlag(true);
-
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
           securityService, authToken, "adding an atom", UserRole.AUTHOR);
@@ -527,33 +378,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified, true);
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(null);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
+      action.setAtom(atom);
 
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>("adding an atom",
@@ -597,12 +436,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     final RemoveAtomMolecularAction action = new RemoveAtomMolecularAction();
     try {
 
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setAtomId(atomId);
-      action.setChangeStatusFlag(true);
-
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
           securityService, authToken, "removing an atom", UserRole.AUTHOR);
@@ -610,33 +443,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified, true);
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(null);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
+      action.setAtomId(atomId);
 
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(action.getName(),
@@ -678,12 +499,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     final UpdateAtomMolecularAction action = new UpdateAtomMolecularAction();
     try {
 
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setAtom(atom);
-      action.setChangeStatusFlag(true);
-
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
           securityService, authToken, "updating an atom", UserRole.AUTHOR);
@@ -691,33 +506,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified, true);
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(null);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
+      action.setAtom(atom);
 
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(
@@ -762,47 +565,28 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         new AddRelationshipMolecularAction();
     try {
 
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setRelationship(relationship);
-      action.setChangeStatusFlag(true);
-
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
           securityService, authToken, "adding a relationship", UserRole.AUTHOR);
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
+      
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(relationship.getTo().getId());
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, relationship.getTo().getId(),
-          userName, lastModified, true);
+      action.setRelationship(relationship);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
-
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
@@ -848,17 +632,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         new RemoveRelationshipMolecularAction();
     try {
 
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setRelationshipId(relationshipId);
-      action.setChangeStatusFlag(true);
-
-      // Look up second conceptId.
-      final Long conceptId2 =
-          action.getRelationship(relationshipId, ConceptRelationshipJpa.class)
-              .getTo().getId();
-
       // Authorize project role, get userName
       final String userName =
           authorizeProject(action, projectId, securityService, authToken,
@@ -866,35 +639,27 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, conceptId2, userName, lastModified,
-          true);
-
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
-
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      
+      // Look up second conceptId.
+      final Long conceptId2 =
+          action.getRelationship(relationshipId, ConceptRelationshipJpa.class)
+              .getTo().getId();
+     
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(conceptId2);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
+      
+      action.setRelationshipId(relationshipId);
+      
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
@@ -938,54 +703,37 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
     // Instantiate services
     final MergeMolecularAction action = new MergeMolecularAction();
-    try {
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setChangeStatusFlag(true);
+    
+      try {
 
-      // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "merging concepts", UserRole.AUTHOR);
+        // Authorize project role, get userName
+        final String userName = authorizeProject(action, projectId,
+            securityService, authToken, "merging concepts", UserRole.AUTHOR);
 
-      // Retrieve the project
-      final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
+        // Retrieve the project
+        final Project project = action.getProject(projectId);
+        action.setValidationChecks(project.getValidationChecks());
 
-      // For merge only, need to check the concept Ids, so we can assign the
-      // concept with the lowest id to survive, and the one with the highest id
-      // to get destroyed.
-      Long toConceptId = Math.min(conceptId, conceptId2);
-      Long fromConceptId = Math.max(conceptId, conceptId2);
+        // For merge only, need to check the concept Ids, so we can assign the
+        // concept with the lowest id to survive, and the one with the highest id
+        // to get destroyed.
+        Long toConceptId = Math.min(conceptId, conceptId2);
+        Long fromConceptId = Math.max(conceptId, conceptId2);
+        
+        // Configure the action 
+        action.setProject(project);
+        action.setConceptId(toConceptId);
+        action.setConceptId2(fromConceptId);
+        action.setUserName(userName);
+        action.setLastModified(lastModified);
+        action.setOverrideWarnings(overrideWarnings);
+        action.setTransactionPerOperation(false);
+        action.setMolecularActionFlag(true);
+        action.setChangeStatusFlag(true);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, toConceptId, fromConceptId, userName,
-          lastModified, true);
-
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
-
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
+      
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
       GraphResolutionHandler graphHandler = action
@@ -1044,11 +792,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     // Instantiate services
     final MoveMolecularAction action = new MoveMolecularAction();
     try {
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setAtomIds(atomIds);
-      action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
@@ -1058,34 +801,21 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final Project project = action.getProject(projectId);
       action.setValidationChecks(project.getValidationChecks());
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, conceptId2, userName, lastModified,
-          true);
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(conceptId2);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
+      action.setAtomIds(atomIds);
 
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
@@ -1147,14 +877,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     // Instantiate services
     final SplitMolecularAction action = new SplitMolecularAction();
     try {
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setAtomIds(atomIds);
-      action.setRelationshipType(relationshipType);
-      action.setCopyRelationships(copyRelationships);
-      action.setCopySemanticTypes(copySemanticTypes);
-      action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
@@ -1163,34 +885,25 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       action.setValidationChecks(project.getValidationChecks());
+      
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(null);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified, true);
+      action.setAtomIds(atomIds);
+      action.setRelationshipType(relationshipType);
+      action.setCopyRelationships(copyRelationships);
+      action.setCopySemanticTypes(copySemanticTypes);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
-
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
@@ -1249,10 +962,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     // Instantiate services
     final ApproveMolecularAction action = new ApproveMolecularAction();
     try {
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setChangeStatusFlag(true);
 
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
@@ -1262,47 +971,19 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final Project project = action.getProject(projectId);
       action.setValidationChecks(project.getValidationChecks());
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      action.initialize(project, conceptId, null, userName, lastModified, true);
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(null);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
-
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // TODO: ALL actions should do this
-      // Update any tracking record that references this concept
-      final TrackingRecordList trackingRecords =
-          action.findTrackingRecordsForConcept(action.getProject(),
-              action.getConcept(), null, null);
-
-      // Set trackingRecord to READY_FOR_PUBLICATION if all contained
-      // concepts and atoms are all set to READY_FOR_PUBLICATION.
-      for (TrackingRecord rec : trackingRecords.getObjects()) {
-        final WorkflowStatus status = action.computeTrackingRecordStatus(rec);
-        rec.setWorkflowStatus(status);
-        action.updateTrackingRecord(rec);
-      }
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
@@ -1324,7 +1005,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-
+  
   /* see superclass */
   @Override
   @POST
@@ -1347,12 +1028,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     // Instantiate services
     final UndoMolecularAction action = new UndoMolecularAction();
     try {
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.setMolecularActionFlag(false);
-      action.beginTransaction();
-      action.setMolecularActionId(molecularActionId);
-      action.setForce(force);
 
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
@@ -1362,49 +1037,38 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final Project project = action.getProject(projectId);
       action.setValidationChecks(project.getValidationChecks());
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
       // Note - the undo action doesn't create its own molecular and atomic
       // actions
       // Note - if we're undoing a merge, ComponentId2 won't point to an
       // existing concept, so leave that null.
-      Long componentId =
+      Long conceptId =
           action.getMolecularAction(molecularActionId).getComponentId();
-      Long componentId2;
+      Long conceptId2;
       if (action.getMolecularAction(molecularActionId).getName()
           .equals("MERGE")) {
-        componentId2 = null;
+        conceptId2 = null;
       } else {
-        componentId2 =
+        conceptId2 =
             action.getMolecularAction(molecularActionId).getComponentId2();
-      }
+      }      
+      
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(conceptId2);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(false);
+      action.setChangeStatusFlag(true);
 
-      action.initialize(project, componentId, componentId2, userName,
-          lastModified, false);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
-
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      action.setMolecularActionId(molecularActionId);
+      action.setForce(force);
+      
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
@@ -1458,12 +1122,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     // Instantiate services
     final RedoMolecularAction action = new RedoMolecularAction();
     try {
-      // Start transaction
-      action.setTransactionPerOperation(false);
-      action.setMolecularActionFlag(false);
-      action.beginTransaction();
-      action.setMolecularActionId(molecularActionId);
-      action.setForce(force);
 
       // Authorize project role, get userName
       final String userName = authorizeProject(action, projectId,
@@ -1473,49 +1131,37 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final Project project = action.getProject(projectId);
       action.setValidationChecks(project.getValidationChecks());
 
-      // Do some standard intialization and precondition checking
-      // action and prep services
       // Note - the redo action doesn't create its own molecular and atomic
       // actions
       // Note - if we're redoing a split, ComponentId2 won't point to an
       // existing concept, so leave that null.
-      Long componentId =
+      Long conceptId =
           action.getMolecularAction(molecularActionId).getComponentId();
-      Long componentId2;
+      Long conceptId2;
       if (action.getMolecularAction(molecularActionId).getName()
           .equals("SPLIT")) {
-        componentId2 = null;
+        conceptId2 = null;
       } else {
-        componentId2 =
+        conceptId2 =
             action.getMolecularAction(molecularActionId).getComponentId2();
       }
+      
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(conceptId);
+      action.setConceptId2(conceptId2);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(false);
+      action.setChangeStatusFlag(true);
 
-      action.initialize(project, componentId, componentId2, userName,
-          lastModified, false);
+      action.setMolecularActionId(molecularActionId);
+      action.setForce(force);
 
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
-
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty() && !overrideWarnings)) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        return validationResult;
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      postActionMaintenance(action);
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
