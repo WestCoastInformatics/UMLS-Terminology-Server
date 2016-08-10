@@ -6,15 +6,17 @@ tsApp.controller('WorkflowCtrl', [
   'gpService',
   'utilService',
   'tabService',
+  'configureService',
   'securityService',
   'workflowService',
   'utilService',
   'configureService',
   'projectService',
-  'reportService', 
+  'reportService',
   '$uibModal',
-  function($scope, $http, $location, gpService, utilService, tabService, securityService,
-    workflowService, utilService, configureService, projectService, reportService, $uibModal) {
+  function($scope, $http, $location, gpService, utilService, tabService, configureService,
+    securityService, workflowService, utilService, configureService, projectService, reportService,
+    $uibModal) {
     console.debug("configure WorkflowCtrl");
 
     tabService.setShowing(true);
@@ -25,14 +27,15 @@ tsApp.controller('WorkflowCtrl', [
     // Handle resetting tabs on 'back' and 'reload' events button
     tabService.setSelectedTabByLabel('Workflow');
 
-
     $scope.user = securityService.getUser();
-    $scope.projectRole;
-    $scope.binTypeOptions = []; 
-    $scope.currentBinType = 'MUTUALLY_EXCLUSIVE';
-    $scope.currentProject = {id : 1239500};
+    projectService.getUserHasAnyRole();
+
+    $scope.projectRole = null;
+    $scope.configs = [];
+    $scope.config = null;
+    $scope.projects = [];
+    $scope.project = null;
     $scope.recordTypes = [ 'N', 'R' ];
-    $scope.projects;
     $scope.selected = {
       bin : null,
       clusterType : null
@@ -49,129 +52,75 @@ tsApp.controller('WorkflowCtrl', [
       sortField : 'clusterId',
       ascending : true
     };
-    
-    // Configure tab and accordion
-    $scope.configureTab = function() {
-      $scope.user.userPreferences.lastTab = '/workflow';
-      //securityService.updateUserPreferences($scope.user.userPreferences);
-    };
 
-   // Workflow Bins Changed handler
-    $scope.$on('workflow:workflowBinsChanged', function(event, data) {
-      console.debug('on workflow:workflowBinsChanged', data);
-      $scope.getBins($scope.currentProject.id, $scope.currentBinType);
-    });
-    
-    //
-    // Initialize
-    //
-
-    $scope.initialize = function() {
-
-      // Handle users with user preferences
-      if ($scope.user.userPreferences) {
-        $scope.configureTab();
-      }
-      
-      projectService.getProjects().then(
-        // success
-        function(data) {
-
-          $scope.projects = data.projects;
-          $scope.currentProject = $scope.projects[0];
-          $scope.projectRole = $scope.currentProject.userRoleMap[$scope.user.userName];
-          if ($scope.projectRole == 'ADMINISTRATOR') {
-            $scope.roleOptions = [ 'ADMINISTRATOR', 'REVIEWER', 'AUTHOR' ];
-          } else if ($scope.projectRole == 'REVIEWER') {
-            $scope.roleOptions = [ 'REVIEWER', 'AUTHOR' ];
-          } else if ($scope.projectRole == 'AUTHOR') {
-            $scope.roleOptions = [ 'AUTHOR' ];
-          }
-          
-          $scope.getBins($scope.currentProject.id, $scope.currentBinType);
-          $scope.getBinTypes();
-        });
-    };
-
-    //
-    // Initialization: Check that application is configured
-    //
-    configureService.isConfigured().then(function(isConfigured) {
-      if (!isConfigured) {
-        $location.path('/configure');
-      } else {
-        $scope.initialize();
-      }
-    });
-
-    // Set the bin type
-    $scope.setBinType = function(binType) {
-      $scope.currentBinType = binType;
-      //$scope.user.userPreferences.binType = $scope.currentBinType;
-      //securityService.updateUserPreferences($scope.user.userPreferences);
-      for (var i = 0; i < $scope.workflowConfigs.length; i++) {
-        if ($scope.workflowConfigs[i].type == binType) {
-          $scope.currentWorkflowConfig = $scope.workflowConfigs[i];
-        }
-      }
-      $scope.getBins($scope.currentProject.id, binType);
+    // Set the workflow config
+    $scope.setConfig = function(config) {
+      $scope.config = config;
+      $scope.getBins($scope.project.id, config);
     }
-    
-    // Retrieve all bins with project and type
-    $scope.getBins = function(projectId, type) {
-      console.debug('getBins', projectId, type);
 
-      workflowService.getWorkflowBins(projectId, type).then(function(response) {
-        $scope.bins = response.worklists;
+    // Retrieve all bins with project and type
+    $scope.getBins = function(projectId, config) {
+      workflowService.getWorkflowBins(projectId, config.type).then(
+      // Success
+      function(data) {
+        $scope.bins = data.worklists;
         $scope.bins.totalCount = $scope.bins.length;
       });
     };
 
     // Set the project
     $scope.setProject = function(project) {
-      $scope.currentProject = project;
-      projectService.fireProjectChanged($scope.currentProject);
-      //$scope.user.userPreferences.project = $scope.currentProject;
-      //securityService.updateUserPreferences($scope.user.userPreferences);
-      //$scope.getProjects();
+      $scope.project = project;
 
-      $scope.getBins($scope.currentProject.id, $scope.currentBinType);
+      // Get role for project (requires a lookup and will save user prefs
+      projectService.getRoleForProject($scope.user, $scope.project.id).then(
+      // Success
+      function(data) {
+        // Get role and set role options
+        $scope.projects.role = data;
+        $scope.roleOptions = projectService.getRoleOptions($scope.projects.role);
+
+        // Get bins
+        $scope.getConfigs();
+
+        // Fire project changed (for directives)
+        projectService.fireProjectChanged($scope.project);
+      });
+
     }
-    
+
     // Retrieve all projects
     $scope.getProjects = function() {
-      console.debug('getProjects');
 
-      projectService.getProjects().then(function(response) {
-        $scope.projects = response;
-        $scope.currentProject = $scope.projects.projects[0];
-
-        $scope.getBins($scope.currentProject.id, $scope.currentBinType);
+      projectService.getProjectsForUser($scope.user).then(
+      // Success
+      function(data) {
+        $scope.projects = data.projects;
+        $scope.setProject(data.project);
       });
+
     };
-    
+
     // Retrieve all projects
-    $scope.getBinTypes = function() {
-      console.debug('getBinTypes');
-
-      workflowService.getWorkflowConfigs($scope.currentProject.id).then(function(response) {
-        $scope.workflowConfigs = response;
-        for (var i=0; i<$scope.workflowConfigs.totalCount; i++) {
-          $scope.binTypeOptions.push($scope.workflowConfigs.worklists[i].type);
-        }
-        if ($scope.binTypeOptions.length == 1) {
-          $scope.setBinType($scope.binTypeOptions[0]);
+    $scope.getConfigs = function() {
+      workflowService.getWorkflowConfigs($scope.project.id).then(
+      // Success
+      function(data) {
+        $scope.configs = data;
+        if ($scope.configs.length == 1) {
+          $scope.setConfig($scope.configs[0]);
         }
       });
     };
-    
-    // Selects a bin (setting $scope.selected.bin)    
+
+    // Selects a bin (setting $scope.selected.bin)
     // clusterType is optional
     $scope.selectBin = function(bin, clusterType) {
-      $scope.selected.bin = bin;   
+      $scope.selected.bin = bin;
       $scope.selected.clusterType = clusterType;
       $scope.selected.concept = null;
-      
+
       if (clusterType && clusterType == 'default') {
         $scope.paging['record'].filter = ' NOT clusterType:[* TO *]';
       } else if (clusterType && clusterType != 'all') {
@@ -191,26 +140,24 @@ tsApp.controller('WorkflowCtrl', [
         version : concept.version,
         id : concept.id
       };
-      reportService.getConceptReport($scope.currentProject.id, $scope.selected.concept.id).then(
+      reportService.getConceptReport($scope.project.id, $scope.selected.concept.id).then(
       // Success
       function(data) {
         $scope.selected.concept.report = data;
       });
     };
 
-    
     // Get records
     $scope.getRecords = function(bin) {
-      
+
       var pfs = {
         startIndex : ($scope.paging['record'].page - 1) * $scope.pageSize,
         maxResults : $scope.pageSize,
         sortField : $scope.paging['record'].sortField,
         ascending : $scope.paging['record'].ascending == null ? false
           : $scope.paging['record'].ascending,
-        queryRestriction : $scope.paging['record'].filter != undefined && 
-          $scope.paging['record'].filter != "" ? $scope.paging['record'].filter
-          : null
+        queryRestriction : $scope.paging['record'].filter != undefined
+          && $scope.paging['record'].filter != "" ? $scope.paging['record'].filter : null
       };
 
       if ($scope.paging['record'].typeFilter) {
@@ -231,81 +178,74 @@ tsApp.controller('WorkflowCtrl', [
 
       }
 
-        workflowService.findTrackingRecordsForWorkflowBin($scope.currentProject.id, bin.id,
-          pfs).then(
-        // Success
-        function(data) {
-          bin.records = data.worklists;
-          bin.records.totalCount = data.totalCount;
-        });
- 
+      workflowService.findTrackingRecordsForWorkflowBin($scope.project.id, bin.id, pfs).then(
+      // Success
+      function(data) {
+        bin.records = data.worklists;
+        bin.records.totalCount = data.totalCount;
+      });
 
     };
 
-
-    
     // Regenerate bins
     $scope.regenerateBins = function() {
       console.debug('clear and regenerateBins');
-      workflowService.clearBins($scope.currentProject.id, $scope.currentBinType).then(
+      workflowService.clearBins($scope.project.id, $scope.config).then(
+      // Success
+      function(response) {
+        workflowService.regenerateBins($scope.project.id, $scope.config.type).then(
+        // Success
         function(response) {
-
-          workflowService.regenerateBins($scope.currentProject.id, $scope.currentBinType).then(
-            function(response) {
-              $scope.getBins($scope.currentProject.id, $scope.currentBinType);
-            });
+          $scope.getBins($scope.project.id, $scope.config.type);
         });
+      });
     };
-    
+
     // enable/disable
     $scope.toggleEnable = function(bin) {
       console.debug('enable/disable bin');
-      workflowService.getWorkflowBinDefinition($scope.currentProject.id, bin.name, $scope.currentBinType).then(
-        function(response) {
-          var workflowBinDefinition = response;
-          if (workflowBinDefinition.enabled) {
-            workflowBinDefinition.enabled = false;
-          } else {
-            workflowBinDefinition.enabled = true;
-          }
-          workflowService.updateWorkflowBinDefinition($scope.currentProject.id, workflowBinDefinition).then(
-            function(response) {
-              $scope.regenerateBins();
-            });
-        });
+      workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type)
+        .then(
+          function(response) {
+            var workflowBinDefinition = response;
+            if (workflowBinDefinition.enabled) {
+              workflowBinDefinition.enabled = false;
+            } else {
+              workflowBinDefinition.enabled = true;
+            }
+            workflowService.updateWorkflowBinDefinition($scope.project.id, workflowBinDefinition)
+              .then(function(response) {
+                $scope.regenerateBins();
+              });
+          });
     };
-    
+
     // remove bin/definition
     $scope.removeBin = function(bin) {
-      console.debug('remove bin/definition');
-      if(!window.confirm('Are you sure you want to remove the ' + bin.name + ' bin?')) {
-        return;
-      }
-      workflowService.getWorkflowBinDefinition($scope.currentProject.id, bin.name, $scope.currentBinType).then(
+      workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type)
+        .then(
+        // Success
         function(response) {
           var workflowBinDefinition = response;
-          
+
           workflowService.removeWorkflowBinDefinition(workflowBinDefinition).then(
-            function(response) {
-              $scope.regenerateBins();
-            },
-            // Error
-            function(data) {
-              handleError($scope.errors, data);
-            });
+          // Successs
+          function(response) {
+            $scope.regenerateBins();
+          });
         });
     };
- 
+
     // Convert date to a string
     $scope.toDate = function(lastModified) {
       return utilService.toDate(lastModified);
     };
-    
+
     // link to error handling
     function handleError(errors, error) {
       utilService.handleDialogError(errors, error);
     }
-    
+
     //
     // MODALS
     //
@@ -319,7 +259,7 @@ tsApp.controller('WorkflowCtrl', [
         controller : CreateChecklistModalCtrl,
         resolve : {
           projectId : function() {
-            return $scope.currentProject.id;
+            return $scope.project.id;
           },
           bin : function() {
             return bin;
@@ -333,7 +273,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(project) {
-        
+
       });
     };
 
@@ -346,7 +286,7 @@ tsApp.controller('WorkflowCtrl', [
         controller : CreateWorklistModalCtrl,
         resolve : {
           projectId : function() {
-            return $scope.currentProject.id;
+            return $scope.project.id;
           },
           bin : function() {
             return bin;
@@ -366,7 +306,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(project) {
-        $scope.getBins($scope.currentProject.id, $scope.currentBinType);
+        $scope.getBins($scope.project.id, $scope.config);
       });
     };
 
@@ -388,11 +328,11 @@ tsApp.controller('WorkflowCtrl', [
           bins : function() {
             return $scope.bins;
           },
-          binType : function() {
-            return $scope.currentBinType;
+          config : function() {
+            return $scope.config;
           },
           project : function() {
-            return $scope.currentProject;
+            return $scope.project;
           },
           projects : function() {
             return $scope.projects;
@@ -428,11 +368,11 @@ tsApp.controller('WorkflowCtrl', [
           bins : function() {
             return $scope.bins;
           },
-          binType : function() {
-            return $scope.currentBinType;
+          config : function() {
+            return $scope.config;
           },
           project : function() {
-            return $scope.currentProject;
+            return $scope.project;
           },
           projects : function() {
             return $scope.projects;
@@ -449,7 +389,7 @@ tsApp.controller('WorkflowCtrl', [
         $scope.regenerateBins();
       });
     };
-    
+
     // Add bin modal
     $scope.openAddBinModal = function(lbin) {
       console.debug('openAddBinModal ');
@@ -468,11 +408,11 @@ tsApp.controller('WorkflowCtrl', [
           bins : function() {
             return $scope.bins;
           },
-          binType : function() {
-            return $scope.currentBinType;
+          config : function() {
+            return $scope.config;
           },
           project : function() {
-            return $scope.currentProject;
+            return $scope.project;
           },
           projects : function() {
             return $scope.projects;
@@ -489,4 +429,28 @@ tsApp.controller('WorkflowCtrl', [
         $scope.regenerateBins();
       });
     };
+
+    //
+    // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
+    //
+    $scope.initialize = function() {
+
+      // configure tab
+      securityService.saveTab($scope.user.userPreferences, '/workflow');
+
+      $scope.getProjects();
+    };
+
+    //
+    // Initialization: Check that application is configured
+    //
+    configureService.isConfigured().then(function(isConfigured) {
+      if (!isConfigured) {
+        $location.path('/configure');
+      } else {
+        $scope.initialize();
+      }
+    });
+
+    // end
   } ]);

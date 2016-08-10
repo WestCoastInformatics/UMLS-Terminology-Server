@@ -150,7 +150,7 @@ tsApp.run([
 
           // Workflow View
           if (appConfig['deploy.enabled.tabs']
-            && appConfig['deploy.enabled.tabs'].split(',').indexOf('workflow') != -1) {
+          && appConfig['deploy.enabled.tabs'].split(',').indexOf('workflow') != -1) {
             console.debug('Route enabled: /workflow');
             $routeProviderReference.when('/workflow', {
               templateUrl : 'app/page/workflow/workflow.html',
@@ -160,7 +160,7 @@ tsApp.run([
           }
 
           // Edit View
-          if (appConfig.enabledTabs && appConfig.enabledTabs.split(',').indexOf('edit') != -1) {
+          if (appConfig['deploy.enabled.tabs'] && appConfig['deploy.enabled.tabs'].split(',').indexOf('edit') != -1) {
             console.debug('Route enabled: /edit');
             $routeProviderReference.when('/edit', {
               templateUrl : 'app/page/edit/edit.html',

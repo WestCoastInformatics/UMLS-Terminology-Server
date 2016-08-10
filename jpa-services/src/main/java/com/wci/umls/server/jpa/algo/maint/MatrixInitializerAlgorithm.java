@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo.maint;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -12,14 +13,12 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
@@ -34,8 +33,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
    */
   public MatrixInitializerAlgorithm() throws Exception {
     super();
-    setActivityId("MATRIXINIT");
-    setWorkId("MAINTENANCE");
+    setActivityId(UUID.randomUUID().toString());
+    setWorkId("MATRIXINIT");
   }
 
   /* see superclass */
@@ -55,10 +54,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
     logInfo("Starting MATRIXINIT");
 
     try {
-
-      // Single transaction
-      setTransactionPerOperation(false);
-      beginTransaction();
 
       // Get all concepts for the terminology/version (detach).
 
@@ -112,6 +107,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           }
         }
 
+        // Check validation rules
         if (status != WorkflowStatus.NEEDS_REVIEW) {
           final ValidationResult result =
               validateConcept(getProject(), concept);
@@ -123,6 +119,12 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
         // change either from N to R or R to N
         if (initialStatus != status) {
           concept.setWorkflowStatus(status);
+          // TODO:
+          // instead of this use a "change concept status" molecular action
+          // configure the action
+          // .. including action.setActivityId(getActivityId());
+          // .. including action.setWorkId(getWorkId());
+          // call this.performAction(...)
           updateConcept(concept);
         }
 
@@ -132,25 +134,25 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
         }
 
       }
-
-      // Find all tracking records with a worklist name
-      logInfo("Recompute tracking record status");
-      final TrackingRecordList trackingRecords =
-          this.findTrackingRecords(getProject(), "worklistName:[* TO *]", null);
-
-      // Set trackingRecord to READY_FOR_PUBLICATION if all contained
-      // concepts and atoms are all set to READY_FOR_PUBLICATION.
-      for (TrackingRecord rec : trackingRecords.getObjects()) {
-        final WorkflowStatus status = computeTrackingRecordStatus(rec);
-        rec.setWorkflowStatus(status);
-        updateTrackingRecord(rec);
-        if (++ct % logCt == 0) {
-          logInfo("  count = " + ct);
-        }
-      }
+      
+      // TODO: If performance is reasonable - remove this:
+      // // Find all tracking records with a worklist name
+      // logInfo("Recompute tracking record status");
+      // final TrackingRecordList trackingRecords =
+      // this.findTrackingRecords(getProject(), "worklistName:[* TO *]", null);
+      //
+      // // Set trackingRecord to READY_FOR_PUBLICATION if all contained
+      // // concepts and atoms are all set to READY_FOR_PUBLICATION.
+      // for (TrackingRecord rec : trackingRecords.getObjects()) {
+      // final WorkflowStatus status = computeTrackingRecordStatus(rec);
+      // rec.setWorkflowStatus(status);
+      // updateTrackingRecord(rec);
+      // if (++ct % logCt == 0) {
+      // logInfo(" count = " + ct);
+      // }
+      // }
 
       logInfo("Finished MATRIXINIT");
-      commit();
 
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());

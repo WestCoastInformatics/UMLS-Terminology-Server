@@ -34,7 +34,7 @@ tsApp
 
               // Variables
               $scope.user = securityService.getUser();
-              //$scope.project = project;
+              // $scope.project = project;
               $scope.userProjectsInfo = projectService.getUserProjectsInfo();
               $scope.selected = {
                 worklist : null,
@@ -65,13 +65,13 @@ tsApp
               };
 
               // Worklist Changed handler
-              $scope.$on('workflow:worklistChanged', function(event, data) {
+              $scope.$on('termServer::worklistChanged', function(event, data) {
                 console.debug('on workflow:worklistChanged', data);
                 $scope.getWorklists();
               });
 
               // Project Changed Handler
-              $scope.$on('project:projectChanged', function(event, data) {
+              $scope.$on('termServer::projectChanged', function(event, data) {
                 console.debug('on project:projectChanged', data);
                 // Set project, refresh worklist list
                 $scope.setProject(data);
@@ -228,14 +228,15 @@ tsApp
                   $scope.selected.concept.report = data;
                 });
               };
-              
+
               // parse workflow state history
               $scope.parseStateHistory = function(worklist) {
                 $scope.stateHistory = [];
                 var states = Object.keys(worklist.workflowStateHistory);
-                for (var i = 0; i<states.length; i++) {
-                  var state = {name : states[i],
-                             timestamp : worklist.workflowStateHistory[states[i]]
+                for (var i = 0; i < states.length; i++) {
+                  var state = {
+                    name : states[i],
+                    timestamp : worklist.workflowStateHistory[states[i]]
                   }
                   $scope.stateHistory.push(state);
                 }
@@ -324,10 +325,6 @@ tsApp
                 }
                 return $sce.trustAsHtml('');
               };
-              
-              // initialize
-              
-              $scope.getWorklists();
 
               //
               // MODALS
@@ -364,8 +361,6 @@ tsApp
                 });
 
               };
-
-
 
               // Assign worklist modal
               $scope.openAssignWorklistModal = function(lworklist, laction, lrole) {

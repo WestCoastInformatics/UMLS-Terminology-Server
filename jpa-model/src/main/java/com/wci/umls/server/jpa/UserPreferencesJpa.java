@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -8,6 +8,8 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -22,6 +24,7 @@ import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
+import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 
@@ -56,6 +59,11 @@ public class UserPreferencesJpa implements UserPreferences {
   @Column(nullable = true)
   private String lastTab;
 
+  /** The lastProjectRole. */
+  @Enumerated(value = EnumType.STRING)
+  @Column(nullable = true)
+  private UserRole lastProjectRole;
+
   /** The lastTerminology. */
   @Column(nullable = true)
   private String lastTerminology;
@@ -69,25 +77,27 @@ public class UserPreferencesJpa implements UserPreferences {
   private List<String> favorites = null;
 
   /**
-   * The default constructor.
+   * Instantiates an empty {@link UserPreferencesJpa}.
    */
   public UserPreferencesJpa() {
+    // n/a
   }
 
   /**
    * Instantiates a new user jpa.
    *
-   * @param userPreferences the user preferences
+   * @param prefs the user preferences
    */
-  public UserPreferencesJpa(UserPreferences userPreferences) {
+  public UserPreferencesJpa(UserPreferences prefs) {
     super();
-    id = userPreferences.getId();
-    user = userPreferences.getUser();
-    feedbackEmail = userPreferences.getFeedbackEmail();
-    lastTab = userPreferences.getLastTab();
-    lastProjectId = userPreferences.getLastProjectId();
-    lastTerminology = userPreferences.getLastTerminology();
-    precedenceList = userPreferences.getPrecedenceList();
+    id = prefs.getId();
+    user = prefs.getUser();
+    feedbackEmail = prefs.getFeedbackEmail();
+    lastTab = prefs.getLastTab();
+    lastProjectId = prefs.getLastProjectId();
+    lastTerminology = prefs.getLastTerminology();
+    lastProjectRole = prefs.getLastProjectRole();
+    precedenceList = prefs.getPrecedenceList();
   }
 
   /**
@@ -227,6 +237,19 @@ public class UserPreferencesJpa implements UserPreferences {
 
   /* see superclass */
   @Override
+  public UserRole getLastProjectRole() {
+    return lastProjectRole;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLastProjectRole(UserRole lastProjectRole) {
+    this.lastProjectRole = lastProjectRole;
+
+  }
+
+  /* see superclass */
+  @Override
   public String getFeedbackEmail() {
     return feedbackEmail;
   }
@@ -291,18 +314,14 @@ public class UserPreferencesJpa implements UserPreferences {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((lastTab == null) ? 0 : lastTab.hashCode());
-    result =
-        prime * result
-            + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
-    result =
-        prime * result
-            + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
-    // result =
-    // prime * result
-    // + ((precedenceList == null) ? 0 : precedenceList.hashCode());
-    result =
-        prime * result
-            + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());
+    result = prime * result
+        + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
+    result = prime * result
+        + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
+    result = prime * result
+        + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());
+    result = prime * result
+        + ((lastProjectRole == null) ? 0 : lastProjectRole.hashCode());
     result = prime * result + ((user == null) ? 0 : user.hashCode());
     return result;
   }
@@ -338,6 +357,11 @@ public class UserPreferencesJpa implements UserPreferences {
         return false;
     } else if (!lastProjectId.equals(other.lastProjectId))
       return false;
+    if (lastProjectRole == null) {
+      if (other.lastProjectRole != null)
+        return false;
+    } else if (!lastProjectRole.equals(other.lastProjectRole))
+      return false;
     if (feedbackEmail == null) {
       if (other.feedbackEmail != null)
         return false;
@@ -356,8 +380,9 @@ public class UserPreferencesJpa implements UserPreferences {
   public String toString() {
     return "UserPreferencesJpa [id=" + id + ", user=" + user
         + ", lastTerminology=" + lastTerminology + ", lastProjectId="
-        + lastProjectId + ", lastTab=" + lastTab + ", feedbackEmail="
-        + feedbackEmail + ", precedenceList=" + precedenceList + "]";
+        + lastProjectId + ", lastProjectRole=" + lastProjectRole + ", lastTab="
+        + lastTab + ", feedbackEmail=" + feedbackEmail + ", precedenceList="
+        + precedenceList + "]";
   }
 
 }

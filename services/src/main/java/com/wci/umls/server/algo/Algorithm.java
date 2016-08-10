@@ -6,9 +6,9 @@ package com.wci.umls.server.algo;
 import java.util.List;
 
 import com.wci.umls.server.AlgorithmParameter;
-import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Configurable;
+import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressReporter;
 
@@ -16,7 +16,8 @@ import com.wci.umls.server.services.helpers.ProgressReporter;
  * Represents an algortihm. Implementations must fully configure themselves
  * before the compute call is made.
  */
-public interface Algorithm extends RootService, ProgressReporter, Configurable {
+public interface Algorithm
+    extends RootService, ProgressReporter, Configurable, HasProject {
 
   /**
    * Check preconditions for action. This will make use of data structures
@@ -61,13 +62,6 @@ public interface Algorithm extends RootService, ProgressReporter, Configurable {
    * @param workId the work id
    */
   public void setWorkId(String workId);
-
-  /**
-   * Sets the project.
-   *
-   * @param project the project
-   */
-  public void setProject(Project project);
 
   /**
    * Returns the parameters.

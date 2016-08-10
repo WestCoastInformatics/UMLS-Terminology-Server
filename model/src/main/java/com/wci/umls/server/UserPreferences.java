@@ -83,6 +83,20 @@ public interface UserPreferences {
   public void setLastProjectId(Long lastProjectId);
 
   /**
+   * Returns the last project role accessed.
+   *
+   * @return the lastProjectRole
+   */
+  public UserRole getLastProjectRole();
+
+  /**
+   * Sets the last project role accessed.
+   *
+   * @param lastProjectRole the last project role accessed
+   */
+  public void setLastProjectRole(UserRole lastProjectRole);
+
+  /**
    * Gets the feedback email.
    *
    * @return the feedback email

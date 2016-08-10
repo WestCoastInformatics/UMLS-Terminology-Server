@@ -37,7 +37,8 @@ tsApp
 
         // retrieve the user
         $scope.user = securityService.getUser();
-        console.debug($scope.user);
+        projectService.getUserHasAnyRole();
+
         // Clear error
         utilService.clearError();
 
@@ -138,14 +139,6 @@ tsApp
         //
         // General
         //
-
-        // Configure tab and accordion
-        $scope.configureTab = function() {
-          if ($scope.user && $scope.user.userPreferences) {
-            $scope.user.userPreferences.lastTab = '/content';
-            securityService.updateUserPreferences($scope.user.userPreferences);
-          }
-        };
 
         // Sets the terminololgy
         $scope.setTerminology = function(terminology) {
@@ -751,12 +744,13 @@ tsApp
         };
 
         //
-        // Initialize
+        // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //
-
         $scope.initialize = function() {
 
-          $scope.configureTab();
+          // configure tab
+          securityService.saveTab($scope.user.userPreferences, '/content');
+
           $scope.configureExpressions();
           $scope.configureCallbacks();
 

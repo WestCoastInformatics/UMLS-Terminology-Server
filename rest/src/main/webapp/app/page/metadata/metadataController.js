@@ -23,14 +23,9 @@ tsApp.controller('MetadataCtrl', [
 
     // the currently viewed terminology (set by default or user)
     $scope.user = securityService.getUser();
+    projectService.getUserHasAnyRole();
     $scope.metadata = metadataService.getModel();
     $scope.resultsCollapsed = {};
-
-    // Configure tab and accordion
-    $scope.configureTab = function() {
-      $scope.user.userPreferences.lastTab = '/metadata';
-      securityService.updateUserPreferences($scope.user.userPreferences);
-    };
 
     //
     // Initialize
@@ -43,10 +38,9 @@ tsApp.controller('MetadataCtrl', [
         $location.path("/content");
       }
 
-      // Handle users with user preferences
-      else if ($scope.user.userPreferences) {
-        $scope.configureTab();
-      }
+      // configure tab
+      securityService.saveTab($scope.user.userPreferences, '/metadata');
+
     };
 
     //

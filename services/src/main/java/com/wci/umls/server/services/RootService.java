@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
@@ -376,5 +377,50 @@ public interface RootService {
    */
   public AtomicActionList findAtomicActions(Long moleculeId, String query,
     PfsParameter pfs) throws Exception;
+
+  /**
+   * Adds the type key value.
+   *
+   * @param typeKeyValue the type key value
+   * @return the type key value
+   * @throws Exception the exception
+   */
+  public TypeKeyValue addTypeKeyValue(TypeKeyValue typeKeyValue)
+    throws Exception;
+
+  /**
+   * Update type key value.
+   *
+   * @param typeKeyValue the type key value
+   * @throws Exception the exception
+   */
+  public void updateTypeKeyValue(TypeKeyValue typeKeyValue) throws Exception;
+
+  /**
+   * Removes the type key value.
+   *
+   * @param typeKeyValueId the type key value id
+   * @throws Exception the exception
+   */
+  public void removeTypeKeyValue(Long typeKeyValueId) throws Exception;
+
+  /**
+   * Returns the type key value.
+   *
+   * @param typeKeyValueId the type key value id
+   * @return the type key value
+   * @throws Exception the exception
+   */
+  public TypeKeyValue getTypeKeyValue(Long typeKeyValueId) throws Exception;
+
+  /**
+   * Find type key values for query.
+   *
+   * @param query the query
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<TypeKeyValue> findTypeKeyValuesForQuery(String query)
+    throws Exception;
 
 }
