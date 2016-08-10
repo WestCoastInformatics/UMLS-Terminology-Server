@@ -42,6 +42,12 @@ import com.wci.umls.server.services.ContentService;
 public abstract class AbstractMolecularAction extends AbstractAlgorithm
     implements MolecularActionAlgorithm {
 
+  /** The concept id. */
+  private Long conceptId;
+
+  /** The concept id 2. */
+  private Long conceptId2;
+
   /** The concept. */
   private Concept concept;
 
@@ -56,6 +62,9 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
   /** The change status flag. */
   private boolean changeStatusFlag;
+
+  /** The override warnings. */
+  private boolean overrideWarnings;
 
   /** The validation checks. */
   private List<String> validationChecks;
@@ -74,6 +83,42 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   @Override
   public void reset() throws Exception {
     // n/a
+  }
+
+  /**
+   * Returns the concept id.
+   *
+   * @return the concept id
+   */
+  public Long getConceptId() {
+    return conceptId;
+  }
+
+  /**
+   * Sets the concept id.
+   *
+   * @param conceptId the concept id
+   */
+  public void setConceptId(Long conceptId) {
+    this.conceptId = conceptId;
+  }
+
+  /**
+   * Returns the concept id 2.
+   *
+   * @return the concept id 2
+   */
+  public Long getConceptId2() {
+    return conceptId2;
+  }
+
+  /**
+   * Sets the concept id 2.
+   *
+   * @param conceptId2 the concept id 2
+   */
+  public void setConceptId2(Long conceptId2) {
+    this.conceptId2 = conceptId2;
   }
 
   /**
@@ -98,10 +143,28 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     return userName;
   }
 
+  /**
+   * Sets the user name.
+   *
+   * @param userName the user name
+   */
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+
   /* see superclass */
   @Override
   public Long getLastModified() {
     return lastModified;
+  }
+
+  /**
+   * Sets the last modified.
+   *
+   * @param lastModified the last modified
+   */
+  public void setLastModified(Long lastModified) {
+    this.lastModified = lastModified;
   }
 
   /* see superclass */
@@ -132,6 +195,24 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   @Override
   public void setValidationChecks(List<String> validationChecks) {
     this.validationChecks = validationChecks;
+  }
+
+  /**
+   * Sets the override warnings.
+   *
+   * @param overrideWarnings the override warnings
+   */
+  public void setOverrideWarnings(boolean overrideWarnings) {
+    this.overrideWarnings = overrideWarnings;
+  }
+
+  /**
+   * Indicates whether or not override warnings is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isOverrideWarnings() {
+    return overrideWarnings;
   }
 
   /* see superclass */

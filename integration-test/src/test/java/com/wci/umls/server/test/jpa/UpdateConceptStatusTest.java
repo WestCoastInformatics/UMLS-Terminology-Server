@@ -163,52 +163,31 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     // Due to MySQL rounding to the second, we must also round our comparison
     // startDate.
     Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
-
+    
     // Update the WorkflowStatus of the concept from READY_FOR_PUBLICATION to
     // NEEDS_REVIEW
     final UpdateConceptStatusMolecularAction action =
         new UpdateConceptStatusMolecularAction();
     try {
-      // Start transaction
+
+      // Configure the action 
+      action.setProject(project);
+      action.setConceptId(concept.getId());
+      action.setConceptId2(null);
+      action.setUserName(adminUser);
+      action.setLastModified(concept.getLastModified().getTime());
+      action.setOverrideWarnings(false);
       action.setTransactionPerOperation(false);
-      action.beginTransaction();
-      action.setChangeStatusFlag(true);
-      action.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-
-      // Do some standard intialization and precondition checking
-      // action and prep services
-      // Due to MySQL rounding to the second, we must also round our
-      // lastModified time
-      Long conceptLastModified =
-          DateUtils.round(concept.getLastModified(), Calendar.SECOND).getTime();
-      action.initialize(project, concept.getId(), null, adminUser,
-          conceptLastModified, true);
-
-      //
-      // Check prerequisites
-      //
-      final ValidationResult validationResult = action.checkPreconditions();
-
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty())) {
-        // rollback -- unlocks the concept and closes transaction
-        action.rollback();
-        throw new Exception("Preconditions failed for " + action.getName());
-      }
-
-      //
-      // Perform the action
-      //
-      action.compute();
-
-      // commit (also removes the lock)
-      action.commit();
-
-      // Perform post-action maintenance on affected concept(s)
-      action.postActionMaintenance();
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);  
       
-      // Re-instantiate service object.
+      action.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);   
+      
+      //Perform the action
+      final ValidationResult validationResult = action.performMolecularAction(action);
+      assertTrue(validationResult.getErrors().isEmpty());
+      
+      // Re-instantiate service so it can pickup the changed concept.
       contentService = new ContentServiceJpa();
 
       // Verify the concept's workflow Status has updated
