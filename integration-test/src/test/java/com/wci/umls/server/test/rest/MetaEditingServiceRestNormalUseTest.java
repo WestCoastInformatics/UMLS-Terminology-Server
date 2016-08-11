@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -4995,14 +4996,13 @@ public class MetaEditingServiceRestNormalUseTest
     // Try to undo the approve action (this will fail, since the concept's
     // WorkflowStatus is different than it was
     //
-    boolean undoFailed = false;
     try {
       v = metaEditingService.undoAction(project.getId(), ma.getId(),
           c.getLastModified().getTime(), false, false, authToken);
+      fail("Undo should fail: concept workflow status has changed since action was performed");      
     } catch (Exception e) {
-      undoFailed = true;
+      // n/a
     }
-    assertTrue(undoFailed);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     // Make sure the workflow status didn't get modified during the failed Undo
@@ -5038,14 +5038,12 @@ public class MetaEditingServiceRestNormalUseTest
     // Try to redo the approve action (this will fail, since the concept's
     // WorkflowStatus is different than it was
     //
-    boolean redoFailed = false;
     try {
       v = metaEditingService.undoAction(project.getId(), ma.getId(),
           c.getLastModified().getTime(), false, false, authToken);
+      fail("Redo should fail: concept workflow status has changed since action was performed");                  
     } catch (Exception e) {
-      redoFailed = true;
     }
-    assertTrue(redoFailed);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     // Make sure the workflow status didn't get modified during the failed Undo
