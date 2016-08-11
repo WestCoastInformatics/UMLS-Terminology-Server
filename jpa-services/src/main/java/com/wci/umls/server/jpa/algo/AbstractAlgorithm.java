@@ -14,7 +14,6 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.helpers.HasTerminology;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -24,7 +23,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * Abstract support for loader algorithms.
  */
 public abstract class AbstractAlgorithm extends WorkflowServiceJpa
-    implements Algorithm, HasTerminology, HasProject {
+    implements Algorithm, HasTerminology {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();

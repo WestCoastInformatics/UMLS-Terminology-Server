@@ -83,6 +83,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
     tester.include("feedbackEmail");
     tester.include("lastTab");
     tester.include("lastProjectId");
+    tester.include("lastProjectRole");
     tester.include("lastTerminology");
 
     tester.proxy(User.class, 1, u1);

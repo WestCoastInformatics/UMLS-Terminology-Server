@@ -239,7 +239,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-class="{selected: project.id === selectedProject.id}"
+        <tr ng-class="{selected: project.id === project.id}"
           ng-repeat="project in candidateProjects"
           ng-click="setProject(project)">
           <td>{{project.id}}</td>
@@ -257,7 +257,7 @@
 <div ng-show="candidateProjects.totalCount != 0" class="col-md-6 col-xs-12">
   <div class="col-md-12 col-xs-12">
     <h5 class="section-header">Unassigned Users</h5>
-    <div ng-show="selectedProject">
+    <div ng-show="project">
       <span style="display: block;">
         <uib-pagination items-per-page="pageSize" max-size="5"
           boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
@@ -301,7 +301,7 @@
             <td>
 
               <i
-                ng-click="assignUserToProject(selectedProject.id, unassigned.userName, unassigned.projectRole)"
+                ng-click="assignUserToProject(project.id, unassigned.userName, unassigned.projectRole)"
                 title="Add user to project with selected role."
                 class="noul glyphicon glyphicon-plus"></i>
             </td>
@@ -309,10 +309,10 @@
         </tbody>
       </table>
     </div>
-    <span ng-show="!selectedProject" style="display: block;"
-      class="alert alert-warning"> No project selected</span>
+    <span ng-show="!project" style="display: block;" class="alert alert-warning">
+      No project selected</span>
     <span
-      ng-show="selectedProject && unassignedUsers.totalCount == 0 
+      ng-show="project && unassignedUsers.totalCount == 0 
         && paging['candidateUser'].filter == ''"
       style="display: block;" class="alert alert-warning"> Selected
       project has no unassigned users</span>
@@ -321,7 +321,7 @@
 
   <div ng-show="candidateProjects.totalCount != 0" class="col-md-12 col-xs-12">
     <h5 class="section-header">Assigned Users</h5>
-    <div ng-show="selectedProject && assignedUsers.totalCount > 0">
+    <div ng-show="project && assignedUsers.totalCount > 0">
 
       <span style="display: block;">
         <uib-pagination items-per-page="pageSize" max-size="5"
@@ -359,21 +359,21 @@
           <tr ng-repeat="assigned in assignedUsers">
             <td>{{assigned.name}}</td>
             <td>{{assigned.userName}}</td>
-            <td>{{assigned.projectRoleMap[selectedProject.id]}}</td>
+            <td>{{assigned.projectRoleMap[project.id]}}</td>
             <td>
               <i
                 confirm="Are you sure you want to unassign yourself from this project?"
                 confirm-if="user.userName == assigned.userName"
-                ng-click="unassignUserFromProject(selectedProject.id, assigned.userName);"
+                ng-click="unassignUserFromProject(project.id, assigned.userName);"
                 title="Unassign user" class="noul glyphicon glyphicon-trash"></i>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <span ng-show="!selectedProject" style="display: block;"
-      class="alert alert-warning"> No project selected</span>
-    <span ng-show="selectedProject && assignedUsers.totalCount == 0"
+    <span ng-show="!project" style="display: block;" class="alert alert-warning">
+      No project selected</span>
+    <span ng-show="project && assignedUsers.totalCount == 0"
       style="display: block;" class="alert alert-warning"> Selected
       project has no assigned users</span>
 

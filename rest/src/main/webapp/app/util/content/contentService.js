@@ -133,6 +133,11 @@ tsApp
           return expressions;
         };
 
+        // broadcasts a concept change
+        this.fireConceptChanged = function(concept) {
+          $rootScope.$broadcast('termServer::conceptChanged', project);
+        };
+
         // Get autocomplete results
         this.autocomplete = function(searchTerms, autocompleteUrl) {
 

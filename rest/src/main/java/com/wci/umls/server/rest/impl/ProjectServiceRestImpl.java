@@ -312,7 +312,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/{id}/users")
+  @Path("/{projectId}/users")
   @ApiOperation(value = "Find users assigned to project", notes = "Finds users with assigned roles on the specified project", response = UserListJpa.class)
   public UserList findAssignedUsersForProject(
     @ApiParam(value = "Project id, e.g. 3", required = true) @PathParam("projectId") Long projectId,
@@ -410,7 +410,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/users/{projectId}/unassigned")
+  @Path("/{projectId}/users/unassigned")
   @ApiOperation(value = "Find candidate users for project", notes = "Finds users who do not yet have assigned roles on the specified project", response = UserListJpa.class)
   public UserList findUnassignedUsersForProject(
     @ApiParam(value = "Project id, e.g. 3", required = true) @PathParam("projectId") Long projectId,

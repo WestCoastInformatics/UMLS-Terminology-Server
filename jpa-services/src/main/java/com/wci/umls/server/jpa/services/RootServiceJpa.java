@@ -37,12 +37,14 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
 import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.helpers.LogEntryJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.AtomicActionList;
@@ -1412,6 +1414,51 @@ public abstract class RootServiceJpa implements RootService {
 
     return validationResult;
 
+  }
+
+  /* see superclass */
+  @Override
+  public TypeKeyValue addTypeKeyValue(TypeKeyValue typeKeyValue)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Add type, key, value - " + typeKeyValue);
+    return addObject(typeKeyValue);
+  }
+
+  /* see superclass */
+  @Override
+  public void updateTypeKeyValue(TypeKeyValue typeKeyValue) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Update type, key, value - " + typeKeyValue);
+    updateObject(typeKeyValue);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeTypeKeyValue(Long typeKeyValueId) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Remove type, key, value - " + typeKeyValueId);
+    removeObject((TypeKeyValueJpa) getTypeKeyValue(typeKeyValueId));
+  }
+
+  /* see superclass */
+  @Override
+  public TypeKeyValue getTypeKeyValue(Long typeKeyValueId) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Get type, key, value - " + typeKeyValueId);
+    return getObject(typeKeyValueId, TypeKeyValueJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public List<TypeKeyValue> findTypeKeyValuesForQuery(String query)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Find type, key, values - " + query);
+    final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
+    final int[] totalCt = new int[1];
+    return new ArrayList<TypeKeyValue>(searchHandler.getQueryResults(null, null,
+        Branch.ROOT, query, null, TypeKeyValueJpa.class, TypeKeyValueJpa.class,
+        null, totalCt, getEntityManager()));
   }
 
 }

@@ -30,13 +30,15 @@ tsApp
         // Scope Variables
         //
         $scope.user = securityService.getUser();
+        projectService.getUserHasAnyRole();
+        
         // If logged in as guest, redirect
         if (securityService.isGuestUser()) {
           $location.path('/');
           return;
         }
 
-        $scope.selectedProject = null;
+        $scope.project = null;
         $scope.projectRoles = [];
 
         // Model variables
@@ -177,7 +179,7 @@ tsApp
             queryRestriction : '(applicationRole:USER OR applicationRole:ADMINISTRATOR)'
           };
 
-          projectService.findUnassignedUsersForProject($scope.selectedProject.id,
+          projectService.findUnassignedUsersForProject($scope.project.id,
             $scope.paging['candidateUser'].filter, pfs).then(function(data) {
             $scope.unassignedUsers = data.users;
             $scope.unassignedUsers.totalCount = data.totalCount;
@@ -197,7 +199,7 @@ tsApp
               : $scope.paging['assignedUser'].ascending,
             queryRestriction : null
           };
-          projectService.findAssignedUsersForProject($scope.selectedProject.id,
+          projectService.findAssignedUsersForProject($scope.project.id,
             $scope.paging['assignedUser'].filter, pfs).then(function(data) {
             $scope.assignedUsers = data.users;
             $scope.assignedUsers.totalCount = data.totalCount;
@@ -234,11 +236,11 @@ tsApp
             return;
           }
           // Don't re-select
-          if ($scope.selectedProject && project.id == $scope.selectedProject.id) {
+          if ($scope.project && project.id == $scope.project.id) {
             return;
           }
 
-          $scope.selectedProject = project;
+          $scope.project = project;
           $scope.getUnassignedUsers();
           $scope.getAssignedUsers();
 
@@ -276,7 +278,7 @@ tsApp
           securityService.removeUser(user).then(function() {
             // Refresh users
             $scope.getUsers();
-            if ($scope.selectedProject != null) {
+            if ($scope.project != null) {
               $scope.getUnassignedUsers();
               $scope.getAssignedUsers();
             }
@@ -352,7 +354,7 @@ tsApp
             // Update 'anyrole'
             projectService.getUserHasAnyRole();
             $scope.getProjects();
-            $scope.selectedProject = data;
+            $scope.project = data;
             $scope.getAssignedUsers();
             $scope.getUnassignedUsers();
           });
@@ -364,7 +366,7 @@ tsApp
             // Update 'anyrole' in case user removed themselves from the project
             projectService.getUserHasAnyRole();
             $scope.getProjects();
-            $scope.selectedProject = data;
+            $scope.project = data;
             $scope.getAssignedUsers();
             $scope.getUnassignedUsers();
           });

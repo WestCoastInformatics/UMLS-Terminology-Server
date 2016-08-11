@@ -1,12 +1,12 @@
 // Edit bin controller
 var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, utilService, 
-  projectService, bin, workflowConfig, bins, binType, project, projects, action) {
+  projectService, bin, workflowConfig, bins, config, project, projects, action) {
   console.debug('Entered edit bin modal control');
 
   $scope.action = action;
   $scope.bin = bin;
   $scope.bins = bins;
-  $scope.binType = binType;
+  $scope.config = config;
   $scope.workflowBinDefinition;
   $scope.positionBin;
   $scope.positionAfterDef;
@@ -23,7 +23,7 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, util
     });
 
     if ($scope.bin) {
-      workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.binType).then(
+      workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type).then(
         function(response) {
           $scope.workflowBinDefinition = response;
         });
@@ -37,7 +37,7 @@ var EditBinModalCtrl = function($scope, $uibModalInstance, workflowService, util
   
   
   $scope.positionAfterBin = function(bin) {
-    workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.binType).then(
+    workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type).then(
       function(response) {
         $scope.positionAfterDef = response;
       },

@@ -224,7 +224,10 @@ public class ProjectJpa implements Project {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Fields({
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
   public String getName() {
     return name;
   }
@@ -441,9 +444,8 @@ public class ProjectJpa implements Project {
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (isPublic ? 1231 : 1237);
     result = prime * result + (teamBased ? 1231 : 1237);
-    result =
-        prime * result
-            + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
+    result = prime * result
+        + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());

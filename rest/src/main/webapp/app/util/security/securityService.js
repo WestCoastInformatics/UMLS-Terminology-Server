@@ -7,9 +7,8 @@ tsApp.service('securityService', [
   '$cookies',
   'utilService',
   'gpService',
-  'projectService',
   'appConfig',
-  function($http, $location, $q, $cookies, utilService, gpService, projectService, appConfig) {
+  function($http, $location, $q, $cookies, utilService, gpService, appConfig) {
     console.debug('configure securityService');
 
     // Declare the user
@@ -26,6 +25,39 @@ tsApp.service('securityService', [
     var searchParams = {
       page : 1,
       query : null
+    };
+
+    // Configure tabs
+    this.saveTab = function(prefs, tab) {
+      if (prefs) {
+        prefs.lastTab = tab;
+        this.updateUserPreferences(prefs);
+      }
+    };
+
+    // Configure role
+    this.saveRole = function(prefs, role) {
+      if (prefs) {
+        prefs.lastProjectRole = role;
+        this.updateUserPreferences(prefs);
+      }
+    };
+
+    // Configure projectId
+    this.saveProjectId = function(prefs, projectId) {
+      if (prefs) {
+        prefs.lastProjectId = projectId;
+        this.updateUserPreferences(prefs);
+      }
+    };
+
+    // Configure role
+    this.saveProjectIdAndRole = function(prefs, projectId, role) {
+      if (prefs) {
+        prefs.lastProjectId = projectId;
+        prefs.lastProjectRole = role;
+        this.updateUserPreferences(prefs);
+      }
     };
 
     // accepts the license
@@ -67,7 +99,8 @@ tsApp.service('securityService', [
     this.getUser = function() {
 
       // if login is not enabled, set and return the Guest user
-      if (appConfig['deploy.login.enabled'] === 'true' && appConfig['deploy.login.enabled'] !== 'true') {
+      if (appConfig['deploy.login.enabled'] === 'true'
+        && appConfig['deploy.login.enabled'] !== 'true') {
         this.setGuestUser();
       }
       // otherwise, determine if user is already logged in
@@ -95,10 +128,8 @@ tsApp.service('securityService', [
       user.applicationRole = data.applicationRole;
       user.userPreferences = data.userPreferences;
       $http.defaults.headers.common.Authorization = data.authToken;
-      // TODO: doesn't work well with landing page/controller
-      projectService.getUserHasAnyRole();
 
-      // Whenver set user is called, we should save a cookie
+      // Whenever set user is called, we should save a cookie
       $cookies.put('user', JSON.stringify(user));
     };
 
@@ -253,30 +284,29 @@ tsApp.service('securityService', [
       }
     };
 
-    
     // Get user by name
     this.getUserByName = function(userName) {
 
       var deferred = $q.defer();
-      
-        gpService.increment();
 
-        // logout
-        $http.get(securityUrl + '/user/name/' + userName).then(
-        // success
-        function(response) {
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
-        return deferred.promise;
+      gpService.increment();
+
+      // logout
+      $http.get(securityUrl + '/user/name/' + userName).then(
+      // success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
     }
-    
+
     // get all users
     this.getUsers = function() {
       var deferred = $q.defer();
@@ -540,7 +570,7 @@ tsApp.service('securityService', [
 
     // update user preferences
     this.updateUserPreferences = function(userPreferences) {
-
+      console.debug('updateUserPreferences', userPreferences);
       // Whenever we update user preferences, we need to update the cookie
       $cookies.put('user', JSON.stringify(user));
 
