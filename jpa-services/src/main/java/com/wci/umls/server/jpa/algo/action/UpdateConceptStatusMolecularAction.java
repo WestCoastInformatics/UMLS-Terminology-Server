@@ -93,7 +93,7 @@ public class UpdateConceptStatusMolecularAction
     conceptPreUpdates = new ConceptJpa(getConcept(), false);
 
     // Make a copy of the concept
-    Concept updateConcept = new ConceptJpa(getConcept(),false);
+    Concept updateConcept = new ConceptJpa(getConcept(),true);
     
     //
     // Change status of the concept
