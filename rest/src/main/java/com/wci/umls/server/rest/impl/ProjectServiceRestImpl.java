@@ -722,7 +722,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   @Path("/actions/molecular")
   @ApiOperation(value = "Get molecular actions", notes = "Get molecular actions", response = MolecularActionListJpa.class)
   public MolecularActionList findMolecularActions(
-    @ApiParam(value = "Terminology id, e.g. C40012334", required = false) @QueryParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Component Id, e.g. 1", required = false) @QueryParam("componentId") Long componentId,
     @ApiParam(value = "Terminology, e.g. UMLS", required = false) @QueryParam("terminology") String terminology,
     @ApiParam(value = "Version, e.g. latest", required = false) @QueryParam("version") String version,
     @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
@@ -736,7 +736,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken,
           "find molecular actions for a concept", UserRole.VIEWER);
-      return contentService.findMolecularActions(terminologyId, terminology,
+      return contentService.findMolecularActions(componentId, terminology,
           version, query, pfs);
 
     } catch (Exception e) {

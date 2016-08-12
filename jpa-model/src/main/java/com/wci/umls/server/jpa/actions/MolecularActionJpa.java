@@ -23,10 +23,12 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
@@ -154,6 +156,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl=LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getComponentId() {
     return componentId;
@@ -167,6 +170,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl=LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getComponentId2() {
     return componentId2;

@@ -351,18 +351,19 @@ public interface RootService {
    */
   public AtomicAction getAtomicAction(Long id) throws Exception;
 
+
   /**
    * Find molecular actions.
    *
-   * @param terminologyId the terminology id
+   * @param componentId the component id
    * @param terminology the terminology
    * @param version the version
    * @param query the query
    * @param pfs the pfs
-   * @return the list
+   * @return the molecular action list
    * @throws Exception the exception
    */
-  public MolecularActionList findMolecularActions(String terminologyId,
+  public MolecularActionList findMolecularActions(Long componentId,
     String terminology, String version, String query, PfsParameter pfs)
     throws Exception;
 
