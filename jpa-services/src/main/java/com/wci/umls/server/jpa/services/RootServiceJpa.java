@@ -1276,7 +1276,7 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public MolecularActionList findMolecularActions(String terminologyId,
+  public MolecularActionList findMolecularActions(Long componentId,
     String terminology, String version, String query, PfsParameter pfs)
     throws Exception {
 
@@ -1285,15 +1285,17 @@ public abstract class RootServiceJpa implements RootService {
     int totalCt[] = new int[1];
     final MolecularActionList results = new MolecularActionListJpa();
 
-    final StringBuilder sb = new StringBuilder();
-    if (terminologyId != null) {
-      sb.append("terminologyId:" + terminologyId);
+    final List<String> clauses = new ArrayList<>();
+    if (!ConfigUtility.isEmpty(query)){
+      clauses.add(query);
     }
-    if (!ConfigUtility.isEmpty(query)) {
-      sb.append(sb.length() == 0 ? "" : " AND ").append(query);
+    if (componentId != null) {
+      clauses.add("componentId:" + componentId);
     }
+    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
     for (final MolecularActionJpa ma : searchHandler.getQueryResults(
-        terminology, version, Branch.ROOT, query, null,
+        terminology, version, Branch.ROOT, fullQuery, null,
         MolecularActionJpa.class, MolecularActionJpa.class, pfs, totalCt,
         manager)) {
       results.getObjects().add(ma);

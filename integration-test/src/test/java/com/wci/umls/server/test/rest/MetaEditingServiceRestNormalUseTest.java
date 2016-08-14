@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -442,7 +443,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -523,7 +524,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -580,7 +581,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -692,7 +693,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -779,7 +780,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -833,7 +834,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -955,7 +956,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -1057,7 +1058,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -1110,7 +1111,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -1276,7 +1277,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -1406,7 +1407,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -1510,7 +1511,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -1577,7 +1578,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -1748,7 +1749,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(toC.getTerminologyId(),
+        projectService.findMolecularActions(toC.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -1966,7 +1967,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(fromC.getTerminologyId(),
+        projectService.findMolecularActions(fromC.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -2174,7 +2175,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(originatingC.getTerminologyId(),
+        projectService.findMolecularActions(originatingC.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -2431,7 +2432,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(originatingC.getTerminologyId(),
+    list = projectService.findMolecularActions(originatingC.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -2682,7 +2683,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -2818,7 +2819,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -2838,7 +2839,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -2873,7 +2874,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is reset, and the lastModified
@@ -2915,7 +2916,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -2935,7 +2936,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -2966,7 +2967,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is reset, and the lastModified
@@ -3058,7 +3059,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -3078,7 +3079,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -3113,7 +3114,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is reset, and the lastModified
@@ -3156,7 +3157,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -3176,7 +3177,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -3207,7 +3208,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is reset, and the lastModified
@@ -3298,7 +3299,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -3318,7 +3319,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -3354,7 +3355,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is reset, and the lastModified
@@ -3399,7 +3400,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -3419,7 +3420,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -3452,7 +3453,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is reset, and the lastModified
@@ -3573,7 +3574,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -3594,7 +3595,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
     c2 = contentService.getConcept(c2.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -3649,7 +3650,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
     c2 = contentService.getConcept(c2.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -3711,7 +3712,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = projectService.findMolecularActions(c.getTerminologyId(),
+    list = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     ma = list.getObjects().get(0);
@@ -3732,7 +3733,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
     c2 = contentService.getConcept(c2.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -3782,7 +3783,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
     c2 = contentService.getConcept(c2.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -3903,7 +3904,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(fromC.getTerminologyId(),
+        projectService.findMolecularActions(fromC.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -3925,7 +3926,7 @@ public class MetaEditingServiceRestNormalUseTest
     fromC =
         contentService.getConcept(fromC.getId(), project.getId(), authToken);
     toC = contentService.getConcept(toC.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(fromC.getTerminologyId(),
+    ma = projectService.findMolecularActions(fromC.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -3965,7 +3966,7 @@ public class MetaEditingServiceRestNormalUseTest
     fromC =
         contentService.getConcept(fromC.getId(), project.getId(), authToken);
     toC = contentService.getConcept(toC.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(fromC.getTerminologyId(),
+    ma = projectService.findMolecularActions(fromC.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -4092,7 +4093,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // verify the molecular action exists
     MolecularActionList list =
-        projectService.findMolecularActions(originatingC.getTerminologyId(),
+        projectService.findMolecularActions(originatingC.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -4119,7 +4120,7 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(createdCId, project.getId(), authToken);
     relatedC =
         contentService.getConcept(relatedC.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(originatingC.getTerminologyId(),
+    ma = projectService.findMolecularActions(originatingC.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -4167,7 +4168,7 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(createdCId, project.getId(), authToken);
     relatedC =
         contentService.getConcept(relatedC.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(originatingC.getTerminologyId(),
+    ma = projectService.findMolecularActions(originatingC.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -4330,7 +4331,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(toC.getTerminologyId(),
+        projectService.findMolecularActions(toC.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -4355,7 +4356,7 @@ public class MetaEditingServiceRestNormalUseTest
     fromC = contentService.getConcept(fromCId, project.getId(), authToken);
     relatedC =
         contentService.getConcept(relatedC.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(toC.getTerminologyId(),
+    ma = projectService.findMolecularActions(toC.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -4401,7 +4402,7 @@ public class MetaEditingServiceRestNormalUseTest
     toC = contentService.getConcept(toC.getId(), project.getId(), authToken);
     relatedC =
         contentService.getConcept(relatedC.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(toC.getTerminologyId(),
+    ma = projectService.findMolecularActions(toC.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -4525,7 +4526,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -4547,7 +4548,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -4648,7 +4649,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -4847,7 +4848,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -4868,7 +4869,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -4901,7 +4902,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
-    ma = projectService.findMolecularActions(c.getTerminologyId(),
+    ma = projectService.findMolecularActions(c.getId(),
         umlsTerminology, umlsVersion, null, pfs, authToken).getObjects().get(0);
 
     // Verify the molecular action undone flag is set, and the lastModified has
@@ -5001,7 +5002,7 @@ public class MetaEditingServiceRestNormalUseTest
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list =
-        projectService.findMolecularActions(c.getTerminologyId(),
+        projectService.findMolecularActions(c.getId(),
             umlsTerminology, umlsVersion, null, pfs, authToken);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
@@ -5022,14 +5023,13 @@ public class MetaEditingServiceRestNormalUseTest
     // Try to undo the approve action (this will fail, since the concept's
     // WorkflowStatus is different than it was
     //
-    boolean undoFailed = false;
     try {
       v = metaEditingService.undoAction(project.getId(), ma.getId(),
           "activityId", false, authToken);
+      fail("Undo should fail: concept workflow status has changed since action was performed");      
     } catch (Exception e) {
-      undoFailed = true;
+      // n/a
     }
-    assertTrue(undoFailed);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     // Make sure the workflow status didn't get modified during the failed Undo
@@ -5065,14 +5065,12 @@ public class MetaEditingServiceRestNormalUseTest
     // Try to redo the approve action (this will fail, since the concept's
     // WorkflowStatus is different than it was
     //
-    boolean redoFailed = false;
     try {
       v = metaEditingService.undoAction(project.getId(), ma.getId(),
           "activityId", false, authToken);
+      fail("Redo should fail: concept workflow status has changed since action was performed");                  
     } catch (Exception e) {
-      redoFailed = true;
     }
-    assertTrue(redoFailed);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     // Make sure the workflow status didn't get modified during the failed Undo

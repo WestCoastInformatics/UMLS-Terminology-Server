@@ -54,9 +54,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   /** The concept2. */
   private Concept concept2;
 
-  /** The user name. */
-  private String userName;
-
   /** The last modified. */
   private Long lastModified;
 
@@ -135,21 +132,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   @Override
   public Concept getConcept2() {
     return concept2;
-  }
-
-  /* see superclass */
-  @Override
-  public String getUserName() {
-    return userName;
-  }
-
-  /**
-   * Sets the user name.
-   *
-   * @param userName the user name
-   */
-  public void setUserName(String userName) {
-    this.userName = userName;
   }
 
   /* see superclass */
@@ -234,7 +216,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     throws Exception {
 
     setProject(project);
-    this.userName = userName;
+    setUserName(userName);
     this.lastModified = lastModified;
 
     // Extract concept ids and sort them

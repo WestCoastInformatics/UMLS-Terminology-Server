@@ -453,7 +453,7 @@ public class ProjectClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public MolecularActionList findMolecularActions(String terminologyId,
+  public MolecularActionList findMolecularActions(Long componentId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
 
@@ -467,7 +467,7 @@ public class ProjectClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/project/actions/molecular?terminology=" + terminology + "&version="
         + version
-        + (terminologyId == null ? "" : "&terminologyId=" + terminologyId)
+        + (componentId == null ? "" : "&componentId=" + componentId)
         + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility

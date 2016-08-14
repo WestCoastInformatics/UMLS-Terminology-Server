@@ -199,7 +199,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
       pfs.setSortField("lastModified");
       pfs.setAscending(false);
       MolecularActionList list = projectService.findMolecularActions(
-          concept.getTerminologyId(), umlsTerminology, umlsVersion, null, pfs);
+          concept.getId(), umlsTerminology, umlsVersion, null, pfs);
       assertTrue(list.size() > 0);
       MolecularAction ma = list.getObjects().get(0);
       assertNotNull(ma);
