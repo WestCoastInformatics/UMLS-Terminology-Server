@@ -1,0 +1,57 @@
+
+<!-- C1 -->
+<div class="col-md-6 col-xs-12">
+  <h4 ng-show="selected.bin && lists.records.totalCount>0">Bin:
+    {{selected.bin.name}}&nbsp;({{lists.records.totalCount}})</h4>
+
+  <div pager paging="paging" count="lists.records.totalCount"
+    callback="paging.callback"></div>
+
+  <table
+    ng-show="lists.records.totalCount > 0 || paging.filter || paging.typeFilter"
+    class="table">
+    <thead class="pointer">
+      <tr>
+        <th class="col-md-1 col-xs-1">Cluster</th>
+        <th uib-tooltip="Status filter" class="col-md-1 col-xs-1"><select
+          style="width: 40px;" ng-model="paging.typeFilter"
+          ng-options="item for item in recordTypes"
+          ng-change="paging.getPagedList()">
+            <option value="">All</option>
+        </select></th>
+        <th class="col-md-3 col-xs-3">Concept Id</th>
+        <th class="col-md-6 col-xs-6">Concept Name</th>
+      </tr>
+    </thead>
+    <tbody ng-repeat="record in lists.records">
+      <tr>
+        <td rowspan="3">{{record.clusterId}}</td>
+        <td rowspan="3">
+          <button class="btn btn-xs btn-danger"
+            ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
+            uib-tooltip="Needs review">N</button>
+          <button class="btn btn-xs btn-success"
+            ng-show="record.workflowStatus == 'READY_FOR_PUBLICATION'"
+            uib-tooltip="Ready for publication">R</button>
+        </td>
+      </tr>
+      <tr ng-click="selectConcept(concept);"
+        ng-class="{selected : concept.id == selected.concept.id}"
+        class={{concept.workflowStatus}} ng-repeat="concept in record.concepts">
+        <td>{{concept.id}}</td>
+        <td>{{concept.name}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <span
+    ng-show="!paging.filter && !paging.typeFilter && selected.worklist.records.totalCount == 0"
+    class="alert alert-warning"> No tracking records</span>
+  <span
+    ng-show="(paging.filter || paging.typeFilter) && selected.worklist.records.totalCount == 0"
+    class="alert alert-warning"> No matching tracking records found </span>
+</div>
+
+<!-- C2 -->
+<div class="col-md-6 col-xs-12">
+  <div report-pre selected="selected"></div>
+</div>

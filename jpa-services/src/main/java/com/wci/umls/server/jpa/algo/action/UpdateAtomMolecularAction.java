@@ -93,9 +93,11 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
         final Object origValue = method.invoke(oldAtom);
         final Object newValue = method.invoke(getAtom());
         if (!origValue.toString().equals(newValue.toString())) {
-          final String fieldName = method.toString().substring(3, 4).toLowerCase()+ method.toString().substring(4);
-          throw new Exception("Error: change deteced in identity-field " + fieldName + " for atom "
-              + atom.getName());
+          final String fieldName =
+              method.toString().substring(3, 4).toLowerCase()
+                  + method.toString().substring(4);
+          throw new Exception("Error: change deteced in identity-field "
+              + fieldName + " for atom " + atom.getName());
         }
       }
     }
@@ -130,7 +132,7 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(), getName() + " " + atom.getName());
+        getActivityId(), getWorkId(), getName() + " " + atom);
 
   }
 

@@ -15,6 +15,10 @@ tsApp.service('workflowService', [
       $rootScope.$broadcast('termServer::worklistChanged', worklist);
     };
 
+    this.getRecordTypes = function() {
+      return [ 'N', 'R' ];
+    }
+
     // get all workflow paths
     this.getWorkflowPaths = function() {
       var deferred = $q.defer();
@@ -24,6 +28,7 @@ tsApp.service('workflowService', [
       $http.get(workflowUrl + '/paths').then(
       // success
       function(response) {
+        console.debug('  paths = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -61,7 +66,7 @@ tsApp.service('workflowService', [
 
     // update workflow config
     this.updateWorkflowConfig = function(projectId, workflowConfig) {
-      console.debug();
+      console.debug('updateWorkflowConfig', projectId, workflowConfig);
       var deferred = $q.defer();
 
       // Update workflow config
@@ -69,7 +74,7 @@ tsApp.service('workflowService', [
       $http.post(workflowUrl + '/config/update?projectId=' + projectId, workflowConfig).then(
       // success
       function(response) {
-        console.debug('  workflow config = ', response.data);
+        console.debug('  successful update workflow config');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -84,7 +89,7 @@ tsApp.service('workflowService', [
 
     // update worklist
     this.updateWorklist = function(projectId, worklist) {
-      console.debug();
+      console.debug('updateWorklist', projectId, worklist);
       var deferred = $q.defer();
 
       // Update worklist
@@ -92,7 +97,7 @@ tsApp.service('workflowService', [
       $http.post(workflowUrl + '/worklist/update?projectId=' + projectId, worklist).then(
       // success
       function(response) {
-        console.debug('  worklist = ', response.data);
+        console.debug('  successful update worklist');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -106,16 +111,16 @@ tsApp.service('workflowService', [
     };
 
     // remove workflow config
-    this.removeWorkflowConfig = function(workflowConfig) {
-      console.debug();
+    this.removeWorkflowConfig = function(projectId, configId) {
+      console.debug('removeWorkflowConfig', projectId, configId);
       var deferred = $q.defer();
 
       // Add project
       gpService.increment();
-      $http['delete'](workflowUrl + '/config/' + workflowConfig.id + "/remove").then(
+      $http['delete'](workflowUrl + '/config/' + configId + "/remove?projectId=" + projectId).then(
       // success
       function(response) {
-        console.debug('  workflow config = ', response.data);
+        console.debug('  successful remove workflow config');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -156,7 +161,7 @@ tsApp.service('workflowService', [
 
     // update workflow binDefinition
     this.updateWorkflowBinDefinition = function(projectId, workflowBinDefinition) {
-      console.debug();
+      console.debug('updateWorkflowBinDefinition', projectId, workflowBinDefinition);
       var deferred = $q.defer();
 
       // Update workflow binDefinition
@@ -179,16 +184,16 @@ tsApp.service('workflowService', [
     };
 
     // remove workflow bin Definition
-    this.removeWorkflowBinDefinition = function(workflowBinDefinition) {
-      console.debug();
+    this.removeWorkflowBinDefinition = function(projectId, definitionId) {
+      console.debug('removeWorkflowBinDefinition', projectId, definitionId);
       var deferred = $q.defer();
 
       // Add project
       gpService.increment();
-      $http['delete'](workflowUrl + '/definition/' + workflowBinDefinition.id + "/remove").then(
+      $http['delete'](workflowUrl + '/definition/' + definitionId + "/remove").then(
       // success
       function(response) {
-        console.debug('  workflow bin Definition = ', response.data);
+        console.debug('  successful remove workflow bin definition');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -202,16 +207,16 @@ tsApp.service('workflowService', [
     };
 
     // clear workflow bins
-    this.clearBins = function(projectId, workflowBinType) {
-      console.debug();
+    this.clearBins = function(projectId, type) {
+      console.debug('clearBins', projectId, type);
       var deferred = $q.defer();
 
       // clear workflow bins
       gpService.increment();
-      $http.post(workflowUrl + '/clear?projectId=' + projectId, workflowBinType).then(
+      $http.post(workflowUrl + '/clear?projectId=' + projectId, type).then(
       // success
       function(response) {
-        console.debug('  clear workflow bins = ', response.data);
+        console.debug('  successfully cleared workflow bins');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -225,16 +230,16 @@ tsApp.service('workflowService', [
     };
 
     // regenerate workflow bins
-    this.regenerateBins = function(projectId, workflowBinType) {
-      console.debug();
+    this.regenerateBins = function(projectId, type) {
+      console.debug('regenerateBins', projectId, type);
       var deferred = $q.defer();
 
       // regenerate workflow bins
       gpService.increment();
-      $http.post(workflowUrl + '/bins?projectId=' + projectId, workflowBinType).then(
+      $http.post(workflowUrl + '/bins?projectId=' + projectId, type).then(
       // success
       function(response) {
-        console.debug('  regenerate workflow bins = ', response.data);
+        console.debug('  successfully regenerated bins');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -249,8 +254,8 @@ tsApp.service('workflowService', [
 
     // Find assigned work
     this.findAssignedWork = function(projectId, userName, pfs) {
-
       console.debug('findAssignedWork', projectId, userName, pfs);
+
       // Setup deferred
       var deferred = $q.defer();
 
@@ -261,7 +266,7 @@ tsApp.service('workflowService', [
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  assignedWork = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -277,8 +282,8 @@ tsApp.service('workflowService', [
 
     // Find assigned worklists
     this.findAssignedWorklists = function(projectId, userName, role, pfs) {
-
       console.debug('findAssignedWorklists', projectId, userName, role, pfs);
+
       // Setup deferred
       var deferred = $q.defer();
 
@@ -289,7 +294,7 @@ tsApp.service('workflowService', [
           + '&role=' + role, utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  assignedWorklists = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -305,8 +310,8 @@ tsApp.service('workflowService', [
 
     // Find available work
     this.findAvailableWork = function(projectId, userName, pfs) {
-
       console.debug('findAvailableWork', projectId, userName, pfs);
+
       // Setup deferred
       var deferred = $q.defer();
 
@@ -317,7 +322,7 @@ tsApp.service('workflowService', [
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  availableWork = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -333,8 +338,8 @@ tsApp.service('workflowService', [
 
     // Find available worklists
     this.findAvailableWorklists = function(projectId, userName, role, pfs) {
-
       console.debug('findAvailableWorklists', projectId, userName, role, pfs);
+
       // Setup deferred
       var deferred = $q.defer();
 
@@ -345,7 +350,7 @@ tsApp.service('workflowService', [
           + '&role=' + role, utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  availableWorklists = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -361,8 +366,8 @@ tsApp.service('workflowService', [
 
     // Finds checklists
     this.findChecklists = function(projectId, query, pfs) {
-
       console.debug('findChecklists', projectId, query, pfs);
+
       // Setup deferred
       var deferred = $q.defer();
 
@@ -371,7 +376,7 @@ tsApp.service('workflowService', [
       $http.post(workflowUrl + '/checklist?projectId=' + projectId, utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  checklists = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -387,8 +392,8 @@ tsApp.service('workflowService', [
 
     // Finds worklists
     this.findWorklists = function(projectId, query, pfs) {
-
       console.debug('findWorklists', projectId, query, pfs);
+
       // Setup deferred
       var deferred = $q.defer();
 
@@ -397,7 +402,7 @@ tsApp.service('workflowService', [
       $http.post(workflowUrl + '/worklist?projectId=' + projectId, utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  worklists = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -413,8 +418,8 @@ tsApp.service('workflowService', [
 
     // Finds generated concept reports
     this.findGeneratedConceptReports = function(projectId, query, pfs) {
-
       console.debug('findGeneratedConceptReports', projectId, query, pfs);
+
       // Setup deferred
       var deferred = $q.defer();
 
@@ -424,7 +429,7 @@ tsApp.service('workflowService', [
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  reports = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -435,41 +440,22 @@ tsApp.service('workflowService', [
         deferred.reject(response.data);
       });
 
-      return deferred.promise;
-    };
-
-    // get tracking records for concept
-    this.getTrackingRecordsForConcept = function(conceptId) {
-      var deferred = $q.defer();
-
-      // Get projects
-      gpService.increment();
-      $http.get(workflowUrl + '/records?conceptId=' + conceptId).then(
-      // success
-      function(response) {
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
       return deferred.promise;
     };
 
     // get workflow bin definition
-    this.getWorkflowBinDefinition = function(projectId, definitionName, binType) {
+    this.getWorkflowBinDefinition = function(projectId, definitionName, type) {
+      console.debug('getWorkflowBinDefinition', projectId, definitionName, type)
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
       $http.get(
         workflowUrl + '/definition?projectId=' + projectId + '&name=' + definitionName + '&type='
-          + binType).then(
+          + type).then(
       // success
       function(response) {
+        console.debug('  definition = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -483,6 +469,7 @@ tsApp.service('workflowService', [
     };
     // get all workflow bins
     this.getWorkflowBins = function(projectId, type) {
+      console.debug('getWorkflowBins', projectId, type);
       var deferred = $q.defer();
 
       // Get projects
@@ -490,6 +477,7 @@ tsApp.service('workflowService', [
       $http.get(workflowUrl + '/bin/all?projectId=' + projectId + '&type=' + type).then(
       // success
       function(response) {
+        console.debug('  bins = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -504,6 +492,7 @@ tsApp.service('workflowService', [
 
     // get worklist
     this.getWorklist = function(projectId, worklistId) {
+      console.debug('getWorklist', projectId, worklistId);
       var deferred = $q.defer();
 
       // Get projects
@@ -511,6 +500,7 @@ tsApp.service('workflowService', [
       $http.get(workflowUrl + '/worklist/' + worklistId + '?projectId=' + projectId).then(
       // success
       function(response) {
+        console.debug('  worklist = ', worklist);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -525,11 +515,44 @@ tsApp.service('workflowService', [
 
     // get checklist
     this.getChecklist = function(projectId, checklistId) {
+      console.debug('getChecklist', projectId, checklistId);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
       $http.get(workflowUrl + '/checklist/' + checklistId + '?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  checklist = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // get log for project and refset/translation
+    this.getLog = function(projectId, checklistId, worklistId, lines) {
+      console.debug('getLog', projectId, checklistId, worklistId, lines);
+      var deferred = $q.defer();
+      var llines = lines ? lines : 1000;
+      // Assign user to project
+      gpService.increment();
+      $http.get(
+        workflowUrl + '/log?projectId=' + projectId
+          + (checklistId ? '&checklistId=' + checklistId : '')
+          + (worklistId ? '&worklistId=' + worklistId : '') + '&lines=' + llines, {
+          transformResponse : [ function(response) {
+            // Data response is plain text at this point
+            // So just return it, or do your parsing here
+            return response;
+          } ]
+        }).then(
       // success
       function(response) {
         gpService.decrement();
@@ -546,6 +569,7 @@ tsApp.service('workflowService', [
 
     // get all workflow configs
     this.getWorkflowConfigs = function(projectId) {
+      console.debug('getWorkflowConfigs', projectId);
       var deferred = $q.defer();
 
       // Get projects
@@ -553,6 +577,7 @@ tsApp.service('workflowService', [
       $http.get(workflowUrl + '/config/all?projectId=' + projectId).then(
       // success
       function(response) {
+        console.debug('  configs = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -567,6 +592,7 @@ tsApp.service('workflowService', [
 
     // perform workflow action
     this.performWorkflowAction = function(projectId, worklistId, userName, role, action) {
+      console.debug('performWorkflowAction', projectId, worklistId, userName, role, action);
       var deferred = $q.defer();
 
       // Get projects
@@ -576,7 +602,7 @@ tsApp.service('workflowService', [
           + '&userName=' + userName + '&userRole=' + role + '&action=' + action).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  action success', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -592,9 +618,9 @@ tsApp.service('workflowService', [
     // Create a checklist
     this.createChecklist = function(projectId, workflowBinId, clusterType, name, description,
       randomize, excludeOnWorklist, query, pfs) {
-
       console.debug('createChecklist', projectId, workflowBinId, clusterType, name, description,
         randomize, excludeOnWorklist, query, pfs);
+
       // Setup deferred
       var deferred = $q.defer();
 
@@ -608,7 +634,7 @@ tsApp.service('workflowService', [
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  checklist = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -624,8 +650,8 @@ tsApp.service('workflowService', [
 
     // Create a worklist
     this.createWorklist = function(projectId, workflowBinId, clusterType, pfs) {
-
       console.debug('createWorklist', projectId, workflowBinId, clusterType, pfs);
+
       // Setup deferred
       var deferred = $q.defer();
 
@@ -637,7 +663,7 @@ tsApp.service('workflowService', [
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
+        console.debug('  worklist = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -653,7 +679,8 @@ tsApp.service('workflowService', [
 
     // remove worklist
     this.removeWorklist = function(projectId, worklistId) {
-      console.debug();
+      console.debug('removeWorklist', projectId, worklistId);
+
       var deferred = $q.defer();
 
       // Add project
@@ -662,7 +689,7 @@ tsApp.service('workflowService', [
         .then(
         // success
         function(response) {
-          console.debug('  worklist = ', response.data);
+          console.debug('  successful remove worklist');
           gpService.decrement();
           deferred.resolve(response.data);
         },
@@ -677,7 +704,7 @@ tsApp.service('workflowService', [
 
     // remove checklist
     this.removeChecklist = function(projectId, checklistId) {
-      console.debug();
+      console.debug('removechecklist', projectId, checklistId);
       var deferred = $q.defer();
 
       // Add project
@@ -686,7 +713,7 @@ tsApp.service('workflowService', [
         .then(
         // success
         function(response) {
-          console.debug('  checklist = ', response.data);
+          console.debug('  successful remove checklist');
           gpService.decrement();
           deferred.resolve(response.data);
         },
@@ -701,7 +728,7 @@ tsApp.service('workflowService', [
 
     // find tracking records for worklist
     this.findTrackingRecordsForWorklist = function(projectId, worklistId, pfs) {
-      console.debug('findTrackingRecordsForWorklist');
+      console.debug('findTrackingRecordsForWorklist', projectId, worklistId, pfs);
       var deferred = $q.defer();
 
       // find tracking records
@@ -710,7 +737,7 @@ tsApp.service('workflowService', [
         .then(
         // success
         function(response) {
-          console.debug('  trackingRecords = ', response.data);
+          console.debug('  records = ', response.data);
           gpService.decrement();
           deferred.resolve(response.data);
         },
@@ -725,7 +752,7 @@ tsApp.service('workflowService', [
 
     // find tracking records for checklist
     this.findTrackingRecordsForChecklist = function(projectId, checklistId, pfs) {
-      console.debug('findTrackingRecordsForChecklist');
+      console.debug('findTrackingRecordsForChecklist', projectId, checklistId, pfs);
       var deferred = $q.defer();
 
       // find tracking records
@@ -735,7 +762,7 @@ tsApp.service('workflowService', [
         .then(
         // success
         function(response) {
-          console.debug('  trackingRecords = ', response.data);
+          console.debug('  records = ', response.data);
           gpService.decrement();
           deferred.resolve(response.data);
         },
@@ -750,7 +777,8 @@ tsApp.service('workflowService', [
 
     // find tracking records for workflow bin
     this.findTrackingRecordsForWorkflowBin = function(projectId, binId, pfs) {
-      console.debug('findTrackingRecordsForWorkflowBin');
+      console.debug('findTrackingRecordsForWorkflowBin', projectId, binId, pfs);
+
       var deferred = $q.defer();
 
       // find tracking records
@@ -758,7 +786,7 @@ tsApp.service('workflowService', [
       $http.post(workflowUrl + '/bin/' + binId + '/records?projectId=' + projectId, pfs).then(
       // success
       function(response) {
-        console.debug('  trackingRecords = ', response.data);
+        console.debug('  records = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -806,6 +834,7 @@ tsApp.service('workflowService', [
         .then(
         // success
         function(response) {
+          console.debug('  successful remove note');
           gpService.decrement();
           deferred.resolve(response.data);
         },
@@ -853,6 +882,7 @@ tsApp.service('workflowService', [
         .then(
         // success
         function(response) {
+          console.debug('  successful remove note');
           gpService.decrement();
           deferred.resolve(response.data);
         },
@@ -877,6 +907,7 @@ tsApp.service('workflowService', [
         .then(
         // success
         function(response) {
+          console.debug('  successful regenerate bins');
           gpService.decrement();
           deferred.resolve(response.data);
         },
@@ -900,6 +931,7 @@ tsApp.service('workflowService', [
         .then(
         // success
         function(response) {
+          console.debug('  successful clear bins');
           gpService.decrement();
           deferred.resolve(response.data);
         },
@@ -914,6 +946,7 @@ tsApp.service('workflowService', [
 
     // test query
     this.testQuery = function(projectId, query, queryType) {
+      console.debug('testQuery', projectId, query, queryType);
       var deferred = $q.defer();
 
       // Get projects
@@ -923,6 +956,7 @@ tsApp.service('workflowService', [
           + utilService.prepQuery(query) + '&queryType=' + queryType).then(
       // success
       function(response) {
+        console.debug('  successful test query');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -934,5 +968,7 @@ tsApp.service('workflowService', [
       });
       return deferred.promise;
     };
+
     // end
+
   } ]);

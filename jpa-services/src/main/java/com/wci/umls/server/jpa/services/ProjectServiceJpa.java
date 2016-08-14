@@ -181,97 +181,26 @@ public class ProjectServiceJpa extends RootServiceJpa
 
   /* see superclass */
   @Override
-  public Project addProject(Project project) {
+  public Project addProject(Project project) throws Exception {
     Logger.getLogger(getClass())
         .debug("Project Service - add project - " + project);
-    try {
-      // Set last modified date
-      project.setLastModified(new Date());
-
-      // add the project
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.persist(project);
-        tx.commit();
-      } else {
-        manager.persist(project);
-      }
-      return project;
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    return addHasLastModified(project);
   }
 
   /* see superclass */
   @Override
-  public void updateProject(Project project) {
+  public void updateProject(Project project) throws Exception {
     Logger.getLogger(getClass())
         .debug("Project Service - update project - " + project);
-
-    try {
-      // Set modification date
-      project.setLastModified(new Date());
-
-      // update
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.merge(project);
-        tx.commit();
-      } else {
-        manager.merge(project);
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    updateHasLastModified(project);
   }
 
   /* see superclass */
   @Override
-  public void removeProject(Long id) {
+  public void removeProject(Long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Project Service - remove project " + id);
-    try {
-      // Get transaction and object
-      tx = manager.getTransaction();
-      final Project project = manager.find(ProjectJpa.class, id);
-
-      // if project doesn't exist, return
-      if (project == null)
-        return;
-
-      // Set modification date
-      project.setLastModified(new Date());
-
-      // Remove
-      if (getTransactionPerOperation()) {
-        tx.begin();
-        if (manager.contains(project)) {
-          manager.remove(project);
-        } else {
-          manager.remove(manager.merge(project));
-        }
-        tx.commit();
-      } else {
-        if (manager.contains(project)) {
-          manager.remove(project);
-        } else {
-          manager.remove(manager.merge(project));
-        }
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    removeHasLastModified(id, ProjectJpa.class);
   }
 
   /**

@@ -64,7 +64,7 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
       getPagedList();
     });
   };
-  
+
   // Render date
   $scope.toDate = function(x) {
     return utilService.toDate(x);

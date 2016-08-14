@@ -32,6 +32,7 @@ import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
+import com.wci.umls.server.jpa.helpers.MaxStateHistoryBridge;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 
@@ -174,6 +175,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /* see superclass */
   @Override
+  @Field(name = "workflowState", index = Index.YES, analyze = Analyze.NO, store = Store.NO, bridge = @FieldBridge(impl = MaxStateHistoryBridge.class))
   public Map<String, Date> getWorkflowStateHistory() {
     if (workflowStateHistory == null) {
       workflowStateHistory = new HashMap<>();

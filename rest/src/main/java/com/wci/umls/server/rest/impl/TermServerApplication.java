@@ -34,7 +34,7 @@ public class TermServerApplication extends ResourceConfig {
   public final static String API_VERSION = "1.0.0";
 
   /** The timer. */
-  Timer timer;
+  public static Timer timer;
 
   /**
    * Instantiates an empty {@link TermServerApplication}.
@@ -108,7 +108,7 @@ public class TermServerApplication extends ResourceConfig {
   }
 
   /**
-   * Initialization task. TODO: shut this task down when application is shutdown
+   * Initialization task.
    */
   class InitializationTask extends TimerTask {
 

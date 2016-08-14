@@ -69,7 +69,6 @@ tsApp.service('securityService', [
         expires : expireDate
       });
       var cookie = $cookies.get('WCI ' + appConfig['deploy.title']);
-      // console.debug('Set cookie:', cookie);
       deferred.resolve();
       return deferred.promise;
     };
@@ -83,7 +82,6 @@ tsApp.service('securityService', [
       } else {
 
         var cookie = $cookies.get('WCI ' + appConfig['deploy.title']);
-        // console.debug('License cookie', cookie);
         if (!cookie) {
           deferred.reject();
         } else {
@@ -202,7 +200,7 @@ tsApp.service('securityService', [
       default:
         return true;
       }
-      console.debug('fail');
+      console.trace();
       return false;
     };
 
@@ -392,12 +390,12 @@ tsApp.service('securityService', [
     };
 
     // removes user
-    this.removeUser = function(user) {
+    this.removeUser = function(id) {
       var deferred = $q.defer();
 
       // Add user
       gpService.increment();
-      $http['delete'](securityUrl + '/user/remove/' + user.id).then(
+      $http['delete'](securityUrl + '/user/remove/' + id).then(
       // success
       function(response) {
         gpService.decrement();
@@ -536,7 +534,6 @@ tsApp.service('securityService', [
 
     // Removes a user favorite
     this.removeUserFavorite = function(type, terminology, version, terminologyId, name) {
-
       console.debug('remove user favorite', type, terminology, version, terminologyId, name);
 
       var deferred = $q.defer();

@@ -110,11 +110,10 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
-    
     // Remove the relationship from the concepts
     getConcept().getRelationships().remove(relationship);
     getConcept2().getRelationships()
-    .remove(findInverseRelationship(relationship));
+        .remove(findInverseRelationship(relationship));
 
     // Update Concepts
     updateConcept(getConcept());
@@ -131,12 +130,16 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
     }
 
     // Update Concepts
-    updateConcept(getConcept()); 
+    updateConcept(getConcept());
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(),
-        getName() + " " + relationship);
+        getActivityId(), getWorkId(), getName() + " to concept "
+            + getConcept2().getId() + " " + relationship);
+
+    addLogEntry(getUserName(), getProject().getId(), getConcept2().getId(),
+        getActivityId(), getWorkId(), getName() + " from concept "
+            + getConcept().getId() + " " + relationship);
 
   }
 

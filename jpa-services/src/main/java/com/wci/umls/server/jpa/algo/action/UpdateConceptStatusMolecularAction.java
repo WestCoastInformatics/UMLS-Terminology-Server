@@ -93,8 +93,8 @@ public class UpdateConceptStatusMolecularAction
     conceptPreUpdates = new ConceptJpa(getConcept(), false);
 
     // Make a copy of the concept
-    Concept updateConcept = new ConceptJpa(getConcept(),false);
-    
+    Concept updateConcept = new ConceptJpa(getConcept(), false);
+
     //
     // Change status of the concept
     //
@@ -110,8 +110,8 @@ public class UpdateConceptStatusMolecularAction
     conceptPostUpdates = new ConceptJpa(getConcept(), false);
 
     // log the REST calls
-//    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-//        getActivityId(), getWorkId(), getName() + " " + getConcept().getId());
+    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getActivityId(), getWorkId(), getName() + " " + getConcept());
 
   }
 

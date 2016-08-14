@@ -4,53 +4,55 @@
   <div class="col-md-12 col-xs-12">
     <h5>
       <span>
-        Project: <select ng-model="project" ng-show="projects.length > 1"
-          ng-options="item.name for item in projects"
-          ng-change="setProject(project);"></select>
-        <span ng-show="projects.length == 1">{{project.name}}</span>
+        Project: <select ng-model="selected.project"
+          ng-show="lists.projects.length > 1"
+          ng-options="item.name for item in lists.projects"
+          ng-change="setProject(selected.project);"></select>
+        <span ng-show="lists.projects.length == 1">{{selected.project.name}}</span>
       </span>
       <span>
-        &nbsp;&nbsp;Role: <select ng-model="projectRole"
-          ng-show="roleOptions.length > 1"
-          ng-options="item for item in roleOptions"></select>
-        <span ng-show="roleOptions.length == 1">{{projectRole}}</span>
+        &nbsp;&nbsp;Role: <select ng-model="selected.projectRole"
+          ng-show="lists.projectRoles.length > 1"
+          ng-options="projectRole for projectRole in lists.projectRoles"></select>
+        <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
     </h5>
   </div>
   <div class="col-md-12 col-xs-12">
     <!-- Accordion -->
-    <uib-accordion> <!-- A1 - Bins --> <uib-accordion-group>
-    <uib-accordion-heading>
+    <uib-accordion> <!-- A1 - Bins --> <uib-accordion-group
+      is-open="true"> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Bins">Bins</span>
     </h5>
     </uib-accordion-heading>
+
     <div class="row m10">
       <div class="col-md-12 col-xs-12">
         <h5>
-          <select ng-model="config" ng-show="configs.length > 1"
-            ng-options="item.type for item in configs"
+          <select ng-model="selected.config" ng-show="lists.configs.length > 1"
+            ng-options="config.type for config in lists.configs"
             ng-change="setConfig(config);"></select>
-          <span ng-show="configs.length == 1">{{config.type}}</span>
-          <i title="Regenerate bins"
+          <span ng-show="lists.configs.length == 1">{{config.type}}</span>
+          <i title="Regenerate bins" style="margin-left: 20px"
             ng-click="regenerateBins(); $event.stopPropagation()"
             class="noul glyphicon glyphicon-repeat"></i>
-          <span ng-show="projectRole == 'ADMINISTRATOR'" style="float: right;">
+          <span ng-show="selected.projectRole == 'ADMINISTRATOR'"
+            style="float: right;">
             <button ng-click="openAddBinModal()" title="Add new bin"
               class="btn btn-xs btn-primary">Add Bin</button>
           </span>
         </h5>
       </div>
       <div class="col-md-12 col-xs-12">
-        <span ng-show="bins.length == 0" style="display: block;"
-          class="alert alert-warning">No Workflow Bins.</span>
+        <!-- NO paging control -->
         <table class="table table-hover" style="margin-top: 10px;"
-          ng-show="bins.length > 0">
-          <thead class="table-select-row">
+          ng-show="lists.bins.length > 0">
+          <thead class="pointer">
             <tr>
               <th class="col-md-1 col-xs-1">Rank</th>
-              <th class="col-md-3 col-xs-3">Name</th>
-              <th class="col-md-3 col-xs-3">Dates</th>
+              <th class="col-md-2 col-xs-2">Name</th>
+              <th class="col-md-4 col-xs-4">Dates</th>
               <th class="col-md-1 col-xs-1">Cluster</th>
               <th class="col-md-1 col-xs-1">All</th>
               <th class="col-md-1 col-xs-1">Assigned</th>
@@ -58,7 +60,7 @@
               <th class="col-md-1 col-xs-1">Actions</th>
             </tr>
           </thead>
-          <tbody ng-repeat="bin in bins">
+          <tbody ng-repeat="bin in lists.bins">
             <tr ng-click="selectBin(bin, 'all');"
               ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
               ng-class="{selected: bin.id == selected.bin.id}">
@@ -67,7 +69,7 @@
                 <i uib-tooltip="{{bin.description}}"
                   class="noul glyphicon glyphicon-question-sign"></i>
                 &nbsp;{{bin.name}}</br>
-                <span ng-show="projectRole == 'ADMINISTRATOR'">
+                <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
                   <input type="checkbox" title="Enable/Disable Bin"
                     ng-model="bin.enabled" ng-change="toggleEnable(bin)"></input>
                   <i ng-click="openEditBinModal(bin); $event.stopPropagation()"
@@ -94,13 +96,13 @@
               ng-class="{selected: (stats.clusterType == selected.clusterType && bin.id == selected.bin.id) ||
                                       (selected.clusterType == 'all' && bin.id == selected.bin.id)}">
               <td>{{stats.clusterType}}</td>
-              <td>{{stats.stats.all }}</td>
+              <td>{{stats.stats.all}}</td>
               <td>{{stats.stats.assigned}}</td>
               <td>{{stats.stats.unassigned}}</td>
               <td>
                 <i
                   ng-show="stats.clusterType == 'all' && bin.stats.length > 1 && bin.enabled"
-                  ng-click="setConfig(config); $event.stopPropagation()"
+                  ng-click="setConfig(selected.config); $event.stopPropagation()"
                   title="Refresh counts"
                   class="noul glyphicon glyphicon-refresh"></i>
                 <i ng-show="stats.clusterType != 'all' && bin.enabled"
@@ -114,100 +116,31 @@
             </tr>
           </tbody>
         </table>
+        <span ng-show="lists.bins.length == 0" style="display: block;"
+          class="alert alert-warning">No workflow Bins</span>
       </div>
-      <hr ng-show="selected.bin"
-        style="width: 100%; color: lightgrey; height: 1px; background-color: lightgrey;" />
-      <div class="col-md-6 col-xs-12">
-        <h4 ng-show="selected.bin && selected.bin.records.totalCount>0">
-          {{selected.bin.name}}&nbsp;({{selected.bin.records.totalCount}})</h4>
-        <span style="display: block;">
-          <uib-pagination items-per-page="pageSize" max-size="5"
-            boundary-links="true" class="pagination-xs" previous-text="&lsaquo;"
-            next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-            ng-show="selected.bin.records.totalCount > pageSize"
-            total-items="selected.bin.records.totalCount"
-            ng-model="paging['record'].page"
-            ng-change="getRecords(selected.bin)"></uib-pagination>
-          <input class="input-filter" placeholder="Search"
-            ng-show="selected.bin.records.totalCount > pageSize || paging['record'].filter"
-            type="text" ng-model="paging['record'].filter"
-            ng-model-options="{ debounce: 300 }"
-            ng-change="getRecords(selected.bin)">
-          <button class="btn btn-xs btn-warning"
-            ng-show="paging['record'].filter"
-            ng-click="paging['record'].filter = ''; getRecords(selected.bin)"
-            title="Click to clear filter text">Clear</button>
-        </span>
-        <table
-          ng-show="selected.bin.records.totalCount > 0 || paging['record'].filter || paging['record'].typeFilter"
-          class="table">
-          <thead class="table-select-row">
-            <tr>
-              <th class="col-md-1 col-xs-1">Cluster</th>
-              <th class="col-md-1 col-xs-1"><select
-                title="Filter by record status" style="width: 40px;"
-                ng-model="paging['record'].typeFilter"
-                ng-options="item for item in recordTypes"
-                ng-change="getRecords(selected.bin)">
-                  <option value="">All</option>
-              </select></th>
-              <th class="col-md-2 col-xs-2">Concept Id</th>
-              <th class="col-md-5 col-xs-5">Concept Name</th>
-              <th class="col-md-2 col-xs-2">Last Modified</th>
-            </tr>
-          </thead>
-          <tbody ng-repeat="record in selected.bin.records">
-            <tr>
-              <td rowspan="3">{{record.clusterId}}</td>
-              <td rowspan="3">
-                <button class="btn btn-xs btn-danger"
-                  ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
-                  uib-tooltip="Needs review">N</button>
-                <button class="btn btn-xs btn-success"
-                  ng-show="record.workflowStatus == 'READY_FOR_PUBLICATION'"
-                  uib-tooltip="Ready for publication">R</button>
-              </td>
-            </tr>
-            <tr ng-click="selectConcept(concept);"
-              ng-class="{selected : concept.id == selected.concept.id}"
-              ng-repeat="concept in record.concepts"
-              ng-style="{'color': concept.workflowStatus == 'NEEDS_REVIEW' ? 'red' : 'black'}">
-              <td>{{concept.id}}</td>
-              <td>{{concept.name}}</td>
-              <td>
-                {{toDate(record.lastModified)}}<br />{{record.lastModifiedBy}}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <span
-          ng-show="(paging['record'].filter || paging['record'].typeFilter) && selected.worklist.records.totalCount == 0"
-          class="alert alert-warning">
-          <br />No records matching filter
-        </span>
-      </div>
-      <div class="col-md-6 col-xs-12">
-        <h4 ng-show="selected.concept">Concept Report</h4>
-        <h4>
-          </br> </br>
-        </h4>
-        <pre ng-show="selected.concept">
-          {{selected.concept.report}}
-        </pre>
-      </div>
+
+      <hr ng-show="selected.bin">
+      <!-- Bin Records Table -->
+      <div ng-show="selected.bin" records-table selected="selected"
+        lists="lists" user="user" paging="paging"></div>
+
     </div>
     </uib-accordion-group> <!-- A2 - Checklists --> <uib-accordion-group> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Checklists">Checklists</span>
     </h5>
     </uib-accordion-heading>
-    <div worklist-table value="Checklist" project="project"></div>
+    <div worklists-table type="Checklist" selected="selected" lists="lists"
+      user="user"></div>
     </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Worklists">Worklists</span>
     </h5>
     </uib-accordion-heading>
-    <div worklist-table value="Worklist" project="project"></div>
-    </uib-accordion-group> </uib-accordion>
+    <div worklists-table type="Worklist" selected="selected" lists="lists"
+      user="user"></div>
+    </uib-accordion-group></uib-accordion>
+
   </div>
 </div>

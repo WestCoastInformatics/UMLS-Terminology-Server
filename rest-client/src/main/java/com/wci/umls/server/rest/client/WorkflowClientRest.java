@@ -986,6 +986,35 @@ public class WorkflowClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public String getLog(Long projectId, Long checklistId, Long worklistId,
+    int lines, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Project Client - get log " + projectId
+        + ", " + checklistId + ", " + worklistId);
+
+    validateNotEmpty(projectId, "projectId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/log?" + "projectId=" + projectId + "&lines=" + lines
+        + (checklistId == null ? "" : "&checklistId" + checklistId)
+        + (worklistId == null ? "" : "&worklistId" + worklistId));
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return resultString;
+
+  }
+
+  /* see superclass */
+  @Override
   public void clearBin(Long projectId, Long workflowBinId, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Client - clear bin "

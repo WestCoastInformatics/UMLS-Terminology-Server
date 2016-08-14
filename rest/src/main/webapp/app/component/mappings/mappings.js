@@ -1,4 +1,4 @@
-// Content controller
+// Mappings
 tsApp.directive('mappings', [
   'utilService',
   'contentService',

@@ -329,7 +329,11 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       throw new Exception("Project and concept terminologies do not match");
     }
 
-    if (concept.getLastModified().getTime() != lastModified) {
+    // Concept freshness check
+    // DOES NOT APPLY to undo/redo actions, so if "lastModified" is null, skip
+    // this
+    if (lastModified != null
+        && concept.getLastModified().getTime() != lastModified.longValue()) {
       // unlock concepts and fail
       rollback();
       throw new LocalException(
@@ -685,7 +689,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         //
         // Recompute the concept's preferred name
         //
-
         c.setName(getComputePreferredNameHandler(c.getTerminology())
             .computePreferredName(c.getAtoms(),
                 getPrecedenceList(c.getTerminology(), c.getVersion())));

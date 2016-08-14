@@ -218,27 +218,30 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
 
     // add the atoms to the concepts
-    ValidationResult v =
-        metaEditingService.addAtom(project.getId(), concept.getId(),
-            concept.getLastModified().getTime(), atom, false, authToken);
+    ValidationResult v = metaEditingService.addAtom(project.getId(),
+        concept.getId(), "activityId", concept.getLastModified().getTime(),
+        atom, false, authToken);
     assertTrue(v.getErrors().isEmpty());
     concept =
         contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     v = metaEditingService.addAtom(project.getId(), concept.getId(),
-        concept.getLastModified().getTime(), atom2, false, authToken);
+        "activityId", concept.getLastModified().getTime(), atom2, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
     concept =
         contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     v = metaEditingService.addAtom(project.getId(), concept2.getId(),
-        concept2.getLastModified().getTime(), atom3, false, authToken);
+        "activityId", concept2.getLastModified().getTime(), atom3, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
     concept2 =
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
 
     v = metaEditingService.addAtom(project.getId(), concept2.getId(),
-        concept2.getLastModified().getTime(), atom4, false, authToken);
+        "activityId", concept2.getLastModified().getTime(), atom4, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
     concept2 =
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
@@ -277,26 +280,30 @@ public class MetaEditingServiceRestNormalUseTest
     // For semantic type 1, add to both concepts 1 and 2, to test when same
     // semantic type is present on both (used in merge)
     v = metaEditingService.addSemanticType(project.getId(), concept.getId(),
-        concept.getLastModified().getTime(), semanticType, false, authToken);
+        "activityId", concept.getLastModified().getTime(), semanticType, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
     concept =
         contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     v = metaEditingService.addSemanticType(project.getId(), concept2.getId(),
-        concept2.getLastModified().getTime(), semanticType, false, authToken);
+        "activityId", concept2.getLastModified().getTime(), semanticType, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
     concept2 =
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
 
     // Add other semantic types to Concept2 only
     v = metaEditingService.addSemanticType(project.getId(), concept2.getId(),
-        concept2.getLastModified().getTime(), semanticType2, false, authToken);
+        "activityId", concept2.getLastModified().getTime(), semanticType2,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
     concept2 =
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
 
     v = metaEditingService.addSemanticType(project.getId(), concept2.getId(),
-        concept2.getLastModified().getTime(), semanticType3, false, authToken);
+        "activityId", concept2.getLastModified().getTime(), semanticType3,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
     concept2 =
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
@@ -344,7 +351,8 @@ public class MetaEditingServiceRestNormalUseTest
     relationship3.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
     v = metaEditingService.addRelationship(project.getId(), concept2.getId(),
-        concept2.getLastModified().getTime(), relationship, false, authToken);
+        "activityId", concept2.getLastModified().getTime(), relationship, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
     concept2 =
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
@@ -352,7 +360,8 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     v = metaEditingService.addRelationship(project.getId(), concept2.getId(),
-        concept2.getLastModified().getTime(), relationship2, false, authToken);
+        "activityId", concept2.getLastModified().getTime(), relationship2,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
     concept2 =
         contentService.getConcept(concept2.getId(), project.getId(), authToken);
@@ -360,7 +369,8 @@ public class MetaEditingServiceRestNormalUseTest
         contentService.getConcept(concept3.getId(), project.getId(), authToken);
 
     v = metaEditingService.addRelationship(project.getId(), concept.getId(),
-        concept.getLastModified().getTime(), relationship3, false, authToken);
+        "activityId", concept.getLastModified().getTime(), relationship3, false,
+        authToken);
     concept =
         contentService.getConcept(concept.getId(), project.getId(), authToken);
     concept3 =
@@ -411,9 +421,9 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // add the semantic type to the concept
-    ValidationResult v =
-        metaEditingService.addSemanticType(project.getId(), c.getId(),
-            c.getLastModified().getTime(), semanticType, false, authToken);
+    ValidationResult v = metaEditingService.addSemanticType(project.getId(),
+        c.getId(), "activityId", c.getLastModified().getTime(), semanticType,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
@@ -489,7 +499,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the second semantic type to the concept
     v = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        c.getLastModified().getTime(), semanticType2, false, authToken);
+        "activityId", c.getLastModified().getTime(), semanticType2, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
@@ -550,7 +561,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // remove the first semantic type from the concept
     v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getLastModified().getTime(), semanticType.getId(), false, authToken);
+        "activityId", c.getLastModified().getTime(), semanticType.getId(),
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check semantic types
@@ -601,7 +613,8 @@ public class MetaEditingServiceRestNormalUseTest
     // remove the second semantic type from the concept (assume verification of
     // MA, atomic actions, and log entry since we just tested those)
     v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getLastModified().getTime(), semanticType2.getId(), false, authToken);
+        "activityId", c.getLastModified().getTime(), semanticType2.getId(),
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check attributes
@@ -659,7 +672,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the attribute to the concept
     ValidationResult v = metaEditingService.addAttribute(project.getId(),
-        c.getId(), c.getLastModified().getTime(), attribute, false, authToken);
+        c.getId(), "activityId", c.getLastModified().getTime(), attribute,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check attributes
@@ -740,7 +754,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the attribute to the concept
     v = metaEditingService.addAttribute(project.getId(), c.getId(),
-        c.getLastModified().getTime(), attribute2, false, authToken);
+        "activityId", c.getLastModified().getTime(), attribute2, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check to make sure both attributes are still
@@ -800,7 +815,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // remove the first attribute from the concept
     v = metaEditingService.removeAttribute(project.getId(), c.getId(),
-        c.getLastModified().getTime(), attribute.getId(), false, authToken);
+        "activityId", c.getLastModified().getTime(), attribute.getId(), false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
@@ -849,7 +865,8 @@ public class MetaEditingServiceRestNormalUseTest
     // remove the second attribute from the concept (assume verification of MA,
     // atomic actions, and log entry since we just tested those)
     v = metaEditingService.removeAttribute(project.getId(), c.getId(),
-        c.getLastModified().getTime(), attribute2.getId(), false, authToken);
+        "activityId", c.getLastModified().getTime(), attribute2.getId(), false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check attributes
@@ -914,7 +931,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the atom to the concept
     ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
-        c.getLastModified().getTime(), atom, false, authToken);
+        "activityId", c.getLastModified().getTime(), atom, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check attributes
@@ -1006,7 +1023,7 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // add the attribute to the concept
-    v = metaEditingService.addAtom(project.getId(), c.getId(),
+    v = metaEditingService.addAtom(project.getId(), c.getId(), "activityId",
         c.getLastModified().getTime(), atom2, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
@@ -1075,7 +1092,7 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // remove the first atom from the concept
-    v = metaEditingService.removeAtom(project.getId(), c.getId(),
+    v = metaEditingService.removeAtom(project.getId(), c.getId(), "activityId",
         c.getLastModified().getTime(), atom.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
@@ -1124,7 +1141,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // remove the second atom from the concept (assume verification of
     // MA, atomic actions, and log entry since we just tested those)
-    v = metaEditingService.removeAtom(project.getId(), c.getId(),
+    v = metaEditingService.removeAtom(project.getId(), c.getId(), "activityId",
         c.getLastModified().getTime(), atom2.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
@@ -1185,7 +1202,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the atom to the concept
     ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
-        c.getLastModified().getTime(), atom, false, authToken);
+        "activityId", c.getLastModified().getTime(), atom, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept
@@ -1199,7 +1216,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertNotNull(addedAtom);
-    
+
     //
     // Test updating an identity field on the Atom (this should fail)
     //
@@ -1208,7 +1225,8 @@ public class MetaEditingServiceRestNormalUseTest
     boolean updateFailed = false;
     try {
       v = metaEditingService.updateAtom(project.getId(), c.getId(),
-          c.getLastModified().getTime(), addedAtom, false, authToken);
+          "activityId", c.getLastModified().getTime(), addedAtom, false,
+          authToken);
     } catch (Exception e) {
       updateFailed = true;
     }
@@ -1226,22 +1244,22 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(addedAtom);
     assertTrue(addedAtom.getCodeId().equals("C44314"));
 
-
     //
     // Test updating a non-identity field on the Atom (this should succeed)
     //
-    addedAtom.setLanguage("JPN");    
-    
+    addedAtom.setLanguage("JPN");
+
     boolean updateSucceded = true;
     try {
       v = metaEditingService.updateAtom(project.getId(), c.getId(),
-          c.getLastModified().getTime(), addedAtom, false, authToken);
+          "activityId", c.getLastModified().getTime(), addedAtom, false,
+          authToken);
     } catch (Exception e) {
       updateSucceded = false;
     }
     assertTrue(updateSucceded);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
-    
+
     // Pull the atom from the concept, and make sure the language
     // updated successfully
     addedAtom = null;
@@ -1252,7 +1270,7 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertNotNull(addedAtom);
     assertTrue(addedAtom.getLanguage().equals("JPN"));
-    
+
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
@@ -1339,9 +1357,9 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     // add the relationship to the concept
-    ValidationResult v =
-        metaEditingService.addRelationship(project.getId(), c.getId(),
-            c.getLastModified().getTime(), relationship, false, authToken);
+    ValidationResult v = metaEditingService.addRelationship(project.getId(),
+        c.getId(), "activityId", c.getLastModified().getTime(), relationship,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the source concept and check relationships
@@ -1460,7 +1478,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the relationship to the concept
     v = metaEditingService.addRelationship(project.getId(), c.getId(),
-        c.getLastModified().getTime(), relationship3, false, authToken);
+        "activityId", c.getLastModified().getTime(), relationship3, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check to make sure both relationships are still
@@ -1536,7 +1555,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // remove the first relationship from the concept
     v = metaEditingService.removeRelationship(project.getId(), c.getId(),
-        c.getLastModified().getTime(), relationship.getId(), false, authToken);
+        "activityId", c.getLastModified().getTime(), relationship.getId(),
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
@@ -1599,7 +1619,8 @@ public class MetaEditingServiceRestNormalUseTest
     // MA,
     // atomic actions, and log entry since we just tested those)
     v = metaEditingService.removeRelationship(project.getId(), c.getId(),
-        c.getLastModified().getTime(), relationship3.getId(), false, authToken);
+        "activityId", c.getLastModified().getTime(), relationship3.getId(),
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept and check relationships
@@ -1659,9 +1680,9 @@ public class MetaEditingServiceRestNormalUseTest
     final Long fromCId = concept2.getId();
 
     // Now that the concepts are all set up, merge them.
-    ValidationResult v =
-        metaEditingService.mergeConcepts(project.getId(), toC.getId(),
-            toC.getLastModified().getTime(), fromC.getId(), false, authToken);
+    ValidationResult v = metaEditingService.mergeConcepts(project.getId(),
+        toC.getId(), "activityId", toC.getLastModified().getTime(),
+        fromC.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     toC =
@@ -1911,8 +1932,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Move all of the atoms fromConcept to toConcept.
     ValidationResult v = metaEditingService.moveAtoms(project.getId(),
-        fromC.getId(), fromC.getLastModified().getTime(), toC.getId(), moveList,
-        false, authToken);
+        fromC.getId(), "activityId", fromC.getLastModified().getTime(),
+        toC.getId(), moveList, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     fromC =
@@ -2039,9 +2060,10 @@ public class MetaEditingServiceRestNormalUseTest
     // Split the atoms out into a new concept,and give the concept an RN
     // relation to the new one.
     // Transfer over semantic types or relationships
-    ValidationResult v = metaEditingService.splitConcept(project.getId(),
-        originatingC.getId(), originatingC.getLastModified().getTime(),
-        moveAtomIds, false, true, true, "RN", authToken);
+    ValidationResult v =
+        metaEditingService.splitConcept(project.getId(), originatingC.getId(),
+            "activityId", originatingC.getLastModified().getTime(), moveAtomIds,
+            false, true, true, "RN", authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // Identify the newly created concept by finding the most recently modified
@@ -2300,8 +2322,8 @@ public class MetaEditingServiceRestNormalUseTest
     // relation to the new one.
     // Do NOT transfer over semantic types or relationships
     v = metaEditingService.splitConcept(project.getId(), originatingC.getId(),
-        originatingC.getLastModified().getTime(), moveAtomIds, false, false,
-        false, "RN", authToken);
+        "activityId", originatingC.getLastModified().getTime(), moveAtomIds,
+        false, false, false, "RN", authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // Identify the newly created concept by finding the most recently modified
@@ -2549,8 +2571,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(c);
 
     // Now that the concepts are all set up, approve it.
-    ValidationResult v = metaEditingService.approveConcept(project.getId(),
-        c.getId(), c.getLastModified().getTime(), false, authToken);
+    ValidationResult v =
+        metaEditingService.approveConcept(project.getId(), c.getId(),
+            "activityId", c.getLastModified().getTime(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
@@ -2773,7 +2796,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Add the Atom
     //
     ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
-        c.getLastModified().getTime(), atom, false, authToken);
+        "activityId", c.getLastModified().getTime(), atom, false, authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
 
@@ -2810,8 +2833,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Undo Add Action
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2845,8 +2868,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Redo Add Action
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2881,7 +2904,7 @@ public class MetaEditingServiceRestNormalUseTest
     //
     // Remove the Atom
     //
-    v = metaEditingService.removeAtom(project.getId(), c.getId(),
+    v = metaEditingService.removeAtom(project.getId(), c.getId(), "activityId",
         c.getLastModified().getTime(), addedAtomId, false, authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2907,8 +2930,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Undo Remove Action
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -2938,8 +2961,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Redo Remove Action
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3012,7 +3035,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Add the attribute
     //
     ValidationResult v = metaEditingService.addAttribute(project.getId(),
-        c.getId(), c.getLastModified().getTime(), attribute, false, authToken);
+        c.getId(), "activityId", c.getLastModified().getTime(), attribute,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
 
@@ -3049,8 +3073,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Undo Add Action
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3084,8 +3108,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Redo Add Action
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3121,7 +3145,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Remove the Atom
     //
     v = metaEditingService.removeAttribute(project.getId(), c.getId(),
-        c.getLastModified().getTime(), addedAttributeId, false, authToken);
+        "activityId", c.getLastModified().getTime(), addedAttributeId, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
 
@@ -3146,8 +3171,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Undo Remove Action
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3177,8 +3202,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Redo Remove Action
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3249,9 +3274,9 @@ public class MetaEditingServiceRestNormalUseTest
     //
     // Add the Semantic Type
     //
-    ValidationResult v =
-        metaEditingService.addSemanticType(project.getId(), c.getId(),
-            c.getLastModified().getTime(), semanticType, false, authToken);
+    ValidationResult v = metaEditingService.addSemanticType(project.getId(),
+        c.getId(), "activityId", c.getLastModified().getTime(), semanticType,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
 
@@ -3288,8 +3313,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Undo Add Action
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3324,8 +3349,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Redo Add Action
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3363,7 +3388,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Remove the SemanticType
     //
     v = metaEditingService.removeSemanticType(project.getId(), c.getId(),
-        c.getLastModified().getTime(), addedSemanticTypeId, false, authToken);
+        "activityId", c.getLastModified().getTime(), addedSemanticTypeId, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
 
@@ -3388,8 +3414,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Undo Remove Action
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3421,8 +3447,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Redo Remove Action
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3500,9 +3526,9 @@ public class MetaEditingServiceRestNormalUseTest
     // Add relationship
     //
 
-    ValidationResult v =
-        metaEditingService.addRelationship(project.getId(), c.getId(),
-            c.getLastModified().getTime(), relationship, false, authToken);
+    ValidationResult v = metaEditingService.addRelationship(project.getId(),
+        c.getId(), "activityId", c.getLastModified().getTime(), relationship,
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
     c2 = contentService.getConcept(c2.getId(), project.getId(), authToken);
@@ -3562,8 +3588,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Undo Add Action
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3617,8 +3643,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Redo Add Action
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3673,7 +3699,8 @@ public class MetaEditingServiceRestNormalUseTest
     //
 
     v = metaEditingService.removeRelationship(project.getId(), c.getId(),
-        c.getLastModified().getTime(), addedRelId, false, authToken);
+        "activityId", c.getLastModified().getTime(), addedRelId, false,
+        authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
     c2 = contentService.getConcept(c2.getId(), project.getId(), authToken);
@@ -3699,8 +3726,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Undo Remove Action
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3749,8 +3776,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Redo Remove Action
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -3861,8 +3888,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Move all of the atoms fromConcept to toConcept.
     ValidationResult v = metaEditingService.moveAtoms(project.getId(),
-        fromC.getId(), fromC.getLastModified().getTime(), toC.getId(),
-        moveAtomIds, false, authToken);
+        fromC.getId(), "activityId", fromC.getLastModified().getTime(),
+        toC.getId(), moveAtomIds, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     fromC =
@@ -3891,8 +3918,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Undo Move Action
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        fromC.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     fromC =
@@ -3931,8 +3958,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Test Redo Move Action
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        fromC.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     fromC =
@@ -4023,9 +4050,10 @@ public class MetaEditingServiceRestNormalUseTest
     // Split the atoms out into a new concept,and give the concept an RN
     // relation to the new one.
     // Transfer over semantic types or relationships
-    ValidationResult v = metaEditingService.splitConcept(project.getId(),
-        originatingC.getId(), originatingC.getLastModified().getTime(),
-        moveAtomIds, false, true, true, "RN", authToken);
+    ValidationResult v =
+        metaEditingService.splitConcept(project.getId(), originatingC.getId(),
+            "activityId", originatingC.getLastModified().getTime(), moveAtomIds,
+            false, true, true, "RN", authToken);
     assertTrue(v.getErrors().isEmpty());
 
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -4081,8 +4109,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Undo the split action
     //
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        originatingC.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     originatingC = contentService.getConcept(originatingC.getId(),
@@ -4129,8 +4157,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Redo the split action
     //
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        originatingC.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     originatingC = contentService.getConcept(originatingC.getId(),
@@ -4285,9 +4313,9 @@ public class MetaEditingServiceRestNormalUseTest
     // Save the
 
     // Now that the concepts are all set up, merge them.
-    ValidationResult v =
-        metaEditingService.mergeConcepts(project.getId(), toC.getId(),
-            toC.getLastModified().getTime(), fromC.getId(), false, authToken);
+    ValidationResult v = metaEditingService.mergeConcepts(project.getId(),
+        toC.getId(), "activityId", toC.getLastModified().getTime(),
+        fromC.getId(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     toC =
@@ -4319,8 +4347,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Undo the merge action
     //
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        toC.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     toC = contentService.getConcept(toC.getId(), project.getId(), authToken);
@@ -4366,8 +4394,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Redo the merge action
     //
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        toC.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     toC = contentService.getConcept(toC.getId(), project.getId(), authToken);
@@ -4483,8 +4511,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(c);
 
     // Now that the concepts are all set up, approve it.
-    ValidationResult v = metaEditingService.approveConcept(project.getId(),
-        c.getId(), c.getLastModified().getTime(), false, authToken);
+    ValidationResult v =
+        metaEditingService.approveConcept(project.getId(), c.getId(),
+            "activityId", c.getLastModified().getTime(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
@@ -4513,8 +4542,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Undo the approve action
     //
 
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -4614,8 +4643,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Redo the merge action
     //
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -4771,7 +4800,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the atom to the concept
     ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
-        c.getLastModified().getTime(), atom, false, authToken);
+        "activityId", c.getLastModified().getTime(), atom, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     // retrieve the concept
@@ -4785,22 +4814,23 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertNotNull(addedAtom);
-    
+
     //
     // Update updating a non-identity field on the Atom
     //
-    addedAtom.setLanguage("JPN");    
-    
+    addedAtom.setLanguage("JPN");
+
     boolean updateSucceded = true;
     try {
       v = metaEditingService.updateAtom(project.getId(), c.getId(),
-          c.getLastModified().getTime(), addedAtom, false, authToken);
+          "activityId", c.getLastModified().getTime(), addedAtom, false,
+          authToken);
     } catch (Exception e) {
       updateSucceded = false;
     }
     assertTrue(updateSucceded);
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
-    
+
     // Pull the atom from the concept, and make sure the language
     // updated successfully
     addedAtom = null;
@@ -4811,7 +4841,7 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertNotNull(addedAtom);
     assertTrue(addedAtom.getLanguage().equals("JPN"));
-    
+
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
@@ -4827,14 +4857,14 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(ma.getAtomicActions());
 
     // Save the molecular action lastModified to compare against later
-    Date modDate = ma.getLastModified();    
-    
+    Date modDate = ma.getLastModified();
+
     //
     // Undo the update atom action
     //
-    
-    v = metaEditingService.undoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+
+    v = metaEditingService.undoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -4845,7 +4875,7 @@ public class MetaEditingServiceRestNormalUseTest
     // been updated
     assertEquals(true, ma.isUndoneFlag());
     assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
- 
+
     // Pull the atom from the concept, and make sure the language
     // reverted successfully
     addedAtom = null;
@@ -4856,8 +4886,7 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertNotNull(addedAtom);
     assertTrue(addedAtom.getLanguage().equals("ENG"));
-    
-    
+
     // Verify the log entry exists
     String logEntry =
         projectService.getLog(project.getId(), c.getId(), 1, authToken);
@@ -4867,8 +4896,8 @@ public class MetaEditingServiceRestNormalUseTest
     // Redo the merge action
     //
 
-    v = metaEditingService.redoAction(project.getId(), ma.getId(),
-        c.getLastModified().getTime(), false, false, authToken);
+    v = metaEditingService.redoAction(project.getId(), ma.getId(), "activityId",
+        false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
@@ -4890,15 +4919,13 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertNotNull(addedAtom);
     assertTrue(addedAtom.getLanguage().equals("JPN"));
-  
-    
+
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
-    
-    
-  }  
-  
+
+  }
+
   /**
    * Test force undo and redo.
    *
@@ -4948,14 +4975,14 @@ public class MetaEditingServiceRestNormalUseTest
     // Add the Atom - this will set the concept's WorkflowStatus to NEEDS_REVIEW
     //
     ValidationResult v = metaEditingService.addAtom(project.getId(), c.getId(),
-        c.getLastModified().getTime(), atom, false, authToken);
+        "activityId", c.getLastModified().getTime(), atom, false, authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
     assertTrue(c.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW));
 
     // Approve this concept - this will set the status to READY_FOR_PUBLICATION
     v = metaEditingService.approveConcept(project.getId(), c.getId(),
-        c.getLastModified().getTime(), false, authToken);
+        "activityId", c.getLastModified().getTime(), false, authToken);
     assertTrue(v.getErrors().isEmpty());
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
     assertTrue(
@@ -4998,7 +5025,7 @@ public class MetaEditingServiceRestNormalUseTest
     boolean undoFailed = false;
     try {
       v = metaEditingService.undoAction(project.getId(), ma.getId(),
-          c.getLastModified().getTime(), false, false, authToken);
+          "activityId", false, authToken);
     } catch (Exception e) {
       undoFailed = true;
     }
@@ -5015,7 +5042,7 @@ public class MetaEditingServiceRestNormalUseTest
     boolean undoSucceded = true;
     try {
       v = metaEditingService.undoAction(project.getId(), ma.getId(),
-          c.getLastModified().getTime(), false, true, authToken);
+          "activityId", true, authToken);
     } catch (Exception e) {
       undoSucceded = false;
     }
@@ -5041,7 +5068,7 @@ public class MetaEditingServiceRestNormalUseTest
     boolean redoFailed = false;
     try {
       v = metaEditingService.undoAction(project.getId(), ma.getId(),
-          c.getLastModified().getTime(), false, false, authToken);
+          "activityId", false, authToken);
     } catch (Exception e) {
       redoFailed = true;
     }
@@ -5058,7 +5085,7 @@ public class MetaEditingServiceRestNormalUseTest
     boolean redoSucceded = true;
     try {
       v = metaEditingService.redoAction(project.getId(), ma.getId(),
-          c.getLastModified().getTime(), false, true, authToken);
+          "activityId", true, authToken);
     } catch (Exception e) {
       redoSucceded = false;
     }

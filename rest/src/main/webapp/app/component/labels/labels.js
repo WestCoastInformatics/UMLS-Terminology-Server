@@ -1,4 +1,4 @@
-// Content controller
+// Labels
 tsApp.directive('labels', [ 'utilService', function(utilService) {
   console.debug('configure labels directive');
   return {
@@ -32,11 +32,10 @@ tsApp.directive('labels', [ 'utilService', function(utilService) {
         }
       }, true);
 
-
       // watch show hidden flag
       scope.$watch('showHidden', function(newValue, oldValue) {
         scope.paging.showHidden = scope.showHidden;
-        
+
         // if value changed, get paged list
         if (newValue != oldValue) {
           getPagedList();

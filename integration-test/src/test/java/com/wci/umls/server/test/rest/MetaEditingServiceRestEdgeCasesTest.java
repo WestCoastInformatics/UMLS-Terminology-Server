@@ -108,8 +108,8 @@ public class MetaEditingServiceRestEdgeCasesTest
 
     // add the sty
     result = metaEditingService.addSemanticType(project.getId(), c1.getId(),
-        c1.getLastModified().getTime(), (SemanticTypeComponentJpa) sty, false,
-        authToken);
+        "activityId", c1.getLastModified().getTime(),
+        (SemanticTypeComponentJpa) sty, false, authToken);
     assertTrue(result.isValid());
 
     // get the concept
@@ -166,7 +166,7 @@ public class MetaEditingServiceRestEdgeCasesTest
           }
           try {
             if (metaEditingService.removeSemanticType(project.getId(), cId,
-                cDate, styId, false, authToken).isValid()) {
+                "activityId", cDate, styId, false, authToken).isValid()) {
               Logger.getLogger(getClass()).info("  Thread returned success");
               successCt[0]++;
             } else {

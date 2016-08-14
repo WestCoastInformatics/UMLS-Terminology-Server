@@ -365,6 +365,10 @@ public class MergeMolecularAction extends AbstractMolecularAction {
         getActivityId(), getWorkId(),
         getName() + " concept " + getFromConcept().getId() + " into concept "
             + getToConcept().getId());
+    addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
+        getActivityId(), getWorkId(),
+        getName() + " concept " + getToConcept().getId() + " from concept "
+            + getFromConcept().getId());
 
     // Make copy of toConcept to pass into change event
     toConceptPostUpdates = new ConceptJpa(getToConcept(), false);

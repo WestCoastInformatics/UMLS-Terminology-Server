@@ -1,4 +1,4 @@
-// Content controller
+// Subsets
 tsApp.directive('subsets', [ 'utilService', function(utilService) {
   console.debug('configure subsets directive');
   return {
@@ -13,7 +13,7 @@ tsApp.directive('subsets', [ 'utilService', function(utilService) {
     link : function(scope, element, attrs) {
 
       function getPagedList() {
-        
+
         scope.pagedData = utilService.getPagedArray(scope.component.members, scope.paging);
         console.debug('subsets', scope.pagedData);
       }

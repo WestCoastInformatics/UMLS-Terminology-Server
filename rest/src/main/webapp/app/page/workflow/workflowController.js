@@ -19,75 +19,77 @@ tsApp.controller('WorkflowCtrl', [
     $uibModal) {
     console.debug("configure WorkflowCtrl");
 
+    // Set up tabs and controller
     tabService.setShowing(true);
-
-    // Clear error
     utilService.clearError();
-
-    // Handle resetting tabs on 'back' and 'reload' events button
     tabService.setSelectedTabByLabel('Workflow');
-
     $scope.user = securityService.getUser();
     projectService.getUserHasAnyRole();
 
-    $scope.projectRole = null;
-    $scope.configs = [];
-    $scope.config = null;
-    $scope.projects = [];
-    $scope.project = null;
-    $scope.recordTypes = [ 'N', 'R' ];
+    // Selected variables
     $scope.selected = {
+      project : null,
+      config : null,
       bin : null,
-      clusterType : null
+      clusterType : null,
+      projectRole : null
     };
 
-    // Paging variables
-    $scope.visibleSize = 4;
-    $scope.pageSize = 10;
-    $scope.paging = {};
-    $scope.paging['record'] = {
-      page : 1,
-      filter : '',
-      typeFilter : '',
-      sortField : 'clusterId',
-      ascending : true
-    };
+    // Lists
+    $scope.lists = {
+      bins : [],
+      records : [],
+      configs : [],
+      projects : [],
+      projectRoles : [],
+      recordTypes : workflowService.getRecordTypes()
+    }
+
+    // Paging parameters
+    $scope.resetPaging = function() {
+      $scope.paging = utilService.getPaging();
+      $scope.paging.sortField = 'clusterId';
+      $scope.paging.callback = {
+        getPagedList : getPagedList
+      };
+    }
+    $scope.resetPaging();
 
     // Set the workflow config
     $scope.setConfig = function(config) {
-      $scope.config = config;
-      $scope.getBins($scope.project.id, config);
+      $scope.selected.config = config;
+      $scope.getBins($scope.selected.project.id, $scope.selected.config);
     }
 
     // Retrieve all bins with project and type
     $scope.getBins = function(projectId, config) {
-      workflowService.getWorkflowBins(projectId, config.type).then(
-      // Success
-      function(data) {
-        $scope.bins = data.worklists;
-        $scope.bins.totalCount = $scope.bins.length;
-      });
+      // Skip if no config types
+      if (config.type) {
+        workflowService.getWorkflowBins(projectId, config.type).then(
+        // Success
+        function(data) {
+          $scope.lists.bins = data.bins;
+          $scope.lists.bins.totalCount = $scope.lists.bins.length;
+        });
+      }
     };
 
     // Set the project
     $scope.setProject = function(project) {
-      $scope.project = project;
+      console.debug("xxx", project);
+      $scope.selected.project = project;
 
       // Get role for project (requires a lookup and will save user prefs
-      projectService.getRoleForProject($scope.user, $scope.project.id).then(
+      projectService.getRoleForProject($scope.user, $scope.selected.project.id).then(
       // Success
       function(data) {
         // Get role and set role options
-        $scope.projects.role = data;
-        $scope.roleOptions = projectService.getRoleOptions($scope.projects.role);
+        $scope.selected.projectRole = data.role;
+        $scope.lists.projectRoles = data.options;
 
-        // Get bins
+        // Get configs
         $scope.getConfigs();
-
-        // Fire project changed (for directives)
-        projectService.fireProjectChanged($scope.project);
       });
-
     }
 
     // Retrieve all projects
@@ -96,7 +98,7 @@ tsApp.controller('WorkflowCtrl', [
       projectService.getProjectsForUser($scope.user).then(
       // Success
       function(data) {
-        $scope.projects = data.projects;
+        $scope.lists.projects = data.projects;
         $scope.setProject(data.project);
       });
 
@@ -104,13 +106,11 @@ tsApp.controller('WorkflowCtrl', [
 
     // Retrieve all projects
     $scope.getConfigs = function() {
-      workflowService.getWorkflowConfigs($scope.project.id).then(
+      workflowService.getWorkflowConfigs($scope.selected.project.id).then(
       // Success
       function(data) {
-        $scope.configs = data;
-        if ($scope.configs.length == 1) {
-          $scope.setConfig($scope.configs[0]);
-        }
+        $scope.lists.configs = data.configs;
+        $scope.setConfig($scope.lists.configs[0]);
       });
     };
 
@@ -119,120 +119,101 @@ tsApp.controller('WorkflowCtrl', [
     $scope.selectBin = function(bin, clusterType) {
       $scope.selected.bin = bin;
       $scope.selected.clusterType = clusterType;
-      $scope.selected.concept = null;
 
       if (clusterType && clusterType == 'default') {
-        $scope.paging['record'].filter = ' NOT clusterType:[* TO *]';
+        $scope.paging.filter = ' NOT clusterType:[* TO *]';
       } else if (clusterType && clusterType != 'all') {
-        $scope.paging['record'].filter = clusterType;
+        $scope.paging.filter = clusterType;
       } else if (clusterType == 'all') {
-        $scope.paging['record'].filter = '';
+        $scope.paging.filter = '';
       }
-      $scope.getRecords($scope.selected.bin);
+      $scope.resetPaging();
+      getPagedList();
     };
 
-    // Selects a concept (setting $scope.selected.concept)
-    $scope.selectConcept = function(concept) {
-      // Set the concept for display
-      $scope.selected.concept = {
-        terminologyId : concept.terminologyId,
-        terminology : concept.terminology,
-        version : concept.version,
-        id : concept.id
-      };
-      reportService.getConceptReport($scope.project.id, $scope.selected.concept.id).then(
-      // Success
-      function(data) {
-        $scope.selected.concept.report = data;
-      });
+    // This needs to be a function so it can be scoped properly for the
+    // pager
+    $scope.getPagedList = function() {
+      getPagedList();
     };
-
-    // Get records
-    $scope.getRecords = function(bin) {
+    function getPagedList() {
 
       var pfs = {
-        startIndex : ($scope.paging['record'].page - 1) * $scope.pageSize,
-        maxResults : $scope.pageSize,
-        sortField : $scope.paging['record'].sortField,
-        ascending : $scope.paging['record'].ascending == null ? false
-          : $scope.paging['record'].ascending,
-        queryRestriction : $scope.paging['record'].filter != undefined
-          && $scope.paging['record'].filter != "" ? $scope.paging['record'].filter : null
+        startIndex : ($scope.paging.page - 1) * $scope.paging.pageSize,
+        maxResults : $scope.paging.pageSize,
+        sortField : $scope.paging.sortField,
+        ascending : $scope.paging.sortAscending,
+        queryRestriction : $scope.paging.filter ? $scope.paging.filter : ''
       };
 
-      if ($scope.paging['record'].typeFilter) {
-        var value = $scope.paging['record'].typeFilter;
+      if ($scope.paging.typeFilter) {
+        var value = $scope.paging.typeFilter;
 
         // Handle inactive
         if (value == 'N') {
-          if (pfs.queryRestriction != null)
-            pfs.queryRestriction += ' AND workflowStatus:NEEDS_REVIEW';
-          else
-            pfs.queryRestriction = 'workflowStatus:NEEDS_REVIEW';
+          pfs.queryRestriction += (pfs.queryRestriction ? ' AND ' : '') + ' workflowStatus:N*';
         } else if (value == 'R') {
-          if (pfs.queryRestriction != null)
-            pfs.queryRestriction += ' AND workflowStatus:READY_FOR_PUBLICATION';
-          else
-            pfs.queryRestriction = 'workflowStatus:READY_FOR_PUBLICATION';
+          pfs.queryRestriction += (pfs.queryRestriction ? ' AND ' : '') + ' workflowStatus:R*';
         }
 
       }
 
-      workflowService.findTrackingRecordsForWorkflowBin($scope.project.id, bin.id, pfs).then(
+      workflowService.findTrackingRecordsForWorkflowBin($scope.selected.project.id,
+        $scope.selected.bin.id, pfs).then(
       // Success
       function(data) {
-        bin.records = data.worklists;
-        bin.records.totalCount = data.totalCount;
+        $scope.lists.records = data.records;
+        $scope.lists.records.totalCount = data.totalCount;
       });
 
-    };
+    }
 
     // Regenerate bins
     $scope.regenerateBins = function() {
-      console.debug('clear and regenerateBins');
-      workflowService.clearBins($scope.project.id, $scope.config).then(
-      // Success
-      function(response) {
-        workflowService.regenerateBins($scope.project.id, $scope.config.type).then(
+      workflowService.clearBins($scope.selected.project.id, $scope.selected.config).then(
         // Success
         function(response) {
-          $scope.getBins($scope.project.id, $scope.config.type);
+          workflowService.regenerateBins($scope.selected.project.id, $scope.selected.config.type)
+            .then(
+            // Success
+            function(response) {
+              $scope.getBins($scope.selected.project.id, $scope.selected.config);
+            });
         });
-      });
     };
 
     // enable/disable
     $scope.toggleEnable = function(bin) {
-      console.debug('enable/disable bin');
-      workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type)
-        .then(
-          function(response) {
-            var workflowBinDefinition = response;
-            if (workflowBinDefinition.enabled) {
-              workflowBinDefinition.enabled = false;
-            } else {
-              workflowBinDefinition.enabled = true;
-            }
-            workflowService.updateWorkflowBinDefinition($scope.project.id, workflowBinDefinition)
-              .then(function(response) {
-                $scope.regenerateBins();
-              });
-          });
+      workflowService.getWorkflowBinDefinition($scope.selected.project.id, bin.name,
+        $scope.selected.config.type).then(
+        function(response) {
+          var definition = response;
+          if (definition.enabled) {
+            definition.enabled = false;
+          } else {
+            definition.enabled = true;
+          }
+          workflowService.updateWorkflowBinDefinition($scope.selected.project.id, definition).then(
+            function(response) {
+              $scope.regenerateBins();
+            });
+        });
     };
 
     // remove bin/definition
     $scope.removeBin = function(bin) {
-      workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type)
-        .then(
+      workflowService.getWorkflowBinDefinition($scope.selected.project.id, bin.name,
+        $scope.selected.config.type).then(
         // Success
         function(response) {
-          var workflowBinDefinition = response;
+          var definition = response;
 
-          workflowService.removeWorkflowBinDefinition(workflowBinDefinition).then(
-          // Successs
-          function(response) {
-            $scope.regenerateBins();
-          });
+          workflowService.removeWorkflowBinDefinition($scope.selected.project.id, definition.id)
+            .then(
+            // Successs
+            function(response) {
+              $scope.regenerateBins();
+            });
         });
     };
 
@@ -240,11 +221,6 @@ tsApp.controller('WorkflowCtrl', [
     $scope.toDate = function(lastModified) {
       return utilService.toDate(lastModified);
     };
-
-    // link to error handling
-    function handleError(errors, error) {
-      utilService.handleDialogError(errors, error);
-    }
 
     //
     // MODALS
@@ -259,7 +235,7 @@ tsApp.controller('WorkflowCtrl', [
         controller : CreateChecklistModalCtrl,
         resolve : {
           projectId : function() {
-            return $scope.project.id;
+            return $scope.selected.project.id;
           },
           bin : function() {
             return bin;
@@ -278,6 +254,7 @@ tsApp.controller('WorkflowCtrl', [
     };
 
     // Create worklist modal
+    // TODO: make this and others work like "log" with an icon in the directive.
     $scope.openCreateWorklistModal = function(bin, clusterType, availableClusterCt) {
 
       var modalInstance = $uibModal.open({
@@ -286,7 +263,7 @@ tsApp.controller('WorkflowCtrl', [
         controller : CreateWorklistModalCtrl,
         resolve : {
           projectId : function() {
-            return $scope.project.id;
+            return $scope.selected.project.id;
           },
           bin : function() {
             return bin;
@@ -306,7 +283,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(project) {
-        $scope.getBins($scope.project.id, $scope.config);
+        $scope.getBins($scope.selected.project.id, $scope.selected.config);
       });
     };
 
@@ -323,19 +300,19 @@ tsApp.controller('WorkflowCtrl', [
             return lbin;
           },
           workflowConfig : function() {
-            return $scope.currentWorkflowConfig;
+            return $scope.selected.config;
           },
           bins : function() {
-            return $scope.bins;
+            return $scope.lists.bins;
           },
           config : function() {
-            return $scope.config;
+            return $scope.selected.config;
           },
           project : function() {
-            return $scope.project;
+            return $scope.selected.project;
           },
           projects : function() {
-            return $scope.projects;
+            return $scope.lists.projects;
           },
           action : function() {
             return 'Edit';
@@ -363,19 +340,19 @@ tsApp.controller('WorkflowCtrl', [
             return lbin;
           },
           workflowConfig : function() {
-            return $scope.currentWorkflowConfig;
+            return $scope.selected.config;
           },
           bins : function() {
-            return $scope.bins;
+            return $scope.lists.bins;
           },
           config : function() {
-            return $scope.config;
+            return $scope.selected.config;
           },
           project : function() {
-            return $scope.project;
+            return $scope.selected.project;
           },
           projects : function() {
-            return $scope.projects;
+            return $scope.lists.projects;
           },
           action : function() {
             return 'Clone';
@@ -403,19 +380,19 @@ tsApp.controller('WorkflowCtrl', [
             return undefined;
           },
           workflowConfig : function() {
-            return $scope.currentWorkflowConfig;
+            return $scope.selected.config;
           },
           bins : function() {
-            return $scope.bins;
+            return $scope.lists.bins;
           },
           config : function() {
-            return $scope.config;
+            return $scope.selected.config;
           },
           project : function() {
-            return $scope.project;
+            return $scope.selected.project;
           },
           projects : function() {
-            return $scope.projects;
+            return $scope.lists.projects;
           },
           action : function() {
             return 'Add';
@@ -434,10 +411,8 @@ tsApp.controller('WorkflowCtrl', [
     // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
     //
     $scope.initialize = function() {
-
       // configure tab
       securityService.saveTab($scope.user.userPreferences, '/workflow');
-
       $scope.getProjects();
     };
 

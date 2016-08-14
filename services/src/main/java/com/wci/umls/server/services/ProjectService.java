@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -45,22 +45,25 @@ public interface ProjectService extends RootService {
    *
    * @param project the project
    * @return the project
+   * @throws Exception the exception
    */
-  public Project addProject(Project project);
+  public Project addProject(Project project) throws Exception;
 
   /**
    * Update project.
    *
    * @param project the project
+   * @throws Exception the exception
    */
-  public void updateProject(Project project);
+  public void updateProject(Project project) throws Exception;
 
   /**
    * Removes the project.
    *
    * @param projectId the project id
+   * @throws Exception the exception
    */
-  public void removeProject(Long projectId);
+  public void removeProject(Long projectId) throws Exception;
 
   /**
    * Returns the projects.

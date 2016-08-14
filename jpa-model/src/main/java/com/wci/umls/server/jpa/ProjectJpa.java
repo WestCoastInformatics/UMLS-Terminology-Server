@@ -79,6 +79,11 @@ public class ProjectJpa implements Project {
   @Column(nullable = false)
   private String lastModifiedBy;
 
+  /** The last modified. */
+  @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date timestamp = new Date();
+
   /** The name. */
   @Column(nullable = false)
   private String name;
@@ -99,6 +104,10 @@ public class ProjectJpa implements Project {
   @Column(nullable = false)
   private String terminology;
 
+  // Version?
+  // "latest" is implied, and the actual next version is managed by "release
+  // info"
+
   /** The branch. */
   @Column(nullable = true)
   private String branch;
@@ -109,7 +118,7 @@ public class ProjectJpa implements Project {
 
   /** The workflow path. */
   @Column(nullable = false)
-  private String workflowPath;
+  private String workflowPath = ConfigUtility.DEFAULT;
 
   /** The role map. */
   @ElementCollection
@@ -158,6 +167,7 @@ public class ProjectJpa implements Project {
     id = project.getId();
     lastModified = project.getLastModified();
     lastModifiedBy = project.getLastModifiedBy();
+    timestamp = project.getTimestamp();
     name = project.getName();
     description = project.getDescription();
     isPublic = project.isPublic();
@@ -194,6 +204,18 @@ public class ProjectJpa implements Project {
   @Override
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
+  }
+
+  /* see superclass */
+  @Override
+  public Date getTimestamp() {
+    return timestamp;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTimestamp(Date timestamp) {
+    this.timestamp = timestamp;
   }
 
   /* see superclass */
@@ -449,8 +471,6 @@ public class ProjectJpa implements Project {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result + ((userRoleMap == null) ? 0 : userRoleMap.hashCode());
     // result = prime * result + ((validationChecks == null) ? 0 :
     // validationChecks.hashCode());
     // result =
@@ -492,11 +512,6 @@ public class ProjectJpa implements Project {
       if (other.terminology != null)
         return false;
     } else if (!terminology.equals(other.terminology))
-      return false;
-    if (userRoleMap == null) {
-      if (other.userRoleMap != null)
-        return false;
-    } else if (!userRoleMap.equals(other.userRoleMap))
       return false;
     if (feedbackEmail == null) {
       if (other.feedbackEmail != null)

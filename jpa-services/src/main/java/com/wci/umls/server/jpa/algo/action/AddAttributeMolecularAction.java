@@ -88,16 +88,16 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
     //
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
-    //  
-    
+    //
+
     // Add the attribute
-    attribute = addAttribute(attribute, getConcept());   
+    attribute = addAttribute(attribute, getConcept());
 
     // Change status of the concept
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    
+
     // Add the attribute to concept
     getConcept().getAttributes().add(attribute);
 
@@ -106,14 +106,14 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(), getName() + " " + attribute.getName()
-            + " to concept " + getConcept().getTerminologyId());
+        getActivityId(), getWorkId(),
+        getName() + " to concept " + getConcept().getId() + " " + attribute);
   }
 
   @Override
   public void setProperties(Properties p) throws Exception {
     // TODO Auto-generated method stub
-    
+
   }
 
 }

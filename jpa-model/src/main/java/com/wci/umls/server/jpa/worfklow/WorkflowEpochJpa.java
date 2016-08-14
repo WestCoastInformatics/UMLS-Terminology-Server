@@ -25,7 +25,6 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.BooleanBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
@@ -169,7 +168,6 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
   }
 
   /* see superclass */
-  @FieldBridge(impl = BooleanBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public boolean isActive() {

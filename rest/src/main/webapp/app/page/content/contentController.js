@@ -27,6 +27,7 @@ tsApp
         contentService, configureService, websocketService, appConfig) {
         console.debug('configure ContentCtrl');
 
+        // Set up tabs and controller
         if ($routeParams.mode == 'simple') {
           console.debug('  simple mode deletected, hide tabs');
           tabService.setShowing(false);
@@ -34,13 +35,10 @@ tsApp
           console.debug('  non-simple mode detected, show tabs');
           tabService.setShowing(true);
         }
-
-        // retrieve the user
+        tabService.setSelectedTabByLabel('Content');
+        utilService.clearError();
         $scope.user = securityService.getUser();
         projectService.getUserHasAnyRole();
-
-        // Clear error
-        utilService.clearError();
 
         // pass app configuration constants to scope (for email link)
         $scope.appConfig = appConfig;

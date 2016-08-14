@@ -22,7 +22,7 @@ public class WorkflowConfigListJpa extends AbstractResultList<WorkflowConfig>
 
   /* see superclass */
   @Override
-  @XmlElement(type = WorkflowConfigJpa.class, name = "worklists")
+  @XmlElement(type = WorkflowConfigJpa.class, name = "configs")
   public List<WorkflowConfig> getObjects() {
     return super.getObjectsTransient();
   }
