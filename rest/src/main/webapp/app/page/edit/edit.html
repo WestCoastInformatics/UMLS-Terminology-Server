@@ -86,11 +86,11 @@
 
           <td ng-show="selected.worklistMode != 'Checklists'">
             <span style="word-break: break-word;"
-              ng-show="projectRole == 'AUTHOR'">
+              ng-show="selected.projectRole == 'AUTHOR'">
               {{joinAuthors(worklist)}}</span>
             <br />
             <span style="word-break: break-word;"
-              ng-show="projectRole == 'REVIEWER'">
+              ng-show="selected.projectRole == 'REVIEWER'">
               {{joinReviewers(worklist)}}</span>
             <br />
             <span> {{worklist.team}} </span>
@@ -106,22 +106,22 @@
 
             <i
               ng-show="selected.worklistMode != 'Checklists' && 
-                ((projectRole == 'AUTHOR' && joinAuthors(worklist).length == 0) ||
-                 (projectRole == 'REVIEWER' && joinReviewers(worklist).length == 0))"
+                ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length == 0) ||
+                 (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length == 0))"
               ng-click="assignWorklistToSelf(worklist); $event.stopPropagation()"
               title="Claim" class="noul material-icons md-18">assignment_ind</i>
 
             <i
               ng-show="selected.worklistMode != 'Checklists' && 
-                ((projectRole == 'AUTHOR' && joinAuthors(worklist).length > 0) ||
-                 (projectRole == 'REVIEWER' && joinReviewers(worklist).length > 0))"
+                ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length > 0) ||
+                 (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length > 0))"
               ng-click="unassignWorklist(worklist); $event.stopPropagation()"
               title="Unassign" class="noul material-icons md-18">assignment_return</i>
 
             <i
               ng-show="selected.worklistMode != 'Checklists' &&
-                ((projectRole == 'AUTHOR' && joinAuthors(worklist).length > 0) ||
-                 (projectRole == 'REVIEWER' && joinReviewers(worklist).length > 0))"
+                ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length > 0) ||
+                 (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length > 0))"
               ng-click="performWorkflowAction(worklist); $event.stopPropagation()"
               title="Finish" class="noul glyphicon glyphicon-ok"></i>
           </td>
@@ -183,13 +183,16 @@
     <span style="float: right;">
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveConcept(selected.concept)" title="Approve"
-        ng-disabled="!selected.concept" class="btn btn-xs btn-primary">Approve</button>
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        class="btn btn-xs btn-primary">Approve</button>
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveNext()" title="Approve/Next"
-        ng-disabled="!selected.concept" class="btn btn-xs btn-primary">Approve/Next</button>
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        class="btn btn-xs btn-primary">Approve/Next</button>
       <button confirm="Are you sure you want to merge the selected concept?"
-        ng-click="openMergeModal(concept)" title="Merge"
-        ng-disabled="!selected.concept" class="btn btn-xs btn-primary">Merge</button>
+        ng-click="openMergeModal()" title="Merge"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        class="btn btn-xs btn-primary">Merge</button>
     </span>
     <!-- End R1C2 -->
   </div>
@@ -235,7 +238,8 @@
             </tr>
           </thead>
           <tbody ng-repeat="record in lists.records">
-            <tr>
+            <tr
+              ng-class="{selected : record.id == selected.record.id}">
               <td rowspan="3">{{record.clusterId}}</td>
               <td rowspan="3">
                 <button class="btn btn-xs btn-danger"
@@ -246,8 +250,8 @@
                   uib-tooltip="Reviewed">R</button>
               </td>
             </tr>
-            <tr ng-click="selectConcept(concept); selectRecord(record);"
-              ng-class="{selected : concept.id == selected.concept.id}"
+            <tr ng-click="selectRecord(record);"
+              ng-class="{selected : record.id == selected.record.id}"
               ng-repeat="concept in record.concepts"
               ng-style="{'color': concept.workflowStatus == 'NEEDS_REVIEW' ? 'red' : 'black'}">
               <td>{{concept.id}}</td>

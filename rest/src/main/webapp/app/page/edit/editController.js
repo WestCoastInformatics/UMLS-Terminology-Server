@@ -74,6 +74,7 @@ tsApp.controller('EditCtrl',
         getWorklists();
       }
       function getWorklists() {
+        $scope.clearLists();
         if ($scope.selected.worklistMode == 'Assigned') {
           $scope.getAssignedWorklists($scope.selected.project.id, $scope.selected.projectRole);
         } else if ($scope.selected.worklistMode == 'Available') {
@@ -141,7 +142,7 @@ tsApp.controller('EditCtrl',
         function(data) {
           $scope.lists.worklists = data.checklists;
           $scope.lists.worklists.totalCount = data.totalCount;
-          resetSelected();
+          $scope.resetSelected();
         });
       }
 
@@ -191,14 +192,22 @@ tsApp.controller('EditCtrl',
 
         // Don't push concepts on if in available modes
         if ($scope.worklistMode != 'Available') {
-          $scope.lists.concepts = [];
-
-          for (var i = 0; i < record.concepts.length; i++) {
-            contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
-              function(data) {
-                $scope.lists.concepts.push(data);
-              });
-          }
+          $scope.getConcepts(record, true);          
+        }
+      }
+      
+      // refresh the concept list
+      $scope.getConcepts = function(record, selectFirst) {
+        $scope.lists.concepts = [];
+        for (var i = 0; i < record.concepts.length; i++) {
+          contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
+            function(data) {
+              $scope.lists.concepts.push(data);
+              $scope.lists.concepts.sort(utilService.sort_by('id'));
+              if (selectFirst) {
+                $scope.selectConcept($scope.lists.concepts[0]);
+              }
+            });
         }
       }
 
@@ -217,12 +226,7 @@ tsApp.controller('EditCtrl',
 
       // select concept & get concept report
       $scope.selectConcept = function(concept) {
-        $scope.selected.concept = {
-          terminologyId : concept.terminologyId,
-          terminology : concept.terminology,
-          version : concept.version,
-          id : concept.id
-        };
+        $scope.selected.concept = concept;
         reportService.getConceptReport($scope.selected.project.id, $scope.selected.concept.id)
           .then(
           // Success
@@ -230,12 +234,6 @@ tsApp.controller('EditCtrl',
             $scope.selected.concept.report = data;
           });
 
-        // keep concept list selection in-synch
-        for (var i = 0; i < $scope.lists.concepts.length; i++) {
-          if (concept.id == $scope.lists.concepts[i].id) {
-            $scope.selected.data = $scope.lists.concepts[i];
-          }
-        }
       };
 
       // Get $scope.lists.records
@@ -280,8 +278,8 @@ tsApp.controller('EditCtrl',
             $scope.selected.worklist.id, pfs).then(
           // Success
           function(data) {
-            scope.lists.records = data.records;
-            scope.lists.records.totalCount = data.totalCount;
+            $scope.lists.records = data.records;
+            $scope.lists.records.totalCount = data.totalCount;
           });
         }
 
@@ -381,6 +379,7 @@ tsApp.controller('EditCtrl',
           return null;
         }
       }
+      
       // Approve concept
       $scope.approveConcept = function(concept) {
         contentService.getConcept(concept.id, $scope.selected.project.id).then(
@@ -411,14 +410,19 @@ tsApp.controller('EditCtrl',
         $scope.selected.concept = null;
         $scope.resetPaging();
       }
+      
+      // clears lists
+      $scope.clearLists = function() {
+        $scope.lists.records = [];
+        $scope.lists.concepts = [];
+      }
 
       //
       // MODALS
       //
 
       // Merge modal
-      $scope.openMergeModal = function(lconcept) {
-        console.debug('openMergeModal ', lconcept);
+      $scope.openMergeModal = function() {
         var modalInstance = $uibModal.open({
           templateUrl : 'app/page/edit/merge.html',
           controller : MergeModalCtrl,
@@ -431,7 +435,7 @@ tsApp.controller('EditCtrl',
               return $scope.getActivityId();
             },
             concept : function() {
-              return $scope.selected.data;
+              return $scope.selected.concept;
             },
             data : function() {
               return $scope.lists.concepts;
@@ -442,7 +446,8 @@ tsApp.controller('EditCtrl',
         modalInstance.result.then(
         // Success
         function(data) {
-          $scope.handleWorkflow(data);
+          $scope.getRecords(false);
+          $scope.getConcepts($scope.selected.record);
         });
 
       };
