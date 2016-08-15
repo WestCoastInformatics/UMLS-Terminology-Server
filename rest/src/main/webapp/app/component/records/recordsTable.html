@@ -31,8 +31,8 @@
             ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
             uib-tooltip="Needs review">N</button>
           <button class="btn btn-xs btn-success"
-            ng-show="record.workflowStatus == 'READY_FOR_PUBLICATION'"
-            uib-tooltip="Ready for publication">R</button>
+            ng-show="record.workflowStatus != 'NEEDS_REVIEW'"
+            uib-tooltip="Reviewed">R</button>
         </td>
       </tr>
       <tr ng-click="selectConcept(concept);"

@@ -23,21 +23,30 @@
   <!-- R1 -->
   <!-- R1C1 -->
   <div class="col-md-6 col-xs-12">
-    <span ng-show="selected.worklistMode == 'Checklists'">
-      <h4>Checklists</h4>
-    </span>
-    <span ng-show="selected.worklistMode != 'Checklists'">
-      <h4>{{selected.worklistMode}} Worklists</h4>
-    </span>
+
     <div>
-      <span>
-        Mode: <select ng-model="selected.worklistMode"
-          ng-change="getWorklists()"
-          ng-options="item for item in lists.worklistModes"></select>
+
+      <ul class="pointer nav nav-tabs">
+        <li ng-class="{active : selected.worklistMode == 'Available'}"><a
+            ng-click="selected.worklistMode='Available'; getWorklists()">Available</a></li>
+        <li ng-class="{active : selected.worklistMode == 'Assigned'}"><a
+            ng-click="selected.worklistMode='Assigned'; getWorklists()">Assigned</a></li>
+        <li ng-class="{active : selected.worklistMode == 'Checklists'}"><a
+            ng-click="selected.worklistMode='Checklists'; getWorklists()">Checklists</a></li>
+      </ul>
+
+    </div>
+    <div>
+      <span ng-show="selected.worklistMode == 'Checklists'">
+        <h4>Checklists</h4>
       </span>
+      <span ng-show="selected.worklistMode != 'Checklists'">
+        <h4>{{selected.worklistMode}} Worklists</h4>
+      </span>
+
     </div>
 
-    <div pager paging="paging['worklists']" count="lists.worklists"
+    <div pager paging="paging['worklists']" count="lists.worklists.totalCount"
       callback="paging['worklists'].callback"></div>
 
     <table ng-show="lists.worklists.totalCount > 0" class="table">
@@ -133,17 +142,14 @@
 
   <!-- R1C2 - concepts list  -->
   <div class="col-md-6 col-xs-12">
-    <h4 ng-show="selected.concept && selected.worklistMode=='Assigned'">
+    <h4>
       Concept List
       <span style="float: right;">
         <button ng-click="openAddConceptModal(selected.record)"
-          title="Add concept" class="btn btn-xs btn-primary">Add
-          Concept</button>
+          title="Add concept" class="btn btn-xs btn-primary">Finder</button>
       </span>
     </h4>
-    <table
-      ng-show="(selected.concept && selected.worklistMode=='Assigned') || paging['records'].filter || paging['records'].typeFilter"
-      class="table">
+    <table class="table">
       <thead class="pointer">
         <tr>
 
@@ -170,25 +176,28 @@
         </tr>
       </tbody>
     </table>
+    <span ng-show="lists.concepts.length == 0" style="display: block;"
+      class="alert alert-warning">No concepts</span>
 
-    <span style="float: right;"
-      ng-show="selected.worklistMode=='Assigned' && selected.concept">
-      <button ng-click="approveConcept(selected.concept)" title="Approve"
-        class="btn btn-xs btn-primary">Approve</button>
-      <button ng-click="approveNext()" title="Approve/Next"
-        class="btn btn-xs btn-primary">Approve/Next</button>
-    </span>
-    <span style="float: right;"
-      ng-show="selected.worklistMode=='Assigned' && selected.record.concepts.length >= 2">
-      <button ng-click="openMergeModal(concept)" title="Merge"
-        class="btn btn-xs btn-primary">Merge</button>
+
+    <span style="float: right;">
+      <button confirm="Are you sure you want to approve the selected concept?"
+        ng-click="approveConcept(selected.concept)" title="Approve"
+        ng-disabled="!selected.concept" class="btn btn-xs btn-primary">Approve</button>
+      <button confirm="Are you sure you want to approve the selected concept?"
+        ng-click="approveNext()" title="Approve/Next"
+        ng-disabled="!selected.concept" class="btn btn-xs btn-primary">Approve/Next</button>
+      <button confirm="Are you sure you want to merge the selected concept?"
+        ng-click="openMergeModal(concept)" title="Merge"
+        ng-disabled="!selected.concept" class="btn btn-xs btn-primary">Merge</button>
     </span>
     <!-- End R1C2 -->
   </div>
+</div>
 
 
-
-  <!-- R2 -->
+<!-- R2 -->
+<div class="row">
 
   <!-- R2C1 -->
   <div class="col-md-6 col-xs-12">
@@ -204,27 +213,8 @@
         <span class="alert alert-warning">Worklist has no records</span>
       </span>
       <div>
-        <span style="display: block;">
-          <uib-pagination items-per-page="pageSize" max-size="5"
-            boundary-links="true" class="pagination-xs" previous-text="&lsaquo;"
-            next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-            ng-show="lists.records.totalCount > pageSize"
-            total-items="lists.records.totalCount"
-            ng-model="paging['records'].page"
-            ng-change="getRecords(selected.worklist)"></uib-pagination>
-
-          <input class="input-filter" placeholder="Search"
-            ng-show="lists.records.totalCount > pageSize || paging['records'].filter"
-            type="text" ng-model="paging['records'].filter"
-            ng-model-options="{ debounce: 300 }"
-            ng-change="getRecords(selected.worklist)">
-
-          <button class="btn btn-xs btn-warning"
-            ng-show="paging['records'].filter"
-            ng-click="paging['records'].filter = ''; getRecords(selected.worklist)"
-            title="Click to clear filter text">Clear</button>
-
-        </span>
+        <div pager paging="paging['records']" count="lists.records.totalCount"
+          callback="paging['records'].callback"></div>
 
         <table
           ng-show="lists.records.totalCount > 0 || paging['records'].filter || paging['records'].typeFilter"
@@ -252,8 +242,8 @@
                   ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
                   uib-tooltip="Needs review">N</button>
                 <button class="btn btn-xs btn-success"
-                  ng-show="record.workflowStatus == 'READY_FOR_PUBLICATION'"
-                  uib-tooltip="Ready for publication">R</button>
+                  ng-show="record.workflowStatus != 'NEEDS_REVIEW'"
+                  uib-tooltip="Reviewed">R</button>
               </td>
             </tr>
             <tr ng-click="selectConcept(concept); selectRecord(record);"

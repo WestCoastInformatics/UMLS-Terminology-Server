@@ -55,9 +55,11 @@ tsApp.controller('EditCtrl',
         $scope.paging = {};
         $scope.paging['worklists'] = utilService.getPaging();
         $scope.paging['worklists'].sortField = 'lastModified';
+        $scope.paging['worklists'].pageSize = 5;
         $scope.paging['worklists'].callback = {
           getPagedList : getWorklists
         };
+
         $scope.paging['records'] = utilService.getPaging();
         $scope.paging['records'].sortField = 'clusterId';
         $scope.paging['records'].callback = {
@@ -93,9 +95,11 @@ tsApp.controller('EditCtrl',
         };
 
         workflowService.findAvailableWorklists(projectId, $scope.user.userName,
-          $scope.selected.projectRole, pfs).then(function(response) {
-          $scope.lists.worklists = response.worklists;
-          $scope.lists.worklists.totalCount = $scope.lists.worklists.length;
+          $scope.selected.projectRole, pfs).then(
+        // Success
+        function(data) {
+          $scope.lists.worklists = data.worklists;
+          $scope.lists.worklists.totalCount = data.totalCount
           $scope.resetSelected();
         });
       };
@@ -113,11 +117,12 @@ tsApp.controller('EditCtrl',
         };
 
         workflowService.findAssignedWorklists(projectId, $scope.user.userName, role, pfs).then(
-          function(response) {
-            $scope.lists.worklists = response.worklists;
-            $scope.lists.worklists.totalCount = $scope.lists.worklists.length;
-            $scope.resetSelected();
-          });
+        // Success
+        function(data) {
+          $scope.lists.worklists = data.worklists;
+          $scope.lists.worklists.totalCount = data.totalCount;
+          $scope.resetSelected();
+        });
       };
 
       // Find checklists
@@ -131,9 +136,11 @@ tsApp.controller('EditCtrl',
           queryRestriction : paging.filter
         };
 
-        workflowService.findChecklists(projectId, $scope.query, pfs).then(function(data) {
+        workflowService.findChecklists(projectId, $scope.query, pfs).then(
+        // Success
+        function(data) {
           $scope.lists.worklists = data.checklists;
-          $scope.lists.worklistslists.worklists.totalCount = data.totalCount;
+          $scope.lists.worklists.totalCount = data.totalCount;
           resetSelected();
         });
       }
@@ -181,13 +188,17 @@ tsApp.controller('EditCtrl',
       // select record from 'Cluster' list
       $scope.selectRecord = function(record) {
         $scope.selected.record = record;
-        $scope.lists.concepts = [];
 
-        for (var i = 0; i < record.concepts.length; i++) {
-          contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
-            function(data) {
-              $scope.lists.concepts.push(data);
-            });
+        // Don't push concepts on if in available modes
+        if ($scope.worklistMode != 'Available') {
+          $scope.lists.concepts = [];
+
+          for (var i = 0; i < record.concepts.length; i++) {
+            contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
+              function(data) {
+                $scope.lists.concepts.push(data);
+              });
+          }
         }
       }
 
@@ -258,7 +269,7 @@ tsApp.controller('EditCtrl',
             $scope.selected.worklist.id, pfs).then(
           // Success
           function(data) {
-            $scope.lists.records = data.worklists;
+            $scope.lists.records = data.records;
             $scope.lists.records.totalCount = data.totalCount;
             if (selectFirst) {
               $scope.selectRecord($scope.lists.records[0]);
@@ -269,7 +280,7 @@ tsApp.controller('EditCtrl',
             $scope.selected.worklist.id, pfs).then(
           // Success
           function(data) {
-            scope.lists.records = data.worklists;
+            scope.lists.records = data.records;
             scope.lists.records.totalCount = data.totalCount;
           });
         }
@@ -460,7 +471,9 @@ tsApp.controller('EditCtrl',
         modalInstance.result.then(
         // Success
         function(data) {
-          contentService.getConcept(data.id, $scope.selected.project.id).then(function(data) {
+          contentService.getConcept(data.id, $scope.selected.project.id).then(
+          // Success
+          function(data) {
             $scope.lists.concepts.push(data);
           });
         });
@@ -479,7 +492,9 @@ tsApp.controller('EditCtrl',
       //
       // Initialization: Check that application is configured
       //
-      configureService.isConfigured().then(function(isConfigured) {
+      configureService.isConfigured().then(
+      // Success
+      function(isConfigured) {
         if (!isConfigured) {
           $location.path('/configure');
         } else {
