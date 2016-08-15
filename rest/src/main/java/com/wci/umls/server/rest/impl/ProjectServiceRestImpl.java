@@ -736,7 +736,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken,
           "find molecular actions for a concept", UserRole.VIEWER);
-      return projectService.findMolecularActions(terminologyId, terminology,
+      return projectService.findMolecularActions(componentId, terminology,
           version, query, pfs);
 
     } catch (Exception e) {

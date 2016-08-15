@@ -29,13 +29,6 @@ public interface MolecularActionAlgorithm extends Algorithm {
   public Concept getConcept2();
 
   /**
-   * Returns the project.
-   *
-   * @return the project
-   */
-  public Project getProject();
-
-  /**
    * Returns the user name.
    *
    * @return the user name

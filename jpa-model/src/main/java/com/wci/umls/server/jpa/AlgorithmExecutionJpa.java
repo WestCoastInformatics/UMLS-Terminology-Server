@@ -60,6 +60,7 @@ public class AlgorithmExecutionJpa extends
   @Column(nullable = true)
   private String activityId;
 
+  /** The enabled. */
   @Column(nullable = false)
   private boolean enabled = true;
 
