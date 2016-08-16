@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.TypeKeyValue;
 
 /**
  * Represents an project with users, roles, and configuration for editing.
@@ -184,6 +185,28 @@ public interface Project extends HasId {
    * @param validationChecks the new validation checks
    */
   public void setValidationChecks(List<String> validationChecks);
+
+  /**
+   * Returns the validation data.
+   *
+   * @return the validation data
+   */
+  public List<TypeKeyValue> getValidationData();
+
+  /**
+   * Returns the validation data for a specified type.
+   *
+   * @param type the type
+   * @return the validation data for
+   */
+  public List<TypeKeyValue> getValidationDataFor(String type);
+
+  /**
+   * Sets the validation data.
+   *
+   * @param validationData the validation data
+   */
+  public void setValidationData(List<TypeKeyValue> validationData);
 
   /**
    * Gets the valid categories.
