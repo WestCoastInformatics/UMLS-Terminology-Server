@@ -83,7 +83,7 @@ public class ExceptionHandler {
       StringBuilder body = new StringBuilder();
       if (!(e instanceof LocalException))
         body.append(
-            "Unexpected error trying to " + whatIsHappening
+            "Unexpected error " + whatIsHappening
                 + ". Please contact the administrator.").append("\n\n");
 
       try {

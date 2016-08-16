@@ -64,7 +64,7 @@ public class RootServiceRestImpl {
     throw new WebApplicationException(Response
         .status(500)
         .entity(
-            "\"Unexpected error trying to " + whatIsHappening
+            "\"Unexpected error " + whatIsHappening
                 + ". Please contact the administrator.\"").build());
 
   }
