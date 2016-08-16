@@ -34,6 +34,21 @@
       </tr>
       <tr>
         <td>
+          <b>Editor Level</b>
+        </td>
+        <td>
+          <input ng-model="user.editorLevel" size="5" list="levels">
+          <datalist id="levels">
+            <option>0</option>
+            <option>5</option>
+          </datalist>
+          <button class="btn btn-xs btn-warning"
+            ng-show="user.editorLevel || user.editorLevel == '0'"
+            ng-click="user.editorLevel=''">Clear</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
           <b>Application Role</b>
         </td>
         <td>
@@ -41,14 +56,12 @@
             ng-options="item for item in applicationRoles"></select>
         </td>
       </tr>
-      <tr ng-show="error">
-        <td>&nbsp;</td>
-        <td>
-          <div class="alert alert-danger alert-error">{{error}}</div>
-        </td>
-      </tr>
     </table>
   </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+  
 </div>
 
 <div class="modal-footer">

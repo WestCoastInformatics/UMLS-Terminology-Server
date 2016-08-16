@@ -72,6 +72,7 @@ public class UserJpaUnitTest extends ModelUnitSupport {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("applicationRole");
     tester.include("email");
+    tester.include("editorLevel");
     tester.include("authToken");
     tester.include("name");
     tester.include("team");
@@ -131,6 +132,7 @@ public class UserJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("userName");
     tester.include("email");
+    tester.include("editorLevel");
     tester.include("applicationRole");
     assertTrue(tester.testNotNullFields());
   }

@@ -42,7 +42,8 @@ tsApp.controller('WorkflowCtrl', [
       configs : [],
       projects : [],
       projectRoles : [],
-      recordTypes : workflowService.getRecordTypes()
+      recordTypes : workflowService.getRecordTypes(),
+      configTypes : workflowService.getConfigTypes()
     }
 
     // Paging parameters
@@ -58,11 +59,16 @@ tsApp.controller('WorkflowCtrl', [
     // Set the workflow config
     $scope.setConfig = function(config) {
       $scope.selected.config = config;
-      $scope.getBins($scope.selected.project.id, $scope.selected.config);
+      if ($scope.selected.config) {
+        $scope.getBins($scope.selected.project.id, $scope.selected.config);
+      }
     }
 
     // Retrieve all bins with project and type
     $scope.getBins = function(projectId, config) {
+      // Clear the records
+      $scope.lists.records = [];
+
       // Skip if no config types
       if (config.type) {
         workflowService.getWorkflowBins(projectId, config.type).then(
@@ -74,9 +80,14 @@ tsApp.controller('WorkflowCtrl', [
       }
     };
 
+    // handle change in project role
+    $scope.changeProjectRole = function() {
+      // save the change
+      securityService.saveRole($scope.user.userPreferences, $scope.selected.projectRole);
+    }
+
     // Set the project
     $scope.setProject = function(project) {
-      console.debug("xxx", project);
       $scope.selected.project = project;
 
       // Get role for project (requires a lookup and will save user prefs
@@ -90,6 +101,11 @@ tsApp.controller('WorkflowCtrl', [
         // Get configs
         $scope.getConfigs();
       });
+      projectService.findAssignedUsersForProject($scope.selected.project.id, null, null).then(
+        function(data) {
+          $scope.lists.users = data.users;
+          $scope.lists.users.totalCount = data.totalCount;
+        });
     }
 
     // Retrieve all projects
@@ -170,7 +186,7 @@ tsApp.controller('WorkflowCtrl', [
 
     // Regenerate bins
     $scope.regenerateBins = function() {
-      workflowService.clearBins($scope.selected.project.id, $scope.selected.config).then(
+      workflowService.clearBins($scope.selected.project.id, $scope.selected.config.type).then(
         // Success
         function(response) {
           workflowService.regenerateBins($scope.selected.project.id, $scope.selected.config.type)
@@ -184,20 +200,30 @@ tsApp.controller('WorkflowCtrl', [
 
     // enable/disable
     $scope.toggleEnable = function(bin) {
+
       workflowService.getWorkflowBinDefinition($scope.selected.project.id, bin.name,
         $scope.selected.config.type).then(
         function(response) {
-          var definition = response;
-          if (definition.enabled) {
-            definition.enabled = false;
+          var bin = response;
+          if (bin.enabled) {
+            bin.enabled = false;
           } else {
-            definition.enabled = true;
+            bin.enabled = true;
           }
-          workflowService.updateWorkflowBinDefinition($scope.selected.project.id, definition).then(
+          workflowService.updateWorkflowBinDefinition($scope.selected.project.id, bin).then(
             function(response) {
               $scope.regenerateBins();
             });
         });
+    };
+
+    // remove config
+    $scope.removeConfig = function(config) {
+      workflowService.removeWorkflowConfig($scope.selected.project.id, config.id).then(
+      // Success
+      function(response) {
+        $scope.getConfigs();
+      });
     };
 
     // remove bin/definition
@@ -287,6 +313,71 @@ tsApp.controller('WorkflowCtrl', [
       });
     };
 
+    // Add config modal
+    $scope.openAddConfigModal = function() {
+      console.debug('Open add config modal');
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/editConfig.html',
+        controller : 'ConfigModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          action : function() {
+            return 'Add';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        if (data) {
+          $scope.getConfigs();
+        }
+      });
+    };
+
+    // Edit config modal
+    $scope.openEditConfigModal = function() {
+      console.debug('Open edit config modal');
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/editConfig.html',
+        controller : 'ConfigModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          action : function() {
+            return 'Edit';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        if (data) {
+          $scope.getConfigs();
+        }
+      });
+    };
     // Edit bin modal
     $scope.openEditBinModal = function(lbin) {
       console.debug('openEditBinModal ');

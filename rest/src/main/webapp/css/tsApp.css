@@ -168,6 +168,10 @@ hr {
 	padding-right: 25px;
 }
 
+.ml20 {
+	margin-left: 20px;
+}
+
 .tab-disabled {
 	color: gray;
 	cursor: pointer;

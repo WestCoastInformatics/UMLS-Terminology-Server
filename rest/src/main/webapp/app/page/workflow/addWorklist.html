@@ -1,58 +1,54 @@
 <div class="modal-header">
   <h4>Create Worklist</h4>
-  <h5>Bin: {{bin.name}}</h5>
-  <h5>Cluster type: {{clusterType}}</h5>
 </div>
 
 <div class="modal-body">
-  <div class="row">
-    <table class="table">
-      <tr>
-        <td>
-          <b>Cluster Count</b>
-        </td>
-        <td> 
-          <input size="4" ng-model="clusterCt"
-            list="clusterCtList" placeholder="20" />
-          <datalist id="clusterCtList">
-            <option ng-repeat="option in clusterCtOptions"
-              value="{{option.index}}">{{option.index}}</option>
-          </datalist>
-          <!-- <button class="btn btn-xs btn-warning" ng-show="clusterCt"
-            ng-click="clusterCt=''">Clear</button> -->
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Start Index</b>
-        </td>
-        <td>         
-          <input ng-model="skipClusterCt" size="4" />
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Number of Worklists</b>
-        </td>
-        <td>         
-          <input ng-model="numberOfWorklists" size="4" />
-        </td>
-      </tr>
-    </table>
-  </div>
+  <table class="table">
+    <tr>
+      <td>
+        <b>Bin</b>
+      </td>
+      <td>
+        {{bin.name}}
+        <span ng-show="clusterType != 'default'"> ({{clusterType}})</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Cluster Count</b>
+      </td>
+      <td>
+        <input type="number" size="4" ng-model="clusterCt" list="clusterCtList"
+          placeholder="(required)" />
+        <datalist id="clusterCtList">
+          <option ng-repeat="option in clusterCtOptions"
+            value="{{option.index}}">{{option.index}}</option>
+        </datalist>
+        <button class="btn btn-xs btn-warning" ng-show="clusterCt"
+          ng-click="clusterCt = ''">Clear</button>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Start Index</b>
+      </td>
+      <td>
+        <input type="number" ng-model="skipClusterCt" size="4" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Number of Worklists</b>
+      </td>
+      <td>
+        <input type="number" ng-model="numberOfWorklists" size="4" />
+      </td>
+    </tr>
+  </table>
 
-  <div ng-show="errors.length > 0" class="row">
-    <table class="table">
-      <tr>
-        <td>
-          <div class="alert alert-danger alert-error"
-            ng-repeat="error in errors">
-            {{error}}
-          </div>
-        </td>
-      </tr>
-    </table>
-  </div>
+  <!-- Errors -->
+  <div errors="errors"></div>
+
 </div>
 
 {{completionMessage}}

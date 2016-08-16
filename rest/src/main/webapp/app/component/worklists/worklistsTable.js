@@ -36,7 +36,6 @@ tsApp
               $scope.selected.concept = null;
 
               $scope.lists.records = [];
-              $scope.lists.users = [];
 
               // This structure reused so don't conflate
               $scope.worklists = [];
@@ -55,7 +54,7 @@ tsApp
               };
 
               // Project Changed Handler
-              $scope.$watch('selected', function() {
+              $scope.$watch('selected.project', function() {
                 if ($scope.selected.project) {
                   // Set project, refresh worklist list
                   $scope.setProject($scope.selected.project);
@@ -76,11 +75,6 @@ tsApp
               $scope.setProject = function(project) {
                 $scope.project = project;
                 $scope.getWorklists();
-                projectService.findAssignedUsersForProject($scope.project.id, null, null).then(
-                  function(data) {
-                    $scope.lists.users = data.users;
-                    $scope.lists.users.totalCount = data.totalCount;
-                  });
               };
 
               // Get $scope.worklists

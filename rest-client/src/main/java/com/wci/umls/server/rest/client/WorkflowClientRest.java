@@ -1050,7 +1050,7 @@ public class WorkflowClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/bin/" + workflowBinId + "/regenerate?projectId="
-        + projectId + "&workflowBinId=" + workflowBinId);
+        + projectId + "&type=" + type + "&workflowBinId=" + workflowBinId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
     final String resultString = response.readEntity(String.class);

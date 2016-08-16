@@ -145,6 +145,12 @@ tsApp.controller('EditCtrl',
         });
       }
 
+      // handle change in project role
+      $scope.changeProjectRole = function() {
+        // save the change
+        securityService.saveRole($scope.user.userPreferences, $scope.selected.projectRole);
+      }
+
       // Set the project
       $scope.setProject = function(project) {
         $scope.selected.project = project;

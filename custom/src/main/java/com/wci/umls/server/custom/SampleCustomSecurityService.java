@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.UserImpl;
+import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultSecurityServiceHandler;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
@@ -47,14 +47,14 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
       properties = ConfigUtility.getConfigProperties();
     }
 
-    User user = new UserImpl();
+    User user = new UserJpa();
 
     // check specified admin users list from config file
     if (getAdminUsersFromConfigFile().contains(username)) {
       user.setApplicationRole(UserRole.ADMINISTRATOR);
       user.setUserName(username);
-      user.setName(username.substring(0, 1).toUpperCase()
-          + username.substring(1));
+      user.setName(
+          username.substring(0, 1).toUpperCase() + username.substring(1));
       user.setEmail(username + "@example.com");
       return user;
     }
@@ -62,8 +62,8 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
     if (getViewerUsersFromConfigFile().contains(username)) {
       user.setApplicationRole(UserRole.VIEWER);
       user.setUserName(username);
-      user.setName(username.substring(0, 1).toUpperCase()
-          + username.substring(1));
+      user.setName(
+          username.substring(0, 1).toUpperCase() + username.substring(1));
       user.setEmail(username + "@example.com");
       return user;
     }
@@ -103,10 +103,8 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
     final String userList = properties.getProperty("users.viewer");
 
     if (userList == null) {
-      Logger
-          .getLogger(getClass())
-          .warn(
-              "Could not retrieve config parameter users.viewer for security handler DEFAULT");
+      Logger.getLogger(getClass()).warn(
+          "Could not retrieve config parameter users.viewer for security handler DEFAULT");
       return userSet;
     }
 
@@ -128,10 +126,8 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
     Logger.getLogger(getClass()).info(properties.keySet());
 
     if (userList == null) {
-      Logger
-          .getLogger(getClass())
-          .warn(
-              "Could not retrieve config parameter users.admin for security handler DEFAULT");
+      Logger.getLogger(getClass()).warn(
+          "Could not retrieve config parameter users.admin for security handler DEFAULT");
       return userSet;
     }
 

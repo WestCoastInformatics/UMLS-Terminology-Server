@@ -13,10 +13,10 @@
     <thead class="pointer">
       <tr>
         <th class="col-md-1 col-xs-1">Cluster</th>
-        <th uib-tooltip="Status filter" class="col-md-1 col-xs-1"><select
-          style="width: 40px;" ng-model="paging.typeFilter"
-          ng-options="item for item in recordTypes"
-          ng-change="paging.getPagedList()">
+        <th class="col-md-1 col-xs-1"><select style="width: 40px;"
+          ng-model="paging.typeFilter"
+          ng-options="item for item in lists.recordTypes"
+          ng-change="paging.callback.getPagedList()">
             <option value="">All</option>
         </select></th>
         <th class="col-md-3 col-xs-3">Concept Id</th>
@@ -44,10 +44,10 @@
     </tbody>
   </table>
   <span
-    ng-show="!paging.filter && !paging.typeFilter && selected.worklist.records.totalCount == 0"
-    class="alert alert-warning"> No tracking records</span>
+    ng-show="!paging.filter && !paging.typeFilter && lists.records.totalCount == 0"
+    class="alert alert-warning"> No tracking records </span>
   <span
-    ng-show="(paging.filter || paging.typeFilter) && selected.worklist.records.totalCount == 0"
+    ng-show="(paging.filter || paging.typeFilter) && lists.records.totalCount == 0"
     class="alert alert-warning"> No matching tracking records found </span>
 </div>
 

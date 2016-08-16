@@ -19,6 +19,10 @@ tsApp.service('workflowService', [
       return [ 'N', 'R' ];
     }
 
+    this.getConfigTypes = function() {
+      return [ 'MUTUALLY_EXCLUSIVE', 'QUALITY_ASSURANCE', 'AD_HOC' ];
+    }
+
     // get all workflow paths
     this.getWorkflowPaths = function() {
       var deferred = $q.defer();
@@ -42,16 +46,16 @@ tsApp.service('workflowService', [
     };
 
     // add workflow config
-    this.addWorkflowConfig = function(projectId, workflowConfig) {
+    this.addWorkflowConfig = function(projectId, config) {
       console.debug('addWorkflowConfig');
       var deferred = $q.defer();
 
       // Add workflow config
       gpService.increment();
-      $http.post(workflowUrl + '/config/add?projectId=' + projectId, workflowConfig).then(
+      $http.post(workflowUrl + '/config/add?projectId=' + projectId, config).then(
       // success
       function(response) {
-        console.debug('  workflowConfig = ', response.data);
+        console.debug('  config = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -65,13 +69,13 @@ tsApp.service('workflowService', [
     };
 
     // update workflow config
-    this.updateWorkflowConfig = function(projectId, workflowConfig) {
-      console.debug('updateWorkflowConfig', projectId, workflowConfig);
+    this.updateWorkflowConfig = function(projectId, config) {
+      console.debug('updateWorkflowConfig', projectId, config);
       var deferred = $q.defer();
 
       // Update workflow config
       gpService.increment();
-      $http.post(workflowUrl + '/config/update?projectId=' + projectId, workflowConfig).then(
+      $http.post(workflowUrl + '/config/update?projectId=' + projectId, config).then(
       // success
       function(response) {
         console.debug('  successful update workflow config');
@@ -194,29 +198,6 @@ tsApp.service('workflowService', [
       // success
       function(response) {
         console.debug('  successful remove workflow bin definition');
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
-      return deferred.promise;
-    };
-
-    // clear workflow bins
-    this.clearBins = function(projectId, type) {
-      console.debug('clearBins', projectId, type);
-      var deferred = $q.defer();
-
-      // clear workflow bins
-      gpService.increment();
-      $http.post(workflowUrl + '/clear?projectId=' + projectId, type).then(
-      // success
-      function(response) {
-        console.debug('  successfully cleared workflow bins');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -921,26 +902,25 @@ tsApp.service('workflowService', [
     };
 
     // clear bins
-    this.clearBins = function(projectId, workflowBinType) {
-      console.debug('clear bins');
+    this.clearBins = function(projectId, type) {
+      console.debug('clear bins', projectId, type);
       var deferred = $q.defer();
 
       // find tracking records
       gpService.increment();
-      $http.get(workflowUrl + '/bin/clear/all?projectId=' + projectId + '&type=' + workflowBinType)
-        .then(
-        // success
-        function(response) {
-          console.debug('  successful clear bins');
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
+      $http.get(workflowUrl + '/bin/clear/all?projectId=' + projectId + '&type=' + type).then(
+      // success
+      function(response) {
+        console.debug('  successful clear bins');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     };
 

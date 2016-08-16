@@ -99,22 +99,9 @@
       </table>
     </div>
   </div>
-  <div ng-show="errors.length > 0" class="row">
-    <table class="table">
-      <tr>
-        <td>
-          <div class="alert alert-danger alert-error"
-            ng-repeat="error in errors">
-            {{error}}
-            <!-- DO NOT SUPPORT clearing error <div
-              style="cursor: pointer; display: inline; float: right; width: 3%;">
-              <i class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
-            </div> -->
-          </div>
-        </td>
-      </tr>
-    </table>
-  </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
 </div>
 
 
