@@ -40,6 +40,8 @@ public class SessionFactoryShutdownListener implements ServletContextListener {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    
+    TermServerApplication.timer.cancel();
   }
 
   /**

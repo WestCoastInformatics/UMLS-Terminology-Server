@@ -41,12 +41,7 @@ public abstract class AbstractComponent implements Component {
 
   /** The id. */
   @Id
-  @GenericGenerator(name = "ExistingOrGeneratedId", strategy = "com.wci.umls.server.jpa.helpers.UseExistingOrGenerateIdGenerator"
-//  , parameters = {
-//      @org.hibernate.annotations.Parameter(name = "table_name", value = "table_generator"),
-//      @org.hibernate.annotations.Parameter(name = "pkColumnValue", value = "Entity")
-//  }
-  )
+  @GenericGenerator(name = "ExistingOrGeneratedId", strategy = "com.wci.umls.server.jpa.helpers.UseExistingOrGenerateIdGenerator")
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "ExistingOrGeneratedId")
 
   private Long id;

@@ -110,8 +110,8 @@ public class UpdateConceptStatusMolecularAction
     conceptPostUpdates = new ConceptJpa(getConcept(), false);
 
     // log the REST calls
-//    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-//        getActivityId(), getWorkId(), getName() + " " + getConcept().getId());
+    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+        getActivityId(), getWorkId(), getName() + " " + getConcept());
 
   }
 

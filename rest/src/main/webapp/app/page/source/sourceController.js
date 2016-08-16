@@ -6,10 +6,12 @@ tsApp
       utilService, securityService, gpService, FileUploader, tabService, configureService) {
       console.debug('configure SourceCtrl');
 
+      // Set up tabs and controller
       tabService.setShowing(true);
-
-      // ensure correct tab setting on 'back' and 'reload' events
-      tabService.setSelectedTabByLabel('Sources');
+      utilService.clearError();
+      tabService.setSelectedTabByLabel('Source');
+      $scope.user = securityService.getUser();
+      projectService.getUserHasAnyRole();
 
       // /////////////////////
       // Local variables

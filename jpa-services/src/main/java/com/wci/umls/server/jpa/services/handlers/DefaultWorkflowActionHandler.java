@@ -73,11 +73,12 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     PfsParameter pfs, WorkflowService service) throws Exception {
 
     final StringBuilder sb = new StringBuilder();
-    
+
     if (UserRole.AUTHOR == role) {
       sb.append("NOT authors:[* TO *] AND NOT reviewers:[* TO *]");
     } else if (UserRole.REVIEWER == role) {
-      sb.append("NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS");
+      sb.append(
+          "NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS");
     } else if (UserRole.ADMINISTRATOR == role) {
       // n/a, query as is.
     } else {
@@ -99,9 +100,8 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     if (role == UserRole.AUTHOR
         && worklist.getWorkflowStatus() == WorkflowStatus.EDITING_DONE
         && workflowAction == WorkflowAction.ASSIGN) {
-      result
-          .addError("User does not have permissions to perform this action - "
-              + workflowAction + ", " + userName);
+      result.addError("User does not have permissions to perform this action - "
+          + workflowAction + ", " + userName);
       return result;
     }
 
@@ -111,46 +111,41 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
       case ASSIGN:
 
-        boolean authorFlag =
-            worklist.getAuthors().size() == 0
-                && role == UserRole.AUTHOR
-                && EnumSet.of(WorkflowStatus.NEW).contains(
-                    worklist.getWorkflowStatus());
+        boolean authorFlag = worklist.getAuthors().size() == 0
+            && role == UserRole.AUTHOR && EnumSet.of(WorkflowStatus.NEW)
+                .contains(worklist.getWorkflowStatus());
 
         boolean reviewerFlag =
-            worklist.getReviewers().size() == 0
-                && role == UserRole.REVIEWER
-                && EnumSet.of(WorkflowStatus.EDITING_DONE).contains(
-                    worklist.getWorkflowStatus());
+            worklist.getReviewers().size() == 0 && role == UserRole.REVIEWER
+                && EnumSet.of(WorkflowStatus.EDITING_DONE)
+                    .contains(worklist.getWorkflowStatus());
         flag = authorFlag || reviewerFlag;
         break;
 
       case UNASSIGN:
         // an "assigned" state must be present
         authorFlag =
-            worklist.getAuthors().size() == 1
-                && role == UserRole.AUTHOR
+            worklist.getAuthors().size() == 1 && role == UserRole.AUTHOR
                 && userName.equals(worklist.getAuthors().get(0))
-                && EnumSet.of(WorkflowStatus.NEW,
-                    WorkflowStatus.EDITING_IN_PROGRESS,
-                    WorkflowStatus.EDITING_DONE).contains(
-                    worklist.getWorkflowStatus());
+                && EnumSet
+                    .of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS,
+                        WorkflowStatus.EDITING_DONE)
+                    .contains(worklist.getWorkflowStatus());
 
         reviewerFlag =
-            worklist.getReviewers().size() == 1
-                && role == UserRole.REVIEWER
+            worklist.getReviewers().size() == 1 && role == UserRole.REVIEWER
                 && userName.equals(worklist.getReviewers().get(0))
-                && EnumSet.of(WorkflowStatus.REVIEW_NEW,
-                    WorkflowStatus.REVIEW_IN_PROGRESS).contains(
-                    worklist.getWorkflowStatus());
-        
-        boolean administratorFlag = role == UserRole.ADMINISTRATOR 
-            && EnumSet.of(WorkflowStatus.NEW,
-            WorkflowStatus.EDITING_IN_PROGRESS,
-            WorkflowStatus.EDITING_DONE, WorkflowStatus.REVIEW_NEW,
-            WorkflowStatus.REVIEW_IN_PROGRESS).contains(
-            worklist.getWorkflowStatus());
-            
+                && EnumSet
+                    .of(WorkflowStatus.REVIEW_NEW,
+                        WorkflowStatus.REVIEW_IN_PROGRESS)
+                    .contains(worklist.getWorkflowStatus());
+
+        boolean administratorFlag = role == UserRole.ADMINISTRATOR && EnumSet
+            .of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS,
+                WorkflowStatus.EDITING_DONE, WorkflowStatus.REVIEW_NEW,
+                WorkflowStatus.REVIEW_IN_PROGRESS)
+            .contains(worklist.getWorkflowStatus());
+
         flag = authorFlag || reviewerFlag || administratorFlag;
 
         break;
@@ -161,34 +156,26 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
       case SAVE:
         // dependent on user role
-        authorFlag =
-            role == UserRole.AUTHOR
-                && EnumSet.of(WorkflowStatus.NEW,
-                    WorkflowStatus.EDITING_IN_PROGRESS,
-                    WorkflowStatus.EDITING_DONE).contains(
-                    worklist.getWorkflowStatus());
-        reviewerFlag =
-            role == UserRole.REVIEWER
-                && EnumSet.of(WorkflowStatus.REVIEW_NEW,
-                    WorkflowStatus.REVIEW_IN_PROGRESS,
-                    WorkflowStatus.REVIEW_DONE).contains(
-                    worklist.getWorkflowStatus());
+        authorFlag = role == UserRole.AUTHOR && EnumSet
+            .of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS,
+                WorkflowStatus.EDITING_DONE)
+            .contains(worklist.getWorkflowStatus());
+        reviewerFlag = role == UserRole.REVIEWER && EnumSet
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS,
+                WorkflowStatus.REVIEW_DONE)
+            .contains(worklist.getWorkflowStatus());
         flag = authorFlag || reviewerFlag;
         break;
 
       case FINISH:
         // dependent on project role
-        authorFlag =
-            role == UserRole.AUTHOR
-                && EnumSet.of(WorkflowStatus.NEW,
-                    WorkflowStatus.EDITING_IN_PROGRESS).contains(
-                    worklist.getWorkflowStatus());
-        reviewerFlag =
-            role == UserRole.REVIEWER
-                && EnumSet.of(WorkflowStatus.REVIEW_NEW,
-                    WorkflowStatus.REVIEW_IN_PROGRESS,
-                    WorkflowStatus.REVIEW_DONE).contains(
-                    worklist.getWorkflowStatus());
+        authorFlag = role == UserRole.AUTHOR && EnumSet
+            .of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS)
+            .contains(worklist.getWorkflowStatus());
+        reviewerFlag = role == UserRole.REVIEWER && EnumSet
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS,
+                WorkflowStatus.REVIEW_DONE)
+            .contains(worklist.getWorkflowStatus());
         flag = authorFlag || reviewerFlag;
         break;
 
@@ -197,8 +184,8 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     }
 
     if (!flag) {
-      result.addError("Invalid workflowAction for worklist workflow status: "
-          + userName + "," + role + ", " + workflowAction + ", "
+      result.addError("Invalid action for worklist: " + userName + "," + role
+          + ", " + workflowAction + ", "
           + (worklist != null ? worklist.getWorkflowStatus() : "") + ", "
           + (worklist != null ? worklist.getId() : ""));
     }
@@ -232,17 +219,19 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
       case UNASSIGN:
         // For authoring, removes the author and sets workflow status
         // back
-        if (EnumSet.of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS,
-            WorkflowStatus.EDITING_DONE).contains(worklist.getWorkflowStatus())) {
+        if (EnumSet
+            .of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS,
+                WorkflowStatus.EDITING_DONE)
+            .contains(worklist.getWorkflowStatus())) {
 
           worklist.setWorkflowStatus(WorkflowStatus.NEW);
           worklist.getAuthors().remove(userName);
         }
         // For review, it removes the reviewer and sets the status back to
         // EDITING_DONE
-        else if (EnumSet.of(WorkflowStatus.REVIEW_NEW,
-            WorkflowStatus.REVIEW_IN_PROGRESS).contains(
-            worklist.getWorkflowStatus())) {
+        else if (EnumSet
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS)
+            .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_DONE);
           worklist.getReviewers().remove(userName);
         }
@@ -254,15 +243,14 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
       case SAVE:
         // AUTHOR - NEW becomes EDITING_IN_PROGRESS
-        if (role == UserRole.AUTHOR
-            && EnumSet.of(WorkflowStatus.NEW).contains(
-                worklist.getWorkflowStatus())) {
+        if (role == UserRole.AUTHOR && EnumSet.of(WorkflowStatus.NEW)
+            .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_IN_PROGRESS);
         }
         // REVIEWER - REVIEWER_NEW becomes REVIEW_IN_PROGRESS
         else if (role == UserRole.REVIEWER
-            && EnumSet.of(WorkflowStatus.REVIEW_NEW).contains(
-                worklist.getWorkflowStatus())) {
+            && EnumSet.of(WorkflowStatus.REVIEW_NEW)
+                .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.REVIEW_IN_PROGRESS);
         }
         // all other cases, status remains the same
@@ -278,16 +266,16 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         }
 
         // REVIEW_NEW, REVIEW_IN_PROGRESS => REVIEW_DONE
-        else if (EnumSet.of(WorkflowStatus.REVIEW_NEW,
-            WorkflowStatus.REVIEW_IN_PROGRESS).contains(
-            worklist.getWorkflowStatus())) {
+        else if (EnumSet
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS)
+            .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.REVIEW_DONE);
           worklist.getWorkflowStateHistory().put("Stamped", new Date());
         }
 
         // REVIEW_DONE => READY_FOR_PUBLICATION
-        else if (EnumSet.of(WorkflowStatus.REVIEW_DONE).contains(
-            worklist.getWorkflowStatus())) {
+        else if (EnumSet.of(WorkflowStatus.REVIEW_DONE)
+            .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
           worklist.getWorkflowStateHistory().put("Done", new Date());
         }
@@ -327,8 +315,8 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     UserRole role, PfsParameter pfs, WorkflowService service) throws Exception {
 
     if (role == UserRole.AUTHOR) {
-      return service.findWorklists(project, "authors:" + userName + 
-          " AND NOT workflowStatus:EDITING_DONE", pfs);
+      return service.findWorklists(project,
+          "authors:" + userName + " AND NOT workflowStatus:EDITING_DONE", pfs);
     } else if (role == UserRole.REVIEWER) {
       return service.findWorklists(project, "reviewers:" + userName, pfs);
     }

@@ -3,18 +3,17 @@
  */
 package com.wci.umls.server;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.TypeKeyValue;
 
 /**
  * Represents an project with users, roles, and configuration for editing.
  */
-public interface Project extends HasId {
+public interface Project extends HasLastModified {
 
   /**
    * Returns the name.
@@ -73,34 +72,6 @@ public interface Project extends HasId {
    * @param teamBased the team based
    */
   public void setTeamBased(boolean teamBased);
-
-  /**
-   * Returns the last modified.
-   * 
-   * @return the last modified
-   */
-  public Date getLastModified();
-
-  /**
-   * Sets the last modified.
-   * 
-   * @param lastModified the last modified
-   */
-  public void setLastModified(Date lastModified);
-
-  /**
-   * Returns the last modified by.
-   * 
-   * @return the last modified by
-   */
-  public String getLastModifiedBy();
-
-  /**
-   * Sets the last modified by.
-   * 
-   * @param lastModifiedBy the last modified by
-   */
-  public void setLastModifiedBy(String lastModifiedBy);
 
   /**
    * Returns the terminology.

@@ -39,13 +39,11 @@ import com.wci.umls.server.jpa.algo.maint.ReloadConfigPropertiesAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularActionList;
-import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 
@@ -94,25 +92,24 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call PUT (Project): /add " + project);
 
-    ProjectService projectService = new ProjectServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
-      final String authUser = authorizeApp(securityService, authToken,
+      final String userName = authorizeApp(securityService, authToken,
           "add project", UserRole.ADMINISTRATOR);
+      projectService.setLastModifiedBy(userName);
 
       // check to see if project already exists
       for (final Project p : projectService.getProjects().getObjects()) {
         if (p.getName().equals(project.getName())
             && p.getDescription().equals(project.getDescription())) {
-          throw new Exception(
+          throw new LocalException(
               "A project with this name and description already exists");
         }
       }
 
       // Add project
-      project.setLastModifiedBy(securityService.getUsernameForToken(authToken));
-      Project newProject = projectService.addProject(project);
-
-      projectService.addLogEntry(authUser, project.getId(), project.getId(),
+      final Project newProject = projectService.addProject(project);
+      projectService.addLogEntry(userName, project.getId(), project.getId(),
           null, null, "ADD project - " + project);
 
       return newProject;
@@ -139,28 +136,23 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call PUT (Project): /update " + project);
 
     // Create service and configure transaction scope
-    ProjectService projectService = new ProjectServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
-      String authUser = authorizeApp(securityService, authToken,
+      final String userName = authorizeApp(securityService, authToken,
           "update project", UserRole.ADMINISTRATOR);
-
+      projectService.setLastModifiedBy(userName);
       // check to see if project already exists
-      boolean found = false;
-      for (final Project p : projectService.getProjects().getObjects()) {
-        if (p.getId().equals(project.getId())) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
+      final Project origProject = projectService.getProject(project.getId());
+      if (origProject == null) {
         throw new Exception("Project " + project.getId() + " does not exist");
       }
 
       // Update project
-      project.setLastModifiedBy(securityService.getUsernameForToken(authToken));
+
+      project.setPrecedenceList(origProject.getPrecedenceList());
       projectService.updateProject(project);
 
-      projectService.addLogEntry(authUser, project.getId(), project.getId(),
+      projectService.addLogEntry(userName, project.getId(), project.getId(),
           null, null, "UPDATE project " + project);
 
     } catch (Exception e) {
@@ -184,15 +176,15 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call DELETE (Project): /remove/" + id);
 
-    ProjectService projectService = new ProjectServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
-      String authUser = authorizeApp(securityService, authToken,
+      final String userName = authorizeApp(securityService, authToken,
           "remove project", UserRole.ADMINISTRATOR);
-
+      projectService.setLastModifiedBy(userName);
       // Create service and configure transaction scope
       projectService.removeProject(id);
 
-      projectService.addLogEntry(authUser, id, id, null, null,
+      projectService.addLogEntry(userName, id, id, null, null,
           "REMOVE project " + id);
 
     } catch (Exception e) {
@@ -215,14 +207,11 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Project): /" + id);
 
-    ProjectService projectService = new ProjectServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "get the project",
           UserRole.VIEWER);
-
-      Project project = projectService.getProject(id);
-
-      return project;
+      return projectService.getProject(id);
     } catch (Exception e) {
       handleException(e, "trying to get a project");
       return null;
@@ -243,13 +232,10 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Project): /all");
 
-    ProjectService projectService = new ProjectServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "get projects", UserRole.VIEWER);
-
-      ProjectList projects = projectService.getProjects();
-
-      return projects;
+      return projectService.getProjects();
     } catch (Exception e) {
       handleException(e, "trying to get the projects");
       return null;
@@ -276,20 +262,21 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
     // Test preconditions
     if (projectId == null || userName == null || role == null) {
-      handleException(new Exception("Required parameter has a null value"), "");
+      handleException(new LocalException("Required parameter has a null value"),
+          "");
     }
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       final String authUser = authorizeProject(projectService, projectId,
           securityService, authToken, "add user to project", UserRole.AUTHOR);
+      projectService.setLastModifiedBy(authUser);
 
-      User user = securityService.getUser(userName);
-      User userCopy = new UserJpa(user);
-      Project project = projectService.getProject(projectId);
-      Project projectCopy = new ProjectJpa(project);
+      final User user = securityService.getUser(userName);
+      final User userCopy = new UserJpa(user);
+      final Project project = projectService.getProject(projectId);
+      final Project projectCopy = new ProjectJpa(project);
       project.getUserRoleMap().put(userCopy, UserRole.valueOf(role));
-      project.setLastModifiedBy(authUser);
       projectService.updateProject(project);
 
       user.getProjectRoleMap().put(projectCopy, UserRole.valueOf(role));
@@ -514,18 +501,32 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
         authUser = authorizeProject(projectService, projectId, securityService,
             authToken, "unassign user from project", UserRole.AUTHOR);
       }
+      projectService.setLastModifiedBy(authUser);
 
       User user = securityService.getUser(userName);
-      User userCopy = new UserJpa(user);
+      final User userCopy = new UserJpa(user);
       Project project = projectService.getProject(projectId);
-      Project projectCopy = new ProjectJpa(project);
+      final Project projectCopy = new ProjectJpa(project);
 
+      System.out
+          .println("project.userRoleMap.before = " + project.getUserRoleMap());
+      System.out.println("  userCopy = " + userCopy);
       project.getUserRoleMap().remove(userCopy);
-      project.setLastModifiedBy(authUser);
       projectService.updateProject(project);
 
+      // reread to show
+      project = projectService.getProject(projectId);
+      System.out
+          .println("project.userRoleMap.after = " + project.getUserRoleMap());
+
+      System.out
+          .println("user.projRoleMap.before = " + user.getProjectRoleMap());
+      System.out.println("  projCopy = " + projectCopy);
       user.getProjectRoleMap().remove(projectCopy);
       securityService.updateUser(user);
+
+      user = securityService.getUser(userName);
+      System.out.println("user.projRoleMap.after= " + user.getProjectRoleMap());
 
       projectService.addLogEntry(authUser, projectId, projectId, null, null,
           "UNASSIGN user from project - " + userName);
@@ -552,7 +553,6 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass()).info("RESTful call (Project): /all, " + pfs);
-
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find projects",
@@ -576,7 +576,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   @Override
   public String getLog(
     @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Object id, e.g. 5", required = true) @QueryParam("objectId") Long objectId,
+    @ApiParam(value = "Object id, e.g. 5", required = false) @QueryParam("objectId") Long objectId,
     @ApiParam(value = "Lines, e.g. 5", required = true) @QueryParam("lines") int lines,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -589,11 +589,11 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
           "get log entries", UserRole.AUTHOR);
 
       // Precondition checking -- must have projectId and objectId set
-      if (projectId == null || objectId == null) {
+      if (projectId == null) {
         throw new LocalException("Project id and Object id must be set");
       }
 
-      PfsParameter pfs = new PfsParameterJpa();
+      final PfsParameter pfs = new PfsParameterJpa();
       pfs.setStartIndex(0);
       pfs.setMaxResults(lines);
       pfs.setAscending(false);
@@ -616,7 +616,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
       final List<LogEntry> entries = projectService.findLogEntries(query, pfs);
 
-      StringBuilder log = new StringBuilder();
+      final StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {
         final LogEntry entry = entries.get(i);
         final StringBuilder message = new StringBuilder();
@@ -666,7 +666,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
             "Terminology/version and activity must be set");
       }
 
-      PfsParameter pfs = new PfsParameterJpa();
+      final PfsParameter pfs = new PfsParameterJpa();
       pfs.setStartIndex(0);
       pfs.setMaxResults(lines);
       pfs.setAscending(false);
@@ -693,7 +693,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
       final List<LogEntry> entries = projectService.findLogEntries(query, pfs);
 
-      StringBuilder log = new StringBuilder();
+      final StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {
         final LogEntry entry = entries.get(i);
         final StringBuilder message = new StringBuilder();
@@ -732,18 +732,18 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call POST (Content): /actions/molecular " + query);
 
-    final ContentService contentService = new ContentServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "find molecular actions for a concept", UserRole.VIEWER);
-      return contentService.findMolecularActions(componentId, terminology,
+      return projectService.findMolecularActions(componentId, terminology,
           version, query, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to find molecular actions for a concept");
       return null;
     } finally {
-      contentService.close();
+      projectService.close();
       securityService.close();
     }
   }
@@ -763,19 +763,19 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call POST (Content): /actions/atomic "
             + molecularActionId + ", " + query);
 
-    final ContentService contentService = new ContentServiceJpa();
+    final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "find atomic actions for a molecular action", UserRole.VIEWER);
 
-      return contentService.findAtomicActions(molecularActionId, query, pfs);
+      return projectService.findAtomicActions(molecularActionId, query, pfs);
 
     } catch (Exception e) {
       handleException(e,
           "trying to find atomic actions for a molecular action");
       return null;
     } finally {
-      contentService.close();
+      projectService.close();
       securityService.close();
     }
   }

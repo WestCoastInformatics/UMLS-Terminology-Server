@@ -31,13 +31,13 @@ tsApp.controller('LoginCtrl', [
 
       securityService.authenticate(name, password).then(
       // success
-      function(response) {
+      function(data) {
         utilService.clearError();
 
-        securityService.setUser(response);
+        securityService.setUser(data);
 
         // set request header authorization and reroute
-        $http.defaults.headers.common.Authorization = response.authToken;
+        $http.defaults.headers.common.Authorization = data.authToken;
 
         // if license required, go to license page
         if (appConfig['deploy.license.enabled'] === 'true') {
@@ -48,15 +48,17 @@ tsApp.controller('LoginCtrl', [
         else {
 
           // Route the user to starting tab
-          tabService.routeAuthorizedUser(response.userPreferences);
+          tabService.routeAuthorizedUser(data.userPreferences);
 
         }
 
       },
 
       // error
-      function(response) {
-        utilService.handleError(response);
+      function(data) {
+        utilService.handleError({
+          data : data
+        });
       });
     };
 

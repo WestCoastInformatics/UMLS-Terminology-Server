@@ -531,6 +531,21 @@ public interface WorkflowServiceRest {
     throws Exception;
 
   /**
+   * Returns the log for the worklist or checklist. This includes log for any
+   * actions performed while using this worklist or checklist.
+   *
+   * @param projectId the project id
+   * @param checklistId the checklist id
+   * @param worklistId the worklist id
+   * @param lines the lines
+   * @param authToken the auth token
+   * @return the log
+   * @throws Exception the exception
+   */
+  public String getLog(Long projectId, Long checklistId, Long worklistId,
+    int lines, String authToken) throws Exception;
+
+  /**
    * Adds the worklist note.
    *
    * @param projectId the project id

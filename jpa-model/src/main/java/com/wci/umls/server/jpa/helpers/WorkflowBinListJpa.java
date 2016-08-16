@@ -22,7 +22,7 @@ public class WorkflowBinListJpa extends AbstractResultList<WorkflowBin>
 
   /* see superclass */
   @Override
-  @XmlElement(type = WorkflowBinJpa.class, name = "worklists")
+  @XmlElement(type = WorkflowBinJpa.class, name = "bins")
   public List<WorkflowBin> getObjects() {
     return super.getObjectsTransient();
   }

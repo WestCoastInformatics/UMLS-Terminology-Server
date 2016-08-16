@@ -1,4 +1,4 @@
-// Content controller
+// Relationships
 tsApp.directive('relationships', [
   'utilService',
   'contentService',
@@ -14,13 +14,13 @@ tsApp.directive('relationships', [
       },
       templateUrl : 'app/component/relationships/relationships.html',
       link : function(scope, element, attrs) {
-        
-       
+
         // check callbacks supplied
         if (!scope.callbacks || !scope.callbacks.findRelationships) {
-          utilService.setError('Relationships directive requires callbacks.findRelationships function');
+          utilService
+            .setError('Relationships directive requires callbacks.findRelationships function');
         }
-     
+
         // instantiate paging and paging callback function
         scope.pagedData = [];
         scope.paging = utilService.getPaging();
@@ -79,13 +79,13 @@ tsApp.directive('relationships', [
           };
 
           // Request from service
-          scope.callbacks.findRelationships(scope.component, scope.paging.page,
-            parameters).then(function(data) {
+          scope.callbacks.findRelationships(scope.component, scope.paging.page, parameters).then(
+            function(data) {
 
-            scope.pagedData.data = data.relationships;
-            scope.pagedData.totalCount = data.totalCount;
+              scope.pagedData.data = data.relationships;
+              scope.pagedData.totalCount = data.totalCount;
 
-          });
+            });
         }
         // watch the component
         scope.$watch('component', function() {
@@ -94,17 +94,16 @@ tsApp.directive('relationships', [
           }
         }, true);
 
-
         // watch show hidden flag
         scope.$watch('showHidden', function(newValue, oldValue) {
           scope.paging.showHidden = scope.showHidden;
-          
+
           // if value changed, get paged list
           if (newValue != oldValue) {
             getPagedList();
           }
         });
-        
+
         // Function to toggle inferred flag and apply paging
         scope.toggleInferred = function() {
           if (scope.paging.showInferred == null || scope.paging.showInferred == undefined) {

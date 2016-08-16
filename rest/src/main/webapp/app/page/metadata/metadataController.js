@@ -13,17 +13,14 @@ tsApp.controller('MetadataCtrl', [
     metadataService, configureService) {
     console.debug("configure MetadataCtrl");
 
+    // Set up tabs and controller
     tabService.setShowing(true);
-
-    // Clear error
     utilService.clearError();
-
-    // Handle resetting tabs on "back" button
     tabService.setSelectedTabByLabel('Metadata');
-
-    // the currently viewed terminology (set by default or user)
     $scope.user = securityService.getUser();
     projectService.getUserHasAnyRole();
+
+    // Scope vars
     $scope.metadata = metadataService.getModel();
     $scope.resultsCollapsed = {};
 

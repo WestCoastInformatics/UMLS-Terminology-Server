@@ -120,7 +120,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-    
+
     // construct inverse relationship
     final ConceptRelationshipJpa inverseRelationship =
         (ConceptRelationshipJpa) createInverseConceptRelationship(relationship);
@@ -132,7 +132,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     if (inverseRelationship.getRelationshipType().equals("XR")) {
       inverseRelationship.setPublishable(false);
     }
-    
+
     // Assign alternateTerminologyId
     // final IdentifierAssignmentHandler handler = contentService
     // .getIdentifierAssignmentHandler(concept.getTerminology());
@@ -156,7 +156,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     relationship = (ConceptRelationshipJpa) addRelationship(relationship);
     final ConceptRelationshipJpa newInverseRelationship =
         (ConceptRelationshipJpa) addRelationship(inverseRelationship);
-    
+
     // Add the relationship to concepts
     getConcept().getRelationships().add(relationship);
     getConcept2().getRelationships().add(newInverseRelationship);
@@ -168,17 +168,18 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // Change status of ONLY the source concept
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-    } 
-    
+    }
+
     // update the concept
     updateConcept(getConcept());
 
-
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(),
-        getName() + " " + relationship + " to concept "
-            + getConcept().getTerminologyId());
+        getActivityId(), getWorkId(), getName() + " to concept "
+            + getConcept2().getId() + " " + relationship);
+    addLogEntry(getUserName(), getProject().getId(), getConcept2().getId(),
+        getActivityId(), getWorkId(), getName() + " from concept "
+            + getConcept().getId() + " " + relationship);
 
   }
 

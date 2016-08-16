@@ -1,4 +1,4 @@
-// Content controller
+// Semantic types
 tsApp.directive('semanticTypes', [ 'utilService', function(utilService) {
   console.debug('configure semanticTypes directive');
   return {

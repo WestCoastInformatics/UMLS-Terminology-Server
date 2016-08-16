@@ -1,0 +1,200 @@
+
+<!-- R1 -->
+<div class="row">
+  <!-- R1C1 -->
+  <div class="col-md-6 col-xs-12">
+
+    <div pager paging="paging['worklists']" count="worklists.totalCount"
+      callback="paging['worklists'].callback"></div>
+
+    <!-- Basic Worklist info -->
+    <span ng-show="worklists.totalCount == 0" style="display: block;"
+      class="alert alert-warning">No worklists.</span>
+
+    <table ng-show="worklists.totalCount > 0" class="table">
+
+      <!-- Worklist header -->
+      <thead ng-show="type === 'Worklist'" class="pointer">
+        <tr>
+          <th class="col-md-5 col-xs-5"><span
+              ng-click="setSortField('worklists','name')">
+              Name
+              <span ng-bind="getSortIndicator('worklists','name')"></span>
+            </span> / <span ng-click="setSortField('worklists','lastModified')">
+              Last Modified
+              <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
+            </span></th>
+          <th class="col-md-5 col-xs-5">Editor / <span title="Team">Team
+            </span> / <span title="Time">Time </span>
+          </th>
+          <th ng-show="type == 'Worklist'" class="col-md-2 col-xs-2">
+            Status</th>
+
+          <!-- Actions header -->
+          <th class="col-md-2 col-xs-2"">Actions</th>
+        </tr>
+      </thead>
+
+      <!-- Checklist header -->
+      <thead ng-show="type === 'Checklist'" class="pointer">
+        <tr>
+          <th class="col-md-10 col-xs-10"><span
+              ng-click="setSortField('worklists','name')">
+              Name
+              <span ng-bind="getSortIndicator('worklists','name')"></span>
+            </span> / <span ng-click="setSortField('worklists','timestamp')">
+              Created
+              <span ng-bind="getSortIndicator('worklists','timestamp')"></span>
+            </span></th>
+
+          <!-- Actions header -->
+          <th class="col-md-2 col-xs-2"">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr ng-repeat="worklist in worklists"
+          ng-click="selectWorklist(worklist);"
+          ng-class="{selected: worklist.id == selected.worklist.id}">
+
+          <td>
+            {{worklist.name}}
+            <span ng-show="type ==='Worklist'">
+              <br />{{toDate(worklist.lastModified)}}
+            </span>
+            <span ng-show="type ==='Checklist'">
+              <br />{{toDate(worklist.timestamp)}}
+            </span>
+          </td>
+
+          <td ng-show="type == 'Worklist'">
+            <span style="word-break: break-word;">
+              {{joinEditors(worklist)}}</span>
+            <br />
+            <span> {{worklist.team}} </span>
+            <br />
+            <span> {{toTime(worklist.authorTime)}} </span>
+          </td>
+
+          <td ng-show="type == 'Worklist'">{{worklist.workflowStatus}}</td>
+
+          <!--  actions -->
+          <td class="nobreak">
+            <i title="Remove" ng-show="!worklist.staged"
+              confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
+              ng-click="removeWorklist(worklist); $event.stopPropagation()"
+              class="noul material-icons md-18">delete</i>
+            <i ng-show="type == 'Worklist' && joinEditors(worklist).length == 0"
+              ng-click="openAssignWorklistModal(worklist,'ASSIGN'); $event.stopPropagation()"
+              title="Assign" class="noul material-icons md-18">assignment_ind</i>
+
+            <i ng-show="type == 'Worklist' && joinEditors(worklist).length > 0"
+              ng-click="unassignWorklist(worklist); $event.stopPropagation()"
+              title="Unassign" class="noul material-icons md-18">assignment_return</i>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- End R1C1 -->
+  </div>
+
+  <!-- R1C2 -->
+  <div class="col-md-6 col-xs-12">
+
+    <!-- Details, Releases, Records -->
+    <span ng-show="!selected.worklist && worklists.length > 0"
+      class="alert alert-warning">Select a worklist to see details</span>
+
+    <div class="col-md-12 col-xs-12" ng-show="selected.worklist">
+
+      <!-- Worklist Details -->
+      <h4>{{selected.worklist.name}}</h4>
+      <table class="table">
+        <tbody>
+
+          <tr>
+            <td>
+              <b>Description</b>
+            </td>
+            <td>{{selected.worklist.description}}</td>
+          </tr>
+
+          <tr>
+            <td>
+              <b>Notes</b>
+            </td>
+            <td>
+              <div ng-show="selected.worklist.notes.length > 0" class="truncate">
+                <span ng-bind-html="getLatestNote(selected.worklist)"></span>
+                <span ng-show="selected.worklist.notes.length > 1">
+                  <br />{{selected.worklist.notes.length-1}} more...
+                </span>
+              </div>
+              <div>
+                <i ng-show="selected.worklist.notes.length > 0"
+                  ng-click="openNotesModal(selected.worklist); $event.stopPropagation()"
+                  title="Edit worklist notes" class="noul material-icons md-18">assignment</i>
+                <i ng-show="selected.worklist.notes.length == 0"
+                  title="Add worklist note (no notes yet)"
+                  ng-click="openNotesModal(selected.worklist); $event.stopPropagation()"
+                  class="pointer md-grey material-icons md-18">assignment</i>
+
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>Log</b>
+            </td>
+            <td>
+              <div log project="selected.project" object="selected.worklist"
+                type="{{type}}"></div>
+            </td>
+          </tr>
+
+
+          <tr ng-show="type == 'Worklist'">
+            <td>
+              <b>Workflow Bin</b>
+            </td>
+            <td>{{selected.worklist.workflowBinName}}</td>
+          </tr>
+
+
+          <tr ng-show="type == 'Worklist'">
+            <td>
+              <b>Team</b>
+            </td>
+            <td>{{selected.worklist.team}}</td>
+          </tr>
+
+          <tr>
+            <td>
+              <b>Cluster/Concept Counts</b>
+            </td>
+            <td>{{selected.worklist.stats.clusterCt}}/{{selected.worklist.stats.conceptCt}}</td>
+          </tr>
+          <tr ng-repeat="state in stateHistory">
+            <td>
+              <b>{{state.name}} date:</b>
+            </td>
+            <td>{{toDate(state.timestamp)}}</td>
+          </tr>
+
+        </tbody>
+      </table>
+
+    </div>
+
+    <!-- End R1C2 -->
+  </div>
+
+  <!-- End R1 -->
+</div>
+
+<hr ng-show="selected.worklist">
+<!-- Bin Records Table -->
+<div ng-show="selected.worklist" records-table selected="selected" lists="lists"
+  user="user" paging="paging['records']"></div>
+

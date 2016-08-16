@@ -1,4 +1,4 @@
-// Content controller
+// Notes
 tsApp.directive('annotatedContent', [
   '$rootScope',
   'utilService',
@@ -16,7 +16,7 @@ tsApp.directive('annotatedContent', [
       },
       templateUrl : 'app/util/annotated-content/annotatedContent.html',
       link : function(scope, element, attrs) {
-        
+
         // TODO Check into case sensitivity of filter for terminology ids
 
         console.debug('entered note components directive');
@@ -44,7 +44,7 @@ tsApp.directive('annotatedContent', [
         }, {
           key : 'Terminology Id',
           value : 'terminologyId'
-        }];
+        } ];
 
         function getPagedList() {
 
@@ -64,8 +64,8 @@ tsApp.directive('annotatedContent', [
         };
 
         scope.removeAnnotatedContent = function(content) {
-          securityService.removeUserAnnotatedContent(content.type, content.terminology, content.version,
-            content.terminologyId, content.value).then(function(response) {
+          securityService.removeUserAnnotatedContent(content.type, content.terminology,
+            content.version, content.terminologyId, content.value).then(function(response) {
             getPagedList();
             scope.callbacks.checkAnnotatedContentStatus();
 

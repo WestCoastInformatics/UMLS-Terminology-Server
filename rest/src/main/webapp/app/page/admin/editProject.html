@@ -43,9 +43,15 @@
           <b>Terminology</b>
         </td>
         <td>
-          <select ng-model="project.terminology"
-            ng-change="setTerminology(project.terminology)"
-            ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
+          <input class="input-filter" placeholder="Enter terminology"
+            type="text" ng-model="project.terminology"
+            list="project-terminologies">
+          <datalist id="project-terminologies">
+            <option
+              ng-repeat="terminology in metadata.terminologies | filter:{current:true} | orderBy:'terminology'">{{terminology.terminology}}</option>
+          </datalist>
+          <button class="btn btn-xs btn-warning" ng-show="project.terminology"
+            ng-click="project.terminology=''">Clear</button>
         </td>
       </tr>
 
@@ -93,22 +99,9 @@
       </table>
     </div>
   </div>
-  <div ng-show="errors.length > 0" class="row">
-    <table class="table">
-      <tr>
-        <td>
-          <div class="alert alert-danger alert-error"
-            ng-repeat="error in errors">
-            {{error}}
-            <!-- DO NOT SUPPORT clearing error <div
-              style="cursor: pointer; display: inline; float: right; width: 3%;">
-              <i class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
-            </div> -->
-          </div>
-        </td>
-      </tr>
-    </table>
-  </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
 </div>
 
 

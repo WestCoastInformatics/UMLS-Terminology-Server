@@ -177,10 +177,10 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // If concept has no atoms, it won't be on any tracking record list
     final List<Atom> atoms = concept.getAtoms();
-    if (atoms.size()==0){
+    if (atoms.size() == 0) {
       return null;
     }
-    
+
     // Create a query
     final List<String> clauses = atoms.stream()
         .map(a -> "componentIds:" + a.getId()).collect(Collectors.toList());
@@ -236,7 +236,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   /* see superclass */
   @Override
   public void handleLazyInit(WorkflowBinDefinition definition) {
-    definition.getWorkflowConfig().getType().toString();
+    definition.getWorkflowConfig().getType();
   }
 
   /* see superclass */

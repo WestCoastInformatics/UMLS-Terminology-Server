@@ -94,10 +94,10 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
     //
     // Perform the action
     //
-    
+
     // Remove the attribute from the concept
     getConcept().getAttributes().remove(attribute);
-   
+
     // Update Concept
     updateConcept(getConcept());
 
@@ -108,15 +108,14 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    
+
     // Update Concept
     updateConcept(getConcept());
-    
+
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(),
-        getName() + " " + attribute.getName() + " from concept "
-            + getConcept().getTerminologyId());
+        getActivityId(), getWorkId(), getName() + " from concept "
+            + getConcept().getId() + " " + attribute);
 
   }
 

@@ -151,14 +151,12 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         // the Hibernate query
 
         final AuditReader reader = AuditReaderFactory.get(manager);
-        final AuditQuery query =
-            reader.createQuery()
-                // last updated revision
-                .forRevisionsOfEntity(Class.forName(a.getClassName()), true,
-                    true)
-                .addProjection(AuditEntity.revisionNumber().max())
-                // add id and owner as constraints
-                .add(AuditEntity.property("id").eq(a.getObjectId()));
+        final AuditQuery query = reader.createQuery()
+            // last updated revision
+            .forRevisionsOfEntity(Class.forName(a.getClassName()), true, true)
+            .addProjection(AuditEntity.revisionNumber().max())
+            // add id and owner as constraints
+            .add(AuditEntity.property("id").eq(a.getObjectId()));
         final Number revision = (Number) query.getSingleResult();
         HasLastModified returnedObject =
             (HasLastModified) reader.find(Class.forName(a.getClassName()),
@@ -171,9 +169,7 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         // stripped out before it can be re-added
 
         if (returnedObject instanceof ConceptJpa) {
-          returnedObject =
-              (HasLastModified) new ConceptJpa((ConceptJpa) returnedObject,
-                  false);
+          returnedObject = new ConceptJpa((ConceptJpa) returnedObject, false);
         }
         updateHasLastModified(returnedObject);
 

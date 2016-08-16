@@ -2,13 +2,13 @@
   ng-show="count > paging.pageSize || paging.filter || paging.sortOptions">
   <!-- UIB Pagination -->
   <uib-pagination ng-show="count > paging.pageSize"
-    items-per-page="paging.pageSize" max-size="5" boundary-links="true"
+    items-per-page="paging.pageSize" max-size="3" boundary-links="true"
     class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;"
     first-text="&laquo;" last-text="&raquo;" total-items="count"
     ng-model="paging.page" ng-change="callback.getPagedList()"></uib-pagination>
   <!--  Filters -->
- 
- <!--  TODO Add generalization note to Wiki -->
+
+  <!--  TODO Add generalization note to Wiki -->
   <input class="input-filter" ng-show="paging.filter || count > 5"
     placeholder="Enter filter text" type="text" ng-model="paging.filter"
     ng-model-options="{ debounce: 500 }" ng-change="callback.getPagedList()">
@@ -16,7 +16,8 @@
     ng-click="paging.filter = ''; callback.getPagedList(); "
     uib-tooltip="Click to clear filter text">Clear</button>
   <!-- Field sort order -->
-  <span class="nobreak" ng-show="paging.sortOptions && paging.sortOptions.length>0 && count > 5">
+  <span class="nobreak"
+    ng-show="paging.sortOptions && paging.sortOptions.length>0 && count > 5">
     <span
       uib-tooltip="Sort - {{paging.sortAscending ? 'Ascending' : 'Descending'}}"
       ng-click="paging.page = 1; paging.sortAscending = !paging.sortAscending; callback.getPagedList();"

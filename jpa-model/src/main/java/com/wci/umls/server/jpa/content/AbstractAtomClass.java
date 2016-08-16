@@ -50,46 +50,41 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
     @AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
         @TokenFilterDef(factory = StandardFilterFactory.class),
         @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-    }),
-    @AnalyzerDef(name = "whitespac", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
+    }), @AnalyzerDef(name = "whitespace", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
         @TokenFilterDef(factory = StandardFilterFactory.class),
         @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-    }),
-    @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
-    // Split input into tokens according to tokenizer
-    tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class), filters = {
-        // Normalize token text to lowercase, as the user is unlikely to
-        // care about casing when searching for matches
-        @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
-            @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
-            @Parameter(name = "replacement", value = " "),
-            @Parameter(name = "replace", value = "all")
-        }), @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-        @TokenFilterDef(factory = StopFilterFactory.class),
-        // Index partial words starting at the front, so we can provide
-        // Autocomplete functionality
-        @TokenFilterDef(factory = EdgeNGramFilterFactory.class, params = {
-            @Parameter(name = "minGramSize", value = "3"),
-            @Parameter(name = "maxGramSize", value = "50")
-        })
-    }),
-    @AnalyzerDef(name = "autocompleteNGramAnalyzer",
-    // Split input into tokens according to tokenizer
-    tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
-        // Normalize token text to lowercase, as the user is unlikely to
-        // care about casing when searching for matches
-        @TokenFilterDef(factory = WordDelimiterFilterFactory.class),
-        @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-        @TokenFilterDef(factory = NGramFilterFactory.class, params = {
-            @Parameter(name = "minGramSize", value = "3"),
-            @Parameter(name = "maxGramSize", value = "5")
-        }),
-        @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
-            @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
-            @Parameter(name = "replacement", value = " "),
-            @Parameter(name = "replace", value = "all")
-        })
-    })
+    }), @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
+        // Split input into tokens according to tokenizer
+        tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class), filters = {
+            // Normalize token text to lowercase, as the user is unlikely to
+            // care about casing when searching for matches
+            @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
+                @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
+                @Parameter(name = "replacement", value = " "),
+                @Parameter(name = "replace", value = "all")
+            }), @TokenFilterDef(factory = LowerCaseFilterFactory.class), @TokenFilterDef(factory = StopFilterFactory.class),
+            // Index partial words starting at the front, so we can provide
+            // Autocomplete functionality
+            @TokenFilterDef(factory = EdgeNGramFilterFactory.class, params = {
+                @Parameter(name = "minGramSize", value = "3"),
+                @Parameter(name = "maxGramSize", value = "50")
+            })
+        }), @AnalyzerDef(name = "autocompleteNGramAnalyzer",
+            // Split input into tokens according to tokenizer
+            tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
+                // Normalize token text to lowercase, as the user is unlikely to
+                // care about casing when searching for matches
+                @TokenFilterDef(factory = WordDelimiterFilterFactory.class),
+                @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+                @TokenFilterDef(factory = NGramFilterFactory.class, params = {
+                    @Parameter(name = "minGramSize", value = "3"),
+                    @Parameter(name = "maxGramSize", value = "5")
+                }), @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
+                    @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
+                    @Parameter(name = "replacement", value = " "),
+                    @Parameter(name = "replace", value = "all")
+                })
+            })
 })
 @Audited
 @MappedSuperclass
@@ -245,9 +240,8 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     }
     final int index = branchedTo.indexOf(closedBranch);
     if (index != -1) {
-      branchedTo =
-          branchedTo.substring(0, index - 1)
-              + branchedTo.substring(index + closedBranch.length() + 1);
+      branchedTo = branchedTo.substring(0, index - 1)
+          + branchedTo.substring(index + closedBranch.length() + 1);
     }
 
   }

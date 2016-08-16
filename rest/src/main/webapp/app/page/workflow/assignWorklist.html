@@ -18,7 +18,8 @@
         prospectiveUsers: {{prospectiveUsers}}</br> -->
       </td>
       <td>
-        <select ng-model="user" ng-options="item.userName for item in assignedUsers"></select>
+        <select ng-model="user"
+          ng-options="item.userName for item in assignedUsers"></select>
       </td>
     </tr>
     <tr>
@@ -31,24 +32,11 @@
         <textarea rows="4" cols="40" ng-model="note" ui-tinymce="tinymceOptions"></textarea>
       </td>
     </tr>
-    <tr ng-show="errors.length > 0">
-      <td>&nbsp;</td>
-      <td>
-        <div class="alert alert-danger alert-error">
-          {{errors[0]}}
-          <div style="display: inline; float: right;">
-            <i ng-show="errors[1]"
-              title="{{error.expand ? 'Show' : 'Hide'}} long eror"
-              class="noul material-icons md-18"
-              ng-click="error.expand = !error.expand;">attach_file</i>
-          </div>
-          <p ng-show="errors[1] && error.expand">
-            <br />{{errors[1]}}
-          </p>
-        </div>
-      </td>
-    </tr>
   </table>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
 </div>
 
 <div class="modal-footer">

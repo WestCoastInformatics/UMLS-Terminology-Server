@@ -94,6 +94,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult addSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponentJpa semanticType,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -118,8 +119,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
       action.setUserName(userName);
@@ -130,9 +132,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       action.setSemanticTypeComponent(semanticType);
-      
+
       // Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
@@ -161,6 +164,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult removeSemanticType(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, in ms ", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Semantic type id, e.g. 3", required = true) @PathParam("id") Long semanticTypeComponentId,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -184,8 +188,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
       action.setUserName(userName);
@@ -197,8 +202,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       action.setSemanticTypeComponentId(semanticTypeComponentId);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
@@ -226,6 +232,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult addAttribute(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Attribute to add", required = true) AttributeJpa attribute,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -249,8 +256,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
       action.setUserName(userName);
@@ -262,8 +270,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       action.setAttribute(attribute);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
@@ -292,6 +301,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult removeAttribute(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, in ms ", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Attribute id, e.g. 3", required = true) @PathParam("id") Long attributeId,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -315,8 +325,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
       action.setUserName(userName);
@@ -328,9 +339,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       action.setAttributeId(attributeId);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
-      
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
+
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
           action.getName(), authToken, IdType.ATTRIBUTE.toString(),
@@ -356,6 +368,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult addAtom(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Atom to add", required = true) AtomJpa atom,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -378,8 +391,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
       action.setUserName(userName);
@@ -391,8 +405,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       action.setAtom(atom);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>("adding an atom",
@@ -421,6 +436,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult removeAtom(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, in ms ", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Atom id, e.g. 3", required = true) @PathParam("id") Long atomId,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -443,8 +459,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
       action.setUserName(userName);
@@ -456,8 +473,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       action.setAtomId(atomId);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(action.getName(),
@@ -485,6 +503,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult updateAtom(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Atom to add", required = true) AtomJpa atom,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -506,8 +525,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
       action.setUserName(userName);
@@ -519,8 +539,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       action.setAtom(atom);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(
@@ -549,6 +570,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult addRelationship(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Relationship to add", required = true) ConceptRelationshipJpa relationship,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -571,9 +593,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      
-      // Configure the action 
+
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(relationship.getTo().getId());
       action.setUserName(userName);
@@ -585,8 +608,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       action.setRelationship(relationship);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
@@ -616,6 +640,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult removeRelationship(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, in ms ", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Relationship id, e.g. 3", required = true) @PathParam("id") Long relationshipId,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -639,14 +664,15 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      
+
       // Look up second conceptId.
       final Long conceptId2 =
           action.getRelationship(relationshipId, ConceptRelationshipJpa.class)
               .getTo().getId();
-     
-      // Configure the action 
+
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
       action.setUserName(userName);
@@ -655,11 +681,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(true);
       action.setChangeStatusFlag(true);
-      
+
       action.setRelationshipId(relationshipId);
-      
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
@@ -690,6 +717,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult mergeConcepts(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -703,37 +731,39 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
     // Instantiate services
     final MergeMolecularAction action = new MergeMolecularAction();
-    
-      try {
 
-        // Authorize project role, get userName
-        final String userName = authorizeProject(action, projectId,
-            securityService, authToken, "merging concepts", UserRole.AUTHOR);
+    try {
 
-        // Retrieve the project
-        final Project project = action.getProject(projectId);
-        action.setValidationChecks(project.getValidationChecks());
+      // Authorize project role, get userName
+      final String userName = authorizeProject(action, projectId,
+          securityService, authToken, "merging concepts", UserRole.AUTHOR);
 
-        // For merge only, need to check the concept Ids, so we can assign the
-        // concept with the lowest id to survive, and the one with the highest id
-        // to get destroyed.
-        Long toConceptId = Math.min(conceptId, conceptId2);
-        Long fromConceptId = Math.max(conceptId, conceptId2);
-        
-        // Configure the action 
-        action.setProject(project);
-        action.setConceptId(toConceptId);
-        action.setConceptId2(fromConceptId);
-        action.setUserName(userName);
-        action.setLastModified(lastModified);
-        action.setOverrideWarnings(overrideWarnings);
-        action.setTransactionPerOperation(false);
-        action.setMolecularActionFlag(true);
-        action.setChangeStatusFlag(true);
+      // Retrieve the project
+      final Project project = action.getProject(projectId);
+      action.setValidationChecks(project.getValidationChecks());
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
-      
+      // For merge only, need to check the concept Ids, so we can assign the
+      // concept with the lowest id to survive, and the one with the highest id
+      // to get destroyed.
+      Long toConceptId = Math.min(conceptId, conceptId2);
+      Long fromConceptId = Math.max(conceptId, conceptId2);
+
+      // Configure the action
+      action.setProject(project);
+      action.setActivityId(activityId);
+      action.setConceptId(toConceptId);
+      action.setConceptId2(fromConceptId);
+      action.setUserName(userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
+
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
+
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
       GraphResolutionHandler graphHandler = action
@@ -777,6 +807,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult moveAtoms(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
     @ApiParam(value = "Atoms to move", required = true) List<Long> atomIds,
@@ -801,8 +832,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final Project project = action.getProject(projectId);
       action.setValidationChecks(project.getValidationChecks());
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
       action.setUserName(userName);
@@ -814,8 +846,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       action.setAtomIds(atomIds);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
@@ -861,6 +894,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult splitConcept(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Atoms to move", required = true) List<Long> atomIds,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
@@ -885,9 +919,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       action.setValidationChecks(project.getValidationChecks());
-      
-      // Configure the action 
+
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
       action.setUserName(userName);
@@ -902,13 +937,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setCopyRelationships(copyRelationships);
       action.setCopySemanticTypes(copySemanticTypes);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
-      GraphResolutionHandler graphHandler = action.getGraphResolutionHandler(
-          action.getCreatedConcept().getTerminology());
+      GraphResolutionHandler graphHandler = action
+          .getGraphResolutionHandler(action.getToConcept().getTerminology());
       graphHandler.resolve(action.getOriginatingConceptPreUpdates());
       graphHandler.resolve(action.getOriginatingConceptPostUpdates());
       graphHandler.resolve(action.getCreatedConceptPostUpdates());
@@ -950,6 +986,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult approveConcept(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
@@ -971,8 +1008,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final Project project = action.getProject(projectId);
       action.setValidationChecks(project.getValidationChecks());
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
       action.setUserName(userName);
@@ -982,8 +1020,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setMolecularActionFlag(true);
       action.setChangeStatusFlag(true);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
@@ -1005,7 +1044,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-  
+
   /* see superclass */
   @Override
   @POST
@@ -1014,8 +1053,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult undoAction(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Molecular Action id, e.g. 2", required = true) @QueryParam("molecularActionId") Long molecularActionId,
-    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
-    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Force action", required = false) @QueryParam("force") boolean force,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1050,25 +1088,24 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       } else {
         conceptId2 =
             action.getMolecularAction(molecularActionId).getComponentId2();
-      }      
-      
-      // Configure the action 
+      }
+
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
       action.setUserName(userName);
-      action.setLastModified(lastModified);
-      action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(false);
       action.setChangeStatusFlag(true);
 
-
       action.setMolecularActionId(molecularActionId);
       action.setForce(force);
-      
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
@@ -1108,8 +1145,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   public ValidationResult redoAction(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Molecular Action id, e.g. 2", required = true) @QueryParam("molecularActionId") Long molecularActionId,
-    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
-    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Force action", required = false) @QueryParam("force") boolean force,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1145,14 +1181,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         conceptId2 =
             action.getMolecularAction(molecularActionId).getComponentId2();
       }
-      
-      // Configure the action 
+
+      // Configure the action
       action.setProject(project);
+      action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
       action.setUserName(userName);
-      action.setLastModified(lastModified);
-      action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(false);
       action.setChangeStatusFlag(true);
@@ -1160,8 +1195,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setMolecularActionId(molecularActionId);
       action.setForce(force);
 
-      //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action);
 
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(

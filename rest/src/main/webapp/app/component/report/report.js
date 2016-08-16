@@ -1,4 +1,4 @@
-// Content controller
+// report
 tsApp.directive('report', [ '$window', '$routeParams', 'metadataService',
   function($window, $routeParams, metadataService) {
     console.debug('configure report directive');

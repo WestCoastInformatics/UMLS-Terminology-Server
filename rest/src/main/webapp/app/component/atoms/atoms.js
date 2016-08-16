@@ -1,4 +1,4 @@
-// Content controller
+// Atoms directive
 tsApp.directive('atoms', [ 'utilService', function(utilService) {
   return {
     restrict : 'A',
@@ -12,8 +12,8 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
     link : function(scope, element, attrs) {
       console.debug('configure atoms directive');
 
+      // Paging function
       function getPagedList() {
-
         scope.pagedData = utilService.getPagedArray(scope.component.atoms, scope.paging);
         console.debug('paged atoms', scope.pagedData);
       }

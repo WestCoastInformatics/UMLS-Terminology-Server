@@ -47,8 +47,9 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
-    Long lastModified, SemanticTypeComponentJpa semanticTypeComponent,
-    boolean overrideWarnings, String authToken) throws Exception {
+    String activityId, Long lastModified,
+    SemanticTypeComponentJpa semanticTypeComponent, boolean overrideWarnings,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add semantic type to concept" + projectId
             + ", " + conceptId + ", " + semanticTypeComponent.toString() + ", "
@@ -58,10 +59,11 @@ public class MetaEditingClientRest extends RootClientRest
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(
-        config.getProperty("base.url") + "/meta/sty/add?projectId=" + projectId
-            + "&conceptId=" + conceptId + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/sty/add?projectId=" + projectId + "&conceptId=" + conceptId
+        + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final String styString =
         ConfigUtility.getJsonForGraph(semanticTypeComponent == null
@@ -85,8 +87,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult removeSemanticType(Long projectId, Long conceptId,
-    Long lastModified, Long semanticTypeComponentId, boolean overrideWarnings,
-    String authToken) throws Exception {
+    String activityId, Long lastModified, Long semanticTypeComponentId,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - remove semantic type from concept "
             + projectId + ", " + conceptId + ", " + semanticTypeComponentId
@@ -98,8 +100,10 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/sty/remove/" + semanticTypeComponentId + "?projectId="
-        + projectId + "&conceptId=" + conceptId + "&lastModified="
-        + lastModified + (overrideWarnings ? "&overrideWarnings=true" : ""));
+        + projectId + "&conceptId=" + conceptId
+        + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
@@ -120,8 +124,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult addAttribute(Long projectId, Long conceptId,
-    Long lastModified, AttributeJpa attribute, boolean overrideWarnings,
-    String authToken) throws Exception {
+    String activityId, Long lastModified, AttributeJpa attribute,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add attribute to concept " + projectId
             + ", " + conceptId + ", " + attribute.toString() + ", "
@@ -133,7 +137,8 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/attribute/add?projectId=" + projectId + "&conceptId="
-        + conceptId + "&lastModified=" + lastModified
+        + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final String attributeString = ConfigUtility
@@ -158,8 +163,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult removeAttribute(Long projectId, Long conceptId,
-    Long lastModified, Long attributeId, boolean overrideWarnings,
-    String authToken) throws Exception {
+    String activityId, Long lastModified, Long attributeId,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - remove attribute from concept " + projectId
             + ", " + conceptId + ", " + attributeId + ", " + lastModified + ", "
@@ -169,10 +174,12 @@ public class MetaEditingClientRest extends RootClientRest
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/meta/attribute/remove/" + attributeId + "?projectId=" + projectId
-        + "&conceptId=" + conceptId + "&lastModified=" + lastModified
-        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/meta/attribute/remove/" + attributeId
+            + "?projectId=" + projectId + "&conceptId=" + conceptId
+            + (activityId == null ? "" : "&activityId=" + activityId)
+            + "&lastModified=" + lastModified
+            + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
@@ -192,8 +199,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult addAtom(Long projectId, Long conceptId,
-    Long lastModified, AtomJpa atom, boolean overrideWarnings, String authToken)
-    throws Exception {
+    String activityId, Long lastModified, AtomJpa atom,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add atom to concept " + projectId + ", "
             + conceptId + ", " + atom.toString() + ", " + lastModified + ", "
@@ -203,10 +210,11 @@ public class MetaEditingClientRest extends RootClientRest
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(
-        config.getProperty("base.url") + "/meta/atom/add?projectId=" + projectId
-            + "&conceptId=" + conceptId + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/atom/add?projectId=" + projectId + "&conceptId=" + conceptId
+        + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final String atomString =
         ConfigUtility.getJsonForGraph(atom == null ? new AtomJpa() : atom);
@@ -229,8 +237,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult removeAtom(Long projectId, Long conceptId,
-    Long lastModified, Long atomId, boolean overrideWarnings, String authToken)
-    throws Exception {
+    String activityId, Long lastModified, Long atomId, boolean overrideWarnings,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - remove atom from concept " + projectId
             + ", " + conceptId + ", " + atomId + ", " + lastModified + ", "
@@ -240,10 +248,12 @@ public class MetaEditingClientRest extends RootClientRest
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/meta/atom/remove/" + atomId + "?projectId=" + projectId
-        + "&conceptId=" + conceptId + "&lastModified=" + lastModified
-        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/meta/atom/remove/"
+            + atomId + "?projectId=" + projectId + "&conceptId=" + conceptId
+            + (activityId == null ? "" : "&activityId=" + activityId)
+            + "&lastModified=" + lastModified
+            + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
@@ -263,8 +273,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult updateAtom(Long projectId, Long conceptId,
-    Long lastModified, AtomJpa atom, boolean overrideWarnings, String authToken)
-    throws Exception {
+    String activityId, Long lastModified, AtomJpa atom,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - update atom on concept " + projectId + ", "
             + conceptId + ", " + atom.toString() + ", " + lastModified + ", "
@@ -274,10 +284,11 @@ public class MetaEditingClientRest extends RootClientRest
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(
-        config.getProperty("base.url") + "/meta/atom/update?projectId=" + projectId
-            + "&conceptId=" + conceptId + "&lastModified=" + lastModified
-            + (overrideWarnings ? "&overrideWarnings=true" : ""));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/atom/update?projectId=" + projectId + "&conceptId=" + conceptId
+        + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final String atomString =
         ConfigUtility.getJsonForGraph(atom == null ? new AtomJpa() : atom);
@@ -295,12 +306,12 @@ public class MetaEditingClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public ValidationResult addRelationship(Long projectId, Long conceptId,
-    Long lastModified, ConceptRelationshipJpa relationship,
+    String activityId, Long lastModified, ConceptRelationshipJpa relationship,
     boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add relationship to concept " + projectId
@@ -313,7 +324,8 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/relationship/add?projectId=" + projectId + "&conceptId="
-        + conceptId + "&lastModified=" + lastModified
+        + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     String relString = ConfigUtility.getJsonForGraph(
@@ -337,8 +349,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult removeRelationship(Long projectId, Long conceptId,
-    Long lastModified, Long relationshipId, boolean overrideWarnings,
-    String authToken) throws Exception {
+    String activityId, Long lastModified, Long relationshipId,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - remove relationship from concept "
             + projectId + ", " + conceptId + ", " + relationshipId + ", "
@@ -350,8 +362,10 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/relationship/remove/" + relationshipId + "?projectId="
-        + projectId + "&conceptId=" + conceptId + "&lastModified="
-        + lastModified + (overrideWarnings ? "&overrideWarnings=true" : ""));
+        + projectId + "&conceptId=" + conceptId
+        + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
@@ -371,8 +385,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult mergeConcepts(Long projectId, Long conceptId,
-    Long lastModified, Long conceptId2, boolean overrideWarnings,
-    String authToken) throws Exception {
+    String activityId, Long lastModified, Long conceptId2,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - merge concept " + conceptId
             + " with concept " + conceptId2 + ", " + lastModified + ", "
@@ -385,8 +399,9 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/concept/merge?projectId=" + projectId + "&conceptId="
-        + conceptId + "&lastModified=" + lastModified + "&conceptId2="
-        + conceptId2 + (overrideWarnings ? "&overrideWarnings=true" : ""));
+        + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified + "&conceptId2=" + conceptId2
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
@@ -406,7 +421,7 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult moveAtoms(Long projectId, Long conceptId,
-    Long lastModified, Long conceptId2, List<Long> atomIds,
+    String activityId, Long lastModified, Long conceptId2, List<Long> atomIds,
     boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - move atoms " + atomIds + " from concept "
@@ -421,8 +436,9 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/concept/move?projectId=" + projectId + "&conceptId="
-        + conceptId + "&lastModified=" + lastModified + "&conceptId2="
-        + conceptId2 + (overrideWarnings ? "&overrideWarnings=true" : ""));
+        + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified + "&conceptId2=" + conceptId2
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     String atomIdsString = ConfigUtility
         .getJsonForGraph(atomIds == null ? new ArrayList<Long>() : atomIds);
@@ -445,9 +461,10 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult splitConcept(Long projectId, Long conceptId,
-    Long lastModified, List<Long> atomIds, boolean overrideWarnings,
-    boolean copyRelationships, boolean copySemanticTypes,
-    String relationshipType, String authToken) throws Exception {
+    String activityId, Long lastModified, List<Long> atomIds,
+    boolean overrideWarnings, boolean copyRelationships,
+    boolean copySemanticTypes, String relationshipType, String authToken)
+    throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - splitting " + atomIds
             + " atoms out of concept " + conceptId + " into new concept, "
@@ -457,13 +474,14 @@ public class MetaEditingClientRest extends RootClientRest
     validateNotEmpty(conceptId, "conceptId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(
-        config.getProperty("base.url") + "/meta/concept/split?projectId="
-            + projectId + "&conceptId=" + conceptId + "&lastModified="
-            + lastModified + (overrideWarnings ? "&overrideWarnings=true" : "")
-            + (copyRelationships ? "&copyRelationships=true" : "")
-            + (copySemanticTypes ? "&copySemanticTypes=true" : "")
-            + "&relationshipType=" + relationshipType);
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/concept/split?projectId=" + projectId + "&conceptId="
+        + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : "")
+        + (copyRelationships ? "&copyRelationships=true" : "")
+        + (copySemanticTypes ? "&copySemanticTypes=true" : "")
+        + "&relationshipType=" + relationshipType);
 
     String atomIdsString = ConfigUtility
         .getJsonForGraph(atomIds == null ? new ArrayList<Long>() : atomIds);
@@ -486,8 +504,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult approveConcept(Long projectId, Long conceptId,
-    Long lastModified, boolean overrideWarnings, String authToken)
-    throws Exception {
+    String activityId, Long lastModified, boolean overrideWarnings,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - approve concept " + conceptId + ", "
             + lastModified + ", " + overrideWarnings + ", " + authToken);
@@ -498,7 +516,8 @@ public class MetaEditingClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/concept/approve?projectId=" + projectId + "&conceptId="
-        + conceptId + "&lastModified=" + lastModified
+        + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
@@ -514,25 +533,23 @@ public class MetaEditingClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
-  }  
-  
+  }
+
   @Override
   public ValidationResult undoAction(Long projectId, Long molecularActionId,
-    Long lastModified, boolean overrideWarnings, boolean force,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("MetaEditing Client - undo action " + molecularActionId + ", "
-            + lastModified + ", " + overrideWarnings + ", " + authToken);
+    String activityId, boolean force, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("MetaEditing Client - undo action "
+        + molecularActionId + ", " + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(molecularActionId, "molecularActionId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/meta/action/undo?projectId=" + projectId + "&molecularActionId="
-        + molecularActionId + "&lastModified=" + lastModified
-        + (overrideWarnings ? "&overrideWarnings=true" : "")
-        + (force ? "&force=true" : ""));
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/meta/action/undo?projectId="
+            + projectId + "&molecularActionId=" + molecularActionId
+            + (activityId == null ? "" : "&activityId=" + activityId)
+            + (force ? "&force=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
@@ -551,21 +568,19 @@ public class MetaEditingClientRest extends RootClientRest
 
   @Override
   public ValidationResult redoAction(Long projectId, Long molecularActionId,
-    Long lastModified, boolean overrideWarnings, boolean force,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("MetaEditing Client - redo action " + molecularActionId + ", "
-            + lastModified + ", " + overrideWarnings + ", " + authToken);
+    String activityId, boolean force, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("MetaEditing Client - redo action "
+        + molecularActionId + ", " + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(molecularActionId, "molecularActionId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/meta/action/redo?projectId=" + projectId + "&molecularActionId="
-        + molecularActionId + "&lastModified=" + lastModified
-        + (overrideWarnings ? "&overrideWarnings=true" : "")
-        + (force ? "&force=true" : ""));
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/meta/action/redo?projectId="
+            + projectId + "&molecularActionId=" + molecularActionId
+            + (activityId == null ? "" : "&activityId=" + activityId)
+            + (force ? "&force=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));

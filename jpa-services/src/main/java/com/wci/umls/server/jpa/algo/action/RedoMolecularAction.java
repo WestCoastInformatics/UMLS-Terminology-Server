@@ -157,7 +157,7 @@ public class RedoMolecularAction extends AbstractMolecularAction {
 
         if (returnedObject instanceof ConceptJpa) {
           returnedObject =
-              (HasLastModified) new ConceptJpa((ConceptJpa) returnedObject,
+              new ConceptJpa((ConceptJpa) returnedObject,
                   false);
           if (((ConceptJpa) returnedObject).getTerminologyId()
               .equals(((ConceptJpa) returnedObject).getId().toString())) {

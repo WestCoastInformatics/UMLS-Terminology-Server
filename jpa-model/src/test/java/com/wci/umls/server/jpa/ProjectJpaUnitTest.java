@@ -110,7 +110,6 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     tester.include("branch");
     tester.include("public");
     tester.include("teamBased");
-    tester.include("userRoleMap");
     tester.include("feedbackEmail");
 
     // Set up objects
@@ -176,6 +175,7 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("lastModified");
     tester.include("lastModifiedBy");
+    tester.include("timestamp");
     tester.include("name");
     tester.include("description");
     tester.include("isPublic");

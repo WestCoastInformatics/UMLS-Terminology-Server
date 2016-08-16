@@ -22,8 +22,12 @@ tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce',
         scope.appConfig = appConfig;
 
         // Convert to trusted HTML
-        scope.deployPresentedBy = $sce.trustAsHtml(scope.appConfig['deploy.presented.by']);
-        scope.siteTrackingCode = $sce.trustAsHtml(scope.appConfig['site.tracking.code']);
+        scope.deployPresentedBy = function() {
+          return $sce.trustAsHtml(scope.appConfig['deploy.presented.by']);
+        }
+        scope.siteTrackingCode = function() {
+          return $sce.trustAsHtml(scope.appConfig['site.tracking.code']);
+        }
 
         // Declare user
         scope.user = securityService.getUser();

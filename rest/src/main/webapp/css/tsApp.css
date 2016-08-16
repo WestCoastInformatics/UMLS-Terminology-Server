@@ -3,6 +3,13 @@ body {
 	padding-bottom: 100px;
 }
 
+hr {
+	width: 100%;
+	color: lightgrey;
+	height: 1px;
+	background-color: lightgrey;
+}
+
 .loginField {
 	margin: 5px;
 }
@@ -88,7 +95,7 @@ body {
 }
 
 .hidden {
-	opacity : 0;
+	opacity: 0;
 }
 
 /* Angular UI Tree overrides */
@@ -98,7 +105,7 @@ body {
 }
 
 .glyphicon-muted {
-	opacity : 0.8;
+	opacity: 0.8;
 }
 
 .glyphicon-leaf {
@@ -120,7 +127,6 @@ body {
 .grey {
 	color: grey;
 }
-	
 
 .noul {
 	color: #337ab7;
@@ -129,11 +135,10 @@ body {
 }
 
 .nolink {
-	color: black;	
+	color: black;
 	cursor: none;
 	text-decoration: none;
 }
-
 
 .nobreak {
 	display: inline-block;
@@ -148,7 +153,7 @@ body {
 	text-overflow: ellipsis;
 }
 
-.table-select-row {
+.pointer {
 	cursor: pointer;
 }
 
@@ -158,9 +163,18 @@ body {
 	margin-left: 5px;
 }
 
+.m25 {
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.ml20 {
+	margin-left: 20px;
+}
+
 .tab-disabled {
-	color : gray;
-	cursor : pointer;
+	color: gray;
+	cursor: pointer;
 }
 
 /* Makes table section headers medium blue background */
@@ -184,12 +198,11 @@ body {
 	border: dotted 3px red;
 	padding: 10px;
 } /* Default class applied to drop zones on over */
-
 .landing-img {
 	border-radius: 10px;
 	border: 1px solid gray;
 	max-width: 100%;
-	display:block;
+	display: block;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -213,6 +226,7 @@ body {
 .w30 {
 	max-width: 30%;
 }
+
 .m10 {
 	margin-top: 10px;
 }
@@ -237,4 +251,23 @@ body {
 .material-icons.md-48 {
 	font-size: 48px;
 }
+
+.READY_FOR_PUBLICATION {
+	color: black;
+}
+
+.PUBLISHED {
+	color: black;
+}
+
+.NEEDS_REVIEW {
+	color: red;
+}
+
+.DEMOTION {
+	color: blue;
+}
+
+.EMBRYO {
+	color: green;
 }

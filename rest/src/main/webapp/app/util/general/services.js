@@ -105,12 +105,12 @@ tsApp
         // Handle error message
         this.handleError = function(response) {
           if (response.data && response.data.length > 100) {
-            console.error(this.error.longMessage);
             this.error.message = "Unexpected error, click the icon to view attached full error";
             this.error.longMessage = response.data;
+            console.error(this.error.longMessage);
           } else {
-            console.error(this.error.message);
             this.error.message = response.data;
+            console.error(this.error.message);
           }
           // handle no message
           if (!this.error.message) {
@@ -243,10 +243,10 @@ tsApp
           // reset page number too
           paging[table].page = 1;
           // handles null case also
-          if (!paging[table].ascending) {
-            paging[table].ascending = true;
+          if (!paging[table].sortAscending) {
+            paging[table].sortAscending = true;
           } else {
-            paging[table].ascending = false;
+            paging[table].sortAscending = false;
           }
           // reset the paging for the correct table
           for ( var key in paging) {
@@ -259,13 +259,13 @@ tsApp
 
         // Return up or down sort chars if sorted
         this.getSortIndicator = function(table, field, paging) {
-          if (paging[table].ascending == null) {
+          if (paging[table].sortAscending == null) {
             return '';
           }
-          if (paging[table].sortField == field && paging[table].ascending) {
+          if (paging[table].sortField == field && paging[table].sortAscending) {
             return '▴';
           }
-          if (paging[table].sortField == field && !paging[table].ascending) {
+          if (paging[table].sortField == field && !paging[table].sortAscending) {
             return '▾';
           }
         };
@@ -293,7 +293,7 @@ tsApp
           return {
             page : 1,
             pageSize : 10,
-            filter : null,
+            filter : '',
             sortField : null,
             sortAscending : true,
             sortOptions : []

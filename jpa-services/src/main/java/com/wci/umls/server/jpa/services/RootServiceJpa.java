@@ -586,13 +586,10 @@ public abstract class RootServiceJpa implements RootService {
     if (pfs != null && pfs.getStartIndex() != -1) {
       startIndex = pfs.getStartIndex();
       toIndex = Math.min(result.size(), startIndex + pfs.getMaxResults());
-      if (startIndex > toIndex)
-
-      {
+      if (startIndex > toIndex) {
         startIndex = 0;
       }
       result = result.subList(startIndex, toIndex);
-
     }
 
     return result;
@@ -1381,9 +1378,9 @@ public abstract class RootServiceJpa implements RootService {
   public ValidationResult performMolecularAction(AbstractMolecularAction action)
     throws Exception {
 
-    //Start transaction
-      action.beginTransaction();         
-    
+    // Start transaction
+    action.beginTransaction();
+
     // Do some standard intialization and precondition checking
     // action and prep services
     action.initialize(action.getProject(), action.getConceptId(),

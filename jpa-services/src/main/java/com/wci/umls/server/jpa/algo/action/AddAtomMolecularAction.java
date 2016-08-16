@@ -119,15 +119,15 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     if (getChangeStatusFlag()) {
       atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    
+
     // Add the atom
     atom = addAtom(atom);
-    
+
     // Change status of the concept
     if (getChangeStatusFlag()) {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    
+
     // Add the atom to concept
     getConcept().getAtoms().add(atom);
 
@@ -136,8 +136,7 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(),
-        getName() + " " + atom.getName());
+        getActivityId(), getWorkId(), getName() + " " + atom);
 
   }
 

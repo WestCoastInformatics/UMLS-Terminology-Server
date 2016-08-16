@@ -1110,9 +1110,13 @@ public class ConfigUtility {
       if (ConfigUtility.isEmpty(clause)) {
         continue;
       }
-      if (sb.length() > 0) {
+      if (sb.length() > 0 && !operator.equals("OR")) {
         sb.append(" ").append(operator).append(" ");
       }
+      if (sb.length() > 1 && operator.equals("OR")) {
+        sb.append(" ").append(operator).append(" ");
+      }
+
       sb.append(clause);
     }
     if (operator.equals("OR")) {

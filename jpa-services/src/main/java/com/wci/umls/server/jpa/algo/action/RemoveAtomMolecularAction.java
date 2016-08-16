@@ -85,7 +85,7 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-    
+
     // Remove the atom from the concept
     getConcept().getAtoms().remove(atom);
 
@@ -101,13 +101,11 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     }
     // Update Concept
     updateConcept(getConcept());
-    
-    
+
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(),
-        getName() + " " + atom.getName() + " from concept "
-            + getConcept().getTerminologyId());
+        getName() + " from concept " + getConcept().getId() + " " + atom);
 
   }
 

@@ -171,41 +171,40 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     // Make a copy of the atoms to be moved
     //
     List<Atom> moveAtomsList = moveAtoms;
-    
-    
+
     //
     // Remove all atoms from the fromConcept
-    //    
+    //
     for (final Atom atom : moveAtomsList) {
       getFromConcept().getAtoms().remove(atom);
-    }   
-    
+    }
+
     //
     // Update fromConcept
-    //    
+    //
     updateConcept(getFromConcept());
 
     //
     // Remove the objects from the database
     //
     // Not done for Atoms
-    
+
     //
     // Change status of the atoms to be added
-    //    
+    //
     if (getChangeStatusFlag()) {
       for (final Atom atom : moveAtomsList) {
         atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      }    
+      }
     }
-    
+
     //
     // Add the atoms to the toConcept
     //
     for (final Atom atom : moveAtomsList) {
       getToConcept().getAtoms().add(atom);
     }
-    
+
     //
     // Change status of the concepts
     //
@@ -213,19 +212,22 @@ public class MoveMolecularAction extends AbstractMolecularAction {
       getFromConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       getToConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
-    
+
     //
     // Update the to and from Concepts
     //
     updateConcept(getToConcept());
-    updateConcept(getFromConcept());    
-    
+    updateConcept(getFromConcept());
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " " + atomIds + " from Concept " + getFromConcept().getId()
             + " to concept " + getToConcept().getId());
+    addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
+        getActivityId(), getWorkId(),
+        getName() + " " + atomIds + " to Concept " + getToConcept().getId()
+            + " from concept " + getFromConcept().getId());
 
     // Make copy of toConcept and fromConcept to pass into change event
     fromConceptPostUpdates = new ConceptJpa(getFromConcept(), false);

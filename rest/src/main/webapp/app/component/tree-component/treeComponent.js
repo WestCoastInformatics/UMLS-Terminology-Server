@@ -1,4 +1,4 @@
-// Content controller
+// Tree
 tsApp.directive('treeComponent', [
   '$q',
   'contentService',
@@ -15,13 +15,13 @@ tsApp.directive('treeComponent', [
       },
       templateUrl : 'app/component/tree-component/treeComponent.html',
       link : function(scope, element, attrs) {
-        
+
         console.debug('callbacks', scope.callbacks);
-        
+
         // watch for component change
-        scope.$watch('component', function () {
+        scope.$watch('component', function() {
           if (scope.component) {
-          scope.getTree(0);
+            scope.getTree(0);
           }
         })
 
@@ -68,47 +68,45 @@ tsApp.directive('treeComponent', [
         scope.getTree = function(startIndex) {
           console.debug('getting tree', startIndex);
           // Call content service to retrieve the tree
-          contentService.getTree(scope.component, startIndex).then(
-            function(data) {
+          contentService.getTree(scope.component, startIndex).then(function(data) {
 
-              scope.componentTree = data.trees;
+            scope.componentTree = data.trees;
 
-              // set the count and position variables
-              scope.treeCount = data.totalCount;
-              if (data.objects.length > 0)
-                scope.treeViewed = startIndex;
-              else
-                scope.treeViewed = 0;
+            // set the count and position variables
+            scope.treeCount = data.totalCount;
+            if (data.objects.length > 0)
+              scope.treeViewed = startIndex;
+            else
+              scope.treeViewed = 0;
 
-              // if parent tree cannot be read, clear the component
-              // tree
-              // (indicates no hierarchy present)
-              if (scope.componentTree.length == 0) {
-                scope.componentTree = null;
-                return;
-              }
+            // if parent tree cannot be read, clear the component
+            // tree
+            // (indicates no hierarchy present)
+            if (scope.componentTree.length == 0) {
+              scope.componentTree = null;
+              return;
+            }
 
-              // get the ancestor path of the bottom element (the
-              // component)
-              // ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
-              var parentTree = scope.componentTree[0];
-              while (parentTree.children.length > 0) {
-                // check if child has no children
-                if (parentTree.children[0].children.length == 0)
-                  break;
-                parentTree = parentTree.children[0];
-              }
+            // get the ancestor path of the bottom element (the
+            // component)
+            // ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
+            var parentTree = scope.componentTree[0];
+            while (parentTree.children.length > 0) {
+              // check if child has no children
+              if (parentTree.children[0].children.length == 0)
+                break;
+              parentTree = parentTree.children[0];
+            }
 
-              // replace the parent tree of the lowest level with
-              // first page of siblings computed
-              scope.getTreeChildren(parentTree, 0).then(function(children) {
-                parentTree.children = concatSiblings(parentTree.children, children);
-              });
-
+            // replace the parent tree of the lowest level with
+            // first page of siblings computed
+            scope.getTreeChildren(parentTree, 0).then(function(children) {
+              parentTree.children = concatSiblings(parentTree.children, children);
             });
 
-        };
+          });
 
+        };
 
         scope.isDerivedLabelSetFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
@@ -151,12 +149,13 @@ tsApp.directive('treeComponent', [
           // get the next page of children based on start index of current
           // children length
           // NOTE: Offset by 1 to incorporate the (possibly) already loaded item
-          contentService.getChildTrees(tree, scope.component.type, tree.children.length - 1).then(function(data) {
-            deferred.resolve(data.trees);
-          }, function(error) {
-            utilService.setError('Unexpected error retrieving children');
-            deferred.resolve([]);
-          });
+          contentService.getChildTrees(tree, scope.component.type, tree.children.length - 1).then(
+            function(data) {
+              deferred.resolve(data.trees);
+            }, function(error) {
+              utilService.setError('Unexpected error retrieving children');
+              deferred.resolve([]);
+            });
 
           return deferred.promise;
         };

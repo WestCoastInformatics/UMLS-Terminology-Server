@@ -97,10 +97,11 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : getConcept().getRelationships()) {
       relationships.add(rel);
     }
-    List<ConceptRelationship> inverseRelationships = new CopyOnWriteArrayList<>();
+    List<ConceptRelationship> inverseRelationships =
+        new CopyOnWriteArrayList<>();
     for (final ConceptRelationship rel : getConcept().getRelationships()) {
       ConceptRelationship inverseRel =
-          (ConceptRelationship) findInverseRelationship(rel);      
+          (ConceptRelationship) findInverseRelationship(rel);
       inverseRelationships.add(inverseRel);
     }
 
@@ -114,8 +115,9 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
       if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
         removeRels.add(rel);
         relationships.remove(rel);
-        for (final ConceptRelationship inverseRel : inverseRelationships){
-          if (inverseRel.getId().equals(((ConceptRelationship) findInverseRelationship(rel)).getId())){
+        for (final ConceptRelationship inverseRel : inverseRelationships) {
+          if (inverseRel.getId().equals(
+              ((ConceptRelationship) findInverseRelationship(rel)).getId())) {
             removeInverseRels.add(inverseRel);
             inverseRelationships.remove(inverseRel);
             break;
@@ -123,7 +125,6 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
         }
       }
     }
-        
 
     //
     // Remove objects from the appropriate Concept
@@ -131,7 +132,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : removeRels) {
       getConcept().getRelationships().remove(rel);
     }
-    for (final ConceptRelationship inverseRel : removeInverseRels){
+    for (final ConceptRelationship inverseRel : removeInverseRels) {
       inverseRel.getFrom().getRelationships().remove(inverseRel);
     }
 
@@ -153,7 +154,6 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship inverseRel : removeInverseRels) {
       removeRelationship(inverseRel.getId(), inverseRel.getClass());
     }
-    
 
     //
     // Change status of the components
@@ -208,23 +208,22 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : relationships) {
       updateRelationship(rel);
     }
-    for (final ConceptRelationship inverseRel : inverseRelationships)
-    {
-      updateRelationship(inverseRel);      
-    }   
+    for (final ConceptRelationship inverseRel : inverseRelationships) {
+      updateRelationship(inverseRel);
+    }
 
     //
     // Change status of the concept
     //
     // Set workflow status to READY_FOR_PUBLICATION if NEEDS_REVIEW
-    // Also  set the lastApproved and lastApprovedBy,
+    // Also set the lastApproved and lastApprovedBy,
     if (getConcept().getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
       getConcept().setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     }
 
     getConcept().setLastApprovedBy(getUserName());
     getConcept().setLastApproved(new Date());
-    
+
     //
     // update the Concept
     //
@@ -236,7 +235,8 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
 
     // log the REST calls
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(),  getName() + " concept " + getConcept().getId());
+        getActivityId(), getWorkId(), getName() + " concept "
+            + getConcept().getId() + " " + getConcept().getName());
 
   }
 

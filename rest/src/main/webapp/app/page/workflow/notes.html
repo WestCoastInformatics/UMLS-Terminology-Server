@@ -60,9 +60,9 @@
         <span style="display: block"
           ng-show="pagedNotes.length == 0 && !paging['notes'].filter"
           class="alert alert-warning"> No notes </span>
-          
+
         <table ng-show="pagedNotes.length > 0" class="table">
-          <thead class="table-select-row">
+          <thead class="pointer">
             <tr>
               <th class="col-md-6 col-xs-6">{{value}} Notes</th>
               <th class="col-md-2 col-xs-2">Date</th>
@@ -89,35 +89,14 @@
       </div>
       <textarea rows="4" cols="40" ng-model="newNote"
         ui-tinymce="tinymceOptions"></textarea>
-
-      <!-- Errors -->
-      <table class="table">
-        <tr ng-show="errors.length > 0">
-          <td>&nbsp;</td>
-          <td>
-
-            <div class="alert alert-danger alert-error">
-              {{errors[0]}}
-              <div style="display: inline; float: right;">
-                <i ng-show="errors[1]"
-                  title="{{error.expand ? 'Show' : 'Hide'}} long eror"
-                  class="noul material-icons md-18"
-                  ng-click="error.expand = !error.expand;">attach_file</i>
-              </div>
-              <p ng-show="errors[1] && error.expand">
-                <br />{{errors[1]}}
-              </p>
-            </div>
-
-          </td>
-        </tr>
-      </table>
-
     </div>
 
 
-
   </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
 </div>
 
 <div class="modal-footer">

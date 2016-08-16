@@ -28,7 +28,6 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.BooleanBridge;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
@@ -204,7 +203,6 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
 
   /* see superclass */
   @Override
-  @FieldBridge(impl = BooleanBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isEditable() {
     return editable;
@@ -218,7 +216,6 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
 
   /* see superclass */
   @Override
-  @FieldBridge(impl = BooleanBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isEnabled() {
     return enabled;
@@ -232,7 +229,6 @@ public class WorkflowBinDefinitionJpa implements WorkflowBinDefinition {
   
   /* see superclass */
   @Override
-  @FieldBridge(impl = BooleanBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isRequired() {
     return required;

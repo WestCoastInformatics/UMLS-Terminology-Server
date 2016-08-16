@@ -50,7 +50,7 @@ import com.wci.umls.server.jpa.helpers.ProjectRoleMapAdapter;
  */
 @Entity
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "userName"
+    "userName"
 }))
 @Audited
 @Indexed
@@ -78,6 +78,10 @@ public class UserJpa implements User {
   /** The email. */
   @Column(nullable = false)
   private String email;
+
+  /** The editor level. */
+  @Column(nullable = false)
+  private int editorLevel = 0;
 
   /** The application role. */
   @Enumerated(EnumType.STRING)
@@ -119,6 +123,7 @@ public class UserJpa implements User {
     this.name = user.getName();
     this.team = user.getTeam();
     this.email = user.getEmail();
+    this.editorLevel = user.getEditorLevel();
     this.applicationRole = user.getApplicationRole();
     this.authToken = user.getAuthToken();
     this.userPreferences = user.getUserPreferences();
@@ -194,6 +199,18 @@ public class UserJpa implements User {
 
   /* see superclass */
   @Override
+  public int getEditorLevel() {
+    return editorLevel;
+  }
+
+  /* see superclass */
+  @Override
+  public void setEditorLevel(int editorLevel) {
+    this.editorLevel = editorLevel;
+  }
+
+  /* see superclass */
+  @Override
   @Field(bridge = @FieldBridge(impl = EnumBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public UserRole getApplicationRole() {
     return applicationRole;
@@ -222,9 +239,9 @@ public class UserJpa implements User {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result
-            + ((applicationRole == null) ? 0 : applicationRole.hashCode());
+    result += editorLevel;
+    result = prime * result
+        + ((applicationRole == null) ? 0 : applicationRole.hashCode());
     result = prime * result + ((authToken == null) ? 0 : authToken.hashCode());
     result = prime * result + ((email == null) ? 0 : email.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -254,6 +271,8 @@ public class UserJpa implements User {
       if (other.email != null)
         return false;
     } else if (!email.equals(other.email))
+      return false;
+    if (editorLevel != other.editorLevel)
       return false;
     if (name == null) {
       if (other.name != null)
@@ -291,7 +310,8 @@ public class UserJpa implements User {
   public String toString() {
     return "UserJpa [id=" + id + ", userName=" + userName + ", name=" + name
         + ", team=" + team + ", email=" + email + ", applicationRole="
-        + applicationRole + ", authToken=" + authToken + "]";
+        + applicationRole + ", authToken=" + authToken + ", editorLevel="
+        + editorLevel + "]";
   }
 
   /*
