@@ -35,6 +35,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.ProjectJpa;
@@ -44,6 +45,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
@@ -243,6 +245,12 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     validationChecks.add("MGV_H1");
     validationChecks.add("MGV_H2");
     project1.setValidationChecks(validationChecks);
+    
+    final List<TypeKeyValue> validationData = new ArrayList<>();
+    validationData.add(new TypeKeyValueJpa("MGV_I","CBO",""));
+    validationData.add(new TypeKeyValueJpa("MGV_I","ISO3166-2",""));
+    validationData.add(new TypeKeyValueJpa("MGV_SCUI","NCI",""));
+    project1.setValidationData(validationData);
 
     // Handle precedence list
     MetadataServiceRest metadataService = new MetadataServiceRestImpl();

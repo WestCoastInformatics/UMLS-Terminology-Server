@@ -6,15 +6,13 @@ package com.wci.umls.server.jpa.services.validation;
 import java.util.List;
 import java.util.Properties;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.services.ContentService;
 
 /**
- * Validates those {@link Concept}s lacking an approved, releasable
+ * Validates those {@link Concept}s lacking a publishable
  * {@link SemanticTypeComponent}.
  *
  */
@@ -26,16 +24,9 @@ public class DT_M1 extends AbstractValidationCheck {
     // n/a
   }
 
-  /**
-   * Validate.
-   *
-   * @param project the project
-   * @param source the source
-   * @param service the service
-   * @return the validation result
-   */
-  public ValidationResult validate(Project project,
-    ContentService service, Concept source) {
+  /* see superclass */
+  @Override
+  public ValidationResult validate(Concept source) {
     ValidationResult result = new ValidationResultJpa();
 
     //
@@ -47,7 +38,8 @@ public class DT_M1 extends AbstractValidationCheck {
     // Violation if there are none
     //
     if (stys.isEmpty()) {
-      result.getErrors().add(getName() + ": Concept contains no semantic type components");
+      result.getErrors()
+          .add(getName() + ": Concept contains no semantic type components");
       return result;
     }
 
@@ -58,12 +50,13 @@ public class DT_M1 extends AbstractValidationCheck {
     for (SemanticTypeComponent sty : stys) {
       if (sty.isPublishable()) {
         hasPublishableSty = true;
+        break;
       }
     }
 
     if (!hasPublishableSty) {
-      result.getErrors()
-          .add(getName() + ": Concept contains no publishable semantic type components");
+      result.getErrors().add(getName()
+          + ": Concept contains no publishable semantic type components");
       return result;
     }
 

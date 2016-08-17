@@ -9,15 +9,19 @@ import java.util.stream.Collectors;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
+import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.MoveMolecularAction;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 
 /**
- * Validates merges between two {@link Concept}s that both contain releasable
+ * Validates merges between two {@link Concept}s that both contain publishable
  * {@link Atom}s from the same {@link Terminology} but different source concept
  * descriptor and that {@link Terminology} is listed in <code>ic_single</code>.
  *
@@ -30,18 +34,19 @@ public class MGV_SDUI extends AbstractValidationCheck {
     // n/a
   }
 
-  /**
-   * Validate.
-   *
-   * @param project the project
-   * @param service the service
-   * @param source the source
-   * @param target the target
-   * @param source_atoms the source atoms
-   * @return the validation result
-   */
-  public ValidationResult validate(Project project, ContentService service,
-    Concept source, Concept target, List<Atom> source_atoms) {
+  /* see superclass */
+  @SuppressWarnings("unused")
+  @Override
+  public ValidationResult validateAction(MolecularActionAlgorithm action) {
+    final Project project = action.getProject();
+    final ContentService service = (AbstractMolecularAction) action;
+    final Concept source = (action instanceof MergeMolecularAction
+        ? action.getConcept2() : action.getConcept());
+    final Concept target = (action instanceof MergeMolecularAction
+        ? action.getConcept() : action.getConcept2());
+    final List<Atom> source_atoms = (action instanceof MoveMolecularAction
+        ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
+
     ValidationResult result = new ValidationResultJpa();
 
     //
@@ -87,7 +92,8 @@ public class MGV_SDUI extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "MGV_SDUI";
+    String name = this.getClass().getSimpleName();
+    return name;
   }
 
 }

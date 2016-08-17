@@ -130,13 +130,13 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // Add the atom to concept
     getConcept().getAtoms().add(atom);
-
+    
     // update the concept
     updateConcept(getConcept());
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(), getName() + " " + atom);
+        getActivityId(), getWorkId(), getName() + " to concept " + getConcept().getId() + " " + atom);
 
   }
 
