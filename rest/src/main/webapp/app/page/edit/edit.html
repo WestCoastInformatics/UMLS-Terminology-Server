@@ -102,14 +102,14 @@
                 ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length == 0) ||
                  (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length == 0))"
               ng-click="assignWorklistToSelf(worklist); $event.stopPropagation()"
-              title="Claim" class="noul material-icons md-18">assignment_ind</i>
+              title="Claim" class="noul glyphicon glyphicon-hand-right"></i>
 
             <i
               ng-show="selected.worklistMode != 'Checklists' && 
                 ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length > 0) ||
                  (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length > 0))"
               ng-click="unassignWorklist(worklist); $event.stopPropagation()"
-              title="Unassign" class="noul material-icons md-18">assignment_return</i>
+              title="Unassign" class="noul glyphicon glyphicon-hand-left"></i>
 
             <i
               ng-show="selected.worklistMode != 'Checklists' &&
@@ -176,15 +176,15 @@
     <span style="float: right;">
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveConcept(selected.concept)" title="Approve"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Approve</button>
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveNext()" title="Approve/Next"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Approve/Next</button>
       <button confirm="Are you sure you want to merge the selected concept?"
         ng-click="openMergeModal()" title="Merge"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Merge</button>
     </span>
     <!-- End R1C2 -->
@@ -231,8 +231,7 @@
             </tr>
           </thead>
           <tbody ng-repeat="record in lists.records">
-            <tr
-              ng-class="{selected : record.id == selected.record.id}">
+            <tr ng-class="{selected : record.id == selected.record.id}">
               <td rowspan="3">{{record.clusterId}}</td>
               <td rowspan="3">
                 <button class="btn btn-xs btn-danger"

@@ -242,15 +242,11 @@ tsApp
                   workflowService.removeWorklist(projectId, worklist.id).then(function() {
                     $scope.selected.worklist = null;
                     $scope.getWorklists();
-                    workflowService.fireWorklistChanged(worklist);
-                    workflowService.fireWorkflowBinsChanged(worklist);
                   });
                 } else {
                   workflowService.removeChecklist(projectId, worklist.id).then(function() {
                     $scope.selected.worklist = null;
                     $scope.getWorklists();
-                    workflowService.fireWorklistChanged(worklist);
-                    workflowService.fireWorkflowBinsChanged(worklist);
                   });
                 }
                 // });
@@ -269,7 +265,6 @@ tsApp
                   $scope.performWorkflowAction(worklist, 'SAVE', $scope.user.userName);
                 } else {
                   $scope.getWorklists();
-                  workflowService.fireWorklistChanged(worklist);
                 }
               };
 
@@ -279,7 +274,6 @@ tsApp
                 workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
                   userName, $scope.selected.projects.role, action).then(function(data) {
                   $scope.getWorklists();
-                  workflowService.fireWorklistChanged(data);
                 });
               };
 
@@ -296,58 +290,29 @@ tsApp
               // MODALS
               //
 
-              // Notes modal
-              $scope.openNotesModal = function(lobject) {
-                console.debug('openNotesModal ', lobject);
-
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/page/workflow/notes.html',
-                  controller : NotesModalCtrl,
-                  backdrop : 'static',
-                  resolve : {
-                    object : function() {
-                      return lobject;
-                    },
-                    value : function() {
-                      return $scope.type;
-                    },
-                    project : function() {
-                      return $scope.selected.project;
-                    },
-                    tinymceOptions : function() {
-                      return utilService.tinymceOptions;
-                    }
-                  }
-                });
-
-                modalInstance.result.then(
-                // Success
-                function(data) {
-                  $scope.handleWorkflow(data);
-                });
-
-              };
-
               // Assign worklist modal
-              $scope.openAssignWorklistModal = function(lworklist, laction, lrole) {
+              $scope.openAssignWorklistModal = function(lworklist, laction) {
                 console.debug('openAssignWorklistModal ', lworklist, laction);
 
                 var modalInstance = $uibModal.open({
                   templateUrl : 'app/page/workflow/assignWorklist.html',
-                  controller : AssignWorklistModalCtrl,
+                  controller : 'AssignWorklistModalCtrl',
                   backdrop : 'static',
                   resolve : {
+                    selected : function() {
+                      return $scope.selected;
+                    },
+                    lists : function() {
+                      return $scope.lists;
+                    },
+                    user : function() {
+                      return user;
+                    },
                     worklist : function() {
                       return lworklist;
                     },
                     action : function() {
                       return laction;
-                    },
-                    currentUser : function() {
-                      return $scope.user;
-                    },
-                    project : function() {
-                      return $scope.selected.project;
                     }
                   }
 
@@ -357,7 +322,6 @@ tsApp
                 // Success
                 function(data) {
                   $scope.getWorklists();
-                  workflowService.fireWorklistChanged(data);
                 });
               };
 

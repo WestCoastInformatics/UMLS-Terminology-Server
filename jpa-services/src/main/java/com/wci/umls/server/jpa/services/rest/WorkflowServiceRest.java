@@ -21,7 +21,6 @@ import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -144,7 +143,7 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void clearBins(Long projectId, WorkflowBinType type, String authToken)
+  public void clearBins(Long projectId, String type, String authToken)
     throws Exception;
 
   /**
@@ -155,8 +154,8 @@ public interface WorkflowServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void regenerateBins(Long projectId, WorkflowBinType type,
-    String authToken) throws Exception;
+  public void regenerateBins(Long projectId, String type, String authToken)
+    throws Exception;
 
   /**
    * Find assigned work.
@@ -391,7 +390,7 @@ public interface WorkflowServiceRest {
    * @return the workflow bin stats
    * @throws Exception the exception
    */
-  public WorkflowBinList getWorkflowBins(Long projectId, WorkflowBinType type,
+  public WorkflowBinList getWorkflowBins(Long projectId, String type,
     String authToken) throws Exception;
 
   /**
@@ -416,7 +415,7 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public WorkflowBin regenerateBin(Long projectId, Long workflowBinId,
-    WorkflowBinType type, String authToken) throws Exception;
+    String type, String authToken) throws Exception;
 
   /**
    * Generate concept report.
@@ -591,7 +590,7 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId,
-    String name, WorkflowBinType type, String authToken) throws Exception;
+    String name, String type, String authToken) throws Exception;
 
   /**
    * Test query.

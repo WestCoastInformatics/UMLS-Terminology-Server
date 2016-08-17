@@ -16,7 +16,7 @@ import com.wci.umls.server.model.workflow.WorkflowConfig;
 /**
  * JAXB enabled implementation of {@link WorkflowConfigList}.
  */
-@XmlRootElement(name = "worklistList")
+@XmlRootElement(name = "workflowConfigList")
 public class WorkflowConfigListJpa extends AbstractResultList<WorkflowConfig>
     implements WorkflowConfigList {
 

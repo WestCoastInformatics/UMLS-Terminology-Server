@@ -35,6 +35,7 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.helpers.SplitUnderscoreBridge;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -172,7 +173,9 @@ public abstract class AbstractChecklist implements Checklist {
   /* see superclass */
   @Override
   @Fields({
-      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, 
+          analyzer = @Analyzer(definition = "noStopWord"), 
+          bridge = @FieldBridge(impl = SplitUnderscoreBridge.class)),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
   public String getName() {
