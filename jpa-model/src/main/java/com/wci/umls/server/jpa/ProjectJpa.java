@@ -21,6 +21,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MapKeyClass;
 import javax.persistence.MapKeyJoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -46,8 +47,10 @@ import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.helpers.UserMapUserNameBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
@@ -134,6 +137,10 @@ public class ProjectJpa implements Project {
   @ElementCollection
   @CollectionTable(name = "project_validation_checks")
   private List<String> validationChecks = new ArrayList<>();
+
+  /** The validation data. */
+  @OneToMany(targetEntity = TypeKeyValueJpa.class)
+  private List<TypeKeyValue> validationData = null;
 
   /** The prec list. */
   @OneToOne(targetEntity = PrecedenceListJpa.class, optional = true)
@@ -378,6 +385,31 @@ public class ProjectJpa implements Project {
   }
 
   /* see superclass */
+  @XmlElement(type = TypeKeyValueJpa.class)
+  public List<TypeKeyValue> getValidationData() {
+    if (validationData == null) {
+      validationData = new ArrayList<>(1);
+    }
+    return validationData;
+  }
+
+  /* see superclass */
+  public List<TypeKeyValue> getValidationDataFor(String type) {
+    List<TypeKeyValue> validationDataForType = new ArrayList<>();
+    for (TypeKeyValue validationData : validationData) {
+      if (validationData.getType().equals(type)) {
+        validationDataForType.add(validationData);
+      }
+    }
+    return validationDataForType;
+  }
+
+  /* see superclass */
+  public void setValidationData(List<TypeKeyValue> validationData) {
+    this.validationData = validationData;
+  }
+
+  /* see superclass */
   @XmlElement
   @Override
   public List<String> getValidCategories() {
@@ -387,6 +419,7 @@ public class ProjectJpa implements Project {
     return validCategories;
   }
 
+  /* see superclass */
   @Override
   public void setValidCategories(List<String> validCategories) {
     this.validCategories = validCategories;

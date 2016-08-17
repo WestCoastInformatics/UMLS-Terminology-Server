@@ -237,6 +237,10 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
 
     final List<String> validationChecks = new ArrayList<>();
     validationChecks.add("DEFAULT");
+    validationChecks.add("DT_M1");
+    validationChecks.add("DT_I3B");
+    validationChecks.add("MGV_H1");
+    validationChecks.add("MGV_H2");
     project1.setValidationChecks(validationChecks);
 
     // Handle precedence list

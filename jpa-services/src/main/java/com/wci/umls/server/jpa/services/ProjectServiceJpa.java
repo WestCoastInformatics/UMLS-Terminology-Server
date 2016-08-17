@@ -220,6 +220,7 @@ public class ProjectServiceJpa extends RootServiceJpa
       project.getPrecedenceList().getName();
     }
     project.getValidCategories().size();
+    project.getValidationData().size();
   }
 
   /**
