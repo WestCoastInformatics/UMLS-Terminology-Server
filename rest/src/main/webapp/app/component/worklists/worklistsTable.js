@@ -61,6 +61,15 @@ tsApp
                 }
               }, true);
 
+              // See if any project users have a team
+              $scope.hasTeam = function() {
+                for (var i = 0; i < $scope.selected.users.length; i++) {
+                  if ($scope.selected.users[i].team) {
+                    return true;
+                  }
+                }
+                return false;
+              }
               // Compose a string of all editors for display
               $scope.joinEditors = function(worklist) {
                 if (worklist.reviewers) {
@@ -70,6 +79,26 @@ tsApp
                 }
                 return '';
               };
+
+              // Get the "max" workflow state
+              $scope.getWorklowState = function(worklist) {
+                console.debug('get workflow state', worklist.workflowStateHistory);
+                var maxD = 0;
+                var maxState = 'xxx';
+                for ( var k in worklist.workflowStateHistory) {
+                  var item = worklist.workflowStateHistory[k];
+
+                  if (!maxD) {
+                    maxD = item.getTime();
+                    maxState = k;
+                  }
+                  if (item.getTime() > maxD) {
+                    maxD = item.getTime();
+                    maxState = k;
+                  }
+                }
+                return maxState;
+              }
 
               // Set $scope.selected.project and reload
               $scope.setProject = function(project) {

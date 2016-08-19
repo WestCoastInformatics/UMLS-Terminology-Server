@@ -24,11 +24,20 @@
               Last Modified
               <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
             </span></th>
-          <th class="col-md-5 col-xs-5">Editor / <span title="Team">Team
-            </span> / <span title="Time">Time </span>
-          </th>
-          <th ng-show="type == 'Worklist'" class="col-md-2 col-xs-2">
-            Status</th>
+          <th class="col-md-3 col-xs-3"><span
+              ng-click="setSortField('worklists', worklist.reviewers ? 'reviewers' : 'authors')">
+              Editor
+              <span
+                ng-bind="getSortIndicator('worklists',worklist.reviewers ? 'reviewers' : 'authors')"></span>
+            </span> / <span ng-click="setSortField('worklists','team')">
+              Team
+              <span ng-bind="getSortIndicator('worklists','team')"></span>
+            </span>
+          <th ng-show="type == 'Worklist'" class="col-md-2 col-xs-2"><span
+              ng-click="setSortField('worklists','worklistState')">
+              State
+              <span ng-bind="getSortIndicator('worklists','worklistState')"></span>
+            </span></th>
 
           <!-- Actions header -->
           <th class="col-md-2 col-xs-2"">Actions</th>
@@ -66,11 +75,9 @@
               {{joinEditors(worklist)}}</span>
             <br />
             <span> {{worklist.team}} </span>
-            <br />
-            <span> {{toTime(worklist.authorTime)}} </span>
           </td>
 
-          <td ng-show="type == 'Worklist'">{{worklist.workflowStatus}}</td>
+          <td ng-show="type == 'Worklist'">{{getWorkflowState(worklist)}}</td>
 
           <!--  actions -->
           <td class="nobreak">
