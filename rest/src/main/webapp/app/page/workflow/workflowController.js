@@ -10,12 +10,10 @@ tsApp.controller('WorkflowCtrl', [
   'configureService',
   'securityService',
   'workflowService',
-  'configureService',
   'projectService',
   'reportService',
   function($scope, $http, $location, $uibModal, utilService, websocketService, tabService,
-    configureService, securityService, workflowService, configureService, projectService,
-    reportService) {
+    configureService, securityService, workflowService, projectService, reportService) {
     console.debug("configure WorkflowCtrl");
 
     // Set up tabs and controller
@@ -325,7 +323,6 @@ tsApp.controller('WorkflowCtrl', [
 
     // Add config modal
     $scope.openAddConfigModal = function() {
-      console.debug('Open add config modal');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editConfig.html',
@@ -358,7 +355,6 @@ tsApp.controller('WorkflowCtrl', [
 
     // Edit config modal
     $scope.openEditConfigModal = function() {
-      console.debug('Open edit config modal');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editConfig.html',
@@ -390,7 +386,6 @@ tsApp.controller('WorkflowCtrl', [
     };
     // Edit bin modal
     $scope.openEditBinModal = function(lbin) {
-      console.debug('openEditBinModal ');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editBin.html',
@@ -424,7 +419,6 @@ tsApp.controller('WorkflowCtrl', [
 
     // Clone bin modal
     $scope.openCloneBinModal = function(lbin) {
-      console.debug('openCloneBinModal ');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editBin.html',
@@ -458,7 +452,6 @@ tsApp.controller('WorkflowCtrl', [
 
     // Add bin modal
     $scope.openAddBinModal = function(lbin) {
-      console.debug('openAddBinModal ');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editBin.html',

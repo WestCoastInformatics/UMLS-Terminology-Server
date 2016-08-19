@@ -81,19 +81,18 @@ tsApp
               };
 
               // Get the "max" workflow state
-              $scope.getWorklowState = function(worklist) {
-                console.debug('get workflow state', worklist.workflowStateHistory);
+              $scope.getWorkflowState = function(worklist) {
                 var maxD = 0;
                 var maxState = 'xxx';
                 for ( var k in worklist.workflowStateHistory) {
                   var item = worklist.workflowStateHistory[k];
 
                   if (!maxD) {
-                    maxD = item.getTime();
+                    maxD = item;
                     maxState = k;
                   }
-                  if (item.getTime() > maxD) {
-                    maxD = item.getTime();
+                  if (item > maxD) {
+                    maxD = item;
                     maxState = k;
                   }
                 }
@@ -321,7 +320,6 @@ tsApp
 
               // Assign worklist modal
               $scope.openAssignWorklistModal = function(lworklist, laction) {
-                console.debug('openAssignWorklistModal ', lworklist, laction);
 
                 var modalInstance = $uibModal.open({
                   templateUrl : 'app/page/workflow/assignWorklist.html',

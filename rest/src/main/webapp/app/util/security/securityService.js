@@ -203,7 +203,7 @@ tsApp.service('securityService', [
       console.trace();
       return false;
     };
-
+    
     // isAdmin function
     this.isAdmin = function() {
       return user.applicationRole === 'ADMINISTRATOR';
