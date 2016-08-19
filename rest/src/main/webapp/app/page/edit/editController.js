@@ -4,6 +4,7 @@ tsApp.controller('EditCtrl',
     '$scope',
     '$http',
     '$location',
+    '$window',
     'gpService',
     'utilService',
     'tabService',
@@ -17,11 +18,11 @@ tsApp.controller('EditCtrl',
     'metaEditingService',
     'contentService',
     '$uibModal',
-    function($scope, $http, $location, gpService, utilService, tabService, configureService,
+    function($scope, $http, $location, $window, gpService, utilService, tabService, configureService,
       securityService, workflowService, utilService, configureService, projectService,
       reportService, metaEditingService, contentService, $uibModal) {
       console.debug("configure EditCtrl");
-
+      
       // Set up tabs and controller
       tabService.setShowing(true);
       utilService.clearError();
@@ -42,6 +43,7 @@ tsApp.controller('EditCtrl',
       // Lists
       $scope.lists = {
         records : [],
+        worklists : [],
         configs : [],
         projects : [],
         concepts : [],
@@ -49,6 +51,9 @@ tsApp.controller('EditCtrl',
         recordTypes : workflowService.getRecordTypes(),
         worklistModes : [ 'Available', 'Assigned', 'Checklists' ]
       }
+      
+      // Windows
+      $scope.windows = {};
 
       // Paging variables
       $scope.resetPaging = function() {
@@ -67,6 +72,8 @@ tsApp.controller('EditCtrl',
         };
       }
       $scope.resetPaging();
+      
+      $scope.errors = [];
 
       // Get $scope.lists.worklists
       // switch based on type
@@ -220,13 +227,36 @@ tsApp.controller('EditCtrl',
           }
         }
         // next record is not loaded, need to get more
-        $scope.paging['records'].page += 1;
-        $scope.getRecords($scope.selected.worklist, true);
+        if ($scope.lists.records.totalCount > $scope.paging['records'].pageSize * $scope.paging['records'].page) {
+          $scope.paging['records'].page += 1;
+          $scope.getRecords($scope.selected.worklist, true);
+        } else {
+          // TODO; somehow notify sty window that no more records are available so msg can be displayed
+        }
+      }
+      
+      // refresh windows
+      $scope.refreshWindows = function() {
+        for (var key in $scope.windows) {
+          if ($scope.windows[key] && $scope.windows[key].$windowScope) {
+            $scope.windows[key].$windowScope.refresh();
+          }
+        }
+      }
+      
+      // remove window from map when it is closed
+      $scope.removeWindow = function(windowName) {
+        for (var win in $scope.windows) {
+          if ($scope.windows.hasOwnProperty(windowName)) {
+            delete $scope.windows[windowName];
+          }
+        }
       }
 
       // select concept & get concept report
       $scope.selectConcept = function(concept) {
         $scope.selected.concept = concept;
+        $scope.refreshWindows();
         reportService.getConceptReport($scope.selected.project.id, $scope.selected.concept.id)
           .then(
           // Success
@@ -283,8 +313,7 @@ tsApp.controller('EditCtrl',
           });
         }
 
-      }
-      ;
+      };
 
       // finish worklist
       $scope.performWorkflowAction = function(worklist) {
@@ -415,8 +444,44 @@ tsApp.controller('EditCtrl',
       $scope.clearLists = function() {
         $scope.lists.records = [];
         $scope.lists.concepts = [];
+        $scope.lists.worklists = [];
       }
 
+      // Convert time to a string
+      $scope.toTime = function(editingTime) {
+        return utilService.toTime(editingTime);
+      };
+      
+      // open semantic type editor window
+      $scope.openStyWindow = function() {
+        
+        var newUrl = utilService.composeUrl('edit/semantic-types');
+        window.$windowScope = $scope;
+        
+        $scope.windows['semanticType'] = $window.open(newUrl, 'styWindow', 
+          'width=500, height=600');
+        $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
+        $scope.windows['semanticType'].focus();
+      };
+      
+      // closes child windows when term server tab is closed
+      $window.onbeforeunload = function (evt) {
+        for (var key in $scope.windows) {
+          if ($scope.windows[key] && $scope.windows[key].$windowScope) {
+            $scope.windows[key].close();
+          }
+        }
+      }
+      
+      // closes child windows when edit tab is left
+      $scope.$on('$destroy', function () {
+        for (var key in $scope.windows) {
+          if ($scope.windows[key] && $scope.windows[key].$windowScope) {
+            $scope.windows[key].close();
+          }
+        }
+      });
+      
       //
       // MODALS
       //
@@ -481,6 +546,34 @@ tsApp.controller('EditCtrl',
           function(data) {
             $scope.lists.concepts.push(data);
           });
+        });
+
+      };
+
+      // Add time modal
+      $scope.openAddTimeModal = function(lworklist) {
+        console.debug('openAddTimeModal ', lworklist);
+        var modalInstance = $uibModal.open({
+          templateUrl : 'app/page/edit/addTime.html',
+          controller : AddTimeModalCtrl,
+          backdrop : 'static',
+          resolve : {
+            project : function() {
+              return $scope.selected.project;
+            },
+            worklist : function() {
+              return lworklist;
+            },
+            projectRole : function() {
+              return $scope.selected.projectRole;
+            }
+          }
+        });
+
+        modalInstance.result.then(
+        // Success
+        function(data) {
+          $scope.getWorklists();
         });
 
       };

@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -49,6 +50,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
@@ -96,7 +98,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
     @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
-    @ApiParam(value = "Semantic type to add", required = true) SemanticTypeComponentJpa semanticType,
+    @ApiParam(value = "Semantic type to add", required = true) @QueryParam("semanticType") String semanticTypeValue,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -104,7 +106,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful POST call (MetaEditing): /sty/add " + projectId + ","
             + conceptId + " for user " + authToken + " with sty value "
-            + semanticType.getSemanticType());
+            + semanticTypeValue);
 
     // Instantiate services
     final AddSemanticTypeMolecularAction action =
@@ -116,9 +118,25 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           authorizeProject(action, projectId, securityService, authToken,
               "adding a semantic type", UserRole.AUTHOR);
 
+      
+
+      
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
+      // Create semantic type component
+      final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
+      sty.setTerminologyId("");
+      sty.setObsolete(false);
+      sty.setPublishable(false);
+      sty.setPublished(false);
+      sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+      sty.setSemanticType(semanticTypeValue);
+      sty.setTerminology(project.getTerminology());
+      // TODO: don't hardcode latest
+      sty.setVersion("latest");
+      sty.setTimestamp(new Date());
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -131,7 +149,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setMolecularActionFlag(true);
       action.setChangeStatusFlag(true);
 
-      action.setSemanticTypeComponent(semanticType);
+      action.setSemanticTypeComponent(sty);
 
       // Perform the action
       final ValidationResult validationResult =

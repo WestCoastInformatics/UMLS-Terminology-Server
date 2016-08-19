@@ -123,8 +123,10 @@ tsApp
               + (activityId ? "&activityId=" + activityId : "")
               + '&lastModified='
               + concept.lastModified
+              + '&semanticType='
+              + encodeURIComponent(semanticType)
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
-                + overrideWarnings : ''), semanticType).then(
+                + overrideWarnings : ''), null).then(
           // success
           function(response) {
             console.debug('  validation = ', response.data);

@@ -92,10 +92,11 @@
             <span style="word-break: break-word;"
               ng-show="selected.projectRole == 'REVIEWER'">
               {{joinReviewers(worklist)}}</span>
-            <br />
-            <span> {{worklist.team}} </span>
-            <br />
-            <span> {{toTime(worklist.authorTime)}} </span>
+            {{worklist.team}}
+            <span ng-show="selected.projectRole == 'AUTHOR' && worklist.authorTime"> 
+             / {{toTime(worklist.authorTime)}} </span>
+            <span ng-show="selected.projectRole == 'REVIEWER' && worklist.reviewerTime"> 
+             / {{toTime(worklist.reviewerTime)}} </span>
           </td>
 
           <td ng-show="selected.worklistMode != 'Checklists'">
@@ -119,10 +120,10 @@
               title="Unassign" class="noul material-icons md-18">assignment_return</i>
 
             <i
-              ng-show="selected.worklistMode != 'Checklists' &&
+              ng-show="selected.worklistMode != 'Checklists' && worklist.workflowStatus != 'READY_FOR_PUBLICATION' &&
                 ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length > 0) ||
                  (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length > 0))"
-              ng-click="performWorkflowAction(worklist); $event.stopPropagation()"
+              ng-click="performWorkflowAction(worklist); openAddTimeModal(worklist); $event.stopPropagation()"
               title="Finish" class="noul glyphicon glyphicon-ok"></i>
           </td>
         </tr>
@@ -138,73 +139,7 @@
       worklists found</span>
 
     <!-- End R1C1 -->
-  </div>
-
-  <!-- R1C2 - concepts list  -->
-  <div class="col-md-6 col-xs-12">
-    <h4>
-      Concept List
-      <span style="float: right;">
-        <button ng-click="openAddConceptModal(selected.record)"
-          title="Add concept" class="btn btn-xs btn-primary">Finder</button>
-      </span>
-    </h4>
-    <table class="table">
-      <thead class="pointer">
-        <tr>
-
-          <th class="col-md-2 col-xs-2">Concept Id</th>
-          <th class="col-md-2 col-xs-2">CUI</th>
-          <th class="col-md-4 col-xs-4">Concept Name</th>
-          <th class="col-md-4 col-xs-4">Semantic Types</th>
-        </tr>
-      </thead>
-      <tbody>
-
-        <tr ng-repeat="concept in lists.concepts"
-          ng-click="selectConcept(concept);"
-          ng-class="{selected : concept.id == selected.concept.id}"
-          class="{{concept.workflowStatus}}">
-          <td>{{concept.id}}</td>
-          <td>{{concept.terminologyId}}</td>
-          <td>{{concept.name}}</td>
-          <td>
-            <span ng-repeat='sty in concept.semanticTypes'>
-              {{sty.semanticType}}</br>
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <span ng-show="lists.concepts.length == 0" style="display: block;"
-      class="alert alert-warning">No concepts</span>
-
-
-    <span style="float: right;">
-      <button confirm="Are you sure you want to approve the selected concept?"
-        ng-click="approveConcept(selected.concept)" title="Approve"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
-        class="btn btn-xs btn-primary">Approve</button>
-      <button confirm="Are you sure you want to approve the selected concept?"
-        ng-click="approveNext()" title="Approve/Next"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
-        class="btn btn-xs btn-primary">Approve/Next</button>
-      <button confirm="Are you sure you want to merge the selected concept?"
-        ng-click="openMergeModal()" title="Merge"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
-        class="btn btn-xs btn-primary">Merge</button>
-    </span>
-    <!-- End R1C2 -->
-  </div>
-</div>
-
-
-<!-- R2 -->
-<div class="row">
-
-  <!-- R2C1 -->
-  <div class="col-md-6 col-xs-12">
-    <div class="col-md-12 col-xs-12">
+    
       <h4 ng-show="selected.worklist">
         {{value}} Clusters
         <span ng-show="lists.records.totalCount>0">
@@ -267,15 +202,70 @@
           class="alert alert-warning"> No matching records found</span>
 
       </div>
-    </div>
-    <!-- End R2C1 -->
   </div>
 
-  <!-- R2C2 - concept report -->
+  <!-- R1C2 - concepts list  -->
   <div class="col-md-6 col-xs-12">
-    <div report-pre selected="selected" lists="lists" user="user"></div>
-    <!-- End R2C2 -->
-  </div>
-  <!-- End R2 -->
+    <h4>
+      Concept List
+      <span style="float: right;">
+        <button ng-click="openAddConceptModal(selected.record)"
+          title="Add concept" class="btn btn-xs btn-primary">Finder</button>
+      </span>
+    </h4>
+    <table class="table">
+      <thead class="pointer">
+        <tr>
 
+          <th class="col-md-2 col-xs-2">Concept Id</th>
+          <th class="col-md-2 col-xs-2">CUI</th>
+          <th class="col-md-4 col-xs-4">Concept Name</th>
+          <th class="col-md-4 col-xs-4">Semantic Types</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr ng-repeat="concept in lists.concepts"
+          ng-click="selectConcept(concept);"
+          ng-class="{selected : concept.id == selected.concept.id}"
+          class="{{concept.workflowStatus}}">
+          <td>{{concept.id}}</td>
+          <td>{{concept.terminologyId}}</td>
+          <td>{{concept.name}}</td>
+          <td>
+            <span ng-repeat='sty in concept.semanticTypes'>
+              {{sty.semanticType}}</br>
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <span ng-show="lists.concepts.length == 0" style="display: block;"
+      class="alert alert-warning">No concepts</span>
+
+
+    <span style="float: right;">
+      <button 
+        ng-click="openStyWindow()" title="Stys"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        class="btn btn-xs btn-primary">STY</button>
+      <button confirm="Are you sure you want to approve the selected concept?"
+        ng-click="approveConcept(selected.concept)" title="Approve"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        class="btn btn-xs btn-primary">Approve</button>
+      <button confirm="Are you sure you want to approve the selected concept?"
+        ng-click="approveNext()" title="Approve/Next"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        class="btn btn-xs btn-primary">Approve/Next</button>
+      <button confirm="Are you sure you want to merge the selected concept?"
+        ng-click="openMergeModal()" title="Merge"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        class="btn btn-xs btn-primary">Merge</button>
+    </span>
+    <!-- End R1C2 -->
+    
+     <div report-pre selected="selected" lists="lists" user="user"></div>
+  </div>
 </div>
+
+

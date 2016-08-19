@@ -10,6 +10,8 @@ tsApp
       function($location, $anchorScroll, $cookies, appConfig) {
         console.debug('configure utilService');
 
+        this.showHeaderFooter = true;
+        
         // declare the error
         this.error = {
           message : null,
@@ -161,6 +163,23 @@ tsApp
             this.clearError();
           }
         };
+        
+        // Set a flag indicating whether header/footer are to be showing
+        this.setShowing = function(showHeaderFooter) {
+          this.showHeaderFooter = showHeaderFooter;
+        };
+
+        // Indicates whether header/footer are showing at all
+        this.isShowing = function() {
+          return this.showHeaderFooter;
+        };
+        
+        this.composeUrl = function(extension) {
+          var currentUrl = $location.absUrl();
+          var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
+          var newUrl = baseUrl + extension;
+          return newUrl;
+        }
 
         // Convert seconds to hour/min string
         this.toTime = function(d) {
@@ -302,6 +321,7 @@ tsApp
 
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
+        // use when all data is already loaded
         this.getPagedArray = function(array, paging) {
           var newArray = new Array();
 

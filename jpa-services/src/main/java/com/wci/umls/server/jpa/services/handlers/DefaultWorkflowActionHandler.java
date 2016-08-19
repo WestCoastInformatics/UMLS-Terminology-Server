@@ -316,7 +316,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
     if (role == UserRole.AUTHOR) {
       return service.findWorklists(project,
-          "authors:" + userName + " AND NOT workflowStatus:EDITING_DONE", pfs);
+          "authors:" + userName + " AND NOT workflowStatus:EDITING_DONE AND NOT workflowStatus:READY_FOR_PUBLICATION", pfs);
     } else if (role == UserRole.REVIEWER) {
       return service.findWorklists(project, "reviewers:" + userName, pfs);
     }

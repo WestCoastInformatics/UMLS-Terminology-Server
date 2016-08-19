@@ -49,7 +49,7 @@ tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'g
       // First, if it's a "change event", then we can determine what changed
       // and whether to fire "concept changed" or "atom changed"
       
-      console.log("MESSAGE: " + message);
+      console.log("MESSAGE: " + message, e.data);
 
     };
 

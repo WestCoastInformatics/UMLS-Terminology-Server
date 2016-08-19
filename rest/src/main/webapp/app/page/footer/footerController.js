@@ -1,7 +1,7 @@
 // Content controller
 tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce', 'gpService',
-  'securityService', 'appConfig',
-  function($rootScope, $location, $routeParams, $sce, gpService, securityService, appConfig) {
+  'securityService', 'utilService', 'appConfig',
+  function($rootScope, $location, $routeParams, $sce, gpService, securityService, utilService, appConfig) {
     console.debug('configure footer directive');
     return {
       restrict : 'A',
@@ -10,14 +10,13 @@ tsApp.directive('tsFooter', [ '$rootScope', '$location', '$routeParams', '$sce',
       link : function(scope, element, attrs) {
 
         scope.isShowing = function() {
-          switch ($routeParams.mode) {
-          case 'simple':
+          if ($routeParams.mode == 'simple' || !utilService.isShowing()) {
             return false;
-          default:
+          } else {
             return true;
           }
         };
-
+        
         // pass values to scope
         scope.appConfig = appConfig;
 

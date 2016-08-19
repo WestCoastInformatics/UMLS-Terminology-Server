@@ -180,6 +180,13 @@ tsApp.run([
             });
           }
 
+          console.debug('Route enabled: /edit/semantic-types');
+          $routeProviderReference.when('/edit/semantic-types', {
+            templateUrl : 'app/page/edit/semantic-types/semanticTypes.html',
+            controller : 'SemanticTypesCtrl',
+            reloadOnSearch : false
+          });
+
           //
           // Configurable routes
           //
