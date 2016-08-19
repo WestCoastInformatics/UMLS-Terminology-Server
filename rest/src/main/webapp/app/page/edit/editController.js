@@ -467,7 +467,7 @@ tsApp.controller('EditCtrl',
         window.$windowScope = $scope;
         
         $scope.windows['semanticType'] = $window.open(newUrl, 'styWindow', 
-          'width=500, height=600');
+          'width=600, height=600');
         $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
         $scope.windows['semanticType'].focus();
       };

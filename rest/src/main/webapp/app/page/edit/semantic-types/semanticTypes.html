@@ -1,7 +1,13 @@
 
-<h4>Semantic Type Editor</h4>
+<h4><b>Semantic Type Editor</b></h4>
 <h4>{{selected.concept.name}} {{selected.concept.id}}</h4>
-<table class="table">
+<table class="table"> 
+  <thead>
+    <tr>
+      <th class="col-md-11 col-xs-11">Semantic Type</th>
+      <th class="col-md-1 col-xs-1"></th>
+    </tr>
+  </thead>
   <tbody>
     <tr ng-repeat="semanticType in selected.concept.semanticTypes">
       <td>{{semanticType.semanticType}}</td>
@@ -38,10 +44,19 @@
 </span>
 
 <table class="table">
+  <thead>
+    <tr>
+      <th class="col-md-2 col-xs-2">TUI</th>
+      <th class="col-md-2 col-xs-2">Tree #</th>
+      <th class="col-md-7 col-xs-7">Semantic Type</th>
+      <th class="col-md-1 col-xs-1"></th>
+    </tr>
+  </thead>
   <tbody>
     <tr ng-repeat="semanticType in pagedStys.data">
-      <td>{{semanticType.expandedForm}}</td>
       <td>{{semanticType.typeId}}</td>
+      <td>{{semanticType.treeNumber}}</td>
+      <td>{{semanticType.expandedForm}}</td>
       <td>
         <i ng-click="addSemanticTypeToConcept(semanticType.expandedForm); "
           title="Add Semantic Type" class="noul glyphicon glyphicon-plus"></i>

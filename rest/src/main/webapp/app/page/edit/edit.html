@@ -131,8 +131,7 @@
       style="display: block;" class="alert alert-warning">No matching
       worklists found</span>
 
-    <!-- End R1C1 -->
-    
+    <span ng-show="selected.worklistMode != 'Available'">
       <h4 ng-show="selected.worklist">
         {{value}} Clusters
         <span ng-show="lists.records.totalCount>0">
@@ -194,10 +193,12 @@
           class="alert alert-warning"> No matching records found</span>
 
       </div>
+      </span>
   </div>
 
   <!-- R1C2 - concepts list  -->
-  <div class="col-md-6 col-xs-12">
+  <div class="col-md-6 col-xs-12" ng-show="selected.worklistMode != 'Available'">
+    
     <h4>
       Concept List
       <span style="float: right;">
