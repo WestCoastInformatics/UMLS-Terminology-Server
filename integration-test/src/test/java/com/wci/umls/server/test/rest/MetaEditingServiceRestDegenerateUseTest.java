@@ -100,7 +100,7 @@ public class MetaEditingServiceRestDegenerateUseTest
     assertNotNull(c);
 
     // create semantic type
-    SemanticTypeComponentJpa sty = new SemanticTypeComponentJpa();
+    String sty = "Lipid";
 
     //
     // Null parameters
@@ -190,8 +190,9 @@ public class MetaEditingServiceRestDegenerateUseTest
 
     // check null auth token
     try {
+      
       metaEditingService.removeSemanticType(project.getId(), c.getId(),
-          "activityId", c.getTimestamp().getTime(), sty.getId(), false, null);
+          "activityId", c.getTimestamp().getTime(), 0L, false, null);
       fail();
     } catch (Exception e) {
       // do nothing
@@ -204,8 +205,6 @@ public class MetaEditingServiceRestDegenerateUseTest
     //
     Concept c2 = contentService.getConcept("C0000005", umlsTerminology,
         umlsVersion, project.getId(), authToken);
-    sty = (SemanticTypeComponentJpa) c2.getSemanticTypes().iterator().next();
-    sty.setId(null);
     try {
       metaEditingService.addSemanticType(project.getId(), c2.getId(),
           "activityId", c2.getTimestamp().getTime(), sty, false, authToken);
@@ -215,7 +214,7 @@ public class MetaEditingServiceRestDegenerateUseTest
     }
 
     try {
-      sty.setSemanticType("this string must not match a semantic type name");
+      sty= "this string must not match a semantic type name";
       metaEditingService.addSemanticType(project.getId(), c2.getId(),
           "activityId", c2.getTimestamp().getTime(), sty, false, authToken);
       fail("Attempt to insert a bogus semantic type should fail");

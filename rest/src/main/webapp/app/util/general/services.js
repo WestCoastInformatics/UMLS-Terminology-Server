@@ -308,11 +308,16 @@ tsApp
         
         // Helper function to get a standard paging object
         // overwritten as needed
+        // Example of filterFields
+        //  paging.filterFields.terminologyId = 1;
+        //  paging.filterFields.expandedForm = 1;
+        //
         this.getPaging = function() {
           return {
             page : 1,
             pageSize : 10,
             filter : '',
+            filterFields : null,
             sortField : null,
             sortAscending : true,
             sortOptions : []
@@ -332,10 +337,6 @@ tsApp
 
           newArray = array;
           // apply suppressible/obsolete
-          /*
-           * if (!paging.showHidden) { newArray = newArray.filter(function(item) {
-           * return !item.suppressible && !item.obsolete; }); }
-           */
 
           // apply sort if specified
           if (paging.sortField) {
@@ -345,7 +346,7 @@ tsApp
 
           // apply filter
           if (paging.filter) {
-            newArray = this.getArrayByFilter(newArray, paging.filter);
+            newArray = this.getArrayByFilter(newArray, paging.filter, paging.filterFields);
           }
 
           // apply active status filter
@@ -389,12 +390,12 @@ tsApp
         };
 
         // Get array by filter text matching terminologyId or name
-        this.getArrayByFilter = function(array, filter) {
+        this.getArrayByFilter = function(array, filter, fields ) {
           var newArray = [];
 
           for ( var object in array) {
 
-            if (this.objectContainsFilterText(array[object], filter)) {
+            if (this.objectContainsFilterText(array[object], filter, fields)) {
               newArray.push(array[object]);
             }
           }
@@ -419,12 +420,15 @@ tsApp
         };
 
         // Returns true if any field on object contains filter text
-        this.objectContainsFilterText = function(object, filter) {
+        this.objectContainsFilterText = function(object, filter, fields) {
 
           if (!filter || !object)
             return false;
 
           for ( var prop in object) {
+            if (!fields && !fields[prop]) {
+              continue;
+            }
             var value = object[prop];
             // check property for string, note this will cover child elements
             if (value && value.toString().toLowerCase().indexOf(filter.toLowerCase()) != -1) {

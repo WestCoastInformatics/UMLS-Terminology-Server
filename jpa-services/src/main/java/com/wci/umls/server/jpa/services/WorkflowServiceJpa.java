@@ -43,7 +43,6 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -177,10 +176,10 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // If concept has no atoms, it won't be on any tracking record list
     final List<Atom> atoms = concept.getAtoms();
-    if (atoms.size()==0){
+    if (atoms.size() == 0) {
       return null;
     }
-    
+
     // Create a query
     final List<String> clauses = atoms.stream()
         .map(a -> "componentIds:" + a.getId()).collect(Collectors.toList());
@@ -236,7 +235,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   /* see superclass */
   @Override
   public void handleLazyInit(WorkflowBinDefinition definition) {
-    definition.getWorkflowConfig().getType().toString();
+    definition.getWorkflowConfig().getType();
   }
 
   /* see superclass */
@@ -370,7 +369,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
   /* see superclass */
   @Override
-  public WorkflowConfig getWorkflowConfig(Project project, WorkflowBinType type)
+  public WorkflowConfig getWorkflowConfig(Project project, String type)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Workflow Service - get project workflow config "
@@ -378,8 +377,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorkflowConfigJpa> results = searchHandler.getQueryResults(null,
-        null, "", composeQuery(project, "") + " AND type:" + type.toString(),
-        "", WorkflowConfigJpa.class, WorkflowConfigJpa.class, null, totalCt,
+        null, "", composeQuery(project, "") + " AND type:" + type, "",
+        WorkflowConfigJpa.class, WorkflowConfigJpa.class, null, totalCt,
         manager);
 
     if (results.size() == 0) {
@@ -443,7 +442,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   /* see superclass */
   @Override
   public List<WorkflowBinDefinition> getWorkflowBinDefinitions(Project project,
-    WorkflowBinType type) throws Exception {
+    String type) throws Exception {
     Logger.getLogger(getClass())
         .debug("Workflow Service - get workflow bin definitions "
             + project.getId() + ", " + type);
@@ -523,8 +522,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
   /* see superclass */
   @Override
-  public List<WorkflowBin> getWorkflowBins(Project project,
-    WorkflowBinType type) throws Exception {
+  public List<WorkflowBin> getWorkflowBins(Project project, String type)
+    throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Service - get workflow bins "
         + project.getId() + ", " + type);
 

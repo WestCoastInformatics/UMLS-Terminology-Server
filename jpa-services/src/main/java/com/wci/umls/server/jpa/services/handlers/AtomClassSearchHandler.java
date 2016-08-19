@@ -61,9 +61,8 @@ public class AtomClassSearchHandler implements SearchHandler {
 
     // Initialize acronyms map
     if (p.containsKey("acronymsFile")) {
-      final BufferedReader in =
-          new BufferedReader(new FileReader(new File(
-              p.getProperty("acronymsFile"))));
+      final BufferedReader in = new BufferedReader(
+          new FileReader(new File(p.getProperty("acronymsFile"))));
       String line;
       while ((line = in.readLine()) != null) {
         String[] tokens = FieldedStringTokenizer.split(line, "\t");
@@ -163,17 +162,15 @@ public class AtomClassSearchHandler implements SearchHandler {
       // search the normalized and literal fields with the quoted literal
       // (unescaped) query
       if (normalizedField != null) {
-        parsedQuery +=
-            " OR " + normalizedField + ":\""
-                + ConfigUtility.normalize(literalQuery) + "\"^5.0";
+        parsedQuery += " OR " + normalizedField + ":\""
+            + ConfigUtility.normalize(literalQuery) + "\"^5.0";
       }
       if (literalField != null) {
         parsedQuery += " OR " + literalField + ":\"" + literalQuery + "\"^5.0";
       }
 
       // check for a single term containing numbers, which may be an id
-      if (literalQuery.matches(".*[0-9]+.*")
-          && literalQuery.split("\\s").length == 1) {
+      if (literalQuery.matches("[^\\s]*[0-9]+[^\\s]*")) {
         parsedQuery += " OR (terminologyId:" + literalQuery;
         parsedQuery += " OR atoms.terminologyId:" + literalQuery;
         parsedQuery += " OR atoms.codeId:" + literalQuery;
@@ -185,9 +182,8 @@ public class AtomClassSearchHandler implements SearchHandler {
       if (acronymExpansionMap.containsKey(fixedQuery)) {
         for (final String expansion : acronymExpansionMap.get(fixedQuery)) {
           if (normalizedField != null) {
-            parsedQuery +=
-                " OR " + normalizedField + ":\""
-                    + ConfigUtility.normalize(expansion) + "\"^5.0";
+            parsedQuery += " OR " + normalizedField + ":\""
+                + ConfigUtility.normalize(expansion) + "\"^5.0";
           }
           if (literalField != null) {
             parsedQuery += " OR " + literalField + ":\"" + expansion + "\"^5.0";
@@ -217,22 +213,20 @@ public class AtomClassSearchHandler implements SearchHandler {
               if (correctedQuery.length() != 0) {
                 correctedQuery.append(" ");
               }
-              correctedQuery.append(FieldedStringTokenizer.join(suggestions,
-                  " "));
+              correctedQuery
+                  .append(FieldedStringTokenizer.join(suggestions, " "));
             }
           }
         }
         if (flag) {
           // add name norm and name sort with appropriate weightings
           if (normalizedField != null) {
-            parsedQuery +=
-                " OR " + normalizedField + ":\"" + correctedQuery.toString()
-                    + "\"^5.0";
+            parsedQuery += " OR " + normalizedField + ":\""
+                + correctedQuery.toString() + "\"^5.0";
           }
           if (literalField != null) {
-            parsedQuery +=
-                " OR " + literalField + ":\"" + correctedQuery.toString()
-                    + "\"^5.0";
+            parsedQuery += " OR " + literalField + ":\""
+                + correctedQuery.toString() + "\"^5.0";
           }
         }
       }
@@ -271,16 +265,15 @@ public class AtomClassSearchHandler implements SearchHandler {
     // Construct the full text query and perform the search
     FullTextQuery fullTextQuery = null;
 
-    // if fielded, try literal query first
-    try {
-      if (fieldedQuery != null) {
-        fullTextQuery =
-            IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-                fieldedQuery.toString(), pfs, manager);
+    // if fielded, try fielded query first
+    if (fieldedQuery != null) {
+      try {
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+            fieldedQuery.toString(), pfs, manager);
+      } catch (ParseException | IllegalArgumentException e) {
+        e.printStackTrace();
+        fullTextQuery = null;
       }
-    } catch (ParseException | IllegalArgumentException e) {
-      e.printStackTrace();
-      fullTextQuery = null;
     }
 
     // if not a fielded search or fielded search returned no results
@@ -288,17 +281,15 @@ public class AtomClassSearchHandler implements SearchHandler {
 
       // try the parsed query
       try {
-        fullTextQuery =
-            IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-                finalQuery.toString(), pfs, manager);
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+            finalQuery.toString(), pfs, manager);
       }
 
       // If there's a parse exception, try the literal query
       catch (ParseException | IllegalArgumentException e) {
         e.printStackTrace();
-        fullTextQuery =
-            IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-                escapedQuery + terminologyClause, pfs, manager);
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+            escapedQuery + terminologyClause, pfs, manager);
       }
     }
 
@@ -315,9 +306,8 @@ public class AtomClassSearchHandler implements SearchHandler {
       // Run the query through acronym expansion
       if (totalCt[0] == 0) {
         // use wordInd tokenization
-        String[] tokens =
-            FieldedStringTokenizer.split(fixedQuery,
-                " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        String[] tokens = FieldedStringTokenizer.split(fixedQuery,
+            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         boolean found = false;
         for (final String token : tokens) {
@@ -328,8 +318,8 @@ public class AtomClassSearchHandler implements SearchHandler {
           if (acronymExpansionMap.containsKey(token.toUpperCase())) {
             found = true;
             List<String> tempList = new ArrayList<>();
-            tempList.add("\"" + acronymExpansionMap.get(token.toUpperCase())
-                + "\"");
+            tempList.add(
+                "\"" + acronymExpansionMap.get(token.toUpperCase()) + "\"");
             newQuery.append(FieldedStringTokenizer.join(tempList, " "));
           } else {
             newQuery.append(token);
@@ -348,9 +338,8 @@ public class AtomClassSearchHandler implements SearchHandler {
       // Run the query through spelling correction
       if (totalCt[0] == 0) {
         // use wordInd tokenization
-        String[] tokens =
-            FieldedStringTokenizer.split(fixedQuery,
-                " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        String[] tokens = FieldedStringTokenizer.split(fixedQuery,
+            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         newQuery.append("(");
         boolean found = false;
@@ -383,9 +372,8 @@ public class AtomClassSearchHandler implements SearchHandler {
       // e.g. a* b* c*
       if (totalCt[0] == 0) {
         // use wordInd tokenization
-        String[] tokens =
-            FieldedStringTokenizer.split(fixedQuery,
-                " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        String[] tokens = FieldedStringTokenizer.split(fixedQuery,
+            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         newQuery.append("(");
         for (final String token : tokens) {
@@ -398,9 +386,8 @@ public class AtomClassSearchHandler implements SearchHandler {
         }
         newQuery.append(")");
         // Try the query again
-        fullTextQuery =
-            IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-                newQuery.toString() + terminologyClause, pfs, manager);
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+            newQuery.toString() + terminologyClause, pfs, manager);
         totalCt[0] = fullTextQuery.getResultSize();
 
       }

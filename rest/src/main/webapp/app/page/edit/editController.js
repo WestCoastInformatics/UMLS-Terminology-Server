@@ -153,6 +153,12 @@ tsApp.controller('EditCtrl',
         });
       }
 
+      // handle change in project role
+      $scope.changeProjectRole = function() {
+        // save the change
+        securityService.saveRole($scope.user.userPreferences, $scope.selected.projectRole);
+      }
+
       // Set the project
       $scope.setProject = function(project) {
         $scope.selected.project = project;
@@ -166,6 +172,7 @@ tsApp.controller('EditCtrl',
           $scope.lists.projectRoles = data.options;
 
           // Get worklists
+          $scope.resetPaging();
           $scope.getWorklists();
         });
 
@@ -347,6 +354,7 @@ tsApp.controller('EditCtrl',
               if ($scope.user.team) {
                 worklist.team = $scope.user.team;
               }
+              $scope.resetPaging();
               $scope.getWorklists();
             });
           });
@@ -364,6 +372,7 @@ tsApp.controller('EditCtrl',
           $scope.selected.project.userRoleMap[$scope.user.userName], 'UNASSIGN').then(
         // Success
         function(data) {
+          $scope.resetPaging();
           $scope.getWorklists();
         });
       };
@@ -437,7 +446,6 @@ tsApp.controller('EditCtrl',
         $scope.selected.worklist = null;
         $scope.selected.record = null;
         $scope.selected.concept = null;
-        $scope.resetPaging();
       }
       
       // clears lists

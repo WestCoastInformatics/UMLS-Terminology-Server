@@ -13,6 +13,7 @@
       <span>
         &nbsp;&nbsp;Role: <select ng-model="selected.projectRole"
           ng-show="lists.projectRoles.length > 1"
+          ng-change="changeProjectRole()"
           ng-options="projectRole for projectRole in lists.projectRoles"
           ng-click="getWorklists()"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
@@ -23,9 +24,10 @@
   <!-- R1 -->
   <!-- R1C1 -->
   <div class="col-md-6 col-xs-12">
-
+    <span>
+      <h4>Worklists, Checklists</h4>
+    </span>
     <div>
-
       <ul class="pointer nav nav-tabs">
         <li ng-class="{active : selected.worklistMode == 'Available'}"><a
             ng-click="selected.worklistMode='Available'; getWorklists()">Available</a></li>
@@ -34,17 +36,8 @@
         <li ng-class="{active : selected.worklistMode == 'Checklists'}"><a
             ng-click="selected.worklistMode='Checklists'; getWorklists()">Checklists</a></li>
       </ul>
-
     </div>
-    <div>
-      <span ng-show="selected.worklistMode == 'Checklists'">
-        <h4>Checklists</h4>
-      </span>
-      <span ng-show="selected.worklistMode != 'Checklists'">
-        <h4>{{selected.worklistMode}} Worklists</h4>
-      </span>
-
-    </div>
+    <div></div>
 
     <div pager paging="paging['worklists']" count="lists.worklists.totalCount"
       callback="paging['worklists'].callback"></div>
@@ -110,14 +103,14 @@
                 ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length == 0) ||
                  (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length == 0))"
               ng-click="assignWorklistToSelf(worklist); $event.stopPropagation()"
-              title="Claim" class="noul material-icons md-18">assignment_ind</i>
+              title="Claim" class="noul glyphicon glyphicon-hand-right"></i>
 
             <i
               ng-show="selected.worklistMode != 'Checklists' && 
                 ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length > 0) ||
                  (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length > 0))"
               ng-click="unassignWorklist(worklist); $event.stopPropagation()"
-              title="Unassign" class="noul material-icons md-18">assignment_return</i>
+              title="Unassign" class="noul glyphicon glyphicon-hand-left"></i>
 
             <i
               ng-show="selected.worklistMode != 'Checklists' && worklist.workflowStatus != 'READY_FOR_PUBLICATION' &&
@@ -173,8 +166,7 @@
             </tr>
           </thead>
           <tbody ng-repeat="record in lists.records">
-            <tr
-              ng-class="{selected : record.id == selected.record.id}">
+            <tr ng-class="{selected : record.id == selected.record.id}">
               <td rowspan="3">{{record.clusterId}}</td>
               <td rowspan="3">
                 <button class="btn btn-xs btn-danger"

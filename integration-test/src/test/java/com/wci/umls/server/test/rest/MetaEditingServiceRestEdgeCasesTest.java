@@ -97,19 +97,13 @@ public class MetaEditingServiceRestEdgeCasesTest
         contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     // construct a semantic type not present on concept (here, Lipid)
-    SemanticTypeComponent sty = new SemanticTypeComponentJpa();
-    sty.setBranch(c1.getBranch());
-    sty.setLastModifiedBy(authToken);
-    sty.setSemanticType("Lipid");
-    sty.setTerminologyId("TestId");
-    sty.setTerminology(umlsTerminology);
-    sty.setVersion(umlsVersion);
-    sty.setTimestamp(new Date());
+    String sty = "Lipid";
+    SemanticTypeComponent fullSty = new SemanticTypeComponentJpa();
 
     // add the sty
     result = metaEditingService.addSemanticType(project.getId(), c1.getId(),
         "activityId", c1.getLastModified().getTime(),
-        (SemanticTypeComponentJpa) sty, false, authToken);
+        sty, false, authToken);
     assertTrue(result.isValid());
 
     // get the concept
@@ -118,14 +112,14 @@ public class MetaEditingServiceRestEdgeCasesTest
     sty = null;
     for (SemanticTypeComponent s : c1.getSemanticTypes()) {
       if (s.getSemanticType().equals("Lipid")) {
-        sty = s;
+        fullSty = s;
       }
     }
-    assertNotNull(sty);
+    assertNotNull(fullSty);
 
     final Long cId = c1.getId();
     final Long cDate = c1.getLastModified().getTime();
-    final Long styId = sty.getId();
+    final Long styId = fullSty.getId();
 
     // number of repeated calls to make
     final int[] nThreads = {

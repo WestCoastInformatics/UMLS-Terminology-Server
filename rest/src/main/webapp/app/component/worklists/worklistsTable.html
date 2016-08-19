@@ -24,11 +24,20 @@
               Last Modified
               <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
             </span></th>
-          <th class="col-md-5 col-xs-5">Editor / <span title="Team">Team
-            </span> / <span title="Time">Time </span>
-          </th>
-          <th ng-show="type == 'Worklist'" class="col-md-2 col-xs-2">
-            Status</th>
+          <th class="col-md-3 col-xs-3"><span
+              ng-click="setSortField('worklists', worklist.reviewers ? 'reviewers' : 'authors')">
+              Editor
+              <span
+                ng-bind="getSortIndicator('worklists',worklist.reviewers ? 'reviewers' : 'authors')"></span>
+            </span> / <span ng-click="setSortField('worklists','team')">
+              Team
+              <span ng-bind="getSortIndicator('worklists','team')"></span>
+            </span>
+          <th ng-show="type == 'Worklist'" class="col-md-2 col-xs-2"><span
+              ng-click="setSortField('worklists','worklistState')">
+              State
+              <span ng-bind="getSortIndicator('worklists','worklistState')"></span>
+            </span></th>
 
           <!-- Actions header -->
           <th class="col-md-2 col-xs-2"">Actions</th>
@@ -42,9 +51,9 @@
               ng-click="setSortField('worklists','name')">
               Name
               <span ng-bind="getSortIndicator('worklists','name')"></span>
-            </span> / <span ng-click="setSortField('worklists','timestamp')">
-              Created
-              <span ng-bind="getSortIndicator('worklists','timestamp')"></span>
+            </span> / <span ng-click="setSortField('worklists','lastModified')">
+              LastModified
+              <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
             </span></th>
 
           <!-- Actions header -->
@@ -58,13 +67,7 @@
           ng-class="{selected: worklist.id == selected.worklist.id}">
 
           <td>
-            {{worklist.name}}
-            <span ng-show="type ==='Worklist'">
-              <br />{{toDate(worklist.lastModified)}}
-            </span>
-            <span ng-show="type ==='Checklist'">
-              <br />{{toDate(worklist.timestamp)}}
-            </span>
+            {{worklist.name}} <br />{{toDate(worklist.lastModified)}}
           </td>
 
           <td ng-show="type == 'Worklist'">
@@ -72,25 +75,23 @@
               {{joinEditors(worklist)}}</span>
             <br />
             <span> {{worklist.team}} </span>
-            <br />
-            <span> {{toTime(worklist.authorTime)}} </span>
           </td>
 
-          <td ng-show="type == 'Worklist'">{{worklist.workflowStatus}}</td>
+          <td ng-show="type == 'Worklist'">{{getWorkflowState(worklist)}}</td>
 
           <!--  actions -->
           <td class="nobreak">
             <i title="Remove" ng-show="!worklist.staged"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
-              class="noul material-icons md-18">delete</i>
+              class="noul glyphicon glyphicon-trash"></i>
             <i ng-show="type == 'Worklist' && joinEditors(worklist).length == 0"
               ng-click="openAssignWorklistModal(worklist,'ASSIGN'); $event.stopPropagation()"
-              title="Assign" class="noul material-icons md-18">assignment_ind</i>
+              title="Assign" class="noul glyphicon glyphicon-hand-right"></i>
 
             <i ng-show="type == 'Worklist' && joinEditors(worklist).length > 0"
               ng-click="unassignWorklist(worklist); $event.stopPropagation()"
-              title="Unassign" class="noul material-icons md-18">assignment_return</i>
+              title="Unassign" class="noul glyphicon glyphicon-hand-left"></i>
 
           </td>
         </tr>
@@ -128,19 +129,10 @@
               <div ng-show="selected.worklist.notes.length > 0" class="truncate">
                 <span ng-bind-html="getLatestNote(selected.worklist)"></span>
                 <span ng-show="selected.worklist.notes.length > 1">
-                  <br />{{selected.worklist.notes.length-1}} more...
+                  <br /> <small>... more notes ...</small>
                 </span>
               </div>
-              <div>
-                <i ng-show="selected.worklist.notes.length > 0"
-                  ng-click="openNotesModal(selected.worklist); $event.stopPropagation()"
-                  title="Edit worklist notes" class="noul material-icons md-18">assignment</i>
-                <i ng-show="selected.worklist.notes.length == 0"
-                  title="Add worklist note (no notes yet)"
-                  ng-click="openNotesModal(selected.worklist); $event.stopPropagation()"
-                  class="pointer md-grey material-icons md-18">assignment</i>
-
-              </div>
+              <div notes selected="selected" type="{{type}}">
             </td>
           </tr>
           <tr>
@@ -148,8 +140,7 @@
               <b>Log</b>
             </td>
             <td>
-              <div log project="selected.project" object="selected.worklist"
-                type="{{type}}"></div>
+              <div log selected="selected" type="{{type}}"></div>
             </td>
           </tr>
 

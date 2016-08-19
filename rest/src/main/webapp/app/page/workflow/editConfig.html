@@ -1,0 +1,44 @@
+<div class="modal-header">
+  <h4>{{action}} Workflow Configuration Type</h4>
+</div>
+
+<div class="modal-body">
+  <table class="table">
+    <tr>
+      <td>
+        <b>Project</b>
+      </td>
+      <td>{{project.name}}</td>
+    </tr>
+    <tr>
+      <td>
+        <b>Type</b>
+      </td>
+      <td>
+        <input type="text" ng-model="config.type" size="30"
+          placeholder="e.g. MUTUALLY_EXCLUSIVE"
+          title="Workflow configuration type, e.g. 'QUALITY_ASSURANCE'">
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Mutually Exclusive</b>
+      </td>
+      <td>
+        <input type="checkbox" ng-model="config.mutuallyExclusive">
+      </td>
+    </tr>
+  </table>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
+</div>
+
+<div class="modal-footer">
+  <button ng-show="action == 'Add'" class="btn btn-primary"
+    ng-click="submitConfig(config); ">Add</button>
+  <button ng-show="action == 'Edit'" class="btn btn-primary"
+    ng-click="submitConfig(config); ">Save</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

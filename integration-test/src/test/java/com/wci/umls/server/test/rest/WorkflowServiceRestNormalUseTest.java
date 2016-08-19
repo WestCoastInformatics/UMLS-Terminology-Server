@@ -46,7 +46,6 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -125,7 +124,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Create a workflow config
     config = new WorkflowConfigJpa();
-    config.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
+    config.setType("MUTUALLY_EXCLUSIVE");
     config.setMutuallyExclusive(true);
     config.setProject(project);
     config = workflowService.addWorkflowConfig(projectId,
@@ -163,7 +162,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     //
     Logger.getLogger(getClass()).debug("  Add workflow config");
     final WorkflowConfigJpa config = new WorkflowConfigJpa();
-    config.setType(WorkflowBinType.QUALITY_ASSURANCE);
+    config.setType("QUALITY_ASSURANCE");
     config.setMutuallyExclusive(true);
     config.setProjectId(projectId);
 
@@ -171,7 +170,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     WorkflowConfig newConfig =
         workflowService.addWorkflowConfig(projectId, config, authToken);
     Logger.getLogger(getClass()).debug("    config = " + newConfig);
-    assertEquals(WorkflowBinType.QUALITY_ASSURANCE, newConfig.getType());
+    assertEquals("QUALITY_ASSURANCE", newConfig.getType());
     assertTrue(newConfig.isMutuallyExclusive());
     assertEquals(adminUser, newConfig.getLastModifiedBy());
     assertEquals(projectId, newConfig.getProject().getId());
@@ -274,7 +273,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.SQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,defn, authToken);
+        .addWorkflowBinDefinition(projectId, null, defn, authToken);
 
     // Add a required SQL bin definition CONCEPT CONCEPT
     Logger.getLogger(getClass())
@@ -293,7 +292,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.SQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,defn, authToken);
+        .addWorkflowBinDefinition(projectId, null, defn, authToken);
 
     // Add a required SQL bin definition CONCEPT CONCEPT
     Logger.getLogger(getClass())
@@ -312,7 +311,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.SQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,defn, authToken);
+        .addWorkflowBinDefinition(projectId, null, defn, authToken);
 
     // Add a disabled SQL bin
     Logger.getLogger(getClass()).info("  Add disabled SQL bin definition");
@@ -330,7 +329,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.SQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,defn, authToken);
+        .addWorkflowBinDefinition(projectId, null, defn, authToken);
 
     // Add a required JQL bin definition
     Logger.getLogger(getClass())
@@ -347,7 +346,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.JQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,defn, authToken);
+        .addWorkflowBinDefinition(projectId, null, defn, authToken);
 
     // Add a required LUCENE bin definition
     Logger.getLogger(getClass()).info("  Add required LUCENE bin definition");
@@ -361,14 +360,13 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn.setQueryType(QueryType.LUCENE);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,defn, authToken);
+        .addWorkflowBinDefinition(projectId, null, defn, authToken);
 
     // Regenerate bins
     Logger.getLogger(getClass()).info("  Regenerate bins");
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     assertEquals(7, binList.size());
 
     for (final WorkflowBin bin : binList.getObjects()) {
@@ -392,10 +390,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
     final WorkflowBinList binList2 = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     assertEquals(0, binList2.size());
 
     // Remove the definition
@@ -438,7 +435,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
     definition = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,definition, authToken);
+        .addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // Add same SQL definition
     Logger.getLogger(getClass()).info("    Add same SQL definition");
@@ -456,13 +453,12 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition2.setQueryType(QueryType.SQL);
     definition2.setWorkflowConfig(config);
     definition2 = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,definition2, authToken);
+        .addWorkflowBinDefinition(projectId, null, definition2, authToken);
 
     // Regenerate bins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     assertEquals(3, binList.size());
 
     int testSqlCt = -1;
@@ -480,10 +476,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
     final WorkflowBinList binList2 = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     assertEquals(0, binList2.size());
 
     // Remove the definition
@@ -529,7 +524,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
     definition = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,definition, authToken);
+        .addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // Add same SQL definition
     Logger.getLogger(getClass()).info("    Add same SQL definition");
@@ -547,13 +542,12 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition2.setQueryType(QueryType.SQL);
     definition2.setWorkflowConfig(config);
     definition2 = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,definition2, authToken);
+        .addWorkflowBinDefinition(projectId, null, definition2, authToken);
 
     // Regenerate bins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     assertEquals(3, binList.size());
 
     int testSqlCt = -1;
@@ -570,10 +564,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
     final WorkflowBinList binList2 = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     assertEquals(0, binList2.size());
 
     // Remove the definition
@@ -594,12 +587,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Regenerate gins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     WorkflowBin testNameBin = null;
     for (final WorkflowBin bin : binList.getObjects()) {
       if (bin.getName().equals("testName")) {
@@ -673,8 +665,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
   }
 
@@ -688,13 +679,12 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // regenerate bins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     // get test name bin
     Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     WorkflowBin testNameBin = null;
     for (final WorkflowBin bin : binList.getObjects()) {
       if (bin.getName().equals("testName")) {
@@ -731,8 +721,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
   }
 
@@ -746,12 +735,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Regenerate bins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     WorkflowBin testNameBin = null;
     for (final WorkflowBin bin : binList.getObjects()) {
       if (bin.getName().equals("testName")) {
@@ -874,8 +862,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
   }
 
@@ -889,12 +876,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Regenerate bins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     WorkflowBin testNameBin = null;
     for (final WorkflowBin bin : binList.getObjects()) {
       if (bin.getName().equals("testName")) {
@@ -985,8 +971,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
   }
 
@@ -1000,12 +985,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Regenerate bins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     WorkflowBin testNameBin = null;
     for (final WorkflowBin bin : binList.getObjects()) {
       if (bin.getName().equals("testName")) {
@@ -1030,7 +1014,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     // Get workflow bins
     Logger.getLogger(getClass()).debug("  Get workflow bins");
     final WorkflowBinList list = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     Logger.getLogger(getClass()).debug("    list = " + list);
     // TODO: test stats (editable/uneditable)
 
@@ -1046,8 +1030,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
   }
 
@@ -1131,7 +1114,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(config);
     definition = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,definition, authToken);
+        .addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // Add same not-editable definition
     Logger.getLogger(getClass()).info("    Add same nonEditable definition");
@@ -1145,13 +1128,12 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     definition2.setQueryType(QueryType.LUCENE);
     definition2.setWorkflowConfig(config);
     definition2 = (WorkflowBinDefinitionJpa) workflowService
-        .addWorkflowBinDefinition(projectId, null,definition2, authToken);
+        .addWorkflowBinDefinition(projectId, null, definition2, authToken);
 
     // Regenerate bins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     assertEquals(3, binList.size());
 
     boolean found1 = false;
@@ -1180,10 +1162,9 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear and regenerate bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
     final WorkflowBinList binList2 = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     assertEquals(0, binList2.size());
 
     // Remove the definition
@@ -1204,13 +1185,12 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // regenerate bins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     // get test name bin
     Logger.getLogger(getClass()).debug("  Find testName workflow bin");
     final WorkflowBinList binList = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
     WorkflowBin testNameBin = null;
     for (final WorkflowBin bin : binList.getObjects()) {
       if (bin.getName().equals("testName")) {
@@ -1268,8 +1248,7 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
 
     // clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
   }
 
@@ -1301,13 +1280,11 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
         .addWorkflowBinDefinition(projectId, null, definition, authToken);
 
     // Regenerate bins
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     // Clear bins
     Logger.getLogger(getClass()).debug("  Clear bins");
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
     // Remove the definition
     workflowService.removeWorkflowBinDefinition(projectId, definition.getId(),
         authToken);

@@ -60,7 +60,6 @@ import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
-import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -121,18 +120,18 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
       // Handle creating the database if the mode parameter is set
       final Properties properties = ConfigUtility.getConfigProperties();
 
-      //Rebuild the database
+      // Rebuild the database
       if (mode != null && mode.equals("create")) {
         createDb(false);
-      }      
-      
+      }
+
       // authenticate
       final SecurityService service = new SecurityServiceJpa();
       final String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
       service.close();
-      
+
       loadSampleData(authToken);
 
       getLog().info("done ...");
@@ -238,6 +237,10 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
 
     final List<String> validationChecks = new ArrayList<>();
     validationChecks.add("DEFAULT");
+    validationChecks.add("DT_M1");
+    validationChecks.add("DT_I3B");
+    validationChecks.add("MGV_H1");
+    validationChecks.add("MGV_H2");
     project1.setValidationChecks(validationChecks);
 
     // Handle precedence list
@@ -463,7 +466,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     getLog().info("  Create a ME workflow config");
     workflowService = new WorkflowServiceRestImpl();
     WorkflowConfigJpa config = new WorkflowConfigJpa();
-    config.setType(WorkflowBinType.MUTUALLY_EXCLUSIVE);
+    config.setType("MUTUALLY_EXCLUSIVE");
     config.setMutuallyExclusive(true);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
@@ -489,7 +492,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
 
     // norelease
     getLog().info("    Add 'norelease' workflow bin definition");
@@ -509,7 +513,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
 
     // reviewed
     getLog().info("    Add 'reviewed' workflow bin definition");
@@ -523,7 +528,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition.setQueryType(QueryType.LUCENE);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
 
     // ncithesaurus
     getLog().info("    Add 'ncithesaurus' workflow bin definition");
@@ -541,7 +547,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
 
     // snomedct_us
     getLog().info("    Add 'snomedct_us' workflow bin definition");
@@ -559,7 +566,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
 
     // leftovers
     getLog().info("    Add 'leftovers' workflow bin definition");
@@ -574,24 +582,23 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
 
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate ME bins");
     // Clear bins
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.clearBins(projectId, WorkflowBinType.MUTUALLY_EXCLUSIVE,
-        authToken);
+    workflowService.clearBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     // Regenerate bins
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.regenerateBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+    workflowService.regenerateBins(projectId, "MUTUALLY_EXCLUSIVE", authToken);
 
     // Get bins
     workflowService = new WorkflowServiceRestImpl();
     final WorkflowBinList bins = workflowService.getWorkflowBins(projectId,
-        WorkflowBinType.MUTUALLY_EXCLUSIVE, authToken);
+        "MUTUALLY_EXCLUSIVE", authToken);
 
     // For each editable bin, make two worklists of size 5
     Worklist lastWorklist = null;
@@ -718,7 +725,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     getLog().info("  Create a QA workflow config");
     workflowService = new WorkflowServiceRestImpl();
     config = new WorkflowConfigJpa();
-    config.setType(WorkflowBinType.QUALITY_ASSURANCE);
+    config.setType("QUALITY_ASSURANCE");
     config.setMutuallyExclusive(false);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
@@ -769,7 +776,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition.setQueryType(QueryType.SQL);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition, authToken);
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
 
     // sct_sepfnpt
     // cdsty_coc
@@ -838,13 +846,11 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     getLog().info("  Clear and regenerate QA bins");
     // Clear bins
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.clearBins(projectId, WorkflowBinType.QUALITY_ASSURANCE,
-        authToken);
+    workflowService.clearBins(projectId, "QUALITY_ASSURANCE", authToken);
 
     // Regenerate bins
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.regenerateBins(projectId, WorkflowBinType.QUALITY_ASSURANCE,
-        authToken);
+    workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE", authToken);
 
   }
 

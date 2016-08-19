@@ -208,6 +208,8 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("workflowStatus");
     tester.include("workflowBinName");
     tester.include("workflowStateHistory");
+    tester.include("reviewersSort");
+    tester.include("authorsSort");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }

@@ -44,6 +44,7 @@ import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 
 /**
@@ -585,7 +586,11 @@ public class IndexUtility {
     }
     Logger.getLogger(IndexUtility.class)
         .info("  query = " + finalQuery + ", " + pfs);
-    luceneQuery = queryParser.parse(finalQuery);
+    try {
+      luceneQuery = queryParser.parse(finalQuery);
+    } catch (ParseException e) {
+      throw new LocalException("Unable to parse query");
+    }
 
     // Validate query terms
     luceneQuery = luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
@@ -737,7 +742,8 @@ public class IndexUtility {
       if (excludedFields.contains(field.getName())) {
         continue;
       }
-      if (!field.isAnnotationPresent(OneToMany.class) && !field.isAnnotationPresent(ManyToMany.class)) {
+      if (!field.isAnnotationPresent(OneToMany.class)
+          && !field.isAnnotationPresent(ManyToMany.class)) {
         continue;
       }
 

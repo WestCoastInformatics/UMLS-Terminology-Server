@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -135,4 +135,19 @@ public interface User {
    * @param projectRoleMap the project role map
    */
   public void setProjectRoleMap(Map<Project, UserRole> projectRoleMap);
+
+  /**
+   * Returns the editor level. This is to support additional behavior and/or
+   * fine-grained access control beyond AUTHOR/REVIEWER/ADMIN.
+   *
+   * @return the editor level
+   */
+  public int getEditorLevel();
+
+  /**
+   * Sets the editor level.
+   *
+   * @param editorLevel the editor level
+   */
+  public void setEditorLevel(int editorLevel);
 }

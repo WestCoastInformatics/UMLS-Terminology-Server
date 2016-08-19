@@ -1,0 +1,93 @@
+<div class="modal-header">
+  <h4>{{type}} Notes</h4>
+</div>
+
+<div class="modal-body">
+  <table class="table">
+    <tr>
+      <td>
+        <b>Name</b>
+      </td>
+      <td>{{selected[field].name}}{{selected[field].conceptName}}</td>
+    </tr>
+    <tr>
+      <td>
+        <b>{{type}} Id</b>
+      </td>
+      <td>{{selected[field].id}}</td>
+    </tr>
+    <tr ng-show="selected[field].description">
+      <td>
+        <b>Description</b>
+      </td>
+      <td>{{selected[field].description}}</td>
+    </tr>
+  </table>
+  <div class="row">
+    <!--  Left hand side -->
+    <div class="col-md-12 col-xs-12">
+
+      <div>
+
+        <h5 ng-show="selected[field].notes.length > 0">
+          <b>Notes<span ng-show="pagedNotes.length > 0">
+              ({{pagedNotes.totalCount}})</span></b>
+        </h5>
+
+
+        <div pager paging="paging" count="pagedNotes.totalCount"
+          callback="paging.callback"></div>
+
+        </span>
+
+        <span style="display: block"
+          ng-show="pagedNotes.length == 0 && paging.filter"
+          class="alert alert-warning"> No notes matching filter </span>
+        <span style="display: block"
+          ng-show="pagedNotes.length == 0 && !paging.filter"
+          class="alert alert-warning"> No notes </span>
+
+        <table ng-show="pagedNotes.length > 0" class="table">
+          <thead class="pointer">
+            <tr>
+              <th class="col-md-6 col-xs-6">{{type}} Notes</th>
+              <th class="col-md-2 col-xs-2">Date</th>
+              <th class="col-md-2 col-xs-2">Author</th>
+              <th class="col-md-2 col-xs-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="note in pagedNotes">
+              <td>
+                <div ng-bind-html="getNoteValue(note)"></div>
+              </td>
+              <td>{{toDate(note.lastModified)}}</td>
+              <td>{{note.lastModifiedBy}}</td>
+              <td>
+                <a class="toolicon" title="Remove"
+                  ng-click="removeNote(selected[field], note)">
+                  <i title="Remove note" class="noul glyphicon glypicon-trash"></i>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <textarea rows="4" cols="40" ng-model="newNote"
+        ui-tinymce="tinymceOptions"></textarea>
+    </div>
+
+
+  </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-disabled="!newNote"
+    ng-click="submitNote(selected[field], newNote);"
+    title=" Add new note to {{type}}">Add</button>
+  <button class="btn btn-warning" ng-click="cancel()">Close</button>
+</div>

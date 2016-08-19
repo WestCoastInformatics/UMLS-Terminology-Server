@@ -1,7 +1,12 @@
 // Websocket service
-tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'gpService',
-  function($rootScope, $location, utilService, gpService) {
+tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilService', 'gpService',
+  function($rootScope, $location, $http, utilService, gpService) {
     console.debug('configure websocketService');
+
+    // Scope vars
+    $scope.user = securityService.getUser();
+
+    // Data model
     this.data = {
       message : null
     };
@@ -43,13 +48,14 @@ tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'g
 
     // handle receipt of a message
     this.connection.onmessage = function(e) {
+      console.debug("ONMESSAGE", e);
       var message = e.data;
-      
+
       // Need to determine what kind of message it was.
       // First, if it's a "change event", then we can determine what changed
       // and whether to fire "concept changed" or "atom changed"
-      
-      console.log("MESSAGE: " + message, e.data);
+
+      console.log('MESSAGE=', message);
 
     };
 
@@ -64,25 +70,33 @@ tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'g
     //
 
     this.fireNoteChange = function(data) {
-      console.debug('websocketService: fireNoteChange event', data);
       $rootScope.$broadcast('termServer::noteChange', data);
     };
 
     this.fireFavoriteChange = function(data) {
-      console.debug('websocketService: fireNoteChange event', data);
       $rootScope.$broadcast('termServer::favoriteChange', data);
     };
 
-    this.fireConceptChange = function(data) {
-      console.debug('websocketService: fireConceptChange event', data);
-      $rootScope.$broadcast('termServer::conceptChange', data);
+    this.fireConceptChange = function(event) {
+      // If not admin user, only send when session id matches
+      if ($scope.user.applicationRole != 'ADMINISTRATOR') {
+        if (event.sessionId !== $http.defaults.headers.common.Authorization) {
+          // bail
+          return;
+        }
+      }
+      $rootScope.$broadcast('termServer::conceptChange', event.data);
     };
 
-    this.fireConceptChange = function(data) {
-      console.debug('websocketService: fireAtomChange event', data);
-      $rootScope.$broadcast('termServer::atomChange', data);
+    this.fireAtomChange = function(event) {
+      // If not admin user, only send when session id matches
+      if ($scope.user.applicationRole != 'ADMINISTRATOR') {
+        if (event.sessionId !== $http.defaults.headers.common.Authorization) {
+          // bail
+          return;
+        }
+      }
+      $rootScope.$broadcast('termServer::atomChange', event.data);
     };
 
-    
-    
   } ]);

@@ -81,7 +81,6 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -725,7 +724,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   public WorkflowBinDefinition getWorkflowBinDefinition(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin definition name, e.g. demotions", required = true) @QueryParam("name") String name,
-    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") WorkflowBinType type,
+    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") String type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
@@ -763,11 +762,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Clear bins", notes = "Clear bins")
   public void clearBins(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin type", required = true) WorkflowBinType type,
+    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") String type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Workflow): /bin/clear/all ");
+        .info("RESTful POST call (Workflow): /bin/clear/all " + type);
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     try {
@@ -801,11 +800,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Regenerate bins", notes = "Regenerate bins")
   public void regenerateBins(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") WorkflowBinType type,
+    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") String type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Workflow): /bin/regenerate/all ");
+        .info("RESTful POST call (Workflow): /bin/regenerate/all " + type);
 
     // Only one user can regenerate bins at a time
     synchronized (lock) {
@@ -1599,12 +1598,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Get workflow bins", notes = "Gets the workflow bins for the project and type.", response = WorkflowBinJpa.class, responseContainer = "List")
   public WorkflowBinList getWorkflowBins(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin type, e.g. MUTUALLY_EXCLUSIVE", required = false) @QueryParam("type") WorkflowBinType type,
+    @ApiParam(value = "Workflow bin type, e.g. MUTUALLY_EXCLUSIVE", required = false) @QueryParam("type") String type,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Workflow): /bin/all ");
+        .info("RESTful POST call (Workflow): /bin/all " + type);
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       authorizeProject(workflowService, projectId, securityService, authToken,
@@ -1938,7 +1937,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   public WorkflowBin regenerateBin(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin id, e.g. 5", required = true) @PathParam("id") Long id,
-    @ApiParam(value = "Workflow bin type", required = true) WorkflowBinType type,
+    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") String type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -2777,6 +2776,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     bin.setDescription(definition.getDescription());
     bin.setEditable(definition.isEditable());
     bin.setEnabled(definition.isEnabled());
+    bin.setRequired(definition.isRequired());
     bin.setProject(project);
     bin.setRank(rank);
     bin.setTerminology(project.getTerminology());
@@ -2785,6 +2785,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     bin.setTimestamp(new Date());
     bin.setType(definition.getWorkflowConfig().getType());
     workflowService.addWorkflowBin(bin);
+
+    // Bail if the definition is not enabled
+    if (!definition.isEnabled()) {
+      return bin;
+    }
 
     // execute the query
     final String query = definition.getQuery();
@@ -2831,7 +2836,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
     // for each cluster in clusterIdComponentIdsMap create a tracking record if
     // unassigned bin
-    if (definition.isEditable() && definition.isEnabled()) {
+    if (definition.isEditable()) {
       long clusterIdCt = 1L;
       for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
 

@@ -13,6 +13,7 @@
       <span>
         &nbsp;&nbsp;Role: <select ng-model="selected.projectRole"
           ng-show="lists.projectRoles.length > 1"
+          ng-change="changeProjectRole()"
           ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
@@ -27,22 +28,35 @@
     </h5>
     </uib-accordion-heading>
 
-    <div class="row m10">
+    <div class="row">
       <div class="col-md-12 col-xs-12">
-        <h5>
-          <select ng-model="selected.config" ng-show="lists.configs.length > 1"
-            ng-options="config.type for config in lists.configs"
-            ng-change="setConfig(config);"></select>
-          <span ng-show="lists.configs.length == 1">{{config.type}}</span>
-          <i title="Regenerate bins" style="margin-left: 20px"
-            ng-click="regenerateBins(); $event.stopPropagation()"
-            class="noul glyphicon glyphicon-repeat"></i>
+        <select ng-model="selected.config" ng-show="lists.configs.length > 1"
+          ng-options="config as config.type for config in lists.configs"
+          ng-change="setConfig(selected.config)"></select>
+        <span ng-show="lists.configs.length == 1">{{selected.config.type}}
+        </span>
+        <i title="Regenerate bins"
+          ng-click="regenerateBins(); $event.stopPropagation()"
+          class="ml20 noul glyphicon glyphicon-repeat"></i>
+        <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
+          <i ng-click="openEditConfigModal(selected.config)"
+            ng-show="selected.config" title="Edit workflow configuration"
+            class="ml20 noul glyphicon glyphicon-pencil"></i>
+          <i
+            confirm="Are you sure you want to remove the 
+          {{selected.config.type}} configuration?"
+            ng-show="selected.config" title="Remove workflow configuration"
+            ng-click="removeConfig(selected.config);"
+            class="ml20 noul glyphicon glyphicon-trash"></i>
+          <button ng-click="openAddConfigModal()"
+            title="Add workflow configuration"
+            class="ml20 btn btn-xs btn-primary">Add Config</button>
           <span ng-show="selected.projectRole == 'ADMINISTRATOR'"
             style="float: right;">
             <button ng-click="openAddBinModal()" title="Add new bin"
               class="btn btn-xs btn-primary">Add Bin</button>
           </span>
-        </h5>
+        </span>
       </div>
       <div class="col-md-12 col-xs-12">
         <!-- NO paging control -->
@@ -61,9 +75,9 @@
             </tr>
           </thead>
           <tbody ng-repeat="bin in lists.bins">
-            <tr ng-click="selectBin(bin, 'all');"
+            <tr ng-click="bin.enabled && selectBin(bin, 'all');"
               ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
-              ng-class="{selected: bin.id == selected.bin.id}">
+              ng-class="{selected: bin.id == selected.bin.id && bin.enabled}">
               <td rowspan="4">{{bin.rank}}</td>
               <td rowspan="4">
                 <i uib-tooltip="{{bin.description}}"
@@ -71,7 +85,7 @@
                 &nbsp;{{bin.name}}</br>
                 <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
                   <input type="checkbox" title="Enable/Disable Bin"
-                    ng-model="bin.enabled" ng-change="toggleEnable(bin)"></input>
+                    ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
                   <i ng-click="openEditBinModal(bin); $event.stopPropagation()"
                     ng-show="bin.enabled" title="Edit Bin"
                     class="noul glyphicon glyphicon-pencil"></i>
@@ -88,13 +102,16 @@
               <td rowspan="4">
                 Created: {{toDate(bin.creationTime)}} <br />Modified:
                 {{toDate(bin.lastModified)}}
+                <span ng-show="bin.required">
+                  <br /> <b>REQUIRED</b>
+                </span>
               </td>
             </tr>
             <tr ng-repeat="stats in bin.stats"
-              ng-click="selectBin(bin, stats.clusterType);"
+              ng-click="bin.enabled && selectBin(bin, stats.clusterType);"
               ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
-              ng-class="{selected: (stats.clusterType == selected.clusterType && bin.id == selected.bin.id) ||
-                                      (selected.clusterType == 'all' && bin.id == selected.bin.id)}">
+              ng-class="{selected: bin.enabled && ((stats.clusterType == selected.clusterType && bin.id == selected.bin.id) ||
+                                      (selected.clusterType == 'all' && bin.id == selected.bin.id))}">
               <td>{{stats.clusterType}}</td>
               <td>{{stats.stats.all}}</td>
               <td>{{stats.stats.assigned}}</td>
