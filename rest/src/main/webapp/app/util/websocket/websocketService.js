@@ -1,10 +1,12 @@
 // Websocket service
 tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilService', 'gpService',
-  function($rootScope, $location, $http, utilService, gpService) {
+  'securityService',
+  function($rootScope, $location, $http, utilService, gpService, securityService) {
     console.debug('configure websocketService');
 
     // Scope vars
-    $scope.user = securityService.getUser();
+    this
+    user = securityService.getUser();
 
     // Data model
     this.data = {
@@ -23,22 +25,20 @@ tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilSer
       url = url + "/websocket";
       console.debug("Websocket URL" + url);
       return url;
-
     };
 
     // TODO Add wiki entry about registering scopes and broadcast event receipt
     // lists
-
     this.connection = new WebSocket(this.getUrl());
 
     this.connection.onopen = function() {
       // Log so we know it is happening
-      console.log('Connection open');
+      console.debug('Connection open');
     };
 
     this.connection.onclose = function() {
       // Log so we know it is happening
-      console.log('Connection closed');
+      console.debug('Connection closed');
     };
 
     // error handler
@@ -55,7 +55,7 @@ tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilSer
       // First, if it's a "change event", then we can determine what changed
       // and whether to fire "concept changed" or "atom changed"
 
-      console.log('MESSAGE=', message);
+      console.debug('MESSAGE=', message);
 
     };
 
@@ -79,7 +79,7 @@ tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilSer
 
     this.fireConceptChange = function(event) {
       // If not admin user, only send when session id matches
-      if ($scope.user.applicationRole != 'ADMINISTRATOR') {
+      if (this.applicationRole != 'ADMINISTRATOR') {
         if (event.sessionId !== $http.defaults.headers.common.Authorization) {
           // bail
           return;
@@ -90,7 +90,7 @@ tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilSer
 
     this.fireAtomChange = function(event) {
       // If not admin user, only send when session id matches
-      if ($scope.user.applicationRole != 'ADMINISTRATOR') {
+      if (this.applicationRole != 'ADMINISTRATOR') {
         if (event.sessionId !== $http.defaults.headers.common.Authorization) {
           // bail
           return;

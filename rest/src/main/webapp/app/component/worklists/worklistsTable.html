@@ -88,8 +88,8 @@
             <i ng-show="type == 'Worklist' && joinEditors(worklist).length == 0"
               ng-click="openAssignWorklistModal(worklist,'ASSIGN'); $event.stopPropagation()"
               title="Assign" class="noul glyphicon glyphicon-hand-right"></i>
-
-            <i ng-show="type == 'Worklist' && joinEditors(worklist).length > 0"
+            <i confirm="Are you sure you want to unassign the worklist?"
+              ng-show="type == 'Worklist' && joinEditors(worklist).length > 0"
               ng-click="unassignWorklist(worklist); $event.stopPropagation()"
               title="Unassign" class="noul glyphicon glyphicon-hand-left"></i>
 
