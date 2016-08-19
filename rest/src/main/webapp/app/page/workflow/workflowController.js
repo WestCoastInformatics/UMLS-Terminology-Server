@@ -3,20 +3,19 @@ tsApp.controller('WorkflowCtrl', [
   '$scope',
   '$http',
   '$location',
-  'gpService',
+  '$uibModal',
   'utilService',
+  'websocketService',
   'tabService',
   'configureService',
   'securityService',
   'workflowService',
-  'utilService',
   'configureService',
   'projectService',
   'reportService',
-  '$uibModal',
-  function($scope, $http, $location, gpService, utilService, tabService, configureService,
-    securityService, workflowService, utilService, configureService, projectService, reportService,
-    $uibModal) {
+  function($scope, $http, $location, $uibModal, utilService, websocketService, tabService,
+    configureService, securityService, workflowService, configureService, projectService,
+    reportService) {
     console.debug("configure WorkflowCtrl");
 
     // Set up tabs and controller
