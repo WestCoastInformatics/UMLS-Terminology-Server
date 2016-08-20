@@ -9,8 +9,6 @@ package com.wci.umls.server.test.rest;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;

@@ -20,7 +20,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.rest.client.IntegrationTestClientRest;

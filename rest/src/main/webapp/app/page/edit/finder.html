@@ -10,30 +10,17 @@
 
       <!-- Search widget -->
       <div>
-        <form ng-submit="getSearchResults(search)">
-          <input autofocus ng-model="search" size="30">
-          <button class="btn btn-primary"
-            ng-click="getSearchResults(search, true);">Search</button>
+        <form ng-submit="clearAndSearch()">
+          <input autofocus ng-model="query" size="30">
+          <button class="btn btn-primary" ng-click="clearAndSearch();">Search</button>
         </form>
       </div>
 
       <!-- Search results -->
-
-      <span ng-show="search && searchResults.length == 0"
-        class="alert alert-warning">No results</span>
-
       <div ng-show="search && searchResults.length > 0">
 
-        <span style="display: block;">
-          <uib-pagination items-per-page="pageSize" max-size="5"
-            boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
-            next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-            ng-show="searchResults.totalCount > pageSize || paging['search'].filter"
-            total-items="searchResults.totalCount"
-            ng-model="paging['search'].page"
-            ng-change="getSearchResults(search);"></uib-pagination>
-
-        </span>
+        <div pager paging="paging" count="searchResults.totalCount"
+          callback="paging.callback"></div>
 
         <table ng-show="searchResults.length > 0" class="table">
           <thead class="pointer">
@@ -48,16 +35,14 @@
               ng-dblclick="addConcept(concept); $event.stopPropagation();"
               ng-class="{selected: concept.terminologyId === data.concept.terminologyId}">
               <td>{{concept.terminologyId}}</td>
-              <td>
-                {{concept.value}}
-                <!-- <button class="btn btn-xs retired"
-                  style="transform: scale(.6, .6); margin-bottom: 4px; padding-left: 4px;"
-                  ng-show="!concept.active" uib-tooltip="Retired">R</button> -->
-              </td>
-
+              <td>{{concept.value}}</td>
             </tr>
           </tbody>
         </table>
+
+        <span ng-show="search && searchResults.length == 0"
+          class="alert alert-warning">No matching results</span>
+
       </div>
     </div>
 

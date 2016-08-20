@@ -14,7 +14,7 @@ tsApp.run([
   function configureRoutes($rootScope, $location, $q, configureService, securityService, appConfig,
     tabService) {
 
-    console.debug('Configuring routes', appConfig);
+    console.debug('Configuring routes');
 
     // Register
     var initNextPath;

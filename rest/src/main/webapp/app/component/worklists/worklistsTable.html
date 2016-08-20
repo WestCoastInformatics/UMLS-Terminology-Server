@@ -85,13 +85,30 @@
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
               class="noul glyphicon glyphicon-trash"></i>
-            <i ng-show="type == 'Worklist' && joinEditors(worklist).length == 0"
-              ng-click="openAssignWorklistModal(worklist,'ASSIGN'); $event.stopPropagation()"
-              title="Assign" class="noul glyphicon glyphicon-hand-right"></i>
-            <i confirm="Are you sure you want to unassign the worklist?"
-              ng-show="type == 'Worklist' && joinEditors(worklist).length > 0"
-              ng-click="unassignWorklist(worklist); $event.stopPropagation()"
-              title="Unassign" class="noul glyphicon glyphicon-hand-left"></i>
+
+            <i
+              ng-show="selected.projectRole != 'AUTHOR' && type == 'Worklist' && (worklist.authorAvailable || worklist.reviewerAvailable)"
+              ng-click="openAssignWorklistModal(worklist,'ASSIGN');"
+              title="Assign worklist"
+              class="noul glyphicon glyphicon-hand-right"></i>
+
+            <span
+              ng-show="selected.projectRole != 'AUTHOR' && type == 'Worklist' && worklist.authors.length > 0 && !worklist.reviewerAvailable && worklist.reviewers.length==0">
+              <i confirm="Are you sure you want to unassign the worklist?"
+                ng-repeat="author in worklist.authors"
+                ng-click="unassignWorklist(worklist, author); "
+                title="Unassign worklist from {{author}}"
+                class="noul glyphicon glyphicon-hand-left"></i>
+            </span>
+
+            <span
+              ng-show="selected.projectRole != 'AUTHOR' && type == 'Worklist' && worklist.reviewers.length > 0 && !worklist.reviewerAvailable && !worklist.workflowStatus =='READY_FOR_PUBLICATION'">
+              <i confirm="Are you sure you want to unassign the worklist?"
+                ng-repeat="author in worklist.authors"
+                ng-click="unassignWorklist(worklist, author); "
+                title="Unassign worklist from {{author}}"
+                class="noul glyphicon glyphicon-hand-left"></i>
+            </span>
 
           </td>
         </tr>
@@ -153,11 +170,50 @@
           </tr>
 
 
+          <tr ng-show="type == 'Worklist' && selected.worklist.authorTime">
+            <td>
+              <b>Authoring Time</b>
+            </td>
+            <td>{{getHoursMins(selected.worklist.authorTime)}}</td>
+          </tr>
+
+          <tr ng-show="type == 'Worklist' && selected.worklist.reviewerTime">
+            <td>
+              <b>Authoring Time</b>
+            </td>
+            <td>{{getHoursMins(selected.worklist.authorTime)}}</td>
+          </tr>
+
           <tr ng-show="type == 'Worklist'">
             <td>
-              <b>Team</b>
+              <b>Workflow Status</b>
             </td>
-            <td>{{selected.worklist.team}}</td>
+            <td>{{selected.worklist.workflowStatus}}</td>
+          </tr>
+
+          <tr ng-show="type == 'Worklist'">
+            <td>
+              <b>Author(s)</b>
+            </td>
+            <td>
+              <span ng-show="selected.worklist.authors.length>0"
+                ng-repeat="author in selected.worklist.authors">{{author}}</span>
+              <span ng-show="selected.worklist.authorAvailable">Available
+                for assignment to author</span>
+            </td>
+          </tr>
+
+          <tr
+            ng-show="type == 'Worklist' && selected.worklist.reviewers.length > 0">
+            <td>
+              <b>Reviewer(s)</b>
+            </td>
+            <td>
+              <span ng-show="selected.worklist.reviewers.length>0"
+                ng-repeat="reviewer in selected.worklist.reviewers">{{reviewer}}</span>
+              <span ng-show="selected.worklist.reviewerAvailable">Available
+                for assignment to reviewer</span>
+            </td>
           </tr>
 
           <tr>

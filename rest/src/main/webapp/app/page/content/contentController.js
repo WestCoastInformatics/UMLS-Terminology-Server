@@ -6,7 +6,6 @@ tsApp
       '$rootScope',
       '$scope',
       '$routeParams',
-      '$http',
       '$uibModal',
       '$location',
       '$q',
@@ -16,39 +15,34 @@ tsApp
       'gpService',
       'utilService',
       'tabService',
+      'configureService',
       'securityService',
+      'projectService',
       'metadataService',
       'contentService',
-      'configureService',
-      'websocketService',
       'appConfig',
-      function($rootScope, $scope, $routeParams, $http, $uibModal, $location, $q, $anchorScroll,
-        $sce, $uibModal, gpService, utilService, tabService, securityService, metadataService,
-        contentService, configureService, websocketService, appConfig) {
-        console.debug('configure ContentCtrl');
+      function($rootScope, $scope, $routeParams, $uibModal, $location, $q, $anchorScroll, $sce,
+        $uibModal, gpService, utilService, tabService, configureService, securityService,
+        projectService, metadataService, contentService, appConfig) {
+        console.debug('configure ContentCtrl', $routeParams);
 
         // Set up tabs and controller
         if ($routeParams.mode == 'simple') {
           console.debug('  simple mode deletected, hide tabs');
           tabService.setShowing(false);
+          utilService.setHeaderFooterShowing(false);
         } else {
           console.debug('  non-simple mode detected, show tabs');
           tabService.setShowing(true);
+          utilService.setHeaderFooterShowing(true);
         }
-        tabService.setSelectedTabByLabel('Content');
+        // tabService.setSelectedTabByLabel('Content');
         utilService.clearError();
         $scope.user = securityService.getUser();
         projectService.getUserHasAnyRole();
 
         // pass app configuration constants to scope (for email link)
         $scope.appConfig = appConfig;
-
-        // Handle resetting tabs on "back" and "reload" button, but also handles
-        // non-standard
-        // content modes which may not have tabs
-        if (!$routeParams.mode) {
-          tabService.setSelectedTabByLabel('Content');
-        }
 
         //
         // Scope Variables
@@ -111,7 +105,6 @@ tsApp
         // Watch for changes in metadata.terminologies (indicates application
         // readiness)
         $scope.$watch('metadata.terminology', function() {
-
           // clear the terminology-specific variables
           $scope.autoCompleteUrl = null;
 
@@ -126,6 +119,83 @@ tsApp
             + '/' + $scope.metadata.terminology.terminology + '/'
             + $scope.metadata.terminology.version + "/autocomplete/";
 
+        });
+
+        // Wait for "terminologies" to load
+        $scope.$watch('metadata.terminologies', function() {
+          // Load all terminologies upon controller load (unless already
+          // loaded)
+          if ($scope.metadata.terminologies && !$scope.metadata.terminology) {
+
+            // if route parameters are specified, set the terminology and
+            // retrieve the specified concept
+            if ($routeParams.terminology && $routeParams.version) {
+
+              var termToSet = null;
+              for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                var terminology = $scope.metadata.terminologies[i];
+                // Determine whether to set as default
+                if (terminology.terminology === $routeParams.terminology
+                  && terminology.version === $routeParams.version) {
+                  termToSet = terminology;
+                  break;
+                }
+              }
+
+              if (!termToSet) {
+                utilService.setError('Terminology specified in URL not found');
+              } else {
+
+                // set the terminology
+                $scope.setTerminology(termToSet).then(
+                  function() {
+
+                    // get the component
+                    $scope.getComponent($routeParams.id, $routeParams.type,
+                      $routeParams.terminologyId, $routeParams.terminology, $routeParams.version);
+                  });
+              }
+            }
+
+            // otherwise, specify the default terminology
+            else {
+
+              var found = false;
+              if ($scope.user.userPreferences && $scope.user.userPreferences.lastTerminology) {
+                for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                  var terminology = $scope.metadata.terminologies[i];
+                  // set from user prefs
+                  if (terminology.terminology === $scope.user.userPreferences.lastTerminology) {
+                    $scope.setTerminology(terminology);
+                    found = true;
+                    break;
+                  }
+                }
+              }
+
+              // otherwise look for metathesaurus
+              if (!found) {
+                for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                  var terminology = $scope.metadata.terminologies[i];
+                  // Determine whether to set as default
+                  if (terminology.metathesaurus) {
+                    $scope.setTerminology(terminology);
+                    found = true;
+                    break;
+                  }
+                }
+              }
+
+              // If nothing set, pick the first one
+              if (!found) {
+                if (!$scope.metadata.terminologies) {
+                  window.alert('No terminologies found, database may not be properly loaded.');
+                } else {
+                  $scope.setTerminology($scope.metadata.terminologies[0]);
+                }
+              }
+            }
+          }
         });
 
         // on route changes, save search params and last viewed component
@@ -214,7 +284,6 @@ tsApp
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a search result
         $scope.getComponent = function(id, type, terminologyId, terminology, version) {
-
           console.debug('getComponent', id, type, terminologyId, terminology, version);
 
           var wrapper = {
@@ -376,7 +445,9 @@ tsApp
             $scope.searchResults.tree.push(data);
             // treeList array of size 1
             $scope.searchResults.tree.totalCount = data.totalCount;
-            $scope.searchResults.tree.objects.length = data.objects.length
+            if (data.objects) {
+              $scope.searchResults.tree.objects.length = data.objects.length
+            }
           });
         };
 
@@ -480,7 +551,6 @@ tsApp
         $scope.historyPage = {};
 
         function setHistoryPage() {
-
           console.debug('setHistoryPage: ', $scope.history);
 
           // convenience variables
@@ -687,7 +757,6 @@ tsApp
         // Callback Function Objects
         //
         $scope.configureCallbacks = function() {
-          console.debug('Initializing content controller callback objects');
 
           // declare the callbacks objects
           $scope.componentRetrievalCallbacks = {};
@@ -703,7 +772,6 @@ tsApp
             getComponentFromWrapper : $scope.getComponentFromWrapper,
             findComponentsForQuery : $scope.findComponentsForQuery
           };
-          console.debug('  component retrieval callbacks', $scope.componentRetrievalCallbacks);
 
           //
           // Component report callbacks
@@ -726,7 +794,6 @@ tsApp
             utilService.extendCallbacks($scope.componentReportCallbacks,
               $scope.componentRetrievalCallbacks);
           }
-          console.debug('  Component report callbacks', $scope.componentReportCallbacks);
 
           //
           // Favorites Callbacks
@@ -737,7 +804,6 @@ tsApp
           // add content callbacks for top-level component retrieval
           utilService
             .extendCallbacks($scope.favoritesCallbacks, $scope.componentRetrievalCallbacks);
-          console.debug('  Favorites callbacks', $scope.favoritesCallbacks);
 
         };
 
@@ -751,7 +817,6 @@ tsApp
 
           $scope.configureExpressions();
           $scope.configureCallbacks();
-
           //
           // Check for values preserved in content service (after route changes)
           //
@@ -759,89 +824,10 @@ tsApp
             $scope.searchParams = contentService.getLastSearchParams();
             $scope.findComponents(false, true);
           }
+
           if (contentService.getLastComponent()) {
             $scope.component = contentService.getLastComponent();
             $scope.checkFavoriteStatus();
-          }
-
-          // Load all terminologies upon controller load (unless already
-          // loaded)
-          if (!$scope.metadata.terminologies || !$scope.metadata.terminology) {
-            metadataService.initTerminologies().then(
-              // success
-              function(data) {
-
-                // if route parameters are specified, set the terminology and
-                // retrieve
-                // the specified concept
-                if ($routeParams.terminology && $routeParams.version) {
-
-                  var termToSet = null;
-                  for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                    var terminology = $scope.metadata.terminologies[i];
-                    // Determine whether to set as default
-                    if (terminology.terminology === $routeParams.terminology
-                      && terminology.version === $routeParams.version) {
-                      termToSet = terminology;
-                      break;
-                    }
-                  }
-
-                  if (!termToSet) {
-                    utilService.setError('Terminology specified in URL not found');
-                  } else {
-
-                    // set the terminology
-                    $scope.setTerminology(termToSet).then(
-                      function() {
-
-                        // get the component
-                        $scope.getComponent($routeParams.id, $routeParams.type,
-                          $routeParams.terminologyId, $routeParams.terminology,
-                          $routeParams.version);
-                      });
-                  }
-                }
-
-                // otherwise, specify the default terminology
-                else {
-
-                  var found = false;
-                  if ($scope.user.userPreferences && $scope.user.userPreferences.lastTerminology) {
-                    for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                      var terminology = $scope.metadata.terminologies[i];
-                      // set from user prefs
-                      if (terminology.terminology === $scope.user.userPreferences.lastTerminology) {
-                        $scope.setTerminology(terminology);
-                        found = true;
-                        break;
-                      }
-                    }
-                  }
-
-                  // otherwise look for metathesaurus
-                  if (!found) {
-                    for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                      var terminology = $scope.metadata.terminologies[i];
-                      // Determine whether to set as default
-                      if (terminology.metathesaurus) {
-                        $scope.setTerminology(terminology);
-                        found = true;
-                        break;
-                      }
-                    }
-                  }
-
-                  // If nothing set, pick the first one
-                  if (!found) {
-                    if (!$scope.metadata.terminologies) {
-                      window.alert('No terminologies found, database may not be properly loaded.');
-                    } else {
-                      $scope.setTerminology($scope.metadata.terminologies[0]);
-                    }
-                  }
-                }
-              });
           }
         };
 
@@ -850,14 +836,20 @@ tsApp
         // (1) that application is configured, and
         // (2) that the license has been accepted (if required)
         //
-        configureService.isConfigured().then(function(isConfigured) {
+        configureService.isConfigured().then(
+        // Success
+        function(isConfigured) {
           if (!isConfigured) {
             $location.path('/configure');
           } else {
-            securityService.checkLicense().then(function() {
+            securityService.checkLicense().then(
+            // Success
+            function() {
               console.debug('License valid, initializing');
               $scope.initialize();
-            }, function() {
+            },
+            // Error
+            function() {
               console.debug('Invalid license');
               utilService.setError('You must accept the license before viewing that content');
               $location.path('/license');

@@ -17,6 +17,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -93,6 +94,14 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @OneToMany(mappedBy = "worklist", targetEntity = WorklistNoteJpa.class)
   @IndexedEmbedded(targetElement = WorklistNoteJpa.class)
   private List<Note> notes = new ArrayList<>();
+
+  /** The author available. */
+  @Transient
+  private boolean authorAvailable;
+
+  /** The reviewer available. */
+  @Transient
+  private boolean reviewerAvailable;
 
   /**
    * Instantiates an empty {@link WorklistJpa}.
@@ -267,6 +276,27 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Override
   public void setNotes(List<Note> notes) {
     this.notes = notes;
+  }
+
+  @Override
+  public boolean isAuthorAvailable() {
+    return authorAvailable;
+  }
+
+  @Override
+  public void setIsAuthorAvailable(boolean authorAvailable) {
+    this.authorAvailable = authorAvailable;
+  }
+
+  @Override
+  public boolean isReviewerAvailable() {
+    return reviewerAvailable;
+  }
+
+  /* see superclass */
+  @Override
+  public void setIsReviewerAvailable(boolean reviewerAvailable) {
+    this.reviewerAvailable = reviewerAvailable;
   }
 
   /* see superclass */

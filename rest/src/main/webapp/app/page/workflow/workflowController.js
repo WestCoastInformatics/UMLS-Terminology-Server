@@ -19,9 +19,9 @@ tsApp.controller('WorkflowCtrl', [
     // Set up tabs and controller
     tabService.setShowing(true);
     utilService.clearError();
-    tabService.setSelectedTabByLabel('Workflow');
     $scope.user = securityService.getUser();
     projectService.getUserHasAnyRole();
+    tabService.setSelectedTabByLabel('Workflow');
 
     // Selected variables
     $scope.selected = {

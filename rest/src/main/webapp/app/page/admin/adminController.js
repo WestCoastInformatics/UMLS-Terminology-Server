@@ -21,9 +21,9 @@ tsApp
         // Set up tabs and controller
         tabService.setShowing(true);
         utilService.clearError();
-        tabService.setSelectedTabByLabel('Admin');
         $scope.user = securityService.getUser();
         projectService.getUserHasAnyRole();
+        tabService.setSelectedTabByLabel('Edit');
 
         // If logged in as guest, redirect
         if (securityService.isGuestUser()) {
@@ -738,7 +738,6 @@ tsApp
           $scope.getCandidateProjects();
           $scope.getApplicationRoles();
           $scope.getProjectRoles();
-          metadataService.initTerminologies();
           $scope.getValidationChecks();
 
           // Handle users with user preferences

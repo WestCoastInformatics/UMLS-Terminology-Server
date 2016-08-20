@@ -75,18 +75,32 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     final StringBuilder sb = new StringBuilder();
 
     if (UserRole.AUTHOR == role) {
-      sb.append("NOT authors:[* TO *] AND NOT reviewers:[* TO *]");
+      sb.append("workflowStatus:NEW AND NOT authors:[* TO *]");
     } else if (UserRole.REVIEWER == role) {
       sb.append(
-          "NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS");
+          "workflowStatus:EDITING_IN_PROGRESS AND NOT reviewers:[* TO *]");
     } else if (UserRole.ADMINISTRATOR == role) {
       // n/a, query as is.
     } else {
       throw new Exception("Unexpected user role " + role);
     }
-
     return service.findWorklists(project, sb.toString(), pfs);
+  }
 
+  /* see superclass */
+  @Override
+  public boolean isAvailable(Worklist worklist, UserRole role)
+    throws Exception {
+    if (role == UserRole.AUTHOR) {
+      return worklist.getWorkflowStatus() == WorkflowStatus.NEW
+          && worklist.getAuthors().size() == 0;
+    }
+
+    else if (role == UserRole.REVIEWER) {
+      return worklist.getWorkflowStatus() == WorkflowStatus.EDITING_DONE
+          && worklist.getReviewers().size() == 0;
+    }
+    return false;
   }
 
   /* see superclass */
@@ -316,9 +330,12 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
     if (role == UserRole.AUTHOR) {
       return service.findWorklists(project,
-          "authors:" + userName + " AND NOT workflowStatus:EDITING_DONE AND NOT workflowStatus:READY_FOR_PUBLICATION", pfs);
+          "authors:" + userName
+              + " AND NOT workflowStatus:EDITING_DONE AND NOT workflowStatus:READY_FOR_PUBLICATION",
+          pfs);
     } else if (role == UserRole.REVIEWER) {
-      return service.findWorklists(project, "reviewers:" + userName, pfs);
+      return service.findWorklists(project, "reviewers:" + userName
+          + " AND NOT workflowStatus:READY_FOR_PUBLICATION", pfs);
     }
     return new WorklistListJpa();
   }

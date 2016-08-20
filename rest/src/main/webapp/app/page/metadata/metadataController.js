@@ -6,23 +6,30 @@ tsApp.controller('MetadataCtrl', [
   'gpService',
   'utilService',
   'tabService',
-  'securityService',
-  'metadataService',
   'configureService',
-  function($scope, $http, $location, gpService, utilService, tabService, securityService,
-    metadataService, configureService) {
+  'securityService',
+  'projectService',
+  'metadataService',
+  function($scope, $http, $location, gpService, utilService, tabService, configureService,
+    securityService, projectService, metadataService) {
     console.debug("configure MetadataCtrl");
 
     // Set up tabs and controller
     tabService.setShowing(true);
     utilService.clearError();
-    tabService.setSelectedTabByLabel('Metadata');
     $scope.user = securityService.getUser();
     projectService.getUserHasAnyRole();
 
     // Scope vars
     $scope.metadata = metadataService.getModel();
     $scope.resultsCollapsed = {};
+
+    // pretty print
+    $scope.getItemName = function(item) {
+      if (item) {
+        return item.name.replace(/_/g, ' ');
+      }
+    }
 
     //
     // Initialize

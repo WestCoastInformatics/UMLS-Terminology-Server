@@ -165,12 +165,12 @@ tsApp
         };
         
         // Set a flag indicating whether header/footer are to be showing
-        this.setShowing = function(showHeaderFooter) {
+        this.setHeaderFooterShowing = function(showHeaderFooter) {
           this.showHeaderFooter = showHeaderFooter;
         };
 
         // Indicates whether header/footer are showing at all
-        this.isShowing = function() {
+        this.isHeaderFooterShowing = function() {
           return this.showHeaderFooter;
         };
         
@@ -309,8 +309,8 @@ tsApp
         // Helper function to get a standard paging object
         // overwritten as needed
         // Example of filterFields
-        //  paging.filterFields.terminologyId = 1;
-        //  paging.filterFields.expandedForm = 1;
+        // paging.filterFields.terminologyId = 1;
+        // paging.filterFields.expandedForm = 1;
         //
         this.getPaging = function() {
           return {

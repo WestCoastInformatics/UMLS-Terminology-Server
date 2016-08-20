@@ -3,14 +3,15 @@ tsApp.controller('AssignWorklistModalCtrl', [
   '$scope',
   '$uibModalInstance',
   'utilService',
+  'securityService',
   'workflowService',
   'selected',
   'lists',
   'user',
   'worklist',
   'action',
-  function($scope, $uibModalInstance, utilService, workflowService, selected, lists, user,
-    worklist, action) {
+  function($scope, $uibModalInstance, utilService, securityService, workflowService, selected,
+    lists, user, worklist, action) {
     console.debug("configure AssignWorklistModalCtrl", worklist, action, user);
 
     // Scope vars
@@ -18,11 +19,12 @@ tsApp.controller('AssignWorklistModalCtrl', [
     $scope.worklist = worklist;
     $scope.action = action;
     $scope.project = selected.project;
-    $scope.role = worklist.workflowState == 'NEW' ? 'AUTHOR' : 'REVIEWER';
+    $scope.role = worklist.authorAvailable ? 'AUTHOR' : 'REVIEWER';
     $scope.user = [];
     $scope.users = [];
     $scope.note = null;
     $scope.errors = [];
+    $scope.tinymceOptions = utilService.tinymceOptions;
 
     // Handle team based projects
     for (var i = 0; i < lists.users.length; i++) {
@@ -63,7 +65,7 @@ tsApp.controller('AssignWorklistModalCtrl', [
 
       if (action == 'ASSIGN') {
 
-        // The role to use depends on the state.
+        // The role to use depends on the assignability of the worklist.
         // If "new", it's author, otherwise it's reviewer
 
         workflowService.performWorkflowAction($scope.project.id, worklist.id, $scope.user.userName,
@@ -83,22 +85,6 @@ tsApp.controller('AssignWorklistModalCtrl', [
               utilService.handleDialogError(errors, data);
             });
           }
-
-          // If user has a team, update worklist
-          securityService.getUserByName($scope.user).then(
-
-          // Success
-          function(data) {
-            $scope.user = data;
-            if ($scope.user.team) {
-              worklist.team = $scope.user.team;
-            }
-            $uibModalInstance.close(worklist);
-          },
-          // Error
-          function(data) {
-            utilService.handleDialogError(errors, data);
-          });
 
         },
         // Error

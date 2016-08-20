@@ -179,8 +179,7 @@ tsApp
           var deferred = $q.defer();
 
           // check prereqs
-          if (!wrapper.id || !wrapper.type || !wrapper.terminologyId || !wrapper.terminology
-            || !wrapper.version) {
+          if (!wrapper.type || !wrapper.terminologyId || !wrapper.terminology || !wrapper.version) {
             utilService.setError('Component object not fully specified');
             deferred.reject('Component object not fully specified');
           } else {

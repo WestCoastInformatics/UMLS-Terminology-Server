@@ -1222,12 +1222,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // authorize and get user name from the token
       authorizeProject(workflowService, projectId, securityService, authToken,
           action, UserRole.AUTHOR);
+      Project project = workflowService.getProject(projectId);
 
       // find worklists
       final WorklistList list = workflowService
           .findWorklists(workflowService.getProject(projectId), query, pfs);
 
-      // Compute "cluster" and "concept" counts
+      // Compute "cluster" and "concept" counts and assignment availability
+      final WorkflowActionHandler handler =
+          workflowService.getWorkflowHandlerForPath(project.getWorkflowPath());
       for (final Worklist worklist : list.getObjects()) {
         worklist.getStats().put("clusterCt",
             worklist.getTrackingRecords().size());
@@ -1235,6 +1238,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         worklist.getStats().put("conceptCt",
             worklist.getTrackingRecords().stream().collect(
                 Collectors.summingInt(w -> w.getOrigConceptIds().size())));
+        worklist.setIsAuthorAvailable(
+            handler.isAvailable(worklist, UserRole.AUTHOR));
+        worklist.setIsReviewerAvailable(
+            handler.isAvailable(worklist, UserRole.REVIEWER));
       }
 
       return list;
