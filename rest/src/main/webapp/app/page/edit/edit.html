@@ -168,7 +168,7 @@
             <tr ng-click="selectRecord(record);"
               ng-class="{selected : record.id == selected.record.id}"
               ng-repeat="concept in record.concepts"
-              ng-style="{'color': concept.workflowStatus == 'NEEDS_REVIEW' ? 'red' : 'black'}">
+              class="{{concept.workflowStatus}}">
               <td>{{concept.id}}</td>
               <td>{{concept.name}}</td>
               <td>
@@ -191,8 +191,8 @@
     <h4>
       Concept List
       <span style="float: right;">
-        <button ng-click="openAddConceptModal(selected.record)"
-          title="Add concept" class="btn btn-xs btn-primary">Finder</button>
+        <button ng-click="openFinderModal(selected.record)" title="Add concept"
+          class="btn btn-xs btn-primary">Finder</button>
       </span>
     </h4>
     <table class="table">
@@ -228,22 +228,24 @@
 
     <span style="float: right;">
       <button ng-click="openStyWindow()" title="Stys"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">STY</button>
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveConcept(selected.concept)" title="Approve"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Approve</button>
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveNext()" title="Approve/Next"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Approve/Next</button>
       <button confirm="Are you sure you want to merge the selected concept?"
         ng-click="openMergeModal()" title="Merge"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Merge</button>
     </span>
-    <!-- End R1C2 -->
+
+    <br />
+    <hr>
 
     <div report-pre selected="selected" lists="lists" user="user"></div>
   </div>

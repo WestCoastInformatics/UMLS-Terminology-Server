@@ -42,7 +42,7 @@ tsApp
           worklist : null,
           record : null,
           concept : null,
-          worklistMode : 'Available'
+          worklistMode : 'Assigned'
         };
 
         // Lists
@@ -79,6 +79,49 @@ tsApp
         $scope.resetPaging();
 
         $scope.errors = [];
+
+        $scope.$on('termServer::conceptChange', function(event, data) {
+
+          // Refresh the selected concept
+          if ($scope.selected.concept.id == data.id) {
+            contentService.getConcept(data.id, $scope.selected.project.id).then(function(data) {
+              $scope.selectConcept(data);
+              // Update the selected concept in the list
+              for (var i = 0; i < $scope.lists.concepts.length; i++) {
+                var concept = $scope.lists.concepts[i];
+                if (data.id == $scope.selected.concept.id) {
+                  $scope.lists.concepts[i] = data;
+                }
+              }
+              $scope.getRecords();
+
+            });
+          }
+
+          // If a concept is referenced that isn't selected,
+          // update the concept in the list, and/or add to the list
+          else {
+            // well
+            var found = false;
+            for (var i = 0; i < $scope.lists.concepts.length; i++) {
+              var concept = $scope.lists.concepts[i];
+              if (concept.id != $scope.selected.concept && concept.id == data.id) {
+                contentService.getConcept(concept.id, $scope.selected.project.id).then(
+                  function(data) {
+                    $scope.selectConcept($scope.lists.concepts[i]);
+                    $scope.getRecords();
+                  });
+                found = true;
+              }
+            }
+            // If no matching concept found, add it to to the list
+            if (!found) {
+              contentService.getConcept(data.id, $scope.selected.project.id).then(function(data) {
+                $scope.lists.concepts.push(data);
+              });
+            }
+          }
+        });
 
         // Get $scope.lists.worklists
         // switch based on type
@@ -273,7 +316,8 @@ tsApp
               function(data) {
                 $scope.lists.concepts.push(data);
                 $scope.lists.concepts.sort(utilService.sort_by('id'));
-                if (selectFirst) {
+                // Select first, when the first concept is loaded
+                if (selectFirst && data.id == record.concepts[0].id) {
                   $scope.selectConcept($scope.lists.concepts[0]);
                 }
               });
@@ -296,6 +340,7 @@ tsApp
           } else {
             // TODO; somehow notify sty window that no more records are
             // available so msg can be displayed
+            // BAC: recommend just setting a "warning"
           }
         }
 
@@ -481,7 +526,6 @@ tsApp
                 $scope.selected.activityId, concept, false).then(
               // Success
               function(data) {
-
               });
             });
 
@@ -490,6 +534,7 @@ tsApp
         // Approves all selector concepts and moves on to next record
         $scope.approveNext = function() {
           for (var i = 0; i < $scope.lists.concepts.length; i++) {
+            websocketService.incrementConceptIgnore($scope.lists.concepts[i].id);
             $scope.approveConcept($scope.lists.concepts[i]);
           }
           $scope.selectNextRecord($scope.selected.record);
