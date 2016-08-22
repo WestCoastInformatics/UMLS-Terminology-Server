@@ -35,6 +35,13 @@ public class MGV_C extends AbstractValidationCheck {
   @SuppressWarnings("unused")
   @Override
   public ValidationResult validateAction(MolecularActionAlgorithm action) {
+    ValidationResult result = new ValidationResultJpa();
+
+    // Only run this check on merge and move actions
+    if (!(action instanceof MergeMolecularAction || action instanceof MoveMolecularAction)){
+      return result;
+    }
+    
     final Project project = action.getProject();
     final ContentService service = (AbstractMolecularAction) action;
     final Concept source = (action instanceof MergeMolecularAction
@@ -43,8 +50,6 @@ public class MGV_C extends AbstractValidationCheck {
         ? action.getConcept() : action.getConcept2());
     final List<Atom> source_atoms = (action instanceof MoveMolecularAction
         ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
-
-    ValidationResult result = new ValidationResultJpa();
 
     //
     // Get target MSH atoms
@@ -78,7 +83,7 @@ public class MGV_C extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "MGV_C";
+    return this.getClass().getSimpleName();
   }
 
 }

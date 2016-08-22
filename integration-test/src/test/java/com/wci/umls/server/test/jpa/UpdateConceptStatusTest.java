@@ -29,7 +29,6 @@ import com.wci.umls.server.jpa.algo.action.UpdateConceptStatusMolecularAction;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
@@ -45,23 +44,8 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
   /** The service. */
   protected static ContentServiceJpa contentService;
 
-  /** The project service. */
-  protected static ProjectServiceJpa projectService;
-
   /** The properties. */
   protected static Properties properties;
-
-  /** The test password. */
-  protected static String testUser;
-
-  /** The test password. */
-  protected static String testPassword;
-
-  /** The test password. */
-  protected static String adminUser;
-
-  /** The test password. */
-  protected static String adminPassword;
 
   /** The update concept status action/service */
   protected static UpdateConceptStatusMolecularAction action;
@@ -90,31 +74,8 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     properties = ConfigUtility.getConfigProperties();
 
     // instantiate services
-    projectService = new ProjectServiceJpa();
     contentService = new ContentServiceJpa();
 
-    // test run.config.ts has viewer user
-    testUser = properties.getProperty("viewer.user");
-    testPassword = properties.getProperty("viewer.password");
-
-    // test run.config.ts has admin user
-    adminUser = properties.getProperty("admin.user");
-    adminPassword = properties.getProperty("admin.password");
-
-    if (testUser == null || testUser.isEmpty()) {
-      throw new Exception("Test prerequisite: viewer.user must be specified");
-    }
-    if (testPassword == null || testPassword.isEmpty()) {
-      throw new Exception(
-          "Test prerequisite: viewer.password must be specified");
-    }
-    if (adminUser == null || adminUser.isEmpty()) {
-      throw new Exception("Test prerequisite: admin.user must be specified");
-    }
-    if (adminPassword == null || adminPassword.isEmpty()) {
-      throw new Exception(
-          "Test prerequisite: admin.password must be specified");
-    }
   }
 
   /**
@@ -135,7 +96,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
 
     //instantiate required service objects
     contentService = new ContentServiceJpa();
-    contentService.setLastModifiedBy(adminUser);
+    contentService.setLastModifiedBy("admin");
     contentService.setMolecularActionFlag(false);
 
     // Copy existing concept to avoid messing with actual database data.
@@ -144,6 +105,10 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     conceptJpa.setId(null);
     conceptJpa.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     conceptJpa = (ConceptJpa) contentService.addConcept(conceptJpa);
+    
+    // Re-instantiate service so it can pickup the changed concept.
+    contentService = new ContentServiceJpa();
+    
     concept = contentService.getConcept(conceptJpa.getId());
 
   }
@@ -168,13 +133,14 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     // NEEDS_REVIEW
     final UpdateConceptStatusMolecularAction action =
         new UpdateConceptStatusMolecularAction();
+    ValidationResult validationResult = null;
     try {
 
       // Configure the action 
       action.setProject(project);
       action.setConceptId(concept.getId());
       action.setConceptId2(null);
-      action.setUserName(adminUser);
+      action.setUserName("admin");
       action.setLastModified(concept.getLastModified().getTime());
       action.setOverrideWarnings(false);
       action.setTransactionPerOperation(false);
@@ -184,42 +150,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
       action.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);   
       
       //Perform the action
-      final ValidationResult validationResult = action.performMolecularAction(action);
-      assertTrue(validationResult.getErrors().isEmpty());
-      
-      // Re-instantiate service so it can pickup the changed concept.
-      contentService = new ContentServiceJpa();
-
-      // Verify the concept's workflow Status has updated
-      concept = contentService.getConcept(concept.getId());
-      assertEquals(WorkflowStatus.NEEDS_REVIEW, concept.getWorkflowStatus());
-
-      // verify the molecular action exists
-      PfsParameterJpa pfs = new PfsParameterJpa();
-      pfs.setSortField("lastModified");
-      pfs.setAscending(false);
-      MolecularActionList list = projectService.findMolecularActions(
-          concept.getId(), umlsTerminology, umlsVersion, null, pfs);
-      assertTrue(list.size() > 0);
-      MolecularAction ma = list.getObjects().get(0);
-      assertNotNull(ma);
-      assertEquals(concept.getId(), ma.getComponentId());
-      assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
-      assertNotNull(ma.getAtomicActions());
-
-      // Verify that one atomic actions exists for updating concept workflow
-      // status
-      pfs.setSortField(null);
-
-      List<AtomicAction> atomicActions =
-          projectService.findAtomicActions(ma.getId(), null, pfs).getObjects();
-      Collections.sort(atomicActions,
-          (a1, a2) -> a1.getId().compareTo(a2.getId()));
-      assertEquals(1, atomicActions.size());
-      assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
-      assertNotNull(atomicActions.get(0).getOldValue());
-      assertNotNull(atomicActions.get(0).getNewValue());
-      assertEquals("workflowStatus", atomicActions.get(0).getField());
+      validationResult = action.performMolecularAction(action);
 
     } catch (Exception e) {
       action.rollback();
@@ -227,6 +158,42 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
       action.close();
     }
 
+    assertTrue(validationResult.getErrors().isEmpty());
+    
+    // Re-instantiate service so it can pickup the changed concept.
+    contentService = new ContentServiceJpa();
+
+    // Verify the concept's workflow Status has updated
+    concept = contentService.getConcept(concept.getId());
+    assertEquals(WorkflowStatus.NEEDS_REVIEW, concept.getWorkflowStatus());
+
+    // verify the molecular action exists
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    MolecularActionList list = contentService.findMolecularActions(
+        concept.getId(), umlsTerminology, umlsVersion, null, pfs);
+    assertTrue(list.size() > 0);
+    MolecularAction ma = list.getObjects().get(0);
+    assertNotNull(ma);
+    assertEquals(concept.getId(), ma.getComponentId());
+    assertTrue(ma.getLastModified().compareTo(startDate) >= 0);
+    assertNotNull(ma.getAtomicActions());
+
+    // Verify that one atomic actions exists for updating concept workflow
+    // status
+    pfs.setSortField(null);
+
+    List<AtomicAction> atomicActions =
+        contentService.findAtomicActions(ma.getId(), null, pfs).getObjects();
+    Collections.sort(atomicActions,
+        (a1, a2) -> a1.getId().compareTo(a2.getId()));
+    assertEquals(1, atomicActions.size());
+    assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
+    assertNotNull(atomicActions.get(0).getOldValue());
+    assertNotNull(atomicActions.get(0).getNewValue());
+    assertEquals("workflowStatus", atomicActions.get(0).getField());    
+    
   }
 
   /*
@@ -258,10 +225,18 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
 
   /**
    * Teardown.
+   * @throws Exception 
    */
   @After
-  public void teardown() {
-    // do nothing
+  public void teardown() throws Exception {
+    // Delete copies of concepts created during this test
+    contentService = new ContentServiceJpa();
+    contentService.setLastModifiedBy("admin");
+    contentService.setMolecularActionFlag(false);
+    
+    if (concept != null && contentService.getConcept(concept.getId()) != null) {
+      contentService.removeConcept(concept.getId());
+    }
   }
 
   /**

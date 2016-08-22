@@ -99,7 +99,6 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-
     return validationResult;
   }
 

@@ -4,7 +4,11 @@
 package com.wci.umls.server.services;
 
 import java.util.List;
+import java.util.Map;
 
+import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.TypeKeyValue;
@@ -13,6 +17,7 @@ import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.services.handlers.SearchHandler;
+import com.wci.umls.server.services.handlers.ValidationCheck;
 
 /**
  * Represents a service.
@@ -351,7 +356,6 @@ public interface RootService {
    */
   public AtomicAction getAtomicAction(Long id) throws Exception;
 
-
   /**
    * Find molecular actions.
    *
@@ -422,6 +426,33 @@ public interface RootService {
    * @throws Exception the exception
    */
   public List<TypeKeyValue> findTypeKeyValuesForQuery(String query)
+    throws Exception;
+
+  /**
+   * Gets the validation check names.
+   *
+   * @return the validation check names
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getValidationCheckNames() throws Exception;
+
+  /**
+   * Returns the validation handlers map.
+   *
+   * @return the validation handlers map
+   * @throws Exception the exception
+   */
+  public Map<String, ValidationCheck> getValidationHandlersMap()
+    throws Exception;
+
+  /**
+   * Validate action.
+   *
+   * @param action the action
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult validateAction(MolecularActionAlgorithm action)
     throws Exception;
 
 }

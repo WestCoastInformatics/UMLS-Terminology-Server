@@ -159,7 +159,6 @@ public class MoveMolecularAction extends AbstractMolecularAction {
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-
     return validationResult;
   }
 

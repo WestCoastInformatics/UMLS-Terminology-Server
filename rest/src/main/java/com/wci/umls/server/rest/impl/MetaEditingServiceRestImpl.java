@@ -785,7 +785,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // For merge only, need to check the concept Ids, so we can assign the
       // concept with the lowest id to survive, and the one with the highest id
@@ -880,7 +879,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Configure the action
       action.setProject(project);
@@ -973,7 +971,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Configure the action
       action.setProject(project);
@@ -1066,7 +1063,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Configure the action
       action.setProject(project);
@@ -1138,7 +1134,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Note - the undo action doesn't create its own molecular and atomic
       // actions
@@ -1235,7 +1230,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Note - the redo action doesn't create its own molecular and atomic
       // actions

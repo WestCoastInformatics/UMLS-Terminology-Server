@@ -6,9 +6,11 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
@@ -136,6 +138,17 @@ public interface IntegrationTestServiceRest {
    * @throws Exception the exception
    */
   public Attribute getAttribute(Long attributeId, String authToken)
+    throws Exception;
+
+  /**
+   * Adds the type key value.
+   *
+   * @param typeKeyValue the type key value
+   * @param authToken the auth token
+   * @return the type key value
+   * @throws Exception the exception
+   */
+  TypeKeyValue addTypeKeyValue(TypeKeyValueJpa typeKeyValue, String authToken)
     throws Exception;
 
 }

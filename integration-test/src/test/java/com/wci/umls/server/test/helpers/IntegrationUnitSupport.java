@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.test.helpers;
 
 import java.io.IOException;
@@ -8,6 +11,9 @@ import java.util.stream.Collectors;
 
 import org.junit.Rule;
 import org.junit.rules.TestName;
+
+import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 
 /**
  * Support for integration tests
@@ -51,5 +57,24 @@ public class IntegrationUnitSupport {
     }
     return sb.toString();
 
+  }
+  
+  /**
+   * Test action preconditions.
+   *
+   * @param action the action
+   * @return the validation result
+   * @throws Exception 
+   */
+  public ValidationResult checkActionPreconditions(AbstractMolecularAction action) throws Exception{
+
+    action.beginTransaction();
+    action.initialize(action.getProject(), action.getConceptId(), action.getConceptId2(), action.getUserName(), action.getLastModified(), false);
+    final ValidationResult validationResult = action.checkPreconditions();
+    action.rollback();
+    action.close();    
+    
+    return validationResult;
+    
   }
 }

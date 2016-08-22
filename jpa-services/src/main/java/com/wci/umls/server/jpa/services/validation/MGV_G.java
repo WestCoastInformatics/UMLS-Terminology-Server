@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.services.validation;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import com.wci.umls.server.Project;
@@ -21,9 +23,9 @@ import com.wci.umls.server.services.ContentService;
 
 /**
  * Validates merges between two {@link Concept}s where one contains a previous
- * version <code>MSH/MH</code> {@link Atom} and the other contains a publishable,
- * latest version <code>MSH</code> {@link Atom} and their {@link Code}s are
- * different.
+ * version <code>MSH/MH</code> {@link Atom} and the other contains a
+ * publishable, latest version <code>MSH</code> {@link Atom} and their
+ * {@link Code}s are different.
  *
  */
 public class MGV_G extends AbstractValidationCheck {
@@ -38,6 +40,14 @@ public class MGV_G extends AbstractValidationCheck {
   @SuppressWarnings("unused")
   @Override
   public ValidationResult validateAction(MolecularActionAlgorithm action) {
+    ValidationResult result = new ValidationResultJpa();
+
+    // Only run this check on merge and move actions
+    if (!(action instanceof MergeMolecularAction
+        || action instanceof MoveMolecularAction)) {
+      return result;
+    }
+
     final Project project = action.getProject();
     final ContentService service = (AbstractMolecularAction) action;
     final Concept source = (action instanceof MergeMolecularAction
@@ -45,9 +55,7 @@ public class MGV_G extends AbstractValidationCheck {
     final Concept target = (action instanceof MergeMolecularAction
         ? action.getConcept() : action.getConcept2());
     final List<Atom> source_atoms = (action instanceof MoveMolecularAction
-        ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
-
-    ValidationResult result = new ValidationResultJpa();
+        ? ((MoveMolecularAction) action).getMoveAtoms() : source.getAtoms());
 
     //
     // Obtain target atoms
@@ -56,41 +64,62 @@ public class MGV_G extends AbstractValidationCheck {
 
     //
     // Find case where source and target both have current or previous version
-    // MSH
-    // MH atoms with different codes. One should have current and the other
+    // MSH MH atoms with different codes. One should have current and the other
     // previous.
     //
-    Terminology sourceTerminology = null;
-    Terminology targetTerminology = null;
+    Boolean sourceTerminologyIsCurrent = false;
+    Boolean targetTerminologyIsCurrent = false;
 
+    // Cache previously looked up current-status of specific version of
+    // terminology
+    // Structure: Map<"TerminologyName|Version", True/False>
+    Map<String, Boolean> terminologyVersionCurrent =
+        new HashMap<String, Boolean>();
+    
     for (Atom sourceAtom : source_atoms) {
-      try {
-        sourceTerminology = service.getTerminology(sourceAtom.getTerminology(),
-            sourceAtom.getVersion());
-      } catch (Exception e) {
-        result.getErrors().add(
-            getName() + ": Terminology lookup failed for atom " + sourceAtom);
-        return result;
+      sourceTerminologyIsCurrent = terminologyVersionCurrent
+          .get(sourceAtom.getTerminology() + "|" + sourceAtom.getVersion());
+      // If this Terminology|Version has not been looked up before, do it now
+      if (sourceTerminologyIsCurrent == null) {
+        try {
+          Terminology tempTerm = 
+              service.getTerminology(sourceAtom.getTerminology(),
+                  sourceAtom.getVersion());
+          sourceTerminologyIsCurrent = tempTerm.isCurrent();
+          terminologyVersionCurrent.put(tempTerm.getTerminology()+"|"+ tempTerm.getVersion() , tempTerm.isCurrent());
+        } catch (Exception e) {
+          result.getErrors().add(
+              getName() + ": Terminology lookup failed for atom " + sourceAtom);
+          return result;
+        }
       }
       if (sourceAtom.getTerminology().equals("MSH")
           && sourceAtom.getTermType().equals("MH")
           && sourceAtom.isPublishable()) {
         for (Atom targetAtom : target_atoms) {
-          try {
-            targetTerminology = service.getTerminology(
-                targetAtom.getTerminology(), sourceAtom.getVersion());
-          } catch (Exception e) {
-            result.getErrors().add(getName()
-                + ": Terminology lookup failed for atom " + targetAtom);
-            return result;
+          targetTerminologyIsCurrent = terminologyVersionCurrent
+              .get(targetAtom.getTerminology() + "|" + targetAtom.getVersion());
+          // If this Terminology|Version has not been looked up before, do it now
+          if (targetTerminologyIsCurrent == null) {
+            try {
+              Terminology tempTerm = 
+                  service.getTerminology(targetAtom.getTerminology(),
+                      targetAtom.getVersion());
+              targetTerminologyIsCurrent = tempTerm.isCurrent();
+              terminologyVersionCurrent.put(tempTerm.getTerminology()+"|"+ tempTerm.getVersion() , tempTerm.isCurrent());
+            } catch (Exception e) {
+              result.getErrors().add(
+                  getName() + ": Terminology lookup failed for atom " + targetAtom);
+              return result;
+            }
           }
           if (targetAtom.getTerminology().equals("MSH")
               && targetAtom.getTermType().equals("MH")
                   & targetAtom.isPublishable()
-              && ((targetTerminology.isCurrent()
-                  && !sourceTerminology.isCurrent())
-                  || (!targetTerminology.isCurrent()
-                      && sourceTerminology.isCurrent()))
+              && ((targetTerminologyIsCurrent
+                  && !sourceTerminologyIsCurrent)
+                  || (!targetTerminologyIsCurrent
+                      && sourceTerminologyIsCurrent))
               && !targetAtom.getCodeId().equals(sourceAtom.getCodeId())) {
             result.getErrors().add(getName()
                 + ": Source and target concepts contain publishable MSH MH atoms with different codes, and one is from current version while the other is not.");
@@ -107,7 +136,7 @@ public class MGV_G extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "MGV_G";
+    return this.getClass().getSimpleName();
   }
 
 }

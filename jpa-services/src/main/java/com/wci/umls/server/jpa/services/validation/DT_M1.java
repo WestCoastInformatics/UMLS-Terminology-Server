@@ -29,6 +29,10 @@ public class DT_M1 extends AbstractValidationCheck {
   public ValidationResult validate(Concept source) {
     ValidationResult result = new ValidationResultJpa();
 
+    if (source==null){
+      return result;
+    }
+    
     //
     // Get semantic types
     //
@@ -66,7 +70,7 @@ public class DT_M1 extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "DT_M1";
+    return this.getClass().getSimpleName();
   }
 
 }

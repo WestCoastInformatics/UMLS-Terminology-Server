@@ -30,6 +30,10 @@ public class DT_I3 extends AbstractValidationCheck {
   public ValidationResult validate(Concept source) {
     ValidationResult result = new ValidationResultJpa();
 
+    if (source==null){
+      return result;
+    }
+    
     //
     // Look for demotions.
     //
@@ -47,7 +51,7 @@ public class DT_I3 extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "DT_I3";
+    return this.getClass().getSimpleName();
   }
 
 }

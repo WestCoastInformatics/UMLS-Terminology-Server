@@ -99,6 +99,8 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
     // }
     // }
 
+    // Check preconditions
+    validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
 

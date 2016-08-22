@@ -115,10 +115,10 @@ public class MergeMolecularAction extends AbstractMolecularAction {
               + getToConcept().getTerminology());
     }
 
-    // Check preconditions
+    // Check superclass validation
     validationResult.merge(super.checkPreconditions());
-
     return validationResult;
+    
   }
 
   /**

@@ -74,6 +74,7 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
       }
     }
 
+    validationResult.merge(super.checkPreconditions()); 
     return validationResult;
   }
 

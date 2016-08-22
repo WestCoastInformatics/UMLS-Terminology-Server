@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -32,12 +33,16 @@ import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
@@ -52,6 +57,7 @@ import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.SearchHandler;
+import com.wci.umls.server.services.handlers.ValidationCheck;
 
 /**
  * The root service for managing the entity manager factory and hibernate search
@@ -86,7 +92,9 @@ public abstract class RootServiceJpa implements RootService {
   /** The search handlers. */
   protected static Set<String> searchHandlerNames = null;
 
-  // Static initialization
+  /** The validation handlers. */
+  private static Map<String, ValidationCheck> validationHandlersMap = null;
+
   static {
     init();
   }
@@ -131,6 +139,25 @@ public abstract class RootServiceJpa implements RootService {
       searchHandlerNames = null;
     }
 
+    validationHandlersMap = new HashMap<>();
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      final String key = "validation.service.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        // Add handlers to map
+        final ValidationCheck handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, ValidationCheck.class);
+        validationHandlersMap.put(handlerName, handlerService);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      validationHandlersMap = null;
+    }
+
   }
 
   /** The manager. */
@@ -159,10 +186,7 @@ public abstract class RootServiceJpa implements RootService {
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     }
 
-    if (searchHandlerNames == null) {
-      throw new Exception(
-          "Search handler names did not properly initialize, serious error.");
-    }
+    validateInit();
 
     // created on each instantiation
     manager = factory.createEntityManager();
@@ -1286,7 +1310,7 @@ public abstract class RootServiceJpa implements RootService {
     final MolecularActionList results = new MolecularActionListJpa();
 
     final List<String> clauses = new ArrayList<>();
-    if (!ConfigUtility.isEmpty(query)){
+    if (!ConfigUtility.isEmpty(query)) {
       clauses.add(query);
     }
     if (componentId != null) {
@@ -1358,6 +1382,19 @@ public abstract class RootServiceJpa implements RootService {
 
     return results;
 
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateAction(MolecularActionAlgorithm action) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : getValidationHandlersMap().keySet()) {
+      if (action.getProject().getValidationChecks().contains(key)) {
+        result
+            .merge(getValidationHandlersMap().get(key).validateAction(action));
+      }
+    }
+    return result;
   }
 
   /* see superclass */
@@ -1458,6 +1495,43 @@ public abstract class RootServiceJpa implements RootService {
     return new ArrayList<TypeKeyValue>(searchHandler.getQueryResults(null, null,
         Branch.ROOT, query, null, TypeKeyValueJpa.class, TypeKeyValueJpa.class,
         null, totalCt, getEntityManager()));
+  }
+
+  /**
+   * Validate init.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateInit() throws Exception {
+    if (validationHandlersMap == null) {
+      throw new Exception(
+          "Validation handlers did not properly initialize, serious error.");
+    }
+
+    if (searchHandlerNames == null) {
+      throw new Exception(
+          "Search handler names did not properly initialize, serious error.");
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public KeyValuePairList getValidationCheckNames() {
+    final KeyValuePairList keyValueList = new KeyValuePairList();
+    for (final Entry<String, ValidationCheck> entry : validationHandlersMap
+        .entrySet()) {
+      final KeyValuePair pair =
+          new KeyValuePair(entry.getKey(), entry.getValue().getName());
+      keyValueList.addKeyValuePair(pair);
+    }
+    return keyValueList;
+  }
+
+  /* see superclass */
+  @Override
+  public Map<String, ValidationCheck> getValidationHandlersMap() {
+    return validationHandlersMap;
   }
 
 }

@@ -38,6 +38,13 @@ public class MGV_I extends AbstractValidationCheck {
   @SuppressWarnings("unused")
   @Override
   public ValidationResult validateAction(MolecularActionAlgorithm action) {
+    ValidationResult result = new ValidationResultJpa();
+
+    // Only run this check on merge and move actions
+    if (!(action instanceof MergeMolecularAction || action instanceof MoveMolecularAction)){
+      return result;
+    }
+    
     final Project project = action.getProject();
     final ContentService service = (AbstractMolecularAction) action;
     final Concept source = (action instanceof MergeMolecularAction
@@ -46,9 +53,6 @@ public class MGV_I extends AbstractValidationCheck {
         ? action.getConcept() : action.getConcept2());
     final List<Atom> source_atoms = (action instanceof MoveMolecularAction
         ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
-
-    ValidationResult result = new ValidationResultJpa();
-
 
     //
     // Get sources list
@@ -59,14 +63,14 @@ public class MGV_I extends AbstractValidationCheck {
         sources.stream().map(TypeKeyValue::getKey).collect(Collectors.toList());
 
     //
-    // Get target atoms from specified list of sources
+    // Get publishable atoms from specified list of sources
     //
     List<Atom> target_atoms = target.getAtoms().stream()
-        .filter(a -> terminologies.contains(a.getTerminology()))
+        .filter(a -> a.isPublishable() && terminologies.contains(a.getTerminology()))
         .collect(Collectors.toList());
 
     List<Atom> l_source_atoms = source_atoms.stream()
-        .filter(a -> terminologies.contains(a.getTerminology()))
+        .filter(a -> a.isPublishable() && terminologies.contains(a.getTerminology()))
         .collect(Collectors.toList());
 
     //
@@ -74,10 +78,8 @@ public class MGV_I extends AbstractValidationCheck {
     // different.
     //
     for (Atom sourceAtom : l_source_atoms) {
-      if (sourceAtom.isPublishable()) {
         for (Atom targetAtom : target_atoms) {
-          if (targetAtom.isPublishable()
-              && targetAtom.getTerminology().equals(sourceAtom.getTerminology())
+          if (targetAtom.getTerminology().equals(sourceAtom.getTerminology())
               && !targetAtom.getCodeId().equals(sourceAtom.getCodeId())) {
             result.getErrors().add(getName()
                 + ": Publishable atom in source concept has same Terminology but different CodeId as publishable atom in target concept.");
@@ -85,14 +87,13 @@ public class MGV_I extends AbstractValidationCheck {
           }
         }
       }
-    }
     return result;
   }
 
   /* see superclass */
   @Override
   public String getName() {
-    return "MGV_I";
+    return this.getClass().getSimpleName();
   }
 
 }

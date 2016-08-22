@@ -29,6 +29,10 @@ public class DT_I2 extends AbstractValidationCheck {
   public ValidationResult validate(Concept source) {
     ValidationResult result = new ValidationResultJpa();
 
+    if (source==null){
+      return result;
+    }
+    
     //
     // Get all atoms
     //
@@ -57,7 +61,7 @@ public class DT_I2 extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "DT_I2";
+    return this.getClass().getSimpleName();
   }
 
 }

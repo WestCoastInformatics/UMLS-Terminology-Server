@@ -74,6 +74,8 @@ public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
       throw new LocalException("Semantic type to remove does not exist");
     }
 
+    // Check preconditions
+    validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
 

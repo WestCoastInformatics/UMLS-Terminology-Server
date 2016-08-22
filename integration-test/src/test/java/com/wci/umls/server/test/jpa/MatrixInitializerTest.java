@@ -22,16 +22,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.jpa.algo.action.UpdateAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UpdateConceptStatusMolecularAction;
 import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
-import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
@@ -52,8 +52,8 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
   /** The concept 2. */
   private Concept concept2;
 
-  /** The atom. */
-  private Atom atom;
+  /** The relationship. */
+  private ConceptRelationship relationship;
 
   /**
    * Setup class.
@@ -85,11 +85,18 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     algo.setTerminology("UMLS");
     algo.setVersion("latest");
 
-    concept = contentService.getConcept("C0000294", "UMLS", "latest", null);
+    // C0000005 is PUBLISHED, and all components are PUBLISHED as well.
+    concept = contentService.getConcept("C0000005", "UMLS", "latest", null);
 
-    concept2 = contentService.getConcept("C0025362", "UMLS", "latest", null);
+    // C0029744 is PUBLISHED, but contains a DEMOTION relationship.
+    concept2 = contentService.getConcept("C0029744", "UMLS", "latest", null);
 
-    atom = concept2.getAtoms().get(0);
+    for (ConceptRelationship rel : concept2.getRelationships()) {
+      if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+        relationship = rel;
+      }
+    }
+
   }
 
   /**
@@ -115,9 +122,8 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     // Save the conceptID for easier lookup later
     Long conceptId = concept.getId();
 
-    // Ensure that the concept's workflow status is READY_FOR_PUBLICATION
-    assertEquals(WorkflowStatus.READY_FOR_PUBLICATION,
-        concept.getWorkflowStatus());
+    // Ensure that the concept's workflow status is PUBLISHED
+    assertEquals(WorkflowStatus.PUBLISHED, concept.getWorkflowStatus());
 
     // Update the WorkflowStatus of the concept to NEEDS_REVIEW
     final UpdateConceptStatusMolecularAction action =
@@ -161,49 +167,14 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     // Save the conceptID for easier lookup later
     Long conceptId2 = concept2.getId();
 
-    Long atomId = atom.getId();
+    Long relId = relationship.getId();
 
-    // Ensure that the atom's workflow status is PUBLISHED
-    assertEquals(WorkflowStatus.PUBLISHED, atom.getWorkflowStatus());
+    // Ensure that the relationship's workflow status is DEMOTION
+    assertEquals(WorkflowStatus.DEMOTION, relationship.getWorkflowStatus());
 
-    atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-
-    // Update the WorkflowStatus of the atom
-    final UpdateAtomMolecularAction action2 = new UpdateAtomMolecularAction();
-    try {
-
-      // Configure the action
-      action2.setProject(algo.getProject());
-      action2.setConceptId(conceptId2);
-      action2.setConceptId2(null);
-      action2.setUserName("admin");
-      action2.setLastModified(concept2.getLastModified().getTime());
-      action2.setOverrideWarnings(false);
-      action2.setTransactionPerOperation(false);
-      action2.setMolecularActionFlag(true);
-      action2.setChangeStatusFlag(false);
-
-      action2.setAtom(atom);
-
-      // Perform the action
-      final ValidationResult validationResult =
-          action2.performMolecularAction(action2);
-      assertTrue(validationResult.getErrors().isEmpty());
-
-    } catch (Exception e) {
-      action2.rollback();
-    } finally {
-      action2.close();
-    }
-
-    // Make sure the update went through
-    contentService = new ContentServiceJpa();
-    atom = contentService.getAtom(atomId);
-    assertEquals(WorkflowStatus.NEEDS_REVIEW, atom.getWorkflowStatus());
-
-    // Make sure containing concept is still set to READY_FOR_PUBLICATION
-    concept2 = contentService.getConcept(conceptId2);
-    assertEquals(WorkflowStatus.PUBLISHED, concept2.getWorkflowStatus());
+    // Make sure containing concept is set to PUBLISHED
+     concept2 = contentService.getConcept(conceptId2);
+     assertEquals(WorkflowStatus.PUBLISHED, concept2.getWorkflowStatus());
 
     // Send the whole project through the initializer
     try {
@@ -231,7 +202,7 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
       algo.close();
     }
 
-    // Check to make sure the concept's status was reset to
+    // Check to make sure the concept's status was set to
     // READY_FOR_PUBLICATION
     contentService = new ContentServiceJpa();
     concept = contentService.getConcept(conceptId);
@@ -307,9 +278,10 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     assertNotNull(atomicActions.get(0).getNewValue());
     assertEquals("workflowStatus", atomicActions.get(0).getField());
 
-    // Check that the updated atom is still NEEDS_REVIEW
-    atom = contentService.getAtom(atomId);
-    assertEquals(WorkflowStatus.NEEDS_REVIEW, atom.getWorkflowStatus());
+    // Check that the relationship is still DEMOTION
+    relationship = (ConceptRelationship) contentService.getRelationship(relId,
+        ConceptRelationshipJpa.class);
+    assertEquals(WorkflowStatus.DEMOTION, relationship.getWorkflowStatus());
 
   }
 
@@ -340,9 +312,9 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
   @After
   public void teardown() throws Exception {
     // Set all objects back to their original workflow status
-    // If something fails, this can be changed to @Test and run to reset everything's original status. 
-    if (!concept.getWorkflowStatus()
-        .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
+    // If something fails, this can be changed to @Test and run to reset
+    // everything's original status.
+    if (!concept.getWorkflowStatus().equals(WorkflowStatus.PUBLISHED)) {
       final UpdateConceptStatusMolecularAction action =
           new UpdateConceptStatusMolecularAction();
       try {
@@ -358,7 +330,7 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
         action.setMolecularActionFlag(true);
         action.setChangeStatusFlag(false);
 
-        action.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+        action.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
         // Perform the action
         final ValidationResult validationResult =
@@ -406,41 +378,6 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     }
     contentService = new ContentServiceJpa();
     concept2 = contentService.getConcept(concept2.getId());
-
-    if (!atom.getWorkflowStatus().equals(WorkflowStatus.PUBLISHED)) {
-
-      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-
-      final UpdateAtomMolecularAction action3 = new UpdateAtomMolecularAction();
-      try {
-
-        // Configure the action
-        action3.setProject(algo.getProject());
-        action3.setConceptId(concept2.getId());
-        action3.setConceptId2(null);
-        action3.setUserName("admin");
-        action3.setLastModified(concept2.getLastModified().getTime());
-        action3.setOverrideWarnings(false);
-        action3.setTransactionPerOperation(false);
-        action3.setMolecularActionFlag(true);
-        action3.setChangeStatusFlag(false);
-
-        action3.setAtom(atom);
-
-        // Perform the action
-        final ValidationResult validationResult =
-            action3.performMolecularAction(action3);
-        assertTrue(validationResult.getErrors().isEmpty());
-
-      } catch (Exception e) {
-        action3.rollback();
-      } finally {
-        action3.close();
-      }
-
-    }
-    contentService = new ContentServiceJpa();
-    atom = contentService.getAtom(atom.getId());
   }
 
   /**

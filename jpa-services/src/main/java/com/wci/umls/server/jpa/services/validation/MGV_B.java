@@ -38,6 +38,13 @@ public class MGV_B extends AbstractValidationCheck {
   @SuppressWarnings("unused")
   @Override
   public ValidationResult validateAction(MolecularActionAlgorithm action) {
+    ValidationResult result = new ValidationResultJpa();
+
+    // Only run this check on merge and move actions
+    if (!(action instanceof MergeMolecularAction || action instanceof MoveMolecularAction)){
+      return result;
+    }
+    
     final Project project = action.getProject();
     final ContentService service = (AbstractMolecularAction) action;
     final Concept source = (action instanceof MergeMolecularAction
@@ -46,8 +53,6 @@ public class MGV_B extends AbstractValidationCheck {
         ? action.getConcept() : action.getConcept2());
     final List<Atom> source_atoms = (action instanceof MoveMolecularAction
         ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
-
-    ValidationResult result = new ValidationResultJpa();
 
     //
     // Get source data
@@ -58,7 +63,7 @@ public class MGV_B extends AbstractValidationCheck {
         sources.stream().map(TypeKeyValue::getKey).collect(Collectors.toList());
 
     //
-    // Get target atoms from specified list of sources
+    // Get publishable atoms from specified list of sources
     //
     final List<Atom> target_atoms = target.getAtoms().stream()
         .filter(a -> terminologies.contains(a.getTerminology()) && a.isPublishable())
@@ -87,7 +92,7 @@ public class MGV_B extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "MGV_B";
+    return this.getClass().getSimpleName();
   }
 
 }

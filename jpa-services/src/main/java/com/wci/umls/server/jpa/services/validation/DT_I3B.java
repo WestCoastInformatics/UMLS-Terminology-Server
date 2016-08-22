@@ -32,6 +32,10 @@ public class DT_I3B extends AbstractValidationCheck {
   public ValidationResult validate(Concept source) {
     ValidationResult result = new ValidationResultJpa();
 
+    if (source==null){
+      return result;
+    }
+    
     //
     // Get demotions
     //
@@ -63,14 +67,14 @@ public class DT_I3B extends AbstractValidationCheck {
           matchFound = true;
           break;
         }
-        //
-        // If we did not find a matching Concept relationship, VIOLATION!
-        //
-        if (!matchFound) {
-          result.getErrors().add(getName()
-              + ": Concept contains at least one demoted relationship without a matching publishable relationship");
-          return result;
-        }
+      }
+      //
+      // If we did not find a matching Concept relationship, VIOLATION!
+      //
+      if (!matchFound) {
+        result.getErrors().add(getName()
+            + ": Concept contains at least one demoted relationship without a matching publishable relationship");
+        return result;
       }
     }
 
@@ -80,7 +84,7 @@ public class DT_I3B extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "DT_I3B";
+    return this.getClass().getSimpleName();
   }
 
 }
