@@ -64,25 +64,39 @@ tsApp
         $scope.windows = {};
 
         // Paging variables
-        $scope.resetPaging = function() {
-          $scope.paging = {};
-          $scope.paging['worklists'] = utilService.getPaging();
-          $scope.paging['worklists'].sortField = 'lastModified';
-          $scope.paging['worklists'].pageSize = 5;
-          $scope.paging['worklists'].callback = {
-            getPagedList : getWorklists
-          };
+        $scope.paging = {};
+        $scope.paging['worklists'] = {
+          page : 1,
+          pageSize : 10,
+          filter : '',
+          filterFields : null,
+          sortField : null,
+          sortAscending : true,
+          sortOptions : []
+        };// utilService.getPaging();
+        $scope.paging['worklists'].sortField = 'lastModified';
+        $scope.paging['worklists'].pageSize = 5;
+        $scope.paging['worklists'].callback = {
+          getPagedList : getWorklists
+        };
 
-          $scope.paging['records'] = utilService.getPaging();
-          $scope.paging['records'].sortField = 'clusterId';
-          $scope.paging['records'].callback = {
-            getPagedList : getRecords
-          };
-        }
-        $scope.resetPaging();
+        $scope.paging['records'] = {
+          page : 1,
+          pageSize : 10,
+          filter : '',
+          filterFields : null,
+          sortField : null,
+          sortAscending : true,
+          sortOptions : []
+        };// utilService.getPaging();
+        $scope.paging['records'].sortField = 'clusterId';
+        $scope.paging['records'].callback = {
+          getPagedList : getRecords
+        };
 
         $scope.errors = [];
 
+        // Handle changes from actions performed by this user
         $scope.$on('termServer::conceptChange', function(event, concept) {
 
           // Refresh the selected concept
@@ -90,18 +104,11 @@ tsApp
             contentService.getConcept(concept.id, $scope.selected.project.id).then(
             // Success
             function(data) {
-              // Handle blank case
-              //if (!data) {
-              //  $scope.removeConceptFromList(concept);
-              //}
-
-              $scope.selectConcept(data);
-              // Update the selected concept in the list
-              for (var i = 0; i < $scope.lists.concepts.length; i++) {
-                var concept = $scope.lists.concepts[i];
-                if (concept.id == $scope.selected.concept.id) {
-                  $scope.lists.concepts[i] = data;
-                }
+              if (!data) {
+                // if selected concept no longer exists, just bail from this
+                $scope.removeConceptFromList(concept);
+              } else {
+                $scope.selectConcept(data);
               }
               $scope.getRecords();
 
@@ -115,14 +122,16 @@ tsApp
             var found = false;
             for (var i = 0; i < $scope.lists.concepts.length; i++) {
               var c = $scope.lists.concepts[i];
-              if (c.id != $scope.selected.concept && c.id == concept.id) {
+              if (c.id == concept.id) {
                 contentService.getConcept(c.id, $scope.selected.project.id).then(
                 // Success
                 function(data) {
-                  //if (!data) {
-                  //  $scope.removeConceptFromList(concept);
-                  //}
-                  $scope.selectConcept($scope.lists.concepts[i]);
+                  if (!data) {
+                    $scope.removeConceptFromList(concept);
+                  } else {
+                    $scope.lists.concepts[i] = data;
+                    $scope.selectConcept($scope.lists.concepts[0]);
+                  }
                   $scope.getRecords();
                 });
                 found = true;
@@ -133,10 +142,9 @@ tsApp
               contentService.getConcept(concept.id, $scope.selected.project.id).then(
               // Success
               function(data) {
-                //if (!data) {
-                //  $scope.removeConceptFromList(concept);
-                //}
+                // no need to remove anything or select anything
                 $scope.lists.concepts.push(data);
+                $scope.getRecords();
               });
             }
           }
@@ -154,17 +162,25 @@ tsApp
           }
         }
 
+        // Set worklist mode
+        $scope.setWorklistMode = function(mode) {
+          console.debug('SET WORKLIST MODE');
+          $scope.selected.worklistMode = mode;
+          $scope.getWorklists();
+        }
+
         // Get $scope.lists.worklists
         // switch based on type
         $scope.getWorklists = function(worklist) {
           getWorklists(worklist);
         }
         function getWorklists(worklist) {
+          console.debug('WORKLIST MODE', $scope.selected.worklistMode);
           $scope.clearLists();
-          if ($scope.selected.worklistMode == 'Assigned') {
-            $scope.getAssignedWorklists();
-          } else if ($scope.selected.worklistMode == 'Available') {
+          if ($scope.selected.worklistMode == 'Available') {
             $scope.getAvailableWorklists();
+          } else if ($scope.selected.worklistMode == 'Assigned') {
+            $scope.getAssignedWorklists();
           } else if ($scope.selected.worklistMode == 'Checklists') {
             $scope.findChecklists();
           }
@@ -180,7 +196,6 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-
           workflowService.findAvailableWorklists($scope.selected.project.id, $scope.user.userName,
             $scope.selected.projectRole, pfs).then(
           // Success
@@ -305,6 +320,15 @@ tsApp
 
         }
 
+        // Reset paging
+        $scope.resetPaging = function() {
+          console.debug("RESET PAGING");
+          $scope.paging['worklists'].page = 1;
+          $scope.paging['worklists'].filter = null;
+          $scope.paging['records'].page = 1;
+          $scope.paging['records'].filter = null;
+        }
+
         // Get all projects for the user
         $scope.getProjects = function() {
           projectService.getProjectsForUser($scope.user).then(
@@ -403,7 +427,14 @@ tsApp
             function(data) {
               $scope.selected.concept.report = data;
             });
-
+          // Update the selected concept in the list
+          for (var i = 0; i < $scope.lists.concepts.length; i++) {
+            var concept = $scope.lists.concepts[i];
+            if (concept.id == $scope.selected.concept.id) {
+              $scope.lists.concepts[i] = $scope.selected.concept;
+              break;
+            }
+          }
         };
 
         // Get $scope.lists.records

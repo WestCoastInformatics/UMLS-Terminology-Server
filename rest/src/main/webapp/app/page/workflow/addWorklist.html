@@ -21,7 +21,7 @@
         <input type="number" size="4" ng-model="clusterCt" list="clusterCtList"
           placeholder="(required)" />
         <datalist id="clusterCtList">
-          <option ng-repeat="ct in clusterCt" value="{{ct}}">{{ct}}</option>
+          <option ng-repeat="ct in clusterCtOptions" value="{{ct}}">{{ct}}</option>
         </datalist>
         <button class="btn btn-xs btn-warning" ng-show="clusterCt"
           ng-click="clusterCt = ''">Clear</button>

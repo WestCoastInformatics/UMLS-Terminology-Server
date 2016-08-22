@@ -29,13 +29,12 @@
     <div>
       <ul class="pointer nav nav-tabs">
         <li ng-class="{active : selected.worklistMode == 'Available'}"><a
-            ng-click="selected.worklistMode='Available'; getWorklists()">Available
+            ng-click="setWorklistMode('Available')">Available
             ({{availableCt}})</a></li>
         <li ng-class="{active : selected.worklistMode == 'Assigned'}"><a
-            ng-click="selected.worklistMode='Assigned'; getWorklists()">Assigned
-            ({{assignedCt}})</a></li>
+            ng-click="setWorklistMode('Assigned')">Assigned ({{assignedCt}})</a></li>
         <li ng-class="{active : selected.worklistMode == 'Checklists'}"><a
-            ng-click="selected.worklistMode='Checklists'; getWorklists()">Checklists
+            ng-click="setWorklistMode('Checklists')">Checklists
             ({{checklistCt}})</a></li>
       </ul>
     </div>

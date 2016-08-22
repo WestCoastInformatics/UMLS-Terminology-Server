@@ -16,6 +16,7 @@ tsApp.controller('ChecklistModalCtrl', [
     // Scope vars
     $scope.bin = bin;
     $scope.clusterType = clusterType;
+    $scope.clusterCtOptions = [ 20, 50, 100, 200, 500 ];
     // Initial checklist
     $scope.checklist = {
       excludeOnWorklist : false,
