@@ -254,7 +254,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   public Project assignUserToProject(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "User name, e.g. guest", required = true) @QueryParam("userName") String userName,
-    @ApiParam(value = "User role, e.g. 'ADMINISTRATOR'", required = true) @QueryParam("role") String role,
+    @ApiParam(value = "User role, e.g. 'ADMINISTRATOR'", required = true) @QueryParam("role") UserRole role,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful POST call (Project): /assign "
@@ -276,10 +276,10 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       final User userCopy = new UserJpa(user);
       final Project project = projectService.getProject(projectId);
       final Project projectCopy = new ProjectJpa(project);
-      project.getUserRoleMap().put(userCopy, UserRole.valueOf(role));
+      project.getUserRoleMap().put(userCopy, role);
       projectService.updateProject(project);
 
-      user.getProjectRoleMap().put(projectCopy, UserRole.valueOf(role));
+      user.getProjectRoleMap().put(projectCopy, role);
       securityService.updateUser(user);
 
       projectService.addLogEntry(authUser, projectId, projectId, null, null,

@@ -315,14 +315,16 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     // because the user picks one that may not wind up being "concept"
     // TODO: probably both should match
     if (lastModified != null
-        && concept.getLastModified().getTime() != lastModified.longValue()
-        && concept2.getLastModified().getTime() != lastModified.longValue()) {
-      // unlock concepts and fail
-      rollback();
-      throw new LocalException(
-          "Concept has changed since last read, please refresh and try again ("
-              + lastModified + ", " + concept.getLastModified().getTime() + ", "
-              + concept2.getLastModified().getTime());
+        && concept.getLastModified().getTime() != lastModified.longValue()) {
+      if (concept2 != null || concept2.getLastModified() != null
+          || concept2.getLastModified().getTime() != lastModified.longValue()) {
+        // unlock concepts and fail
+        rollback();
+        throw new LocalException(
+            "Concept has changed since last read, please refresh and try again ("
+                + lastModified + ", " + concept.getLastModified().getTime()
+                + ", " + concept2.getLastModified().getTime());
+      }
     }
   }
 
