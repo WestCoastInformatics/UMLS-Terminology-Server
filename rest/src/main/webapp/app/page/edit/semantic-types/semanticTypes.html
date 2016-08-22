@@ -51,11 +51,13 @@
     <tr>
       <th class="col-md-2 col-xs-2"><span
               ng-click="setSortField('stys','typeId')">
-              TUI</th>
+              TUI<span ng-bind="getSortIndicator('stys','typeId')"></span></th>
       <th class="col-md-2 col-xs-2"><span
-              ng-click="setSortField('stys','treeNumber')">Tree #</span></th>
+              ng-click="setSortField('stys','treeNumber')">Tree #</span>
+              <span ng-bind="getSortIndicator('stys','treeNumber')"></span></th>
       <th class="col-md-7 col-xs-7"><span
-              ng-click="setSortField('stys','expandedForm')">Semantic Type</span></th>
+              ng-click="setSortField('stys','expandedForm')">Semantic Type</span>
+              <span ng-bind="getSortIndicator('stys','expandedForm')"></span></th>
       <th class="col-md-1 col-xs-1"></th>
     </tr>
   </thead>
