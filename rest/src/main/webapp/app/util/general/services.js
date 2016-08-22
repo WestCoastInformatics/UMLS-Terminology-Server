@@ -426,7 +426,7 @@ tsApp
             return false;
 
           for ( var prop in object) {
-            if (!fields && !fields[prop]) {
+            if (!fields || !fields[prop]) {
               continue;
             }
             var value = object[prop];

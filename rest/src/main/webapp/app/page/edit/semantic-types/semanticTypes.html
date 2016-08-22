@@ -49,9 +49,13 @@
 <table class="table">
   <thead>
     <tr>
-      <th class="col-md-2 col-xs-2">TUI</th>
-      <th class="col-md-2 col-xs-2">Tree #</th>
-      <th class="col-md-7 col-xs-7">Semantic Type</th>
+      <th class="col-md-2 col-xs-2"><span
+              ng-click="setSortField('stys','typeId')">
+              TUI</th>
+      <th class="col-md-2 col-xs-2"><span
+              ng-click="setSortField('stys','treeNumber')">Tree #</span></th>
+      <th class="col-md-7 col-xs-7"><span
+              ng-click="setSortField('stys','expandedForm')">Semantic Type</span></th>
       <th class="col-md-1 col-xs-1"></th>
     </tr>
   </thead>
