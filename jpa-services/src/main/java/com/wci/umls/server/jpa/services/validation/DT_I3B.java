@@ -7,19 +7,16 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
-import com.wci.umls.server.services.ContentService;
 
 /**
  * Validates those {@link Concept}s which contain at least one demoted
- * {@link Relationship} without a matching releasable <code>MTH</code> asserted
- * {@link Relationship}.
+ * {@link ConceptRelationship} without a matching publishable
+ * {@link ConceptRelationship}
  *
  */
 public class DT_I3B extends AbstractValidationCheck {
@@ -30,18 +27,15 @@ public class DT_I3B extends AbstractValidationCheck {
     // n/a
   }
 
-  /**
-   * Validate.
-   *
-   * @param project the project
-   * @param service the service
-   * @param source the source
-   * @return the validation result
-   */
-  public ValidationResult validate(Project project, ContentService service,
-    Concept source) {
+  /* see superclass */
+  @Override
+  public ValidationResult validate(Concept source) {
     ValidationResult result = new ValidationResultJpa();
 
+    if (source==null){
+      return result;
+    }
+    
     //
     // Get demotions
     //
@@ -53,7 +47,8 @@ public class DT_I3B extends AbstractValidationCheck {
     // Get non-demotion Concept relationships
     //
     List<ConceptRelationship> relationships = source.getRelationships().stream()
-        .filter(r -> !r.getWorkflowStatus().equals(WorkflowStatus.DEMOTION))
+        .filter(r -> !r.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
+            && r.isPublishable())
         .collect(Collectors.toList());
 
     //
@@ -67,29 +62,29 @@ public class DT_I3B extends AbstractValidationCheck {
     for (ConceptRelationship demotion : demotions) {
       matchFound = false;
       for (ConceptRelationship relationship : relationships) {
-        if (demotion.getTo().equals(relationship.getTo())
+        if (demotion.getTo().getId().equals(relationship.getTo().getId())
             && relationship.getTo().isPublishable()) {
           matchFound = true;
           break;
         }
-        //
-        // If we did not find a matching Concept relationship, VIOLATION!
-        //
-        if (!matchFound) {
-          result.getErrors().add(getName()
-              + ": Concept contains at least one demoted relationship without a matching releasable relationship");
-          return result;
-        }
+      }
+      //
+      // If we did not find a matching Concept relationship, VIOLATION!
+      //
+      if (!matchFound) {
+        result.getErrors().add(getName()
+            + ": Concept contains at least one demoted relationship without a matching publishable relationship");
+        return result;
       }
     }
-    
+
     return result;
   }
 
   /* see superclass */
   @Override
   public String getName() {
-    return "DT_I3";
+    return this.getClass().getSimpleName();
   }
 
 }

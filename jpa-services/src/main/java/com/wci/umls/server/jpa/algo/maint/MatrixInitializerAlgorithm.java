@@ -3,9 +3,12 @@
  */
 package com.wci.umls.server.jpa.algo.maint;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -13,14 +16,15 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UpdateConceptStatusMolecularAction;
-import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
@@ -29,10 +33,9 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
-
   /** The properties. */
   protected static Properties properties;
-  
+
   /**
    * Instantiates an empty {@link MatrixInitializerAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -42,11 +45,11 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
     setActivityId(UUID.randomUUID().toString());
     setWorkId("MATRIXINIT");
     setUserName("admin");
-    
+
     // instantiate properties
     properties = ConfigUtility.getConfigProperties();
   }
-  
+
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
@@ -65,6 +68,46 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
     try {
 
+      // Get all concepts where any of its atoms are set to NEEDS REVIEW
+      SearchResultList searchResult =
+          this.findConcepts(getTerminology(), getVersion(), Branch.ROOT,
+              "atoms.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW, null);
+      Set<Long> atomConceptIds = searchResult.getObjects().stream()
+          .map(SearchResult::getId).collect(Collectors.toSet());
+
+      // Get all concepts where any of its semantic type components are set to
+      // NEEDS REVIEW
+      searchResult = this.findConcepts(getTerminology(), getVersion(),
+          Branch.ROOT,
+          "semanticTypes.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW, null);
+      Set<Long> styConceptIds = searchResult.getObjects().stream()
+          .map(SearchResult::getId).collect(Collectors.toSet());
+
+      // Get all concepts where any of its relationships are set to NEEDS REVIEW
+      // or DEMOTION
+      final javax.persistence.Query query =
+          manager.createQuery("select r from ConceptRelationshipJpa r "
+              + " where terminology = :terminology and version = :version "
+              + " and workflowStatus in ( :ws1, :ws2 )");
+      query.setParameter("terminology", getTerminology());
+      query.setParameter("version", getVersion());
+      query.setParameter("ws1", WorkflowStatus.DEMOTION);
+      query.setParameter("ws2", WorkflowStatus.NEEDS_REVIEW);
+
+      @SuppressWarnings("unchecked")
+      final List<ConceptRelationship> rels = query.getResultList();
+
+      Set<Long> relConceptIds = new HashSet<Long>();
+      for (ConceptRelationship rel : rels) {
+        relConceptIds.add(rel.getFrom().getId());
+        relConceptIds.add(rel.getTo().getId());
+      }
+
+      Set<Long> allNeedsReviewConceptIds = new HashSet<Long>();
+      allNeedsReviewConceptIds.addAll(atomConceptIds);
+      allNeedsReviewConceptIds.addAll(styConceptIds);
+      allNeedsReviewConceptIds.addAll(relConceptIds);
+
       // Get all concepts for the terminology/version (detach).
 
       // NOTE: Hibernate-specific to support iterating
@@ -78,6 +121,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       hQuery.setParameter("version", getVersion());
       hQuery.setReadOnly(true).setFetchSize(2000);
       ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+
       int ct = 0;
       while (results.next()) {
         final Concept concept =
@@ -85,36 +129,12 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
         final WorkflowStatus initialStatus = concept.getWorkflowStatus();
 
-        // Staring point for changing workflow status
+        // Starting point for changing workflow status
         WorkflowStatus status = initialStatus == WorkflowStatus.PUBLISHED
             ? WorkflowStatus.PUBLISHED : WorkflowStatus.READY_FOR_PUBLICATION;
 
-        // Check semantic types
-        for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
-          if (sty.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
-            status = WorkflowStatus.NEEDS_REVIEW;
-            break;
-          }
-        }
-
-        // Check Atoms
-        if (status != WorkflowStatus.NEEDS_REVIEW) {
-          for (final Atom atom : concept.getAtoms()) {
-            if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
-              status = WorkflowStatus.NEEDS_REVIEW;
-              break;
-            }
-          }
-        }
-
-        // Check Relationships
-        if (status != WorkflowStatus.NEEDS_REVIEW) {
-          for (final ConceptRelationship rel : concept.getRelationships()) {
-            if (rel.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
-              status = WorkflowStatus.NEEDS_REVIEW;
-              break;
-            }
-          }
+        if (allNeedsReviewConceptIds.contains(concept.getId())) {
+          status = WorkflowStatus.NEEDS_REVIEW;
         }
 
         // Check validation rules
@@ -128,28 +148,29 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
         // change either from N to R or R to N
         if (initialStatus != status) {
-          
+
           // Send change to a conceptUpdate molecular action
           final UpdateConceptStatusMolecularAction action =
               new UpdateConceptStatusMolecularAction();
           try {
-            // Configure the action 
+            // Configure the action
             action.setProject(this.getProject());
             action.setConceptId(concept.getId());
             action.setConceptId2(null);
             action.setUserName(getUserName());
+            action.setLastModifiedBy(getUserName());
             action.setLastModified(concept.getLastModified().getTime());
             action.setOverrideWarnings(false);
             action.setTransactionPerOperation(false);
             action.setMolecularActionFlag(true);
-            action.setChangeStatusFlag(true);  
-            
-            action.setWorkflowStatus(status);  
+            action.setChangeStatusFlag(true);
+
+            action.setWorkflowStatus(status);
             action.setActivityId(getActivityId());
-            action.setWorkId(getWorkId());            
-            
+            action.setWorkId(getWorkId());
+
             performMolecularAction(action);
-            
+
           } catch (Exception e) {
             action.rollback();
           } finally {
@@ -163,23 +184,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
         }
 
       }
-      
-      // TODO: If performance is reasonable - remove this:
-      // // Find all tracking records with a worklist name
-      // logInfo("Recompute tracking record status");
-      // final TrackingRecordList trackingRecords =
-      // this.findTrackingRecords(getProject(), "worklistName:[* TO *]", null);
-      //
-      // // Set trackingRecord to READY_FOR_PUBLICATION if all contained
-      // // concepts and atoms are all set to READY_FOR_PUBLICATION.
-      // for (TrackingRecord rec : trackingRecords.getObjects()) {
-      // final WorkflowStatus status = computeTrackingRecordStatus(rec);
-      // rec.setWorkflowStatus(status);
-      // updateTrackingRecord(rec);
-      // if (++ct % logCt == 0) {
-      // logInfo(" count = " + ct);
-      // }
-      // }
 
       logInfo("Finished MATRIXINIT");
 

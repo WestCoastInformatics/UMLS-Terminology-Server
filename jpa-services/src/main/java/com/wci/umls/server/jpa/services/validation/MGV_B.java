@@ -9,8 +9,12 @@ import java.util.stream.Collectors;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
+import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.MoveMolecularAction;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.Terminology;
@@ -30,63 +34,65 @@ public class MGV_B extends AbstractValidationCheck {
     // n/a
   }
 
-  /**
-   * Validate.
-   *
-   * @param project the project
-   * @param service the service
-   * @param source the source
-   * @param target the target
-   * @param source_atoms the source atoms
-   * @return the validation result
-   */
-  public ValidationResult validate(Project project, ContentService service,
-    Concept source, Concept target, List<Atom> source_atoms) {
+  /* see superclass */
+  @SuppressWarnings("unused")
+  @Override
+  public ValidationResult validateAction(MolecularActionAlgorithm action) {
     ValidationResult result = new ValidationResultJpa();
+
+    // Only run this check on merge and move actions
+    if (!(action instanceof MergeMolecularAction || action instanceof MoveMolecularAction)){
+      return result;
+    }
+    
+    final Project project = action.getProject();
+    final ContentService service = (AbstractMolecularAction) action;
+    final Concept source = (action instanceof MergeMolecularAction
+        ? action.getConcept2() : action.getConcept());
+    final Concept target = (action instanceof MergeMolecularAction
+        ? action.getConcept() : action.getConcept2());
+    final List<Atom> source_atoms = (action instanceof MoveMolecularAction
+        ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
 
     //
     // Get source data
     //
-    List<TypeKeyValue> sources = project.getValidationDataFor(getName());
+    final List<TypeKeyValue> sources = project.getValidationDataFor(getName());
 
-    List<String> terminologies =
+    final List<String> terminologies =
         sources.stream().map(TypeKeyValue::getKey).collect(Collectors.toList());
 
     //
-    // Get target atoms from specified list of sources
+    // Get publishable atoms from specified list of sources
     //
-    List<Atom> target_atoms = target.getAtoms().stream()
-        .filter(a -> terminologies.contains(a.getTerminology()))
+    final List<Atom> target_atoms = target.getAtoms().stream()
+        .filter(a -> terminologies.contains(a.getTerminology()) && a.isPublishable())
         .collect(Collectors.toList());
 
-    List<Atom> l_source_atoms = source_atoms.stream()
-        .filter(a -> terminologies.contains(a.getTerminology()))
+    final List<Atom> l_source_atoms = source_atoms.stream()
+        .filter(a -> terminologies.contains(a.getTerminology()) && a.isPublishable())
         .collect(Collectors.toList());
 
     //
     // Look for cases of within-source merges involving publishable atoms.
     //
     for (Atom sourceAtom : l_source_atoms) {
-      if (sourceAtom.isPublishable()) {
         for (Atom targetAtom : target_atoms) {
-          if (targetAtom.isPublishable()) {
             if (sourceAtom.getTerminology()
                 .equals(targetAtom.getTerminology())) {
               result.getErrors().add(
-                  getName() + ": Publishable atom in source concept has same Terminology as publishable atom in target concept, and Terminology is in specified list.");
+                  getName() + ": Source and target concept contain atom(s) from Terminology " + sourceAtom.getTerminology());
               return result;
             }
           }
         }
-      }
-    }
     return result;
   }
 
   /* see superclass */
   @Override
   public String getName() {
-    return "MGV_B";
+    return this.getClass().getSimpleName();
   }
 
 }

@@ -21,7 +21,6 @@ import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.content.RelationshipList;
-import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -62,9 +61,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
   /** The override warnings. */
   private boolean overrideWarnings;
-
-  /** The validation checks. */
-  private List<String> validationChecks;
 
   /**
    * Instantiates an empty {@link AbstractMolecularAction}.
@@ -173,12 +169,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     this.changeStatusFlag = changeStatusFlag;
   }
 
-  /* see superclass */
-  @Override
-  public void setValidationChecks(List<String> validationChecks) {
-    this.validationChecks = validationChecks;
-  }
-
   /**
    * Sets the override warnings.
    *
@@ -200,13 +190,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
-    final ValidationResult result = new ValidationResultJpa();
-    for (final String key : getValidationHandlersMap().keySet()) {
-      if (validationChecks.contains(key)) {
-        result.merge(getValidationHandlersMap().get(key).validateAction(this));
-      }
-    }
-    return result;
+    return validateAction(this);
   }
 
   /* see superclass */

@@ -35,6 +35,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.jpa.ProjectJpa;
@@ -44,6 +45,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
@@ -153,6 +155,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     Logger.getLogger(getClass()).info("Authenticate admin user");
     SecurityServiceRest security = new SecurityServiceRestImpl();
     ProjectServiceRest project = new ProjectServiceRestImpl();
+    IntegrationTestServiceRest integrationService = new IntegrationTestServiceRestImpl();
 
     //
     // Add admin users
@@ -242,6 +245,22 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     validationChecks.add("MGV_H1");
     validationChecks.add("MGV_H2");
     project1.setValidationChecks(validationChecks);
+    
+    // Add the default validationData
+    final List<TypeKeyValue> validationData = new ArrayList<>();
+    
+    integrationService = new IntegrationTestServiceRestImpl();
+    TypeKeyValue typeKeyValue1 = integrationService.addTypeKeyValue(new TypeKeyValueJpa("MGV_I","CBO",""), authToken);
+    integrationService = new IntegrationTestServiceRestImpl();
+    TypeKeyValue typeKeyValue2 = integrationService.addTypeKeyValue(new TypeKeyValueJpa("MGV_I","ISO3166-2",""), authToken);
+    integrationService = new IntegrationTestServiceRestImpl();
+    TypeKeyValue typeKeyValue3 = integrationService.addTypeKeyValue(new TypeKeyValueJpa("MGV_SCUI","NCI",""), authToken);
+    
+    validationData.add(typeKeyValue1);
+    validationData.add(typeKeyValue2);
+    validationData.add(typeKeyValue3);
+    
+    project1.setValidationData(validationData);
 
     // Handle precedence list
     MetadataServiceRest metadataService = new MetadataServiceRestImpl();
@@ -358,8 +377,6 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
           contentService.getConcept(result.getId(), projectId, authToken),
           true);
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
       // Make all NCI atoms needs review
       for (final Atom atom : concept.getAtoms()) {
         if (atom.getTerminology().equals("NCI")) {
@@ -368,6 +385,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
           testService.updateAtom((AtomJpa) atom, authToken);
         }
       }
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateConcept(concept, authToken);
     }
 
     // SNOMEDCT_US
@@ -391,8 +410,6 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
         continue;
       }
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
 
       // Make all SNOMEDCT_US atoms needs review
       for (final Atom atom : concept.getAtoms()) {
@@ -402,6 +419,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
           testService.updateAtom((AtomJpa) atom, authToken);
         }
       }
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateConcept(concept, authToken);      
     }
 
     // leftovers
@@ -424,8 +443,6 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
         continue;
       }
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
 
       // Make all SNOMEDCT_US atoms needs review
       for (final Atom atom : concept.getAtoms()) {
@@ -436,6 +453,9 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
           testService.updateAtom((AtomJpa) atom, authToken);
         }
       }
+
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateConcept(concept, authToken);      
     }
 
     //

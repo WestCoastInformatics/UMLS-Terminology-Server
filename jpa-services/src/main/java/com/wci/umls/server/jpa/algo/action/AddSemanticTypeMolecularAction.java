@@ -74,6 +74,7 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
       }
     }
 
+    validationResult.merge(super.checkPreconditions()); 
     return validationResult;
   }
 
@@ -112,7 +113,7 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "
-            + getConcept().getId() + " " + sty.getSemanticType());
+            + getConcept().getId() + " " + sty);
 
   }
 

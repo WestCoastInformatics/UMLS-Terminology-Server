@@ -110,6 +110,15 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     return fromConceptPostUpdates;
   }
 
+  /**
+   * Returns the move atoms.
+   *
+   * @return the move atoms
+   */
+  public List<Atom> getMoveAtoms() {
+    return moveAtoms;
+  }
+
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
@@ -150,7 +159,6 @@ public class MoveMolecularAction extends AbstractMolecularAction {
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-
     return validationResult;
   }
 
@@ -224,7 +232,7 @@ public class MoveMolecularAction extends AbstractMolecularAction {
         getActivityId(), getWorkId(),
         getName() + " " + atomIds + " from Concept " + getFromConcept().getId()
             + " to concept " + getToConcept().getId());
-    addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
+    addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " " + atomIds + " to Concept " + getToConcept().getId()
             + " from concept " + getFromConcept().getId());

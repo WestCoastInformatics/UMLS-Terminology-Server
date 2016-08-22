@@ -6,15 +6,11 @@
  */
 package com.wci.umls.server.services;
 
-import java.util.Map;
-
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.content.ConceptList;
-import com.wci.umls.server.services.handlers.ValidationCheck;
 
 /**
  * Represents a service for accessing {@link Project} information.
@@ -92,22 +88,5 @@ public interface ProjectService extends RootService {
    * @throws Exception the exception
    */
   public ProjectList findProjects(String query, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Gets the validation check names.
-   *
-   * @return the validation check names
-   * @throws Exception the exception
-   */
-  public KeyValuePairList getValidationCheckNames() throws Exception;
-
-  /**
-   * Returns the validation handlers map.
-   *
-   * @return the validation handlers map
-   * @throws Exception the exception
-   */
-  public Map<String, ValidationCheck> getValidationHandlersMap()
     throws Exception;
 }

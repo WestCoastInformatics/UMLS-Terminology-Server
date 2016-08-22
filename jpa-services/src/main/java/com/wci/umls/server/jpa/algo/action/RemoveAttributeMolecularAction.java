@@ -80,6 +80,8 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
       throw new LocalException("Attribute to remove does not exist");
     }
 
+    // Check preconditions
+    validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
 

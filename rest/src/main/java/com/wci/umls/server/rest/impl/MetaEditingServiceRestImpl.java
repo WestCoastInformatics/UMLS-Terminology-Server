@@ -155,6 +155,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ValidationResult validationResult =
           action.performMolecularAction(action);
 
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
+
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
           new ChangeEventJpa<SemanticTypeComponent>(action.getName(), authToken,
@@ -224,6 +229,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ValidationResult validationResult =
           action.performMolecularAction(action);
 
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
+
       // Websocket notification
       final ChangeEvent<SemanticTypeComponent> event =
           new ChangeEventJpa<SemanticTypeComponent>(action.getName(), authToken,
@@ -291,6 +301,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action);
+
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
 
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
@@ -361,6 +376,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ValidationResult validationResult =
           action.performMolecularAction(action);
 
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
+
       // Websocket notification
       final ChangeEvent<Attribute> event = new ChangeEventJpa<Attribute>(
           action.getName(), authToken, IdType.ATTRIBUTE.toString(),
@@ -426,6 +446,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action);
+
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
 
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>("adding an atom",
@@ -495,6 +520,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ValidationResult validationResult =
           action.performMolecularAction(action);
 
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
+
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(action.getName(),
           authToken, IdType.ATTRIBUTE.toString(), action.getAtom(), null,
@@ -560,6 +590,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action);
+
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
 
       // Websocket notification
       final ChangeEvent<Atom> event = new ChangeEventJpa<Atom>(
@@ -629,6 +664,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action);
+
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
 
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
@@ -706,6 +746,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ValidationResult validationResult =
           action.performMolecularAction(action);
 
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
+
       // Websocket notification
       final ChangeEvent<ConceptRelationship> event =
           new ChangeEventJpa<ConceptRelationship>(action.getName(), authToken,
@@ -758,7 +803,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // For merge only, need to check the concept Ids, so we can assign the
       // concept with the lowest id to survive, and the one with the highest id
@@ -782,6 +826,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ValidationResult validationResult =
           action.performMolecularAction(action);
 
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
+      
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
       GraphResolutionHandler graphHandler = action
@@ -848,7 +897,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Configure the action
       action.setProject(project);
@@ -867,6 +915,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action);
+
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
@@ -936,7 +989,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Configure the action
       action.setProject(project);
@@ -958,6 +1010,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action);
+
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
 
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
@@ -1024,7 +1081,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Configure the action
       action.setProject(project);
@@ -1041,6 +1097,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action);
+
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
 
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
@@ -1091,7 +1152,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Note - the undo action doesn't create its own molecular and atomic
       // actions
@@ -1124,6 +1184,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action);
+
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
 
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
@@ -1183,7 +1248,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-      action.setValidationChecks(project.getValidationChecks());
 
       // Note - the redo action doesn't create its own molecular and atomic
       // actions
@@ -1216,6 +1280,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action);
+
+      // If the action failed, bail out now.
+      if(!validationResult.getErrors().isEmpty()){
+        return validationResult;
+      }
 
       // Websocket notification
       final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(

@@ -481,8 +481,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify the log entry exists
     String logEntry =
         projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry
-        .contains("ADD_SEMANTIC_TYPE " + semanticType.getSemanticType()));
+    assertTrue(logEntry.contains("ADD_SEMANTIC_TYPE to concept " + c.getId()));
 
     //
     // Add second semantic type
@@ -558,8 +557,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry
-        .contains("ADD_SEMANTIC_TYPE " + semanticType2.getSemanticType()));
+    assertTrue(logEntry.contains("ADD_SEMANTIC_TYPE to concept " + c.getId()));
 
     //
     // Test removal
@@ -613,8 +611,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry
-        .contains("REMOVE_SEMANTIC_TYPE " + semanticType.getSemanticType()));
+    assertTrue(
+        logEntry.contains("REMOVE_SEMANTIC_TYPE from concept " + c.getId()));
 
     // remove the second semantic type from the concept (assume verification of
     // MA, atomic actions, and log entry since we just tested those)
@@ -730,7 +728,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify the log entry exists
     String logEntry =
         projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("ADD_ATTRIBUTE " + attribute.getName()));
+    assertTrue(logEntry.contains("ADD_ATTRIBUTE to concept " + c.getId()));
 
     //
     // Add second attribute (also ensures alternateTerminologyId increments
@@ -812,7 +810,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("ADD_ATTRIBUTE " + attribute2.getName()));
+    assertTrue(logEntry.contains("ADD_ATTRIBUTE to concept " + c.getId()));
 
     //
     // Test removal
@@ -865,7 +863,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("REMOVE_ATTRIBUTE " + attribute.getName()));
+    assertTrue(logEntry.contains("REMOVE_ATTRIBUTE from concept " + c.getId()));
 
     // remove the second attribute from the concept (assume verification of MA,
     // atomic actions, and log entry since we just tested those)
@@ -992,7 +990,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify the log entry exists
     String logEntry =
         projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("ADD_ATOM " + atom.getName()));
+    assertTrue(logEntry.contains("ADD_ATOM to concept " + c.getId()));
 
     //
     // Add second atom (also ensures alternateTerminologyId increments
@@ -1031,7 +1029,7 @@ public class MetaEditingServiceRestNormalUseTest
         c.getLastModified().getTime(), atom2, false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
-    // retrieve the concept and check to make sure both attributes are still
+    // retrieve the concept and check to make sure both atoms are still
     // there
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
@@ -1089,7 +1087,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("ADD_ATOM " + atom2.getName()));
+    assertTrue(logEntry.contains("ADD_ATOM to concept " + c.getId()));
 
     //
     // Test removal
@@ -1141,7 +1139,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("REMOVE_ATOM " + atom.getName()));
+    assertTrue(logEntry.contains("REMOVE_ATOM from concept " + c.getId()));
 
     // remove the second atom from the concept (assume verification of
     // MA, atomic actions, and log entry since we just tested those)
@@ -1303,7 +1301,7 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify the log entry exists
     String logEntry =
         projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("UPDATE_ATOM " + addedAtom.getName()));
+    assertTrue(logEntry.contains("UPDATE_ATOM "));
 
   }
 
@@ -1448,7 +1446,9 @@ public class MetaEditingServiceRestNormalUseTest
     // Verify the log entry exists
     String logEntry =
         projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("ADD_RELATIONSHIP " + relationship));
+    assertTrue(logEntry.contains("ADD_RELATIONSHIP to concept " + c2.getId()));
+    logEntry = projectService.getLog(project.getId(), c2.getId(), 1, authToken);
+    assertTrue(logEntry.contains("ADD_RELATIONSHIP from concept " + c.getId()));
 
     //
     // Add second relationship (also ensures alternateTerminologyId increments
@@ -1549,7 +1549,9 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    assertTrue(logEntry.contains("ADD_RELATIONSHIP " + relationship3));
+    assertTrue(logEntry.contains("ADD_RELATIONSHIP to concept " + c3.getId()));
+    logEntry = projectService.getLog(project.getId(), c3.getId(), 1, authToken);
+    assertTrue(logEntry.contains("ADD_RELATIONSHIP from concept " + c.getId()));
 
     //
     // Test removal
@@ -1574,6 +1576,8 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertTrue(!relationshipPresent);
+
+    // Make sure inverse was removed too
 
     // verify the molecular action exists
     pfs = new PfsParameterJpa();
@@ -1613,9 +1617,11 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
-    // Substringing relationship because removing it alters the lastModified
-    assertTrue(logEntry.contains(
-        "REMOVE_RELATIONSHIP " + relationship.toString().substring(0, 80)));
+    assertTrue(
+        logEntry.contains("REMOVE_RELATIONSHIP to concept " + c2.getId()));
+    logEntry = projectService.getLog(project.getId(), c2.getId(), 1, authToken);
+    assertTrue(
+        logEntry.contains("REMOVE_RELATIONSHIP from concept " + c.getId()));
 
     // remove the second relationship from the concept (assume verification of
     // MA,
@@ -1864,9 +1870,149 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), toC.getId(), 1, authToken);
+        projectService.getLog(project.getId(), fromCId, 1, authToken);
     assertTrue(logEntry
         .contains("MERGE concept " + fromCId + " into concept " + toC.getId()));
+    logEntry =
+        projectService.getLog(project.getId(), toC.getId(), 1, authToken);
+    assertTrue(logEntry
+        .contains("MERGE concept " + toC.getId() + " from concept " + fromCId));
+
+    //
+    // Test merge that will violate validation check MGV_H1
+    //
+
+    AtomJpa atom = new AtomJpa();
+    atom.setBranch(Branch.ROOT);
+    atom.setName("Slaughterhouse");
+    atom.setTerminologyId("TestId");
+    atom.setTerminology("MSH");
+    atom.setVersion("2016_2016_02_26");
+    atom.setTimestamp(new Date());
+    atom.setPublishable(true);
+    atom.setCodeId("D000003");
+    atom.setConceptId("M0000003");
+    atom.getConceptTerminologyIds().put(toC.getTerminology(),
+        toC.getTerminologyId());
+    atom.setDescriptorId("D000003");
+    atom.setLanguage("ENG");
+    atom.setTermType("PM");
+    atom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    // add the atom to the concept
+    v = metaEditingService.addAtom(project.getId(), toC.getId(), "activityId",
+        toC.getLastModified().getTime(), atom, false, authToken);
+    assertTrue(v.getErrors().isEmpty());
+    toC =
+        contentService.getConcept(concept.getId(), project.getId(), authToken);
+
+    atom = null;
+    for (Atom a : toC.getAtoms()) {
+      if (a.getName().equals("Slaughterhouse")) {
+        atom = (AtomJpa) a;
+      }
+    }
+    assertNotNull(atom);
+
+    AtomJpa atom2 = new AtomJpa();
+    atom2.setBranch(Branch.ROOT);
+    atom2.setName("blood");
+    atom2.setTerminologyId("TestId");
+    atom2.setTerminology("MSH");
+    atom2.setVersion("2016_2016_02_26");
+    atom2.setTimestamp(new Date());
+    atom2.setPublishable(true);
+    atom2.setCodeId("Q000097");
+    atom2.setConceptId("M0030288");
+    atom2.getConceptTerminologyIds().put(relatedC.getTerminology(),
+        relatedC.getTerminologyId());
+    atom2.setDescriptorId("Q000097");
+    atom2.setLanguage("ENG");
+    atom2.setTermType("TQ");
+    atom2.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    // add the atom to the concept
+    v = metaEditingService.addAtom(project.getId(), relatedC.getId(),
+        "activityId", relatedC.getLastModified().getTime(), atom2, false,
+        authToken);
+    assertTrue(v.getErrors().isEmpty());
+    relatedC =
+        contentService.getConcept(relatedC.getId(), project.getId(), authToken);
+
+    // Save the related concepts atoms for later
+    List<Atom> relatedAtomsList = relatedC.getAtoms();
+
+    // Now that the concepts are all set up, try to merge them (this should
+    // fail)
+    v = metaEditingService.mergeConcepts(project.getId(), toC.getId(),
+        "activityId", toC.getLastModified().getTime(), relatedC.getId(), false,
+        authToken);
+    assertTrue(!v.getErrors().isEmpty());
+
+    toC = contentService.getConcept(toC.getId(), project.getId(), authToken);
+    relatedC =
+        contentService.getConcept(relatedC.getId(), project.getId(), authToken);
+
+    // Confirm that the concepts were NOT merged
+    assertNotNull(relatedC);
+    for (Atom a : relatedAtomsList) {
+      assertTrue(relatedC.getAtoms().contains(a));
+    }
+    for (Atom a : toC.getAtoms()) {
+      assertTrue(!relatedAtomsList.contains(a));
+    }
+
+    //
+    // Test merge that will violate validation check MGV_H2
+    //
+
+    AtomJpa atom3 = new AtomJpa();
+    atom3.setBranch(Branch.ROOT);
+    atom3.setName("Korsakoff Syndrome");
+    atom3.setTerminologyId("TestId");
+    atom3.setTerminology("MSH");
+    atom3.setVersion("2016_2016_02_26");
+    atom3.setTimestamp(new Date());
+    atom3.setPublishable(true);
+    atom3.setCodeId("D020915");
+    atom3.setConceptId("M0000642");
+    atom3.getConceptTerminologyIds().put(relatedC.getTerminology(),
+        relatedC.getTerminologyId());
+    atom3.setDescriptorId("D020915");
+    atom3.setLanguage("ENG");
+    atom3.setTermType("MH");
+    atom3.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+    // add the atom to the concept
+    v = metaEditingService.addAtom(project.getId(), relatedC.getId(),
+        "activityId", relatedC.getLastModified().getTime(), atom3, false,
+        authToken);
+    assertTrue(v.getErrors().isEmpty());
+    relatedC =
+        contentService.getConcept(relatedC.getId(), project.getId(), authToken);
+
+    // Save the related concepts atoms for later
+    relatedAtomsList = relatedC.getAtoms();
+
+    // Now that the concepts are all set up, try to merge them (this should
+    // fail)
+    v = metaEditingService.mergeConcepts(project.getId(), toC.getId(),
+        "activityId", toC.getLastModified().getTime(), relatedC.getId(), false,
+        authToken);
+    assertTrue(!v.getErrors().isEmpty());
+
+    toC = contentService.getConcept(toC.getId(), project.getId(), authToken);
+    relatedC =
+        contentService.getConcept(relatedC.getId(), project.getId(), authToken);
+
+    // Confirm that the concepts were NOT merged
+    assertNotNull(relatedC);
+    for (Atom a : relatedAtomsList) {
+      assertTrue(relatedC.getAtoms().contains(a));
+    }
+    for (Atom a : toC.getAtoms()) {
+      assertTrue(!relatedAtomsList.contains(a));
+    }
 
   }
 
@@ -2006,6 +2152,10 @@ public class MetaEditingServiceRestNormalUseTest
         projectService.getLog(project.getId(), fromC.getId(), 1, authToken);
     assertTrue(logEntry.contains("MOVE " + moveList + " from Concept "
         + fromC.getId() + " to concept " + toC.getId()));
+    logEntry =
+        projectService.getLog(project.getId(), toC.getId(), 1, authToken);
+    assertTrue(logEntry.contains("MOVE " + moveList + " to Concept "
+        + toC.getId() + " from concept " + fromC.getId()));
 
   }
 
@@ -2269,10 +2419,15 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(atomicActions.get(17).getNewValue());
     assertEquals("relationships", atomicActions.get(17).getField());
 
-    // Verify the log entry exists
+    // Verify the log entries exists
     String logEntry = projectService.getLog(project.getId(),
         originatingC.getId(), 1, authToken);
-    assertTrue(logEntry.contains("SPLIT concept " + concept.getId()));
+    assertTrue(logEntry.contains("SPLIT from concept " + originatingC.getId()
+        + " into concept " + createdC.getId()));
+    logEntry =
+        projectService.getLog(project.getId(), createdC.getId(), 1, authToken);
+    assertTrue(logEntry.contains("SPLIT into concept " + createdC.getId()
+        + " from concept " + originatingC.getId()));
 
     //
     // Run the test again from scratch, but this time with not splitting out
@@ -2488,11 +2643,15 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(atomicActions.get(7).getNewValue());
     assertEquals("relationships", atomicActions.get(7).getField());
 
-    // Verify the log entry exists
+    // Verify the log entries exists
     logEntry = projectService.getLog(project.getId(), originatingC.getId(), 1,
         authToken);
-    assertTrue(logEntry.contains("SPLIT concept " + concept.getId()
-        + " into concept " + ma.getComponentId2()));
+    assertTrue(logEntry.contains("SPLIT from concept " + originatingC.getId()
+        + " into concept " + createdC.getId()));
+    logEntry =
+        projectService.getLog(project.getId(), createdC.getId(), 1, authToken);
+    assertTrue(logEntry.contains("SPLIT into concept " + createdC.getId()
+        + " from concept " + originatingC.getId()));
 
   }
 
@@ -5103,7 +5262,7 @@ public class MetaEditingServiceRestNormalUseTest
   @After
   public void teardown() throws Exception {
 
-    // Copy existing concept to avoid messing with actual database data.
+    // Delete copies of concepts created during this test
     if (concept != null && contentService.getConcept(concept.getId(),
         project.getId(), authToken) != null) {
       IntegrationTestClientRest testService =

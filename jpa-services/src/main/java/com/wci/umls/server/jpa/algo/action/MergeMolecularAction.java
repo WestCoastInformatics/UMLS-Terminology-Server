@@ -115,10 +115,10 @@ public class MergeMolecularAction extends AbstractMolecularAction {
               + getToConcept().getTerminology());
     }
 
-    // Check preconditions
+    // Check superclass validation
     validationResult.merge(super.checkPreconditions());
-
     return validationResult;
+    
   }
 
   /**
@@ -361,7 +361,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     removeConcept(getFromConcept().getId());
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
+    addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " concept " + getFromConcept().getId() + " into concept "
             + getToConcept().getId());

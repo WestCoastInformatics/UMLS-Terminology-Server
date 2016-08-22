@@ -75,6 +75,8 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
       throw new LocalException("Atom to remove does not exist");
     }
 
+    // Check preconditions
+    validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
 

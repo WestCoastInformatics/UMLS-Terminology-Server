@@ -79,6 +79,7 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
       }
     }
 
+    validationResult.merge(super.checkPreconditions()); 
     return validationResult;
   }
 

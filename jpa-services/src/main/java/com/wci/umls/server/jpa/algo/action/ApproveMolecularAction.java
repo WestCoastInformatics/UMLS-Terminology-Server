@@ -66,8 +66,8 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     // Metadata referential integrity checking
 
     // Check preconditions
-    this.validateConcept(getProject(), getConcept());
-
+    validationResult.merge(super.checkPreconditions());
+    validationResult.merge(validateConcept(this.getProject(), this.getConcept()));
     return validationResult;
   }
 
