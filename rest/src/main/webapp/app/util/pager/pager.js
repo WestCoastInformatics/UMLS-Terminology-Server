@@ -14,4 +14,3 @@ tsApp.directive('pager', [ function() {
     }
   };
 } ]);
-  

@@ -369,5 +369,30 @@
       </build>
     </profile>
 
+    <!-- Generate NCI Metathesaurus data, specify -Drun.config=... -Dterminology=... -->
+    <profile>
+      <id>GenerateNciMetaData</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>generate-nci-meta-data</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>generate-sample-data</goal>
+                </goals>
+                <configuration>
+                  <mode>${mode}</mode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>

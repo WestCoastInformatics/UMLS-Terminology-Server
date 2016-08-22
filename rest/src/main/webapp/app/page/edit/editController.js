@@ -164,7 +164,6 @@ tsApp
 
         // Set worklist mode
         $scope.setWorklistMode = function(mode) {
-          console.debug('SET WORKLIST MODE');
           $scope.selected.worklistMode = mode;
           $scope.getWorklists();
         }
@@ -175,7 +174,6 @@ tsApp
           getWorklists(worklist);
         }
         function getWorklists(worklist) {
-          console.debug('WORKLIST MODE', $scope.selected.worklistMode);
           $scope.clearLists();
           if ($scope.selected.worklistMode == 'Available') {
             $scope.getAvailableWorklists();
@@ -224,7 +222,6 @@ tsApp
 
         // Get assigned worklists with project and type
         $scope.getAssignedWorklists = function() {
-          console.debug('getAssignedWorklists');
           var paging = $scope.paging['worklists'];
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
@@ -322,7 +319,6 @@ tsApp
 
         // Reset paging
         $scope.resetPaging = function() {
-          console.debug("RESET PAGING");
           $scope.paging['worklists'].page = 1;
           $scope.paging['worklists'].filter = null;
           $scope.paging['records'].page = 1;
@@ -625,7 +621,10 @@ tsApp
         $scope.clearLists = function() {
           $scope.lists.records = [];
           $scope.lists.concepts = [];
-          $scope.lists.worklists = [];
+          // This gets automatically overwritten by whatever is calling
+          // clearLists
+          // and setting it here interferes with paging
+          // $scope.lists.worklists = [];
         }
 
         // Convert time to a string

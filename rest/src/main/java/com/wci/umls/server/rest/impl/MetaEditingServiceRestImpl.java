@@ -118,9 +118,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           authorizeProject(action, projectId, securityService, authToken,
               "adding a semantic type", UserRole.AUTHOR);
 
-      
-
-      
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
@@ -136,7 +133,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // TODO: don't hardcode latest
       sty.setVersion("latest");
       sty.setTimestamp(new Date());
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -170,6 +167,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "adding a semantic type");
       return null;
     } finally {
@@ -244,6 +246,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "removing a semantic type");
       return null;
     } finally {
@@ -316,6 +323,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
 
       handleException(e, "adding an attribute");
       return null;
@@ -390,6 +402,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "removing an attribute");
       return null;
     } finally {
@@ -461,7 +478,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "adding an atom");
       return null;
     } finally {
@@ -534,7 +555,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "removing an atom");
       return null;
     } finally {
@@ -605,7 +630,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "updating an atom");
       return null;
     } finally {
@@ -680,7 +709,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "adding a relationship");
       return null;
     } finally {
@@ -760,10 +793,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       return validationResult;
 
-    } catch (
-
-    Exception e) {
-      action.rollback();
+    } catch (Exception e) {
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "removing a relationship");
       return null;
     } finally {
@@ -856,7 +891,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "merging concepts");
       return null;
     } finally {
@@ -947,7 +986,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "moving atoms");
       return null;
     } finally {
@@ -1043,7 +1086,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "splitting concept");
       return null;
     } finally {
@@ -1114,7 +1161,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "approving concept");
       return null;
     } finally {
@@ -1210,7 +1261,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "undoing action");
       return null;
     } finally {
@@ -1306,7 +1361,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       return validationResult;
 
     } catch (Exception e) {
-      action.rollback();
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
       handleException(e, "undoing action");
       return null;
     } finally {

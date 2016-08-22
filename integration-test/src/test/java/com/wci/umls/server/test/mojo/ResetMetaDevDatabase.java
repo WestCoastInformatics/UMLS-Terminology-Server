@@ -55,6 +55,7 @@ public class ResetMetaDevDatabase {
    * Start an editing cycle for "UMLS"
    * stop here and the db is ready to use
    * </pre>
+   * 
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
@@ -87,7 +88,7 @@ public class ResetMetaDevDatabase {
     // Generate Sample Data
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
-    request.setProfiles(Arrays.asList("GenerateSampleData"));
+    request.setProfiles(Arrays.asList("GenerateNciMetaData"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));

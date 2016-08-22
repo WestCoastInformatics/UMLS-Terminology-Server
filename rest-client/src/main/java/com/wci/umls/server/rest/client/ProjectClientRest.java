@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response.Status.Family;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProjectList;
@@ -175,13 +176,15 @@ public class ProjectClientRest extends RootClientRest
   /* see superclass */
   @Override
   public Project assignUserToProject(Long projectId, String userName,
-    String role, String authToken) throws Exception {
+    UserRole role, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Project Client - assign user to project " + projectId + ", "
             + userName + ", " + role);
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(userName, "userName");
-    validateNotEmpty(role, "role");
+    if (role == null) {
+      throw new Exception("Role must be set.");
+    }
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client
@@ -466,8 +469,7 @@ public class ProjectClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/project/actions/molecular?terminology=" + terminology + "&version="
-        + version
-        + (componentId == null ? "" : "&componentId=" + componentId)
+        + version + (componentId == null ? "" : "&componentId=" + componentId)
         + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility
