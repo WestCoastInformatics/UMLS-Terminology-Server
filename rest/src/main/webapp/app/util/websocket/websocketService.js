@@ -1,15 +1,32 @@
 // Websocket service
-tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilService', 'gpService',
-  function($rootScope, $location, $http, utilService, gpService) {
+tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilService',
+  function($rootScope, $location, $http, utilService) {
     console.debug('configure websocketService');
-
-    // Scope vars
-    $scope.user = securityService.getUser();
 
     // Data model
     this.data = {
       message : null
     };
+
+    // Track events to ignore
+    var ignoreConcepts = {};
+
+    // Increment an ignore counter for this concept
+    this.incrementConceptIgnore = function(conceptId) {
+      if (!ignoreConcepts[conceptId]) {
+        ignoreConcepts[conceptId] = 1;
+      } else {
+        ignoreConcepts[conceptId]++;
+      }
+    }
+
+    // Internal function
+    function decrementConceptIgnore(conceptId) {
+      ignoreConcepts[conceptId]--;
+      if (!ignoreConcepts[conceptId]) {
+        delete ignoreConcepts[conceptId];
+      }
+    }
 
     // Determine URL without requiring injection
     // should support wss for https
@@ -23,40 +40,25 @@ tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilSer
       url = url + "/websocket";
       console.debug("Websocket URL" + url);
       return url;
-
     };
 
     // TODO Add wiki entry about registering scopes and broadcast event receipt
     // lists
-
     this.connection = new WebSocket(this.getUrl());
 
     this.connection.onopen = function() {
       // Log so we know it is happening
-      console.log('Connection open');
+      console.debug('Connection open');
     };
 
     this.connection.onclose = function() {
       // Log so we know it is happening
-      console.log('Connection closed');
+      console.debug('Connection closed');
     };
 
     // error handler
     this.connection.onerror = function(error) {
       utilService.handleError(error, null, null, null);
-    };
-
-    // handle receipt of a message
-    this.connection.onmessage = function(e) {
-      console.debug("ONMESSAGE", e);
-      var message = e.data;
-
-      // Need to determine what kind of message it was.
-      // First, if it's a "change event", then we can determine what changed
-      // and whether to fire "concept changed" or "atom changed"
-
-      console.log('MESSAGE=', message);
-
     };
 
     // Send a message to the websocket server endpoint
@@ -77,26 +79,43 @@ tsApp.service('websocketService', [ '$rootScope', '$location', '$http', 'utilSer
       $rootScope.$broadcast('termServer::favoriteChange', data);
     };
 
-    this.fireConceptChange = function(event) {
-      // If not admin user, only send when session id matches
-      if ($scope.user.applicationRole != 'ADMINISTRATOR') {
-        if (event.sessionId !== $http.defaults.headers.common.Authorization) {
-          // bail
-          return;
-        }
-      }
-      $rootScope.$broadcast('termServer::conceptChange', event.data);
-    };
+    // Must be a local function to be accessed via the onmessage event
+    function fireConceptChange(data) {
+      $rootScope.$broadcast('termServer::conceptChange', data);
+    }
 
-    this.fireAtomChange = function(event) {
-      // If not admin user, only send when session id matches
-      if ($scope.user.applicationRole != 'ADMINISTRATOR') {
+    // Must be a local function to be accessed via the onmessage event
+    function fireAtomChange(event) {
+      $rootScope.$broadcast('termServer::atomChange', data);
+    }
+
+    // handle receipt of a message
+    this.connection.onmessage = function(event) {
+      var message = event.data;
+
+      // Need to determine what kind of message it was.
+      // First, if it's a "change event", then we can determine what changed
+      // and whether to fire "concept changed" or "atom changed"
+
+      var object = JSON.parse(message);
+
+      // Handle changes involving concepts
+      if (object.container && object.container.type == 'CONCEPT') {
+        // Only report if from this session
+        // TODO: make this configurable (by role?)
         if (event.sessionId !== $http.defaults.headers.common.Authorization) {
-          // bail
-          return;
+
+          // Handle ignore counter
+          if (ignoreConcepts[object.container.id]) {
+            decrementConceptIgnore(object.container.id);
+          }
+          // fire event
+          else {
+            fireConceptChange(object.container);
+          }
         }
       }
-      $rootScope.$broadcast('termServer::atomChange', event.data);
+
     };
 
   } ]);

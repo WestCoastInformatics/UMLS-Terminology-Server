@@ -23,7 +23,6 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 
 /**
@@ -48,11 +47,11 @@ public class MetaEditingClientRest extends RootClientRest
   @Override
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
     String activityId, Long lastModified,
-    SemanticTypeComponentJpa semanticTypeComponent, boolean overrideWarnings,
+    String semanticType, boolean overrideWarnings,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add semantic type to concept" + projectId
-            + ", " + conceptId + ", " + semanticTypeComponent.toString() + ", "
+            + ", " + conceptId + ", " + semanticType.toString() + ", "
             + lastModified + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
@@ -63,14 +62,13 @@ public class MetaEditingClientRest extends RootClientRest
         + "/meta/sty/add?projectId=" + projectId + "&conceptId=" + conceptId
         + (activityId == null ? "" : "&activityId=" + activityId)
         + "&lastModified=" + lastModified
+        + "&semanticType=" + semanticType
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    final String styString =
-        ConfigUtility.getJsonForGraph(semanticTypeComponent == null
-            ? new SemanticTypeComponentJpa() : semanticTypeComponent);
+    
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(styString));
+        .header("Authorization", authToken).post(null);
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {

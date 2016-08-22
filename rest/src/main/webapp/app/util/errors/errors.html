@@ -1,0 +1,36 @@
+
+<!-- Errors -->
+<div class="col-md-12 col-xs-12">
+  <div
+    ng-show="errors.length == 1 || (errors.length == 2 && errors[1].length>100)"
+    class="alert alert-danger alert-error">
+    {{errors[0]}}
+    <div style="display: inline; float: right;">
+      <i ng-show="errors[1]"
+        title="{{error.expand ? 'Show' : 'Hide'}} long eror"
+        class="noul glyphicon glyphicon-paperclip"
+        ng-click="error.expand = !error.expand;"></i>
+    </div>
+    <p ng-show="errors[1] && error.expand">
+      <br />{{errors[1]}}
+    </p>
+  </div>
+  <div
+    ng-show="errors.length > 2 || (errors.length == 2 && errors[1].length<101)"
+    class="alert alert-danger alert-error" ng-repeat="error in errors">
+    {{error}}</div>
+  <!-- Warnings -->
+  <div class="alert alert-warning" ng-repeat="warning in warnings">
+    {{warning}}
+    <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+    </div>
+  </div>
+
+  <!-- Warnings -->
+  <div class="alert alert-warning" ng-repeat="warning in warnings">
+    {{warning}}
+    <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+    </div>
+  </div>
+</div>
+</div>

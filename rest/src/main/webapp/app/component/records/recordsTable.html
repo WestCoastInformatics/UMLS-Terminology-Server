@@ -25,8 +25,8 @@
     </thead>
     <tbody ng-repeat="record in lists.records">
       <tr>
-        <td rowspan="3">{{record.clusterId}}</td>
-        <td rowspan="3">
+        <td rowspan="{{record.concepts.length+1}}">{{record.clusterId}}</td>
+        <td rowspan="{{record.concepts.length+1}}">
           <button class="btn btn-xs btn-danger"
             ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
             uib-tooltip="Needs review">N</button>

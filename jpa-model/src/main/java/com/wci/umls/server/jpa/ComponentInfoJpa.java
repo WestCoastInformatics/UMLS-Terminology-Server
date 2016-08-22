@@ -71,6 +71,7 @@ public class ComponentInfoJpa implements ComponentInfo {
   public ComponentInfoJpa(ComponentInfo componentInfo) throws Exception {
     super();
 
+    this.id = componentInfo.getId();
     this.terminology = componentInfo.getTerminology();
     this.terminologyId = componentInfo.getTerminologyId();
     this.version = componentInfo.getVersion();

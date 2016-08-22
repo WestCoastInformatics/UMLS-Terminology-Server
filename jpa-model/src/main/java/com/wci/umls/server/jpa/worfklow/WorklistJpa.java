@@ -17,6 +17,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -25,6 +26,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -33,6 +35,7 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.jpa.helpers.MaxStateHistoryBridge;
+import com.wci.umls.server.jpa.helpers.MinValueBridge;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 
@@ -91,6 +94,14 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @OneToMany(mappedBy = "worklist", targetEntity = WorklistNoteJpa.class)
   @IndexedEmbedded(targetElement = WorklistNoteJpa.class)
   private List<Note> notes = new ArrayList<>();
+
+  /** The author available. */
+  @Transient
+  private boolean authorAvailable;
+
+  /** The reviewer available. */
+  @Transient
+  private boolean reviewerAvailable;
 
   /**
    * Instantiates an empty {@link WorklistJpa}.
@@ -158,7 +169,10 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   }
 
   /* see superclass */
-  @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Fields({
+      @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(name = "authorsSort", bridge = @FieldBridge(impl = MinValueBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
   @Override
   public List<String> getAuthors() {
     if (authors == null) {
@@ -190,7 +204,10 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   }
 
   /* see superclass */
-  @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Fields({
+      @Field(bridge = @FieldBridge(impl = CollectionToCsvBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(name = "reviewersSort", bridge = @FieldBridge(impl = MinValueBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
   @Override
   public List<String> getReviewers() {
     if (reviewers == null) {
@@ -259,6 +276,27 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Override
   public void setNotes(List<Note> notes) {
     this.notes = notes;
+  }
+
+  @Override
+  public boolean isAuthorAvailable() {
+    return authorAvailable;
+  }
+
+  @Override
+  public void setIsAuthorAvailable(boolean authorAvailable) {
+    this.authorAvailable = authorAvailable;
+  }
+
+  @Override
+  public boolean isReviewerAvailable() {
+    return reviewerAvailable;
+  }
+
+  /* see superclass */
+  @Override
+  public void setIsReviewerAvailable(boolean reviewerAvailable) {
+    this.reviewerAvailable = reviewerAvailable;
   }
 
   /* see superclass */

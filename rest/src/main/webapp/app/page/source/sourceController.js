@@ -9,7 +9,6 @@ tsApp
       // Set up tabs and controller
       tabService.setShowing(true);
       utilService.clearError();
-      tabService.setSelectedTabByLabel('Source');
       $scope.user = securityService.getUser();
       projectService.getUserHasAnyRole();
 

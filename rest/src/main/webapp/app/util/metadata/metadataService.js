@@ -262,6 +262,25 @@ tsApp.service('metadataService', [
       return deferred.promise;
     };
 
+    this.getSemanticTypes = function(terminology, version) {
+      var deferred = $q.defer();
+     
+      gpService.increment();
+      $http.get(
+        metadataUrl + '/sty/' + terminology + '/' + version)
+        .then(function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        }, function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      
+      return deferred.promise;
+    };
+
+    
     // get relationship type name from its abbreviation
     this.getRelationshipTypeName = function(abbr) {
       for (var i = 0; i < metadata.relationshipTypes.length; i++) {

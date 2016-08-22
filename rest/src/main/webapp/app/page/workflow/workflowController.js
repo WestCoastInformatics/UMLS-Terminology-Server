@@ -3,28 +3,25 @@ tsApp.controller('WorkflowCtrl', [
   '$scope',
   '$http',
   '$location',
-  'gpService',
+  '$uibModal',
   'utilService',
+  'websocketService',
   'tabService',
   'configureService',
   'securityService',
   'workflowService',
-  'utilService',
-  'configureService',
   'projectService',
   'reportService',
-  '$uibModal',
-  function($scope, $http, $location, gpService, utilService, tabService, configureService,
-    securityService, workflowService, utilService, configureService, projectService, reportService,
-    $uibModal) {
+  function($scope, $http, $location, $uibModal, utilService, websocketService, tabService,
+    configureService, securityService, workflowService, projectService, reportService) {
     console.debug("configure WorkflowCtrl");
 
     // Set up tabs and controller
     tabService.setShowing(true);
     utilService.clearError();
-    tabService.setSelectedTabByLabel('Workflow');
     $scope.user = securityService.getUser();
     projectService.getUserHasAnyRole();
+    tabService.setSelectedTabByLabel('Workflow');
 
     // Selected variables
     $scope.selected = {
@@ -42,8 +39,8 @@ tsApp.controller('WorkflowCtrl', [
       configs : [],
       projects : [],
       projectRoles : [],
-      recordTypes : workflowService.getRecordTypes(),
-      configTypes : workflowService.getConfigTypes()
+      queryTypes : [],
+      recordTypes : workflowService.getRecordTypes()
     }
 
     // Paging parameters
@@ -125,7 +122,7 @@ tsApp.controller('WorkflowCtrl', [
       workflowService.getWorkflowConfigs($scope.selected.project.id).then(
       // Success
       function(data) {
-        $scope.lists.configs = data.configs;
+        $scope.lists.configs = data.configs.sort(utilService.sortBy('type'));
         $scope.setConfig($scope.lists.configs[0]);
       });
     };
@@ -258,10 +255,16 @@ tsApp.controller('WorkflowCtrl', [
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/addChecklist.html',
         backdrop : 'static',
-        controller : CreateChecklistModalCtrl,
+        controller : 'ChecklistModalCtrl',
         resolve : {
-          projectId : function() {
-            return $scope.selected.project.id;
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
           },
           bin : function() {
             return bin;
@@ -269,13 +272,15 @@ tsApp.controller('WorkflowCtrl', [
           clusterType : function() {
             return clusterType;
           }
+
         }
       });
 
       modalInstance.result.then(
       // Success
-      function(project) {
-
+      function(checklist) {
+        // Reload projects
+        $scope.setProject($scope.selected.project);
       });
     };
 
@@ -286,16 +291,19 @@ tsApp.controller('WorkflowCtrl', [
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/addWorklist.html',
         backdrop : 'static',
-        controller : CreateWorklistModalCtrl,
+        controller : 'WorklistModalCtrl',
         resolve : {
-          projectId : function() {
-            return $scope.selected.project.id;
+          selected : function() {
+            return $scope.selected;
           },
-          bin : function() {
-            return bin;
+          lists : function() {
+            return $scope.lists;
           },
           user : function() {
             return $scope.user;
+          },
+          bin : function() {
+            return bin;
           },
           clusterType : function() {
             return clusterType;
@@ -315,7 +323,6 @@ tsApp.controller('WorkflowCtrl', [
 
     // Add config modal
     $scope.openAddConfigModal = function() {
-      console.debug('Open add config modal');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editConfig.html',
@@ -348,7 +355,6 @@ tsApp.controller('WorkflowCtrl', [
 
     // Edit config modal
     $scope.openEditConfigModal = function() {
-      console.debug('Open edit config modal');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editConfig.html',
@@ -380,30 +386,23 @@ tsApp.controller('WorkflowCtrl', [
     };
     // Edit bin modal
     $scope.openEditBinModal = function(lbin) {
-      console.debug('openEditBinModal ');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editBin.html',
-        controller : EditBinModalCtrl,
+        controller : 'BinModalCtrl',
         backdrop : 'static',
         resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
           bin : function() {
             return lbin;
-          },
-          workflowConfig : function() {
-            return $scope.selected.config;
-          },
-          bins : function() {
-            return $scope.lists.bins;
-          },
-          config : function() {
-            return $scope.selected.config;
-          },
-          project : function() {
-            return $scope.selected.project;
-          },
-          projects : function() {
-            return $scope.lists.projects;
           },
           action : function() {
             return 'Edit';
@@ -420,30 +419,23 @@ tsApp.controller('WorkflowCtrl', [
 
     // Clone bin modal
     $scope.openCloneBinModal = function(lbin) {
-      console.debug('openCloneBinModal ');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editBin.html',
-        controller : EditBinModalCtrl,
+        controller : 'BinModalCtrl',
         backdrop : 'static',
         resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
           bin : function() {
             return lbin;
-          },
-          workflowConfig : function() {
-            return $scope.selected.config;
-          },
-          bins : function() {
-            return $scope.lists.bins;
-          },
-          config : function() {
-            return $scope.selected.config;
-          },
-          project : function() {
-            return $scope.selected.project;
-          },
-          projects : function() {
-            return $scope.lists.projects;
           },
           action : function() {
             return 'Clone';
@@ -460,30 +452,23 @@ tsApp.controller('WorkflowCtrl', [
 
     // Add bin modal
     $scope.openAddBinModal = function(lbin) {
-      console.debug('openAddBinModal ');
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/editBin.html',
-        controller : EditBinModalCtrl,
+        controller : 'BinModalCtrl',
         backdrop : 'static',
         resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
           bin : function() {
-            return undefined;
-          },
-          workflowConfig : function() {
-            return $scope.selected.config;
-          },
-          bins : function() {
-            return $scope.lists.bins;
-          },
-          config : function() {
-            return $scope.selected.config;
-          },
-          project : function() {
-            return $scope.selected.project;
-          },
-          projects : function() {
-            return $scope.lists.projects;
+            return lbin;
           },
           action : function() {
             return 'Add';
@@ -505,6 +490,10 @@ tsApp.controller('WorkflowCtrl', [
       // configure tab
       securityService.saveTab($scope.user.userPreferences, '/workflow');
       $scope.getProjects();
+      // Get query types
+      projectService.getQueryTypes().then(function(data) {
+        $scope.lists.queryTypes = data.strings;
+      });
     };
 
     //

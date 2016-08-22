@@ -47,6 +47,16 @@ public interface WorkflowActionHandler extends Configurable {
     PfsParameter pfs, WorkflowService service) throws Exception;
 
   /**
+   * Indicates whether or not available is the case.
+   *
+   * @param worklist the worklist
+   * @param role the role
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   * @throws Exception the exception
+   */
+  public boolean isAvailable(Worklist worklist, UserRole role) throws Exception;
+
+  /**
    * Validate workflow action.
    *
    * @param project the project

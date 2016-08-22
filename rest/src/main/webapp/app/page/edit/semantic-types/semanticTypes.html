@@ -1,0 +1,69 @@
+
+<h4>
+  <b>Semantic Type Editor</b>
+</h4>
+<h4 class="{{selected.concept.workflowStatus}}">{{selected.concept.name}}
+  {{selected.concept.id}}</h4>
+<table class="table">
+  <thead>
+    <tr>
+      <th class="col-md-11 col-xs-11">Semantic Type</th>
+      <th class="col-md-1 col-xs-1"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="semanticType in selected.concept.semanticTypes">
+      <td class="{{semanticType.workflowStatus}}">{{semanticType.semanticType}}</td>
+      <td>
+        <i ng-click="removeSemanticTypeFromConcept(semanticType); "
+          title="Remove Semantic Type" class="noul glyphicon glyphicon-trash"></i>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<span style="float: right;">
+  <button confirm="Are you sure you want to approve the selected concept?"
+    ng-click="approveConcept()" title="Approve" class="btn btn-xs btn-primary">Approve</button>
+  <button confirm="Are you sure you want to approve the selected concept?"
+    ng-click="approveNext()" title="Approve/Next" class="btn btn-xs btn-primary">Approve/Next</button>
+</span>
+</br>
+<br>
+<span style="display: block;">
+  <uib-pagination items-per-page="pageSize" max-size="5" boundary-links="true"
+    class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;"
+    first-text="&laquo;" last-text="&raquo;"
+    ng-show="pagedStys.totalCount > pageSize || paging['stys'].filter"
+    total-items="pagedStys.totalCount" ng-model="paging['stys'].page"
+    ng-change="getPagedStys()"></uib-pagination>
+  <input class="input-filter" placeholder="Search"
+    ng-show="pagedStys.totalCount > pageSize || paging['stys'].filter"
+    type="text" ng-model="paging['stys'].filter"
+    ng-model-options="{ debounce: 300 }" ng-change="getPagedStys()">
+  <button class="btn btn-xs btn-warning" ng-show="paging['stys'].filter"
+    ng-click="paging['stys'].filter = ''; getPagedStys()"
+    title="Click to clear filter text">Clear</button>
+</span>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th class="col-md-2 col-xs-2">TUI</th>
+      <th class="col-md-2 col-xs-2">Tree #</th>
+      <th class="col-md-7 col-xs-7">Semantic Type</th>
+      <th class="col-md-1 col-xs-1"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="semanticType in pagedStys.data">
+      <td>{{semanticType.typeId}}</td>
+      <td>{{semanticType.treeNumber}}</td>
+      <td>{{semanticType.expandedForm}}</td>
+      <td>
+        <i ng-click="addSemanticTypeToConcept(semanticType.expandedForm); "
+          title="Add Semantic Type" class="noul glyphicon glyphicon-plus"></i>
+      </td>
+    </tr>
+  </tbody>
+</table>

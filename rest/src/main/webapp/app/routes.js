@@ -14,7 +14,7 @@ tsApp.run([
   function configureRoutes($rootScope, $location, $q, configureService, securityService, appConfig,
     tabService) {
 
-    console.debug('Configuring routes', appConfig);
+    console.debug('Configuring routes');
 
     // Register
     var initNextPath;
@@ -179,6 +179,13 @@ tsApp.run([
               reloadOnSearch : false
             });
           }
+
+          console.debug('Route enabled: /edit/semantic-types');
+          $routeProviderReference.when('/edit/semantic-types', {
+            templateUrl : 'app/page/edit/semantic-types/semanticTypes.html',
+            controller : 'SemanticTypesCtrl',
+            reloadOnSearch : false
+          });
 
           //
           // Configurable routes

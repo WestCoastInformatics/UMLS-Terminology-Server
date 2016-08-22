@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,7 +27,6 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
@@ -37,7 +34,6 @@ import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.ClusterTypeStats;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowBin;
-import com.wci.umls.server.model.workflow.WorkflowBinType;
 
 /**
  * JAXB and JPA enabled implementation of a {@link WorkflowBin}.
@@ -90,10 +86,12 @@ public class WorkflowBinJpa implements WorkflowBin {
   @Column(nullable = false)
   private String version;
 
-  /** The type. */
-  @Enumerated(EnumType.STRING)
+  /**
+   * The type - just a String now to keep it more flexible, the enum was too
+   * binding.
+   */
   @Column(nullable = false)
-  private WorkflowBinType type = WorkflowBinType.MUTUALLY_EXCLUSIVE;
+  private String type = "MUTUALLY_EXCLUSIVE";
 
   /** The rank. */
   @Column(nullable = false)
@@ -245,15 +243,15 @@ public class WorkflowBinJpa implements WorkflowBin {
   }
 
   /* see superclass */
-  @Field(bridge = @FieldBridge(impl = EnumBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
-  public WorkflowBinType getType() {
+  public String getType() {
     return type;
   }
 
   /* see superclass */
   @Override
-  public void setType(WorkflowBinType type) {
+  public void setType(String type) {
     this.type = type;
   }
 
@@ -498,7 +496,10 @@ public class WorkflowBinJpa implements WorkflowBin {
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
       return false;
-    if (type != other.type)
+    if (type == null) {
+      if (other.type != null)
+        return false;
+    } else if (!type.equals(other.type))
       return false;
     if (version == null) {
       if (other.version != null)

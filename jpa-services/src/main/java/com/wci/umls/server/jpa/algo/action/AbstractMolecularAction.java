@@ -295,15 +295,18 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       throw new Exception("Project and concept terminologies do not match");
     }
 
-    // Concept freshness check
-    // DOES NOT APPLY to undo/redo actions, so if "lastModified" is null, skip
-    // this
+    // Concept freshness check - either concept mus match
+    // because the user picks one that may not wind up being "concept"
+    // TODO: probably both should match
     if (lastModified != null
-        && concept.getLastModified().getTime() != lastModified.longValue()) {
+        && concept.getLastModified().getTime() != lastModified.longValue()
+        && concept2.getLastModified().getTime() != lastModified.longValue()) {
       // unlock concepts and fail
       rollback();
       throw new LocalException(
-          "Concept has changed since last read, please refresh and try again");
+          "Concept has changed since last read, please refresh and try again ("
+              + lastModified + ", " + concept.getLastModified().getTime() + ", "
+              + concept2.getLastModified().getTime());
     }
   }
 

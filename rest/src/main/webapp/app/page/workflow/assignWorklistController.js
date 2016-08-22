@@ -1,103 +1,104 @@
 // Assign worklist controller
-var AssignWorklistModalCtrl = function($scope, $uibModalInstance, $sce, workflowService, utilService, securityService, worklist, action,
-  currentUser, project) {
-  console.debug('Entered assign worklist modal control', worklist.id, action, currentUser, project.id);
-  $scope.worklist = worklist;
-  $scope.action = action;
-  $scope.project = project;
-  $scope.prospectiveUsers = Object.keys(project.userRoleMap);
-  $scope.assignedUsers = [];
-  $scope.allUsers = [];
-  $scope.user = currentUser;
-  $scope.note;
-  $scope.errors = [];
+tsApp.controller('AssignWorklistModalCtrl', [
+  '$scope',
+  '$uibModalInstance',
+  'utilService',
+  'securityService',
+  'workflowService',
+  'selected',
+  'lists',
+  'user',
+  'worklist',
+  'action',
+  function($scope, $uibModalInstance, utilService, securityService, workflowService, selected,
+    lists, user, worklist, action) {
+    console.debug("configure AssignWorklistModalCtrl", worklist, action, user);
 
-  
-    securityService.getUsers().then(
-    // Success
-    function(data) {
-      $scope.allUsers = data.users;
-      // if project.isTeamBased(), then restrict list to users with a team matching 
-      // the worklist 
-      if ($scope.project.teamBased) {
-        for (var i = 0; i < $scope.allUsers.length; i++) {
-          if ($scope.allUsers[i].team == $scope.worklist.team && 
-              $scope.prospectiveUsers.indexOf($scope.allUsers[i].userName)) {
-            $scope.assignedUsers.push($scope.allUsers[i]);
-          }
-        }
-      } else {
-        for (var i = 0; i < $scope.allUsers.length; i++) {
-          if ($scope.prospectiveUsers.indexOf($scope.allUsers[i].userName)) {
-            $scope.assignedUsers.push($scope.allUsers[i]);
-          }
-        }
+    // Scope vars
+    $scope.selected = selected;
+    $scope.worklist = worklist;
+    $scope.action = action;
+    $scope.project = selected.project;
+    $scope.role = worklist.authorAvailable ? 'AUTHOR' : 'REVIEWER';
+    $scope.user = [];
+    $scope.users = [];
+    $scope.note = null;
+    $scope.errors = [];
+    $scope.tinymceOptions = utilService.tinymceOptions;
+
+    // Handle team based projects
+    for (var i = 0; i < lists.users.length; i++) {
+      // If using team base, skip users not in team
+      if ($scope.project.teamBased && $scope.worklist.team
+        && lists.users[i].team != $scope.worklist.team) {
+        continue;
       }
-      $scope.assignedUsers = $scope.assignedUsers.sort(utilService.sort_by('userName'));
-    },
-    // Error
-    function(data) {
-      handleError($scope.errors, data);
-    });
-  
 
-  // Assign (or reassign)
-  $scope.assignWorklist = function() {
-    if (!$scope.user) {
-      $scope.errors[0] = 'The user must be selected. ';
-      return;
+      // If assigning to author, all users have a role and so are good
+      else if ($scope.role == 'AUTHOR') {
+        $scope.users.push(lists.users[i]);
+      }
+
+      // If assigning to a reviewer, ensure a role of > author on the project
+      else if ($scope.role == 'REVIEWER' && $scope.project.userRoleMap[user.userName]
+        && $scope.project.userRoleMap[user.userName] != 'AUTHOR') {
+        $scope.users.push(lists.users[i]);
+      }
     }
 
-    if (action == 'ASSIGN') {
-      workflowService.performWorkflowAction($scope.project.id, worklist.id, $scope.user.userName,
-        $scope.project.userRoleMap[$scope.user.userName], 'ASSIGN').then(
-      // Success
-      function(data) {
-
-        // Add a note as well
-        if ($scope.note) {
-          workflowService.addWorklistNote($scope.project.id, worklist.id, $scope.note).then(
-          // Success
-          function(data) {
-            $uibModalInstance.close(worklist);
-          },
-          // Error
-          function(data) {
-            handleError($scope.errors, data);
-          });
-        }
-        
-        // If user has a team, update worklist
-        securityService.getUserByName($scope.user).then(
-
-          // Success
-          function(data) {
-            $scope.user = data;
-            if ($scope.user.team) {
-              worklist.team = $scope.user.team;
-            }
-            $uibModalInstance.close(worklist);
-          },
-          // Error
-          function(data) {
-            handleError($scope.errors, data);
-          });
-        
-
-
-      },
-      // Error
-      function(data) {
-        //handleError($scope.errors, data);
-        $uibModalInstance.close();
-      });
+    // Choose the same user object
+    for (var i = 0; i < $scope.users.length; i++) {
+      if ($scope.users[i].userName == user.userName) {
+        $scope.user = $scope.users[i];
+        break;
+      }
     }
 
-  }
+    $scope.users = $scope.users.sort(utilService.sortBy('userName'));
 
-  // Dismiss modal
-  $scope.cancel = function() {
-    $uibModalInstance.dismiss('cancel');
-  };
+    // Assign (or reassign)
+    $scope.assignWorklist = function() {
+      if (!$scope.user) {
+        $scope.errors[0] = 'The user must be selected. ';
+        return;
+      }
 
-};
+      if (action == 'ASSIGN') {
+
+        // The role to use depends on the assignability of the worklist.
+        // If "new", it's author, otherwise it's reviewer
+
+        workflowService.performWorkflowAction($scope.project.id, worklist.id, $scope.user.userName,
+          $scope.role, 'ASSIGN').then(
+        // Success
+        function(data) {
+
+          // Add a note as well
+          if ($scope.note) {
+            workflowService.addWorklistNote($scope.project.id, worklist.id, $scope.note).then(
+            // Success
+            function(data) {
+              $uibModalInstance.close(worklist);
+            },
+            // Error
+            function(data) {
+              utilService.handleDialogError(errors, data);
+            });
+          }
+
+        },
+        // Error
+        function(data) {
+          $uibModalInstance.close();
+        });
+      }
+
+    }
+
+    // Dismiss modal
+    $scope.cancel = function() {
+      $uibModalInstance.dismiss('cancel');
+    };
+
+    // end
+  } ]);

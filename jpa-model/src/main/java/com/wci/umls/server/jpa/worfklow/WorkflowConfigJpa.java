@@ -9,8 +9,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,13 +30,11 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 
 /**
@@ -72,10 +68,12 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
 
-  /** The type. */
-  @Enumerated(EnumType.STRING)
+  /**
+   * The type - just a String now to keep it more flexible, the enum was too
+   * binding.
+   */
   @Column(nullable = false)
-  private WorkflowBinType type;
+  private String type;
 
   /** The mutually exclusive. */
   @Column(nullable = false)
@@ -189,15 +187,14 @@ public class WorkflowConfigJpa implements WorkflowConfig {
 
   /* see superclass */
   @Override
-  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public WorkflowBinType getType() {
+  public String getType() {
     return type;
   }
 
   /* see superclass */
   @Override
-  public void setType(WorkflowBinType type) {
+  public void setType(String type) {
     this.type = type;
   }
 
@@ -292,7 +289,10 @@ public class WorkflowConfigJpa implements WorkflowConfig {
         return false;
     } else if (!project.equals(other.project))
       return false;
-    if (type != other.type)
+    if (type == null) {
+      if (other.type != null)
+        return false;
+    } else if (!type.equals(other.type))
       return false;
     if (workflowBinDefinitions == null) {
       if (other.workflowBinDefinitions != null)

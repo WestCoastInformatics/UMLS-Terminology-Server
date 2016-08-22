@@ -1,24 +1,25 @@
 // Content controller
-tsApp.directive('tsHeader', [ '$rootScope', '$routeParams', 'securityService', '$location', 'appConfig',
-  function($rootScope, $routeParams, securityService, $location, appConfig) {
+tsApp.directive('tsHeader', [ '$rootScope', '$routeParams', 'securityService', 'utilService',
+  '$location', 'appConfig',
+  function($rootScope, $routeParams, securityService, utilService, $location, appConfig) {
     console.debug('configure header directive');
     return {
       restrict : 'A',
       scope : {},
       templateUrl : 'app/page/header/header.html',
       link : function(scope, element, attrs) {
-        
+
         // pass values to scope
         scope.appConfig = appConfig;
 
-        // TODO Move this to utilService, combine with getHeaderOffset for anchorScroll points
+        // TODO Move this to utilService, combine with getHeaderOffset for
+        // anchorScroll points
         // scope.isShowing = utilService.isHeaderShowing or some such
-        // use the window.innerWidth <= 800 to detect -xs 
+        // use the window.innerWidth <= 800 to detect -xs
         scope.isShowing = function() {
-          switch ($routeParams.mode) {
-          case 'simple':
+          if (!utilService.isHeaderFooterShowing()) {
             return false;
-          default:
+          } else {
             return true;
           }
         };

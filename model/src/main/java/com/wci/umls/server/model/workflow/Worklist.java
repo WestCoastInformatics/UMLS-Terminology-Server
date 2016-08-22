@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.workflow;
 
@@ -140,5 +140,33 @@ public interface Worklist extends Checklist, HasStats {
    * @return the number
    */
   public int getNumber();
+
+  /**
+   * Indicates whether or not author available is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isAuthorAvailable();
+
+  /**
+   * Sets the is author available.
+   *
+   * @param authorAvailable the is author available
+   */
+  public void setIsAuthorAvailable(boolean authorAvailable);
+
+  /**
+   * Indicates whether or not reviewer available is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isReviewerAvailable();
+
+  /**
+   * Sets the is reviewer available.
+   *
+   * @param reviewerAvailable the is reviewer available
+   */
+  public void setIsReviewerAvailable(boolean reviewerAvailable);
 
 }

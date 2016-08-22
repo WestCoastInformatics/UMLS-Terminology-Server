@@ -271,7 +271,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
       final PrecedenceList precedenceList =
           metadataService.getPrecedenceList(terminology, version);
       // Lazy initialize
-      precedenceList.getPrecedence().getKeyValuePairs().size();
+      if (precedenceList != null) {
+        precedenceList.getPrecedence().getKeyValuePairs().size();
+      }
       return precedenceList;
 
     } catch (Exception e) {

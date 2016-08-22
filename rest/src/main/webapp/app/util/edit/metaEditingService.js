@@ -123,8 +123,10 @@ tsApp
               + (activityId ? "&activityId=" + activityId : "")
               + '&lastModified='
               + concept.lastModified
+              + '&semanticType='
+              + encodeURIComponent(semanticType)
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
-                + overrideWarnings : ''), semanticType).then(
+                + overrideWarnings : ''), null).then(
           // success
           function(response) {
             console.debug('  validation = ', response.data);
@@ -174,7 +176,7 @@ tsApp
 
         // merge concepts
         this.mergeConcepts = function(projectId, activityId, concept1, concept2, overrideWarnings) {
-          console.debug('merge concepts');
+          console.debug('merge concepts', concept1.lastModified);
           var deferred = $q.defer();
 
           // Merge concepts

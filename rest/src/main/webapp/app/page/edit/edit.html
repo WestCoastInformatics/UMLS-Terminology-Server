@@ -14,8 +14,7 @@
         &nbsp;&nbsp;Role: <select ng-model="selected.projectRole"
           ng-show="lists.projectRoles.length > 1"
           ng-change="changeProjectRole()"
-          ng-options="projectRole for projectRole in lists.projectRoles"
-          ng-click="getWorklists()"></select>
+          ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
     </h5>
@@ -30,95 +29,83 @@
     <div>
       <ul class="pointer nav nav-tabs">
         <li ng-class="{active : selected.worklistMode == 'Available'}"><a
-            ng-click="selected.worklistMode='Available'; getWorklists()">Available</a></li>
+            ng-click="setWorklistMode('Available')">Available
+            ({{availableCt}})</a></li>
         <li ng-class="{active : selected.worklistMode == 'Assigned'}"><a
-            ng-click="selected.worklistMode='Assigned'; getWorklists()">Assigned</a></li>
+            ng-click="setWorklistMode('Assigned')">Assigned ({{assignedCt}})</a></li>
         <li ng-class="{active : selected.worklistMode == 'Checklists'}"><a
-            ng-click="selected.worklistMode='Checklists'; getWorklists()">Checklists</a></li>
+            ng-click="setWorklistMode('Checklists')">Checklists
+            ({{checklistCt}})</a></li>
       </ul>
     </div>
     <div></div>
 
-    <div pager paging="paging['worklists']" count="lists.worklists.totalCount"
-      callback="paging['worklists'].callback"></div>
+    <div pager paging="paging['worklists']" style="margin-top: 5px"
+      count="lists.worklists.totalCount" callback="paging['worklists'].callback"></div>
 
     <table ng-show="lists.worklists.totalCount > 0" class="table">
       <thead class="pointer">
         <tr>
-
-          <!-- Worklist name header -->
-          <th class="col-md-5 col-xs-5">Name / Last Modified</th>
-
-          <!-- Author/Reviewer Time header -->
-          <th ng-show="selected.worklistMode != 'Checklists'"
-            class="col-md-3 col-xs-3">Editor / <span title="Team">Team
-            </span> / <span title="Time">Time </span>
-          </th>
-
-          <!-- Workflow Status header -->
-          <th ng-show="selected.worklistMode != 'Checklists'"
-            class="col-md-2 col-xs-2">Status</th>
+          <th class="col-md-5 col-xs-5"><span
+              ng-click="setSortField('worklists','name')">
+              Name
+              <span ng-bind="getSortIndicator('worklists','name')"></span>
+            </span></th>
+          <th class="col-md-5 col-xs-5"><span
+              ng-click="setSortField('worklists','lastModified')">
+              Last Modified
+              <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
+            </span></th>
 
           <!-- Actions header -->
-          <th ng-show="selected.worklistMode != 'Checklists'"
-            class="col-md-2 col-xs-2">Actions</th>
-
+          <th class="col-md-2 col-xs-2"">Actions</th>
         </tr>
+
       </thead>
       <tbody>
         <tr ng-repeat="worklist in lists.worklists"
           ng-click="selectWorklist(worklist);"
           ng-class="{selected: worklist.id == selected.worklist.id}">
 
-          <td>
-            {{worklist.name}}
-            <span>
-              <br />{{toDate(worklist.lastModified)}}
-            </span>
-          </td>
+          <td>{{worklist.name}}</td>
+          <td>{{toDate(worklist.lastModified)}}</td>
 
-          <td ng-show="selected.worklistMode != 'Checklists'">
-            <span style="word-break: break-word;"
-              ng-show="selected.projectRole == 'AUTHOR'">
-              {{joinAuthors(worklist)}}</span>
-            <br />
-            <span style="word-break: break-word;"
-              ng-show="selected.projectRole == 'REVIEWER'">
-              {{joinReviewers(worklist)}}</span>
-            <br />
-            <span> {{worklist.team}} </span>
-            <br />
-            <span> {{toTime(worklist.authorTime)}} </span>
-          </td>
-
-          <td ng-show="selected.worklistMode != 'Checklists'">
-            {{worklist.workflowStatus}}</td>
+          <td ng-show="type == 'Worklist'">{{getWorkflowState(worklist)}}</td>
 
           <!--  actions -->
-          <td ng-show="selected.worklistMode != 'Checklists'">
+          <td class="nobreak">
 
-            <i
-              ng-show="selected.worklistMode != 'Checklists' && 
-                ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length == 0) ||
-                 (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length == 0))"
-              ng-click="assignWorklistToSelf(worklist); $event.stopPropagation()"
-              title="Claim" class="noul material-icons md-18">assignment_ind</i>
+            <i title="Remove" ng-show="selected.projectRole == 'ADMINISTRATOR'"
+              confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
+              ng-click="removeWorklist(worklist); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-trash"></i>
 
-            <i
-              ng-show="selected.worklistMode != 'Checklists' && 
-                ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length > 0) ||
-                 (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length > 0))"
-              ng-click="unassignWorklist(worklist); $event.stopPropagation()"
-              title="Unassign" class="noul material-icons md-18">assignment_return</i>
+            <span ng-show="selected.worklistMode != 'Checklists'">
+              <i
+                ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Available'"
+                ng-click="assignWorklistToSelf(worklist);"
+                title="Claim worklist"
+                class="noul glyphicon glyphicon-hand-right"></i>
 
-            <i
-              ng-show="selected.worklistMode != 'Checklists' &&
-                ((selected.projectRole == 'AUTHOR' && joinAuthors(worklist).length > 0) ||
-                 (selected.projectRole == 'REVIEWER' && joinReviewers(worklist).length > 0))"
-              ng-click="performWorkflowAction(worklist); $event.stopPropagation()"
-              title="Finish" class="noul glyphicon glyphicon-ok"></i>
+              <i confirm="Are you sure you want to unassign the worklist?"
+                ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
+                ng-click="unassignWorklist(worklist); "
+                title="Unassign worklist"
+                class="noul glyphicon glyphicon-hand-left"></i>
+
+              <i
+                ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
+                ng-click="openFinishWorkflowModal(worklist);" title="Finish"
+                class="noul glyphicon glyphicon-ok"></i>
+            </span>
+            &nbsp;
           </td>
         </tr>
+      </tbody>
+
+      <!--  actions -->
+      <td ng-show="selected.worklistMode != 'Checklists'"></td>
+      </tr>
       </tbody>
     </table>
     <!-- Basic Worklist info -->
@@ -130,16 +117,84 @@
       style="display: block;" class="alert alert-warning">No matching
       worklists found</span>
 
-    <!-- End R1C1 -->
+    <hr>
+
+    <span ng-show="selected.worklistMode != 'Available'">
+      <h4 ng-show="selected.worklist">
+        {{value}} Clusters
+        <span ng-show="lists.records.totalCount>0">
+          ({{lists.records.totalCount}})</span>
+      </h4>
+      <span
+        ng-show="selected.worklist && !paging['records'].filter && !paging['records'].typeFilter && lists.records.totalCount == 0">
+        <br />
+        <span class="alert alert-warning">Worklist has no records</span>
+      </span>
+      <div>
+        <div pager paging="paging['records']" count="lists.records.totalCount"
+          callback="paging['records'].callback"></div>
+
+        <table
+          ng-show="lists.records.totalCount > 0 || paging['records'].filter || paging['records'].typeFilter"
+          class="table">
+          <thead class="pointer">
+            <tr>
+              <th class="col-md-1 col-xs-1">Cluster</th>
+              <th class="col-md-1 col-xs-1"><select
+                title="Filter by record status" style="width: 40px;"
+                ng-model="paging['records'].typeFilter"
+                ng-options="item for item in lists.recordTypes"
+                ng-change="getRecords(selected.worklist)">
+                  <option value="">All</option>
+              </select></th>
+              <th class="col-md-3 col-xs-4">Last Modified</th>
+              <th class="col-md-3 col-xs-2">Concept Id</th>
+              <th class="col-md-4 col-xs-4">Concept Name</th>
+            </tr>
+          </thead>
+
+          <tbody ng-repeat="record in lists.records">
+            <tr ng-class="{selected : record.id == selected.record.id}"
+              ng-click="selectRecord(record)">
+              <td rowspan="{{record.concepts.length+1}}">{{record.clusterId}}</td>
+              <td rowspan="{{record.concepts.length+1}}">
+                <button
+                  class="
+                btn btn-xs
+                btn-danger"
+                  ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
+                  uib-tooltip="Needs review">N</button>
+                <button class="btn btn-xs btn-success"
+                  ng-show="record.workflowStatus != 'NEEDS_REVIEW'"
+                  uib-tooltip="Reviewed">R</button>
+              </td>
+              <td rowspan="{{record.concepts.length+1}}">{{toDate(record.lastModified)}}</td>
+            </tr>
+            <tr ng-click="selectRecord(record);"
+              ng-class="{selected : record.id == selected.record.id}"
+              ng-repeat="concept in record.concepts"
+              class="{{concept.workflowStatus}}">
+              <td>{{concept.id}}</td>
+              <td>{{concept.name}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <span
+          ng-show="(paging['records'].filter || paging['records'].typeFilter) && lists.records.totalCount == 0"
+          class="alert alert-warning"> No matching records found</span>
+
+      </div>
+    </span>
   </div>
 
   <!-- R1C2 - concepts list  -->
-  <div class="col-md-6 col-xs-12">
+  <div class="col-md-6 col-xs-12" ng-show="selected.worklistMode != 'Available'">
+
     <h4>
       Concept List
       <span style="float: right;">
-        <button ng-click="openAddConceptModal(selected.record)"
-          title="Add concept" class="btn btn-xs btn-primary">Finder</button>
+        <button ng-click="openFinderModal(selected.record)" title="Add concept"
+          class="btn btn-xs btn-primary">Finder</button>
       </span>
     </h4>
     <table class="table">
@@ -174,101 +229,28 @@
 
 
     <span style="float: right;">
+      <button ng-click="openStyWindow()" title="Stys"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
+        class="btn btn-xs btn-primary">STY</button>
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveConcept(selected.concept)" title="Approve"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Approve</button>
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveNext()" title="Approve/Next"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Approve/Next</button>
       <button confirm="Are you sure you want to merge the selected concept?"
         ng-click="openMergeModal()" title="Merge"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Checklists' || selected.worklistMode == 'Available'" 
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Merge</button>
     </span>
-    <!-- End R1C2 -->
-  </div>
-</div>
 
+    <br />
+    <hr>
 
-<!-- R2 -->
-<div class="row">
-
-  <!-- R2C1 -->
-  <div class="col-md-6 col-xs-12">
-    <div class="col-md-12 col-xs-12">
-      <h4 ng-show="selected.worklist">
-        {{value}} Clusters
-        <span ng-show="lists.records.totalCount>0">
-          ({{lists.records.totalCount}})</span>
-      </h4>
-      <span
-        ng-show="selected.worklist && !paging['records'].filter && !paging['records'].typeFilter && lists.records.totalCount == 0">
-        <br />
-        <span class="alert alert-warning">Worklist has no records</span>
-      </span>
-      <div>
-        <div pager paging="paging['records']" count="lists.records.totalCount"
-          callback="paging['records'].callback"></div>
-
-        <table
-          ng-show="lists.records.totalCount > 0 || paging['records'].filter || paging['records'].typeFilter"
-          class="table">
-          <thead class="pointer">
-            <tr>
-              <th class="col-md-1 col-xs-1">Cluster</th>
-              <th class="col-md-1 col-xs-1"><select
-                title="Filter by record status" style="width: 40px;"
-                ng-model="paging['records'].typeFilter"
-                ng-options="item for item in lists.recordTypes"
-                ng-change="getRecords(selected.worklist)">
-                  <option value="">All</option>
-              </select></th>
-              <th class="col-md-2 col-xs-2">Concept Id</th>
-              <th class="col-md-4 col-xs-4">Concept Name</th>
-              <th class="col-md-4 col-xs-4">Last Modified</th>
-            </tr>
-          </thead>
-          <tbody ng-repeat="record in lists.records">
-            <tr
-              ng-class="{selected : record.id == selected.record.id}">
-              <td rowspan="3">{{record.clusterId}}</td>
-              <td rowspan="3">
-                <button class="btn btn-xs btn-danger"
-                  ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
-                  uib-tooltip="Needs review">N</button>
-                <button class="btn btn-xs btn-success"
-                  ng-show="record.workflowStatus != 'NEEDS_REVIEW'"
-                  uib-tooltip="Reviewed">R</button>
-              </td>
-            </tr>
-            <tr ng-click="selectRecord(record);"
-              ng-class="{selected : record.id == selected.record.id}"
-              ng-repeat="concept in record.concepts"
-              ng-style="{'color': concept.workflowStatus == 'NEEDS_REVIEW' ? 'red' : 'black'}">
-              <td>{{concept.id}}</td>
-              <td>{{concept.name}}</td>
-              <td>
-                {{toDate(record.lastModified)}}<br />{{record.lastModifiedBy}}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <span
-          ng-show="(paging['records'].filter || paging['records'].typeFilter) && lists.records.totalCount == 0"
-          class="alert alert-warning"> No matching records found</span>
-
-      </div>
-    </div>
-    <!-- End R2C1 -->
-  </div>
-
-  <!-- R2C2 - concept report -->
-  <div class="col-md-6 col-xs-12">
     <div report-pre selected="selected" lists="lists" user="user"></div>
-    <!-- End R2C2 -->
   </div>
-  <!-- End R2 -->
-
 </div>
+
+

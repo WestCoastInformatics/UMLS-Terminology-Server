@@ -250,7 +250,7 @@ public class MetaEditingServiceRestNormalUseTest
     //
     // Create and add semantic types to the Concepts
     //
-    SemanticTypeComponentJpa semanticType = new SemanticTypeComponentJpa();
+    /*SemanticTypeComponentJpa semanticType = new SemanticTypeComponentJpa();
     semanticType.setBranch(Branch.ROOT);
     semanticType.setSemanticType("Lipid");
     semanticType.setTerminologyId("TestId");
@@ -275,7 +275,11 @@ public class MetaEditingServiceRestNormalUseTest
     semanticType3.setTerminology(umlsTerminology);
     semanticType3.setVersion(umlsVersion);
     semanticType3.setTimestamp(new Date());
-    semanticType3.setPublishable(true);
+    semanticType3.setPublishable(true);*/
+    
+    String semanticType = "Lipid";
+    String semanticType2 = "Enzyme";
+    String semanticType3 = "Steroid";
 
     // Add semantic types to the concepts
     // For semantic type 1, add to both concepts 1 and 2, to test when same
@@ -409,13 +413,14 @@ public class MetaEditingServiceRestNormalUseTest
 
     // construct a semantic type not present on concept (here, Lipid)
     SemanticTypeComponentJpa semanticType = new SemanticTypeComponentJpa();
-    semanticType.setBranch(Branch.ROOT);
+    /*semanticType.setBranch(Branch.ROOT);
     semanticType.setSemanticType("Lipid");
     semanticType.setTerminologyId("TestId");
     semanticType.setTerminology(umlsTerminology);
     semanticType.setVersion(umlsVersion);
     semanticType.setTimestamp(new Date());
-    semanticType.setPublishable(true);
+    semanticType.setPublishable(true);*/
+    String sty = "Lipid";
 
     //
     // Test addition
@@ -423,7 +428,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // add the semantic type to the concept
     ValidationResult v = metaEditingService.addSemanticType(project.getId(),
-        c.getId(), "activityId", c.getLastModified().getTime(), semanticType,
+        c.getId(), "activityId", c.getLastModified().getTime(), sty,
         false, authToken);
     assertTrue(v.getErrors().isEmpty());
 
@@ -488,17 +493,18 @@ public class MetaEditingServiceRestNormalUseTest
 
     // construct a second semantic type not present on concept (here, Enzyme)
     SemanticTypeComponentJpa semanticType2 = new SemanticTypeComponentJpa();
-    semanticType2.setBranch(Branch.ROOT);
+    /*semanticType2.setBranch(Branch.ROOT);
     semanticType2.setSemanticType("Enzyme");
     semanticType2.setTerminologyId("TestId");
     semanticType2.setTerminology(umlsTerminology);
     semanticType2.setVersion(umlsVersion);
     semanticType2.setTimestamp(new Date());
-    semanticType2.setPublishable(true);
+    semanticType2.setPublishable(true);*/
+    String sty2 = "Enzyme";
 
     // add the second semantic type to the concept
     v = metaEditingService.addSemanticType(project.getId(), c.getId(),
-        "activityId", c.getLastModified().getTime(), semanticType2, false,
+        "activityId", c.getLastModified().getTime(), sty2, false,
         authToken);
     assertTrue(v.getErrors().isEmpty());
 
@@ -3412,14 +3418,15 @@ public class MetaEditingServiceRestNormalUseTest
     //
     // Create and add a semantic type to concept, and then undo
     //
-    SemanticTypeComponentJpa semanticType = new SemanticTypeComponentJpa();
+    /*SemanticTypeComponentJpa semanticType = new SemanticTypeComponentJpa();
     semanticType.setBranch(Branch.ROOT);
     semanticType.setSemanticType("Lipid");
     semanticType.setTerminologyId("TestId");
     semanticType.setTerminology(umlsTerminology);
     semanticType.setVersion(umlsVersion);
     semanticType.setTimestamp(new Date());
-    semanticType.setPublishable(true);
+    semanticType.setPublishable(true);*/
+    String semanticType = "Lipid";
 
     //
     // Add the Semantic Type

@@ -1,0 +1,76 @@
+<div class="modal-header">
+  <h4>Finder</h4>
+
+</div>
+
+<div class="modal-body">
+  <div class="row">
+    <!--  Left hand side -->
+    <div class="col-md-5 col-xs-12">
+
+      <!-- Search widget -->
+      <div>
+        <form ng-submit="clearAndSearch()">
+          <input autofocus ng-model="query" size="30">
+          <button class="btn btn-primary" ng-click="clearAndSearch();">Search</button>
+        </form>
+      </div>
+
+      <!-- Search results -->
+      <div ng-show="query && searchResults.length > 0">
+
+        <div pager paging="paging" count="searchResults.totalCount"
+          callback="paging.callback"></div>
+
+        <table ng-show="searchResults.length > 0" class="table">
+          <thead class="pointer">
+            <tr>
+              <th class="col-md-3 col-xs-3">Concept Id</th>
+              <th class="col-md-9 col-xs-9">Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="pointer" ng-repeat="result in searchResults"
+              ng-click="selectConcept(result);"
+              ng-dblclick="addConcept(result); $event.stopPropagation();"
+              ng-class="{selected: result.terminologyId === concept.terminologyId}">
+              <td>{{result.terminologyId}}</td>
+              <td>{{result.value}}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <span ng-show="query && searchResults.length == 0"
+          class="alert alert-warning">No matching results</span>
+
+      </div>
+    </div>
+
+    <!--  Right hand side -->
+    <div class="col-md-7 col-xs-12">
+      <span ng-show="searchResults.length > 0 && !concept"
+        class="alert alert-warning">Select a concept to see details</span>
+
+      <!-- Concept display -->
+      <div ng-show="concept">
+        <h4 ng-show="concept">Concept Report</h4>
+        <h4>
+          </br>
+        </h4>
+        <pre ng-show="concept">
+      {{conceptReport}}
+      </pre>
+      </div>
+    </div>
+
+    <!-- Errors -->
+    <div errors="errors" warnings="warnings"></div>
+
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-disabled="!concept.terminologyId"
+    ng-click="addConcept(concept)">Select</button>
+  <button class="btn btn-warning" ng-click="cancel()">Close</button>
+</div>

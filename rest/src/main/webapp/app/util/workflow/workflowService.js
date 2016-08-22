@@ -9,20 +9,9 @@ tsApp.service('workflowService', [
   function($http, $q, $rootScope, gpService, utilService) {
     console.debug('configure workflowService');
 
-    // broadcasts a workflow change
-
-    this.fireWorklistChanged = function(worklist) {
-      $rootScope.$broadcast('termServer::worklistChanged', worklist);
-    };
-
     this.getRecordTypes = function() {
       return [ 'N', 'R' ];
     }
-
-    this.getConfigTypes = function() {
-      return [ 'MUTUALLY_EXCLUSIVE', 'QUALITY_ASSURANCE', 'AD_HOC' ];
-    }
-
     // get all workflow paths
     this.getWorkflowPaths = function() {
       var deferred = $q.defer();
@@ -139,7 +128,7 @@ tsApp.service('workflowService', [
 
     // add workflow bin Definition
     this.addWorkflowBinDefinition = function(projectId, workflowBinDefinition, positionAfterId) {
-      console.debug('addWorkflowBinDefinition');
+      console.debug('addWorkflowBinDefinition', projectId, workflowBinDefinition, positionAfterId);
       var deferred = $q.defer();
 
       // Add workflow bin Definition

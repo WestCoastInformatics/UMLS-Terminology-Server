@@ -19,7 +19,6 @@ import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-import com.wci.umls.server.model.workflow.WorkflowBinType;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -287,7 +286,7 @@ public interface WorkflowService extends ContentService {
    * @throws Exception the exception
    */
   public List<WorkflowBinDefinition> getWorkflowBinDefinitions(Project project,
-    WorkflowBinType type) throws Exception;
+    String type) throws Exception;
 
   /**
    * Gets the workflow bin definition.
@@ -333,8 +332,8 @@ public interface WorkflowService extends ContentService {
    * @return the workflow bins
    * @throws Exception the exception
    */
-  public List<WorkflowBin> getWorkflowBins(Project project,
-    WorkflowBinType type) throws Exception;
+  public List<WorkflowBin> getWorkflowBins(Project project, String type)
+    throws Exception;
 
   /**
    * Gets the workflow bin.
@@ -458,7 +457,7 @@ public interface WorkflowService extends ContentService {
    * @return the workflow config
    * @throws Exception the exception
    */
-  public WorkflowConfig getWorkflowConfig(Project project, WorkflowBinType type)
+  public WorkflowConfig getWorkflowConfig(Project project, String type)
     throws Exception;
 
   /**

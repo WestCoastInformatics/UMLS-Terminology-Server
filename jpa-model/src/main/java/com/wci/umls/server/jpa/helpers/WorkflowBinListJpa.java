@@ -16,7 +16,7 @@ import com.wci.umls.server.model.workflow.WorkflowBin;
 /**
  * JAXB enabled implementation of {@link WorkflowBinList}.
  */
-@XmlRootElement(name = "worklistList")
+@XmlRootElement(name = "workflowBinList")
 public class WorkflowBinListJpa extends AbstractResultList<WorkflowBin>
     implements WorkflowBinList {
 

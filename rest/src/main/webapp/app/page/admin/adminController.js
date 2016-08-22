@@ -10,20 +10,20 @@ tsApp
       'gpService',
       'utilService',
       'tabService',
+      'configureService',
       'securityService',
       'metadataService',
       'projectService',
-      'configureService',
       function($scope, $http, $location, $uibModal, gpService, utilService, tabService,
-        securityService, metadataService, projectService, configureService) {
+        configureService, securityService, metadataService, projectService) {
         console.debug('configure AdminCtrl');
 
         // Set up tabs and controller
         tabService.setShowing(true);
         utilService.clearError();
-        tabService.setSelectedTabByLabel('Admin');
         $scope.user = securityService.getUser();
         projectService.getUserHasAnyRole();
+        tabService.setSelectedTabByLabel('Admin');
 
         // If logged in as guest, redirect
         if (securityService.isGuestUser()) {
@@ -738,7 +738,6 @@ tsApp
           $scope.getCandidateProjects();
           $scope.getApplicationRoles();
           $scope.getProjectRoles();
-          metadataService.initTerminologies();
           $scope.getValidationChecks();
 
           // Handle users with user preferences

@@ -26,21 +26,22 @@ public interface WorkflowConfig extends HasLastModified, HasProject {
    *
    * @param definitions the new workflow bin definitions
    */
-  public void setWorkflowBinDefinitions(List<WorkflowBinDefinition> definitions);
+  public void setWorkflowBinDefinitions(
+    List<WorkflowBinDefinition> definitions);
 
   /**
-   * Gets the type.
+   * Gets the type. MUTUALLY_EXCLUSIVE, QUALITY_ASSURANCE, AD_HOC, etc.
    *
    * @return the type
    */
-  public WorkflowBinType getType();
+  public String getType();
 
   /**
    * Sets the type.
    *
    * @param type the new type
    */
-  public void setType(WorkflowBinType type);
+  public void setType(String type);
 
   /**
    * Gets the mutually exclusive.

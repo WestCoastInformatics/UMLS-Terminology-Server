@@ -10,6 +10,8 @@ tsApp
       function($location, $anchorScroll, $cookies, appConfig) {
         console.debug('configure utilService');
 
+        this.showHeaderFooter = true;
+        
         // declare the error
         this.error = {
           message : null,
@@ -161,6 +163,23 @@ tsApp
             this.clearError();
           }
         };
+        
+        // Set a flag indicating whether header/footer are to be showing
+        this.setHeaderFooterShowing = function(showHeaderFooter) {
+          this.showHeaderFooter = showHeaderFooter;
+        };
+
+        // Indicates whether header/footer are showing at all
+        this.isHeaderFooterShowing = function() {
+          return this.showHeaderFooter;
+        };
+        
+        this.composeUrl = function(extension) {
+          var currentUrl = $location.absUrl();
+          var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
+          var newUrl = baseUrl + extension;
+          return newUrl;
+        }
 
         // Convert seconds to hour/min string
         this.toTime = function(d) {
@@ -289,11 +308,16 @@ tsApp
         
         // Helper function to get a standard paging object
         // overwritten as needed
+        // Example of filterFields
+        // paging.filterFields.terminologyId = 1;
+        // paging.filterFields.expandedForm = 1;
+        //
         this.getPaging = function() {
           return {
             page : 1,
             pageSize : 10,
             filter : '',
+            filterFields : null,
             sortField : null,
             sortAscending : true,
             sortOptions : []
@@ -302,6 +326,7 @@ tsApp
 
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
+        // use when all data is already loaded
         this.getPagedArray = function(array, paging) {
           var newArray = new Array();
 
@@ -312,10 +337,6 @@ tsApp
 
           newArray = array;
           // apply suppressible/obsolete
-          /*
-           * if (!paging.showHidden) { newArray = newArray.filter(function(item) {
-           * return !item.suppressible && !item.obsolete; }); }
-           */
 
           // apply sort if specified
           if (paging.sortField) {
@@ -325,7 +346,7 @@ tsApp
 
           // apply filter
           if (paging.filter) {
-            newArray = this.getArrayByFilter(newArray, paging.filter);
+            newArray = this.getArrayByFilter(newArray, paging.filter, paging.filterFields);
           }
 
           // apply active status filter
@@ -369,12 +390,12 @@ tsApp
         };
 
         // Get array by filter text matching terminologyId or name
-        this.getArrayByFilter = function(array, filter) {
+        this.getArrayByFilter = function(array, filter, fields ) {
           var newArray = [];
 
           for ( var object in array) {
 
-            if (this.objectContainsFilterText(array[object], filter)) {
+            if (this.objectContainsFilterText(array[object], filter, fields)) {
               newArray.push(array[object]);
             }
           }
@@ -399,12 +420,15 @@ tsApp
         };
 
         // Returns true if any field on object contains filter text
-        this.objectContainsFilterText = function(object, filter) {
+        this.objectContainsFilterText = function(object, filter, fields) {
 
           if (!filter || !object)
             return false;
 
           for ( var prop in object) {
+            if (!fields && !fields[prop]) {
+              continue;
+            }
             var value = object[prop];
             // check property for string, note this will cover child elements
             if (value && value.toString().toLowerCase().indexOf(filter.toLowerCase()) != -1) {

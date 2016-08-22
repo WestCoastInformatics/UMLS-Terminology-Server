@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4>{{value}} Notes</h4>
+  <h4>{{type}} Notes</h4>
 </div>
 
 <div class="modal-body">
@@ -8,19 +8,19 @@
       <td>
         <b>Name</b>
       </td>
-      <td>{{object.name}}{{object.conceptName}}</td>
+      <td>{{selected[field].name}}{{selected[field].conceptName}}</td>
     </tr>
     <tr>
       <td>
-        <b>{{value}} Id</b>
+        <b>{{type}} Id</b>
       </td>
-      <td>{{object.id}}</td>
+      <td>{{selected[field].id}}</td>
     </tr>
-    <tr ng-show="object.description">
+    <tr ng-show="selected[field].description">
       <td>
         <b>Description</b>
       </td>
-      <td>{{object.description}}</td>
+      <td>{{selected[field].description}}</td>
     </tr>
   </table>
   <div class="row">
@@ -29,42 +29,28 @@
 
       <div>
 
-        <h5 ng-show="object.notes.length > 0">
+        <h5 ng-show="selected[field].notes.length > 0">
           <b>Notes<span ng-show="pagedNotes.length > 0">
               ({{pagedNotes.totalCount}})</span></b>
         </h5>
 
-        <span style="display: block;">
-          <uib-pagination items-per-page="pageSize" max-size="5"
-            boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
-            next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-            ng-show="pagedNotes.totalCount > pageSize || paging['notes'].filter"
-            total-items="pagedNotes.totalCount" ng-model="paging['notes'].page"
-            ng-change="getPagedNotes()"></uib-pagination>
 
-          <input class="input-filter" placeholder="Search"
-            ng-show="pagedNotes.totalCount > pageSize || paging['notes'].filter"
-            type="text" ng-model="paging['notes'].filter"
-            ng-model-options="{ debounce: 300 }" ng-change="getPagedNotes()">
-
-          <button class="btn btn-xs btn-warning"
-            ng-show="paging['notes'].filter"
-            ng-click="paging['notes'].filter = ''; getPagedNotes()"
-            title="Click to clear filter text">Clear</button>
+        <div pager paging="paging" count="pagedNotes.totalCount"
+          callback="paging.callback"></div>
 
         </span>
 
         <span style="display: block"
-          ng-show="pagedNotes.length == 0 && paging['notes'].filter"
+          ng-show="pagedNotes.length == 0 && paging.filter"
           class="alert alert-warning"> No notes matching filter </span>
         <span style="display: block"
-          ng-show="pagedNotes.length == 0 && !paging['notes'].filter"
+          ng-show="pagedNotes.length == 0 && !paging.filter"
           class="alert alert-warning"> No notes </span>
 
         <table ng-show="pagedNotes.length > 0" class="table">
           <thead class="pointer">
             <tr>
-              <th class="col-md-6 col-xs-6">{{value}} Notes</th>
+              <th class="col-md-6 col-xs-6">{{type}} Notes</th>
               <th class="col-md-2 col-xs-2">Date</th>
               <th class="col-md-2 col-xs-2">Author</th>
               <th class="col-md-2 col-xs-2"></th>
@@ -79,8 +65,8 @@
               <td>{{note.lastModifiedBy}}</td>
               <td>
                 <a class="toolicon" title="Remove"
-                  ng-click="removeNote(object, note); $event.stopPropagation()">
-                  <i title="Remove note" class="noul material-icons md-18">delete</i>
+                  ng-click="removeNote(selected[field], note)">
+                  <i title="Remove note" class="noul glyphicon glypicon-trash"></i>
                 </a>
               </td>
             </tr>
@@ -101,6 +87,7 @@
 
 <div class="modal-footer">
   <button class="btn btn-primary" ng-disabled="!newNote"
-    ng-click="submitNote(object, newNote);" title=" Add new note to {{value}}">Add</button>
+    ng-click="submitNote(selected[field], newNote);"
+    title=" Add new note to {{type}}">Add</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>

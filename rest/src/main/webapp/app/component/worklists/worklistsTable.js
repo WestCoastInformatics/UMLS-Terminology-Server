@@ -44,6 +44,7 @@ tsApp
               $scope.paging = {};
               $scope.paging['worklists'] = utilService.getPaging();
               $scope.paging['worklists'].sortField = 'lastModified';
+              $scope.paging['worklists'].sortAscending = false;
               $scope.paging['worklists'].callback = {
                 getPagedList : getWorklists
               };
@@ -61,15 +62,57 @@ tsApp
                 }
               }, true);
 
+              // See if any project users have a team
+              $scope.hasTeam = function() {
+                for (var i = 0; i < $scope.selected.users.length; i++) {
+                  if ($scope.selected.users[i].team) {
+                    return true;
+                  }
+                }
+                return false;
+              }
               // Compose a string of all editors for display
               $scope.joinEditors = function(worklist) {
-                if (worklist.reviewers) {
+                // check reviewers first becuase this is who we would unassign
+                // from
+                if (worklist.reviewers && worklist.reviewers.length > 0) {
                   return worklist.reviewers.join(' ');
-                } else if (worklist.authors) {
+                }
+
+                // then authors
+                else if (worklist.authors && worklist.authors.length > 0) {
                   return worklist.authors.join(' ');
                 }
                 return '';
               };
+
+              // Display a time in hours/mins
+              $scope.getHoursMins = function(secs) {
+                if (secs) {
+                  var date = new Date(null);
+                  date.setSeconds(secs);
+                  date.toISOString().substr(11, 8);
+                }
+              }
+
+              // Get the "max" workflow state
+              $scope.getWorkflowState = function(worklist) {
+                var maxD = 0;
+                var maxState = 'xxx';
+                for ( var k in worklist.workflowStateHistory) {
+                  var item = worklist.workflowStateHistory[k];
+
+                  if (!maxD) {
+                    maxD = item;
+                    maxState = k;
+                  }
+                  if (item > maxD) {
+                    maxD = item;
+                    maxState = k;
+                  }
+                }
+                return maxState;
+              }
 
               // Set $scope.selected.project and reload
               $scope.setProject = function(project) {
@@ -77,11 +120,11 @@ tsApp
                 $scope.getWorklists();
               };
 
-              // Get $scope.worklists
-              $scope.getWorklists = function() {
-                getWorklists();
+              // Get $scope.worklists (reselect worklist passed in)
+              $scope.getWorklists = function(worklist) {
+                getWorklists(worklist);
               }
-              function getWorklists() {
+              function getWorklists(worklist) {
                 var paging = $scope.paging['worklists'];
                 var pfs = {
                   startIndex : (paging.page - 1) * paging.pageSize,
@@ -96,6 +139,13 @@ tsApp
                     .then(function(data) {
                       $scope.worklists = data.worklists;
                       $scope.worklists.totalCount = data.totalCount;
+                      if (worklist) {
+                        for (var i = 0; i < data.worklists.length; i++) {
+                          if (data.worklists[i].id == worklist.id) {
+                            $scope.selectWorklist(data.worklists[i]);
+                          }
+                        }
+                      }
                     });
                 }
                 if ($scope.type == 'Checklist') {
@@ -103,6 +153,13 @@ tsApp
                     .then(function(data) {
                       $scope.worklists = data.checklists;
                       $scope.worklists.totalCount = data.totalCount;
+                      if (worklist) {
+                        for (var i = 0; i < data.worklists.length; i++) {
+                          if (data.worklists[i].id == worklist.id) {
+                            $scope.selectWorklist(data.worklists[i]);
+                          }
+                        }
+                      }
                     });
                 }
               }
@@ -213,45 +270,36 @@ tsApp
               }
 
               // Unassign worklist
-              $scope.unassignWorklist = function(worklist) {
+              $scope.unassignWorklist = function(worklist, userName) {
                 workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
-                  $scope.joinEditors(worklist).trim(),
-                  $scope.selected.project.userRoleMap[$scope.user.userName], 'UNASSIGN').then(
-                // Success
-                function(data) {
-                  $scope.getWorklists();
-                });
+                  userName, $scope.selected.project.userRoleMap[$scope.user.userName], 'UNASSIGN')
+                  .then(
+                  // Success
+                  function(data) {
+                    $scope.getWorklists(data);
+                  });
               };
 
               // Remove a worklist
               $scope.removeWorklist = function(worklist) {
-                $scope.removeWorklistHelper($scope.selected.project.id, worklist);
+                $scope.removeWorklistHelper(worklist);
               };
 
               // Helper for removing a worklist/checklist
-              $scope.removeWorklistHelper = function(projectId, worklist) {
+              $scope.removeWorklistHelper = function(worklist) {
 
-                /*
-                 * workflowService.findWorklistMembersForQuery(worklist.id, '', {
-                 * startIndex : 0, maxResults : 1 }).then( function(data) { if
-                 * (data.records.length == 1) { if (!$window .confirm('The
-                 * worklist has records, are you sure you want to proceed.')) {
-                 * return; } }
-                 */
                 if ($scope.type == 'Worklist') {
-                  workflowService.removeWorklist(projectId, worklist.id).then(function() {
-                    $scope.selected.worklist = null;
-                    $scope.getWorklists();
-                    workflowService.fireWorklistChanged(worklist);
-                    workflowService.fireWorkflowBinsChanged(worklist);
-                  });
+                  workflowService.removeWorklist($scope.selected.project.id, worklist.id).then(
+                    function() {
+                      $scope.selected.worklist = null;
+                      $scope.getWorklists();
+                    });
                 } else {
-                  workflowService.removeChecklist(projectId, worklist.id).then(function() {
-                    $scope.selected.worklist = null;
-                    $scope.getWorklists();
-                    workflowService.fireWorklistChanged(worklist);
-                    workflowService.fireWorkflowBinsChanged(worklist);
-                  });
+                  workflowService.removeChecklist($scope.elected.project.id, worklist.id).then(
+                    function() {
+                      $scope.selected.worklist = null;
+                      $scope.getWorklists();
+                    });
                 }
                 // });
               };
@@ -269,7 +317,6 @@ tsApp
                   $scope.performWorkflowAction(worklist, 'SAVE', $scope.user.userName);
                 } else {
                   $scope.getWorklists();
-                  workflowService.fireWorklistChanged(worklist);
                 }
               };
 
@@ -279,7 +326,6 @@ tsApp
                 workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
                   userName, $scope.selected.projects.role, action).then(function(data) {
                   $scope.getWorklists();
-                  workflowService.fireWorklistChanged(data);
                 });
               };
 
@@ -296,58 +342,28 @@ tsApp
               // MODALS
               //
 
-              // Notes modal
-              $scope.openNotesModal = function(lobject) {
-                console.debug('openNotesModal ', lobject);
-
-                var modalInstance = $uibModal.open({
-                  templateUrl : 'app/page/workflow/notes.html',
-                  controller : NotesModalCtrl,
-                  backdrop : 'static',
-                  resolve : {
-                    object : function() {
-                      return lobject;
-                    },
-                    value : function() {
-                      return $scope.type;
-                    },
-                    project : function() {
-                      return $scope.selected.project;
-                    },
-                    tinymceOptions : function() {
-                      return utilService.tinymceOptions;
-                    }
-                  }
-                });
-
-                modalInstance.result.then(
-                // Success
-                function(data) {
-                  $scope.handleWorkflow(data);
-                });
-
-              };
-
               // Assign worklist modal
-              $scope.openAssignWorklistModal = function(lworklist, laction, lrole) {
-                console.debug('openAssignWorklistModal ', lworklist, laction);
+              $scope.openAssignWorklistModal = function(lworklist, laction) {
 
                 var modalInstance = $uibModal.open({
                   templateUrl : 'app/page/workflow/assignWorklist.html',
-                  controller : AssignWorklistModalCtrl,
+                  controller : 'AssignWorklistModalCtrl',
                   backdrop : 'static',
                   resolve : {
+                    selected : function() {
+                      return $scope.selected;
+                    },
+                    lists : function() {
+                      return $scope.lists;
+                    },
+                    user : function() {
+                      return user;
+                    },
                     worklist : function() {
                       return lworklist;
                     },
                     action : function() {
                       return laction;
-                    },
-                    currentUser : function() {
-                      return $scope.user;
-                    },
-                    project : function() {
-                      return $scope.selected.project;
                     }
                   }
 
@@ -356,8 +372,7 @@ tsApp
                 modalInstance.result.then(
                 // Success
                 function(data) {
-                  $scope.getWorklists();
-                  workflowService.fireWorklistChanged(data);
+                  $scope.getWorklists(data);
                 });
               };
 

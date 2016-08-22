@@ -26,7 +26,7 @@ public interface MetaEditingServiceRest {
    * @param conceptId the concept id
    * @param activityId the activity id
    * @param lastModified the last modified
-   * @param semanticTypeComponent the semantic type component
+   * @param semanticTypeValue the semantic type value
    * @param overrideWarnings whether to override warnings
    * @param authToken the auth token
    * @return the validation result
@@ -34,7 +34,7 @@ public interface MetaEditingServiceRest {
    */
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
     String activityId, Long lastModified,
-    SemanticTypeComponentJpa semanticTypeComponent, boolean overrideWarnings,
+    String semanticTypeValue, boolean overrideWarnings,
     String authToken) throws Exception;
 
   /**

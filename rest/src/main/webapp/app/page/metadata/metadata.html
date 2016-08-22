@@ -35,7 +35,7 @@
         class="alert alert-success">
         <i class="glyphicon"
           ng-class="[{'glyphicon-chevron-right' : !resultsExpanded[item.name]}, {'glyphicon-chevron-down' : resultsExpanded[item.name]}]"></i>
-        &nbsp; {{item.name}}
+        &nbsp; {{getItemName(item)}}
       </div>
       <ul ng-show="resultsExpanded[item.name]">
         <li ng-repeat="pair in item.keyValuePairs"><span

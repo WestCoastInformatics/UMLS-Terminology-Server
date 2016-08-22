@@ -57,18 +57,18 @@ public interface WorkflowBin extends HasLastModified, HasProject {
   public void setDescription(String description);
 
   /**
-   * Gets the type.
-   *
+   * Gets the type. MUTUALLY_EXCLUSIVE, QUALITY_ASSURANCE, AD_HOC, etc.
+   * 
    * @return the type
    */
-  public WorkflowBinType getType();
+  public String getType();
 
   /**
    * Sets the type.
    *
    * @param type the new type
    */
-  public void setType(WorkflowBinType type);
+  public void setType(String type);
 
   /**
    * Gets the rank.
