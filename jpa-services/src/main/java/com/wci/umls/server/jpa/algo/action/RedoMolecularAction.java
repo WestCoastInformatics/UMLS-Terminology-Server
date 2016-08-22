@@ -91,7 +91,6 @@ public class RedoMolecularAction extends AbstractMolecularAction {
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-
     return validationResult;
   }
 

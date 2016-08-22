@@ -19,9 +19,11 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
@@ -476,4 +478,35 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     return null;
   }
 
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/typekeyvalue/add")
+  @ApiOperation(value = "Add new TypeKeyValue", notes = "Creates a new TypeKeyValue", response = TypeKeyValue.class)
+  public TypeKeyValue addTypeKeyValue(
+    @ApiParam(value = "TypeKeyValue, e.g. newTypeKeyValue", required = true) TypeKeyValueJpa typeKeyValue,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (TEST): /add " + typeKeyValue);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String authUser = authorizeApp(securityService, authToken,
+          "add typeKeyValue", UserRole.ADMINISTRATOR);
+      contentService.setLastModifiedBy(authUser);
+      contentService.setMolecularActionFlag(false);
+
+      // Add TypeKeyValue
+      return contentService.addTypeKeyValue(typeKeyValue);
+    } catch (Exception e) {
+      handleException(e, "trying to add a typeKeyValue");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }  
+  
 }

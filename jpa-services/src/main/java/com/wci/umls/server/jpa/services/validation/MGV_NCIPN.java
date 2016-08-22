@@ -9,13 +9,17 @@ import java.util.stream.Collectors;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
+import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.MoveMolecularAction;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.ContentService;
 
 /**
- * Validates merges between {@link Concept}s where both contain releasable
+ * Validates merges between {@link Concept}s where both contain publishable
  * <code>MTH/NCIPN</code> {@link Atom}s.
  *
  */
@@ -27,39 +31,43 @@ public class MGV_NCIPN extends AbstractValidationCheck {
     // n/a
   }
 
-  /**
-   * Validate.
-   *
-   * @param project the project
-   * @param service the service
-   * @param source the source
-   * @param target the target
-   * @param source_atoms the source atoms
-   * @return the validation result
-   */
-  public ValidationResult validate(Project project, ContentService service,
-    Concept source, Concept target, List<Atom> source_atoms) {
+  /* see superclass */
+  @SuppressWarnings("unused")
+  @Override
+  public ValidationResult validateAction(MolecularActionAlgorithm action) {
     ValidationResult result = new ValidationResultJpa();
 
+    // Only run this check on merge and move actions
+    if (!(action instanceof MergeMolecularAction || action instanceof MoveMolecularAction)){
+      return result;
+    }
+    
+    final Project project = action.getProject();
+    final ContentService service = (AbstractMolecularAction) action;
+    final Concept source = (action instanceof MergeMolecularAction
+        ? action.getConcept2() : action.getConcept());
+    final Concept target = (action instanceof MergeMolecularAction
+        ? action.getConcept() : action.getConcept2());
+    final List<Atom> source_atoms = (action instanceof MoveMolecularAction
+        ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
+
     //
-    // Obtain NCIMTH atoms
+    // Obtain publishable NCIMTH atoms
     //
     List<Atom> target_atoms = target.getAtoms().stream()
-        .filter(a -> a.getTerminology().equals("NCIMTH"))
+        .filter(a -> a.isPublishable() && a.getTerminology().equals("NCIMTH"))
         .collect(Collectors.toList());
 
     List<Atom> l_source_atoms =
-        source_atoms.stream().filter(a -> a.getTerminology().equals("NCIMTH"))
+        source_atoms.stream().filter(a -> a.isPublishable() && a.getTerminology().equals("NCIMTH"))
             .collect(Collectors.toList());
 
     //
-    // Find releasable MTH/NCIPNs in both source and target concepts
+    // Find publishable MTH/NCIPNs in both source and target concepts
     //
     for (Atom sourceAtom : l_source_atoms) {
-      if (sourceAtom.isPublishable()) {
         for (Atom targetAtom : target_atoms) {
-          if (targetAtom.isPublishable()
-              && sourceAtom.getTermType().equals("PN")
+          if (sourceAtom.getTermType().equals("PN")
               && targetAtom.getTermType().equals("PN")) {
             result.getErrors().add(
                 getName() + ": Source and target concepts contain publishable MTH/NCIPN atoms.");
@@ -67,14 +75,13 @@ public class MGV_NCIPN extends AbstractValidationCheck {
           }
         }
       }
-    }
     return result;
   }
 
   /* see superclass */
   @Override
   public String getName() {
-    return "MGV_NCIPN";
+    return this.getClass().getSimpleName();
   }
 
 }

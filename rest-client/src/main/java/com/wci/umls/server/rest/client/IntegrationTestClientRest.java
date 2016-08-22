@@ -16,11 +16,13 @@ import javax.ws.rs.core.Response.Status.Family;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -33,9 +35,9 @@ import com.wci.umls.server.model.workflow.Worklist;
 /**
  * A client for connecting to an integration test REST service.
  */
-public class IntegrationTestClientRest extends RootClientRest implements
-    IntegrationTestServiceRest {
-  
+public class IntegrationTestClientRest extends RootClientRest
+    implements IntegrationTestServiceRest {
+
   /** The config. */
   private Properties config = null;
 
@@ -53,20 +55,18 @@ public class IntegrationTestClientRest extends RootClientRest implements
   @Override
   public Concept addConcept(ConceptJpa concept, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - add concept" + concept);
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - add concept" + concept);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/test/concept/add");
 
-    final String conceptString =
-        ConfigUtility.getStringForGraph(concept == null ? new ConceptJpa()
-            : concept);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(conceptString));
-    
+    final String conceptString = ConfigUtility
+        .getStringForGraph(concept == null ? new ConceptJpa() : concept);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(conceptString));
+
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -83,19 +83,17 @@ public class IntegrationTestClientRest extends RootClientRest implements
   @Override
   public void updateConcept(ConceptJpa concept, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - update concept" + concept);
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - update concept" + concept);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/test/concept/update");
 
-    final String conceptString =
-        ConfigUtility.getStringForGraph(concept == null ? new ConceptJpa()
-            : concept);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(conceptString));
+    final String conceptString = ConfigUtility
+        .getStringForGraph(concept == null ? new ConceptJpa() : concept);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(conceptString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -108,18 +106,17 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public void removeConcept(Long id, boolean cascade, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - remove concept " + id);
+  public void removeConcept(Long id, boolean cascade, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - remove concept " + id);
     validateNotEmpty(id, "id");
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/concept/remove/"
-            + id + (cascade ? "?cascade=true" : ""));
-    
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/test/concept/remove/" + id + (cascade ? "?cascade=true" : ""));
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing, successful
@@ -131,8 +128,8 @@ public class IntegrationTestClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public void updateAtom(AtomJpa atom, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - update atom" + atom);
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - update atom" + atom);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
@@ -140,9 +137,8 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
     final String atomString =
         ConfigUtility.getStringForGraph(atom == null ? new AtomJpa() : atom);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(atomString));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(atomString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -157,20 +153,17 @@ public class IntegrationTestClientRest extends RootClientRest implements
   @Override
   public ConceptRelationship addRelationship(
     ConceptRelationshipJpa relationship, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - add relationship" + relationship);
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - add relationship" + relationship);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client
-            .target(config.getProperty("base.url") + "/test/relationship/add");
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/test/relationship/add");
 
-    final String relString =
-        ConfigUtility.getStringForGraph(relationship == null
-            ? new ConceptRelationshipJpa() : relationship);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(relString));
+    final String relString = ConfigUtility.getStringForGraph(
+        relationship == null ? new ConceptRelationshipJpa() : relationship);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(relString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -186,22 +179,19 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public void updateRelationship(
-    ConceptRelationshipJpa relationship, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - update relationship" + relationship);
+  public void updateRelationship(ConceptRelationshipJpa relationship,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - update relationship" + relationship);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client
-            .target(config.getProperty("base.url") + "/test/relationship/update");
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/test/relationship/update");
 
-    final String relString =
-        ConfigUtility.getStringForGraph(relationship == null
-            ? new ConceptRelationshipJpa() : relationship);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(relString));
+    final String relString = ConfigUtility.getStringForGraph(
+        relationship == null ? new ConceptRelationshipJpa() : relationship);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(relString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -210,24 +200,22 @@ public class IntegrationTestClientRest extends RootClientRest implements
       throw new Exception(resultString);
     }
 
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public Worklist getWorklist(Long worklistId, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - get worklist: " + worklistId);
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - get worklist: " + worklistId);
 
     validateNotEmpty(worklistId, "worklistId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/worklist/"
-            + worklistId);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/test/worklist/" + worklistId);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     if (response.getStatus() == 204) {
       return null;
@@ -246,18 +234,16 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
   @Override
   public Atom getAtom(Long atomId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - get atom: " + atomId);
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - get atom: " + atomId);
 
     validateNotEmpty(atomId, "atomId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/atom/"
-            + atomId);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+        client.target(config.getProperty("base.url") + "/test/atom/" + atomId);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     if (response.getStatus() == 204) {
       return null;
@@ -275,7 +261,8 @@ public class IntegrationTestClientRest extends RootClientRest implements
   }
 
   @Override
-  public SemanticTypeComponent getSemanticTypeComponent(Long styId, String authToken) throws Exception {
+  public SemanticTypeComponent getSemanticTypeComponent(Long styId,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Integration Test Client - get semantic type component: " + styId);
 
@@ -284,9 +271,8 @@ public class IntegrationTestClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/test/sty/" + styId);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     if (response.getStatus() == 204) {
       return null;
@@ -300,22 +286,23 @@ public class IntegrationTestClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility.getGraphForString(resultString, SemanticTypeComponentJpa.class);
+    return ConfigUtility.getGraphForString(resultString,
+        SemanticTypeComponentJpa.class);
   }
-  
+
   @Override
-  public ConceptRelationship getConceptRelationship(Long relId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - get concept relationship : " + relId);
+  public ConceptRelationship getConceptRelationship(Long relId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - get concept relationship : " + relId);
 
     validateNotEmpty(relId, "relId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/relationship/" + relId);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/test/relationship/" + relId);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     if (response.getStatus() == 204) {
       return null;
@@ -329,22 +316,23 @@ public class IntegrationTestClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return ConfigUtility.getGraphForString(resultString, ConceptRelationshipJpa.class);
+    return ConfigUtility.getGraphForString(resultString,
+        ConceptRelationshipJpa.class);
   }
-  
+
   @Override
-  public Attribute getAttribute(Long attributeId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Integration Test Client - get attribute : " + attributeId);
+  public Attribute getAttribute(Long attributeId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - get attribute : " + attributeId);
 
     validateNotEmpty(attributeId, "attributeId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/test/attribute/" + attributeId);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/test/attribute/" + attributeId);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     if (response.getStatus() == 204) {
       return null;
@@ -359,6 +347,33 @@ public class IntegrationTestClientRest extends RootClientRest implements
 
     // converting to object
     return ConfigUtility.getGraphForString(resultString, AttributeJpa.class);
-  }  
-  
+  }
+
+  /* see superclass */
+  @Override
+  public TypeKeyValue addTypeKeyValue(TypeKeyValueJpa typeKeyValue,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - add typeKeyValue" + typeKeyValue);
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/test/typeKeyValue/add");
+
+    final String typeKeyValueString = ConfigUtility.getStringForGraph(
+        typeKeyValue == null ? new ConceptJpa() : typeKeyValue);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(typeKeyValueString));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception("Unexpected status - " + response.getStatus());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, TypeKeyValue.class);
+  }
+
 }

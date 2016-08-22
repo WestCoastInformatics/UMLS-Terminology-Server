@@ -6,15 +6,13 @@ package com.wci.umls.server.jpa.services.validation;
 import java.util.List;
 import java.util.Properties;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.services.ContentService;
 
 /**
- * Validates those {@link Concept}s which contain multiple releasable
+ * Validates those {@link Concept}s which contain multiple publishable
  * <code>MTH/PN</code> {@link Atom}s.
  *
  */
@@ -26,25 +24,22 @@ public class DT_PN2 extends AbstractValidationCheck {
     // n/a
   }
 
-  /**
-   * Validate.
-   *
-   * @param project the project
-   * @param service the service
-   * @param source the source
-   * @return the validation result
-   */
-  public ValidationResult validate(Project project, ContentService service,
-    Concept source) {
+  /* see superclass */
+  @Override
+  public ValidationResult validate(Concept source) {
     ValidationResult result = new ValidationResultJpa();
 
+    if (source==null){
+      return result;
+    }
+    
     //
     // Get atoms
     //
     List<Atom> atoms = source.getAtoms();
 
     //
-    // Count releasable MTH/PN atoms
+    // Count publishable MTH/PN atoms
     //
     int l_ctr = 0;
     for (Atom atom : atoms) {
@@ -59,7 +54,7 @@ public class DT_PN2 extends AbstractValidationCheck {
     //
     if (l_ctr > 1) {
       result.getErrors()
-          .add(getName() + ": Concept contains multiple releasable MTH/PN Atoms");
+          .add(getName() + ": Concept contains multiple publishable MTH/PN Atoms");
       return result;
     }
 
@@ -69,7 +64,7 @@ public class DT_PN2 extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "DT_PN2";
+    return this.getClass().getSimpleName();
   }
 
 }

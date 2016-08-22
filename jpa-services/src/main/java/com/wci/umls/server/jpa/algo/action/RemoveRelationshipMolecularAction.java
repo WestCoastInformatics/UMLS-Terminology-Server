@@ -99,6 +99,8 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
     // }
     // }
 
+    // Check preconditions
+    validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
 
@@ -136,7 +138,6 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "
             + getConcept2().getId() + " " + relationship);
-
     addLogEntry(getUserName(), getProject().getId(), getConcept2().getId(),
         getActivityId(), getWorkId(), getName() + " from concept "
             + getConcept().getId() + " " + relationship);

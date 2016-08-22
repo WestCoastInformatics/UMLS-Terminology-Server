@@ -110,6 +110,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       }
     }
 
+    validationResult.merge(super.checkPreconditions()); 
     return validationResult;
   }
 

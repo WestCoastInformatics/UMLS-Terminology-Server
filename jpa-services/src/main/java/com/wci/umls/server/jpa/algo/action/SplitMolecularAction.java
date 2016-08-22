@@ -175,7 +175,6 @@ public class SplitMolecularAction extends AbstractMolecularAction {
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-
     return validationResult;
   }
 

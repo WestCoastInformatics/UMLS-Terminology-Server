@@ -64,14 +64,14 @@ public class UpdateConceptStatusMolecularAction
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
-    final ValidationResult validationResult = new ValidationResultJpa();
+    ValidationResult validationResult = new ValidationResultJpa();
     // Perform action specific validation - n/a
 
     // Metadata referential integrity checking
 
     // Check preconditions
-    this.validateConcept(getProject(), getConcept());
-
+    validationResult.merge(super.checkPreconditions());
+    validationResult.merge(validateConcept(this.getProject(), this.getConcept()));
     return validationResult;
   }
 

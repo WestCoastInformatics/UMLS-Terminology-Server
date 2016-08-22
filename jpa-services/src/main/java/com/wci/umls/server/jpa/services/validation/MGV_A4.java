@@ -8,7 +8,11 @@ import java.util.Properties;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
+import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.MoveMolecularAction;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.ContentService;
@@ -25,19 +29,25 @@ public class MGV_A4 extends AbstractValidationCheck {
     // n/a
   }
 
-  /**
-   * Validate.
-   *
-   * @param project the project
-   * @param service the service
-   * @param source the source
-   * @param target the target
-   * @param source_atoms the source atoms
-   * @return the validation result
-   */
-  public ValidationResult validate(Project project, ContentService service,
-    Concept source, Concept target, List<Atom> source_atoms) {
+  /* see superclass */
+  @SuppressWarnings("unused")
+  @Override
+  public ValidationResult validateAction(MolecularActionAlgorithm action) {
     ValidationResult result = new ValidationResultJpa();
+
+    // Only run this check on merge and move actions
+    if (!(action instanceof MergeMolecularAction || action instanceof MoveMolecularAction)){
+      return result;
+    }
+    
+    final Project project = action.getProject();
+    final ContentService service = (AbstractMolecularAction) action;
+    final Concept source = (action instanceof MergeMolecularAction
+        ? action.getConcept2() : action.getConcept());
+    final Concept target = (action instanceof MergeMolecularAction
+        ? action.getConcept() : action.getConcept2());
+    final List<Atom> source_atoms = (action instanceof MoveMolecularAction
+        ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
 
     //
     // Obtain target atoms
@@ -45,8 +55,8 @@ public class MGV_A4 extends AbstractValidationCheck {
     List<Atom> target_atoms = target.getAtoms();
 
     //
-    // Find releasable atom from source concept
-    // having different last release cui from releasable
+    // Find publishable atom from source concept
+    // having different last release cui from publishable
     // target concept atom.
     //
     for (Atom sourceAtom : source_atoms) {
@@ -73,7 +83,7 @@ public class MGV_A4 extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "MGV_A4";
+    return this.getClass().getSimpleName();
   }
 
 }
