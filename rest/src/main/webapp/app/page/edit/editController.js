@@ -16,13 +16,15 @@ tsApp
       'websocketService',
       'configureService',
       'projectService',
+      'metadataService',
       'reportService',
       'metaEditingService',
       'contentService',
       '$uibModal',
       function($scope, $http, $location, $window, $q, gpService, tabService, configureService,
         securityService, workflowService, utilService, websocketService, configureService,
-        projectService, reportService, metaEditingService, contentService, $uibModal) {
+        projectService, metadataService, reportService, metaEditingService, contentService,
+        $uibModal) {
         console.debug("configure EditCtrl");
 
         // Set up tabs and controller
@@ -81,16 +83,23 @@ tsApp
 
         $scope.errors = [];
 
-        $scope.$on('termServer::conceptChange', function(event, data) {
+        $scope.$on('termServer::conceptChange', function(event, concept) {
 
           // Refresh the selected concept
-          if ($scope.selected.concept.id == data.id) {
-            contentService.getConcept(data.id, $scope.selected.project.id).then(function(data) {
+          if ($scope.selected.concept.id == concept.id) {
+            contentService.getConcept(concept.id, $scope.selected.project.id).then(
+            // Success
+            function(data) {
+              // Handle blank case
+              //if (!data) {
+              //  $scope.removeConceptFromList(concept);
+              //}
+
               $scope.selectConcept(data);
               // Update the selected concept in the list
               for (var i = 0; i < $scope.lists.concepts.length; i++) {
                 var concept = $scope.lists.concepts[i];
-                if (data.id == $scope.selected.concept.id) {
+                if (concept.id == $scope.selected.concept.id) {
                   $scope.lists.concepts[i] = data;
                 }
               }
@@ -105,24 +114,45 @@ tsApp
             // well
             var found = false;
             for (var i = 0; i < $scope.lists.concepts.length; i++) {
-              var concept = $scope.lists.concepts[i];
-              if (concept.id != $scope.selected.concept && concept.id == data.id) {
-                contentService.getConcept(concept.id, $scope.selected.project.id).then(
-                  function(data) {
-                    $scope.selectConcept($scope.lists.concepts[i]);
-                    $scope.getRecords();
-                  });
+              var c = $scope.lists.concepts[i];
+              if (c.id != $scope.selected.concept && c.id == concept.id) {
+                contentService.getConcept(c.id, $scope.selected.project.id).then(
+                // Success
+                function(data) {
+                  //if (!data) {
+                  //  $scope.removeConceptFromList(concept);
+                  //}
+                  $scope.selectConcept($scope.lists.concepts[i]);
+                  $scope.getRecords();
+                });
                 found = true;
               }
             }
             // If no matching concept found, add it to to the list
             if (!found) {
-              contentService.getConcept(data.id, $scope.selected.project.id).then(function(data) {
+              contentService.getConcept(concept.id, $scope.selected.project.id).then(
+              // Success
+              function(data) {
+                //if (!data) {
+                //  $scope.removeConceptFromList(concept);
+                //}
                 $scope.lists.concepts.push(data);
               });
             }
           }
         });
+
+        // Remove a concept from the concepts list
+        $scope.removeConceptFromList = function(concept) {
+          for (var i = 0; i < $scope.lists.concepts.length; i++) {
+            var c = $scope.lists.concepts[i];
+            if (concept.id != $scope.selected.concept) {
+              // Cut this element out
+              $scope.lists.concepts.splice(i, 1);
+              break;
+            }
+          }
+        }
 
         // Get $scope.lists.worklists
         // switch based on type

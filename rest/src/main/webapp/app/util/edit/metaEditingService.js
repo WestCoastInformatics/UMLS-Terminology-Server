@@ -176,7 +176,7 @@ tsApp
 
         // merge concepts
         this.mergeConcepts = function(projectId, activityId, concept1, concept2, overrideWarnings) {
-          console.debug('merge concepts');
+          console.debug('merge concepts', concept1.lastModified);
           var deferred = $q.defer();
 
           // Merge concepts
