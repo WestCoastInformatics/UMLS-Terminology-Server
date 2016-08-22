@@ -23,7 +23,7 @@ tsApp
         utilService.clearError();
         $scope.user = securityService.getUser();
         projectService.getUserHasAnyRole();
-        tabService.setSelectedTabByLabel('Edit');
+        tabService.setSelectedTabByLabel('Admin');
 
         // If logged in as guest, redirect
         if (securityService.isGuestUser()) {

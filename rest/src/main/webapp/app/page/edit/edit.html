@@ -148,22 +148,28 @@
                 ng-change="getRecords(selected.worklist)">
                   <option value="">All</option>
               </select></th>
-              <th class="col-md-2 col-xs-2">Concept Id</th>
+              <th class="col-md-3 col-xs-4">Last Modified</th>
+              <th class="col-md-3 col-xs-2">Concept Id</th>
               <th class="col-md-4 col-xs-4">Concept Name</th>
-              <th class="col-md-4 col-xs-4">Last Modified</th>
             </tr>
           </thead>
+
           <tbody ng-repeat="record in lists.records">
-            <tr ng-class="{selected : record.id == selected.record.id}">
-              <td rowspan="3">{{record.clusterId}}</td>
-              <td rowspan="3">
-                <button class="btn btn-xs btn-danger"
+            <tr ng-class="{selected : record.id == selected.record.id}"
+              ng-click="selectRecord(record)">
+              <td rowspan="{{record.concepts.length+1}}">{{record.clusterId}}</td>
+              <td rowspan="{{record.concepts.length+1}}">
+                <button
+                  class="
+                btn btn-xs
+                btn-danger"
                   ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
                   uib-tooltip="Needs review">N</button>
                 <button class="btn btn-xs btn-success"
                   ng-show="record.workflowStatus != 'NEEDS_REVIEW'"
                   uib-tooltip="Reviewed">R</button>
               </td>
+              <td rowspan="{{record.concepts.length+1}}">{{toDate(record.lastModified)}}</td>
             </tr>
             <tr ng-click="selectRecord(record);"
               ng-class="{selected : record.id == selected.record.id}"
@@ -171,9 +177,6 @@
               class="{{concept.workflowStatus}}">
               <td>{{concept.id}}</td>
               <td>{{concept.name}}</td>
-              <td>
-                {{toDate(record.lastModified)}}<br />{{record.lastModifiedBy}}
-              </td>
             </tr>
           </tbody>
         </table>

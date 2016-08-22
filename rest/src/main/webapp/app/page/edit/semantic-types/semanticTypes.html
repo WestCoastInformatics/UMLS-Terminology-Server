@@ -13,7 +13,7 @@
   </thead>
   <tbody>
     <tr ng-repeat="semanticType in selected.concept.semanticTypes">
-      <td>{{semanticType.semanticType}}</td>
+      <td class="{{semanticType.workflowStatus}}">{{semanticType.semanticType}}</td>
       <td>
         <i ng-click="removeSemanticTypeFromConcept(semanticType); "
           title="Remove Semantic Type" class="noul glyphicon glyphicon-trash"></i>
