@@ -32,7 +32,7 @@
           <tbody>
             <tr class="pointer" ng-repeat="result in searchResults"
               ng-click="selectConcept(result)"
-              ng-dblclick="addConcept(result); "
+              ng-dblclick="addConcept(result); $event.stopPropagation() "
               ng-class="{selected: result.terminologyId === concept.terminologyId}">
               <td>{{result.terminologyId}}</td>
               <td>{{result.value}}</td>

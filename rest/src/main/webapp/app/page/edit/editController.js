@@ -6,6 +6,7 @@ tsApp
       '$http',
       '$location',
       '$window',
+      '$q',
       'gpService',
       'tabService',
       'configureService',
@@ -19,7 +20,7 @@ tsApp
       'metaEditingService',
       'contentService',
       '$uibModal',
-      function($scope, $http, $location, $window, gpService, tabService, configureService,
+      function($scope, $http, $location, $window, $q, gpService, tabService, configureService,
         securityService, workflowService, utilService, websocketService, configureService,
         projectService, reportService, metaEditingService, contentService, $uibModal) {
         console.debug("configure EditCtrl");
@@ -519,6 +520,8 @@ tsApp
 
         // Approve concept
         $scope.approveConcept = function(concept) {
+          // Need a promise, so we can reload the tracking records
+          var deferred = $q.defer();
           contentService.getConcept(concept.id, $scope.selected.project.id).then(
             function(data) {
               var concept = data;
@@ -526,16 +529,26 @@ tsApp
                 $scope.selected.activityId, concept, false).then(
               // Success
               function(data) {
+                deferred.resolve(data);
+              },
+              // Error
+              function(data) {
+                deferred.reject(data);
               });
             });
-
+          return deferred.promise;
         }
 
         // Approves all selector concepts and moves on to next record
         $scope.approveNext = function() {
           for (var i = 0; i < $scope.lists.concepts.length; i++) {
+            // ignore the websocket event from this.
             websocketService.incrementConceptIgnore($scope.lists.concepts[i].id);
-            $scope.approveConcept($scope.lists.concepts[i]);
+            $scope.approveConcept($scope.lists.concepts[i]).then(
+            // Success
+            function(data) {
+              $scope.getRecords();
+            });
           }
           $scope.selectNextRecord($scope.selected.record);
         }
@@ -597,7 +610,7 @@ tsApp
         $scope.openMergeModal = function() {
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/merge.html',
-            controller : MergeModalCtrl,
+            controller : 'MergeModalCtrl',
             backdrop : 'static',
             resolve : {
               selected : function() {

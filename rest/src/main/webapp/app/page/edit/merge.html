@@ -8,7 +8,7 @@
       <td>
         <b>Concept 1</b>
       </td>
-      <td>{{concept.name}}&nbsp;({{concept.id}})</td>
+      <td>{{selected.concept.name}}&nbsp;({{selected.concept.id}})</td>
     </tr>
     <tr>
       <td>
@@ -33,6 +33,6 @@
 
 <div class="modal-footer">
   <button class="btn btn-primary" ng-disabled="!mergeConcept"
-    ng-click="merge(concept, mergeConcept);" title="Merge concepts">Merge</button>
+    ng-click="merge(selected.concept, mergeConcept);" title="Merge concepts">Merge</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>

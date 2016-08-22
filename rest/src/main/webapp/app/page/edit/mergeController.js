@@ -1,5 +1,5 @@
-// Checklist modal controller
-tsApp.controller('ChecklistModalCtrl',
+// Merge modal controller
+tsApp.controller('MergeModalCtrl',
   [
     '$scope',
     '$uibModalInstance',
@@ -8,12 +8,12 @@ tsApp.controller('ChecklistModalCtrl',
     'selected',
     'lists',
     'user',
-    function($scope, $uibModalInstance, $sce, utilService, metaEditingService, selected, lists,
+    function($scope, $uibModalInstance, utilService, metaEditingService, selected, lists,
       user) {
-      console.debug('Entered merge modal control');
+      console.debug('Entered merge modal control', lists);
 
       // Scope vars
-      $scope.concept = selected.concept;
+      $scope.selected = selected;
       $scope.lists = lists;
       $scope.prospectiveMergeConcepts = [];
       $scope.overrideWarnings = false;
@@ -23,7 +23,7 @@ tsApp.controller('ChecklistModalCtrl',
       // Init modal
       function initialize() {
         for (var i = 0; i < $scope.lists.concepts.length; i++) {
-          if ($scope.lists.concepts[i].id != $scope.concept.id) {
+          if ($scope.lists.concepts[i].id != $scope.selected.concept.id) {
             $scope.prospectiveMergeConcepts.push($scope.lists.concepts[i]);
           }
         }
