@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -20,11 +21,14 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.validation.MGV_E;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
@@ -38,14 +42,14 @@ public class MGV_ETest extends IntegrationUnitSupport {
   /** The service. */
   protected ContentServiceJpa contentService;
 
-  /** The concept MSH related 1. */
-  private Concept conceptMSHRelated1 = null;
+  /** The concept ICD10CM related 1. */
+  private Concept conceptICD10CMRelated1 = null;
 
-  /** The concept MSH related 2. */
-  private Concept conceptMSHRelated2 = null;
+  /** The concept ICD10CM related 2. */
+  private Concept conceptICD10CMRelated2 = null;
 
-  /** The concept MSH unrelated. */
-  private Concept conceptMSHUnrelated = null;
+  /** The concept ICD10CM unrelated. */
+  private Concept conceptICD10CMUnrelated = null;
 
   /**
    * Setup class.
@@ -65,9 +69,9 @@ public class MGV_ETest extends IntegrationUnitSupport {
   @Before
   public void setup() throws Exception {
     project = null;
-    conceptMSHRelated1 = null;
-    conceptMSHRelated2 = null;
-    conceptMSHUnrelated = null;
+    conceptICD10CMRelated1 = null;
+    conceptICD10CMRelated2 = null;
+    conceptICD10CMUnrelated = null;
 
     // instantiate service
     contentService = new ContentServiceJpa();
@@ -82,14 +86,27 @@ public class MGV_ETest extends IntegrationUnitSupport {
     // Reset the project's validation check list, so only this integrity check
     // will run.
     project.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_E")));
+    
+    // Setup validationData germane to this test, and add to project
+    // NOTE: MGV_E runs for any terminology NOT specified in validation data.  
+    // So add all terminologies to validation data except ICD10CM.
+    final List<TypeKeyValue> validationData =
+        new ArrayList<TypeKeyValue>(project.getValidationData());
+    contentService.getTerminologies();
+    for(Terminology terminology : contentService.getTerminologies().getObjects()){
+      if(!terminology.getTerminology().equals("ICD10CM")){
+        validationData.add(new TypeKeyValueJpa("MGV_E", terminology.getTerminology(), ""));
+      }
+    }
+    project.setValidationData(validationData);
 
-    // Get two UMLS concepts connected by MSH relationships, and one that is not
-    conceptMSHRelated1 =
-        contentService.getConcept("C0044971", "UMLS", "latest", Branch.ROOT);
-    conceptMSHRelated2 =
-        contentService.getConcept("C0020387", "UMLS", "latest", Branch.ROOT);
-    conceptMSHUnrelated =
-        contentService.getConcept("C0338361", "UMLS", "latest", Branch.ROOT);
+    // Get two UMLS concepts connected by UMLS relationships, and one that is not
+    conceptICD10CMRelated1 =
+        contentService.getConcept("C0041327", "UMLS", "latest", Branch.ROOT);
+    conceptICD10CMRelated2 =
+        contentService.getConcept("C0041296", "UMLS", "latest", Branch.ROOT);
+    conceptICD10CMUnrelated =
+        contentService.getConcept("C0000727", "UMLS", "latest", Branch.ROOT);
 
   }
 
@@ -102,21 +119,19 @@ public class MGV_ETest extends IntegrationUnitSupport {
   public void testNormalUse() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    //TODO - update (currently direct copy of MGV_F)
-    
     //
     // Test violation of MGV_E
-    // Concepts are connected by an MSH relationship
+    // Concepts are connected by an ICD10CM relationship
     //
 
     // Create and configure the action
     final MergeMolecularAction action = new MergeMolecularAction();
 
     action.setProject(project);
-    action.setConceptId(conceptMSHRelated2.getId());
-    action.setConceptId2(conceptMSHRelated1.getId());
+    action.setConceptId(conceptICD10CMRelated2.getId());
+    action.setConceptId2(conceptICD10CMRelated1.getId());
     action.setUserName("admin");
-    action.setLastModified(conceptMSHRelated2.getLastModified().getTime());
+    action.setLastModified(conceptICD10CMRelated2.getLastModified().getTime());
     action.setOverrideWarnings(false);
     action.setTransactionPerOperation(false);
     action.setMolecularActionFlag(true);
@@ -130,17 +145,17 @@ public class MGV_ETest extends IntegrationUnitSupport {
 
     //
     // Test non-violation of MGV_E
-    // Concepts not connected by an MSH relationship
+    // Concepts not connected by an ICD10CM relationship
     //
 
     // Create and configure the action
     MergeMolecularAction action2 = new MergeMolecularAction();
 
     action2.setProject(project);
-    action2.setConceptId(conceptMSHRelated2.getId());
-    action2.setConceptId2(conceptMSHUnrelated.getId());
+    action2.setConceptId(conceptICD10CMRelated2.getId());
+    action2.setConceptId2(conceptICD10CMUnrelated.getId());
     action2.setUserName("admin");
-    action2.setLastModified(conceptMSHRelated2.getLastModified().getTime());
+    action2.setLastModified(conceptICD10CMRelated2.getLastModified().getTime());
     action2.setOverrideWarnings(false);
     action2.setTransactionPerOperation(false);
     action2.setMolecularActionFlag(true);
