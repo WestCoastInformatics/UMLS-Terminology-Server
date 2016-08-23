@@ -154,7 +154,7 @@ tsApp
         $scope.removeConceptFromList = function(concept) {
           for (var i = 0; i < $scope.lists.concepts.length; i++) {
             var c = $scope.lists.concepts[i];
-            if (concept.id != $scope.selected.concept) {
+            if (concept.id == c.id) {
               // Cut this element out
               $scope.lists.concepts.splice(i, 1);
               break;
@@ -718,10 +718,19 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
+            // return if concept is already on concept list
+            for (var i=0; i<$scope.lists.concepts.length; i++) {
+              if ($scope.lists.concepts[i].id == data.id) {
+                window.alert('Concept ' + data.id + ' is already on the concept list.');
+                return;
+              }
+            }
+            // get full concept
             contentService.getConcept(data.id, $scope.selected.project.id).then(
             // Success
             function(data) {
               $scope.lists.concepts.push(data);
+              $scope.selectConcept(data);
             });
           });
 

@@ -28,8 +28,23 @@ tsApp.controller('SemanticTypesCtrl', [
     window.$windowScope = $scope;
     $scope.selected = $scope.parentWindowScope.selected;
 
+    $scope.fullStys = [];
+    $scope.stysForDisplay = [];
+    
     // Paging variables
-    $scope.visibleSize = 4;
+    $scope.paging = {};
+    $scope.paging['stys'] = utilService.getPaging();
+    $scope.paging['stys'].sortField = 'typeId';
+    $scope.paging['stys'].ascending = true;
+    $scope.paging['stys'].pageSize = 5;
+    $scope.paging['stys'].filterFields = {};
+    $scope.paging['stys'].filterFields.expandedForm = 1;
+    $scope.paging['stys'].filterFields.typeId = 1;
+    $scope.paging['stys'].filterFields.treeNumber = 1;
+    $scope.paging['stys'].callback = {
+      getPagedList : getPagedStys
+    };
+    /*$scope.visibleSize = 4;
     $scope.pageSize = 5;
     $scope.paging = {};
     $scope.paging['stys'] = {
@@ -37,10 +52,10 @@ tsApp.controller('SemanticTypesCtrl', [
       filter : '',
       typeFilter : '',
       filterFields : {'expandedForm' : 1, 'typeId' : 1, 'treeNumber' : 1},
-      sortField : null,
+      sortField : 'typeId',
       ascending : true,
       pageSize : $scope.pageSize
-    };
+    };*/
     
     $scope.$watch('selected.concept', function() {
       console.debug('in watch');
@@ -61,8 +76,11 @@ tsApp.controller('SemanticTypesCtrl', [
 
     // Get paged stys (assume all are loaded)
     $scope.getPagedStys = function() {
-      // first only display stys that aren't already on concept
+      getPagedStys();
+    }
+    function getPagedStys() {
       $scope.stysForDisplay = [];
+      // first only display stys that aren't already on concept
       for (var i = 0; i < $scope.fullStys.length; i++) {
         var found = false;
         for (var j = 0; j < $scope.selected.concept.semanticTypes.length; j++) {
