@@ -24,64 +24,69 @@ tsApp.controller('SemanticTypesCtrl', [
     utilService.setHeaderFooterShowing(false);
 
     // preserve parent scope reference
-    $scope.parentWindow = window.opener.$windowScope;
+    $scope.parentWindowScope = window.opener.$windowScope;
     window.$windowScope = $scope;
-    $scope.selected = $scope.parentWindow.selected;
+    $scope.selected = $scope.parentWindowScope.selected;
 
+    $scope.fullStys = [];
+    $scope.stysForDisplay = [];
+    
     // Paging variables
-    $scope.visibleSize = 4;
+    $scope.paging = {};
+    $scope.paging['stys'] = utilService.getPaging();
+    $scope.paging['stys'].sortField = 'typeId';
+    $scope.paging['stys'].ascending = true;
+    $scope.paging['stys'].pageSize = 5;
+    $scope.paging['stys'].filterFields = {};
+    $scope.paging['stys'].filterFields.expandedForm = 1;
+    $scope.paging['stys'].filterFields.typeId = 1;
+    $scope.paging['stys'].filterFields.treeNumber = 1;
+    $scope.paging['stys'].callback = {
+      getPagedList : getPagedStys
+    };
+    /*$scope.visibleSize = 4;
     $scope.pageSize = 5;
     $scope.paging = {};
     $scope.paging['stys'] = {
       page : 1,
       filter : '',
       typeFilter : '',
-      sortField : null,
+      filterFields : {'expandedForm' : 1, 'typeId' : 1, 'treeNumber' : 1},
+      sortField : 'typeId',
       ascending : true,
       pageSize : $scope.pageSize
-    };
+    };*/
+    
+    $scope.$watch('selected.concept', function() {
+      console.debug('in watch');
+      $scope.getPagedStys();
+    });
 
     // add semantic type
     $scope.addSemanticTypeToConcept = function(semanticType) {
       metaEditingService.addSemanticType($scope.selected.project.id, null, $scope.selected.concept,
-        semanticType).then(
-      // Success
-      function(data) {
-        // TODO: need to refresh concept
-        $scope.getPagedStys();
-      },
-      // Error
-      function(data) {
-        utilService.handleDialogError($scope.errors, data);
-      });
+        semanticType);
     }
 
     // remove semantic type
     $scope.removeSemanticTypeFromConcept = function(semanticType) {
       metaEditingService.removeSemanticType($scope.selected.project.id, null,
-        $scope.selected.concept, semanticType.id, true).then(
-      // Success
-      function(data) {
-        // $scope.parentWindow.selectConcept($scope.selected.concept);
-        // $scope.parentWindow.getWorklists();
-        $scope.refresh();
-        $scope.getPagedStys();
-      },
-      // Error
-      function(data) {
-        utilService.handleDialogError($scope.errors, data);
-      });
+        $scope.selected.concept, semanticType.id, true);
     }
 
     // Get paged stys (assume all are loaded)
     $scope.getPagedStys = function() {
-      // first only display stys that aren't already on concept
+      getPagedStys();
+    }
+    function getPagedStys() {
       $scope.stysForDisplay = [];
+      // first only display stys that aren't already on concept
       for (var i = 0; i < $scope.fullStys.length; i++) {
         var found = false;
         for (var j = 0; j < $scope.selected.concept.semanticTypes.length; j++) {
-          if ($scope.selected.concept.semanticTypes[j].semanticType == $scope.fullStys[i].value) {
+          if ($scope.selected.concept.semanticTypes[j].semanticType == $scope.fullStys[i].expandedForm) {
             found = true;
+            break;
           }
         }
         if (!found) {
@@ -94,12 +99,12 @@ tsApp.controller('SemanticTypesCtrl', [
 
     // approve concept
     $scope.approveConcept = function() {
-      $scope.parentWindow.approveConcept($scope.selected.concept);
+      $scope.parentWindowScope.approveConcept($scope.selected.concept);
     }
 
     // approve next
     $scope.approveNext = function() {
-      $scope.parentWindow.approveNext();
+      $scope.parentWindowScope.approveNext();
     }
 
     // refresh
@@ -109,9 +114,20 @@ tsApp.controller('SemanticTypesCtrl', [
 
     // notify edit controller when semantic type window closes
     $window.onbeforeunload = function(evt) {
-      $scope.parentWindow.removeWindow('semanticType');
+      $scope.parentWindowScope.removeWindow('semanticType');
     }
 
+    // Table sorting mechanism
+    $scope.setSortField = function(table, field, object) {
+      utilService.setSortField(table, field, $scope.paging);
+      $scope.getPagedStys();
+    };
+
+    // Return up or down sort chars if sorted
+    $scope.getSortIndicator = function(table, field) {
+      return utilService.getSortIndicator(table, field, $scope.paging);
+    };
+    
     //
     // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
     //

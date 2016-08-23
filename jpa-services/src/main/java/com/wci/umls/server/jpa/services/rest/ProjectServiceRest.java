@@ -7,6 +7,7 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
@@ -88,7 +89,7 @@ public interface ProjectServiceRest {
    * @return the project
    * @throws Exception the exception
    */
-  public Project assignUserToProject(Long id, String userName, String role,
+  public Project assignUserToProject(Long id, String userName, UserRole role,
     String authToken) throws Exception;
 
   /**

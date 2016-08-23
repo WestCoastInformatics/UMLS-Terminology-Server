@@ -28,30 +28,26 @@
   <button confirm="Are you sure you want to approve the selected concept?"
     ng-click="approveNext()" title="Approve/Next" class="btn btn-xs btn-primary">Approve/Next</button>
 </span>
-</br>
 <br>
-<span style="display: block;">
-  <uib-pagination items-per-page="pageSize" max-size="5" boundary-links="true"
-    class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;"
-    first-text="&laquo;" last-text="&raquo;"
-    ng-show="pagedStys.totalCount > pageSize || paging['stys'].filter"
-    total-items="pagedStys.totalCount" ng-model="paging['stys'].page"
-    ng-change="getPagedStys()"></uib-pagination>
-  <input class="input-filter" placeholder="Search"
-    ng-show="pagedStys.totalCount > pageSize || paging['stys'].filter"
-    type="text" ng-model="paging['stys'].filter"
-    ng-model-options="{ debounce: 300 }" ng-change="getPagedStys()">
-  <button class="btn btn-xs btn-warning" ng-show="paging['stys'].filter"
-    ng-click="paging['stys'].filter = ''; getPagedStys()"
-    title="Click to clear filter text">Clear</button>
-</span>
+<br>
+<br>
+
+<div pager paging="paging['stys']" count="stysForDisplay.length"
+      callback="paging['stys'].callback"></div>
+
 
 <table class="table">
   <thead>
     <tr>
-      <th class="col-md-2 col-xs-2">TUI</th>
-      <th class="col-md-2 col-xs-2">Tree #</th>
-      <th class="col-md-7 col-xs-7">Semantic Type</th>
+      <th class="col-md-2 col-xs-2"><span
+              ng-click="setSortField('stys','typeId')">TUI</span>
+              <span ng-bind="getSortIndicator('stys','typeId')"></span></th>
+      <th class="col-md-2 col-xs-2"><span
+              ng-click="setSortField('stys','treeNumber')">Tree #</span>
+              <span ng-bind="getSortIndicator('stys','treeNumber')"></span></th>
+      <th class="col-md-7 col-xs-7"><span
+              ng-click="setSortField('stys','expandedForm')">Semantic Type</span>
+              <span ng-bind="getSortIndicator('stys','expandedForm')"></span></th>
       <th class="col-md-1 col-xs-1"></th>
     </tr>
   </thead>

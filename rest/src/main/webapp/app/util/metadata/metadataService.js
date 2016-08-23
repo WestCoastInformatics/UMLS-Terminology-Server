@@ -8,7 +8,7 @@ tsApp.service('metadataService', [
   'tabService',
   function($http, $q, gpService, utilService, tabService) {
     console.debug("configure metadataService");
-    
+
     // The metadata for current terminology
     var metadata = {
       terminology : null,
@@ -40,7 +40,7 @@ tsApp.service('metadataService', [
     };
 
     // Initialize metadata
-    function initMetadata() {
+    function resetMetadata() {
       metadata.relationshipTypes = null;
       metadata.attributeNames = null;
       metadata.termTypes = null;
@@ -67,11 +67,9 @@ tsApp.service('metadataService', [
       return metadata;
     };
 
-    // Sets terminology object
+    // Sets terminology object and reads relevant metadata
     // and performs lookup of all related metadata
     this.setTerminology = function(terminology) {
-      console.debug("setTerminology", terminology);
-
       var deferred = $q.defer();
 
       // if no terminology specified, immediately reject
@@ -82,14 +80,13 @@ tsApp.service('metadataService', [
 
         // get metadata
         gpService.increment();
-        $http.get(
-          metadataUrl + '/all/' + terminology.terminology + '/' + terminology.version)
+        $http.get(metadataUrl + '/all/' + terminology.terminology + '/' + terminology.version)
           .then(
           // success
           function(response) {
             metadata.terminology = terminology;
             metadata.entries = response.data.keyValuePairLists;
-            initMetadata();
+            resetMetadata();
 
             if (metadata.terminology == null) {
               gpService.decrement();
@@ -177,27 +174,27 @@ tsApp.service('metadataService', [
         // get precedence
         var deferred2 = $q.defer();
         gpService.increment();
-        $http
-          .get(metadataUrl + '/precedence/' + terminology.terminology + '/' + terminology.version)
-          .then(
-          // success
-          function(response) {
-            metadata.precedenceList = response.data.precedence;
-            gpService.decrement();
-            deferred2.resolve("");
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred2.reject("");
-          });
+        $http.get(
+          metadataUrl + '/precedence/' + terminology.terminology + '/' + terminology.version).then(
+        // success
+        function(response) {
+          metadata.precedenceList = response.data.precedence;
+          gpService.decrement();
+          deferred2.resolve("");
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred2.reject("");
+        });
         // Return all deferred promises
         return $q.all([ deferred.promise, deferred2.promise ]);
       }
 
     };
 
+    // Gets the version for a terminology
     this.getTerminologyVersion = function(terminology) {
       for (var i = 0; i < metadata.terminologies.length; i++) {
         if (terminology === metadata.terminologies[i].terminology) {
@@ -208,11 +205,8 @@ tsApp.service('metadataService', [
 
     // Returns the terminology object for the terminology name
     this.getTerminology = function(terminology, version) {
-      console.debug('getTerminology', terminology, version, metadata.terminologies,
-        metadata.terminology);
       // check for full terminology object by comparing to
-      // selected
-      // terminology
+      // selected terminology
       if (!metadata || !metadata.terminology || terminology != metadata.terminology.terminology) {
 
         // cycle over available terminologies for match
@@ -223,37 +217,26 @@ tsApp.service('metadataService', [
             if (!version || version != metadata.terminologies[i].version) {
               continue;
             }
-
-            console.debug(i, metadata.terminologies[i]);
-
             return metadata.terminologies[i];
           }
         }
       } else {
-        //console.debug('-1', metadata.terminology);
+        // console.debug('-1', metadata.terminology);
         return metadata.terminology;
       }
 
-     // console.debug('no return');
+      // console.debug('no return');
     };
 
-    // initialize all terminologies
-    this.initTerminologies = function() {
-  //    console.debug("initTerminologies");
+    // Get semantic types
+    this.getSemanticTypes = function(terminology, version) {
       var deferred = $q.defer();
 
-      // Get terminologies
       gpService.increment();
-      $http.get(metadataUrl + '/terminology/current').then(
-      // success
-      function(response) {
-        console.debug("  terminologies = ", response.data);
-        metadata.terminologies = response.data.terminologies;
+      $http.get(metadataUrl + '/sty/' + terminology + '/' + version).then(function(response) {
         gpService.decrement();
         deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
+      }, function(response) {
         utilService.handleError(response);
         gpService.decrement();
         deferred.reject(response.data);
@@ -262,25 +245,6 @@ tsApp.service('metadataService', [
       return deferred.promise;
     };
 
-    this.getSemanticTypes = function(terminology, version) {
-      var deferred = $q.defer();
-     
-      gpService.increment();
-      $http.get(
-        metadataUrl + '/sty/' + terminology + '/' + version)
-        .then(function(response) {
-          gpService.decrement();
-          deferred.resolve(response.data);
-        }, function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
-      
-      return deferred.promise;
-    };
-
-    
     // get relationship type name from its abbreviation
     this.getRelationshipTypeName = function(abbr) {
       for (var i = 0; i < metadata.relationshipTypes.length; i++) {
@@ -401,11 +365,11 @@ tsApp.service('metadataService', [
       }
       return retval;
     };
-    
+
+    // Return metadata callbacks
     this.getCallbacks = function() {
       return {
         getModel : this.getModel,
-        initTerminologies : this.initTerminologies,
         setTerminology : this.setTerminology,
         getTerminologyVersion : this.getTerminologyVersion,
         getTerminology : this.getTerminology,
@@ -422,6 +386,26 @@ tsApp.service('metadataService', [
       }
     }
 
+    // Initialize the service
+    // get all terminologies
+    this.initialize = function() {
+      // Get terminologies
+      gpService.increment();
+      $http.get(metadataUrl + '/terminology/current').then(
+      // success
+      function(response) {
+        console.debug("  terminologies = ", response.data);
+        metadata.terminologies = response.data.terminologies;
+        gpService.decrement();
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+      });
+    };
+
+    this.initialize();
   }
 
 ]);
