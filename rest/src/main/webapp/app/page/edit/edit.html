@@ -203,8 +203,9 @@
 
           <th class="col-md-2 col-xs-2">Concept Id</th>
           <th class="col-md-2 col-xs-2">CUI</th>
-          <th class="col-md-4 col-xs-4">Concept Name</th>
+          <th class="col-md-3 col-xs-3">Concept Name</th>
           <th class="col-md-4 col-xs-4">Semantic Types</th>
+          <th class="col-md-1 col-xs-1"></th>
         </tr>
       </thead>
       <tbody>
@@ -221,6 +222,9 @@
               {{sty.semanticType}}</br>
             </span>
           </td>
+          <td><i title="Remove" ng-show="concept.id == selected.concept.id"
+              ng-click="removeConceptFromList(concept); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-trash"></i></td>
         </tr>
       </tbody>
     </table>
