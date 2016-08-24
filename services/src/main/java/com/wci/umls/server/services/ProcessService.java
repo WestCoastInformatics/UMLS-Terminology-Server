@@ -3,9 +3,8 @@
  */
 package com.wci.umls.server.services;
 
-import java.util.List;
-
-import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.helpers.KeyValuePairList;
 
 /**
  * Represents a service for performing and monitoring processes.
@@ -18,7 +17,7 @@ public interface ProcessService extends HistoryService {
    * @return the authoring algorithms
    * @throws Exception the exception
    */
-  public List<Algorithm> getAuthoringAlgorithms() throws Exception;
+  public KeyValuePairList getInsertionAlgorithms() throws Exception;
 
   /**
    * Returns the maintenance algorithms.
@@ -26,7 +25,7 @@ public interface ProcessService extends HistoryService {
    * @return the maintenance algorithms
    * @throws Exception the exception
    */
-  public List<Algorithm> getMaintenanceAlgorithms() throws Exception;
+  public KeyValuePairList getMaintenanceAlgorithms() throws Exception;
   
   /**
    * Returns the release algorithms.
@@ -34,8 +33,44 @@ public interface ProcessService extends HistoryService {
    * @return the release algorithms
    * @throws Exception the exception
    */
-  public List<Algorithm> getReleaseAlgorithms() throws Exception;
+  public KeyValuePairList getReleaseAlgorithms() throws Exception;
 
+  /**
+   * Adds the process config.
+   *
+   * @param processConfig the process config
+   * @return the process config
+   * @throws Exception the exception
+   */
+  public ProcessConfig addProcessConfig(ProcessConfig processConfig) throws Exception;
+  
+  /**
+   * Removes the process config.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeProcessConfig(Long id) throws Exception;
+
+  /**
+   * Update process config.
+   *
+   * @param processConfig the process config
+   * @throws Exception the exception
+   */
+  public void updateProcessConfig(ProcessConfig processConfig) throws Exception;
+ 
+  /**
+   * Returns the process config.
+   *
+   * @param id the id
+   * @return the process config
+   * @throws Exception the exception
+   */
+  public ProcessConfig getProcessConfig(Long id) throws Exception;
+  
+  
+  
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
   // add/remove/update/get/find process executions
