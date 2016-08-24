@@ -24,6 +24,7 @@ tsApp
 
         $scope.user = user;
         $scope.skipClusterCt = 0;
+        $scope.sortOrder = 'clusterId';
         $scope.numberOfWorklists = 1;
         $scope.worklistsCompleted = 0;
         $scope.completionMessage = '';
@@ -31,62 +32,64 @@ tsApp
         $scope.errors = [];
 
         // Create the worklist
-        $scope.createWorklist = function(clusterCt, skipClusterCt, numberOfWorklists) {
+        $scope.createWorklist = function() {
 
-          if (isNaN(numberOfWorklists) || numberOfWorklists < 1) {
+          if (isNaN($scope.numberOfWorklists) || $scope.numberOfWorklists < 1) {
             window.alert('Please enter the Number of Worklists and confirm that it is an integer.');
             return;
           }
-          if (numberOfWorklists > 10
-            && !$window.confirm('Are you sure you want to create ' + numberOfWorklists
+          if ($scope.numberOfWorklists > 10
+            && !$window.confirm('Are you sure you want to create ' + $scope.numberOfWorklists
               + ' worklists?')) {
             return;
           }
-          if (isNaN(clusterCt) || clusterCt > 1000) {
+          if (isNaN($scope.clusterCt) || $scope.clusterCt > 1000) {
             window
               .alert('Please enter the Cluster Count and confirm that it is an integer less than or equal to 1000.');
             return;
           }
-          if (isNaN(skipClusterCt) || skipClusterCt < 0) {
+          if (isNaN($scope.skipClusterCt) || $scope.skipClusterCt < 0) {
             window
               .alert('Please enter the Start Index and confirm that it is an integer greater or equal to 0.');
             return;
           }
-          if (numberOfWorklists * clusterCt > $scope.availableClusterCt) {
-            window.alert('You have requested to make ' + (numberOfWorklists * clusterCt)
-              + ' clusters.  There are only ' + $scope.availableClusterCt
-              + ' clusters available.  Please revise your selections.');
+          if ($scope.numberOfWorklists * $scope.clusterCt > $scope.availableClusterCt) {
+            window.alert('You have requested to make '
+              + ($scope.numberOfWorklists * $scope.clusterCt) + ' clusters.  There are only '
+              + $scope.availableClusterCt + ' clusters available.  Please revise your selections.');
             return;
           }
-          createWorklistHelper(clusterCt, skipClusterCt, numberOfWorklists);
+          createWorklistHelper();
         }
 
         // Helper function for multiple worklists
-        function createWorklistHelper(clusterCt, skipClusterCt, numberOfWorklists) {
+        function createWorklistHelper() {
           var pfs = {
-            maxResults : clusterCt,
-            startIndex : skipClusterCt
+            maxResults : $scope.clusterCt,
+            startIndex : $scope.skipClusterCt,
+            sortField : $scope.sortorder
           };
+          
           // Create worklist
-          workflowService.createWorklist($scope.selected.project.id, bin.id, clusterType, pfs)
-            .then(
-            // Success
-            function(data) {
-              workflowService.fireWorklistChanged(data);
-              $scope.completionMessage += data.name;
-              $scope.completionMessage += ' completed. \n';
-              $scope.worklistsCompleted++;
-              if ($scope.worklistsCompleted < $scope.numberOfWorklists) {
-                createWorklistHelper(clusterCt, skipClusterCt, numberOfWorklists);
-              } else {
-                $uibModalInstance.close();
-              }
-            },
-            // Error
-            function(data) {
-              $scope.errors[0] = data;
-              utilService.clearError();
-            });
+          workflowService.createWorklist($scope.selected.project.id, $scope.bin.id,
+            $scope.clusterType, pfs).then(
+          // Success
+          function(data) {
+            workflowService.fireWorklistChanged(data);
+            $scope.completionMessage += data.name;
+            $scope.completionMessage += ' completed. \n';
+            $scope.worklistsCompleted++;
+            if ($scope.worklistsCompleted < $scope.numberOfWorklists) {
+              createWorklistHelper();
+            } else {
+              $uibModalInstance.close();
+            }
+          },
+          // Error
+          function(data) {
+            $scope.errors[0] = data;
+            utilService.clearError();
+          });
         }
         ;
 

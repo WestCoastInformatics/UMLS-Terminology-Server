@@ -78,7 +78,7 @@ import com.wci.umls.server.services.SecurityService;
  * 
  * See admin/loader/pom.xml for sample usage
  * 
- * @goal generate-sample-data
+ * @goal generate-nci-meta-data
  * @phase package
  */
 public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {

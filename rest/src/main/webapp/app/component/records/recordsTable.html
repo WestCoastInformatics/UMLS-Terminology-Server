@@ -25,7 +25,12 @@
     </thead>
     <tbody ng-repeat="record in lists.records">
       <tr>
-        <td rowspan="{{record.concepts.length+1}}">{{record.clusterId}}</td>
+        <td rowspan="{{record.concepts.length+1}}">
+          {{record.clusterId}}
+          <i ng-show="record.worklistName"
+            title="On worklist {{record.worklistName}}"
+            class="glyphicon glyphicon-list-alt"></i>
+        </td>
         <td rowspan="{{record.concepts.length+1}}">
           <button class="btn btn-xs btn-danger"
             ng-show="record.workflowStatus == 'NEEDS_REVIEW'"

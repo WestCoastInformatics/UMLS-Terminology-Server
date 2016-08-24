@@ -227,6 +227,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         else if (role == UserRole.REVIEWER) {
           worklist.getReviewers().add(userName);
           worklist.setWorkflowStatus(WorkflowStatus.REVIEW_NEW);
+          worklist.getWorkflowStateHistory().put("Review Assigned", new Date());
         }
         break;
 
@@ -240,6 +241,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
           worklist.setWorkflowStatus(WorkflowStatus.NEW);
           worklist.getAuthors().remove(userName);
+          worklist.getWorkflowStateHistory().remove("Assigned");
         }
         // For review, it removes the reviewer and sets the status back to
         // EDITING_DONE
@@ -248,6 +250,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
             .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_DONE);
           worklist.getReviewers().remove(userName);
+          worklist.getWorkflowStateHistory().remove("Review Assigned");
         }
         break;
 

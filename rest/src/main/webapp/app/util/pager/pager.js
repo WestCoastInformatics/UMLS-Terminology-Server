@@ -11,6 +11,7 @@ tsApp.directive('pager', [ function() {
     templateUrl : 'app/util/pager/pager.html',
     link : function(scope, element, attrs) {
       // do nothing, all functionality handled in html via callbacks
+
     }
   };
 } ]);

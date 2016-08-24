@@ -341,7 +341,10 @@ public class TrackingRecordJpa implements TrackingRecord {
   }
 
   /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  @Fields({
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(name = "indexedDataSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
   @Override
   public String getIndexedData() {
     return indexedData;
@@ -429,21 +432,18 @@ public class TrackingRecordJpa implements TrackingRecord {
         prime * result + ((clusterType == null) ? 0 : clusterType.hashCode());
     result =
         prime * result + ((componentIds == null) ? 0 : componentIds.hashCode());
-    result =
-        prime * result
-            + ((origConceptIds == null) ? 0 : origConceptIds.hashCode());
+    result = prime * result
+        + ((origConceptIds == null) ? 0 : origConceptIds.hashCode());
     result = prime * result + ((project == null) ? 0 : project.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
-    result =
-        prime * result
-            + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
+    result = prime * result
+        + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
     result =
         prime * result + ((worklistName == null) ? 0 : worklistName.hashCode());
-    result =
-        prime * result
-            + ((checklistName == null) ? 0 : checklistName.hashCode());
+    result = prime * result
+        + ((checklistName == null) ? 0 : checklistName.hashCode());
     return result;
   }
 

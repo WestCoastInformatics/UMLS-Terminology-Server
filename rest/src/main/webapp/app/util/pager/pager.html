@@ -12,7 +12,13 @@
   <input class="input-filter"
     ng-show="!paging.disableFilter && (paging.filter || count > 5)"
     placeholder="Enter filter text" type="text" ng-model="paging.filter"
-    ng-model-options="{ debounce: 500 }" ng-change="callback.getPagedList()">
+    ng-model-options="{ debounce: 500 }" ng-change="callback.getPagedList()"
+    list="filter-list">
+  <datalist ng-if="paging.filterList" id="filter-list">
+    <option ng-repeat="filter in paging.filterList | orderBy:'value'"
+      value="{{filter.value}}" />
+  </datalist>
+
   <button class="btn btn-xs btn-warning" ng-show="paging.filter"
     ng-click="paging.filter = ''; callback.getPagedList(); "
     uib-tooltip="Click to clear filter text">Clear</button>

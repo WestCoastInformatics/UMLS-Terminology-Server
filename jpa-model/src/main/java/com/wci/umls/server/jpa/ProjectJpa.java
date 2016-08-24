@@ -385,6 +385,7 @@ public class ProjectJpa implements Project {
   }
 
   /* see superclass */
+  @Override
   @XmlElement(type = TypeKeyValueJpa.class)
   public List<TypeKeyValue> getValidationData() {
     if (validationData == null) {
@@ -394,6 +395,7 @@ public class ProjectJpa implements Project {
   }
 
   /* see superclass */
+  @Override
   public List<TypeKeyValue> getValidationDataFor(String type) {
     List<TypeKeyValue> validationDataForType = new ArrayList<>();
     for (TypeKeyValue validationData : validationData) {
@@ -405,6 +407,7 @@ public class ProjectJpa implements Project {
   }
 
   /* see superclass */
+  @Override
   public void setValidationData(List<TypeKeyValue> validationData) {
     this.validationData = validationData;
   }

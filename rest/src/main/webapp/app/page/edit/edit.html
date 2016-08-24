@@ -75,7 +75,7 @@
           <!--  actions -->
           <td class="nobreak">
 
-            <i title="Remove" ng-show="selected.projectRole == 'ADMINISTRATOR'"
+            <i title="Remove worklist" ng-show="selected.projectRole == 'ADMINISTRATOR'"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
               class="noul glyphicon glyphicon-trash"></i>
@@ -222,9 +222,9 @@
               {{sty.semanticType}}</br>
             </span>
           </td>
-          <td><i title="Remove" ng-show="concept.id == selected.concept.id"
+          <td><i title="Remove from list" ng-show="concept.id == selected.concept.id"
               ng-click="removeConceptFromList(concept); $event.stopPropagation()"
-              class="noul glyphicon glyphicon-trash"></i></td>
+              class="noul glyphicon glyphicon-remove"></i></td>
         </tr>
       </tbody>
     </table>

@@ -29,7 +29,9 @@ tsApp.controller('WorkflowCtrl', [
       config : null,
       bin : null,
       clusterType : null,
-      projectRole : null
+      projectRole : null,
+      // Used to trigger events in worklist-table directive controller
+      refreshCt : 0
     };
 
     // Lists
@@ -249,8 +251,8 @@ tsApp.controller('WorkflowCtrl', [
     // MODALS
     //
 
-    // Create checklist modal
-    $scope.openCreateChecklistModal = function(bin, clusterType) {
+    // Add checklist modal
+    $scope.openAddChecklistModal = function(bin, clusterType) {
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/addChecklist.html',
@@ -279,14 +281,13 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(checklist) {
-        // Reload projects
-        $scope.setProject($scope.selected.project);
+        // "checklists" accordion should reload
+        $scope.selected.refreshCt++;
       });
     };
 
-    // Create worklist modal
-    // TODO: make this and others work like "log" with an icon in the directive.
-    $scope.openCreateWorklistModal = function(bin, clusterType, availableClusterCt) {
+    // Add worklist modal
+    $scope.openAddWorklistModal = function(bin, clusterType, availableClusterCt) {
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/addWorklist.html',
@@ -318,6 +319,9 @@ tsApp.controller('WorkflowCtrl', [
       // Success
       function(project) {
         $scope.getBins($scope.selected.project.id, $scope.selected.config);
+        // "worklists" accordion should reload
+        $scope.selected.refreshCt++;
+
       });
     };
 

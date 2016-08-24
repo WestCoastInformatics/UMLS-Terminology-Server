@@ -19,7 +19,7 @@
       </td>
       <td>
         <input type="number" size="4" ng-model="clusterCt" list="clusterCtList"
-          placeholder="(required)" />
+          placeholder="e.g. 100, 200" />
         <datalist id="clusterCtList">
           <option ng-repeat="ct in clusterCtOptions" value="{{ct}}">{{ct}}</option>
         </datalist>
@@ -29,10 +29,21 @@
     </tr>
     <tr>
       <td>
-        <b>Start Index</b>
+        <b>Skip Clusters</b>
       </td>
       <td>
         <input type="number" ng-model="skipClusterCt" size="4" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Sort order</b>
+      </td>
+      <td>
+        <select ng-model="sortOrder" title="Sort order for creating worklist">
+          <option value="clusterId">Cluster id</option>
+          <option value="indexedData">Concept name</option>
+          <option value="RANDOM">Randomize</option>
       </td>
     </tr>
     <tr>
@@ -53,6 +64,6 @@
 {{completionMessage}}
 <div class="modal-footer">
   <button class="btn btn-primary"
-    ng-click="createWorklist(clusterCt, skipClusterCt, numberOfWorklists);">Add</button>
+    ng-click="createWorklist();">Add</button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

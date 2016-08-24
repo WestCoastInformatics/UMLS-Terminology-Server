@@ -174,14 +174,14 @@
             <td>
               <b>Authoring Time</b>
             </td>
-            <td>{{getHoursMins(selected.worklist.authorTime)}}</td>
+            <td>{{toTime(selected.worklist.authorTime)}}</td>
           </tr>
 
           <tr ng-show="type == 'Worklist' && selected.worklist.reviewerTime">
             <td>
-              <b>Authoring Time</b>
+              <b>Reviewer Time</b>
             </td>
-            <td>{{getHoursMins(selected.worklist.authorTime)}}</td>
+            <td>{{toTime(selected.worklist.reviewerTime)}}</td>
           </tr>
 
           <tr ng-show="type == 'Worklist'">

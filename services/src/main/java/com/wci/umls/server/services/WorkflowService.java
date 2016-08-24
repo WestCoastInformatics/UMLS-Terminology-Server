@@ -4,6 +4,7 @@
 package com.wci.umls.server.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.wci.umls.server.Project;
@@ -481,10 +482,19 @@ public interface WorkflowService extends ContentService {
     throws Exception;
 
   /**
+   * Returns the concept id worklist name map.
+   *
+   * @param projectf the projectf
+   * @return the concept id worklist name map
+   * @throws Exception the exception
+   */
+  public Map<Long, String> getConceptIdWorklistNameMap(Project projectf)
+    throws Exception;
+
+  /**
    * Handle lazy init.
    *
    * @param checklist the checklist
    */
   public void handleLazyInit(Checklist checklist);
-
 }
