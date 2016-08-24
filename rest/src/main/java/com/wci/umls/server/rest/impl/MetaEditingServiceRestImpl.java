@@ -153,7 +153,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -232,7 +232,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -310,7 +310,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -389,7 +389,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -465,7 +465,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -542,7 +542,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -617,7 +617,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -695,7 +695,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -780,7 +780,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -814,10 +814,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Merge concepts together", notes = "Merge concepts together on a project branch", response = ValidationResultJpa.class)
   public ValidationResult mergeConcepts(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "From Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
     @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
-    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
-    @ApiParam(value = "Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
+    @ApiParam(value = "From Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "To Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -839,17 +839,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
-      // For merge only, need to check the concept Ids, so we can assign the
-      // concept with the lowest id to survive, and the one with the highest id
-      // to get destroyed.
-      Long toConceptId = Math.min(conceptId, conceptId2);
-      Long fromConceptId = Math.max(conceptId, conceptId2);
-
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
-      action.setConceptId(toConceptId);
-      action.setConceptId2(fromConceptId);
+      action.setConceptId(conceptId);
+      action.setConceptId2(conceptId2);
       action.setUserName(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
@@ -862,10 +856,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
-      
+
       // Resolve all three concepts with graphresolutionhandler.resolve(concept)
       // so they can be appropriately read by ChangeEvent
       GraphResolutionHandler graphHandler = action
@@ -912,10 +906,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Move atoms from concept to concept", notes = "Move atoms from concept to concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult moveAtoms(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "From Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
     @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
-    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
-    @ApiParam(value = "Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
+    @ApiParam(value = "From Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "To Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
     @ApiParam(value = "Atoms to move", required = true) List<Long> atomIds,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
@@ -956,7 +950,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -1055,7 +1049,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -1146,7 +1140,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
@@ -1206,18 +1200,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Note - the undo action doesn't create its own molecular and atomic
       // actions
-      // Note - if we're undoing a merge, ComponentId2 won't point to an
+      // Note - if we're undoing a merge, ComponentId won't point to an
       // existing concept, so leave that null.
-      Long conceptId =
-          action.getMolecularAction(molecularActionId).getComponentId();
-      Long conceptId2;
+      Long conceptId;
       if (action.getMolecularAction(molecularActionId).getName()
           .equals("MERGE")) {
-        conceptId2 = null;
+        conceptId = null;
       } else {
-        conceptId2 =
-            action.getMolecularAction(molecularActionId).getComponentId2();
+        conceptId =
+            action.getMolecularAction(molecularActionId).getComponentId();
       }
+      Long conceptId2 =
+          action.getMolecularAction(molecularActionId).getComponentId2();
 
       // Configure the action
       action.setProject(project);
@@ -1237,16 +1231,20 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
       // Websocket notification
-      final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
-          action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
-          action.getConcept(
-              action.getMolecularAction(molecularActionId).getComponentId()));
-      sendChangeEvent(event);
+      if (action.getMolecularAction(molecularActionId).getComponentId() != null
+          && action.getConcept(action.getMolecularAction(molecularActionId)
+              .getComponentId()) != null) {
+        final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
+            action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
+            action.getConcept(
+                action.getMolecularAction(molecularActionId).getComponentId()));
+        sendChangeEvent(event);
+      }
 
       if (action.getMolecularAction(molecularActionId).getComponentId2() != null
           && action.getConcept(action.getMolecularAction(molecularActionId)
@@ -1337,16 +1335,20 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if(!validationResult.getErrors().isEmpty()){
+      if (!validationResult.getErrors().isEmpty()) {
         return validationResult;
       }
 
       // Websocket notification
-      final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
-          action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
-          action.getConcept(
-              action.getMolecularAction(molecularActionId).getComponentId()));
-      sendChangeEvent(event);
+      if (action.getMolecularAction(molecularActionId).getComponentId() != null
+          && action.getConcept(action.getMolecularAction(molecularActionId)
+              .getComponentId()) != null) {
+        final ChangeEvent<Concept> event = new ChangeEventJpa<Concept>(
+            action.getName(), authToken, IdType.CONCEPT.toString(), null, null,
+            action.getConcept(
+                action.getMolecularAction(molecularActionId).getComponentId()));
+        sendChangeEvent(event);
+      }
 
       if (action.getMolecularAction(molecularActionId).getComponentId2() != null
           && action.getConcept(action.getMolecularAction(molecularActionId)

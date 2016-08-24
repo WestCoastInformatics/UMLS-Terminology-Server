@@ -283,24 +283,24 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     Logger.getLogger(getClass()).info("Assign users to projects");
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(projectId, admin1.getUserName(),
-        UserRole.ADMINISTRATOR.toString(), authToken);
+        UserRole.ADMINISTRATOR, authToken);
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(projectId, admin2.getUserName(),
-        UserRole.ADMINISTRATOR.toString(), authToken);
+        UserRole.ADMINISTRATOR, authToken);
 
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(projectId, reviewer1.getUserName(),
-        UserRole.REVIEWER.toString(), authToken);
+        UserRole.REVIEWER, authToken);
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(projectId, reviewer2.getUserName(),
-        UserRole.REVIEWER.toString(), authToken);
+        UserRole.REVIEWER, authToken);
 
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(projectId, author1.getUserName(),
-        UserRole.AUTHOR.toString(), authToken);
+        UserRole.AUTHOR, authToken);
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(projectId, author2.getUserName(),
-        UserRole.AUTHOR.toString(), authToken);
+        UserRole.AUTHOR, authToken);
 
     //
     // Fake some data as needs review

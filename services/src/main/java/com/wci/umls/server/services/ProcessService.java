@@ -1,16 +1,40 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
+
+import java.util.List;
+
+import com.wci.umls.server.algo.Algorithm;
 
 /**
  * Represents a service for performing and monitoring processes.
  */
-public interface ProcessService extends RootService {
+public interface ProcessService extends HistoryService {
+  
+  /**
+   * Returns the authoring algorithms.
+   *
+   * @return the authoring algorithms
+   * @throws Exception the exception
+   */
+  public List<Algorithm> getAuthoringAlgorithms() throws Exception;
 
-  // get authoring algorithms : AlgorithmConfig??
-  // get maintenance algorithms
-  // get release algorithms
+  /**
+   * Returns the maintenance algorithms.
+   *
+   * @return the maintenance algorithms
+   * @throws Exception the exception
+   */
+  public List<Algorithm> getMaintenanceAlgorithms() throws Exception;
+  
+  /**
+   * Returns the release algorithms.
+   *
+   * @return the release algorithms
+   * @throws Exception the exception
+   */
+  public List<Algorithm> getReleaseAlgorithms() throws Exception;
 
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
