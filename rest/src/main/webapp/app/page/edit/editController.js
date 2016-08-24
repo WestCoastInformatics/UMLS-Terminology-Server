@@ -363,14 +363,14 @@ tsApp
         $scope.getConcepts = function(record, selectFirst) {
           $scope.lists.concepts = [];
           for (var i = 0; i < record.concepts.length; i++) {
-            contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
-              function(data) {
-                $scope.lists.concepts.push(data);
-                $scope.lists.concepts.sort(utilService.sort_by('id'));
-                // Select first, when the first concept is loaded
-                if (selectFirst && data.id == record.concepts[0].id) {
-                  $scope.selectConcept($scope.lists.concepts[0]);
-                }
+              contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
+                function(data) {
+                  $scope.lists.concepts.push(data);
+                  $scope.lists.concepts.sort(utilService.sort_by('id'));
+                  // Select first, when the first concept is loaded
+                  if (selectFirst && data.id == record.concepts[0].id) {
+                    $scope.selectConcept($scope.lists.concepts[0]);
+                  }
               });
           }
         }
@@ -387,7 +387,7 @@ tsApp
           if ($scope.lists.records.totalCount > $scope.paging['records'].pageSize
             * $scope.paging['records'].page) {
             $scope.paging['records'].page += 1;
-            $scope.getRecords($scope.selected.worklist, true);
+            $scope.getRecords(true);
           } else {
             // TODO; somehow notify sty window that no more records are
             // available so msg can be displayed
@@ -435,7 +435,7 @@ tsApp
 
         // Get $scope.lists.records
         $scope.getRecords = function(selectFirst) {
-          getRecords();
+          getRecords(selectFirst);
         }
         function getRecords(selectFirst) {
           var paging = $scope.paging['records'];
@@ -452,9 +452,15 @@ tsApp
 
             // Handle status
             if (value == 'N') {
-              pfs.queryRestriction += (pfs.queryRestriction ? ' AND ' : '') + ' workflowStatus:N*';
+              if (pfs.queryRestriction != null)
+                pfs.queryRestriction += ' AND workflowStatus:N*';
+              else
+                pfs.queryRestriction = 'workflowStatus:N*';
             } else if (value == 'R') {
-              pfs.queryRestriction += (pfs.queryRestriction ? ' AND ' : '') + ' workflowStatus:R*';
+              if (pfs.queryRestriction != null)
+                pfs.queryRestriction += ' AND workflowStatus:R*';
+              else
+                pfs.queryRestriction = 'workflowStatus:R*';
             }
           }
 
@@ -599,6 +605,9 @@ tsApp
         // Approves all selector concepts and moves on to next record
         $scope.approveNext = function() {
           for (var i = 0; i < $scope.lists.concepts.length; i++) {
+            if (!$scope.lists.concepts[i].id) {
+              continue;
+            }
             // ignore the websocket event from this.
             websocketService.incrementConceptIgnore($scope.lists.concepts[i].id);
             $scope.approveConcept($scope.lists.concepts[i]).then(
@@ -607,6 +616,11 @@ tsApp
               $scope.getRecords();
             });
           }
+          $scope.selectNextRecord($scope.selected.record);
+        }
+        
+        // Moves to next record without approving selected record
+        $scope.next = function() {
           $scope.selectNextRecord($scope.selected.record);
         }
 
@@ -632,6 +646,20 @@ tsApp
           return utilService.toTime(editingTime);
         };
 
+        $scope.performWorkflowAction = function(worklist, action) {
+          workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
+            $scope.user.userName, $scope.selected.projectRole, action).then(
+          // Success
+          function(data) {
+            $scope.getWorklists();
+            $scope.clearLists();
+          },
+          // Error
+          function(data) {
+            utilService.handleDialogError($scope.errors, data);
+          });
+        }
+        
         // open semantic type editor window
         $scope.openStyWindow = function() {
 
@@ -735,10 +763,13 @@ tsApp
           });
 
         };
+        
+        
 
         // Add time modal
         $scope.openFinishWorkflowModal = function(lworklist) {
           console.debug('openFinishWorkflowModal ', lworklist);
+          
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/finishWorkflow.html',
             controller : 'FinishWorkflowModalCtrl',

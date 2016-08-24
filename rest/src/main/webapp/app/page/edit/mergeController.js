@@ -54,6 +54,10 @@ tsApp.controller('MergeModalCtrl',
         });
       };
 
+      $scope.selectMergeConcept = function(concept) {
+        $scope.mergeConcept = concept;        
+      }
+      
       // Dismiss modal
       $scope.cancel = function() {
         $uibModalInstance.dismiss('cancel');

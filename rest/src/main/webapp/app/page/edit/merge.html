@@ -16,14 +16,29 @@
       </td>
       <td>
         <span ng-show="prospectiveMergeConcepts.length > 1">
-          <select ng-model="mergeConcept"
-            ng-options="concept.name.concat(' (', concept.id,')') for concept in prospectiveMergeConcepts"></select>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Select a merge concept:</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="concept in prospectiveMergeConcepts"
+                ng-click="selectMergeConcept(concept)"
+                ng-class="{selected: concept.id == mergeConcept.id}">
+                <td>{{concept.name}}</td>
+                <td>{{concept.id}}</td>
+              </tr>
+            </tbody>
+          </table>
         </span>
         <span ng-show="prospectiveMergeConcepts.length == 1">
           {{prospectiveMergeConcepts[0].name}}&nbsp;({{prospectiveMergeConcepts[0].id}})</span>
       </td>
     </tr>
   </table>
+
 
   <!-- Errors -->
   <div errors="errors" warnings="warnings"></div>
