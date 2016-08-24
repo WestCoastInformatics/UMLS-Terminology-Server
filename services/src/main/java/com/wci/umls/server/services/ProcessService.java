@@ -3,14 +3,17 @@
  */
 package com.wci.umls.server.services;
 
+import java.util.List;
+
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.PfsParameter;
 
 /**
  * Represents a service for performing and monitoring processes.
  */
 public interface ProcessService extends HistoryService {
-  
+
   /**
    * Returns the authoring algorithms.
    *
@@ -26,7 +29,7 @@ public interface ProcessService extends HistoryService {
    * @throws Exception the exception
    */
   public KeyValuePairList getMaintenanceAlgorithms() throws Exception;
-  
+
   /**
    * Returns the release algorithms.
    *
@@ -42,8 +45,9 @@ public interface ProcessService extends HistoryService {
    * @return the process config
    * @throws Exception the exception
    */
-  public ProcessConfig addProcessConfig(ProcessConfig processConfig) throws Exception;
-  
+  public ProcessConfig addProcessConfig(ProcessConfig processConfig)
+    throws Exception;
+
   /**
    * Removes the process config.
    *
@@ -59,7 +63,7 @@ public interface ProcessService extends HistoryService {
    * @throws Exception the exception
    */
   public void updateProcessConfig(ProcessConfig processConfig) throws Exception;
- 
+
   /**
    * Returns the process config.
    *
@@ -68,9 +72,21 @@ public interface ProcessService extends HistoryService {
    * @throws Exception the exception
    */
   public ProcessConfig getProcessConfig(Long id) throws Exception;
-  
-  
-  
+
+  /**
+   * Find process configs.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the process config
+   * @throws Exception the exception
+   */
+  public List<ProcessConfig> findProcessConfigs(String terminology, String version,
+    String query, PfsParameter pfs) throws Exception;
+
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
   // add/remove/update/get/find process executions
@@ -81,9 +97,8 @@ public interface ProcessService extends HistoryService {
   // find unfinished process executions (unfinished processes)
   // find failed process executions (unfinished processes)
   // restart process (process config/process execution)
-  
+
   // get predefined processes? -> Process? ProcessConfig?
 
-  
   // TODO: websocket for process execution changed?
 }
