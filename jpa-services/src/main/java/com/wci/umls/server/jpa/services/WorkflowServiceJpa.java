@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.NoResultException;
+
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
@@ -830,6 +832,44 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     }
     // Return final computed value
     return status;
+  }
+
+  /* see superclass */
+  @Override
+  public Map<Long, String> getConceptIdWorklistNameMap(Project project)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get concept id -> worklist name map "
+            + project.getId());
+    final String epoch = getCurrentWorkflowEpoch(project).getName();
+    // TODO: Make this JQL query
+    final javax.persistence.Query query = manager.createNativeQuery(
+        "select distinct toc.origConceptIds, w.name from worklists w, tracking_records t, "
+            + "worklists_tracking_records wt, orig_concept_ids toc "
+            + "where w.project_id = :projectId " + "  and w.epoch = :epoch "
+            + "  and w.workflowStatus not in ('READY_FOR_PUBLICATION','PUBLISHED') "
+            + "  and w.id = wt.worklists_id  "
+            + "  and wt.trackingRecords_id = t.id  "
+            + "  and t.id = toc.TrackingRecordJpa_id");
+
+    // Try to retrieve the single expected result If zero or more than one
+    // result are returned, log error and set result to null
+    try {
+      query.setParameter("projectId", project.getId());
+      query.setParameter("epoch", epoch);
+      @SuppressWarnings("unchecked")
+      final List<Object[]> results = query.getResultList();
+      final Map<Long, String> map = new HashMap<>();
+      for (final Object[] result : results) {
+        final Long conceptId = Long.valueOf(result[0].toString());
+        final String name = result[1].toString();
+        map.put(conceptId, name);
+      }
+      return map;
+
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /**

@@ -666,7 +666,7 @@ tsApp
                 return luser;
               },
               applicationRoles : function() {
-                return $scope.lists.workapplicationRoles;
+                return $scope.lists.applicationRoles;
               }
             }
           });

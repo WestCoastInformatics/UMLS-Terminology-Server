@@ -41,10 +41,13 @@ public class MGV_BTest extends IntegrationUnitSupport {
   /** The service. */
   protected ContentServiceJpa contentService;
 
+  /** The concept MTH 1. */
   private Concept conceptMTH1 = null;
 
+  /** The concept MTH 2. */
   private Concept conceptMTH2 = null;
 
+  /** The concept no MTH. */
   private Concept conceptNoMTH = null;
 
   /**
@@ -86,7 +89,7 @@ public class MGV_BTest extends IntegrationUnitSupport {
         new ArrayList<TypeKeyValue>(project.getValidationData());
     validationData.add(new TypeKeyValueJpa("MGV_B", "MTH", ""));
     project.setValidationData(validationData);
-    
+
     // Get two concepts that both contain publishable "MTH" atoms, and one with
     // no "MTH" atoms
     conceptMTH1 =

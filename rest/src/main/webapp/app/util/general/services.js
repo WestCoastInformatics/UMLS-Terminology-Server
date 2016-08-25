@@ -11,7 +11,7 @@ tsApp
         console.debug('configure utilService');
 
         this.showHeaderFooter = true;
-        
+
         // declare the error
         this.error = {
           message : null,
@@ -163,7 +163,7 @@ tsApp
             this.clearError();
           }
         };
-        
+
         // Set a flag indicating whether header/footer are to be showing
         this.setHeaderFooterShowing = function(showHeaderFooter) {
           this.showHeaderFooter = showHeaderFooter;
@@ -173,7 +173,7 @@ tsApp
         this.isHeaderFooterShowing = function() {
           return this.showHeaderFooter;
         };
-        
+
         this.composeUrl = function(extension) {
           var currentUrl = $location.absUrl();
           var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
@@ -182,15 +182,20 @@ tsApp
         }
 
         // Convert seconds to hour/min string
-        this.toTime = function(d) {
-          d = Number(d);
-          if (d == 0)
-            return "";
-          var h = Math.floor(d / 3600);
-          var m = Math.floor(d % 3600 / 60);
-          return ((h + ":" + (m < 10 ? "0" : "") ) + m);
+        this.toTime = function(secs) {
+          if (secs) {
+            var date = new Date(null);
+            date.setSeconds(secs);
+            date.toISOString().substr(11, 8);
+          }
+
+          // if (d == 0)
+          // return "";
+          // var h = Math.floor(d / 3600);
+          // var m = Math.floor(d % 3600 / 60);
+          // return ((h + ":" + (m < 10 ? "0" : "") ) + m);
         }
-        
+
         // Convert date to a string
         this.toDate = function(lastModified) {
           var date = new Date(lastModified);
@@ -255,7 +260,7 @@ tsApp
             return seen.hasOwnProperty(item) ? false : (seen[item] = true);
           });
         };
-        
+
         // Table sorting mechanism
         this.setSortField = function(table, field, paging) {
           paging[table].sortField = field;
@@ -305,7 +310,7 @@ tsApp
             return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
           };
         };
-        
+
         // Helper function to get a standard paging object
         // overwritten as needed
         // Example of filterFields
@@ -359,7 +364,7 @@ tsApp
           if (paging.pageSize != -1) {
             var fromIndex = (paging.page - 1) * paging.pageSize;
             var toIndex = Math.min(fromIndex + paging.pageSize, array.length);
-            
+
             // slice the array
             results = newArray.slice(fromIndex, toIndex);
           } else {
@@ -390,7 +395,7 @@ tsApp
         };
 
         // Get array by filter text matching terminologyId or name
-        this.getArrayByFilter = function(array, filter, fields ) {
+        this.getArrayByFilter = function(array, filter, fields) {
           var newArray = [];
 
           for ( var object in array) {
@@ -504,7 +509,8 @@ tsApp
           }
           for ( var key in itemsToAdd) {
             if (callbacks.hasOwnProperty(key)) {
-              utilService.setError('Error constructing callbacks, name clash for ' + key, callbacks);
+              utilService
+                .setError('Error constructing callbacks, name clash for ' + key, callbacks);
               return;
             }
             callbacks[key] = itemsToAdd[key];
@@ -540,5 +546,3 @@ tsApp.service('gpService', function() {
   };
 
 });
-
-

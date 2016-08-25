@@ -12,7 +12,6 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 
 /**
  * The Interface ContentServiceRest.
@@ -33,9 +32,8 @@ public interface MetaEditingServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
-    String activityId, Long lastModified,
-    String semanticTypeValue, boolean overrideWarnings,
-    String authToken) throws Exception;
+    String activityId, Long lastModified, String semanticTypeValue,
+    boolean overrideWarnings, String authToken) throws Exception;
 
   /**
    * Remove semantic type.

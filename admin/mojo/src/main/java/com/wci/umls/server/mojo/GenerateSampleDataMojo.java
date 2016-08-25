@@ -155,7 +155,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     Logger.getLogger(getClass()).info("Authenticate admin user");
     SecurityServiceRest security = new SecurityServiceRestImpl();
     ProjectServiceRest project = new ProjectServiceRestImpl();
-    IntegrationTestServiceRest integrationService = new IntegrationTestServiceRestImpl();
+    IntegrationTestServiceRest integrationService =
+        new IntegrationTestServiceRestImpl();
 
     //
     // Add admin users
@@ -245,21 +246,24 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     validationChecks.add("MGV_H1");
     validationChecks.add("MGV_H2");
     project1.setValidationChecks(validationChecks);
-    
+
     // Add the default validationData
     final List<TypeKeyValue> validationData = new ArrayList<>();
-    
+
     integrationService = new IntegrationTestServiceRestImpl();
-    TypeKeyValue typeKeyValue1 = integrationService.addTypeKeyValue(new TypeKeyValueJpa("MGV_I","CBO",""), authToken);
+    TypeKeyValue typeKeyValue1 = integrationService
+        .addTypeKeyValue(new TypeKeyValueJpa("MGV_I", "CBO", ""), authToken);
     integrationService = new IntegrationTestServiceRestImpl();
-    TypeKeyValue typeKeyValue2 = integrationService.addTypeKeyValue(new TypeKeyValueJpa("MGV_I","ISO3166-2",""), authToken);
+    TypeKeyValue typeKeyValue2 = integrationService.addTypeKeyValue(
+        new TypeKeyValueJpa("MGV_I", "ISO3166-2", ""), authToken);
     integrationService = new IntegrationTestServiceRestImpl();
-    TypeKeyValue typeKeyValue3 = integrationService.addTypeKeyValue(new TypeKeyValueJpa("MGV_SCUI","NCI",""), authToken);
-    
+    TypeKeyValue typeKeyValue3 = integrationService
+        .addTypeKeyValue(new TypeKeyValueJpa("MGV_SCUI", "NCI", ""), authToken);
+
     validationData.add(typeKeyValue1);
     validationData.add(typeKeyValue2);
     validationData.add(typeKeyValue3);
-    
+
     project1.setValidationData(validationData);
 
     // Handle precedence list
@@ -420,7 +424,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
         }
       }
       testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);      
+      testService.updateConcept(concept, authToken);
     }
 
     // leftovers
@@ -455,7 +459,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
       }
 
       testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);      
+      testService.updateConcept(concept, authToken);
     }
 
     //

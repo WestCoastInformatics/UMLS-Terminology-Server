@@ -111,6 +111,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("reviewers");
     tester.include("team");
     tester.include("workflowBinName");
+    tester.include("epoch");
 
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
@@ -178,6 +179,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("description");
     tester.include("workflowStatus");
     tester.include("number");
+    tester.include("epoch");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -205,6 +207,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModifiedBy");
     tester.include("timestamp");
     tester.include("team");
+    tester.include("epoch");
     tester.include("workflowStatus");
     tester.include("workflowBinName");
     tester.include("workflowStateHistory");

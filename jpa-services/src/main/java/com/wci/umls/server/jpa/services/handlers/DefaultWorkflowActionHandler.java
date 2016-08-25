@@ -73,12 +73,12 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     PfsParameter pfs, WorkflowService service) throws Exception {
 
     final StringBuilder sb = new StringBuilder();
-
+    sb.append("epoch:" + service.getCurrentWorkflowEpoch(project).getName());
     if (UserRole.AUTHOR == role) {
-      sb.append("workflowStatus:NEW AND NOT authors:[* TO *]");
+      sb.append(" AND workflowStatus:NEW AND NOT authors:[* TO *]");
     } else if (UserRole.REVIEWER == role) {
       sb.append(
-          "workflowStatus:EDITING_IN_PROGRESS AND NOT reviewers:[* TO *]");
+          " AND workflowStatus:EDITING_IN_PROGRESS AND NOT reviewers:[* TO *]");
     } else if (UserRole.ADMINISTRATOR == role) {
       // n/a, query as is.
     } else {
@@ -227,6 +227,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         else if (role == UserRole.REVIEWER) {
           worklist.getReviewers().add(userName);
           worklist.setWorkflowStatus(WorkflowStatus.REVIEW_NEW);
+          worklist.getWorkflowStateHistory().put("Review Assigned", new Date());
         }
         break;
 
@@ -240,6 +241,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
           worklist.setWorkflowStatus(WorkflowStatus.NEW);
           worklist.getAuthors().remove(userName);
+          worklist.getWorkflowStateHistory().remove("Assigned");
         }
         // For review, it removes the reviewer and sets the status back to
         // EDITING_DONE
@@ -248,6 +250,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
             .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_DONE);
           worklist.getReviewers().remove(userName);
+          worklist.getWorkflowStateHistory().remove("Review Assigned");
         }
         break;
 
@@ -327,15 +330,18 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
   @Override
   public WorklistList findAssignedWorklists(Project project, String userName,
     UserRole role, PfsParameter pfs, WorkflowService service) throws Exception {
-
     if (role == UserRole.AUTHOR) {
       return service.findWorklists(project,
-          "authors:" + userName
+          "epoch:" + service.getCurrentWorkflowEpoch(project).getName()
+              + " AND authors:" + userName
               + " AND NOT workflowStatus:EDITING_DONE AND NOT workflowStatus:READY_FOR_PUBLICATION",
           pfs);
     } else if (role == UserRole.REVIEWER) {
-      return service.findWorklists(project, "reviewers:" + userName
-          + " AND NOT workflowStatus:READY_FOR_PUBLICATION", pfs);
+      return service.findWorklists(project,
+          "epoch:" + service.getCurrentWorkflowEpoch(project).getName()
+              + " AND reviewers:" + userName
+              + " AND NOT workflowStatus:READY_FOR_PUBLICATION",
+          pfs);
     }
     return new WorklistListJpa();
   }
