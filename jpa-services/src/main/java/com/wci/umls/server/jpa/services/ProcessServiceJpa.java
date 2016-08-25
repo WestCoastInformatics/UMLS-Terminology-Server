@@ -8,9 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.NoResultException;
+
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -23,17 +26,19 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 /**
  * JPA and JAXB enabled implementation of {@link ProcessService}.
  */
-public class ProcessServiceJpa extends HistoryServiceJpa
+public class ProcessServiceJpa extends ProjectServiceJpa
     implements ProcessService {
 
   /** The insertion algorithms map. */
-  private static Map<String, String> insertionAlgorithmsMap = new HashMap<>();
+  private static Map<String, Algorithm> insertionAlgorithmsMap =
+      new HashMap<>();
 
   /** The maintenance algorithms map. */
-  private static Map<String, String> maintenanceAlgorithmsMap = new HashMap<>();
+  private static Map<String, Algorithm> maintenanceAlgorithmsMap =
+      new HashMap<>();
 
   /** The release algorithms map. */
-  private static Map<String, String> releaseAlgorithmsMap = new HashMap<>();
+  private static Map<String, Algorithm> releaseAlgorithmsMap = new HashMap<>();
 
   static {
     init();
@@ -46,17 +51,14 @@ public class ProcessServiceJpa extends HistoryServiceJpa
 
     try {
       config = ConfigUtility.getConfigProperties();
-      final String key = "insertion.algorithm.handlers";
-      for (final String algorithmName : config.getProperty(key).split(",")) {
+      final String key = "insertion.algorithm.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
 
-        String classKey = "insertion.algorithm." + algorithmName + ".class";
-        if (config.getProperty(classKey) == null) {
-          throw new Exception("Unexpected null classkey " + classKey);
-        }
-        String algorithmClass = config.getProperty(classKey);
-
-        // Add algorithm to map
-        insertionAlgorithmsMap.put(algorithmName, algorithmClass);
+        // Add handlers to map
+        final Algorithm handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, Algorithm.class);
+        insertionAlgorithmsMap.put(handlerName, handlerService);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -65,17 +67,14 @@ public class ProcessServiceJpa extends HistoryServiceJpa
 
     try {
       config = ConfigUtility.getConfigProperties();
-      final String key = "maintenance.algorithm.handlers";
-      for (final String algorithmName : config.getProperty(key).split(",")) {
+      final String key = "maintenance.algorithm.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
 
-        String classKey = "maintenance.algorithm." + algorithmName + ".class";
-        if (config.getProperty(classKey) == null) {
-          throw new Exception("Unexpected null classkey " + classKey);
-        }
-        String algorithmClass = config.getProperty(classKey);
-
-        // Add algorithm to map
-        maintenanceAlgorithmsMap.put(algorithmName, algorithmClass);
+        // Add handlers to map
+        final Algorithm handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, Algorithm.class);
+        maintenanceAlgorithmsMap.put(handlerName, handlerService);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -84,17 +83,14 @@ public class ProcessServiceJpa extends HistoryServiceJpa
 
     try {
       config = ConfigUtility.getConfigProperties();
-      final String key = "release.algorithm.handlers";
-      for (final String algorithmName : config.getProperty(key).split(",")) {
+      final String key = "release.algorithm.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
 
-        String classKey = "release.algorithm." + algorithmName + ".class";
-        if (config.getProperty(classKey) == null) {
-          throw new Exception("Unexpected null classkey " + classKey);
-        }
-        String algorithmClass = config.getProperty(classKey);
-
-        // Add algorithm to map
-        releaseAlgorithmsMap.put(algorithmName, algorithmClass);
+        // Add handlers to map
+        final Algorithm handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, Algorithm.class);
+        releaseAlgorithmsMap.put(handlerName, handlerService);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -119,7 +115,7 @@ public class ProcessServiceJpa extends HistoryServiceJpa
 
     for (String key : insertionAlgorithmsMap.keySet()) {
       algorithmList.addKeyValuePair(
-          new KeyValuePair(key, insertionAlgorithmsMap.get(key)));
+          new KeyValuePair(key, insertionAlgorithmsMap.get(key).getName()));
     }
 
     return algorithmList;
@@ -132,7 +128,7 @@ public class ProcessServiceJpa extends HistoryServiceJpa
 
     for (String key : maintenanceAlgorithmsMap.keySet()) {
       algorithmList.addKeyValuePair(
-          new KeyValuePair(key, maintenanceAlgorithmsMap.get(key)));
+          new KeyValuePair(key, maintenanceAlgorithmsMap.get(key).getName()));
     }
 
     return algorithmList;
@@ -145,7 +141,7 @@ public class ProcessServiceJpa extends HistoryServiceJpa
 
     for (String key : releaseAlgorithmsMap.keySet()) {
       algorithmList.addKeyValuePair(
-          new KeyValuePair(key, releaseAlgorithmsMap.get(key)));
+          new KeyValuePair(key, releaseAlgorithmsMap.get(key).getName()));
     }
 
     return algorithmList;
@@ -214,6 +210,22 @@ public class ProcessServiceJpa extends HistoryServiceJpa
     final ProcessConfig processConfig =
         manager.find(ProcessConfigJpa.class, id);
     return processConfig;
+  }
+
+  /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<ProcessConfig> getProcessConfigs() throws Exception {
+    Logger.getLogger(getClass()).debug("Process Service - get processConfigs");
+    javax.persistence.Query query =
+        manager.createQuery("select a from ProcessConfigJpa a");
+    try {
+      final List<ProcessConfig> processConfigs = query.getResultList();
+
+      return processConfigs;
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /* see superclass */

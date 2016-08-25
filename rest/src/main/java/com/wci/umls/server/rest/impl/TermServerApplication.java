@@ -53,6 +53,7 @@ public class TermServerApplication extends ResourceConfig {
     register(HistoryServiceRestImpl.class);
     register(MetadataServiceRestImpl.class);
     register(ProjectServiceRestImpl.class);
+    register(ProcessServiceRestImpl.class);
     register(SourceDataServiceRestImpl.class);
     register(ConfigureServiceRestImpl.class);
     register(MetaEditingServiceRestImpl.class);

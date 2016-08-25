@@ -12,7 +12,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 /**
  * Represents a service for performing and monitoring processes.
  */
-public interface ProcessService extends HistoryService {
+public interface ProcessService extends ProjectService {
 
   /**
    * Returns the authoring algorithms.
@@ -74,11 +74,18 @@ public interface ProcessService extends HistoryService {
   public ProcessConfig getProcessConfig(Long id) throws Exception;
 
   /**
+   * Returns the process configs.
+   *
+   * @return the process configs
+   * @throws Exception the exception
+   */
+  public List<ProcessConfig> getProcessConfigs() throws Exception;
+  
+  /**
    * Find process configs.
    *
    * @param terminology the terminology
    * @param version the version
-   * @param branch the branch
    * @param query the query
    * @param pfs the pfs
    * @return the process config

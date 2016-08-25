@@ -23,6 +23,8 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
   /** The atom. */
   private Atom atom;
 
+  private boolean updatingWorkflowStatus = false;
+
   /**
    * Instantiates an empty {@link UpdateAtomMolecularAction}.
    *
@@ -81,27 +83,39 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
     // terminologyId
     Atom oldAtom = getAtom(atom.getId());
 
-    List<String> identityFieldGetMethods = Arrays.asList("getCodeId",
-        "getConceptId", "getDescriptorId", "getStringClassId", "getTermType",
-        "getTerminology", "getTerminologyId");
-
+    // The only fields that should be getting updated through here is
+    // "suppressible", "obsolete", "publishable", or "workflowStauts"
+    // If any other field is changing, error out.    
+    List<String> changeAllowedGetMethods = Arrays.asList("isSuppressible", "isObsolete", "isPublishable", "getWorkflowStatus");
+    
     List<Method> allGetMethods =
         IndexUtility.getAllColumnGetMethods(AtomJpa.class);
 
     for (Method method : allGetMethods) {
-      if (identityFieldGetMethods.contains(method.getName())) {
+      if (!changeAllowedGetMethods.contains(method.getName())) {
         final Object origValue = method.invoke(oldAtom);
         final Object newValue = method.invoke(getAtom());
         if (!origValue.toString().equals(newValue.toString())) {
           final String fieldName =
               method.toString().substring(3, 4).toLowerCase()
                   + method.toString().substring(4);
-          throw new Exception("Error: change deteced in identity-field "
+          throw new Exception("Error: change detected in unexpected field "
               + fieldName + " for atom " + atom.getName());
         }
       }
     }
-
+    
+    
+    // Check to see if the workflow status is changing (if so, don't update it
+    // again to NEEDS_REVIEW in compute())
+    Method getWorkflowStatusMethod = allGetMethods.get(allGetMethods.indexOf("getWorkflowStatus"));
+      final Object origWorkflowStatus = getWorkflowStatusMethod.invoke(oldAtom);
+      final Object newWorkflowStatus = getWorkflowStatusMethod.invoke(getAtom());
+      if (!origWorkflowStatus.toString().equals(newWorkflowStatus.toString())) {
+        updatingWorkflowStatus = true;
+    }
+    
+    
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
     validationResult.merge(super.validateAtom(getProject(), getAtom()));
@@ -117,8 +131,9 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
-    // Change status of the atom
-    if (getChangeStatusFlag()) {
+    // Change status of the atom 
+    // (IF the workflow status is not one of the fields being updated)
+    if (getChangeStatusFlag() && !updatingWorkflowStatus) {
       atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
 
