@@ -64,7 +64,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testAddUpdateRemoveProcessConfig() throws Exception {
+  public void testAddUpdateGetRemoveProcessConfig() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Add a processConfig
@@ -76,90 +76,67 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfig.setProject(project);
     processConfig.setTerminology(umlsTerminology);
     processConfig.setVersion(umlsVersion);
-    ProcessConfigJpa processConfig2 = (ProcessConfigJpa) processService
+    ProcessConfigJpa addedProcessConfig = (ProcessConfigJpa) processService
         .addProcessConfig(processConfig, authToken);
 
     // TEST: retrieve the processConfig and verify it is equal
-    assertEquals(processConfig, processConfig2);
+    assertEquals(processConfig, addedProcessConfig);
 
     // Update that newly added processConfig
     Logger.getLogger(getClass()).info("  Update processConfig");
-    processConfig2.setName("Sample 2 " + new Date().getTime());
-    processService.updateProcessConfig(processConfig2, authToken);
-    ProcessConfig processConfig3 = processService
-        .getProcessConfig(project.getId(), processConfig2.getId(), authToken);
+    addedProcessConfig.setName("Sample 2 " + new Date().getTime());
+    processService.updateProcessConfig(addedProcessConfig, authToken);
+    ProcessConfig updatedProcessConfig = processService
+        .getProcessConfig(project.getId(), addedProcessConfig.getId(), authToken);
 
     // TEST: retrieve the processConfig and verify it is equal
-    assertEquals(processConfig2, processConfig3);
-
-    // Remove the processConfig
-    Logger.getLogger(getClass()).info("  Remove processConfig");
-    processService.removeProcessConfig(project.getId(), processConfig2.getId(),
-        authToken);
-
-    // TEST: verify that it is removed (call should return null)
-    processConfig3 = processService.getProcessConfig(project.getId(),
-        processConfig2.getId(), authToken);
-    assertNull(processConfig3);
-  }
-
-  /**
-   * Test getProcessConfigs()
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testAddProcessConfigs() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    // Add a processConfig
-    Logger.getLogger(getClass()).info("  Add processConfig");
-    ProcessConfigJpa processConfig = new ProcessConfigJpa();
-
-    processConfig.setDescription("Sample");
-    processConfig.setName("Sample " + new Date().getTime());
-    processConfig.setProject(project);
-    processConfig.setTerminology("UMLS");
-    processConfig.setVersion(umlsVersion);
-    ProcessConfigJpa processConfig2 = new ProcessConfigJpa(processConfig);
-    processConfig = (ProcessConfigJpa) processService
-        .addProcessConfig(processConfig, authToken);
+    assertEquals(addedProcessConfig, updatedProcessConfig);
 
     // Add a second processConfig
-    Logger.getLogger(getClass()).info("  Add second processConfig");
+    ProcessConfigJpa processConfig2 = new ProcessConfigJpa();
+
     processConfig2.setDescription("Sample 2");
     processConfig2.setName("Sample 2 " + new Date().getTime());
     processConfig2.setProject(project);
-    processConfig2.setTerminology("UMLS");
-    processConfig.setVersion(umlsVersion);
-    processConfig2 = (ProcessConfigJpa) processService
+    processConfig2.setTerminology(umlsTerminology);
+    processConfig2.setVersion(umlsVersion);
+    ProcessConfigJpa addedProcessConfig2 = (ProcessConfigJpa) processService
         .addProcessConfig(processConfig2, authToken);
-
+    
     // Get the processConfigs
     Logger.getLogger(getClass()).info("  Get the processConfigs");
     ProcessConfigList processConfigList =
         processService.getProcessConfigs(project.getId(), authToken);
     assertNotNull(processConfigList);
     int processConfigCount = processConfigList.size();
-    assertTrue(processConfigList.contains(processConfig));
-    assertTrue(processConfigList.contains(processConfig2));
-
-    // remove first processConfig
-    Logger.getLogger(getClass()).info("  Remove first processConfig");
-    processService.removeProcessConfig(project.getId(), processConfig.getId(),
+    assertTrue(processConfigList.contains(updatedProcessConfig));
+    assertTrue(processConfigList.contains(addedProcessConfig2));    
+    
+    // Remove the processConfig
+    Logger.getLogger(getClass()).info("  Remove processConfig");
+    processService.removeProcessConfig(project.getId(), updatedProcessConfig.getId(),
         authToken);
     processConfigList =
         processService.getProcessConfigs(project.getId(), authToken);
     assertEquals(processConfigCount - 1, processConfigList.size());
 
+    // TEST: verify that it is removed (call should return null)
+    assertNull(processService.getProcessConfig(project.getId(),
+        updatedProcessConfig.getId(), authToken));
+    
     // remove second processConfig
     Logger.getLogger(getClass()).info("  Remove second processConfig");
-    processService.removeProcessConfig(project.getId(), processConfig2.getId(),
+    processService.removeProcessConfig(project.getId(), addedProcessConfig2.getId(),
         authToken);
     processConfigList =
         processService.getProcessConfigs(project.getId(), authToken);
-    assertEquals(processConfigCount - 2, processConfigList.size());
+    assertEquals(processConfigCount - 2, processConfigList.size());    
+    
+    // TEST: verify that it is removed (call should return null)
+    assertNull(processService.getProcessConfig(project.getId(),
+        addedProcessConfig2.getId(), authToken));
 
+    
   }
 
   /**
