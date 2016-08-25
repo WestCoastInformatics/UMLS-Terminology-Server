@@ -37,7 +37,7 @@ tsApp.controller('ChecklistModalCtrl', [
 
       var pfs = {
         startIndex : $scope.skipClusterCt,
-        maxResults : $scope.clusterCt ? 100 : $scope.clusterCt
+        maxResults : $scope.clusterCt ? $scope.clusterCt : 100
       }
       if ($scope.sortOrder != 'RANDOM') {
         pfs.sortField = $scope.sortOrder;

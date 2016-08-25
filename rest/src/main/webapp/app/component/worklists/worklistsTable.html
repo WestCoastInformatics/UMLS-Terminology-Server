@@ -47,11 +47,13 @@
       <!-- Checklist header -->
       <thead ng-show="type === 'Checklist'" class="pointer">
         <tr>
-          <th class="col-md-10 col-xs-10"><span
+          <th class="col-md-5 col-xs-5"><span
               ng-click="setSortField('worklists','name')">
               Name
               <span ng-bind="getSortIndicator('worklists','name')"></span>
-            </span> / <span ng-click="setSortField('worklists','lastModified')">
+            </span></th>
+          <th class="col-md-5 col-xs-5"><span
+              ng-click="setSortField('worklists','lastModified')">
               LastModified
               <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
             </span></th>
@@ -67,8 +69,14 @@
           ng-class="{selected: worklist.id == selected.worklist.id}">
 
           <td>
-            {{worklist.name}} <br />{{toDate(worklist.lastModified)}}
+            {{worklist.name}}
+            <span ng-show="type == 'Worklist'">
+              <br />{{toDate(worklist.lastModified)}}
+            </span>
           </td>
+
+          <td ng-show="type == 'Checklist'">
+            {{toDate(worklist.lastModified)}}</td>
 
           <td ng-show="type == 'Worklist'">
             <span style="word-break: break-word;">

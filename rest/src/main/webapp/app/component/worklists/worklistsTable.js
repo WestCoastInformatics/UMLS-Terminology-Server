@@ -309,7 +309,7 @@ tsApp
                       $scope.getWorklists();
                     });
                 } else {
-                  workflowService.removeChecklist($scope.elected.project.id, worklist.id).then(
+                  workflowService.removeChecklist($scope.selected.project.id, worklist.id).then(
                     function() {
                       $scope.selected.worklist = null;
                       $scope.getWorklists();

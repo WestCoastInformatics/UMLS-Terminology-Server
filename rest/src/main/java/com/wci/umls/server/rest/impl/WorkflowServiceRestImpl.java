@@ -1224,9 +1224,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           action, UserRole.AUTHOR);
       Project project = workflowService.getProject(projectId);
 
+      // Assume current epoch unless explicit
+      final String localQuery = (query != null && !query.contains("epoch:"))
+          ? ConfigUtility.composeQuery("AND", query,
+              "epoch:" + workflowService.getCurrentWorkflowEpoch(project))
+          : query;
+
       // find worklists
-      final WorklistList list = workflowService
-          .findWorklists(workflowService.getProject(projectId), query, pfs);
+      final WorklistList list = workflowService.findWorklists(
+          workflowService.getProject(projectId), localQuery, pfs);
 
       // Compute "cluster" and "concept" counts and assignment availability
       final WorkflowActionHandler handler =
@@ -1422,7 +1428,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       else if (ConfigUtility.isEmpty(pfs.getSortField())) {
         pfs.setSortField("clusterId");
       }
-      System.out.println("tracking record PFS= " + pfs);
+      System.out.println("PFS="+_pfs);
       final TrackingRecordList list =
           workflowService.findTrackingRecords(project, finalQuery, pfs);
 
@@ -1437,9 +1443,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       checklist.setTimestamp(new Date());
 
       final Checklist newChecklist = workflowService.addChecklist(checklist);
+      Long i = 1L;
       for (final TrackingRecord record : list.getObjects()) {
+        System.out.println("indexed data=" + record.getIndexedData());
         final TrackingRecord copy = new TrackingRecordJpa(record);
         copy.setId(null);
+        copy.setClusterId(i++);
         copy.setChecklistName(name);
         // Clear the worklist name so it doesn't interfere with
         // getConceptIdWorklistNameMap
@@ -1579,17 +1588,19 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         final Worklist newWorklist = workflowService.addWorklist(worklist);
 
+        long i = 1L;
         for (final TrackingRecord record : recordResultList.getObjects()) {
           // Set worklist name of bin's copy of tracking record
           record.setWorklistName(worklistName.toString());
           workflowService.updateTrackingRecord(record);
           // Reuse bins tracking record for worklist
-          final TrackingRecord worklistRecord = new TrackingRecordJpa(record);
-          worklistRecord.setId(null);
-          worklistRecord.setWorklistName(worklistName.toString());
-          workflowService.addTrackingRecord(worklistRecord);
+          final TrackingRecord copy = new TrackingRecordJpa(record);
+          copy.setId(null);
+          copy.setClusterId(i++);
+          copy.setWorklistName(worklistName.toString());
+          workflowService.addTrackingRecord(copy);
 
-          newWorklist.getTrackingRecords().add(worklistRecord);
+          newWorklist.getTrackingRecords().add(copy);
         }
         workflowService.updateWorklist(newWorklist);
 
@@ -2839,7 +2850,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           conceptNames.append(concept.getName()).append(" ");
 
           // Set cluster type if a concept has an STY associated with a cluster
-          // type in th eproject
+          // type in the project
           if (record.getClusterType().equals("")) {
             for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
               if (project.getSemanticTypeCategoryMap()
