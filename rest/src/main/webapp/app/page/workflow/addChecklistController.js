@@ -17,24 +17,35 @@ tsApp.controller('ChecklistModalCtrl', [
     $scope.bin = bin;
     $scope.clusterType = clusterType;
     $scope.clusterCtOptions = [ 20, 50, 100, 200, 500 ];
+
     // Initial checklist
-    $scope.checklist = {
-      excludeOnWorklist : false,
-      randomize : false
-    };
+    $scope.name = null;
+    $scope.description = null;
+    $scope.clusterCt = 100;
+    $scope.skipClusterCt = 0;
+    $scope.excludeOnWorklist = false;
+    $scope.sortOrder = 'clusterId';
+
     $scope.errors = [];
 
     // Create the checklist
-    $scope.createChecklist = function(checklist) {
-      if (!checklist || !checklist.name) {
+    $scope.createChecklist = function() {
+      if (!$scope.name) {
         window.alert('The name field cannot be blank. ');
         return;
       }
 
+      var pfs = {
+        startIndex : $scope.skipClusterCt,
+        maxResults : $scope.clusterCt ? $scope.clusterCt : 100
+      }
+      if ($scope.sortOrder != 'RANDOM') {
+        pfs.sortField = $scope.sortOrder;
+      }
+
       // Create checklist
-      workflowService.createChecklist(selected.project.id, bin.id, $scope.clusterType, checklist.name,
-        checklist.description, checklist.randomize, checklist.excludeOnWorklist,
-        checklist.query == undefined ? "" : checklist.query, checklist.pfs).then(
+      workflowService.createChecklist(selected.project.id, bin.id, $scope.clusterType, $scope.name,
+        $scope.description, $scope.sortOrder == 'RANDOM', $scope.excludeOnWorklist, '', pfs).then(
       // Success
       function(data) {
         $uibModalInstance.close(data);

@@ -60,7 +60,27 @@ tsApp
                   // Set project, refresh worklist list
                   $scope.setProject($scope.selected.project);
                 }
-              }, true);
+              });
+
+              // checklists/worklists changed
+              $scope.$watch('selected.refreshCt', function() {
+                // Skip initial setting
+                if ($scope.selected.refreshCt) {
+                  $scope.getWorklists();
+                }
+              });
+
+              // scope paging filter list
+              $scope.getPagingFilterList = function() {
+                var filterList = new Array();
+                for ( var userName in $scope.selected.project.userRoleMap) {
+                  filterList.push("authors:" + userName);
+                  if ($scope.selected.project.userRoleMap[userName] != 'AUTHOR') {
+                    filterList.push("reviewers:" + userName);
+                  }
+                }
+                return filterList;
+              }
 
               // See if any project users have a team
               $scope.hasTeam = function() {
@@ -73,7 +93,7 @@ tsApp
               }
               // Compose a string of all editors for display
               $scope.joinEditors = function(worklist) {
-                // check reviewers first becuase this is who we would unassign
+                // check reviewers first because this is who we would unassign
                 // from
                 if (worklist.reviewers && worklist.reviewers.length > 0) {
                   return worklist.reviewers.join(' ');
@@ -85,15 +105,6 @@ tsApp
                 }
                 return '';
               };
-
-              // Display a time in hours/mins
-              $scope.getHoursMins = function(secs) {
-                if (secs) {
-                  var date = new Date(null);
-                  date.setSeconds(secs);
-                  date.toISOString().substr(11, 8);
-                }
-              }
 
               // Get the "max" workflow state
               $scope.getWorkflowState = function(worklist) {
@@ -118,6 +129,9 @@ tsApp
               $scope.setProject = function(project) {
                 $scope.project = project;
                 $scope.getWorklists();
+                if ($scope.type == 'Worklist') {
+                  $scope.paging['worklists'].filterList = $scope.getPagingFilterList();
+                }
               };
 
               // Get $scope.worklists (reselect worklist passed in)
@@ -295,7 +309,7 @@ tsApp
                       $scope.getWorklists();
                     });
                 } else {
-                  workflowService.removeChecklist($scope.elected.project.id, worklist.id).then(
+                  workflowService.removeChecklist($scope.selected.project.id, worklist.id).then(
                     function() {
                       $scope.selected.worklist = null;
                       $scope.getWorklists();
@@ -357,7 +371,7 @@ tsApp
                       return $scope.lists;
                     },
                     user : function() {
-                      return user;
+                      return $scope.user;
                     },
                     worklist : function() {
                       return lworklist;

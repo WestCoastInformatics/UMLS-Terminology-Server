@@ -25,12 +25,16 @@
     </thead>
     <tbody ng-repeat="record in lists.records">
       <tr>
-        <td rowspan="{{record.concepts.length+1}}">{{record.clusterId}}</td>
         <td rowspan="{{record.concepts.length+1}}">
-          <button class="btn btn-xs btn-danger"
+          {{record.clusterId}}
+          <i ng-show="record.worklistName" uib-tooltip="{{record.worklistName}}"
+            tooltip-placement="right" class="glyphicon glyphicon-list-alt"></i>
+        </td>
+        <td rowspan="{{record.concepts.length+1}}">
+          <button class="minibtn btn btn-xs btn-danger"
             ng-show="record.workflowStatus == 'NEEDS_REVIEW'"
             uib-tooltip="Needs review">N</button>
-          <button class="btn btn-xs btn-success"
+          <button class="minibtn btn btn-xs btn-success"
             ng-show="record.workflowStatus != 'NEEDS_REVIEW'"
             uib-tooltip="Reviewed">R</button>
         </td>

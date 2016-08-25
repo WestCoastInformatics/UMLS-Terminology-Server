@@ -10,6 +10,11 @@ hr {
 	background-color: lightgrey;
 }
 
+.minibtn {
+	transform: scale(.8, .8);
+	padding-left: 5px;
+}
+
 .loginField {
 	margin: 5px;
 }

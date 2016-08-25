@@ -16,6 +16,20 @@ import com.wci.umls.server.helpers.HasStats;
 public interface Worklist extends Checklist, HasStats {
 
   /**
+   * Returns the epoch.
+   *
+   * @return the epoch
+   */
+  public String getEpoch();
+
+  /**
+   * Sets the epoch.
+   *
+   * @param epoch the epoch
+   */
+  public void setEpoch(String epoch);
+
+  /**
    * Returns the workflow bin.
    *
    * @return the workflow bin

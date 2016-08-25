@@ -221,7 +221,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("componentIds");
     tester.include("origConceptIds");
-    tester.include("indexeddata");
+    tester.include("indexedData");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
@@ -239,6 +239,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     tester.include("checklistName");
     tester.include("workflowBinName");
     tester.include("workflowStatus");
+    tester.include("indexedDataSort");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

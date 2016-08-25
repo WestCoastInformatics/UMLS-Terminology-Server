@@ -69,6 +69,10 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   @Column(nullable = true)
   private String workflowBinName;
 
+  /** The epoch */
+  @Column(nullable = false)
+  private String epoch;
+
   /** The workflow status. */
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -121,6 +125,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     authors = worklist.getAuthors();
     reviewers = worklist.getReviewers();
     team = worklist.getTeam();
+    epoch = worklist.getEpoch();
     workflowStatus = worklist.getWorkflowStatus();
     workflowBinName = worklist.getWorkflowBinName();
     number = worklist.getNumber();
@@ -263,6 +268,19 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   }
 
   /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getEpoch() {
+    return epoch;
+  }
+
+  /* see superclass */
+  @Override
+  public void setEpoch(String epoch) {
+    this.epoch = epoch;
+  }
+
+  /* see superclass */
   @XmlElement(type = WorklistNoteJpa.class)
   @Override
   public List<Note> getNotes() {
@@ -309,6 +327,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     result = prime * result
         + ((workflowBinName == null) ? 0 : workflowBinName.hashCode());
     result = prime * result + ((team == null) ? 0 : team.hashCode());
+    result = prime * result + ((epoch == null) ? 0 : epoch.hashCode());
     return result;
   }
 
@@ -342,6 +361,11 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
         return false;
     } else if (!team.equals(other.team))
       return false;
+    if (epoch == null) {
+      if (other.epoch != null)
+        return false;
+    } else if (!epoch.equals(other.epoch))
+      return false;
     return true;
   }
 
@@ -350,9 +374,10 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   public String toString() {
     return "WorklistJpa [id=" + getId() + ", authors=" + authors
         + ", reviewers=" + reviewers + ", team=" + team + ", workflowBin="
-        + workflowBinName + ", workflowStatus=" + workflowStatus + ", number="
-        + number + ", " + ", authorTime=" + authorTime + ", reviewerTime="
-        + reviewerTime + ", workflowStateHistory=" + workflowStateHistory + "] "
+        + workflowBinName + ", epoch=" + epoch + ", workflowStatus="
+        + workflowStatus + ", number=" + number + ", " + ", authorTime="
+        + authorTime + ", reviewerTime=" + reviewerTime
+        + ", workflowStateHistory=" + workflowStateHistory + "] "
         + super.toString();
   }
 

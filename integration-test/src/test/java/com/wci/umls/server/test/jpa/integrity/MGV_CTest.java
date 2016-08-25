@@ -38,10 +38,13 @@ public class MGV_CTest extends IntegrationUnitSupport {
   /** The service. */
   protected ContentServiceJpa contentService;
 
+  /** The concept MSH 1. */
   private Concept conceptMSH1 = null;
 
+  /** The concept MSH 2. */
   private Concept conceptMSH2 = null;
 
+  /** The concept no MSH. */
   private Concept conceptNoMSH = null;
 
   /**
@@ -77,7 +80,7 @@ public class MGV_CTest extends IntegrationUnitSupport {
     // Reset the project's validation check list, so only this integrity check
     // will run.
     project.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_C")));
-    
+
     // Get two concepts that both contain publishable "MSH" atoms, and one with
     // no "MSH" atoms
     conceptMSH1 =
