@@ -99,9 +99,9 @@ public class MGV_GTest extends IntegrationUnitSupport {
 
     // Reset the project's validation check list, so only this integrity check
     // will run.
-    project.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_G")));    
-    
-    // Create three publishable current-version "MSH" atoms with termType "MH".
+    project.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_G")));
+
+    // Create three "MSH" atoms with termType "MH".
     for (Atom atom : contentService.getAtoms("", "MSH", "2016_2016_02_26")
         .getObjects()) {
       if (atom.getTerminology().equals("MSH")
@@ -125,7 +125,9 @@ public class MGV_GTest extends IntegrationUnitSupport {
         } else if (atomMSHNonCurrent == null) {
           Atom createAtom = new AtomJpa(atom);
           createAtom.setId(null);
-          createAtom.setVersion("2015_2014_09_08");
+          // Set this atom to not-publishable (this has a 1:1 relationship to
+          // version currentness, and is MUCH faster to look up)
+          createAtom.setPublishable(false);
           createAtom = contentService.addAtom(createAtom);
           contentService = new ContentServiceJpa();
           contentService.setLastModifiedBy("admin");
@@ -172,7 +174,6 @@ public class MGV_GTest extends IntegrationUnitSupport {
     conceptMSHPrevious3 =
         contentService.getConcept(conceptMSHPrevious3.getId());
 
-
   }
 
   /**
@@ -208,7 +209,7 @@ public class MGV_GTest extends IntegrationUnitSupport {
 
     // Verify that it returned a validation error
     assertFalse(validationResult.isValid());
-    
+
     //
     // Test non-violation of MGV_G
     // One concept has no MSH/MH atoms

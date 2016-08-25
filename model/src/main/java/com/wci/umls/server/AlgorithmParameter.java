@@ -27,6 +27,10 @@ public interface AlgorithmParameter extends HasName, HasLastModified {
     TEXT,
     /** enum type. */
     ENUM,
+    /**
+     * multiple-value selection type (e.g. integrity checks) - render as table.
+     */
+    MULTI,
     /** directory type. */
     DIRECTORY,
     /** file type */
@@ -90,20 +94,6 @@ public interface AlgorithmParameter extends HasName, HasLastModified {
   public void setPossibleValues(List<String> values);
 
   /**
-   * Returns the value.
-   *
-   * @return the value
-   */
-  public String getValue();
-
-  /**
-   * Sets the value.
-   *
-   * @param value the value
-   */
-  public void setValue(String value);
-
-  /**
    * Returns the placeholder.
    *
    * @return the placeholder
@@ -130,5 +120,33 @@ public interface AlgorithmParameter extends HasName, HasLastModified {
    * @param description the description
    */
   public void setDescription(String description);
+
+  /**
+   * Returns the value. Captures the actual value of the parameter.
+   *
+   * @return the value
+   */
+  public String getValue();
+
+  /**
+   * Sets the value. Captures the actual value of the parameter.
+   *
+   * @param value the value
+   */
+  public void setValue(String value);
+
+  /**
+   * Returns the values. Captures the actual values of the parameter.
+   *
+   * @return the values
+   */
+  public List<String> getValues();
+
+  /**
+   * Sets the values. Captures the actual values of the parameter.
+   *
+   * @param values the values
+   */
+  public void setValues(List<String> values);
 
 }

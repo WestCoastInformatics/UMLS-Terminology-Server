@@ -50,7 +50,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
    * @return the from concept
    */
   public Concept getFromConcept() {
-    return getConcept2();
+    return getConcept();
   }
 
   /**
@@ -59,7 +59,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
    * @return the to concept
    */
   public Concept getToConcept() {
-    return getConcept();
+    return getConcept2();
   }
 
   /**
@@ -100,7 +100,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     // Check to make sure concepts are different
     if (getFromConcept() == getToConcept()) {
       throw new LocalException(
-          "Cannot merge concept " + getFromConcept().getId() + " with concept "
+          "Cannot merge concept " + getFromConcept().getId() + " into concept "
               + getToConcept().getId() + " - identical concept.");
     }
 

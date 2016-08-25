@@ -92,6 +92,11 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
   @Column(nullable = true, length = 4000)
   private String value;
 
+  /** The values. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @JoinColumn(nullable = true)
+  private List<String> values;
+
   /**
    * Instantiates an empty {@link AlgorithmParameterJpa}.
    */
@@ -112,6 +117,7 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
     placeholder = param.getPlaceholder();
     type = param.getType();
     value = param.getValue();
+    values = param.getValues();
     possibleValues = new ArrayList<>(param.getPossibleValues());
   }
 
@@ -283,6 +289,21 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
 
   /* see superclass */
   @Override
+  public List<String> getValues() {
+    if (values == null) {
+      values = new ArrayList<>();
+    }
+    return values;
+  }
+
+  /* see superclass */
+  @Override
+  public void setValues(List<String> values) {
+    this.values = values;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -294,7 +315,8 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
     result =
         prime * result + ((placeholder == null) ? 0 : placeholder.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
-    result = prime * result + ((possibleValues == null) ? 0 : possibleValues.hashCode());
+    result = prime * result
+        + ((possibleValues == null) ? 0 : possibleValues.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     return result;
   }
