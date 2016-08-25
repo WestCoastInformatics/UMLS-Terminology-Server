@@ -42,6 +42,38 @@ tsApp
           });
           return deferred.promise;
         };
+        
+        // update atom
+        this.updateAtom = function(projectId, activityId, concept, atom, overrideWarnings) {
+          console.debug('update atom');
+          var deferred = $q.defer();
+
+          gpService.increment();
+          $http.post(
+            metaEditingUrl
+              + '/atom/update?projectId='
+              + projectId
+              + '&conceptId='
+              + concept.id
+              + (activityId ? "&activityId=" + activityId : "")
+              + '&lastModified='
+              + concept.lastModified
+              + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
+                + overrideWarnings : ''), atom).then(
+          // success
+          function(response) {
+            console.debug('  validation = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };
 
         // add attribute
         this.addAttribute = function(projectId, activityId, concept, attribute, overrideWarnings) {

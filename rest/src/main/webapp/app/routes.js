@@ -186,6 +186,13 @@ tsApp.run([
             controller : 'SemanticTypesCtrl',
             reloadOnSearch : false
           });
+          
+          console.debug('Route enabled: /edit/atoms');
+          $routeProviderReference.when('/edit/atoms', {
+            templateUrl : 'app/page/edit/atoms/atoms.html',
+            controller : 'AtomsCtrl',
+            reloadOnSearch : false
+          });
 
           //
           // Configurable routes

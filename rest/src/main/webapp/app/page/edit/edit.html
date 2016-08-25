@@ -232,6 +232,9 @@
       <button ng-click="openStyWindow()" title="Stys"
         ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">STY</button>
+      <button ng-click="openAtomsWindow()" title="Stys"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
+        class="btn btn-xs btn-primary">Atoms</button>  
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveConcept(selected.concept)" title="Approve"
         ng-disabled="!selected.concept || selected.worklistMode == 'Available'"

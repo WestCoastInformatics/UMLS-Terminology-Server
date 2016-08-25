@@ -671,6 +671,18 @@ tsApp
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
         };
+        
+        // open atoms editor window
+        $scope.openAtomsWindow = function() {
+
+          var newUrl = utilService.composeUrl('edit/atoms');
+          window.$windowScope = $scope;
+
+          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow',
+            'width=1000, height=600');
+          $scope.windows['atom'].document.title = 'Atoms Editor';
+          $scope.windows['atom'].focus();
+        };
 
         // closes child windows when term server tab is closed
         $window.onbeforeunload = function(evt) {
