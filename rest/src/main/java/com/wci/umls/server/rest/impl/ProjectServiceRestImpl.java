@@ -95,7 +95,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "add project", UserRole.ADMINISTRATOR);
+          "add project", UserRole.USER);
       projectService.setLastModifiedBy(userName);
 
       // check to see if project already exists

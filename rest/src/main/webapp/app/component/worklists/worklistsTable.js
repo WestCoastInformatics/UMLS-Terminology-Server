@@ -346,11 +346,16 @@ tsApp
               // Get the most recent note for display
               $scope.getLatestNote = function(worklist) {
                 if (worklist && worklist.notes && worklist.notes.length > 0) {
-                  return $sce.trustAsHtml(worklist.notes.sort(utilService.sort_by('lastModified',
+                  return $sce.trustAsHtml(worklist.notes.sort(utilService.sortBy('lastModified',
                     -1))[0].note);
                 }
                 return $sce.trustAsHtml('');
               };
+
+              // Export a worklist
+              $scope.exportWorklist = function(worklist) {
+                // TODO: export a worklist
+              }
 
               //
               // MODALS
@@ -390,6 +395,33 @@ tsApp
                 });
               };
 
+              // Assign worklist modal
+              $scope.openImportModal = function() {
+
+                var modalInstance = $uibModal.open({
+                  templateUrl : 'app/page/workflow/importExport.html',
+                  controller : 'ImportExportModalCtrl',
+                  backdrop : 'static',
+                  resolve : {
+                    selected : function() {
+                      return $scope.selected;
+                    },
+                    lists : function() {
+                      return $scope.lists;
+                    },
+                    user : function() {
+                      return $scope.user;
+                    }
+                  }
+
+                });
+
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  $scope.getWorklists(data);
+                });
+              };
               // end
 
             } ]

@@ -3,6 +3,10 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import java.io.InputStream;
+
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.Note;
@@ -603,4 +607,58 @@ public interface WorkflowServiceRest {
    */
   public void testQuery(Long projectId, String query, QueryType type,
     String authToken) throws Exception;
+  //
+  // /**
+  // * Import checklist.
+  // *
+  // * @param contentDispositionHeader the content disposition header
+  // * @param in the in
+  // * @param projectId the project id
+  // * @param checklistName the checklist name
+  // * @param authToken the auth token
+  // * @return the checklist
+  // * @throws Exception the exception
+  // */
+  // public Checklist importChecklist(
+  // FormDataContentDisposition contentDispositionHeader, InputStream in,
+  // Long projectId, String checklistName, String authToken) throws Exception;
+  //
+  // /**
+  // * Creates the checklist.
+  // *
+  // * @param projectId the project id
+  // * @param query the query
+  // * @param queryType the query type
+  // * @param checklistName the checklist name
+  // * @param pfs the pfs
+  // * @param authToken the auth token
+  // * @return the checklist
+  // */
+  // public Checklist createChecklist(Long projectId, String query,
+  // QueryType queryType, String checklistName, PfsParameterJpa pfs,
+  // String authToken);
+  //
+  // /**
+  // * Export checklist.
+  // *
+  // * @param projectId the project id
+  // * @param checklistId the checklist id
+  // * @param authToken the auth token
+  // * @return the input stream
+  // * @throws Exception the exception
+  // */
+  // public InputStream exportChecklist(Long projectId, Long checklistId,
+  // String authToken) throws Exception;
+  //
+  // /**
+  // * Export worklist.
+  // *
+  // * @param refsetId the refset id
+  // * @param worklistId the worklist id
+  // * @param authToken the auth token
+  // * @return the input stream
+  // * @throws Exception the exception
+  // */
+  // public InputStream exportWorklist(Long refsetId, Long worklistId,
+  // String authToken) throws Exception;
 }

@@ -1,0 +1,75 @@
+<div class="modal-header">
+  <h4>Import Checklist</h4>
+</div>
+
+<div class="modal-body">
+  <div>
+    <!-- Refset info -->
+    <div refset-info refset="refset" form="long"></div>
+
+    <table class="table">
+      <tr>
+        <td>
+          <b>Checklist Name</b>
+        </td>
+        <td>
+          <input type="text" title="Checklist name" placeholder="e.g. chk_test"
+            size="40" ng-model="checklistName">
+        </td>
+      </tr>
+      <tr ng-disabled="file">
+        <td>
+          <b>Query</b>
+        </td>
+        <td>
+          <textarea rows="5" cols="60" ng-model="query"
+            placeholder="Query to load checklist"></textarea>
+        </td>
+      </tr>
+      <tr ng-disabled="file">
+        <td>
+          <b>Query Type</b>
+        </td>
+        <td>
+          <select ng-model="queryType" ng-options="item for item in queryTypes"></select>
+          <span style="float: right;">
+            <button ng-click="testQuery(definition)" title="Test query"
+              class="btn btn-xs btn-primary">Test Query</button>
+          </span>
+        </td>
+      </tr>
+      <tr ng-disabled="query">
+        <td>
+          <b>Choose File</b>
+        </td>
+        <td>
+          <div>
+            <button style="margin-left: 15px" type="file" ngf-select
+              ng-model="file" name="file" ngf-pattern="*.xls*"
+              ngf-max-size="200MB">Browse for File</button>
+            <div ngf-drop ng-model="file" class="drop-box"
+              ngf-drag-over-class="'dragover'" ngf-max-size="1MB"
+              ngf-pattern="*.xls*">Drop file here</div>
+          </div>
+        </td>
+      </tr>
+      <tr ng-show="file">
+        <td>Selected File</td>
+        <td>{{file.name}}</td>
+      </tr>
+    </table>
+
+    <!-- Errors -->
+    <div errors="errors"></div>
+
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-show="operation == 'Export'"
+    ng-click="export();">Export</button>
+  <button class="btn btn-primary" ng-disabled="!file"
+    ng-show="operation == 'Import' && errors.length == 0  && comments.length == 0"
+    ng-click="import(file);">Import</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

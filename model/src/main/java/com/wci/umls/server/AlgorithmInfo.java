@@ -4,6 +4,7 @@
 package com.wci.umls.server;
 
 import java.util.List;
+import java.util.Map;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
@@ -61,6 +62,20 @@ public interface AlgorithmInfo<T extends ProcessInfo<?>>
    * @param parameters the parameters
    */
   public void setParameters(List<AlgorithmParameter> parameters);
+
+  /**
+   * Returns the properties.
+   *
+   * @return the properties
+   */
+  public Map<String, String> getProperties();
+
+  /**
+   * Sets the properties.
+   *
+   * @param properties the properties
+   */
+  public void setProperties(Map<String, String> properties);
 
   /**
    * Returns the process.
