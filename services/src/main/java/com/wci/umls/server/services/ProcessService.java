@@ -3,11 +3,10 @@
  */
 package com.wci.umls.server.services;
 
-import java.util.List;
-
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.ProcessConfigList;
 
 /**
  * Represents a service for performing and monitoring processes.
@@ -76,11 +75,12 @@ public interface ProcessService extends ProjectService {
   /**
    * Returns the process configs.
    *
+   * @param projectId the project id
    * @return the process configs
    * @throws Exception the exception
    */
-  public List<ProcessConfig> getProcessConfigs() throws Exception;
-  
+  public ProcessConfigList getProcessConfigs(Long projectId) throws Exception;
+
   /**
    * Find process configs.
    *
@@ -91,8 +91,8 @@ public interface ProcessService extends ProjectService {
    * @return the process config
    * @throws Exception the exception
    */
-  public List<ProcessConfig> findProcessConfigs(String terminology, String version,
-    String query, PfsParameter pfs) throws Exception;
+  public ProcessConfigList findProcessConfigs(String terminology,
+    String version, String query, PfsParameter pfs) throws Exception;
 
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs

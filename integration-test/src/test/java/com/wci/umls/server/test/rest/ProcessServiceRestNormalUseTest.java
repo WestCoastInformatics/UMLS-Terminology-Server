@@ -4,13 +4,11 @@
 package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -19,6 +17,7 @@ import org.junit.Test;
 
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.Project;
+import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 
@@ -138,8 +137,9 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     // Get the processConfigs
     Logger.getLogger(getClass()).info("  Get the processConfigs");
-    List<ProcessConfig> processConfigList =
+    ProcessConfigList processConfigList =
         processService.getProcessConfigs(project.getId(), authToken);
+    assertNotNull(processConfigList);
     int processConfigCount = processConfigList.size();
     assertTrue(processConfigList.contains(processConfig));
     assertTrue(processConfigList.contains(processConfig2));

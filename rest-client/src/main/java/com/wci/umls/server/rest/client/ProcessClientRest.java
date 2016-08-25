@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.rest.client;
 
-import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.client.Client;
@@ -18,9 +17,11 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
 import com.wci.umls.server.jpa.services.rest.ProcessServiceRest;
 
 /**
@@ -43,20 +44,21 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public ProcessConfig addProcessConfig(ProcessConfigJpa processConfig, String authToken)
-    throws Exception {
+  public ProcessConfig addProcessConfig(ProcessConfigJpa processConfig,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("ProcessConfig Client - add processConfig" + processConfig);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/process/processconfig/add");
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/process/processConfig/add");
 
-    final String processConfigString = ConfigUtility
-        .getStringForGraph(processConfig == null ? new ProcessConfigJpa() : processConfig);
+    final String processConfigString = ConfigUtility.getStringForGraph(
+        processConfig == null ? new ProcessConfigJpa() : processConfig);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).put(Entity.xml(processConfigString));
+        .header("Authorization", authToken)
+        .put(Entity.xml(processConfigString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -74,18 +76,19 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void updateProcessConfig(ProcessConfigJpa processConfig, String authToken)
-    throws Exception {
+  public void updateProcessConfig(ProcessConfigJpa processConfig,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Process Client - update processConfig " + processConfig);
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/process/processconfig/update");
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/process/processConfig/update");
 
-    String processConfigString = ConfigUtility
-        .getStringForGraph(processConfig == null ? new ProcessConfigJpa() : processConfig);
+    String processConfigString = ConfigUtility.getStringForGraph(
+        processConfig == null ? new ProcessConfigJpa() : processConfig);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.xml(processConfigString));
+        .header("Authorization", authToken)
+        .post(Entity.xml(processConfigString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing, successful
@@ -96,14 +99,15 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void removeProcessConfig(Long projectId, Long id, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug("Process Client - remove processConfig " + id);
+  public void removeProcessConfig(Long projectId, Long id, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Process Client - remove processConfig " + id);
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/process/processconfig/remove/" + id
-            + "?projectId=" + projectId);
-    
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/processConfig/remove/" + id + "?projectId=" + projectId);
+
     if (id == null)
       return;
 
@@ -120,15 +124,53 @@ public class ProcessClientRest extends RootClientRest
   @Override
   public ProcessConfig getProcessConfig(Long projectId, Long id,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass())
+        .debug("Process Client - get processConfig " + id);
+    validateNotEmpty(id, "id");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/process/processConfig/" + id);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    ProcessConfigJpa processConfig =
+        ConfigUtility.getGraphForString(resultString, ProcessConfigJpa.class);
+    return processConfig;
   }
 
+  /* see superclass */
   @Override
-  public List<ProcessConfig> getProcessConfigs(Long projectId, String authToken)
+  public ProcessConfigList getProcessConfigs(Long projectId, String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass())
+        .debug("Process Client - get processConfigs for project " + projectId);
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/process/processConfig/all/" + projectId);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    ProcessConfigList list =
+        ConfigUtility.getGraphForString(resultString, ProcessConfigListJpa.class);
+    return list;
   }
 
   @Override
