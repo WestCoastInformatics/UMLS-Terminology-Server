@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 
@@ -19,7 +20,9 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
+import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
 import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -170,6 +173,19 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
   }
 
+  /**
+   * Handle lazy initialization.
+   *
+   * @param processConfig the process config
+   */
+  @SuppressWarnings("static-method")
+  private void handleLazyInit(ProcessConfig processConfig) {
+    if (processConfig == null) {
+      return;
+    }
+    processConfig.getSteps().size();
+  }
+
   /* see superclass */
   @Override
   public ProcessConfig addProcessConfig(ProcessConfig processConfig)
@@ -209,20 +225,35 @@ public class ProcessServiceJpa extends ProjectServiceJpa
         .debug("Process Service - get processConfig " + id);
     final ProcessConfig processConfig =
         manager.find(ProcessConfigJpa.class, id);
+    handleLazyInit(processConfig);    
+
     return processConfig;
   }
 
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public List<ProcessConfig> getProcessConfigs() throws Exception {
+  public ProcessConfigList getProcessConfigs(Long projectId) throws Exception {
     Logger.getLogger(getClass()).debug("Process Service - get processConfigs");
     javax.persistence.Query query =
-        manager.createQuery("select a from ProcessConfigJpa a");
+        manager.createQuery("select pc from ProcessConfigJpa pc");
+
     try {
       final List<ProcessConfig> processConfigs = query.getResultList();
 
-      return processConfigs;
+      // Only keep processConfigs associated with the passed project
+      final List<ProcessConfig> results = processConfigs.stream()
+          .filter(pc -> pc.getProject().getId().equals(projectId))
+          .collect(Collectors.toList());
+
+      final ProcessConfigList processConfigList = new ProcessConfigListJpa();
+      processConfigList.setObjects(results);
+
+      for (final ProcessConfig processConfig : processConfigList.getObjects()) {
+        handleLazyInit(processConfig);
+      }
+
+      return processConfigList;
     } catch (NoResultException e) {
       return null;
     }
@@ -230,7 +261,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public List<ProcessConfig> findProcessConfigs(String terminology,
+  public ProcessConfigList findProcessConfigs(String terminology,
     String version, String query, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .info("Project Service - find projects " + "/" + query);
@@ -252,7 +283,10 @@ public class ProcessServiceJpa extends ProjectServiceJpa
       results.add(pc);
     }
 
-    return results;
+    final ProcessConfigList processConfigList = new ProcessConfigListJpa();
+    processConfigList.setObjects(results);
+
+    return processConfigList;
   }
 
 }

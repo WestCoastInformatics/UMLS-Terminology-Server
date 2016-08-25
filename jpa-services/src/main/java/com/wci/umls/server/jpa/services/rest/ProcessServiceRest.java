@@ -3,10 +3,10 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import java.util.List;
 import java.util.Properties;
 
 import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -68,10 +68,9 @@ public interface ProcessServiceRest {
    * @return the process configs
    * @throws Exception the exception
    */
-  public List<ProcessConfig> getProcessConfigs(Long projectId, String authToken)
+  public ProcessConfigList getProcessConfigs(Long projectId, String authToken)
     throws Exception;
 
-  
   /**
    * Find process config.
    *
@@ -84,10 +83,10 @@ public interface ProcessServiceRest {
    * @return the process config
    * @throws Exception the exception
    */
-  public ProcessConfig findProcessConfig(Long projectId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception; 
-  
+  public ProcessConfig findProcessConfig(Long projectId, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
   /**
    * Returns the predefined processes.
    *

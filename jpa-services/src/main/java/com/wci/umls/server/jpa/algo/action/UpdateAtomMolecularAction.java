@@ -85,9 +85,10 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
 
     // The only fields that should be getting updated through here is
     // "suppressible", "obsolete", "publishable", or "workflowStauts"
-    // If any other field is changing, error out.    
-    List<String> changeAllowedGetMethods = Arrays.asList("isSuppressible", "isObsolete", "isPublishable", "getWorkflowStatus");
-    
+    // If any other field is changing, error out.
+    List<String> changeAllowedGetMethods = Arrays.asList("isSuppressible",
+        "isObsolete", "isPublishable", "getWorkflowStatus");
+
     List<Method> allGetMethods =
         IndexUtility.getAllColumnGetMethods(AtomJpa.class);
 
@@ -104,18 +105,20 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
         }
       }
     }
-    
-    
+
     // Check to see if the workflow status is changing (if so, don't update it
     // again to NEEDS_REVIEW in compute())
-    Method getWorkflowStatusMethod = allGetMethods.get(allGetMethods.indexOf("getWorkflowStatus"));
-      final Object origWorkflowStatus = getWorkflowStatusMethod.invoke(oldAtom);
-      final Object newWorkflowStatus = getWorkflowStatusMethod.invoke(getAtom());
-      if (!origWorkflowStatus.toString().equals(newWorkflowStatus.toString())) {
-        updatingWorkflowStatus = true;
+    for (Method method : allGetMethods) {
+      if (method.getName().equals("getWorkflowStatus")) {
+        final Object origWorkflowStatus = method.invoke(oldAtom);
+        final Object newWorkflowStatus = method.invoke(getAtom());
+        if (!origWorkflowStatus.toString()
+            .equals(newWorkflowStatus.toString())) {
+          updatingWorkflowStatus = true;
+        }
+      }
     }
-    
-    
+
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
     validationResult.merge(super.validateAtom(getProject(), getAtom()));
@@ -131,7 +134,7 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
-    // Change status of the atom 
+    // Change status of the atom
     // (IF the workflow status is not one of the fields being updated)
     if (getChangeStatusFlag() && !updatingWorkflowStatus) {
       atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);

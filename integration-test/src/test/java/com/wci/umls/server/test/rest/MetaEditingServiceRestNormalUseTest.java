@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -1263,9 +1264,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(addedAtom.getCodeId().equals("C44314"));
 
     //
-    // Test updating a non-identity field on the Atom (this should succeed)
+    // Test updating an allowable field on the Atom (this should succeed)
     //
-    addedAtom.setLanguage("JPN");
+    addedAtom.setPublishable(false);
 
     boolean updateSucceded = true;
     try {
@@ -1287,7 +1288,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertNotNull(addedAtom);
-    assertTrue(addedAtom.getLanguage().equals("JPN"));
+    assertFalse(addedAtom.isPublishable());
 
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -4848,9 +4849,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertNotNull(addedAtom);
 
     //
-    // Update updating a non-identity field on the Atom
+    // Update updating an allowable field on the Atom
     //
-    addedAtom.setLanguage("JPN");
+    addedAtom.setPublishable(false);
 
     boolean updateSucceded = true;
     try {
@@ -4872,7 +4873,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertNotNull(addedAtom);
-    assertTrue(addedAtom.getLanguage().equals("JPN"));
+    assertFalse(addedAtom.isPublishable());
 
     // verify the molecular action exists
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -4916,7 +4917,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertNotNull(addedAtom);
-    assertTrue(addedAtom.getLanguage().equals("ENG"));
+    assertTrue(addedAtom.isPublishable());
 
     // Verify the log entry exists
     String logEntry =
@@ -4949,7 +4950,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
     }
     assertNotNull(addedAtom);
-    assertTrue(addedAtom.getLanguage().equals("JPN"));
+    assertFalse(addedAtom.isPublishable());
 
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
