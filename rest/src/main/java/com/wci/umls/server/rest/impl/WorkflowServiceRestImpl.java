@@ -1428,7 +1428,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       else if (ConfigUtility.isEmpty(pfs.getSortField())) {
         pfs.setSortField("clusterId");
       }
-      System.out.println("PFS="+ pfs);
       final TrackingRecordList list =
           workflowService.findTrackingRecords(project, finalQuery, pfs);
 
@@ -1445,7 +1444,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final Checklist newChecklist = workflowService.addChecklist(checklist);
       Long i = 1L;
       for (final TrackingRecord record : list.getObjects()) {
-        System.out.println("indexed data=" + record.getIndexedData());
         final TrackingRecord copy = new TrackingRecordJpa(record);
         copy.setId(null);
         copy.setClusterId(i++);
