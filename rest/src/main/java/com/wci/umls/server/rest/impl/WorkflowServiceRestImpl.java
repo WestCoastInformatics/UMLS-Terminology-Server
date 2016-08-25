@@ -1428,7 +1428,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       else if (ConfigUtility.isEmpty(pfs.getSortField())) {
         pfs.setSortField("clusterId");
       }
-      System.out.println("PFS="+_pfs);
+      System.out.println("PFS="+ pfs);
       final TrackingRecordList list =
           workflowService.findTrackingRecords(project, finalQuery, pfs);
 
