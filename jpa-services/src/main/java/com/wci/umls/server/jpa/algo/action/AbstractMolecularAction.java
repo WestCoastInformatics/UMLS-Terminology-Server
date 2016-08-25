@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.algo.action;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -205,11 +204,11 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
     // Extract concept ids and sort them
     final List<Long> conceptIdList = new ArrayList<Long>();
-    conceptIdList.add(conceptId);
-    if (conceptId2 != null && !(conceptId.equals(conceptId2))) {
+    if (conceptId != null) {
+      conceptIdList.add(conceptId);
+    }    if (conceptId2 != null && !(conceptId2.equals(conceptId))) {
       conceptIdList.add(conceptId2);
     }
-    Collections.sort(conceptIdList);
 
     this.concept = null;
     this.concept2 = null;
@@ -257,9 +256,19 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       lockRelatedConcepts();
     }
 
+    if(concept!=null){
     setTerminology(concept.getTerminology());
     setVersion(concept.getVersion());
-
+    }
+    else if (concept2!=null){
+      setTerminology(concept2.getTerminology());
+      setVersion(concept2.getVersion());      
+    }
+    else{
+      rollback();
+      throw new Exception("Error: action could not load any concepts");
+    }
+    
     // Prepare the service
     setMolecularActionFlag(molecularActionFlag);
     setLastModifiedFlag(true);
@@ -268,12 +277,10 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     // construct the molecular action
     if (molecularActionFlag) {
       final MolecularAction molecularAction = new MolecularActionJpa();
-      molecularAction.setTerminology(this.concept.getTerminology());
-      molecularAction.setComponentId(this.concept.getId());
-      if (conceptId2 != null) {
-        molecularAction.setComponentId2(this.concept2.getId());
-      }
-      molecularAction.setVersion(concept.getVersion());
+      molecularAction.setTerminology((concept!=null ? concept.getTerminology() : concept2.getTerminology()));
+      molecularAction.setComponentId(conceptId);
+      molecularAction.setComponentId2(conceptId2);
+      molecularAction.setVersion((concept!=null ? concept.getVersion() : concept2.getVersion()));
       molecularAction.setName(getName());
       molecularAction.setTimestamp(new Date());
       molecularAction.setActivityId(getActivityId());
@@ -289,7 +296,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     }
 
     // throw exception on terminology mismatch
-    if (!concept.getTerminology().equals(project.getTerminology())) {
+    if (!project.getTerminology().equals((concept!=null ? concept.getTerminology() : concept2.getTerminology()))) {
       // unlock concepts and fail
       rollback();
       throw new Exception("Project and concept terminologies do not match");
@@ -298,18 +305,17 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     // Concept freshness check - either concept mus match
     // because the user picks one that may not wind up being "concept"
     // TODO: probably both should match
-    if (lastModified != null
-        && concept.getLastModified().getTime() != lastModified.longValue()) {
-      if (concept2 != null || concept2.getLastModified() != null
-          || concept2.getLastModified().getTime() != lastModified.longValue()) {
+    if (lastModified != null && !((concept != null
+        && concept.getLastModified().getTime() == lastModified.longValue()) || 
+        (concept2 != null
+        && concept2.getLastModified().getTime() == lastModified.longValue()))) {
         // unlock concepts and fail
         rollback();
         throw new LocalException(
             "Concept has changed since last read, please refresh and try again ("
-                + lastModified + ", " + concept.getLastModified().getTime()
-                + ", " + concept2.getLastModified().getTime());
+                + lastModified + (concept!= null ? ", " + concept.getLastModified().getTime() : " ") 
+                + (concept2!= null ? ", " + concept2.getLastModified().getTime() : " "));
       }
-    }
   }
 
   /**

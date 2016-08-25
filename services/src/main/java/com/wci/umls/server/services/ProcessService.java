@@ -1,16 +1,91 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
+
+import java.util.List;
+
+import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.PfsParameter;
 
 /**
  * Represents a service for performing and monitoring processes.
  */
-public interface ProcessService extends RootService {
+public interface ProcessService extends HistoryService {
 
-  // get authoring algorithms : AlgorithmConfig??
-  // get maintenance algorithms
-  // get release algorithms
+  /**
+   * Returns the authoring algorithms.
+   *
+   * @return the authoring algorithms
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getInsertionAlgorithms() throws Exception;
+
+  /**
+   * Returns the maintenance algorithms.
+   *
+   * @return the maintenance algorithms
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getMaintenanceAlgorithms() throws Exception;
+
+  /**
+   * Returns the release algorithms.
+   *
+   * @return the release algorithms
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getReleaseAlgorithms() throws Exception;
+
+  /**
+   * Adds the process config.
+   *
+   * @param processConfig the process config
+   * @return the process config
+   * @throws Exception the exception
+   */
+  public ProcessConfig addProcessConfig(ProcessConfig processConfig)
+    throws Exception;
+
+  /**
+   * Removes the process config.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeProcessConfig(Long id) throws Exception;
+
+  /**
+   * Update process config.
+   *
+   * @param processConfig the process config
+   * @throws Exception the exception
+   */
+  public void updateProcessConfig(ProcessConfig processConfig) throws Exception;
+
+  /**
+   * Returns the process config.
+   *
+   * @param id the id
+   * @return the process config
+   * @throws Exception the exception
+   */
+  public ProcessConfig getProcessConfig(Long id) throws Exception;
+
+  /**
+   * Find process configs.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the process config
+   * @throws Exception the exception
+   */
+  public List<ProcessConfig> findProcessConfigs(String terminology, String version,
+    String query, PfsParameter pfs) throws Exception;
 
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
@@ -22,9 +97,8 @@ public interface ProcessService extends RootService {
   // find unfinished process executions (unfinished processes)
   // find failed process executions (unfinished processes)
   // restart process (process config/process execution)
-  
+
   // get predefined processes? -> Process? ProcessConfig?
 
-  
   // TODO: websocket for process execution changed?
 }
