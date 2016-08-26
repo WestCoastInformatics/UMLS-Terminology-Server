@@ -3063,15 +3063,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final PfsParameter localPfs =
           (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
       // keys should remain sorted
-      Set<Long> clustersEncountered = new HashSet<>();
+      final Set<Long> clustersEncountered = new HashSet<>();
       final Map<Long, List<Long>> entries = new TreeMap<>();
       for (final Long[] result : results) {
         clustersEncountered.add(result[0]);
 
         // Keep only prescribed range from the query
         if ((clustersEncountered.size() - 1) < pfs.getStartIndex()
-            || clustersEncountered
-                .size() > (pfs.getStartIndex() + pfs.getMaxResults())) {
+            || clustersEncountered.size() > pfs.getMaxResults()) {
           continue;
         }
 
@@ -3080,6 +3079,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         }
         entries.get(result[0]).add(result[1]);
       }
+      clustersEncountered.clear();
 
       // Add tracking records
       long i = 1L;

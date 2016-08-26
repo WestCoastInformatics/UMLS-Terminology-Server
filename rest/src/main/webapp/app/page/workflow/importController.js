@@ -23,7 +23,6 @@ tsApp.controller('ImportModalCtrl', [
     $scope.clusterCt = 100;
     $scope.clusterCtOptions = [ 20, 50, 100, 200, 500 ];
     $scope.skipClusterCt = 0;
-    $scope.sortOrder = 'clusterId';
     $scope.mode = "Import";
 
     // Test query
@@ -97,9 +96,7 @@ tsApp.controller('ImportModalCtrl', [
             startIndex : $scope.skipClusterCt,
             maxResults : $scope.clusterCt ? $scope.clusterCt : 100
           }
-          if ($scope.sortOrder != 'RANDOM') {
-            pfs.sortField = $scope.sortOrder;
-          }
+
           // projectId, query, queryType, name, pfs
           workflowService.computeChecklist($scope.selected.project.id, $scope.query,
             $scope.queryType, $scope.checklistName, pfs).then(

@@ -345,7 +345,7 @@ tsApp.service('workflowService', [
       gpService.increment();
       $http.post(
         workflowUrl + '/checklist?projectId=' + projectId
-          + (query ? +'&query=' + utilService.prepQuery(query) : ''), utilService.prepPfs(pfs))
+          + (query ? '&query=' + utilService.prepQuery(query) : ''), utilService.prepPfs(pfs))
         .then(
         // success
         function(response) {
@@ -374,7 +374,7 @@ tsApp.service('workflowService', [
       gpService.increment();
       $http.post(
         workflowUrl + '/worklist?projectId=' + projectId
-          + (query ? +'&query=' + utilService.prepQuery(query) : ''), utilService.prepPfs(pfs))
+          + (query ? '&query=' + utilService.prepQuery(query) : ''), utilService.prepPfs(pfs))
         .then(
         // success
         function(response) {

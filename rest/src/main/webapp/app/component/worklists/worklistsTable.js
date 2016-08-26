@@ -168,9 +168,9 @@ tsApp
                       $scope.worklists = data.checklists;
                       $scope.worklists.totalCount = data.totalCount;
                       if (worklist) {
-                        for (var i = 0; i < data.worklists.length; i++) {
-                          if (data.worklists[i].id == worklist.id) {
-                            $scope.selectWorklist(data.worklists[i]);
+                        for (var i = 0; i < data.checklists.length; i++) {
+                          if (data.checklists[i].id == worklist.id) {
+                            $scope.selectWorklist(data.checklists[i]);
                           }
                         }
                       }
