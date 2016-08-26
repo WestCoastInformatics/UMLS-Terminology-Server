@@ -95,7 +95,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
-          "add project", UserRole.ADMINISTRATOR);
+          "add project", UserRole.USER);
       projectService.setLastModifiedBy(userName);
 
       // check to see if project already exists
@@ -138,8 +138,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     // Create service and configure transaction scope
     final ProjectService projectService = new ProjectServiceJpa();
     try {
-      final String userName = authorizeApp(securityService, authToken,
-          "update project", UserRole.ADMINISTRATOR);
+      final String userName = authorizeProject(projectService, project.getId(),
+          securityService, authToken, "update project", UserRole.AUTHOR);
       projectService.setLastModifiedBy(userName);
       // check to see if project already exists
       final Project origProject = projectService.getProject(project.getId());
@@ -178,8 +178,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
-      final String userName = authorizeApp(securityService, authToken,
-          "remove project", UserRole.ADMINISTRATOR);
+      final String userName = authorizeProject(projectService, id,
+          securityService, authToken, "remove project", UserRole.AUTHOR);
+
       projectService.setLastModifiedBy(userName);
       // Create service and configure transaction scope
       projectService.removeProject(id);
@@ -268,8 +269,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
-      final String authUser = authorizeProject(projectService, projectId,
-          securityService, authToken, "add user to project", UserRole.AUTHOR);
+      final String authUser =
+          authorizeProject(projectService, projectId, securityService,
+              authToken, "assign user to project", UserRole.AUTHOR);
       projectService.setLastModifiedBy(authUser);
 
       final User user = securityService.getUser(userName);
@@ -494,8 +496,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
       String authUser = null;
       try {
-        authUser = authorizeApp(securityService, authToken,
-            "unassign user from project", UserRole.ADMINISTRATOR);
+        authUser = authorizeProject(projectService, projectId, securityService,
+            authToken, "unassign user from project", UserRole.AUTHOR);
       } catch (Exception e) {
         // now try to validate project role
         authUser = authorizeProject(projectService, projectId, securityService,
@@ -808,10 +810,12 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @GET
   @Path("/reload")
-  @ApiOperation(value = "Reload config properties", notes = "Reloads config properties and clears caches", response = KeyValuePairList.class)
-  public void reloadConfigProperties(String authToken) throws Exception {
+  @ApiOperation(value = "Reload config properties", notes = "Reloads config properties and clears caches", response = String.class)
+  public String reloadConfigProperties(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).info("RESTful call POST (Project): /reload ");
 
     final ReloadConfigPropertiesAlgorithm algo =
@@ -820,12 +824,42 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "reload config properties",
           UserRole.ADMINISTRATOR);
       algo.compute();
+      return null;
     } catch (Exception e) {
       handleException(e, "trying to reload config properties");
     } finally {
       algo.close();
       securityService.close();
     }
+    return null;
+
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/exception")
+  @ApiOperation(value = "Force an exception", notes = "Forces an exception, to test email handling.", response = String.class)
+  public String forceException(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @QueryParam("local") Boolean localFlag,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call POST (Project): /reload ");
+    try {
+      authorizeApp(securityService, authToken, "force exception",
+          UserRole.ADMINISTRATOR);
+
+      if (localFlag != null && localFlag) {
+        throw new LocalException("TEST LOCAL EXCEPTION");
+      } else {
+        throw new Exception("TEST EXCEPTION");
+      }
+    } catch (Exception e) {
+      handleException(e, "trying to force exception");
+    } finally {
+      securityService.close();
+    }
+    return null;
 
   }
 

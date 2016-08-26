@@ -36,8 +36,6 @@ public class ReloadConfigPropertiesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Refresh config properties");
-
     // Clear existing properties
     ConfigUtility.clearConfigProperties();
 

@@ -141,6 +141,20 @@
 
     <div class="row">
       <div class="col-md-12 col-xs-12">
+        <button ng-show="user.applicationRole == 'ADMINISTRATOR'"
+          confirm="Are you sure you want to force an exception?"
+          ng-click="forceException()" class="btn btn-xs btn-warning">Force
+          Exception</button>
+        <button ng-show="user.applicationRole == 'ADMINISTRATOR'"
+          confirm="Are you sure you want to force a test exception?"
+          ng-click="forceException(true)" class="btn btn-xs btn-warning">Force
+          Test Exception</button>
+        <button ng-show="user.applicationRole == 'ADMINISTRATOR'"
+          confirm="Are you sure you want to reload the configuration?"
+          ng-click="reloadConfig()" class="btn btn-xs btn-warning">Reload
+          Config</button>
+      </div>
+      <div class="col-md-12 col-xs-12">
         <h5>
           <b>Default Project Settings</b>
         </h5>

@@ -405,6 +405,48 @@ tsApp
           return deferred.promise;
         };
 
+        // reload config properties
+        this.reloadConfigProperties = function() {
+          var deferred = $q.defer();
+
+          gpService.increment();
+          $http.get(projectUrl + '/reload').then(
+          // success
+          function(response) {
+            console.debug('  successful reload = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };
+
+        // force exception
+        this.forceException = function(flag) {
+          var deferred = $q.defer();
+
+          gpService.increment();
+          $http.get(projectUrl + '/exception' + (flag ? '?local=true' : '')).then(
+          // success
+          function(response) {
+            console.debug('  exception forced');
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };
+
         // Get projects where this user has a role
         // Return all projects and the default project choice
         this.getProjectsForUser = function(user) {

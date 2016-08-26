@@ -7,7 +7,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -48,6 +50,12 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
   /** The test fixture l2. */
   private List<AlgorithmParameter> l2;
 
+  /** The test fixture m1. */
+  private Map<String, String> m1;
+
+  /** The test fixture m2. */
+  private Map<String, String> m2;
+
   /**
    * Setup class.
    */
@@ -73,6 +81,12 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     l1.add((AlgorithmParameter) tester.createObject(1));
     l2 = new ArrayList<>();
     l2.add((AlgorithmParameter) tester.createObject(2));
+
+    m1 = new HashMap<>();
+    m1.put("1", "1");
+    m2 = new HashMap<>();
+    m2.put("1", "2");
+    m2.put("2", "3");
   }
 
   /**
@@ -103,6 +117,7 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("process");
     tester.include("terminology");
     tester.include("version");
+    tester.include("properties");
 
     // This is not a real getter, skip it
     tester.exclude("processId");
@@ -110,6 +125,8 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     // Set up objects
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
     tester.proxy(ProcessConfig.class, 1, p1);
     tester.proxy(ProcessConfig.class, 2, p2);
 
@@ -135,6 +152,8 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     // Set up objects
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
     tester.proxy(ProcessConfig.class, 1, p1);
     tester.proxy(ProcessConfig.class, 2, p2);
 

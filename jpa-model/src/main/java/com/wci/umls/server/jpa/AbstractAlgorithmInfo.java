@@ -5,19 +5,23 @@ package com.wci.umls.server.jpa;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
@@ -77,8 +81,12 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
   @Column(nullable = false)
   private String version;
 
+  /** the properties */
+  @ElementCollection
+  private Map<String, String> properties = new HashMap<>();
+
   /** parameters. */
-  @OneToMany(targetEntity = AlgorithmParameterJpa.class, orphanRemoval = true)
+  @Transient
   private List<AlgorithmParameter> parameters = new ArrayList<>();
 
   /**
@@ -99,6 +107,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     description = info.getDescription();
     terminology = info.getTerminology();
     version = info.getVersion();
+    properties = info.getProperties();
     for (final AlgorithmParameter param : info.getParameters()) {
       getParameters().add(new AlgorithmParameterJpa(param));
     }
@@ -233,6 +242,22 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
 
   /* see superclass */
   @Override
+  @XmlTransient
+  public Map<String, String> getProperties() {
+    if (properties == null) {
+      properties = new HashMap<>();
+    }
+    return properties;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Map<String, String> properties) {
+    this.properties = properties;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -245,6 +270,9 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result =
+        prime * result + ((properties == null) ? 0 : properties.hashCode());
+
     return result;
   }
 
@@ -284,6 +312,11 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
         return false;
     } else if (!version.equals(other.version))
       return false;
+    if (properties == null) {
+      if (other.properties != null)
+        return false;
+    } else if (!properties.equals(other.properties))
+      return false;
     return true;
   }
 
@@ -293,9 +326,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", name=" + name + ", description=" + description + ", algorithmKey="
         + algorithmKey + ", terminology=" + terminology + ", version=" + version
-        + ", parameters=" + parameters + "]";
+        + ", properties=" + properties + "]";
   }
-
-
 
 }

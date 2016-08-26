@@ -366,7 +366,7 @@ tsApp
             contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
               function(data) {
                 $scope.lists.concepts.push(data);
-                $scope.lists.concepts.sort(utilService.sort_by('id'));
+                $scope.lists.concepts.sort(utilService.sortBy('id'));
                 // Select first, when the first concept is loaded
                 if (selectFirst && data.id == record.concepts[0].id) {
                   $scope.selectConcept($scope.lists.concepts[0]);

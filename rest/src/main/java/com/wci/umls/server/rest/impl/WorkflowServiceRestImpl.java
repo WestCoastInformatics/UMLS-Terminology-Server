@@ -1,11 +1,15 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -32,6 +37,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
@@ -39,6 +46,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.Note;
@@ -1165,7 +1173,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Workflow): /checklist/" + projectId + " "
+        .info("RESTful POST call (Workflow): /checklist " + projectId + " "
             + query + " " + authToken);
 
     final String action = "trying to find checklists";
@@ -1428,7 +1436,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       else if (ConfigUtility.isEmpty(pfs.getSortField())) {
         pfs.setSortField("clusterId");
       }
-      System.out.println("PFS="+ pfs);
       final TrackingRecordList list =
           workflowService.findTrackingRecords(project, finalQuery, pfs);
 
@@ -1445,7 +1452,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final Checklist newChecklist = workflowService.addChecklist(checklist);
       Long i = 1L;
       for (final TrackingRecord record : list.getObjects()) {
-        System.out.println("indexed data=" + record.getIndexedData());
         final TrackingRecord copy = new TrackingRecordJpa(record);
         copy.setId(null);
         copy.setClusterId(i++);
@@ -2251,12 +2257,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/definition/test")
+  @Path("/query/test")
   @ApiOperation(value = "Test query.", notes = "Test workflow bin definition query.")
   public void testQuery(
     @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Query, e.g. NOT workflowStatus:NEEDS_REVIEW", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "Query type", required = true) @QueryParam("queryType") QueryType queryType,
+    @ApiParam(value = "Query type, e.g. LUCENE", required = true) @QueryParam("queryType") QueryType queryType,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -2562,7 +2568,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     }
 
     final String selectSubStr =
-        query.substring(0, query.toUpperCase().indexOf(" FROM "));
+        query.substring(0, query.toUpperCase().indexOf("FROM "));
 
     boolean conceptQuery = false;
     boolean dualConceptQuery = false;
@@ -2769,7 +2775,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     bin.setProject(project);
     bin.setRank(rank);
     bin.setTerminology(project.getTerminology());
-    bin.setVersion("latest");
+    bin.setVersion(workflowService.getLatestVersion(project.getTerminology()));
     bin.setTerminologyId("");
     bin.setTimestamp(new Date());
     bin.setType(definition.getWorkflowConfig().getType());
@@ -2834,7 +2840,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         record.setClusterId(clusterIdCt++);
         record.setTerminology(project.getTerminology());
         record.setTimestamp(new Date());
-        record.setVersion("latest");
+        record.setVersion(
+            workflowService.getLatestVersion(project.getTerminology()));
         record.setWorkflowBinName(bin.getName());
         record.setProject(project);
         record.setWorklistName(null);
@@ -2894,6 +2901,337 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
     return bin;
 
+  }
+
+  /* see superclass */
+  @POST
+  @Override
+  @Path("/checklist/import")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @ApiOperation(value = "Import checklist", notes = "Imports a checklist in the standard format", response = ChecklistJpa.class)
+  public Checklist importChecklist(
+    @ApiParam(value = "Form data header", required = true) @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+    @ApiParam(value = "Content of members file", required = true) @FormDataParam("file") InputStream in,
+    @ApiParam(value = "Project id, e.g. 3", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Checklist name, e.g. chk_test", required = false) @QueryParam("name") String name,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call POST (Workflow): /checklist/import " + projectId
+            + ", " + name);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    workflowService.setTransactionPerOperation(false);
+    workflowService.beginTransaction();
+    try {
+      final String userName = authorizeProject(workflowService, projectId,
+          securityService, authToken, "import checklist", UserRole.AUTHOR);
+      workflowService.setLastModifiedBy(userName);
+
+      // Read input stream
+      final BufferedReader reader =
+          new BufferedReader(new InputStreamReader(in));
+      String line;
+      final Map<Long, List<String>> entries = new HashMap<>();
+      while ((line = reader.readLine()) != null) {
+        // Verify format
+        final String[] tokens = FieldedStringTokenizer.split(line, "\t");
+        // skip header
+        if (tokens[0].toLowerCase().contains("cluster")) {
+          continue;
+        }
+        if (tokens.length != 2 && tokens.length != 3) {
+          throw new LocalException(
+              "Imported checklist has wrong number of fields: " + line);
+        }
+
+        if (!tokens[0].matches("[0-9]*")) {
+          throw new LocalException(
+              "Imported checklist has bad clusterId: " + line);
+        }
+        if (!tokens[1].matches("[0-9]*")) {
+          throw new LocalException(
+              "Imported checklist has bad conceptId: " + line);
+        }
+
+        final Long clusterId = Long.valueOf(tokens[0]);
+        if (!entries.containsKey(clusterId)) {
+          entries.put(clusterId, new ArrayList<>(3));
+        }
+        entries.get(clusterId).add(line);
+      }
+
+      final Project project = workflowService.getProject(projectId);
+
+      // Add checklist
+      final Checklist checklist = new ChecklistJpa();
+      checklist.setName(name);
+      checklist.setDescription(name + " description");
+      checklist.setProject(project);
+      checklist.setTimestamp(new Date());
+
+      // Add tracking records
+      long i = 1L;
+      for (final Long clusterId : entries.keySet()) {
+        final TrackingRecord record = new TrackingRecordJpa();
+        record.setChecklistName(name);
+        // recluster from 1
+        record.setClusterId(i++);
+        record.setClusterType("");
+        record.setProject(project);
+        record.setTerminology(project.getTerminology());
+        record.setTimestamp(new Date());
+        record.setVersion(
+            workflowService.getLatestVersion(project.getTerminology()));
+        final StringBuilder sb = new StringBuilder();
+        for (final String entry : entries.get(clusterId)) {
+          final String[] tokens = FieldedStringTokenizer.split(entry, "\t");
+          final Concept concept =
+              workflowService.getConcept(Long.valueOf(tokens[1]));
+          record.getComponentIds().addAll(concept.getAtoms().stream()
+              .map(a -> a.getId()).collect(Collectors.toSet()));
+          record.getOrigConceptIds().add(concept.getId());
+          sb.append(concept.getName()).append(" ");
+        }
+        record.setIndexedData(sb.toString());
+        workflowService.computeTrackingRecordStatus(record);
+        final TrackingRecord newRecord =
+            workflowService.addTrackingRecord(record);
+        // Add the record to the checklist.
+        checklist.getTrackingRecords().add(newRecord);
+      }
+
+      // Add the checklist
+      final Checklist newChecklist = workflowService.addChecklist(checklist);
+
+      // End transaction
+      workflowService.addLogEntry(userName, projectId, checklist.getId(), null,
+          null, "IMPORT checklist - " + checklist.getId() + ", "
+              + checklist.getName());
+
+      workflowService.commit();
+
+      return newChecklist;
+    } catch (Exception e) {
+      handleException(e, "trying to import checklist");
+      return null;
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @POST
+  @Override
+  @Path("/checklist/compute")
+  @ApiOperation(value = "Compute checklist", notes = "Computes a checklist from a query", response = ChecklistJpa.class)
+  public Checklist computeChecklist(
+    @ApiParam(value = "Project id, e.g. 3", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Query, e.g. NOT workflowStatus:NEEDS_REVIEW", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Query type, e.g. LUCENE", required = true) @QueryParam("queryType") QueryType queryType,
+    @ApiParam(value = "Checklist name, e.g. chk_test", required = false) @QueryParam("name") String name,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call POST (Workflow): /checklist/compute " + projectId
+            + ", " + name + ", " + query);
+
+    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+    workflowService.setTransactionPerOperation(false);
+    workflowService.beginTransaction();
+    try {
+      final String userName = authorizeProject(workflowService, projectId,
+          securityService, authToken, "compute checklist", UserRole.AUTHOR);
+      workflowService.setLastModifiedBy(userName);
+      final Project project = workflowService.getProject(projectId);
+
+      // Add checklist
+      final Checklist checklist = new ChecklistJpa();
+      checklist.setName(name);
+      checklist.setDescription(name + " description");
+      checklist.setProject(project);
+      checklist.setTimestamp(new Date());
+
+      // Aggregate into clusters
+      final Map<String, String> params = new HashMap<>();
+      params.put("terminology", project.getTerminology());
+      final List<Long[]> results =
+          executeQuery(query, queryType, params, workflowService);
+
+      final PfsParameter localPfs =
+          (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
+      // keys should remain sorted
+      final Set<Long> clustersEncountered = new HashSet<>();
+      final Map<Long, List<Long>> entries = new TreeMap<>();
+      for (final Long[] result : results) {
+        clustersEncountered.add(result[0]);
+
+        // Keep only prescribed range from the query
+        if ((clustersEncountered.size() - 1) < pfs.getStartIndex()
+            || clustersEncountered.size() > pfs.getMaxResults()) {
+          continue;
+        }
+
+        if (!entries.containsKey(result[0])) {
+          entries.put(result[0], new ArrayList<>());
+        }
+        entries.get(result[0]).add(result[1]);
+      }
+      clustersEncountered.clear();
+
+      // Add tracking records
+      long i = 1L;
+      for (final Long clusterId : entries.keySet()) {
+
+        final TrackingRecord record = new TrackingRecordJpa();
+        record.setChecklistName(name);
+        // recluster from 1
+        record.setClusterId(i++);
+        record.setClusterType("");
+        record.setProject(project);
+        record.setTerminology(project.getTerminology());
+        record.setTimestamp(new Date());
+        record.setVersion(
+            workflowService.getLatestVersion(project.getTerminology()));
+        final StringBuilder sb = new StringBuilder();
+        for (final Long conceptId : entries.get(clusterId)) {
+          final Concept concept = workflowService.getConcept(conceptId);
+          record.getComponentIds().addAll(concept.getAtoms().stream()
+              .map(a -> a.getId()).collect(Collectors.toSet()));
+          record.getOrigConceptIds().add(concept.getId());
+          sb.append(concept.getName()).append(" ");
+        }
+
+        record.setIndexedData(sb.toString());
+        workflowService.computeTrackingRecordStatus(record);
+        final TrackingRecord newRecord =
+            workflowService.addTrackingRecord(record);
+
+        // Add the record to the checklist.
+        checklist.getTrackingRecords().add(newRecord);
+      }
+
+      // Add the checklist
+      final Checklist newChecklist = workflowService.addChecklist(checklist);
+
+      // End transaction
+      workflowService.addLogEntry(userName, projectId, checklist.getId(), null,
+          null, "COMPUTE checklist - " + checklist.getId() + ", "
+              + checklist.getName() + ", " + query);
+
+      workflowService.commit();
+
+      return newChecklist;
+    } catch (Exception e) {
+      handleException(e, "trying to import checklist");
+      return null;
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @GET
+  @Override
+  @Produces("application/octet-stream")
+  @Path("/checklist/{id}/export")
+  @ApiOperation(value = "Export checklist", notes = "Exports the checklist", response = InputStream.class)
+  public InputStream exportChecklist(
+    @ApiParam(value = "Project id, e.g. 3", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Checklist id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call GET (Workflow): /checklist/" + id + "/export");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "export checklist", UserRole.AUTHOR);
+
+      final Checklist checklist = workflowService.getChecklist(id);
+      if (checklist == null) {
+        throw new Exception(
+            "Attempt to export a non-existent checklist: " + id);
+      }
+      return exportList(checklist.getTrackingRecords(), workflowService);
+
+    } catch (Exception e) {
+      handleException(e, "trying to export checklist");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @GET
+  @Override
+  @Produces("application/octet-stream")
+  @Path("/worklist/{id}/export")
+  @ApiOperation(value = "Export worklist", notes = "Exports the worklist", response = InputStream.class)
+  public InputStream exportWorklist(
+    @ApiParam(value = "Project id, e.g. 3", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Worklist id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call GET (Workflow): /worklist/" + id + "/export");
+    // identical to prior method but for worklists.
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "export worklist", UserRole.AUTHOR);
+
+      final Worklist worklist = workflowService.getWorklist(id);
+      if (worklist == null) {
+        throw new Exception("Attempt to export a non-existent worklist: " + id);
+      }
+      return exportList(worklist.getTrackingRecords(), workflowService);
+
+    } catch (Exception e) {
+      handleException(e, "trying to export worklist");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /**
+   * Export list.
+   *
+   * @param records the records
+   * @param workflowService the workflow service
+   * @return the input stream
+   * @throws Exception the exception
+   */
+  private InputStream exportList(List<TrackingRecord> records,
+    WorkflowService workflowService) throws Exception {
+    // Write a header
+    // Obtain members for refset,
+    // Write RF2 simple refset pattern to a StringBuilder
+    // wrap and return the string for that as an input stream
+    StringBuilder sb = new StringBuilder();
+    sb.append("clusterId").append("\t");
+    sb.append("conceptId").append("\t");
+    sb.append("conceptName").append("\r\n");
+
+    for (final TrackingRecord record : records) {
+      lookupTrackingRecordConcepts(record, workflowService);
+      for (final Concept concept : record.getConcepts()) {
+        sb.append(record.getClusterId()).append("\t");
+        sb.append(concept.getId()).append("\t");
+        sb.append(concept.getName()).append("\r\n");
+      }
+    }
+
+    return new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
   }
 
 }

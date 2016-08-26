@@ -4,8 +4,14 @@
   <!-- R1C1 -->
   <div class="col-md-6 col-xs-12">
 
-    <div pager paging="paging['worklists']" count="worklists.totalCount"
-      callback="paging['worklists'].callback"></div>
+    <span style="float: right;">
+      <!-- Import -->
+      <i ng-show="type == 'Checklist'" ng-click="openImportModal(); "
+        title="Import checklist" class="noul glyphicon glyphicon-check"></i>
+    </span>
+    <div style="display: inline" pager paging="paging['worklists']"
+      count="worklists.totalCount" callback="paging['worklists'].callback">
+    </div>
 
     <!-- Basic Worklist info -->
     <span ng-show="worklists.totalCount == 0" style="display: block;"
@@ -88,6 +94,7 @@
           <td ng-show="type == 'Worklist'">{{getWorkflowState(worklist)}}</td>
 
           <!--  actions -->
+
           <td class="nobreak">
             <i title="Remove" ng-show="!worklist.staged"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
@@ -168,8 +175,16 @@
               <div log selected="selected" type="{{type}}"></div>
             </td>
           </tr>
-
-
+          <tr>
+            <td>
+              <b>Export</b>
+            </td>
+            <td>
+              <!-- Export -->
+              <i ng-click="exportList(selected.worklist);"
+                title="Export {{type}}" class="noul glyphicon glyphicon-export"></i>
+            </td>
+          </tr>
           <tr ng-show="type == 'Worklist'">
             <td>
               <b>Workflow Bin</b>

@@ -38,9 +38,14 @@
 <script type="text/javascript" src="ui/components/tinymce/tinymce.min.js"></script>
 <script type="text/javascript"
   src="ui/components/angular-ui-tinymce/src/tinymce.js"></script>
+
 <!-- Library : Angular File Upload -->
 <script type="text/javascript"
   src="lib/angular-file-upload/angular-file-upload.min.js"></script>
+
+<!-- Angular file upload script must be after angular.js -->
+<script src="lib/ng-file-upload/ng-file-upload.min.js"></script>
+
 <!-- Library: ngTable -->
 <script type="text/javascript" src="lib/ng-table/ng-table.min.js"></script>
 <link href="lib/ng-table/ng-table.css" rel="stylesheet">
@@ -82,6 +87,7 @@
 <script src="app/page/edit/semantic-types/semanticTypes.js"></script>
 <!-- Modal Controllers -->
 <script src="app/page/workflow/addChecklistController.js"></script>
+<script src="app/page/workflow/importController.js"></script>
 <script src="app/page/workflow/addWorklistController.js"></script>
 <script src="app/page/workflow/assignWorklistController.js"></script>
 <script src="app/page/workflow/editConfigController.js"></script>

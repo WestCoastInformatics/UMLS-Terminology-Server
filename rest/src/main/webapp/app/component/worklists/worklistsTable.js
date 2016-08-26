@@ -168,9 +168,9 @@ tsApp
                       $scope.worklists = data.checklists;
                       $scope.worklists.totalCount = data.totalCount;
                       if (worklist) {
-                        for (var i = 0; i < data.worklists.length; i++) {
-                          if (data.worklists[i].id == worklist.id) {
-                            $scope.selectWorklist(data.worklists[i]);
+                        for (var i = 0; i < data.checklists.length; i++) {
+                          if (data.checklists[i].id == worklist.id) {
+                            $scope.selectWorklist(data.checklists[i]);
                           }
                         }
                       }
@@ -346,11 +346,23 @@ tsApp
               // Get the most recent note for display
               $scope.getLatestNote = function(worklist) {
                 if (worklist && worklist.notes && worklist.notes.length > 0) {
-                  return $sce.trustAsHtml(worklist.notes.sort(utilService.sort_by('lastModified',
-                    -1))[0].note);
+                  return $sce.trustAsHtml(worklist.notes.sort(utilService
+                    .sortBy('lastModified', -1))[0].note);
                 }
                 return $sce.trustAsHtml('');
               };
+
+              // Export a worklist
+              $scope.exportList = function(worklist) {
+                console.debug('YYY', worklist);
+                if ($scope.type == 'Checklist') {
+                  workflowService.exportChecklist($scope.selected.project.id, worklist.id,
+                    worklist.name);
+                } else if ($scope.type == 'Worklist') {
+                  workflowService.exportWorklist($scope.selected.project.id, worklist.id,
+                    worklist.name);
+                }
+              }
 
               //
               // MODALS
@@ -390,6 +402,33 @@ tsApp
                 });
               };
 
+              // Assign worklist modal
+              $scope.openImportModal = function() {
+
+                var modalInstance = $uibModal.open({
+                  templateUrl : 'app/page/workflow/import.html',
+                  controller : 'ImportModalCtrl',
+                  backdrop : 'static',
+                  resolve : {
+                    selected : function() {
+                      return $scope.selected;
+                    },
+                    lists : function() {
+                      return $scope.lists;
+                    },
+                    user : function() {
+                      return $scope.user;
+                    }
+                  }
+
+                });
+
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  $scope.getWorklists(data);
+                });
+              };
               // end
 
             } ]
