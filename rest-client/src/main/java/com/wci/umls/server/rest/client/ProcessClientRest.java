@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.net.URLEncoder;
 import java.util.Properties;
 
 import javax.ws.rs.client.Client;
@@ -148,37 +149,39 @@ public class ProcessClientRest extends RootClientRest
     return processConfig;
   }
 
-  /* see superclass */
   @Override
-  public ProcessConfigList getProcessConfigs(Long projectId, String authToken)
+  public ProcessConfigList findProcessConfigs(Long projectId, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Process Client - get processConfigs for project " + projectId);
-    Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(
-        config.getProperty("base.url") + "/process/processConfig/all/" + projectId);
-    Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
 
-    String resultString = response.readEntity(String.class);
+    Logger.getLogger(getClass())
+        .debug("Project Client - find processConfigs " + query);
+
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(terminology, "version");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/processConfig/all?terminology=" + terminology + "&version="
+        + version + (projectId == null ? "" : "&projectId=" + projectId)
+        + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
+
+    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
-      throw new Exception(resultString);
+      throw new Exception(response.toString());
     }
 
     // converting to object
-    ProcessConfigList list =
-        ConfigUtility.getGraphForString(resultString, ProcessConfigListJpa.class);
-    return list;
-  }
+    return ConfigUtility.getGraphForString(resultString,
+        ProcessConfigListJpa.class);
 
-  @Override
-  public ProcessConfig findProcessConfig(Long projectId, String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
-    // TODO Auto-generated method stub
-    return null;
   }
 
   @Override

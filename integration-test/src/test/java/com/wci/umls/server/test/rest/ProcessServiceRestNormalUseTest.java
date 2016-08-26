@@ -106,7 +106,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Get the processConfigs
     Logger.getLogger(getClass()).info("  Get the processConfigs");
     ProcessConfigList processConfigList =
-        processService.getProcessConfigs(project.getId(), authToken);
+        processService.findProcessConfigs(project.getId(), umlsTerminology, umlsVersion, null, null, authToken);
     assertNotNull(processConfigList);
     int processConfigCount = processConfigList.size();
     assertTrue(processConfigList.contains(updatedProcessConfig));
@@ -117,7 +117,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processService.removeProcessConfig(project.getId(), updatedProcessConfig.getId(),
         authToken);
     processConfigList =
-        processService.getProcessConfigs(project.getId(), authToken);
+        processService.findProcessConfigs(project.getId(), umlsTerminology, umlsVersion, null, null, authToken);
     assertEquals(processConfigCount - 1, processConfigList.size());
 
     // TEST: verify that it is removed (call should return null)
@@ -129,7 +129,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processService.removeProcessConfig(project.getId(), addedProcessConfig2.getId(),
         authToken);
     processConfigList =
-        processService.getProcessConfigs(project.getId(), authToken);
+        processService.findProcessConfigs(project.getId(), umlsTerminology, umlsVersion, null, null, authToken);
     assertEquals(processConfigCount - 2, processConfigList.size());    
     
     // TEST: verify that it is removed (call should return null)

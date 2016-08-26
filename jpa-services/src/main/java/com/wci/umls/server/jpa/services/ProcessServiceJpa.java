@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
 
@@ -184,6 +181,11 @@ public class ProcessServiceJpa extends ProjectServiceJpa
       return;
     }
     processConfig.getSteps().size();
+    processConfig.getProject().getId();
+    // TODO - once algorithmConfig has handleLazyInit, uncomment this section
+    // for(AlgorithmConfig algo : processConfig.getSteps()){
+    // algo.handleLazyInit(algo);
+    // }
   }
 
   /* see superclass */
@@ -225,44 +227,24 @@ public class ProcessServiceJpa extends ProjectServiceJpa
         .debug("Process Service - get processConfig " + id);
     final ProcessConfig processConfig =
         manager.find(ProcessConfigJpa.class, id);
-    handleLazyInit(processConfig);    
+    handleLazyInit(processConfig);
 
     return processConfig;
   }
 
-  /* see superclass */
-  @SuppressWarnings("unchecked")
-  @Override
-  public ProcessConfigList getProcessConfigs(Long projectId) throws Exception {
-    Logger.getLogger(getClass()).debug("Process Service - get processConfigs");
-    javax.persistence.Query query =
-        manager.createQuery("select pc from ProcessConfigJpa pc");
-
-    try {
-      final List<ProcessConfig> processConfigs = query.getResultList();
-
-      // Only keep processConfigs associated with the passed project
-      final List<ProcessConfig> results = processConfigs.stream()
-          .filter(pc -> pc.getProject().getId().equals(projectId))
-          .collect(Collectors.toList());
-
-      final ProcessConfigList processConfigList = new ProcessConfigListJpa();
-      processConfigList.setObjects(results);
-
-      for (final ProcessConfig processConfig : processConfigList.getObjects()) {
-        handleLazyInit(processConfig);
-      }
-
-      return processConfigList;
-    } catch (NoResultException e) {
-      return null;
-    }
-  }
-
+  /**
+   * Find process configs.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @return the process config list
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
-  public ProcessConfigList findProcessConfigs(String terminology,
-    String version, String query, PfsParameter pfs) throws Exception {
+  public ProcessConfigList findProcessConfigs(Long projectId, String query,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .info("Project Service - find projects " + "/" + query);
 
@@ -275,12 +257,17 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     if (!ConfigUtility.isEmpty(query)) {
       clauses.add(query);
     }
+    if(projectId != null){
+      clauses.add("projectId:" + projectId);
+    }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
-    for (final ProcessConfigJpa pc : searchHandler.getQueryResults(terminology,
-        version, Branch.ROOT, fullQuery, null, ProcessConfigJpa.class,
+    for (final ProcessConfigJpa pc : searchHandler.getQueryResults(null, null,
+        Branch.ROOT, fullQuery, null, ProcessConfigJpa.class,
         ProcessConfigJpa.class, pfs, totalCt, manager)) {
-      results.add(pc);
+
+        handleLazyInit(pc);
+        results.add(pc);
     }
 
     final ProcessConfigList processConfigList = new ProcessConfigListJpa();

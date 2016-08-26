@@ -73,26 +73,16 @@ public interface ProcessService extends ProjectService {
   public ProcessConfig getProcessConfig(Long id) throws Exception;
 
   /**
-   * Returns the process configs.
-   *
-   * @param projectId the project id
-   * @return the process configs
-   * @throws Exception the exception
-   */
-  public ProcessConfigList getProcessConfigs(Long projectId) throws Exception;
-
-  /**
    * Find process configs.
    *
-   * @param terminology the terminology
-   * @param version the version
+   * @param projectId the project id
    * @param query the query
    * @param pfs the pfs
    * @return the process config
    * @throws Exception the exception
    */
-  public ProcessConfigList findProcessConfigs(String terminology,
-    String version, String query, PfsParameter pfs) throws Exception;
+  public ProcessConfigList findProcessConfigs(Long projectId, String query,
+    PfsParameter pfs) throws Exception;
 
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs

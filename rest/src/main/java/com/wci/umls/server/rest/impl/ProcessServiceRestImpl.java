@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.Consumes;
@@ -21,11 +23,13 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProcessServiceRest;
@@ -75,27 +79,27 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Process): /processConfig/add for user " + authToken + ", " + processConfig);
+        .info("RESTful call PUT (Process): /processConfig/add for user "
+            + authToken + ", " + processConfig);
 
-    
     final ProcessService processService = new ProcessServiceJpa();
     try {
-      final String userName = authorizeApp(securityService, authToken,
-          "add processConfig", UserRole.ADMINISTRATOR);
-      processService.setLastModifiedBy(userName);
-
+      final String userName = authorizeProject(processService,
+          processConfig.getProjectId(), securityService, authToken,
+          "adding a process config", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);      
+      
       // check to see if processConfig already exists
-      for (final ProcessConfig p : processService.getProcessConfigs(processConfig.getProject().getId()).getObjects()) {
-        if (p.getName().equals(processConfig.getName())
-            && p.getDescription().equals(processConfig.getDescription())) {
-          throw new LocalException(
-              "A processConfig with this name and description already exists for this project");
-        }
+      if (processService.findProcessConfigs(processConfig.getProjectId(),
+          "name:\"" + processConfig.getName() + "\"", null).size() > 0) {
+        throw new LocalException(
+            "A processConfig with this name and description already exists for this project");
       }
 
       // Add processConfig
       final ProcessConfig newProcessConfig =
           processService.addProcessConfig(processConfig);
+      
       processService.addLogEntry(userName, processConfig.getProjectId(),
           processConfig.getId(), null, null,
           "ADD processConfig - " + processConfig);
@@ -121,15 +125,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Process): /processConfig/update for user " + authToken + ", " + processConfig);
+        .info("RESTful call PUT (Process): /processConfig/update for user "
+            + authToken + ", " + processConfig);
 
-    // Create service and configure transaction scope
     final ProcessService processService = new ProcessServiceJpa();
     try {
-      final String userName = authorizeApp(securityService, authToken,
+      final String userName = authorizeProject(processService,
+          processConfig.getProjectId(), securityService, authToken,
           "update processConfig", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
-      // check to see if processConfig already exists
+
+      // check to see if processConfig exists
       final ProcessConfig origProcessConfig =
           processService.getProcessConfig(processConfig.getId());
       if (origProcessConfig == null) {
@@ -164,15 +170,24 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call DELETE (Process): /processConfig/remove/" + id + ", for user " + authToken);
+        .info("RESTful call DELETE (Process): /processConfig/remove/" + id
+            + ", for user " + authToken);
 
-    
     final ProcessService processService = new ProcessServiceJpa();
     try {
-      final String userName = authorizeApp(securityService, authToken,
+      final String userName = authorizeProject(processService,
+          projectId, securityService, authToken,
           "remove processConfig", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
+      // check to see if processConfig exists
+      final ProcessConfig origProcessConfig =
+          processService.getProcessConfig(id);
+      if (origProcessConfig == null) {
+        throw new Exception(
+            "ProcessConfig " + id + " does not exist");
+      }
+      
       // Remove process config
       processService.removeProcessConfig(id);
 
@@ -192,17 +207,21 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @GET
   @Path("/processConfig/{id}")
   @ApiOperation(value = "Get processConfig for id", notes = "Gets the processConfig for the specified id", response = ProcessConfigJpa.class)
-  public ProcessConfig getProcessConfig(    
+  public ProcessConfig getProcessConfig(
     @ApiParam(value = "Project internal id, e.g. 2", required = true) @QueryParam("id") Long projectId,
     @ApiParam(value = "ProcessConfig internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /processConfig/" + id);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Process): /processConfig/" + id);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "get the processConfig",
-          UserRole.VIEWER);
+      final String userName = authorizeProject(processService,
+          projectId, securityService, authToken,
+          "getting the processConfig", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+      
       return processService.getProcessConfig(id);
     } catch (Exception e) {
       handleException(e, "trying to get a processConfig");
@@ -213,24 +232,45 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
   @Override
-  @GET
-  @Path("/processConfig/all/{projectId}")
-  @ApiOperation(value = "Get all processConfigs for a project", notes = "Gets all processConfigs for a project", response = ProcessConfigJpa.class)
-  public ProcessConfigList getProcessConfigs(    
-    @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("projectId") Long projectId,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+  @POST
+  @Path("/processConfig/all")
+  @ApiOperation(value = "Get processConfigs", notes = "Get processConfigs", response = ProcessConfigListJpa.class)
+  public ProcessConfigList findProcessConfigs(
+    @ApiParam(value = "Project Id, e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Terminology, e.g. UMLS", required = false) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. latest", required = false) @QueryParam("version") String version,
+    @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /processConfig/all/" + projectId);
+    Logger.getLogger(getClass())
+        .info("RESTful call POST (Content): /processConfig/all " + query);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "get processConfigs",
-          UserRole.VIEWER);
-      ProcessConfigList result = processService.getProcessConfigs(projectId);
-      return result;
+      final String userName = authorizeProject(processService,
+          projectId, securityService, authToken,
+          "finding process configs", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+      
+      final List<String> clauses = new ArrayList<>();
+      if (!ConfigUtility.isEmpty(query)) {
+        clauses.add(query);
+      }
+      if(!ConfigUtility.isEmpty(terminology)){
+        clauses.add("terminology:" + terminology);
+      }
+      if(!ConfigUtility.isEmpty(version)){
+        clauses.add("version:" + version);
+      }      
+      String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+      return processService.findProcessConfigs(projectId, fullQuery, pfs);
+
     } catch (Exception e) {
-      handleException(e, "trying to get processConfigs");
+      handleException(e, "trying to find process configs");
       return null;
     } finally {
       processService.close();
@@ -238,20 +278,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  @Override
-  public ProcessConfig findProcessConfig(Long projectId, String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
+  /* see superclass */
   @Override
   public StringList getPredefinedProcesses(String authToken) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* see superclass */
   @Override
   public Long runPredefinedProcess(Long projectId, String id, Properties p,
     String authToken) throws Exception {
@@ -259,6 +293,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     return null;
   }
 
+  /* see superclass */
   @Override
   public Long runProcessConfig(Long projectId, Long processConfigId,
     String authToken) throws Exception {
@@ -266,6 +301,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     return null;
   }
 
+  /* see superclass */
   @Override
   public int lookupProgress(Long projectId, Long processExecutionId,
     String authToken) throws Exception {
@@ -273,6 +309,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     return 0;
   }
 
+  /* see superclass */
   @Override
   public boolean cancelProcessExecution(Long projectId, Long processExecutionId,
     String authToken) throws Exception {
