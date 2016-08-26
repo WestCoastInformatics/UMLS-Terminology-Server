@@ -560,7 +560,7 @@ public class ProjectClientRest extends RootClientRest
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/project/reload");
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.text(""));
+        .header("Authorization", authToken).get();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -568,5 +568,25 @@ public class ProjectClientRest extends RootClientRest
       throw new Exception("Unexpected status " + response.getStatus());
     }
 
+  }
+
+  @Override
+  public void forceException(Boolean localFlag, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Project Client - reload config properties");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/project/exception"
+            + (localFlag == null ? "" : "&local=" + localFlag));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing
+    } else {
+      throw new Exception("Unexpected status " + response.getStatus());
+    }
   }
 }

@@ -813,7 +813,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   @GET
   @Path("/reload")
   @ApiOperation(value = "Reload config properties", notes = "Reloads config properties and clears caches", response = String.class)
-  public String reloadConfigProperties(
+  public void reloadConfigProperties(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call POST (Project): /reload ");
@@ -824,14 +824,12 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "reload config properties",
           UserRole.ADMINISTRATOR);
       algo.compute();
-      return null;
     } catch (Exception e) {
       handleException(e, "trying to reload config properties");
     } finally {
       algo.close();
       securityService.close();
     }
-    return null;
 
   }
 
@@ -840,7 +838,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   @GET
   @Path("/exception")
   @ApiOperation(value = "Force an exception", notes = "Forces an exception, to test email handling.", response = String.class)
-  public String forceException(
+  public void forceException(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @QueryParam("local") Boolean localFlag,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -859,7 +857,6 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     } finally {
       securityService.close();
     }
-    return null;
 
   }
 

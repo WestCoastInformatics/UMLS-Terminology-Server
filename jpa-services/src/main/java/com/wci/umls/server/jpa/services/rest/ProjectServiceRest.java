@@ -238,12 +238,11 @@ public interface ProjectServiceRest {
   /**
    * Force an exception.
    *
-   * @param localException the local exception
+   * @param localFlag the local flag
    * @param authToken the auth token
-   * @return the string
    * @throws Exception the exception
    */
-  public String forceException(Boolean localException, String authToken)
+  public void forceException(Boolean localFlag, String authToken)
     throws Exception;
 
 }
