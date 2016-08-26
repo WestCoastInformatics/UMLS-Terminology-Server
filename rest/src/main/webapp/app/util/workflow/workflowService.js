@@ -3,10 +3,10 @@ var workflowUrl = 'workflow';
 tsApp.service('workflowService', [
   '$http',
   '$q',
-  '$rootScope',
+  'Upload',
   'gpService',
   'utilService',
-  function($http, $q, $rootScope, gpService, utilService) {
+  function($http, $q, Upload, gpService, utilService) {
     console.debug('configure workflowService');
 
     this.getRecordTypes = function() {
@@ -343,19 +343,22 @@ tsApp.service('workflowService', [
 
       // Make POST call
       gpService.increment();
-      $http.post(workflowUrl + '/checklist?projectId=' + projectId, utilService.prepPfs(pfs)).then(
-      // success
-      function(response) {
-        console.debug('  checklists = ', response.data);
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
+      $http.post(
+        workflowUrl + '/checklist?projectId=' + projectId
+          + (query ? +'&query=' + utilService.prepQuery(query) : ''), utilService.prepPfs(pfs))
+        .then(
+        // success
+        function(response) {
+          console.debug('  checklists = ', response.data);
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
 
       return deferred.promise;
     };
@@ -369,19 +372,22 @@ tsApp.service('workflowService', [
 
       // Make POST call
       gpService.increment();
-      $http.post(workflowUrl + '/worklist?projectId=' + projectId, utilService.prepPfs(pfs)).then(
-      // success
-      function(response) {
-        console.debug('  worklists = ', response.data);
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
+      $http.post(
+        workflowUrl + '/worklist?projectId=' + projectId
+          + (query ? +'&query=' + utilService.prepQuery(query) : ''), utilService.prepPfs(pfs))
+        .then(
+        // success
+        function(response) {
+          console.debug('  worklists = ', response.data);
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
 
       return deferred.promise;
     };
@@ -921,7 +927,7 @@ tsApp.service('workflowService', [
       // Get projects
       gpService.increment();
       $http.get(
-        workflowUrl + '/definition/test?projectId=' + projectId + '&query='
+        workflowUrl + '/query/test?projectId=' + projectId + '&query='
           + utilService.prepQuery(query) + '&queryType=' + queryType).then(
       // success
       function(response) {
@@ -938,6 +944,119 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
-    // end
+    // import checklist
+    this.importChecklist = function(projectId, name, file) {
+      console.debug('import checklist', projectId, name);
+      var deferred = $q.defer();
+      gpService.increment();
+      Upload.upload({
+        url : workflowUrl + '/checklist/import?projectId=' + projectId + '&name=' + name,
+        data : {
+          file : file
+        }
+      }).then(
+      // Success
+      function(response) {
+        console.debug('  checklist imported =', response);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      },
+      // event
+      function(evt) {
+        var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+        console.debug('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+      });
+      return deferred.promise;
+    };
 
+    // compute checklist
+    this.computeChecklist = function(projectId, query, queryType, name, pfs) {
+      console.debug('computeChecklist', projectId, query, queryType, name);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.post(
+        workflowUrl + '/checklist/compute?projectId=' + projectId + '&query='
+          + utilService.prepQuery(query) + '&queryType=' + queryType + '&name=' + name, pfs).then(
+      // success
+      function(response) {
+        console.debug('  checklist computed =', response);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // Export checklist
+    this.exportChecklist = function(projectId, id, name) {
+      console.debug('exportChecklist', projectId, id, name);
+      gpService.increment();
+      $http.get(workflowUrl + '/checklist/' + id + '/export?projectId=' + projectId).then(
+      // / / Success
+      function(response) {
+        var blob = new Blob([ response.data ], {
+          type : ''
+        });
+
+        // / / fake a file URL and download it
+        var fileURL = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = fileURL;
+        a.target = '_blank';
+        // File name based on checklist name
+        a.download = name + '.xls';
+        document.body.appendChild(a);
+        gpService.decrement();
+        a.click();
+      },
+      // / / Error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+      });
+    };
+
+    // Export worklist
+    this.exportWorklist = function(projectId, id, name) {
+      console.debug('exportWorklist', projectId, id, name);
+      gpService.increment();
+      $http.get(workflowUrl + '/worklist/' + id + '/export?projectId=' + projectId).then(
+      // / / Success
+      function(response) {
+        var blob = new Blob([ response.data ], {
+          type : ''
+        });
+
+        // / / fake a file URL and download it
+        var fileURL = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = fileURL;
+        a.target = '_blank';
+        // File name based on worklist name
+        a.download = name + '.xls';
+        document.body.appendChild(a);
+        gpService.decrement();
+        a.click();
+      },
+      // / / Error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+      });
+    };
+
+    // / / end
   } ]);

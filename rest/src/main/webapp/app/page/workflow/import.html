@@ -4,10 +4,18 @@
 
 <div class="modal-body">
   <div>
-    <!-- Refset info -->
-    <div refset-info refset="refset" form="long"></div>
 
-    <table class="table">
+    <div>
+      <ul class="pointer nav nav-tabs">
+        <li ng-class="{active : mode == 'Import'}"><a
+            ng-click="mode = 'Import'">Import</a></li>
+        <li ng-class="{active : mode == 'Compute'}"><a
+            ng-click="mode = 'Compute'">Compute</a></li>
+      </ul>
+    </div>
+    <br>
+
+    <table ng-show="mode == 'Compute'" class="table">
       <tr>
         <td>
           <b>Checklist Name</b>
@@ -17,7 +25,7 @@
             size="40" ng-model="checklistName">
         </td>
       </tr>
-      <tr ng-disabled="file">
+      <tr>
         <td>
           <b>Query</b>
         </td>
@@ -26,7 +34,7 @@
             placeholder="Query to load checklist"></textarea>
         </td>
       </tr>
-      <tr ng-disabled="file">
+      <tr>
         <td>
           <b>Query Type</b>
         </td>
@@ -38,19 +46,63 @@
           </span>
         </td>
       </tr>
-      <tr ng-disabled="query">
+      <tr>
+        <td>
+          <b>Cluster Count</b>
+        </td>
+        <td>
+          <input type="number" size="4" ng-model="clusterCt"
+            list="clusterCtList" placeholder="e.g. 100, 200" />
+          <datalist id="clusterCtList">
+            <option ng-repeat="ct in clusterCtOptions" value="{{ct}}">{{ct}}</option>
+          </datalist>
+          <button class="btn btn-xs btn-warning" ng-show="clusterCt"
+            ng-click="clusterCt = ''">Clear</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Skip Clusters</b>
+        </td>
+        <td>
+          <input type="number" ng-model="skipClusterCt" size="4" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Sort order</b>
+        </td>
+        <td>
+          <select ng-model="sortOrder" title="Sort order for creating checklist">
+            <option value="clusterId">Cluster id</option>
+            <option value="indexedData">Concept name</option>
+            <option value="RANDOM">Randomize</option>
+        </td>
+      </tr>
+
+    </table>
+
+    <table ng-show="mode == 'Import'" class="table">
+      <tr>
+        <td>
+          <b>Checklist Name</b>
+        </td>
+        <td>
+          <input type="text" title="Checklist name" placeholder="e.g. chk_test"
+            size="40" ng-model="checklistName">
+        </td>
+      </tr>
+      <tr>
         <td>
           <b>Choose File</b>
         </td>
         <td>
-          <div>
-            <button style="margin-left: 15px" type="file" ngf-select
-              ng-model="file" name="file" ngf-pattern="*.xls*"
-              ngf-max-size="200MB">Browse for File</button>
-            <div ngf-drop ng-model="file" class="drop-box"
-              ngf-drag-over-class="'dragover'" ngf-max-size="1MB"
-              ngf-pattern="*.xls*">Drop file here</div>
-          </div>
+          <button style="margin-left: 15px" type="file" ngf-select
+            ng-model="file" name="file" ngf-pattern="*.xls*"
+            ngf-max-size="200MB">Browse for File</button>
+          <div ngf-drop ng-model="file" class="drop-box"
+            ngf-drag-over-class="'dragover'" ngf-max-size="1MB"
+            ngf-pattern="*.xls*">Drop file here</div>
         </td>
       </tr>
       <tr ng-show="file">
@@ -62,14 +114,21 @@
     <!-- Errors -->
     <div errors="errors"></div>
 
+    <!-- messages -->
+    <div class="col-md-12 col-xs-12">
+      <div class="alert alert-success" ng-repeat="message in messages">
+        {{message}}
+        <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-show="operation == 'Export'"
-    ng-click="export();">Export</button>
-  <button class="btn btn-primary" ng-disabled="!file"
-    ng-show="operation == 'Import' && errors.length == 0  && comments.length == 0"
-    ng-click="import(file);">Import</button>
+  <button class="btn btn-primary" ng-disabled="!file" ng-show="mode == 'Import'"
+    ng-click="import();">Import</button>
+  <button class="btn btn-primary" ng-disabled="!query"
+    ng-show="mode == 'Compute'" ng-click="compute();">Compute</button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

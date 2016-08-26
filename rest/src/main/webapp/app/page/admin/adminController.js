@@ -361,6 +361,21 @@ tsApp
           });
         };
 
+        // force exception
+        $scope.forceException = function(flag) {
+          projectService.forceException(flag);
+        }
+
+        // Reload server config
+        $scope.reloadConfig = function() {
+          projectService.reloadConfigProperties().then(
+          // Success
+          function() {
+            // reload page
+            $location.path('/admin');
+          });
+        }
+
         //
         // MODALS
         //

@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.Properties;
 
@@ -15,6 +16,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
@@ -1323,11 +1329,10 @@ public class WorkflowClientRest extends RootClientRest
     validateNotEmpty(projectId, "query");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(
-        config.getProperty("base.url") + "/workflow/definition/test?projectId="
-            + projectId + "&queryType=" + type + "&query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/query/test?projectId=" + projectId + "&queryType=" + type
+        + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -1337,5 +1342,124 @@ public class WorkflowClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
 
+  }
+
+  @Override
+  public Checklist importChecklist(
+    FormDataContentDisposition contentDispositionHeader, InputStream in,
+    Long projectId, String checklistName, String authToken) throws Exception {
+
+    Logger.getLogger(getClass()).debug("Workflow Client - import checklist");
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(checklistName, "checklistName");
+
+    StreamDataBodyPart fileDataBodyPart = new StreamDataBodyPart("file", in,
+        "filename.dat", MediaType.APPLICATION_OCTET_STREAM_TYPE);
+    FormDataMultiPart multiPart = new FormDataMultiPart();
+    multiPart.bodyPart(fileDataBodyPart);
+
+    ClientConfig clientConfig = new ClientConfig();
+    clientConfig.register(MultiPartFeature.class);
+    Client client = ClientBuilder.newClient(clientConfig);
+
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/workflow/checklist/import"
+            + "?projectId=" + projectId + "&name=" + checklistName);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken)
+        .post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
+
+    String resultString = response.readEntity(String.class);
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, ChecklistJpa.class);
+
+  }
+
+  /* see superclass */
+  @Override
+  public Checklist computeChecklist(Long projectId, String query,
+    QueryType queryType, String checklistName, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Client - compute checklist "
+        + projectId + ", " + checklistName + ", " + query);
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(checklistName, "checklistName");
+    validateNotEmpty(query, "query");
+    if (queryType == null) {
+      throw new Exception("Query type may not be null");
+    }
+
+    final Client client = ClientBuilder.newClient();
+
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/checklist/compute?projectId=" + projectId + "&name="
+        + checklistName + "&queryType=" + queryType + "&query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, ChecklistJpa.class);
+  }
+
+  @Override
+  public InputStream exportChecklist(Long projectId, Long checklistId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - export checklist " + projectId + ", " + checklistId);
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/checklist/"
+            + checklistId + "/export" + "?projectId=" + projectId);
+    Response response = target.request(MediaType.APPLICATION_OCTET_STREAM)
+        .header("Authorization", authToken).get();
+
+    InputStream in = response.readEntity(InputStream.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    return in;
+  }
+
+  @Override
+  public InputStream exportWorklist(Long projectId, Long worklistId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - export worklist " + projectId + ", " + worklistId);
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/worklist/"
+            + worklistId + "/export" + "?projectId=" + projectId);
+    Response response = target.request(MediaType.APPLICATION_OCTET_STREAM)
+        .header("Authorization", authToken).get();
+
+    InputStream in = response.readEntity(InputStream.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    return in;
   }
 }

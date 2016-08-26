@@ -5,18 +5,17 @@
 // http://blog.brunoscopelliti.com/how-to-defer-route-definition-in-an-angularjs-web-app/
 var $routeProviderReference;
 
-var tsApp = angular
-  .module(
-    'tsApp',
-    [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ui.tinymce', 'ngCookies', 'ngTable',
-      'angularFileUpload' ]).config(function($rootScopeProvider, $routeProvider) {
+var tsApp = angular.module(
+  'tsApp',
+  [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ngFileUpload', 'ui.tinymce', 'ngCookies', 'ngTable',
+    'angularFileUpload' ]).config(function($rootScopeProvider, $routeProvider) {
 
-    // Set recursive digest limit higher to handle very deep trees.
-    $rootScopeProvider.digestTtl(15);
-    // Save reference to route provider
-    $routeProviderReference = $routeProvider;
+  // Set recursive digest limit higher to handle very deep trees.
+  $rootScopeProvider.digestTtl(15);
+  // Save reference to route provider
+  $routeProviderReference = $routeProvider;
 
-  });
+});
 
 // Declare any $rootScope vars
 tsApp.run(function($rootScope) {
