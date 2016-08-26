@@ -61,17 +61,6 @@ public interface ProcessServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Returns the process configs.
-   *
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the process configs
-   * @throws Exception the exception
-   */
-  public ProcessConfigList getProcessConfigs(Long projectId, String authToken)
-    throws Exception;
-
-  /**
    * Find process config.
    *
    * @param projectId the project id
@@ -83,7 +72,7 @@ public interface ProcessServiceRest {
    * @return the process config
    * @throws Exception the exception
    */
-  public ProcessConfig findProcessConfig(Long projectId, String terminology,
+  public ProcessConfigList findProcessConfigs(Long projectId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 

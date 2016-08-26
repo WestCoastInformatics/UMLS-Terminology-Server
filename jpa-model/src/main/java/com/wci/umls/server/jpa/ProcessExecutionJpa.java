@@ -14,7 +14,6 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -34,9 +33,7 @@ import com.wci.umls.server.ProcessExecution;
  * JPA and JAXB enabled implementation of {@link ProcessExecution}.
  */
 @Entity
-@Table(name = "process_executions", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "name", "project_id"
-}))
+@Table(name = "process_executions")
 @Audited
 @Indexed
 @XmlRootElement(name = "processExecution")
