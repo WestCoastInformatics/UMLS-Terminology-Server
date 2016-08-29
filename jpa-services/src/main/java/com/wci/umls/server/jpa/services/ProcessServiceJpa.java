@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
@@ -18,6 +19,7 @@ import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProcessConfigList;
+import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
 import com.wci.umls.server.services.ProcessService;
@@ -28,6 +30,9 @@ import com.wci.umls.server.services.handlers.SearchHandler;
  */
 public class ProcessServiceJpa extends ProjectServiceJpa
     implements ProcessService {
+
+  /** The algorithms map. */
+  private static Map<String, Algorithm> algorithmsMap = new HashMap<>();
 
   /** The insertion algorithms map. */
   private static Map<String, Algorithm> insertionAlgorithmsMap =
@@ -51,14 +56,28 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
     try {
       config = ConfigUtility.getConfigProperties();
-      final String key = "insertion.algorithm.handler";
+      final String key = "algorithm.handler";
       for (final String handlerName : config.getProperty(key).split(",")) {
 
         // Add handlers to map
         final Algorithm handlerService =
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
                 handlerName, Algorithm.class);
-        insertionAlgorithmsMap.put(handlerName, handlerService);
+        algorithmsMap.put(handlerName, handlerService);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      algorithmsMap = null;
+    }
+
+    try {
+      config = ConfigUtility.getConfigProperties();
+      final String key = "insertion.algorithm.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+
+        // Pull algorithm from algorithm map, and add to specific algorithm-type
+        // map
+        insertionAlgorithmsMap.put(handlerName, algorithmsMap.get(handlerName));
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -70,11 +89,10 @@ public class ProcessServiceJpa extends ProjectServiceJpa
       final String key = "maintenance.algorithm.handler";
       for (final String handlerName : config.getProperty(key).split(",")) {
 
-        // Add handlers to map
-        final Algorithm handlerService =
-            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
-                handlerName, Algorithm.class);
-        maintenanceAlgorithmsMap.put(handlerName, handlerService);
+        // Pull algorithm from algorithm map, and add to specific algorithm-type
+        // map
+        maintenanceAlgorithmsMap.put(handlerName,
+            algorithmsMap.get(handlerName));
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -86,11 +104,9 @@ public class ProcessServiceJpa extends ProjectServiceJpa
       final String key = "release.algorithm.handler";
       for (final String handlerName : config.getProperty(key).split(",")) {
 
-        // Add handlers to map
-        final Algorithm handlerService =
-            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
-                handlerName, Algorithm.class);
-        releaseAlgorithmsMap.put(handlerName, handlerService);
+        // Pull algorithm from algorithm map, and add to specific algorithm-type
+        // map
+        releaseAlgorithmsMap.put(handlerName, algorithmsMap.get(handlerName));
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -154,6 +170,11 @@ public class ProcessServiceJpa extends ProjectServiceJpa
    */
   @SuppressWarnings("static-method")
   private void validateInit() throws Exception {
+    if (algorithmsMap == null) {
+      throw new Exception(
+          "Algorithms did not properly initialize, serious error.");
+    }
+
     if (insertionAlgorithmsMap == null) {
       throw new Exception(
           "Insertion algorithms did not properly initialize, serious error.");
@@ -168,24 +189,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
       throw new Exception(
           "Release algorithms did not properly initialize, serious error.");
     }
-  }
-
-  /**
-   * Handle lazy initialization.
-   *
-   * @param processConfig the process config
-   */
-  @SuppressWarnings("static-method")
-  private void handleLazyInit(ProcessConfig processConfig) {
-    if (processConfig == null) {
-      return;
-    }
-    processConfig.getSteps().size();
-    processConfig.getProject().getId();
-    // TODO - once algorithmConfig has handleLazyInit, uncomment this section
-    // for(AlgorithmConfig algo : processConfig.getSteps()){
-    // algo.handleLazyInit(algo);
-    // }
   }
 
   /* see superclass */
@@ -232,22 +235,13 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     return processConfig;
   }
 
-  /**
-   * Find process configs.
-   *
-   * @param projectId the project id
-   * @param query the query
-   * @param pfs the pfs
-   * @return the process config list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public ProcessConfigList findProcessConfigs(Long projectId, String query,
     PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
-        .info("Project Service - find projects " + "/" + query);
-
+        .info("Project Service - find processConfigs " + "/" + query);
+   
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
 
     int totalCt[] = new int[1];
@@ -257,23 +251,99 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     if (!ConfigUtility.isEmpty(query)) {
       clauses.add(query);
     }
-    if(projectId != null){
+    if (projectId != null) {
       clauses.add("projectId:" + projectId);
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
-    for (final ProcessConfigJpa pc : searchHandler.getQueryResults(null, null,
+    List<ProcessConfigJpa> processConfigs = searchHandler.getQueryResults(null, null,
         Branch.ROOT, fullQuery, null, ProcessConfigJpa.class,
-        ProcessConfigJpa.class, pfs, totalCt, manager)) {
-
-        handleLazyInit(pc);
-        results.add(pc);
-    }
-
+        ProcessConfigJpa.class, pfs, totalCt, manager);
+    
+    for (final ProcessConfig pc : processConfigs) {
+      handleLazyInit(pc);
+      results.add(pc);
+     }
+    
     final ProcessConfigList processConfigList = new ProcessConfigListJpa();
     processConfigList.setObjects(results);
 
     return processConfigList;
+  }
+
+  /* see superclass */
+  @Override
+  public AlgorithmConfig addAlgorithmConfig(AlgorithmConfig algorithmConfig)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - add algorithmConfig " + algorithmConfig);
+
+    // Add algorithmConfig
+    return addHasLastModified(algorithmConfig);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeAlgorithmConfig(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - remove algorithmConfig " + id);
+    // Remove the algorithmConfig
+    removeHasLastModified(id, AlgorithmConfigJpa.class);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void updateAlgorithmConfig(AlgorithmConfig algorithmConfig)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - update algorithmConfig " + algorithmConfig);
+    // update algorithmConfig
+    updateHasLastModified(algorithmConfig);
+
+  }
+
+  /* see superclass */
+  @Override
+  public AlgorithmConfig getAlgorithmConfig(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - get algorithmConfig " + id);
+    final AlgorithmConfig algorithmConfig =
+        manager.find(AlgorithmConfigJpa.class, id);
+    handleLazyInit(algorithmConfig);
+
+    return algorithmConfig;
+  }
+
+  /**
+   * Handle lazy initialization.
+   *
+   * @param processConfig the process config
+   */
+  @SuppressWarnings("static-method")
+  private void handleLazyInit(ProcessConfig processConfig) {
+    if (processConfig == null) {
+      return;
+    }
+    processConfig.getSteps().size();
+    processConfig.getProject().getId();
+    for (AlgorithmConfig algo : processConfig.getSteps()) {
+      handleLazyInit(algo);
+    }
+  }
+
+  /**
+   * Handle lazy initialization
+   *
+   * @param algorithmConfig the algorithm config
+   */
+  @SuppressWarnings("static-method")
+  private void handleLazyInit(AlgorithmConfig algorithmConfig) {
+    if (algorithmConfig == null) {
+      return;
+    }
+    algorithmConfig.getParameters().size();
+    algorithmConfig.getProperties().size();
   }
 
 }

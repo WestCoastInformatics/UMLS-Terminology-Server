@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.services;
 
+import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -84,6 +85,45 @@ public interface ProcessService extends ProjectService {
   public ProcessConfigList findProcessConfigs(Long projectId, String query,
     PfsParameter pfs) throws Exception;
 
+
+  /**
+   * Adds the algorithm config.
+   *
+   * @param algorithmConfig the algorithm config
+   * @return the algorithm config
+   * @throws Exception the exception
+   */
+  public AlgorithmConfig addAlgorithmConfig(AlgorithmConfig algorithmConfig)
+    throws Exception;
+
+
+  /**
+   * Removes the algorithm config.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeAlgorithmConfig(Long id) throws Exception;
+
+
+  /**
+   * Update algorithm config.
+   *
+   * @param algorithmConfig the algorithm config
+   * @throws Exception the exception
+   */
+  public void updateAlgorithmConfig(AlgorithmConfig algorithmConfig) throws Exception;
+
+
+  /**
+   * Returns the algorithm config.
+   *
+   * @param id the id
+   * @return the algorithm config
+   * @throws Exception the exception
+   */
+  public AlgorithmConfig getAlgorithmConfig(Long id) throws Exception;  
+  
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
   // add/remove/update/get/find process executions

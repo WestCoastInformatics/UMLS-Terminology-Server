@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.services.ProjectService;
@@ -172,7 +173,7 @@ public class RootServiceRestImpl {
    * Send change event.
    *
    * @param event the event
-   * @throws Exception
+   * @throws Exception the exception
    */
   public static void sendChangeEvent(ChangeEvent<?> event) throws Exception {
     if (websocket != null) {
@@ -180,4 +181,19 @@ public class RootServiceRestImpl {
     }
   }
 
+  /**
+   * Verify project.
+   *
+   * @param p the p
+   * @param projectId the project id
+   * @throws Exception the exception
+   */
+  public static void verifyProject(HasProject p, Long projectId) throws Exception {
+    if (p == null || p.getProject() == null
+        || !p.getProject().getId().equals(projectId)) {
+      throw new Exception(
+          "Mismatched project ids: " + projectId + ", " + (p == null ? "null"
+              : (p.getProject() == null ? "null" : p.getProject().getId())  ));    }
+  }   
+  
 }
