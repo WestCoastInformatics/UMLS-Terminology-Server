@@ -23,8 +23,6 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
   /** The atom. */
   private Atom atom;
 
-  private boolean updatingWorkflowStatus = false;
-
   /**
    * Instantiates an empty {@link UpdateAtomMolecularAction}.
    *
@@ -81,7 +79,7 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
     // Cannot change any field that would affect the identity of the atom:
     // codeId, conceptId, descriptorId, stringClassId, termType, terminology,
     // terminologyId
-    Atom oldAtom = getAtom(atom.getId());
+    final Atom oldAtom = getAtom(atom.getId());
 
     // The only fields that should be getting updated through here is
     // "suppressible", "obsolete", "publishable", or "workflowStauts"
@@ -106,19 +104,6 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
       }
     }
 
-    // Check to see if the workflow status is changing (if so, don't update it
-    // again to NEEDS_REVIEW in compute())
-    for (Method method : allGetMethods) {
-      if (method.getName().equals("getWorkflowStatus")) {
-        final Object origWorkflowStatus = method.invoke(oldAtom);
-        final Object newWorkflowStatus = method.invoke(getAtom());
-        if (!origWorkflowStatus.toString()
-            .equals(newWorkflowStatus.toString())) {
-          updatingWorkflowStatus = true;
-        }
-      }
-    }
-
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
     validationResult.merge(super.validateAtom(getProject(), getAtom()));
@@ -130,13 +115,12 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
   public void compute() throws Exception {
     //
     // Perform the "adding an atom" (contentService will create atomic "adding
-    // an atom"s for CRUD
-    // operations)
+    // an atom"s for CRUD operations)
     //
 
-    // Change status of the atom
-    // (IF the workflow status is not one of the fields being updated)
-    if (getChangeStatusFlag() && !updatingWorkflowStatus) {
+    // Let the update choose the new workflow status for the atom, unless null
+    // then set to needs review
+    if (atom.getWorkflowStatus() == null) {
       atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
 

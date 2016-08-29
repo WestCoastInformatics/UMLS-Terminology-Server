@@ -1,13 +1,15 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.services.ProjectService;
@@ -53,19 +55,17 @@ public class RootServiceRestImpl {
     }
     // throw the local exception as a web application exception
     if (e instanceof LocalException) {
-      throw new WebApplicationException(Response.status(500).entity(message)
-          .build());
+      throw new WebApplicationException(
+          Response.status(500).entity(message).build());
     }
 
     // throw the web application exception as-is, e.g. for 401 errors
     if (e instanceof WebApplicationException) {
       throw new WebApplicationException(message, e);
     }
-    throw new WebApplicationException(Response
-        .status(500)
-        .entity(
-            "\"Unexpected error " + whatIsHappening
-                + ". Please contact the administrator.\"").build());
+    throw new WebApplicationException(
+        Response.status(500).entity("\"Unexpected error " + whatIsHappening
+            + ". Please contact the administrator.\"").build());
 
   }
 
@@ -89,7 +89,8 @@ public class RootServiceRestImpl {
     }
     if (!role.hasPrivilegesOf(cmpRole))
       throw new WebApplicationException(Response.status(401)
-          .entity("User does not have permissions to " + perform + ".").build());
+          .entity("User does not have permissions to " + perform + ".")
+          .build());
     return securityService.getUsernameForToken(authToken);
   }
 
@@ -113,19 +114,24 @@ public class RootServiceRestImpl {
     final String userName = securityService.getUsernameForToken(authToken);
 
     // Allow application admin to do anything
-    UserRole appRole = securityService.getApplicationRoleForToken(authToken);
+    final UserRole appRole =
+        securityService.getApplicationRoleForToken(authToken);
     if (appRole == UserRole.USER || appRole == UserRole.ADMINISTRATOR) {
       return userName;
     }
 
     // Verify that user project role has privileges of required role
-    UserRole role =
-        projectService.getProject(projectId).getUserRoleMap()
-            .get(securityService.getUser(userName));
-    UserRole projectRole = (role == null) ? UserRole.VIEWER : role;
+    final Project project = projectService.getProject(projectId);
+    if (project == null) {
+      throw new Exception("Missing project for id" + projectId);
+    }
+    final UserRole role =
+        project.getUserRoleMap().get(securityService.getUser(userName));
+    final UserRole projectRole = (role == null) ? UserRole.VIEWER : role;
     if (!projectRole.hasPrivilegesOf(requiredProjectRole))
       throw new WebApplicationException(Response.status(401)
-          .entity("User does not have permissions to " + perform + ".").build());
+          .entity("User does not have permissions to " + perform + ".")
+          .build());
 
     // return username
     return userName;
@@ -138,7 +144,7 @@ public class RootServiceRestImpl {
    * @return the total elapsed time str
    */
   @SuppressWarnings({
-    "boxing"
+      "boxing"
   })
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;
@@ -164,7 +170,8 @@ public class RootServiceRestImpl {
    *
    * @param websocket2 the notification websocket
    */
-  public static void setNotificationWebsocket(NotificationWebsocket websocket2) {
+  public static void setNotificationWebsocket(
+    NotificationWebsocket websocket2) {
     websocket = websocket2;
   }
 
@@ -174,9 +181,26 @@ public class RootServiceRestImpl {
    * @param event the event
    * @throws Exception
    */
-  public static void sendChangeEvent(ChangeEvent<?> event) throws Exception {
+  public static void sendChangeEvent(ChangeEvent event) throws Exception {
     if (websocket != null) {
       websocket.send(ConfigUtility.getJsonForGraph(event));
+    }
+  }
+
+  /**
+   * Verify project.
+   *
+   * @param p the p
+   * @param projectId the project id
+   * @throws Exception the exception
+   */
+  public static void verifyProject(HasProject p, Long projectId)
+    throws Exception {
+    if (p == null || p.getProject() == null
+        || !p.getProject().getId().equals(projectId)) {
+      throw new Exception(
+          "Mismatched project ids: " + projectId + ", " + (p == null ? "null"
+              : (p.getProject() == null ? "null" : p.getProject().getId())));
     }
   }
 

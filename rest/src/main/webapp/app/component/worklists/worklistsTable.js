@@ -8,12 +8,13 @@ tsApp
       '$window',
       '$sce',
       '$interval',
+      'websocketService',
       'utilService',
       'securityService',
       'projectService',
       'workflowService',
-      function($uibModal, $window, $sce, $interval, utilService, securityService, projectService,
-        workflowService) {
+      function($uibModal, $window, $sce, $interval, websocketService, utilService, securityService,
+        projectService, workflowService) {
         console.debug('configure worklistTable directive');
         return {
           restrict : 'A',
@@ -66,7 +67,22 @@ tsApp
               $scope.$watch('selected.refreshCt', function() {
                 // Skip initial setting
                 if ($scope.selected.refreshCt) {
-                  $scope.getWorklists();
+                  $scope.getWorklists($scope.selected.worklist);
+                }
+              });
+
+              // Handle workflow changes
+              $scope.$on('termServer::checklistChange', function(event, data) {
+                if (data.id == $scope.selected.project.id && $scope.type == 'Checklist') {
+                  // refresh the list
+                  $scope.getWorklists($scope.selected.worklist);
+                }
+              });
+
+              $scope.$on('termServer::worklistChange', function(event, data) {
+                if (data.id == $scope.selected.project.id && $scope.type == 'Worklist') {
+                  // refresh the list
+                  $scope.getWorklists($scope.selected.worklist);
                 }
               });
 
@@ -246,10 +262,10 @@ tsApp
 
                 // retrieve the correct table
                 if (table === 'worklists') {
-                  $scope.getWorklists();
+                  $scope.getWorklists($scope.selected.worklist);
                 }
                 if (table === 'records') {
-                  $scope.getRecords();
+                  $scope.getWorklists($scope.selected.worklist);
                 }
               };
 
@@ -330,7 +346,7 @@ tsApp
                   && (worklist.workflowStatus == 'NEW' || worklist.workflowStatus == 'READY_FOR_PUBLICATION')) {
                   $scope.performWorkflowAction(worklist, 'SAVE', $scope.user.userName);
                 } else {
-                  $scope.getWorklists();
+                  $scope.getWorklists($scope.selected.worklist);
                 }
               };
 
@@ -339,7 +355,7 @@ tsApp
 
                 workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
                   userName, $scope.selected.projects.role, action).then(function(data) {
-                  $scope.getWorklists();
+                  $scope.getWorklists($scope.selected.worklist);
                 });
               };
 
