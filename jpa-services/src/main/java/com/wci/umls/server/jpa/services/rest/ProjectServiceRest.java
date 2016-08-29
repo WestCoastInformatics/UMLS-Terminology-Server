@@ -231,20 +231,18 @@ public interface ProjectServiceRest {
    * Force an exception.
    *
    * @param authToken the auth token
-   * @return the string
    * @throws Exception the exception
    */
-  public String reloadConfigProperties(String authToken) throws Exception;
+  public void reloadConfigProperties(String authToken) throws Exception;
 
   /**
    * Force an exception.
    *
-   * @param localException the local exception
+   * @param localFlag the local flag
    * @param authToken the auth token
-   * @return the string
    * @throws Exception the exception
    */
-  public String forceException(Boolean localException, String authToken)
+  public void forceException(Boolean localFlag, String authToken)
     throws Exception;
 
 }

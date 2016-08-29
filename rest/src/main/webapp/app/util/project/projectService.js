@@ -413,7 +413,7 @@ tsApp
           $http.get(projectUrl + '/reload').then(
           // success
           function(response) {
-            console.debug('  successful reload = ', response.data);
+            console.debug('  successful reload');
             gpService.decrement();
             deferred.resolve(response.data);
           },
