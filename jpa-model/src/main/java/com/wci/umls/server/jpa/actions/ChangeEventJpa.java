@@ -10,19 +10,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
-import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.model.actions.ChangeEvent;
-import com.wci.umls.server.model.content.Component;
 
 /**
- * JAXB enabled implementation of a {@link ChangeEvent}. NOTE: this object
- * cannot be effectively "reserialized" because it uses
- * {@link AbstractComponent}
- *
- * @param <T> the type
+ * JAXB enabled implementation of a {@link ChangeEvent}.
  */
 @XmlRootElement(name = "change")
-public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
+public class ChangeEventJpa implements ChangeEvent {
 
   /** The id. */
   private Long id;
@@ -45,11 +39,8 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
   /** The type. */
   private String type;
 
-  /** The old value. */
-  private T oldValue;
-
-  /** The new value. */
-  private T newValue;
+  /** The object id. */
+  private Long objectId;
 
   /** The container. */
   private ComponentInfo container;
@@ -66,7 +57,7 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
    *
    * @param event the event
    */
-  public ChangeEventJpa(ChangeEvent<T> event) {
+  public ChangeEventJpa(ChangeEvent event) {
     id = event.getId();
     timestamp = event.getTimestamp();
     lastModified = event.getLastModified();
@@ -74,8 +65,7 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
     name = event.getName();
     sessionId = event.getSessionId();
     type = event.getType();
-    oldValue = event.getOldValue();
-    newValue = event.getNewValue();
+    objectId = event.getObjectId();
     container = event.getContainer();
   }
 
@@ -85,29 +75,17 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
    * @param name the name
    * @param sessionId the session id
    * @param type the type
-   * @param oldValue the old value
-   * @param newValue the new value
+   * @param objectId the object id
    * @param container the container
-   * @throws Exception 
+   * @throws Exception the exception
    */
-  public ChangeEventJpa(String name, String sessionId, String type, T oldValue,
-      T newValue, ComponentInfo container) throws Exception {
-    if (newValue != null) {
-      id = newValue.getId();
-      timestamp = newValue.getTimestamp();
-      lastModified = newValue.getLastModified();
-      lastModifiedBy = newValue.getLastModifiedBy();
-    } else if (oldValue != null) {
-      id = oldValue.getId();
-      timestamp = oldValue.getTimestamp();
-      lastModified = oldValue.getLastModified();
-      lastModifiedBy = oldValue.getLastModifiedBy();
-    }
+  public ChangeEventJpa(String name, String sessionId, String type,
+      Long objectId, ComponentInfo container) throws Exception {
+    this.objectId = objectId;
+    timestamp = new Date();
     this.name = name;
     this.sessionId = sessionId;
     this.type = type;
-    this.oldValue = oldValue;
-    this.newValue = newValue;
     this.container = new ComponentInfoJpa(container);
   }
 
@@ -196,29 +174,15 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
   }
 
   /* see superclass */
-  @XmlElement(type = AbstractComponent.class)
   @Override
-  public T getOldValue() {
-    return oldValue;
+  public Long getObjectId() {
+    return objectId;
   }
 
   /* see superclass */
   @Override
-  public void setOldValue(T oldValue) {
-    this.oldValue = oldValue;
-  }
-
-  /* see superclass */
-  @XmlElement(type = AbstractComponent.class)
-  @Override
-  public T getNewValue() {
-    return newValue;
-  }
-
-  /* see superclass */
-  @Override
-  public void setNewValue(T newValue) {
-    this.newValue = newValue;
+  public void setObjectId(Long objectId) {
+    this.objectId = objectId;
   }
 
   /* see superclass */
@@ -241,8 +205,7 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
     int result = 1;
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((sessionId == null) ? 0 : sessionId.hashCode());
-    result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());
-    result = prime * result + ((oldValue == null) ? 0 : oldValue.hashCode());
+    result = prime * result + ((objectId == null) ? 0 : objectId.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((container == null) ? 0 : container.hashCode());
     return result;
@@ -257,7 +220,7 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    ChangeEventJpa<?> other = (ChangeEventJpa<?>) obj;
+    ChangeEventJpa other = (ChangeEventJpa) obj;
     if (name == null) {
       if (other.name != null)
         return false;
@@ -268,15 +231,10 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
         return false;
     } else if (!sessionId.equals(other.sessionId))
       return false;
-    if (newValue == null) {
-      if (other.newValue != null)
+    if (objectId == null) {
+      if (other.objectId != null)
         return false;
-    } else if (!newValue.equals(other.newValue))
-      return false;
-    if (oldValue == null) {
-      if (other.oldValue != null)
-        return false;
-    } else if (!oldValue.equals(other.oldValue))
+    } else if (!objectId.equals(other.objectId))
       return false;
     if (type == null) {
       if (other.type != null)
@@ -297,8 +255,8 @@ public class ChangeEventJpa<T extends Component> implements ChangeEvent<T> {
     return "ChangeEventJpa [id=" + id + ", timestamp=" + timestamp
         + ", lastModified=" + lastModified + ", lastModifiedBy="
         + lastModifiedBy + ", name=" + name + ", sessionId=" + sessionId
-        + ", type=" + type + ", oldValue=" + oldValue + ", newValue="
-        + newValue + ", container=" + container + "]";
+        + ", type=" + type + ", objectId=" + objectId + ", container="
+        + container + "]";
   }
 
 }

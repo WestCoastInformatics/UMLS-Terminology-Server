@@ -1,9 +1,12 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.test.actions;
+package com.wci.umls.server.jpa.test.meta;
 
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -12,29 +15,27 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
+import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
-import com.wci.umls.server.jpa.actions.ChangeEventJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.model.actions.ChangeEvent;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
 /**
- * Unit testing for {@link ChangeEventJpa}.
+ * Unit testing for {@link PfsParameterJpa}.
  */
-public class ChangeEventJpaUnitTest extends ModelUnitSupport {
+public class PfsParameterJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
-  private ChangeEvent object;
+  private PfsParameterJpa object;
 
-  /** The c1. */
-  private ConceptJpa c1;
+  /** The fixture l1 */
+  private List<String> l1;
 
-  /** The c2. */
-  private ConceptJpa c2;
+  /** The fixture l2 */
+  private List<String> l2;
 
   /**
    * Setup class.
@@ -51,14 +52,13 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
    */
   @Before
   public void setup() throws Exception {
-    object = new ChangeEventJpa();
-    c1 = new ConceptJpa();
-    c1.setId(1L);
-    c1.setTerminologyId("1");
-    c2 = new ConceptJpa();
-    c2.setId(2L);
-    c2.setTerminologyId("2");
-
+    // set up text fixtures
+    object = new PfsParameterJpa();
+    l1 = new ArrayList<String>();
+    l1.add("1");
+    l2 = new ArrayList<String>();
+    l2.add("2");
+    l2.add("3");
   }
 
   /**
@@ -82,16 +82,18 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
   public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
+    tester.include("activeOnly");
+    tester.include("ascending");
+    tester.include("branch");
+    tester.include("inactiveOnly");
+    tester.include("maxResults");
+    tester.include("queryRestriction");
+    tester.include("sortField");
+    tester.include("sortFields");
+    tester.include("startIndex");
 
-    tester.include("name");
-    tester.include("sessionId");
-    tester.include("type");
-    tester.include("objectId");
-    tester.include("container");
-
-    tester.proxy(ComponentInfo.class, 1, c1);
-    tester.proxy(ComponentInfo.class, 2, c2);
-
+    tester.proxy(List.class, 1, l1);
+    tester.proxy(List.class, 2, l2);
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -108,11 +110,10 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
   @Test
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(ComponentInfo.class, 1, c1);
-    tester.proxy(ComponentInfo.class, 2, c2);
-    assertTrue(tester.testCopyConstructor(ChangeEvent.class));
+    tester.proxy(List.class, 1, l1);
+    tester.proxy(List.class, 2, l2);
+    assertTrue(tester.testCopyConstructor(PfsParameter.class));
   }
 
   /**
@@ -123,11 +124,10 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
   @Test
   public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    Logger.getLogger(getClass())
-        .info("xml = " + ConfigUtility.getStringForGraph(object));
-    Logger.getLogger(getClass())
-        .info("json = " + ConfigUtility.getJsonForGraph(object));
-    // Only testing TO XML/JSON is important
+    XmlSerializationTester tester = new XmlSerializationTester(object);
+    tester.proxy(List.class, 1, l1);
+
+    assertTrue(tester.testXmlSerialization());
   }
 
   /**
@@ -147,4 +147,3 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
   }
 
 }
-//

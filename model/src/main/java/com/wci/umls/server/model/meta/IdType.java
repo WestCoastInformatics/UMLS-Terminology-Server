@@ -60,7 +60,10 @@ public enum IdType {
   GENERAL_CONCEP_AXIOM,
 
   /** The definition. */
-  DEFINITION;
+  DEFINITION,
+
+  /** The project type - for websocket events. */
+  PROJECT;
 
   /**
    * Gets the id type.
@@ -109,7 +112,7 @@ public enum IdType {
   public static <T extends Component> IdType getIdType(Class<T> clazz)
     throws Exception {
     final String type = clazz.getName().toUpperCase();
-    if (type.contains("RELATIONSHIP")){
+    if (type.contains("RELATIONSHIP")) {
       return RELATIONSHIP;
     }
     for (final IdType value : IdType.values()) {

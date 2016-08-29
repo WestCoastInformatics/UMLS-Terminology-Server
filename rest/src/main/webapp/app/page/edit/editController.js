@@ -96,6 +96,31 @@ tsApp
 
         $scope.errors = [];
 
+        // Handle workflow changes
+        $scope.$on('termServer::checklistChange', function(event, data) {
+          if (data.id == $scope.selected.project.id) {
+            // Checklists changed, refresh checklists list if showing
+            if ($scope.selected.worklistMode == 'Checklists') {
+              $scope.getWorklists();
+            } else {
+              $scope.getChecklistCt();
+            }
+
+          }
+        });
+
+        $scope.$on('termServer::worklistChange', function(event, data) {
+          if (data.id == $scope.selected.project.id) {
+            // Worklists changed, refresh worklists if not checklists tab
+            if ($scope.selected.worklistMode != 'Checklists') {
+              $scope.getWorklists();
+            } else {
+              $scope.getAssignedWorklistCt();
+              $scope.getAvailableWorklistCt();
+            }
+          }
+        });
+
         // Handle changes from actions performed by this user
         $scope.$on('termServer::conceptChange', function(event, concept) {
 
@@ -180,7 +205,7 @@ tsApp
           } else if ($scope.selected.worklistMode == 'Assigned') {
             $scope.getAssignedWorklists();
           } else if ($scope.selected.worklistMode == 'Checklists') {
-            $scope.findChecklists();
+            $scope.getChecklists();
           }
         }
 
@@ -257,7 +282,7 @@ tsApp
         };
 
         // Find checklists
-        $scope.findChecklists = function() {
+        $scope.getChecklists = function() {
           var paging = $scope.paging['worklists'];
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
@@ -719,7 +744,7 @@ tsApp
           // Success
           function(data) {
             // return if concept is already on concept list
-            for (var i=0; i<$scope.lists.concepts.length; i++) {
+            for (var i = 0; i < $scope.lists.concepts.length; i++) {
               if ($scope.lists.concepts[i].id == data.id) {
                 window.alert('Concept ' + data.id + ' is already on the concept list.');
                 return;

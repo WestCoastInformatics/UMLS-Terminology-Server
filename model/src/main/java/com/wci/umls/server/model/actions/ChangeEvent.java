@@ -6,15 +6,11 @@ package com.wci.umls.server.model.actions;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
-import com.wci.umls.server.model.content.Component;
 
 /**
  * Generically represents a change event for a model object.
- *
- * @param <T> the
  */
-public interface ChangeEvent<T extends Component> extends HasName,
-    HasLastModified {
+public interface ChangeEvent extends HasName, HasLastModified {
 
   /**
    * Returns the session id.
@@ -45,32 +41,18 @@ public interface ChangeEvent<T extends Component> extends HasName,
   public void setType(String type);
 
   /**
-   * Returns the old value.
+   * Returns the object id.
    *
-   * @return the old value
+   * @return the object id
    */
-  public T getOldValue();
+  public Long getObjectId();
 
   /**
-   * Sets the old value.
+   * Sets the object id.
    *
-   * @param oldValue the old value
+   * @param objectId the object id
    */
-  public void setOldValue(T oldValue);
-
-  /**
-   * Returns the new value.
-   *
-   * @return the new value
-   */
-  public T getNewValue();
-
-  /**
-   * Sets the new value.
-   *
-   * @param newValue the new value
-   */
-  public void setNewValue(T newValue);
+  public void setObjectId(Long objectId);
 
   /**
    * Returns the container.

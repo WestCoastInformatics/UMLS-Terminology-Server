@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa;
 
 import java.util.Date;
@@ -77,6 +80,29 @@ public class ComponentInfoJpa implements ComponentInfo {
     this.version = componentInfo.getVersion();
     this.name = componentInfo.getName();
     this.type = componentInfo.getType();
+  }
+
+  /**
+   * Instantiates a {@link ComponentInfoJpa} from the specified parameters.
+   *
+   * @param id the id
+   * @param terminology the terminology
+   * @param terminologyId the terminology id
+   * @param version the version
+   * @param name the name
+   * @param type the type
+   * @throws Exception the exception
+   */
+  public ComponentInfoJpa(Long id, String terminology, String terminologyId,
+      String version, String name, IdType type) throws Exception {
+    super();
+
+    this.id = id;
+    this.terminology = terminology;
+    this.terminologyId = terminologyId;
+    this.version = version;
+    this.name = name;
+    this.type = type;
   }
 
   /* see superclass */
@@ -172,9 +198,8 @@ public class ComponentInfoJpa implements ComponentInfo {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;

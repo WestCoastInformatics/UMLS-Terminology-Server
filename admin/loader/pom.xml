@@ -383,7 +383,7 @@
                 <id>generate-nci-meta-data</id>
                 <phase>package</phase>
                 <goals>
-                  <goal>generate-sample-data</goal>
+                  <goal>generate-nci-meta-data</goal>
                 </goals>
                 <configuration>
                   <mode>${mode}</mode>
