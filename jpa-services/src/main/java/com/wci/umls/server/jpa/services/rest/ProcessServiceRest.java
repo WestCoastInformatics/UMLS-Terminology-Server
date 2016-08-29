@@ -46,11 +46,12 @@ public interface ProcessServiceRest {
    *
    * @param projectId the project id
    * @param id the id
+   * @param cascade the cascade
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeProcessConfig(Long projectId, Long id, String authToken)
-    throws Exception;
+  public void removeProcessConfig(Long projectId, Long id, Boolean cascade,
+    String authToken) throws Exception;
 
   /**
    * Returns the process config.
@@ -68,17 +69,14 @@ public interface ProcessServiceRest {
    * Find process config.
    *
    * @param projectId the project id
-   * @param terminology the terminology
-   * @param version the version
    * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the process config
    * @throws Exception the exception
    */
-  public ProcessConfigList findProcessConfigs(Long projectId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+  public ProcessConfigList findProcessConfigs(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Adds the algorithm config.

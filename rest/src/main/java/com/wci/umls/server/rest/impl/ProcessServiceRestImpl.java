@@ -4,7 +4,6 @@
 package com.wci.umls.server.rest.impl;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.Consumes;
@@ -25,7 +24,6 @@ import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.StringList;
@@ -93,12 +91,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "adding a process config", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
-      //Make sure processConfig was passed in
-      if(processConfig == null){
-        throw new LocalException(
-            "Error: trying to add null processConfig");        
+      // Make sure processConfig was passed in
+      if (processConfig == null) {
+        throw new LocalException("Error: trying to add null processConfig");
       }
-      
+
       // Load project
       Project project = processService.getProject(projectId);
       project.setLastModifiedBy(userName);
@@ -108,9 +105,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processConfig.setProject(project);
 
       // Verify that passed projectId matches ID of the processConfig's project
-      if (processConfig != null) {
-        verifyProject(processConfig, projectId);
-      }
+      verifyProject(processConfig, projectId);
 
       // check to see if processConfig already exists
       if (processService.findProcessConfigs(projectId,
@@ -158,12 +153,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "update processConfig", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
-      //Make sure processConfig was passed in
-      if(processConfig == null){
-        throw new LocalException(
-            "Error: trying to update null processConfig");        
+      // Make sure processConfig was passed in
+      if (processConfig == null) {
+        throw new LocalException("Error: trying to update null processConfig");
       }
-      
+
       // Load project
       Project project = processService.getProject(projectId);
       project.setLastModifiedBy(userName);
@@ -173,9 +167,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processConfig.setProject(project);
 
       // Verify that passed projectId matches ID of the processConfig's project
-      if (processConfig != null) {
-        verifyProject(processConfig, projectId);
-      }
+      verifyProject(processConfig, projectId);
 
       // ensure the processConfig exists in the database
       final ProcessConfig origProcessConfig =
@@ -208,6 +200,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   public void removeProcessConfig(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "ProcessConfig id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Cascade, e.g. true", required = true) @QueryParam("cascade") Boolean cascade,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
@@ -220,18 +213,30 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           authorizeProject(processService, projectId, securityService,
               authToken, "remove processConfig", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
+      // May have multiple transactions
+      processService.setTransactionPerOperation(false);
+      processService.beginTransaction();
 
       // Load processConfig object
       ProcessConfig processConfig = processService.getProcessConfig(id);
 
-      //Make sure processConfig exists
-      if(processConfig == null){
-            throw new Exception("ProcessConfig " + id + " does not exist");
+      // Make sure processConfig exists
+      if (processConfig == null) {
+        throw new Exception("ProcessConfig " + id + " does not exist");
       }
-      
+
       // Verify that passed projectId matches ID of the processConfig's project
-      if (processConfig != null) {
-        verifyProject(processConfig, projectId);
+      verifyProject(processConfig, projectId);
+
+      // If cascade if specified, Remove contained algorithmConfigs, if any, and
+      // update ProcessConfig before removing it
+      if (cascade && !processConfig.getSteps().isEmpty()) {
+        for (AlgorithmConfig algorithmConfig : new ArrayList<AlgorithmConfig>(
+            processConfig.getSteps())) {
+          processConfig.getSteps().remove(algorithmConfig);
+          processService.updateProcessConfig(processConfig);
+          processService.removeAlgorithmConfig(algorithmConfig.getId());
+        }
       }
 
       // Remove process config
@@ -240,6 +245,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.addLogEntry(userName, projectId, id, null, null,
           "REMOVE processConfig " + id);
 
+      processService.commit();
     } catch (Exception e) {
       handleException(e, "trying to remove a processConfig");
     } finally {
@@ -271,10 +277,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Load processConfig object
       ProcessConfig processConfig = processService.getProcessConfig(id);
 
-      // Verify that passed projectId matches ID of the processConfig's project
-      if (processConfig != null) {
-        verifyProject(processConfig, projectId);
+      if (processConfig == null) {
+        return processConfig;
       }
+
+      // Verify that passed projectId matches ID of the processConfig's project
+      verifyProject(processConfig, projectId);
 
       return processConfig;
     } catch (Exception e) {
@@ -293,8 +301,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Find processConfigs", notes = "Find processConfigs", response = ProcessConfigListJpa.class)
   public ProcessConfigList findProcessConfigs(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Terminology, e.g. UMLS", required = false) @QueryParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. latest", required = false) @QueryParam("version") String version,
     @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
     @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
@@ -309,22 +315,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "finding process configs", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      final List<String> clauses = new ArrayList<>();
-      if (!ConfigUtility.isEmpty(query)) {
-        clauses.add(query);
-      }
-      if (!ConfigUtility.isEmpty(version)) {
-        clauses.add("projectId:" + projectId);
-      }
-      if (!ConfigUtility.isEmpty(terminology)) {
-        clauses.add("terminology:" + terminology);
-      }
-      if (!ConfigUtility.isEmpty(version)) {
-        clauses.add("version:" + version);
-      }
-      String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-
-      return processService.findProcessConfigs(projectId, fullQuery, pfs);
+      return processService.findProcessConfigs(projectId, query, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to find process configs");
@@ -373,17 +364,18 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Re-add project to algorithmConfig (it does not make it intact through
       // XML)
-      algorithmConfig.setProject(project);      
-      
-      // Verify that passed projectId matches ID of the algorithmConfig's project
-      if (algorithmConfig != null) {
-        verifyProject(algorithmConfig, projectId);
-      }      
-      
+      algorithmConfig.setProject(project);
+
+      // Verify that passed projectId matches ID of the algorithmConfig's
+      // project
+      verifyProject(algorithmConfig, projectId);
+
       // Add algorithmConfig
       final AlgorithmConfig newAlgorithmConfig =
           processService.addAlgorithmConfig(algorithmConfig);
 
+      // If new algorithm config has an associated processConfig,
+      // add the algorithm to it and update
       if (processConfig != null) {
         // Add algorithmConfig to processConfig
         processConfig.getSteps().add(newAlgorithmConfig);
@@ -441,13 +433,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Re-add project to algorithmConfig (it does not make it intact through
       // XML)
-      algorithmConfig.setProject(project);      
-      
-      // Verify that passed projectId matches ID of the algorithmConfig's project
-      if (algorithmConfig != null) {
-        verifyProject(algorithmConfig, projectId);
-      }      
-      
+      algorithmConfig.setProject(project);
+
+      // Verify that passed projectId matches ID of the algorithmConfig's
+      // project
+      verifyProject(algorithmConfig, projectId);
+
       // ensure algorithmConfig exists
       final AlgorithmConfig origAlgorithmConfig =
           processService.getAlgorithmConfig(algorithmConfig.getId());
@@ -494,32 +485,23 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Load algorithmConfig object
       AlgorithmConfig algorithmConfig = processService.getAlgorithmConfig(id);
-      
+
       // ensure algorithmConfig exists
       if (algorithmConfig == null) {
         throw new Exception("AlgorithmConfig " + id + " does not exist");
       }
 
-      // Verify that passed projectId matches ID of the algorithmConfig's project
-      if (algorithmConfig != null) {
-        verifyProject(algorithmConfig, projectId);
-      }        
-      
-      ProcessConfigJpa processConfig = null;
-      // Load processConfig
-      if (algorithmConfig.getProcess() != null) {
-        processConfig = (ProcessConfigJpa) processService
-            .getProcessConfig(algorithmConfig.getProcess().getId());
-      }
+      // Verify that passed projectId matches ID of the algorithmConfig's
+      // project
+      verifyProject(algorithmConfig, projectId);
 
-      // Verify that passed projectId matches ID of the algorithmConfig's project
-      if (algorithmConfig != null) {
-        verifyProject(algorithmConfig, projectId);
-      }      
-      
+      // If the algorithm config has an associated processConfig,
+      // remove the algorithm from it and update
+      ProcessConfig processConfig = algorithmConfig.getProcess();
+
       if (processConfig != null) {
         // Remove algorithmConfig from processConfig
-        processConfig.getSteps().remove(algorithmConfig);
+        processConfig.getSteps().add(algorithmConfig);
 
         // update the processConfig
         processService.updateProcessConfig(processConfig);
@@ -545,7 +527,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @Path("/algorithmConfig/{id}")
   @ApiOperation(value = "Get algorithmConfig for id", notes = "Gets the algorithmConfig for the specified id", response = AlgorithmConfigJpa.class)
   public AlgorithmConfig getAlgorithmConfig(
-    @ApiParam(value = "Project internal id, e.g. 2", required = true) @QueryParam("id") Long projectId,
+    @ApiParam(value = "Project internal id, e.g. 2", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "AlgorithmConfig internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -559,7 +541,18 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "getting the algorithmConfig", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      return processService.getAlgorithmConfig(id);
+      // Load algorithmConfig object
+      AlgorithmConfig algorithmConfig = processService.getAlgorithmConfig(id);
+
+      if (algorithmConfig == null) {
+        return algorithmConfig;
+      }
+
+      // Verify that passed projectId matches ID of the algorithmConfig's
+      // project
+      verifyProject(algorithmConfig, projectId);
+
+      return algorithmConfig;
     } catch (Exception e) {
       handleException(e, "trying to get a algorithmConfig");
       return null;

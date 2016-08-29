@@ -102,14 +102,14 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void removeProcessConfig(Long projectId, Long id, String authToken)
+  public void removeProcessConfig(Long projectId, Long id, Boolean cascade, String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Process Client - remove processConfig " + id);
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/processConfig/remove/" + id + "?projectId=" + projectId);
+        + "/process/processConfig/remove/" + id + "?projectId=" + projectId  + (cascade ? "&cascade=true" : ""));
 
     if (id == null)
       return;
@@ -151,24 +151,21 @@ public class ProcessClientRest extends RootClientRest
     return processConfig;
   }
 
+  /* see superclass */
   @Override
-  public ProcessConfigList findProcessConfigs(Long projectId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception {
+  public ProcessConfigList findProcessConfigs(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass())
         .debug("Project Client - find processConfigs " + query);
 
-    validateNotEmpty(projectId,"projectId");
-    validateNotEmpty(terminology, "terminology");
-    validateNotEmpty(terminology, "version");
+    validateNotEmpty(projectId, "projectId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/process/processConfig"
-            + "?projectId=" + projectId + "&terminology=" + terminology + "&version=" + version
-            + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/processConfig" + "?projectId=" + projectId + "&query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility
         .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
     final Response response = target.request(MediaType.APPLICATION_XML)

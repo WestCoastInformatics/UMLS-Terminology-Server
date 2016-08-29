@@ -552,7 +552,7 @@ public class ProjectClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public String reloadConfigProperties(String authToken) throws Exception {
+  public void reloadConfigProperties(String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Project Client - reload config properties");
 
@@ -567,7 +567,6 @@ public class ProjectClientRest extends RootClientRest
     } else {
       throw new Exception("Unexpected status " + response.getStatus());
     }
-    return null;
 
   }
 

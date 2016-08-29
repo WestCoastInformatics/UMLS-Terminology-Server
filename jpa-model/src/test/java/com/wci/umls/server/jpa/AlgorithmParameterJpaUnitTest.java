@@ -21,7 +21,6 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
-import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 
 /**
  * Unit testing for {@link AlgorithmParameterJpa}.
@@ -87,6 +86,7 @@ public class AlgorithmParameterJpaUnitTest extends ModelUnitSupport {
     tester.include("length");
     tester.include("possibleValues");
     tester.include("value");
+    tester.include("values");
     tester.include("placeholder");
     tester.include("type");
 
@@ -133,25 +133,6 @@ public class AlgorithmParameterJpaUnitTest extends ModelUnitSupport {
     tester.proxy(List.class, 1, l1);
 
     assertTrue(tester.testXmlSerialization());
-  }
-
-  /**
-   * Test not null fields.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelNotNullField() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("lastModified");
-    tester.include("lastModifiedBy");
-    tester.include("timestamp");
-    tester.include("name");
-    tester.include("fieldName");
-    tester.include("type");
-    tester.include("length");
-    assertTrue(tester.testNotNullFields());
   }
 
   /**

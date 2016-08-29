@@ -117,6 +117,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     id = info.getId();
     name = info.getName();
     description = info.getDescription();
+    project = info.getProject();
     terminology = info.getTerminology();
     version = info.getVersion();
     properties = info.getProperties();
@@ -259,7 +260,19 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getProjectId() {
     return project == null ? null : project.getId();
-  }  
+  }
+
+  /**
+   * Sets the project id.
+   *
+   * @param projectId the project id
+   */
+  public void setProjectId(Long projectId) {
+    if (project == null) {
+      project = new ProjectJpa();
+    }
+    project.setId(projectId);
+  }
   
   /* see superclass */
   @Override
@@ -303,6 +316,8 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result
+        + ((getProjectId() == null) ? 0 : getProjectId().hashCode());
 
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
@@ -338,6 +353,11 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
+      return false;
+    if (getProjectId() == null) {
+      if (other.getProjectId() != null)
+        return false;
+    } else if (!getProjectId().equals(other.getProjectId()))
       return false;
     if (terminology == null) {
       if (other.terminology != null)

@@ -41,9 +41,9 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
   private String umlsVersion = "latest";
 
   private ProcessConfig processConfig;
-  
+
   private AlgorithmConfig algorithmConfig;
-  
+
   /**
    * Create test fixtures per test.
    *
@@ -69,7 +69,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
    *
    * @throws Exception the exception
    */
-  public void setupProcessConfig() throws Exception{
+  public void setupProcessConfig() throws Exception {
     // Set up a processConfig to be utilized by other objects
     ProcessConfigJpa processConfigJpa = new ProcessConfigJpa();
 
@@ -80,10 +80,10 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfigJpa.setVersion(umlsVersion);
     processConfigJpa = (ProcessConfigJpa) processService
         .addProcessConfig(project.getId(), processConfigJpa, authToken);
-    processConfig = (ProcessConfigJpa) processService.getProcessConfig(project.getId(),processConfigJpa.getId(),
-        authToken);
+    processConfig = (ProcessConfigJpa) processService
+        .getProcessConfig(project.getId(), processConfigJpa.getId(), authToken);
   }
-  
+
   /**
    * Test add, update, get, find, and remove process config.
    *
@@ -107,11 +107,12 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     // TEST: retrieve the processConfig and verify it is equal
     assertEquals(processConfig1, addedProcessConfig1);
-       
+
     // Update that newly added processConfig
     Logger.getLogger(getClass()).info("  Update processConfig");
     addedProcessConfig1.setName("Sample 2 " + new Date().getTime());
-    processService.updateProcessConfig(project.getId(), addedProcessConfig1, authToken);
+    processService.updateProcessConfig(project.getId(), addedProcessConfig1,
+        authToken);
     ProcessConfig updatedProcessConfig1 = processService.getProcessConfig(
         project.getId(), addedProcessConfig1.getId(), authToken);
 
@@ -131,8 +132,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     // Get the processConfigs
     Logger.getLogger(getClass()).info("  Get the processConfigs");
-    ProcessConfigList processConfigList = processService.findProcessConfigs(
-        project.getId(), umlsTerminology, umlsVersion, null, null, authToken);
+    ProcessConfigList processConfigList = processService
+        .findProcessConfigs(project.getId(), null, null, authToken);
     assertNotNull(processConfigList);
     int processConfigCount = processConfigList.size();
     assertTrue(processConfigList.contains(updatedProcessConfig1));
@@ -141,9 +142,9 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Remove the processConfig
     Logger.getLogger(getClass()).info("  Remove processConfig");
     processService.removeProcessConfig(project.getId(),
-        updatedProcessConfig1.getId(), authToken);
-    processConfigList = processService.findProcessConfigs(project.getId(),
-        umlsTerminology, umlsVersion, null, null, authToken);
+        updatedProcessConfig1.getId(), true, authToken);
+    processConfigList = processService.findProcessConfigs(project.getId(), null,
+        null, authToken);
     assertEquals(processConfigCount - 1, processConfigList.size());
 
     // TEST: verify that it is removed (call should return null)
@@ -153,9 +154,9 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // remove second processConfig
     Logger.getLogger(getClass()).info("  Remove second processConfig");
     processService.removeProcessConfig(project.getId(),
-        addedProcessConfig2.getId(), authToken);
-    processConfigList = processService.findProcessConfigs(project.getId(),
-        umlsTerminology, umlsVersion, null, null, authToken);
+        addedProcessConfig2.getId(), true, authToken);
+    processConfigList = processService.findProcessConfigs(project.getId(), null,
+        null, authToken);
     assertEquals(processConfigCount - 2, processConfigList.size());
 
     // TEST: verify that it is removed (call should return null)
@@ -174,28 +175,30 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     setupProcessConfig();
-    
+
     // Add an Algorithm Config
     Logger.getLogger(getClass()).info("  Add algorithmConfig");
     AlgorithmConfigJpa algorithmConfig1 = new AlgorithmConfigJpa();
 
     algorithmConfig1.setDescription("Sample");
     algorithmConfig1.setName("Sample " + new Date().getTime());
+    algorithmConfig1.setProject(project);
     algorithmConfig1.setProcess(processConfig);
     algorithmConfig1.setTerminology(umlsTerminology);
     algorithmConfig1.setVersion(umlsVersion);
     algorithmConfig1.setAlgorithmKey("Sample");
     AlgorithmConfigJpa addedAlgorithmConfig1 =
-        (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(), algorithmConfig1,
-            authToken);
-    
+        (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(),
+            algorithmConfig1, authToken);
+
     // TEST: retrieve the algorithmConfig and verify it is equal
-    assertEquals(algorithmConfig1, addedAlgorithmConfig1);  
-    
+    assertEquals(algorithmConfig1, addedAlgorithmConfig1);
+
     // Update that newly added algorithmConfig
     Logger.getLogger(getClass()).info("  Update algorithmConfig");
     addedAlgorithmConfig1.setName("Sample 2 " + new Date().getTime());
-    processService.updateAlgorithmConfig(project.getId(), addedAlgorithmConfig1, authToken);
+    processService.updateAlgorithmConfig(project.getId(), addedAlgorithmConfig1,
+        authToken);
     AlgorithmConfig updatedAlgorithmConfig1 = processService.getAlgorithmConfig(
         project.getId(), addedAlgorithmConfig1.getId(), authToken);
 
@@ -207,13 +210,20 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     algorithmConfig2.setDescription("Sample 2");
     algorithmConfig2.setName("Sample 2 " + new Date().getTime());
-    algorithmConfig1.setProcess(processConfig);
+    algorithmConfig2.setProject(project);
+    algorithmConfig2.setProcess(processConfig);
     algorithmConfig2.setTerminology(umlsTerminology);
     algorithmConfig2.setVersion(umlsVersion);
-    algorithmConfig1.setAlgorithmKey("Sample");
+    algorithmConfig2.setAlgorithmKey("Sample");
     AlgorithmConfigJpa addedAlgorithmConfig2 =
-        (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(), algorithmConfig2,
-            authToken);
+        (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(),
+            algorithmConfig2, authToken);
+
+    // Confirm the processConfig contains both algorithmConfigs
+    ProcessConfig pc = processService.getProcessConfig(project.getId(),
+        algorithmConfig2.getProcess().getId(), authToken);
+    assertTrue(pc.getSteps().contains(addedAlgorithmConfig1));
+    assertTrue(pc.getSteps().contains(addedAlgorithmConfig2));
 
     // Remove the algorithmConfig
     Logger.getLogger(getClass()).info("  Remove algorithmConfig");
@@ -244,15 +254,15 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
   @After
   public void teardown() throws Exception {
 
-    //Teardown any objects created during setup
-    if(processConfig != null){
+    // Teardown any objects created during setup
+    if (processConfig != null) {
       processService.removeProcessConfig(project.getId(), processConfig.getId(),
-          authToken);       
+          true, authToken);
     }
-    if(algorithmConfig != null){
-      processService.removeAlgorithmConfig(project.getId(), algorithmConfig.getId(),
-          authToken);      
-    }   
+    if (algorithmConfig != null) {
+      processService.removeAlgorithmConfig(project.getId(),
+          algorithmConfig.getId(), authToken);
+    }
     // logout
     securityService.logout(authToken);
   }

@@ -207,6 +207,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
   public void removeProcessConfig(Long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Process Service - remove processConfig " + id);
+
     // Remove the processConfig
     removeHasLastModified(id, ProcessConfigJpa.class);
 
@@ -241,7 +242,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .info("Project Service - find processConfigs " + "/" + query);
-   
+
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
 
     int totalCt[] = new int[1];
@@ -256,15 +257,15 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
-    List<ProcessConfigJpa> processConfigs = searchHandler.getQueryResults(null, null,
-        Branch.ROOT, fullQuery, null, ProcessConfigJpa.class,
+    List<ProcessConfigJpa> processConfigs = searchHandler.getQueryResults(null,
+        null, Branch.ROOT, fullQuery, null, ProcessConfigJpa.class,
         ProcessConfigJpa.class, pfs, totalCt, manager);
-    
+
     for (final ProcessConfig pc : processConfigs) {
       handleLazyInit(pc);
       results.add(pc);
-     }
-    
+    }
+
     final ProcessConfigList processConfigList = new ProcessConfigListJpa();
     processConfigList.setObjects(results);
 
@@ -287,6 +288,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
   public void removeAlgorithmConfig(Long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Algorithm Service - remove algorithmConfig " + id);
+
     // Remove the algorithmConfig
     removeHasLastModified(id, AlgorithmConfigJpa.class);
 
@@ -330,6 +332,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     for (AlgorithmConfig algo : processConfig.getSteps()) {
       handleLazyInit(algo);
     }
+
   }
 
   /**
@@ -344,6 +347,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
     algorithmConfig.getParameters().size();
     algorithmConfig.getProperties().size();
+    algorithmConfig.getProject().getId();
+    algorithmConfig.getProcess().getId();
   }
 
 }
