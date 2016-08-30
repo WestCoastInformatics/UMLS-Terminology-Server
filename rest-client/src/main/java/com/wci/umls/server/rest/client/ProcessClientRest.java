@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
@@ -102,14 +103,15 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void removeProcessConfig(Long projectId, Long id, Boolean cascade, String authToken)
-    throws Exception {
+  public void removeProcessConfig(Long projectId, Long id, Boolean cascade,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Process Client - remove processConfig " + id);
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/remove/" + id + "?projectId=" + projectId  + (cascade ? "&cascade=true" : ""));
+        + "/process/config/" + id + "/remove?projectId=" + projectId
+        + (cascade ? "&cascade=true" : ""));
 
     if (id == null)
       return;
@@ -124,6 +126,7 @@ public class ProcessClientRest extends RootClientRest
     }
   }
 
+  /* see superclass */
   @Override
   public ProcessConfig getProcessConfig(Long projectId, Long id,
     String authToken) throws Exception {
@@ -249,7 +252,7 @@ public class ProcessClientRest extends RootClientRest
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/algo/remove/" + id + "?projectId=" + projectId);
+        + "/process/config/algo/" + id + "/remove?projectId=" + projectId);
 
     if (id == null)
       return;
@@ -300,6 +303,87 @@ public class ProcessClientRest extends RootClientRest
     return algorithmConfig;
   }
 
+  /* see superclass */
+  @Override
+  public KeyValuePairList getInsertionAlgorithms(Long projectId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Process Client - get insertion Algorithms");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/algo/insertion?projectId=" + projectId);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    KeyValuePairList insertionAlgorithms =
+        ConfigUtility.getGraphForString(resultString, KeyValuePairList.class);
+    return insertionAlgorithms;
+  }
+
+  /* see superclass */
+  @Override
+  public KeyValuePairList getMaintenanceAlgorithms(Long projectId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Process Client - get maintenance Algorithms");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/algo/maintenance?projectId=" + projectId);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    KeyValuePairList maintenanceAlgorithms =
+        ConfigUtility.getGraphForString(resultString, KeyValuePairList.class);
+    return maintenanceAlgorithms;
+  }
+
+  /* see superclass */
+  @Override
+  public KeyValuePairList getReleaseAlgorithms(Long projectId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Process Client - get release Algorithms");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/algo/release?projectId=" + projectId);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    KeyValuePairList releaseAlgorithms =
+        ConfigUtility.getGraphForString(resultString, KeyValuePairList.class);
+    return releaseAlgorithms;
+  }
+
   /**
    * Returns the predefined processes.
    *
@@ -313,6 +397,7 @@ public class ProcessClientRest extends RootClientRest
     return null;
   }
 
+  /* see superclass */
   @Override
   public Long runPredefinedProcess(Long projectId, String id, Properties p,
     String authToken) throws Exception {
@@ -320,6 +405,7 @@ public class ProcessClientRest extends RootClientRest
     return null;
   }
 
+  /* see superclass */
   @Override
   public Long runProcessConfig(Long projectId, Long processConfigId,
     String authToken) throws Exception {
@@ -327,6 +413,7 @@ public class ProcessClientRest extends RootClientRest
     return null;
   }
 
+  /* see superclass */
   @Override
   public int lookupProgress(Long projectId, Long processExecutionId,
     String authToken) throws Exception {
@@ -334,6 +421,7 @@ public class ProcessClientRest extends RootClientRest
     return 0;
   }
 
+  /* see superclass */
   @Override
   public boolean cancelProcessExecution(Long projectId, Long processExecutionId,
     String authToken) throws Exception {

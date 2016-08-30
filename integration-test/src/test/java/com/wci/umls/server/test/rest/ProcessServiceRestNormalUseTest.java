@@ -40,8 +40,10 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
   /** The umls version. */
   private String umlsVersion = "latest";
 
+  /**  The process config. */
   private ProcessConfig processConfig;
 
+  /**  The algorithm config. */
   private AlgorithmConfig algorithmConfig;
 
   /**
@@ -218,7 +220,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     AlgorithmConfigJpa addedAlgorithmConfig2 =
         (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(),
             algorithmConfig2, authToken);
-
+    
     // Confirm the processConfig contains both algorithmConfigs
     ProcessConfig pc = processService.getProcessConfig(project.getId(),
         algorithmConfig2.getProcess().getId(), authToken);
@@ -244,7 +246,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         addedAlgorithmConfig2.getId(), authToken));
 
   }
-
+  
   /**
    * Teardown.
    *

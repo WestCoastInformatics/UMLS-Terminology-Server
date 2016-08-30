@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
@@ -123,6 +124,88 @@ public interface ProcessServiceRest {
    */
   public AlgorithmConfig getAlgorithmConfig(Long projectId, Long id,
     String authToken) throws Exception;
+
+  /**
+   * Returns the insertion algorithms.
+   *
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the insertion algorithms
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getInsertionAlgorithms(Long projectId,
+    String authToken) throws Exception;
+
+  /**
+   * Returns the maintenance algorithms.
+   *
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the maintenance algorithms
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getMaintenanceAlgorithms(Long projectId,
+    String authToken) throws Exception;
+
+  /**
+   * Returns the release algorithms.
+   *
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the release algorithms
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getReleaseAlgorithms(Long projectId, String authToken)
+    throws Exception;
+
+  // /**
+  // * Adds the algorithm parameter.
+  // *
+  // * @param projectId the project id
+  // * @param algorithmParameter the algorithm parameter
+  // * @param authToken the auth token
+  // * @return the algorithm parameter
+  // * @throws Exception the exception
+  // */
+  // public AlgorithmParameter addAlgorithmParameter(Long projectId,
+  // AlgorithmParameterJpa algorithmParameter, String authToken) throws
+  // Exception;
+  //
+  // /**
+  // * Update algorithm parameter.
+  // *
+  // * @param projectId the project id
+  // * @param algorithmParameter the algorithm parameter
+  // * @param authToken the auth token
+  // * @throws Exception the exception
+  // */
+  // public void updateAlgorithmParameter(Long projectId,
+  // AlgorithmParameterJpa algorithmParameter, String authToken) throws
+  // Exception;
+  //
+  // /**
+  // * Removes the algorithm parameter.
+  // *
+  // * @param projectId the project id
+  // * @param id the id
+  // * @param authToken the auth token
+  // * @throws Exception the exception
+  // */
+  // public void removeAlgorithmParameter(Long projectId, Long id, String
+  // authToken)
+  // throws Exception;
+  //
+  // /**
+  // * Returns the algorithm parameter.
+  // *
+  // * @param projectId the project id
+  // * @param id the id
+  // * @param authToken the auth token
+  // * @return the algorithm parameter
+  // * @throws Exception the exception
+  // */
+  // public AlgorithmParameter getAlgorithmParameter(Long projectId, Long id,
+  // String authToken) throws Exception;
 
   /**
    * Returns the predefined processes.
