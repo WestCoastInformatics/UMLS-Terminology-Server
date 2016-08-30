@@ -1,7 +1,7 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa;
+package com.wci.umls.server.jpa.test.meta;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,25 +15,26 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
+import com.wci.umls.server.jpa.ModelUnitSupport;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
 /**
- * Unit testing for {@link AlgorithmParameterJpa}.
+ * Unit testing for {@link PfsParameterJpa}.
  */
-public class AlgorithmParameterJpaUnitTest extends ModelUnitSupport {
+public class PfsParameterJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
-  private AlgorithmParameterJpa object;
+  private PfsParameterJpa object;
 
-  /** The test fixture l1. */
+  /** The fixture l1 */
   private List<String> l1;
 
-  /** The test fixture l. */
+  /** The fixture l2 */
   private List<String> l2;
 
   /**
@@ -46,15 +47,16 @@ public class AlgorithmParameterJpaUnitTest extends ModelUnitSupport {
 
   /**
    * Setup.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   @Before
   public void setup() throws Exception {
-    object = new AlgorithmParameterJpa();
-
-    l1 = new ArrayList<>();
+    // set up text fixtures
+    object = new PfsParameterJpa();
+    l1 = new ArrayList<String>();
     l1.add("1");
-    l2 = new ArrayList<>();
+    l2 = new ArrayList<String>();
     l2.add("2");
     l2.add("3");
   }
@@ -80,27 +82,24 @@ public class AlgorithmParameterJpaUnitTest extends ModelUnitSupport {
   public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("name");
-    tester.include("fieldName");
-    tester.include("description");
-    tester.include("length");
-    tester.include("possibleValues");
-    tester.include("value");
-    tester.include("values");
-    tester.include("placeholder");
-    tester.include("type");
+    tester.include("activeOnly");
+    tester.include("ascending");
+    tester.include("branch");
+    tester.include("inactiveOnly");
+    tester.include("maxResults");
+    tester.include("queryRestriction");
+    tester.include("sortField");
+    tester.include("sortFields");
+    tester.include("startIndex");
 
-    // Set up objects
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
     assertTrue(tester.testIdentityFieldHashcode());
     assertTrue(tester.testNonIdentityFieldHashcode());
     assertTrue(tester.testIdentityFieldDifferentHashcode());
-
   }
 
   /**
@@ -112,12 +111,9 @@ public class AlgorithmParameterJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-
-    // Set up objects
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-
-    assertTrue(tester.testCopyConstructor(AlgorithmParameter.class));
+    assertTrue(tester.testCopyConstructor(PfsParameter.class));
   }
 
   /**
@@ -129,29 +125,9 @@ public class AlgorithmParameterJpaUnitTest extends ModelUnitSupport {
   public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    // Set up objects
     tester.proxy(List.class, 1, l1);
 
     assertTrue(tester.testXmlSerialization());
-  }
-
-  /**
-   * Test field indexing.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelIndexedFields() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    // Test analyzed fields - none
-    IndexedFieldTester tester = new IndexedFieldTester(object);
-    assertTrue(tester.testAnalyzedIndexedFields());
-
-    // Test non analyzed fields - none
-    tester = new IndexedFieldTester(object);
-    //assertTrue(tester.testNotAnalyzedIndexedFields());
-
   }
 
   /**

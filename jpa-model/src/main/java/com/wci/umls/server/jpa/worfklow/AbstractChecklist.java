@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.worfklow;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +16,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
@@ -35,6 +32,7 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.content.AbstractHasLastModified;
 import com.wci.umls.server.jpa.helpers.SplitUnderscoreBridge;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
@@ -48,27 +46,14 @@ import com.wci.umls.server.model.workflow.Worklist;
 @XmlSeeAlso({
     ChecklistJpa.class, WorklistJpa.class
 })
-public abstract class AbstractChecklist implements Checklist {
+public abstract class AbstractChecklist extends AbstractHasLastModified
+    implements Checklist {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenWorkflow")
   private Long id;
-
-  /** The last modified. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date lastModified = new Date();
-
-  /** The last modified. */
-  @Column(nullable = false)
-  private String lastModifiedBy;
-
-  /** the timestamp. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;
 
   /** The name. */
   @Column(nullable = false, length = 255)
@@ -107,55 +92,14 @@ public abstract class AbstractChecklist implements Checklist {
    * @param deepCopy the deep copy
    */
   public AbstractChecklist(Checklist checklist, boolean deepCopy) {
+    super(checklist);
     id = checklist.getId();
-    lastModified = checklist.getLastModified();
-    lastModifiedBy = checklist.getLastModifiedBy();
-    timestamp = checklist.getTimestamp();
     name = checklist.getName();
     description = checklist.getDescription();
     project = checklist.getProject();
     if (deepCopy) {
       trackingRecords = new ArrayList<>(checklist.getTrackingRecords());
     }
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public Date getTimestamp() {
-    return timestamp;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTimestamp(Date timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public Date getLastModified() {
-    return lastModified;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModified(Date lastModified) {
-    this.lastModified = lastModified;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getLastModifiedBy() {
-    return lastModifiedBy;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModifiedBy(String lastModifiedBy) {
-    this.lastModifiedBy = lastModifiedBy;
   }
 
   /* see superclass */
@@ -173,9 +117,7 @@ public abstract class AbstractChecklist implements Checklist {
   /* see superclass */
   @Override
   @Fields({
-      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, 
-          analyzer = @Analyzer(definition = "noStopWord"), 
-          bridge = @FieldBridge(impl = SplitUnderscoreBridge.class)),
+      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"), bridge = @FieldBridge(impl = SplitUnderscoreBridge.class)),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
   public String getName() {
@@ -328,10 +270,10 @@ public abstract class AbstractChecklist implements Checklist {
   /* see superclass */
   @Override
   public String toString() {
-    return "AbstractChecklist [id=" + id + ", lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", name=" + name + ", description=" + description + ", project="
-        + project + ", trackingRecords=" + trackingRecords + "]";
+    return "AbstractChecklist [id=" + id + ", lastModified=" + getLastModified()
+        + ", lastModifiedBy=" + getLastModifiedBy() + ", timestamp="
+        + getTimestamp() + ", name=" + name + ", description=" + description
+        + ", project=" + project + "]";
   }
 
 }

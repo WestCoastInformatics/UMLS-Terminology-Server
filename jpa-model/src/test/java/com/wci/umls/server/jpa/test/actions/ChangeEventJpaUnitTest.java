@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.actions;
 
@@ -21,7 +21,6 @@ import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.actions.ChangeEvent;
-import com.wci.umls.server.model.content.Component;
 
 /**
  * Unit testing for {@link ChangeEventJpa}.
@@ -29,7 +28,7 @@ import com.wci.umls.server.model.content.Component;
 public class ChangeEventJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
-  private ChangeEvent<ConceptJpa> object;
+  private ChangeEvent object;
 
   /** The c1. */
   private ConceptJpa c1;
@@ -52,13 +51,14 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
    */
   @Before
   public void setup() throws Exception {
-    object = new ChangeEventJpa<ConceptJpa>();
+    object = new ChangeEventJpa();
     c1 = new ConceptJpa();
     c1.setId(1L);
     c1.setTerminologyId("1");
     c2 = new ConceptJpa();
     c2.setId(2L);
     c2.setTerminologyId("2");
+
   }
 
   /**
@@ -86,12 +86,9 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("sessionId");
     tester.include("type");
-    tester.include("oldValue");
-    tester.include("newValue");
+    tester.include("objectId");
     tester.include("container");
 
-    tester.proxy(Component.class, 1, c1);
-    tester.proxy(Component.class, 2, c2);
     tester.proxy(ComponentInfo.class, 1, c1);
     tester.proxy(ComponentInfo.class, 2, c2);
 
@@ -113,8 +110,6 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(Component.class, 1, c1);
-    tester.proxy(Component.class, 2, c2);
     tester.proxy(ComponentInfo.class, 1, c1);
     tester.proxy(ComponentInfo.class, 2, c2);
     assertTrue(tester.testCopyConstructor(ChangeEvent.class));
@@ -128,12 +123,10 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
   @Test
   public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    object.setOldValue(c1);
-    object.setNewValue(c2);
-    Logger.getLogger(getClass()).info(
-        "xml = " + ConfigUtility.getStringForGraph(object));
-    Logger.getLogger(getClass()).info(
-        "json = " + ConfigUtility.getJsonForGraph(object));
+    Logger.getLogger(getClass())
+        .info("xml = " + ConfigUtility.getStringForGraph(object));
+    Logger.getLogger(getClass())
+        .info("json = " + ConfigUtility.getJsonForGraph(object));
     // Only testing TO XML/JSON is important
   }
 

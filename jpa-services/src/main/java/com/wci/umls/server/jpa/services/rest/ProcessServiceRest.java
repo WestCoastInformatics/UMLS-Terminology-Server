@@ -5,9 +5,11 @@ package com.wci.umls.server.jpa.services.rest;
 
 import java.util.Properties;
 
+import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
@@ -19,34 +21,37 @@ public interface ProcessServiceRest {
   /**
    * Adds the process config.
    *
+   * @param projectId the project id
    * @param processConfig the process config
    * @param authToken the auth token
    * @return the process config
    * @throws Exception the exception
    */
-  public ProcessConfig addProcessConfig(ProcessConfigJpa processConfig,
-    String authToken) throws Exception;
+  public ProcessConfig addProcessConfig(Long projectId,
+    ProcessConfigJpa processConfig, String authToken) throws Exception;
 
   /**
    * Update process config.
    *
+   * @param projectId the project id
    * @param processConfig the process config
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateProcessConfig(ProcessConfigJpa processConfig,
-    String authToken) throws Exception;
+  public void updateProcessConfig(Long projectId,
+    ProcessConfigJpa processConfig, String authToken) throws Exception;
 
   /**
    * Removes the process config.
    *
    * @param projectId the project id
    * @param id the id
+   * @param cascade the cascade
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeProcessConfig(Long projectId, Long id, String authToken)
-    throws Exception;
+  public void removeProcessConfig(Long projectId, Long id, Boolean cascade,
+    String authToken) throws Exception;
 
   /**
    * Returns the process config.
@@ -64,17 +69,60 @@ public interface ProcessServiceRest {
    * Find process config.
    *
    * @param projectId the project id
-   * @param terminology the terminology
-   * @param version the version
    * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the process config
    * @throws Exception the exception
    */
-  public ProcessConfigList findProcessConfigs(Long projectId, String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
+  public ProcessConfigList findProcessConfigs(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Adds the algorithm config.
+   *
+   * @param projectId the project id
+   * @param algorithmConfig the algorithm config
+   * @param authToken the auth token
+   * @return the algorithm config
+   * @throws Exception the exception
+   */
+  public AlgorithmConfig addAlgorithmConfig(Long projectId,
+    AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception;
+
+  /**
+   * Update algorithm config.
+   *
+   * @param projectId the project id
+   * @param algorithmConfig the algorithm config
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateAlgorithmConfig(Long projectId,
+    AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception;
+
+  /**
+   * Removes the algorithm config.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeAlgorithmConfig(Long projectId, Long id, String authToken)
     throws Exception;
+
+  /**
+   * Returns the algorithm config.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param authToken the auth token
+   * @return the algorithm config
+   * @throws Exception the exception
+   */
+  public AlgorithmConfig getAlgorithmConfig(Long projectId, Long id,
+    String authToken) throws Exception;
 
   /**
    * Returns the predefined processes.

@@ -45,6 +45,7 @@ import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.LocalException;
@@ -59,6 +60,8 @@ import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.jpa.ComponentInfoJpa;
+import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -80,9 +83,11 @@ import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.worfklow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistJpa;
 import com.wci.umls.server.jpa.worfklow.WorklistNoteJpa;
+import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.ClusterTypeStats;
 import com.wci.umls.server.model.workflow.TrackingRecord;
@@ -154,10 +159,20 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final String userName = authorizeProject(workflowService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
+
+      // Get project and set on config
+      final Project project = workflowService.getProject(projectId);
+      workflowConfig.setProject(project);
+
       final WorkflowConfig config =
           workflowService.addWorkflowConfig(workflowConfig);
       workflowService.addLogEntry(userName, projectId, config.getId(), null,
           null, "ADD workflowConfig - " + config);
+
+      // Websocket notification
+      final ChangeEvent event = new ChangeEventJpa("AddWorkflowConfig",
+          authToken, "BINS", config.getId(), getProjectInfo(project));
+      sendChangeEvent(event);
 
       return config;
 
@@ -193,10 +208,19 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
+      final WorkflowConfig oldConfig =
+          workflowService.getWorkflowConfig(config.getId());
+      verifyProject(oldConfig, projectId);
+
       workflowService.updateWorkflowConfig(config);
       workflowService.addLogEntry(userName, projectId, config.getId(), null,
           null, "UPDATE workflowConfig - " + config);
 
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("UpdateWorkflowConfig", authToken, "BINS",
+              config.getId(), getProjectInfo(oldConfig.getProject()));
+      sendChangeEvent(event);
     } catch (Exception e) {
       handleException(e, "trying to " + action);
     } finally {
@@ -230,12 +254,21 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       // reconnect tracking records before saving worklist
       // (parameter worklist will have no records on it)
-      Worklist origWorklist = workflowService.getWorklist(worklist.getId());
+      final Worklist origWorklist =
+          workflowService.getWorklist(worklist.getId());
+      verifyProject(origWorklist, projectId);
+
       worklist.setTrackingRecords(origWorklist.getTrackingRecords());
 
       workflowService.updateWorklist(worklist);
       workflowService.addLogEntry(userName, projectId, worklist.getId(), null,
           null, "UPDATE worklist - " + worklist);
+
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("UpdateWorklist", authToken, "WORKLIST",
+              worklist.getId(), getProjectInfo(origWorklist.getProject()));
+      sendChangeEvent(event);
 
     } catch (Exception e) {
       handleException(e, "trying to " + action);
@@ -267,10 +300,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
               authToken, "remove workflow config", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
+      final WorkflowConfig config = workflowService.getWorkflowConfig(id);
+      verifyProject(config, projectId);
       workflowService.removeWorkflowConfig(id);
 
       workflowService.addLogEntry(userName, projectId, id, null, null,
           "REMOVE workflowConfig - " + id);
+
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("RemoveWorkflowConfig", authToken, "BINS",
+              config.getId(), getProjectInfo(config.getProject()));
+      sendChangeEvent(event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a workflow config");
@@ -301,8 +342,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       final WorkflowConfig config = workflowService.getWorkflowConfig(id);
       if (config != null) {
+        verifyProject(config, projectId);
         workflowService.handleLazyInit(config);
       }
+
+      // websocket - n/a
       return config;
 
     } catch (Exception e) {
@@ -336,11 +380,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final List<WorkflowConfig> configs =
           workflowService.getWorkflowConfigs(project);
       for (WorkflowConfig config : configs) {
+        verifyProject(config, projectId);
         workflowService.handleLazyInit(config);
       }
       final WorkflowConfigList list = new WorkflowConfigListJpa();
       list.setObjects(configs);
       list.setTotalCount(list.size());
+
+      // websocket - n/a
+
       return list;
 
     } catch (Exception e) {
@@ -376,8 +424,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.setTransactionPerOperation(false);
       workflowService.beginTransaction();
 
-      final Project project = workflowService.getProject(projectId);
       final Worklist worklist = workflowService.getWorklist(id);
+      verifyProject(worklist, projectId);
+      final Project project = workflowService.getProject(projectId);
 
       // Find workflow bin name
       final List<WorkflowBin> list =
@@ -399,6 +448,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           "REMOVE worklist - " + id);
 
       workflowService.commit();
+
+      // Websocket notification
+      final ChangeEvent event = new ChangeEventJpa("RemoveWorklist", authToken,
+          "WORKLIST", worklist.getId(), getProjectInfo(project));
+      sendChangeEvent(event);
+
     } catch (Exception e) {
       handleException(e, "trying to remove a worklist");
     } finally {
@@ -427,9 +482,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
               authToken, "remove workflow config", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
+      final Checklist checklist = workflowService.getChecklist(id);
+      verifyProject(checklist, projectId);
+
       workflowService.removeChecklist(id, true);
       workflowService.addLogEntry(userName, projectId, id, null, null,
           "REMOVE checklist - " + id);
+
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("RemoveChecklist", authToken, "CHECKLIST",
+              checklist.getId(), getProjectInfo(checklist.getProject()));
+      sendChangeEvent(event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a checklist");
@@ -467,6 +531,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Add to list in workflow config and save
       final WorkflowConfig config = workflowService
           .getWorkflowConfig(binDefinition.getWorkflowConfig().getId());
+      verifyProject(config, projectId);
+
       List<WorkflowBinDefinition> definitions =
           config.getWorkflowBinDefinitions();
 
@@ -495,6 +561,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       workflowService.addLogEntry(userName, projectId, config.getId(), null,
           null, "UPDATE workflow config definition - " + def);
+
+      // Websocket notification
+      final ChangeEvent event = new ChangeEventJpa("AddWorkflowBinDefinition",
+          authToken, "BINS", def.getId(), getProjectInfo(config.getProject()));
+      sendChangeEvent(event);
 
       return def;
     } catch (Exception e) {
@@ -529,9 +600,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final String userName = authorizeProject(workflowService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
+
+      // Get project and set on config
+      final Project project = workflowService.getProject(projectId);
+      epoch.setProject(project);
+
       final WorkflowEpoch newEpoch = workflowService.addWorkflowEpoch(epoch);
       workflowService.addLogEntry(userName, projectId, newEpoch.getId(), null,
           null, "ADD workflow epoch- " + newEpoch);
+
+      // Websocket notification - n/a
 
       return epoch;
 
@@ -565,10 +643,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, "remove workflow epoch", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
+      final WorkflowEpoch epoch = workflowService.getWorkflowEpoch(id);
+      verifyProject(epoch, projectId);
+
       workflowService.removeWorkflowEpoch(id);
 
       workflowService.addLogEntry(userName, projectId, id, null, null,
           "REMOVE workflow epoch - " + id);
+
+      // Websocket notification - n/a
 
     } catch (Exception e) {
       handleException(e, "trying to remove a workflow epoch");
@@ -586,12 +669,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Update a workflow bin definition", notes = "Update a workflow bin definition")
   public void updateWorkflowBinDefinition(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Workflow bin definition to update", required = true) WorkflowBinDefinitionJpa binDefinition,
+    @ApiParam(value = "Workflow bin definition to update", required = true) WorkflowBinDefinitionJpa def,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful POST call (Workflow): /definition/update  " + projectId
-            + " " + binDefinition.getId() + " " + authToken);
+            + " " + def.getId() + " " + authToken);
 
     final String action = "trying to update workflow bin definition";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -600,13 +683,21 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       String userName = authorizeProject(workflowService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
+      final Project project = workflowService.getProject(projectId);
+      final WorkflowBinDefinition origDef =
+          workflowService.getWorkflowBinDefinition(def.getId());
+      verifyProject(origDef.getWorkflowConfig(), projectId);
 
-      final WorkflowBinDefinition origBinDefinition =
-          workflowService.getWorkflowBinDefinition(binDefinition.getId());
-      binDefinition.setWorkflowConfig(origBinDefinition.getWorkflowConfig());
-      workflowService.updateWorkflowBinDefinition(binDefinition);
-      workflowService.addLogEntry(userName, projectId, binDefinition.getId(),
-          null, null, "UPDATE workflow bin definition - " + binDefinition);
+      def.setWorkflowConfig(origDef.getWorkflowConfig());
+      workflowService.updateWorkflowBinDefinition(def);
+      workflowService.addLogEntry(userName, projectId, def.getId(), null, null,
+          "UPDATE workflow bin definition - " + def);
+
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("UpdateWorkflowBinDefinition", authToken, "BINS",
+              def.getId(), getProjectInfo(project));
+      sendChangeEvent(event);
 
     } catch (Exception e) {
       handleException(e, "trying to update workflow bin definition");
@@ -639,16 +730,23 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       // load the bin definition, get its workflow config. Remove it from
       // workflow config, then remove it.
-      WorkflowBinDefinition binDefinition =
+      final Project project = workflowService.getProject(projectId);
+      final WorkflowBinDefinition def =
           workflowService.getWorkflowBinDefinition(id);
+      verifyProject(def.getWorkflowConfig(), projectId);
 
-      WorkflowConfig workflowConfig = binDefinition.getWorkflowConfig();
-      workflowConfig.getWorkflowBinDefinitions().remove(binDefinition);
+      final WorkflowConfig workflowConfig = def.getWorkflowConfig();
+      workflowConfig.getWorkflowBinDefinitions().remove(def);
       workflowService.updateWorkflowConfig(workflowConfig);
       workflowService.removeWorkflowBinDefinition(id);
       workflowService.addLogEntry(userName, projectId, id, null, null,
           "REMOVE workflow bin definition - " + id);
 
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("RemoveWorkflowBinDefinition", authToken, "BINS",
+              def.getId(), getProjectInfo(project));
+      sendChangeEvent(event);
     } catch (Exception e) {
       handleException(e, "trying to remove a workflow bin definition");
     } finally {
@@ -678,7 +776,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
               authToken, "remove workflow bin definition", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
+      final WorkflowBin bin = workflowService.getWorkflowBin(id);
+      verifyProject(bin, projectId);
+
       workflowService.removeWorkflowBin(id, true);
+
+      // Websocket notification
+      final ChangeEvent event = new ChangeEventJpa("RemoveWorkflowBin",
+          authToken, "BINS", bin.getId(), getProjectInfo(bin.getProject()));
+      sendChangeEvent(event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a workflow bin");
@@ -709,9 +815,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       final WorkflowBinDefinition definition =
           workflowService.getWorkflowBinDefinition(id);
+
       if (definition != null) {
+        verifyProject(definition.getWorkflowConfig(), projectId);
         workflowService.handleLazyInit(definition);
       }
+      // websocket - n/a
+
       return definition;
 
     } catch (Exception e) {
@@ -747,10 +857,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           workflowService.getWorkflowBinDefinitions(project, type);
       for (WorkflowBinDefinition definition : definitions) {
         if (definition.getName().equals(name)) {
+          verifyProject(definition.getWorkflowConfig(), projectId);
           workflowService.handleLazyInit(definition);
           return definition;
         }
       }
+
+      // websocket - n/a
       return null;
 
     } catch (Exception e) {
@@ -788,11 +901,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       // remove bins and all of the tracking records in the bins
       for (final WorkflowBin workflowBin : results) {
+        verifyProject(workflowBin, projectId);
         workflowService.removeWorkflowBin(workflowBin.getId(), true);
       }
       workflowService.addLogEntry(userName, projectId, null, null, null,
           "CLEAR BINS - " + projectId + ", " + type);
 
+      // websocket - n/a
     } catch (Exception e) {
       handleException(e, "trying to clear bins");
     } finally {
@@ -822,13 +937,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             authorizeProject(workflowService, projectId, securityService,
                 authToken, "trying to regenerate bins", UserRole.AUTHOR);
         workflowService.setLastModifiedBy(userName);
-
         // Set transaction mode
         workflowService.setTransactionPerOperation(false);
         workflowService.beginTransaction();
 
         // Load the project and workflow config
         Project project = workflowService.getProject(projectId);
+        // verifyProject -> n/a because we're getting bins for a project
 
         // Start by clearing the bins
         // remove bins and all of the tracking records in the bins
@@ -864,6 +979,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         workflowService.addLogEntry(userName, projectId, null, null, null,
             "REGENERATE BINS - " + projectId + ", " + type);
+
+        // Websocket notification
+        final ChangeEvent event = new ChangeEventJpa("RegenerateBins",
+            authToken, "BINS", workflowConfig.getId(), getProjectInfo(project));
+        sendChangeEvent(event);
+
         workflowService.commit();
       } catch (Exception e) {
         handleException(e, "trying to regenerate bins");
@@ -906,6 +1027,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       for (final TrackingRecord tr : trackingRecords.getObjects()) {
         workflowService.handleLazyInit(tr);
       }
+
+      // websocket - n/a
+
       return trackingRecords;
     } catch (Exception e) {
       handleException(e, "trying to find assigned work");
@@ -945,6 +1069,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       for (final TrackingRecord tr : trackingRecords.getObjects()) {
         workflowService.handleLazyInit(tr);
       }
+
+      // websocket - n/a
+
       return trackingRecords;
     } catch (Exception e) {
       handleException(e, "trying to find available work");
@@ -984,6 +1111,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       for (final TrackingRecord record : list.getObjects()) {
         lookupTrackingRecordConcepts(record, workflowService);
       }
+
+      // websocket - n/a
 
       return list;
 
@@ -1064,6 +1193,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         lookupTrackingRecordConcepts(record, workflowService);
       }
 
+      // websocket - n/a
+
       return list;
 
     } catch (Exception e) {
@@ -1111,6 +1242,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         lookupTrackingRecordConcepts(record, workflowService);
       }
 
+      // websocket - n/a
+
       return list;
 
     } catch (Exception e) {
@@ -1149,6 +1282,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           workflowService.getWorkflowHandlerForPath(project.getWorkflowPath());
       final WorklistList list = handler.findAssignedWorklists(project, userName,
           role, pfs, workflowService);
+
+      // websocket - n/a
 
       return list;
     } catch (Exception e) {
@@ -1198,6 +1333,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             checklist.getTrackingRecords().stream().collect(
                 Collectors.summingInt(w -> w.getOrigConceptIds().size())));
       }
+
+      // websocket - n/a
+
       return list;
     } catch (Exception e) {
       handleException(e, action);
@@ -1258,6 +1396,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             handler.isAvailable(worklist, UserRole.REVIEWER));
       }
 
+      // websocket - n/a
+
       return list;
     } catch (Exception e) {
       handleException(e, "trying to find worklists");
@@ -1284,6 +1424,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "get workflow paths",
           UserRole.VIEWER);
 
+      // websocket - n/a
       return workflowService.getWorkflowPaths();
 
     } catch (Exception e) {
@@ -1324,6 +1465,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.setLastModifiedBy(authName);
 
       final Worklist worklist = workflowService.getWorklist(worklistId);
+      verifyProject(worklist, projectId);
+
       final Project project = workflowService.getProject(projectId);
       // UserRole role = UserRole.valueOf(userRole);
       final Worklist returnWorklist = workflowService
@@ -1332,6 +1475,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.addLogEntry(userName, projectId, null, null, null,
           "PERFORM " + action + " - " + projectId + ", " + worklistId + ","
               + worklist.getName());
+
+      // Websocket notification
+      final ChangeEvent event = new ChangeEventJpa("PerformWorkflowAction",
+          authToken, "WORKLIST", worklist.getId(), getProjectInfo(project));
+      sendChangeEvent(event);
 
       return returnWorklist;
     } catch (Exception e) {
@@ -1368,6 +1516,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           workflowService.getWorkflowHandlerForPath(project.getWorkflowPath());
       final WorklistList list =
           handler.findAvailableWorklists(project, role, pfs, workflowService);
+
+      // websocket - n/a
 
       return list;
     } catch (Exception e) {
@@ -1465,6 +1615,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.updateChecklist(newChecklist);
       workflowService.addLogEntry(userName, projectId, newChecklist.getId(),
           null, null, "CREATE checklist - " + newChecklist);
+
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("ComputeChecklist", authToken, "CHECKLIST",
+              newChecklist.getId(), getProjectInfo(project));
+      sendChangeEvent(event);
 
       return newChecklist;
     } catch (Exception e) {
@@ -1612,6 +1768,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         workflowService.addLogEntry(userName, projectId, newWorklist.getId(),
             null, null, "CREATE worklist- " + newWorklist);
+
+        // Websocket notification
+        final ChangeEvent event =
+            new ChangeEventJpa("ComputeWorklist", authToken, "CHECLIST",
+                newWorklist.getId(), getProjectInfo(project));
+        sendChangeEvent(event);
+
         return newWorklist;
       } catch (Exception e) {
         handleException(e, "trying to create worklist");
@@ -1648,6 +1811,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final Map<String, Integer> typeAssignedMap = new HashMap<>();
       final Map<String, Integer> typeUnassignedMap = new HashMap<>();
       for (final WorkflowBin bin : bins) {
+        verifyProject(bin, projectId);
         typeAssignedMap.clear();
         typeUnassignedMap.clear();
         final List<TrackingRecord> list = bin.getTrackingRecords();
@@ -1720,6 +1884,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final WorkflowBinList list = new WorkflowBinListJpa();
       list.setObjects(bins);
       list.setTotalCount(list.size());
+
+      // websocket - n/a
       return list;
 
     } catch (Exception e) {
@@ -1753,6 +1919,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.setLastModifiedBy(userName);
 
       final Worklist worklist = workflowService.getWorklist(id);
+      if (worklist == null) {
+        return null;
+      }
+
+      verifyProject(worklist, projectId);
 
       worklist.getStats().put("clusterCt",
           worklist.getTrackingRecords().size());
@@ -1774,6 +1945,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // n_stys_inserted -1 - "ADD_SEMANTIC_TYPE" molecular actions
       // n_splits -1 - "SPLIT" molecular actions
       // n_merges -1 - "MERGE" molecular actions
+
+      // websocket - n/a
 
       // return the worklist
       return worklist;
@@ -1809,6 +1982,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.setLastModifiedBy(userName);
 
       final Checklist checklist = workflowService.getChecklist(id);
+      if (checklist == null) {
+        return null;
+      }
+
+      verifyProject(checklist, projectId);
 
       checklist.getStats().put("clusterCt",
           checklist.getTrackingRecords().size());
@@ -1833,6 +2011,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       // return the checklist
       workflowService.handleLazyInit(checklist);
+
+      // websocket - n/a
+
       return checklist;
 
     } catch (Exception e) {
@@ -1911,10 +2092,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             .append(ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
         message.append("] ");
         message.append(entry.getLastModifiedBy()).append(" ");
-        message.append(entry.getMessage()).append("\n");
+        message.append(entry.getMessage()).append("\r\n");
         log.append(message);
       }
 
+      // websocket - n/a
       return log.toString();
 
     } catch (Exception e) {
@@ -1946,13 +2128,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, "trying to clear bin", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
 
-      workflowService.getWorkflowBin(id);
+      final WorkflowBin bin = workflowService.getWorkflowBin(id);
+      verifyProject(bin, projectId);
 
       // remove bins and all of the tracking records in the bin
       workflowService.removeWorkflowBin(id, true);
       workflowService.addLogEntry(userName, projectId, id, null, null,
           "CLEAR BIN - " + id);
 
+      // websocket - n/a
     } catch (Exception e) {
       handleException(e, "trying to clear bin");
     } finally {
@@ -1991,8 +2175,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         workflowService.beginTransaction();
 
         // Read relevant workflow objects
-        final Project project = workflowService.getProject(projectId);
         final WorkflowBin bin = workflowService.getWorkflowBin(id);
+        verifyProject(bin, projectId);
+        final Project project = workflowService.getProject(projectId);
 
         // Remove the workflow bin
         workflowService.removeWorkflowBin(id, true);
@@ -2014,6 +2199,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         workflowService.addLogEntry(userName, projectId, id, null, null,
             "REGENERATE BIN - " + id + ", " + bin.getName());
         workflowService.commit();
+
+        // websocket - n/a
+
         return newBin;
 
       } catch (Exception e) {
@@ -2033,11 +2221,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @Path("/worklist/{id}/report/generate")
   @ApiOperation(value = "Generate concept reports for worklist", notes = "Generate concept reports for the specified worklist", response = String.class)
   public String generateConceptReport(
-    @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Worklist id, e.g. 5") @PathParam("id") Long id,
+    @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Worklist id, e.g. 5", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Delay", required = false) @QueryParam("delay") Long delay,
     @ApiParam(value = "Send email, e.g. false", required = false) @QueryParam("sendEmail") Boolean sendEmail,
-    @ApiParam(value = "Concept report type", required = true) @QueryParam("conceptReportType") String conceptReportType,
+    @ApiParam(value = "Concept report type", required = false) @QueryParam("conceptReportType") String conceptReportType,
     @ApiParam(value = "Relationship count", required = false) @QueryParam("relationshipCt") Integer relationshipCt,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2056,21 +2244,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Read vars
       final Project project = workflowService.getProject(projectId);
       final Worklist worklist = workflowService.getWorklist(id);
-      final PfsParameter pfs = new PfsParameterJpa();
-      pfs.setSortField("clusterId");
-      final TrackingRecordList recordList = workflowService.findTrackingRecords(
-          project, "worklistName:" + worklist.getName(), pfs);
-
-      for (final TrackingRecord record : recordList.getObjects()) {
-        for (final Long conceptId : record.getOrigConceptIds()) {
-          final Concept concept = reportService.getConcept(conceptId);
-          // TODO: conceptReportType and relationshipCt will become
-          // parameters to getConceptReport
-          conceptReport
-              .append(reportService.getConceptReport(project, concept));
-          conceptReport.append("---------------------------------------------");
-        }
-      }
+      final List<TrackingRecord> recordList = worklist.getTrackingRecords();
 
       // Construct filename
       final String fileName = worklist.getName() + "_rpt.txt";
@@ -2091,6 +2265,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Handle delay
       if (delay != null) {
         Thread.sleep(delay);
+      }
+
+      // Generate the report
+      for (final TrackingRecord record : recordList) {
+        for (final Long conceptId : record.getOrigConceptIds()) {
+          final Concept concept = reportService.getConcept(conceptId);
+          // TODO: conceptReportType and relationshipCt will become
+          // parameters to getConceptReport
+          conceptReport
+              .append(reportService.getConceptReport(project, concept));
+          conceptReport.append("---------------------------------------------");
+        }
       }
 
       final BufferedWriter out = new BufferedWriter(new FileWriter(file));
@@ -2114,6 +2300,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.addLogEntry(userName, projectId, worklist.getId(), null,
           null, "GENERATE REPORT for worklist - " + worklist.getId() + ", "
               + worklist.getName());
+
+      // websocket - n/a
 
       return fileName;
     } catch (Exception e) {
@@ -2150,7 +2338,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final String filePath = uploadDir + "/" + projectId + "/reports";
       final File dir = new File(filePath);
       if (!dir.exists()) {
-        throw new Exception("No reports exist for path " + filePath);
+        Logger.getLogger(getClass()).info("  create path = " + filePath);
+        dir.mkdirs();
       }
       int i = 0;
       for (final String file : dir.list()) {
@@ -2166,9 +2355,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // Or get a substring
         stringList.setObjects(matchingFiles.subList(pfs.getStartIndex(),
             Math.min((pfs.getStartIndex() + pfs.getMaxResults()),
-                matchingFiles.size() - 1)));
+                matchingFiles.size())));
       }
       stringList.setTotalCount(i);
+
+      // websocket - n/a
+
       return stringList;
 
     } catch (Exception e) {
@@ -2205,10 +2397,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           uploadDir + "/" + projectId + "/reports/" + fileName;
       final File file = new File(filePath);
       if (!file.exists()) {
-        throw new Exception("No report exists for path " + filePath);
+        throw new LocalException("No report exists for path " + filePath);
       }
       // Return file contents
 
+      // websocket - n/a
       return FileUtils.readFileToString(file, "UTF-8");
 
     } catch (Exception e) {
@@ -2245,6 +2438,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       FileUtils.forceDelete(new File(filePath));
       workflowService.addLogEntry(userName, projectId, null, null, null,
           "REMOVE REPORT - " + fileName);
+
+      // websocket - n/a
     } catch (Exception e) {
       handleException(e,
           e.getMessage() + ". Trying to remove generated concept report.");
@@ -2280,6 +2475,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       executeQuery(query, queryType, params, workflowService);
 
+      // websocket - n/a
     } catch (Exception e) {
       handleException(e, "trying to test query");
     } finally {
@@ -2312,9 +2508,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.setLastModifiedBy(userName);
 
       final Checklist checklist = workflowService.getChecklist(checklistId);
-      if (checklist == null) {
-        throw new Exception("Invalid checklist id " + checklistId);
-      }
+      verifyProject(checklist, projectId);
 
       final Note checklistNote = new ChecklistNoteJpa();
       checklistNote.setLastModifiedBy(userName);
@@ -2333,6 +2527,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.addLogEntry(userName, projectId, checklist.getId(), null,
           null, "UPDATE checklist - " + checklist.getId() + ", "
               + checklist.getName());
+
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("AddChecklistNote", authToken, "CHECKLIST",
+              checklist.getId(), getProjectInfo(checklist.getProject()));
+      sendChangeEvent(event);
 
       return newNote;
     } catch (Exception e) {
@@ -2388,6 +2588,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           null,
           "UPDATE worklist - " + worklist.getId() + ", " + worklist.getName());
 
+      // Websocket notification
+      final ChangeEvent event = new ChangeEventJpa("AddWorklistNote", authToken,
+          "WORKLIST", worklist.getId(), getProjectInfo(worklist.getProject()));
+      sendChangeEvent(event);
+
       return newNote;
     } catch (Exception e) {
       handleException(e, "trying to add note");
@@ -2421,6 +2626,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final ChecklistNoteJpa note = (ChecklistNoteJpa) workflowService
           .getNote(noteId, ChecklistNoteJpa.class);
       final Checklist checklist = note.getChecklist();
+      verifyProject(checklist, projectId);
 
       if (!checklist.getProject().getId().equals(projectId)) {
         throw new Exception(
@@ -2439,6 +2645,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.addLogEntry(userName, projectId, checklist.getId(), null,
           null, "UPDATE checklist - " + checklist.getId() + ", "
               + checklist.getName());
+
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("RemoveChecklistNote", authToken, "CHECKLIST",
+              checklist.getId(), getProjectInfo(checklist.getProject()));
+      sendChangeEvent(event);
 
     } catch (Exception e) {
       handleException(e, "trying to remove a checklist note");
@@ -2470,6 +2682,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final WorklistNoteJpa note = (WorklistNoteJpa) workflowService
           .getNote(noteId, WorklistNoteJpa.class);
       final Worklist worklist = note.getWorklist();
+      verifyProject(worklist, projectId);
 
       if (!worklist.getProject().getId().equals(projectId)) {
         throw new Exception(
@@ -2488,12 +2701,31 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           null,
           "UPDATE worklist - " + worklist.getId() + ", " + worklist.getName());
 
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("RemoveWorklistNote", authToken, "WORKLIST",
+              worklist.getId(), getProjectInfo(worklist.getProject()));
+      sendChangeEvent(event);
+
     } catch (Exception e) {
       handleException(e, "trying to remove a worklist note");
     } finally {
       workflowService.close();
       securityService.close();
     }
+  }
+
+  /**
+   * Returns the project info.
+   *
+   * @param project the project
+   * @return the project info
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private ComponentInfo getProjectInfo(Project project) throws Exception {
+    return new ComponentInfoJpa(project.getId(), project.getTerminology(), null,
+        null, project.getName(), IdType.PROJECT);
   }
 
   /**
@@ -3009,6 +3241,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           null, "IMPORT checklist - " + checklist.getId() + ", "
               + checklist.getName());
 
+      // Websocket notification
+      final ChangeEvent event = new ChangeEventJpa("ImportChecklist", authToken,
+          "CHECKLIST", newChecklist.getId(), getProjectInfo(project));
+      sendChangeEvent(event);
+
       workflowService.commit();
 
       return newChecklist;
@@ -3069,8 +3306,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         clustersEncountered.add(result[0]);
 
         // Keep only prescribed range from the query
-        if ((clustersEncountered.size() - 1) < pfs.getStartIndex()
-            || clustersEncountered.size() > pfs.getMaxResults()) {
+        if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
+            || clustersEncountered.size() > localPfs.getMaxResults()) {
           continue;
         }
 
@@ -3123,6 +3360,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       workflowService.commit();
 
+      // Websocket notification
+      final ChangeEvent event =
+          new ChangeEventJpa("ComputeChecklist", authToken, "CHECKLIST",
+              newChecklist.getId(), getProjectInfo(project));
+      sendChangeEvent(event);
+
       return newChecklist;
     } catch (Exception e) {
       handleException(e, "trying to import checklist");
@@ -3154,10 +3397,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           "export checklist", UserRole.AUTHOR);
 
       final Checklist checklist = workflowService.getChecklist(id);
-      if (checklist == null) {
-        throw new Exception(
-            "Attempt to export a non-existent checklist: " + id);
-      }
+      verifyProject(checklist, projectId);
+
+      // websocket - n/a
+
       return exportList(checklist.getTrackingRecords(), workflowService);
 
     } catch (Exception e) {
@@ -3189,9 +3432,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           "export worklist", UserRole.AUTHOR);
 
       final Worklist worklist = workflowService.getWorklist(id);
-      if (worklist == null) {
-        throw new Exception("Attempt to export a non-existent worklist: " + id);
-      }
+      verifyProject(worklist, projectId);
+
+      // websocket - n/a
+
       return exportList(worklist.getTrackingRecords(), workflowService);
 
     } catch (Exception e) {

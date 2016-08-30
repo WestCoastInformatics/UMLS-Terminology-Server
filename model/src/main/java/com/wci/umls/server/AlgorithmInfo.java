@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
+import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.helpers.HasTerminology;
 
 /**
@@ -15,7 +16,7 @@ import com.wci.umls.server.helpers.HasTerminology;
  * @param <T> the process info type (e.g. config or execution)
  */
 public interface AlgorithmInfo<T extends ProcessInfo<?>>
-    extends HasLastModified, HasTerminology, HasName {
+    extends HasLastModified, HasTerminology, HasName, HasProject {
 
   /**
    * Returns the description.

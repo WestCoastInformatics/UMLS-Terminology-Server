@@ -3,15 +3,11 @@
  */
 package com.wci.umls.server.jpa.content;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -24,7 +20,6 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.meta.IdType;
@@ -37,28 +32,14 @@ import com.wci.umls.server.model.meta.IdType;
 @XmlSeeAlso({
     ConceptJpa.class
 })
-public abstract class AbstractComponent implements Component {
+public abstract class AbstractComponent extends AbstractHasLastModified
+    implements Component {
 
   /** The id. */
   @Id
   @GenericGenerator(name = "ExistingOrGeneratedId", strategy = "com.wci.umls.server.jpa.helpers.UseExistingOrGenerateIdGenerator")
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "ExistingOrGeneratedId")
-
   private Long id;
-
-  /** the timestamp. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;
-
-  /** The last modified. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date lastModified = null;
-
-  /** The last modified. */
-  @Column(nullable = false)
-  private String lastModifiedBy;
 
   /** The suppressible flag. */
   @Column(nullable = false)
@@ -105,10 +86,8 @@ public abstract class AbstractComponent implements Component {
    * @param component the component
    */
   public AbstractComponent(Component component) {
+    super(component);
     id = component.getId();
-    timestamp = new Date();
-    lastModified = component.getLastModified();
-    lastModifiedBy = component.getLastModifiedBy();
     terminology = component.getTerminology();
     terminologyId = component.getTerminologyId();
     version = component.getVersion();
@@ -131,54 +110,6 @@ public abstract class AbstractComponent implements Component {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /* see superclass */
-  @Override
-  public Date getTimestamp() {
-    return timestamp;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTimestamp(Date timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @Override
-  public Date getLastModified() {
-    return lastModified;
-  }
-
-  /**
-   * Returns the last modified in yyyymmdd format.
-   *
-   * @return the last modified yyyymmdd
-   */
-  @Field(name = "lastModifiedYYYYMMDD", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  private String getLastModifiedYYYYMMDD() {
-    return ConfigUtility.DATE_FORMAT.format(lastModified);
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModified(Date lastModified) {
-    this.lastModified = lastModified;
-  }
-
-  /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @Override
-  public String getLastModifiedBy() {
-    return lastModifiedBy;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModifiedBy(String lastModifiedBy) {
-    this.lastModifiedBy = lastModifiedBy;
   }
 
   /* see superclass */
@@ -381,7 +312,7 @@ public abstract class AbstractComponent implements Component {
   @Override
   public String toString() {
     return "id=" + id + ", terminologyId=" + terminologyId + ", lastModified="
-        + lastModified + ", lastModifiedBy=" + lastModifiedBy
+        + getLastModified() + ", lastModifiedBy=" + getLastModifiedBy()
         + ", suppressible=" + suppressible + ", obsolete=" + obsolete
         + ", published=" + published + ", publishable=" + publishable
         + ", terminology=" + terminology + ", version=" + version + ", branch="

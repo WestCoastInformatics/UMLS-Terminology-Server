@@ -1,6 +1,5 @@
 // Notes directive
 tsApp.directive('notes', [ function() {
-  console.debug('configure notes directive');
   return {
     restrict : 'A',
     scope : {
@@ -15,7 +14,7 @@ tsApp.directive('notes', [ function() {
       'utilService',
       'workflowService',
       function($scope, $uibModal, $sce, utilService, workflowService) {
-        console.debug("configure NotesDirective", $scope.type);
+        console.debug("configure notes directive", $scope.type);
 
         $scope.field = $scope.type.toLowerCase();
         if ($scope.type == 'Checklist') {
@@ -51,7 +50,6 @@ tsApp.directive('notes', [ function() {
             $scope.field = 'worklist';
           }
 
-          console.debug("XXX", $scope.field, type, selected);
           $scope.selected = selected;
           $scope.type = type
           $scope.project = selected.project
@@ -100,12 +98,12 @@ tsApp.directive('notes', [ function() {
                 },
                 // Error - remove worklist
                 function(data) {
-                  handleError($scope.errors, data);
+                  utilService.handleDialogError($scope.errors, data);
                 });
               },
               // Error - remove worklist
               function(data) {
-                handleError($scope.errors, data);
+                utilService.handleDialogError($scope.errors, data);
               });
             } else if ($scope.type == 'Checklist') {
               workflowService.removeChecklistNote($scope.project.id, note.id).then(
@@ -118,12 +116,12 @@ tsApp.directive('notes', [ function() {
                 },
                 // Error - remove checklist
                 function(data) {
-                  handleError($scope.errors, data);
+                  utilService.handleDialogError($scope.errors, data);
                 });
               },
               // Error - remove checklist
               function(data) {
-                handleError($scope.errors, data);
+                utilService.handleDialogError($scope.errors, data);
               });
             }
           };
@@ -142,12 +140,12 @@ tsApp.directive('notes', [ function() {
                 },
                 // Error - add checklist note
                 function(data) {
-                  handleError($scope.errors, data);
+                  utilService.handleDialogError($scope.errors, data);
                 });
               },
               // Error - add checklist note
               function(data) {
-                handleError($scope.errors, data);
+                utilService.handleDialogError($scope.errors, data);
               });
             } else if ($scope.type == 'Worklist') {
               workflowService.addWorklistNote($scope.project.id, object.id, text).then(
@@ -160,12 +158,12 @@ tsApp.directive('notes', [ function() {
                 },
                 // Error - add worklist note
                 function(data) {
-                  handleError($scope.errors, data);
+                  utilService.handleDialogError($scope.errors, data);
                 });
               },
               // Error - add worklist note
               function(data) {
-                handleError($scope.errors, data);
+                utilService.handleDialogError($scope.errors, data);
               });
             }
           };

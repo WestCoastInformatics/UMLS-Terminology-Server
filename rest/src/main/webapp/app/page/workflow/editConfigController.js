@@ -32,7 +32,6 @@ tsApp.controller('ConfigModalCtrl', [
         // Check that this type doesn't already exist
         for (var i = 0; i < lists.configs.length; i++) {
           if (lists.configs[i].type == $scope.config.type) {
-            console.debug('xxx', $scope.config.type);
             $scope.errors.push('A workflow configuration with type ' + $scope.config.type
               + ' already exists.');
             return;
