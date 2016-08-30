@@ -354,7 +354,7 @@
             <version>${project.version}</version>
             <executions>
               <execution>
-                <id>generate-sample-data</id>
+                <id>generate-nci-meta-data</id>
                 <phase>package</phase>
                 <goals>
                   <goal>generate-sample-data</goal>
