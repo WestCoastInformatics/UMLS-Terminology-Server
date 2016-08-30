@@ -60,6 +60,33 @@ tsApp.controller('ProcessCtrl', [
       getPagedList : getAlgorithms
     };
 
+    // handle change in project role
+    $scope.changeProjectRole = function() {
+      // save the change
+      securityService.saveRole($scope.user.userPreferences, $scope.selected.projectRole);
+      $scope.resetPaging();
+      $scope.getWorklists();
+    }
+
+    // Set the project
+    $scope.setProject = function(project) {
+      $scope.selected.project = project;
+
+      // Get role for project (requires a lookup and will save user prefs
+      projectService.getRoleForProject($scope.user, $scope.selected.project.id).then(
+      // Success
+      function(data) {
+        // Get role and set role options
+        $scope.selected.projectRole = data.role;
+        $scope.lists.projectRoles = data.options;
+
+        // Get worklists
+        $scope.resetPaging();
+        $scope.getWorklists();
+      });
+
+    }
+    
     // Reset paging
     $scope.resetPaging = function() {
       $scope.paging['process'].page = 1;

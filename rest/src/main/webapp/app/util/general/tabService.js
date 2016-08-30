@@ -61,6 +61,12 @@ tsApp
                   projectRole : true
                 });
                 break;
+              case 'process':
+                this.tabs.push({
+                  link : 'process',
+                  label : 'Process',
+                  projectRole : true
+                });
               case 'admin':
                 this.tabs.push({
                   link : 'admin',
