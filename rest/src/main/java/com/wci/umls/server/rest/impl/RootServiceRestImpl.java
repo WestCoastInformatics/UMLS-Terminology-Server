@@ -179,7 +179,7 @@ public class RootServiceRestImpl {
    * Send change event.
    *
    * @param event the event
-   * @throws Exception
+   * @throws Exception the exception
    */
   public static void sendChangeEvent(ChangeEvent event) throws Exception {
     if (websocket != null) {

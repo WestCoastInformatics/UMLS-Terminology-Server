@@ -7,94 +7,53 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.hibernate.envers.Audited;
-import org.hibernate.search.annotations.Indexed;
 
 import com.wci.umls.server.AlgorithmParameter;
 
 /**
- * JPA and JAXB enabled implementation of {@link AlgorithmParameter}.
+ * JAXB enabled implementation of {@link AlgorithmParameter}.
  */
-@Entity
-@Table(name = "algorithm_parameters")
-@Audited
-@Indexed
 @XmlRootElement(name = "parameter")
 public class AlgorithmParameterJpa implements AlgorithmParameter {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
-  @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
 
   /** The last modified. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
   private Date lastModified;
 
   /** The last modified. */
-  @Column(nullable = false)
   private String lastModifiedBy;
 
   /** The last modified. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = new Date();
 
   /** The name. */
-  @Column(nullable = false)
   private String name;
 
   /** The field name. */
-  @Column(nullable = false)
   private String fieldName;
 
   /** The placeholder. */
-  @Column(nullable = true)
   private String placeholder;
 
   /** The type. */
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
   private AlgorithmParameter.Type type;
 
   /** The length. */
-  @Column(nullable = false)
   private int length = 0;
 
   /** The description. */
-  @Column(nullable = true, length = 4000)
   private String description;
 
   /** The possible values. */
-  @ElementCollection(fetch = FetchType.EAGER)
-  @JoinColumn(nullable = true)
   private List<String> possibleValues;
 
   /** The value. */
-  @Column(nullable = true, length = 4000)
   private String value;
 
   /** The values. */
-  @ElementCollection(fetch = FetchType.EAGER)
-  @JoinColumn(nullable = true)
   private List<String> values;
 
   /**
@@ -318,6 +277,8 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
     result = prime * result
         + ((possibleValues == null) ? 0 : possibleValues.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
+    result = prime * result
+        + ((values == null) ? 0 : values.hashCode());
     return result;
   }
 
@@ -365,6 +326,12 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
         return false;
     } else if (!value.equals(other.value))
       return false;
+    if (values == null) {
+      if (other.values != null)
+        return false;
+    } else if (!values.equals(other.values))
+      return false;
+
     return true;
   }
 
@@ -373,8 +340,8 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
   public String toString() {
     return "AlgorithmParameterJpa [name=" + name + ", fieldName=" + fieldName
         + ", placeholder=" + placeholder + ", type=" + type + ", length="
-        + length + ", description=" + description + ", values=" + possibleValues
-        + ", value=" + value + "]";
+        + length + ", description=" + description + ", possibleValues="
+        + possibleValues + ", value=" + value + ", values=" + values + "]";
   }
 
 }

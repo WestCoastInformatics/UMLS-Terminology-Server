@@ -14,6 +14,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -24,10 +25,17 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.AlgorithmInfo;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessInfo;
+import com.wci.umls.server.Project;
 
 /**
  * JPA and JAXB enabled implementation of {@link AlgorithmInfo}.
@@ -81,6 +89,10 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
   @Column(nullable = false)
   private String version;
 
+  /** The project. */
+  @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
+  private Project project;
+  
   /** the properties */
   @ElementCollection
   private Map<String, String> properties = new HashMap<>();
@@ -105,6 +117,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     id = info.getId();
     name = info.getName();
     description = info.getDescription();
+    project = info.getProject();
     terminology = info.getTerminology();
     version = info.getVersion();
     properties = info.getProperties();
@@ -224,6 +237,43 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     this.version = version;
   }
 
+
+  /* see superclass */
+  @Override
+  @XmlTransient
+  public Project getProject() {
+    return project;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProject(Project project) {
+    this.project = project;
+  }
+
+  /**
+   * Returns the project id. For JPA and JAXB.
+   *
+   * @return the project id
+   */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Long getProjectId() {
+    return project == null ? null : project.getId();
+  }
+
+  /**
+   * Sets the project id.
+   *
+   * @param projectId the project id
+   */
+  public void setProjectId(Long projectId) {
+    if (project == null) {
+      project = new ProjectJpa();
+    }
+    project.setId(projectId);
+  }
+  
   /* see superclass */
   @Override
   @XmlElement(type = AlgorithmParameterJpa.class)
@@ -266,6 +316,8 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result
+        + ((getProjectId() == null) ? 0 : getProjectId().hashCode());
 
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
@@ -301,6 +353,11 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
+      return false;
+    if (getProjectId() == null) {
+      if (other.getProjectId() != null)
+        return false;
+    } else if (!getProjectId().equals(other.getProjectId()))
       return false;
     if (terminology == null) {
       if (other.terminology != null)
