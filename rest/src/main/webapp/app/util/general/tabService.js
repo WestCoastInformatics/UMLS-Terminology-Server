@@ -17,11 +17,10 @@ tsApp
         // Available tabs, keep as array
         this.tabs = new Array();
 
-        // Setup tabs array based on "enabled tabs"]
+        // Setup tabs array based on "enabled tabs"
         // Called at the end of routes.js
         this.initEnabledTabs = function() {
           if (appConfig['deploy.enabled.tabs']) {
-
             var tabArray = appConfig['deploy.enabled.tabs'].split(',');
             for (var i = 0; i < tabArray.length; i++) {
               switch (tabArray[i]) {
@@ -67,13 +66,13 @@ tsApp
                   label : 'Process',
                   projectRole : true
                 });
+                break;
               case 'admin':
                 this.tabs.push({
                   link : 'admin',
                   label : 'Admin',
                   role : 'USER'
                 });
-
                 break;
               case 'default':
                 utilService.setError('Invalid tab ' + tabArray[i] + ' specified, skipping');

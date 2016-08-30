@@ -22,16 +22,22 @@
   </div>
 
 
+
   <!-- C1 -->
-  <div class="col-md-6 col-xs-12">
-Process Configs
+  <div class="col-md-12 col-xs-12">
+    <div>
+      <ul class="pointer nav nav-tabs">
+        <li ng-repeat='mode in lists.modes'
+          ng-class="{active : selected.mode == mode}"><a
+            ng-click="setMode(mode)">{{mode}} ({{counts[mode]}})</a></li>
+      </ul>
+    </div>
+
+    <h5>Process {{selected.mode}}</h5>
+    ... table...
+
   </div>
 
-  <!-- C2 -->
-  <div class="col-md-6 col-xs-12">
-Process Executions
-  </div>
- 
 </div>
 
 

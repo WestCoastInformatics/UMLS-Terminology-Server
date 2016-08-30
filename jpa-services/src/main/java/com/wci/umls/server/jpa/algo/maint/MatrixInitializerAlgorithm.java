@@ -33,9 +33,6 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
-  /** The properties. */
-  protected static Properties properties;
-
   /**
    * Instantiates an empty {@link MatrixInitializerAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -45,9 +42,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
     setActivityId(UUID.randomUUID().toString());
     setWorkId("MATRIXINIT");
     setUserName("admin");
-
-    // instantiate properties
-    properties = ConfigUtility.getConfigProperties();
   }
 
   /* see superclass */

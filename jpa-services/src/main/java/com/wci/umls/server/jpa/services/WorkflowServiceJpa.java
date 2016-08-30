@@ -28,6 +28,7 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
@@ -872,6 +873,28 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     } catch (NoResultException e) {
       return null;
     }
+  }
+
+  @Override
+  public void lookupTrackingRecordConcepts(TrackingRecord record)
+    throws Exception {
+
+    // Bail if no atom components.
+    if (record.getComponentIds().size() == 0) {
+      return;
+    }
+
+    // Create a query
+    final List<String> clauses = record.getComponentIds().stream()
+        .map(l -> "atoms.id:" + l).collect(Collectors.toList());
+    final String query = ConfigUtility.composeQuery("OR", clauses);
+
+    // add concepts
+    for (final SearchResult result : findConcepts(record.getTerminology(), null,
+        Branch.ROOT, query, null).getObjects()) {
+      record.getConcepts().add(new ConceptJpa(result));
+    }
+
   }
 
   /**

@@ -7,9 +7,10 @@ tsApp.controller('ProcessCtrl', [
   'tabService',
   'utilService',
   'securityService',
+  'projectService',
   'processService',
   function($scope, $location, $uibModal, configureService, tabService, utilService,
-    securityService, processService) {
+    securityService, projectService, processService) {
     console.debug("configure ProcessCtrl");
 
     // Set up tabs and controller
@@ -19,13 +20,19 @@ tsApp.controller('ProcessCtrl', [
     projectService.getUserHasAnyRole();
     tabService.setSelectedTabByLabel('Process');
 
+    // Scope vars
+    $scope.counts = {
+      Configuration : 0,
+      Execution : 0
+    }
+
     // Selected variables
     $scope.selected = {
       project : null,
       projectRole : null,
       process : null,
       algorithm : null,
-      mode : 'config' // vs 'exec'
+      mode : 'Configuration' // vs 'Execution'
     };
 
     // Lists
@@ -34,7 +41,7 @@ tsApp.controller('ProcessCtrl', [
       algorithms : [],
       projects : [],
       projectRoles : [],
-      modes : [ 'Configure', 'Execute' ]
+      modes : [ 'Configuration', 'Execution' ]
     }
 
     // Paging variables
@@ -65,7 +72,7 @@ tsApp.controller('ProcessCtrl', [
       // save the change
       securityService.saveRole($scope.user.userPreferences, $scope.selected.projectRole);
       $scope.resetPaging();
-      $scope.getWorklists();
+      $scope.getProcesses();
     }
 
     // Set the project
@@ -82,11 +89,11 @@ tsApp.controller('ProcessCtrl', [
 
         // Get worklists
         $scope.resetPaging();
-        $scope.getWorklists();
+        $scope.getProcesses();
       });
 
     }
-    
+
     // Reset paging
     $scope.resetPaging = function() {
       $scope.paging['process'].page = 1;
@@ -115,17 +122,38 @@ tsApp.controller('ProcessCtrl', [
     // Get $scope.lists.processes
     // switch based on mode
     $scope.getProcesses = function(process) {
-      getProcesss(process);
+      getProcesses(process);
     }
-    function getProcesss(process) {
-      if ($scope.selected.mode == 'config') {
+    function getProcesses(process) {
+      if ($scope.selected.mode == 'Configuration') {
         $scope.getProcessConfigs();
-      } else if ($scope.selected.mode == 'exec') {
+      } else if ($scope.selected.mode == 'Execution') {
         $scope.getProcessExecutions();
       }
       if (process) {
         $scope.setProcess(process);
       }
+    }
+
+    $scope.getProcessConfigs = function() {
+      // TBD - process service
+
+      // In "then" call getProcessExecutionsCt
+    }
+
+    $scope.getProcessExecutions = function() {
+      // TBD - process service
+
+      // In "then" call getProcessConfigsCt
+
+    }
+
+    $scope.getProcessConfigsCt = function() {
+      // TBD - process service with pfs 0->1, totalCt
+    }
+
+    $scope.getProcessExecutionsCt = function() {
+      // TBD - process service with pfs 0->1, totalCt
     }
 
     // Set $scope.selected.process
@@ -139,9 +167,9 @@ tsApp.controller('ProcessCtrl', [
       getAlgorithms(algorithm);
     }
     function getAlgorithms(algorithm) {
-      if ($scope.selected.mode == 'config') {
+      if ($scope.selected.mode == 'Configuration') {
         $scope.getAlgorithmConfigs();
-      } else if ($scope.selected.mode == 'exec') {
+      } else if ($scope.selected.mode == 'Execution') {
         $scope.getAlgorithmExecutions();
       }
       if (algorithm) {

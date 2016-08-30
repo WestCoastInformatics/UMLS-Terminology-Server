@@ -43,7 +43,6 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -62,7 +61,6 @@ import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
@@ -1109,7 +1107,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final TrackingRecordList list = workflowService.findTrackingRecords(
           project, "checklistName:\"" + checklist.getName() + "\"", pfs);
       for (final TrackingRecord record : list.getObjects()) {
-        lookupTrackingRecordConcepts(record, workflowService);
+        workflowService.lookupTrackingRecordConcepts(record);
       }
 
       // websocket - n/a
@@ -1123,36 +1121,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
     return null;
-  }
-
-  /**
-   * Lookup tracking record concepts.
-   *
-   * @param record the record
-   * @param service the service
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("static-method")
-  private void lookupTrackingRecordConcepts(TrackingRecord record,
-    WorkflowService service) throws Exception {
-
-    // Bail if no atom components.
-    if (record.getComponentIds().size() == 0) {
-      return;
-    }
-
-    // Create a query
-    final List<String> clauses = record.getComponentIds().stream()
-        .map(l -> "atoms.id:" + l).collect(Collectors.toList());
-    final String query = ConfigUtility.composeQuery("OR", clauses);
-
-    // add concepts
-    for (final SearchResult result : service
-        .findConcepts(record.getTerminology(), null, Branch.ROOT, query, null)
-        .getObjects()) {
-      record.getConcepts().add(new ConceptJpa(result));
-    }
-
   }
 
   /* see superclass */
@@ -1190,7 +1158,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final TrackingRecordList list =
           workflowService.findTrackingRecords(project, query, pfs);
       for (final TrackingRecord record : list.getObjects()) {
-        lookupTrackingRecordConcepts(record, workflowService);
+        workflowService.lookupTrackingRecordConcepts(record);
       }
 
       // websocket - n/a
@@ -1239,7 +1207,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final TrackingRecordList list =
           workflowService.findTrackingRecords(project, query, pfs);
       for (final TrackingRecord record : list.getObjects()) {
-        lookupTrackingRecordConcepts(record, workflowService);
+        workflowService.lookupTrackingRecordConcepts(record);
       }
 
       // websocket - n/a
@@ -3467,7 +3435,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     sb.append("conceptName").append("\r\n");
 
     for (final TrackingRecord record : records) {
-      lookupTrackingRecordConcepts(record, workflowService);
+      workflowService.lookupTrackingRecordConcepts(record);
       for (final Concept concept : record.getConcepts()) {
         sb.append(record.getClusterId()).append("\t");
         sb.append(concept.getId()).append("\t");

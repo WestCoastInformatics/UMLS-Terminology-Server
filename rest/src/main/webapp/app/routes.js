@@ -261,7 +261,6 @@ tsApp.run([
 
           // Now that enabled tabs exists, initialize it
           tabService.initEnabledTabs();
-
           deferred.resolve();
         }, function(data) {
           deferred.reject(data);
