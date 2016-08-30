@@ -289,7 +289,7 @@ tsApp
                 $scope.reportRefresh = true;
                 $scope.refresh = $interval(function() {
                   if (!$scope.reportRefresh) {
-                    $scope.refresh.cancel();
+                    $interval.cancel($scope.refresh)
                   }
                   $scope.findGeneratedConceptReports();
                 }, 500);
