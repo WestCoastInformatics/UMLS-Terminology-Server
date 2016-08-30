@@ -54,7 +54,7 @@ public class ProcessClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/processConfig/add" + "?projectId=" + projectId);
+        + "/process/config/add" + "?projectId=" + projectId);
 
     final String processConfigString = ConfigUtility.getStringForGraph(
         processConfig == null ? new ProcessConfigJpa() : processConfig);
@@ -85,7 +85,7 @@ public class ProcessClientRest extends RootClientRest
         .debug("Process Client - update processConfig " + processConfig);
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/processConfig/update" + "?projectId=" + projectId);
+        + "/process/config/update" + "?projectId=" + projectId);
 
     String processConfigString = ConfigUtility.getStringForGraph(
         processConfig == null ? new ProcessConfigJpa() : processConfig);
@@ -109,7 +109,7 @@ public class ProcessClientRest extends RootClientRest
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/processConfig/remove/" + id + "?projectId=" + projectId  + (cascade ? "&cascade=true" : ""));
+        + "/process/config/remove/" + id + "?projectId=" + projectId  + (cascade ? "&cascade=true" : ""));
 
     if (id == null)
       return;
@@ -133,7 +133,7 @@ public class ProcessClientRest extends RootClientRest
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/processConfig/" + id + "?projectId=" + projectId);
+        + "/process/config/" + id + "?projectId=" + projectId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
@@ -163,7 +163,7 @@ public class ProcessClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/processConfig" + "?projectId=" + projectId + "&query="
+        + "/process/config" + "?projectId=" + projectId + "&query="
         + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility
@@ -193,7 +193,7 @@ public class ProcessClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/algorithmConfig/add" + "?projectId=" + projectId);
+        + "/process/config/algo/add" + "?projectId=" + projectId);
     ;
 
     final String algorithmConfigString = ConfigUtility.getStringForGraph(
@@ -225,7 +225,7 @@ public class ProcessClientRest extends RootClientRest
         .debug("Process Client - update algorithmConfig " + algorithmConfig);
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/algorithmConfig/update" + "?projectId=" + projectId);
+        + "/process/config/algo/update" + "?projectId=" + projectId);
 
     String algorithmConfigString = ConfigUtility.getStringForGraph(
         algorithmConfig == null ? new AlgorithmConfigJpa() : algorithmConfig);
@@ -249,7 +249,7 @@ public class ProcessClientRest extends RootClientRest
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/algorithmConfig/remove/" + id + "?projectId=" + projectId);
+        + "/process/config/algo/remove/" + id + "?projectId=" + projectId);
 
     if (id == null)
       return;
@@ -282,7 +282,7 @@ public class ProcessClientRest extends RootClientRest
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/algorithmConfig/" + id + "?projectId=" + projectId);
+        + "/process/config/algo/" + id + "?projectId=" + projectId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
