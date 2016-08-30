@@ -957,7 +957,7 @@ tsApp.service('workflowService', [
       }).then(
       // Success
       function(response) {
-        console.debug('  checklist imported =', response);
+        console.debug('  checklist imported =', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -987,7 +987,7 @@ tsApp.service('workflowService', [
           + utilService.prepQuery(query) + '&queryType=' + queryType + '&name=' + name, pfs).then(
       // success
       function(response) {
-        console.debug('  checklist computed =', response);
+        console.debug('  checklist computed =', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -1005,13 +1005,13 @@ tsApp.service('workflowService', [
       console.debug('exportChecklist', projectId, id, name);
       gpService.increment();
       $http.get(workflowUrl + '/checklist/' + id + '/export?projectId=' + projectId).then(
-      // / / Success
+      // Success
       function(response) {
         var blob = new Blob([ response.data ], {
           type : ''
         });
 
-        // / / fake a file URL and download it
+        // fake a file URL and download it
         var fileURL = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = fileURL;
@@ -1022,7 +1022,7 @@ tsApp.service('workflowService', [
         gpService.decrement();
         a.click();
       },
-      // / / Error
+      // Error
       function(response) {
         utilService.handleError(response);
         gpService.decrement();
@@ -1034,13 +1034,13 @@ tsApp.service('workflowService', [
       console.debug('exportWorklist', projectId, id, name);
       gpService.increment();
       $http.get(workflowUrl + '/worklist/' + id + '/export?projectId=' + projectId).then(
-      // / / Success
+      // Success
       function(response) {
         var blob = new Blob([ response.data ], {
           type : ''
         });
 
-        // / / fake a file URL and download it
+        // fake a file URL and download it
         var fileURL = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = fileURL;
@@ -1051,12 +1051,118 @@ tsApp.service('workflowService', [
         gpService.decrement();
         a.click();
       },
-      // / / Error
+      // Error
       function(response) {
         utilService.handleError(response);
         gpService.decrement();
       });
     };
 
-    // / / end
+    // Generate concept reports
+    this.generateConceptReport = function(projectId, worklistId) {
+      console.debug('generateConceptReport', projectId, worklistId);
+      var deferred = $q.defer();
+      // NO glass pane, this could take a while
+      $http.get(
+        workflowUrl + '/worklist/' + worklistId + '/report/generate?projectId=' + projectId
+          + '&sendEmail=true', {
+          transformResponse : [ function(response) {
+            // Data response is plain text at this point
+            // So just return it, or do your parsing here
+            return response;
+          } ]
+        }).then(
+      // Success
+      function(response) {
+        console.debug('  report = ' + response.data);
+        deferred.resolve(response.data);
+      },
+      // Error
+      function(response) {
+        utilService.handleError(response);
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // Find generated reports
+    this.findGeneratedConceptReports = function(projectId, worklistName, pfs) {
+      console.debug('findGeneratedConceptReports', projectId, worklistName, pfs);
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http.post(
+        workflowUrl + '/report?projectId=' + projectId
+          + (worklistName ? '&query=' + encodeURIComponent(worklistName) : ''),
+        utilService.prepPfs(pfs)).then(
+      // Success
+      function(response) {
+        console.debug('  reports = ' + response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // Error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // Get generated concept report
+    this.getGeneratedConceptReport = function(projectId, fileName) {
+      console.debug('getGeneratedConceptReport', projectId, fileName);
+
+      gpService.increment();
+      $http.get(
+        workflowUrl + '/report/' + encodeURIComponent(fileName) + '/?projectId=' + projectId).then(
+      // Success
+      function(response) {
+        var blob = new Blob([ response.data ], {
+          type : ''
+        });
+
+        // fake a file URL and download it
+        var fileURL = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = fileURL;
+        a.target = '_blank';
+        // File name based on worklist name
+        a.download = fileName;
+        document.body.appendChild(a);
+        gpService.decrement();
+        a.click();
+      },
+      // Error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+      });
+    };
+
+    // Remove generated concept report
+    this.removeGeneratedConceptReport = function(projectId, fileName) {
+      console.debug('removeGeneratedConceptReport', projectId, fileName);
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http['delete'](
+        workflowUrl + '/report/' + encodeURIComponent(fileName) + '/remove?projectId=' + projectId)
+        .then(
+        // Success
+        function(response) {
+          console.debug('  report succcessfully removed');
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // Error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      return deferred.promise;
+    };
+    // end
   } ]);

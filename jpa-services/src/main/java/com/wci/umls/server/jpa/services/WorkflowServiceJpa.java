@@ -613,7 +613,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   public Worklist getWorklist(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Service - get worklist " + id);
     Worklist worklist = getHasLastModified(id, WorklistJpa.class);
-    handleLazyInit(worklist);
+    if (worklist != null) {
+      handleLazyInit(worklist);
+    }
     return worklist;
   }
 

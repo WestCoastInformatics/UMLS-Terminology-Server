@@ -2092,7 +2092,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             .append(ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
         message.append("] ");
         message.append(entry.getLastModifiedBy()).append(" ");
-        message.append(entry.getMessage()).append("\n");
+        message.append(entry.getMessage()).append("\r\n");
         log.append(message);
       }
 
@@ -2221,11 +2221,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @Path("/worklist/{id}/report/generate")
   @ApiOperation(value = "Generate concept reports for worklist", notes = "Generate concept reports for the specified worklist", response = String.class)
   public String generateConceptReport(
-    @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Worklist id, e.g. 5") @PathParam("id") Long id,
+    @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Worklist id, e.g. 5", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Delay", required = false) @QueryParam("delay") Long delay,
     @ApiParam(value = "Send email, e.g. false", required = false) @QueryParam("sendEmail") Boolean sendEmail,
-    @ApiParam(value = "Concept report type", required = true) @QueryParam("conceptReportType") String conceptReportType,
+    @ApiParam(value = "Concept report type", required = false) @QueryParam("conceptReportType") String conceptReportType,
     @ApiParam(value = "Relationship count", required = false) @QueryParam("relationshipCt") Integer relationshipCt,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2244,21 +2244,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Read vars
       final Project project = workflowService.getProject(projectId);
       final Worklist worklist = workflowService.getWorklist(id);
-      final PfsParameter pfs = new PfsParameterJpa();
-      pfs.setSortField("clusterId");
-      final TrackingRecordList recordList = workflowService.findTrackingRecords(
-          project, "worklistName:" + worklist.getName(), pfs);
-
-      for (final TrackingRecord record : recordList.getObjects()) {
-        for (final Long conceptId : record.getOrigConceptIds()) {
-          final Concept concept = reportService.getConcept(conceptId);
-          // TODO: conceptReportType and relationshipCt will become
-          // parameters to getConceptReport
-          conceptReport
-              .append(reportService.getConceptReport(project, concept));
-          conceptReport.append("---------------------------------------------");
-        }
-      }
+      final List<TrackingRecord> recordList = worklist.getTrackingRecords();
 
       // Construct filename
       final String fileName = worklist.getName() + "_rpt.txt";
@@ -2279,6 +2265,18 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Handle delay
       if (delay != null) {
         Thread.sleep(delay);
+      }
+
+      // Generate the report
+      for (final TrackingRecord record : recordList) {
+        for (final Long conceptId : record.getOrigConceptIds()) {
+          final Concept concept = reportService.getConcept(conceptId);
+          // TODO: conceptReportType and relationshipCt will become
+          // parameters to getConceptReport
+          conceptReport
+              .append(reportService.getConceptReport(project, concept));
+          conceptReport.append("---------------------------------------------");
+        }
       }
 
       final BufferedWriter out = new BufferedWriter(new FileWriter(file));
@@ -2340,7 +2338,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final String filePath = uploadDir + "/" + projectId + "/reports";
       final File dir = new File(filePath);
       if (!dir.exists()) {
-        throw new Exception("No reports exist for path " + filePath);
+        Logger.getLogger(getClass()).info("  create path = " + filePath);
+        dir.mkdirs();
       }
       int i = 0;
       for (final String file : dir.list()) {
@@ -2356,7 +2355,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // Or get a substring
         stringList.setObjects(matchingFiles.subList(pfs.getStartIndex(),
             Math.min((pfs.getStartIndex() + pfs.getMaxResults()),
-                matchingFiles.size() - 1)));
+                matchingFiles.size())));
       }
       stringList.setTotalCount(i);
 
@@ -2398,7 +2397,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           uploadDir + "/" + projectId + "/reports/" + fileName;
       final File file = new File(filePath);
       if (!file.exists()) {
-        throw new Exception("No report exists for path " + filePath);
+        throw new LocalException("No report exists for path " + filePath);
       }
       // Return file contents
 

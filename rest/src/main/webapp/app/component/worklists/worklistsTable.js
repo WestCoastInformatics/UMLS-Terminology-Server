@@ -37,6 +37,7 @@ tsApp
               $scope.selected.concept = null;
 
               $scope.lists.records = [];
+              $scope.worklistReport = null;
 
               // This structure reused so don't conflate
               $scope.worklists = [];
@@ -244,7 +245,48 @@ tsApp
                 }
 
               }
-              ;
+
+              // Get $scope.worklistReport
+              $scope.findGeneratedReports = function() {
+                workflowService.findGeneratedConceptReports($scope.selected.project.id,
+                  $scope.selected.worklist.name, {
+                    startIndex : 0,
+                    maxResults : 1
+                  }).then(
+                // Success
+                function(data) {
+                  if (data.strings) {
+                    $scope.worklistReport = data.strings[0];
+                  }
+                });
+              }
+
+              // Export a report
+              $scope.getGeneratedConceptReport = function() {
+                // Download report
+                workflowService.getGeneratedConceptReport($scope.selected.project.id,
+                  $scope.selected.worklist.name + '_rpt.txt');
+              }
+
+              // Export a report
+              $scope.removeGeneratedConceptReport = function() {
+                // Download report
+                workflowService.removeGeneratedConceptReport($scope.selected.project.id,
+                  $scope.selected.worklist.name + '_rpt.txt').then(
+                // Success
+                function(data) {
+                  $scope.worklistReport = null;
+                });
+              }
+
+              // Generate a concept report - this may take a while, show a
+              // "refresh" icon
+              $scope.generateConceptReport = function() {
+                workflowService.generateConceptReport($scope.selected.project.id,
+                  $scope.selected.worklist.id);
+                window.alert('Report is being generated in the background, ' + $scope.user.email
+                  + ' will receive notification when it is complete.');
+              }
 
               // Convert time to a string
               $scope.toTime = function(editingTime) {
@@ -284,6 +326,7 @@ tsApp
                   $scope.parseStateHistory(worklist);
                 }
                 $scope.getRecords(worklist);
+                $scope.findGeneratedReports();
               };
 
               // parse workflow state history

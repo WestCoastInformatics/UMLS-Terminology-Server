@@ -7,7 +7,8 @@
     <span style="float: right;">
       <!-- Import -->
       <i ng-show="type == 'Checklist'" ng-click="openImportModal(); "
-        title="Import or compute checklist" class="noul glyphicon glyphicon-check"></i>
+        title="Import or compute checklist"
+        class="noul glyphicon glyphicon-check"></i>
     </span>
     <div style="display: inline" pager paging="paging['worklists']"
       count="worklists.totalCount" callback="paging['worklists'].callback">
@@ -245,12 +246,39 @@
             </td>
             <td>{{selected.worklist.stats.clusterCt}}/{{selected.worklist.stats.conceptCt}}</td>
           </tr>
+
           <tr ng-repeat="state in stateHistory">
             <td>
               <b>{{state.name}} date:</b>
             </td>
             <td>{{toDate(state.timestamp)}}</td>
           </tr>
+
+          <tr ng-show="type == 'Worklist'">
+            <td>
+              <b>Concept Reports</b>
+            </td>
+            <td>
+              <span ng-show="worklistReport">
+                <a ng-click="getGeneratedConceptReport()">{{worklistReport}}</a>
+                &nbsp;
+                <i ng-click="removeGeneratedConceptReport(selected.worklist);"
+                  title="Remove report" class="noul glyphicon glyphicon-trash"></i>
+              </span>
+              <span ng-show="!worklistReport">
+                <button
+                  confirm='Are you sure you want to generate the report, it may be generating in the background?'
+                  ng-click="generateConceptReport(selected.worklist);"
+                  title="Generate concept report" class="btn btn-xs btn-primary">Generate
+                  Report</button>
+            </td>
+            </span>
+
+            </td>
+          </tr>
+
+
+
 
         </tbody>
       </table>
