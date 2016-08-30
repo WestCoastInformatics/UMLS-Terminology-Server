@@ -1,0 +1,37 @@
+<!-- Controlled by ProcessCtrl (in processController.js)  -->
+<div class="row">
+
+  <!-- Project stuff -->
+  <div class="col-md-12 col-xs-12">
+    <h5>
+      <span>
+        Project: <select ng-model="selected.project"
+          ng-show="lists.projects.length > 1"
+          ng-options="item.name for item in lists.projects"
+          ng-change="setProject(selected.project);"></select>
+        <span ng-show="lists.projects.length == 1">{{selected.project.name}}</span>
+      </span>
+      <span>
+        &nbsp;&nbsp;Role: <select ng-model="selected.projectRole"
+          ng-show="lists.projectRoles.length > 1"
+          ng-change="changeProjectRole()"
+          ng-options="projectRole for projectRole in lists.projectRoles"></select>
+        <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
+      </span>
+    </h5>
+  </div>
+
+
+  <!-- C1 -->
+  <div class="col-md-6 col-xs-12">
+Process Configs
+  </div>
+
+  <!-- C2 -->
+  <div class="col-md-6 col-xs-12">
+Process Executions
+  </div>
+ 
+</div>
+
+

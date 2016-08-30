@@ -70,7 +70,6 @@ tsApp.run([
             securityService.setGuestUser();
           }
 
-
           if (errMsg.length > 0) {
             // Send an embedded 'data' object
             utilService.handleError({
@@ -137,7 +136,7 @@ tsApp.run([
             });
           }
 
-          // Metadata View
+          // Metadata page
           if (appConfig['deploy.enabled.tabs']
             && appConfig['deploy.enabled.tabs'].split(',').indexOf('metadata') != -1) {
             console.debug('Route enabled: /metadata');
@@ -148,9 +147,9 @@ tsApp.run([
             });
           }
 
-          // Workflow View
+          // Workflow page
           if (appConfig['deploy.enabled.tabs']
-          && appConfig['deploy.enabled.tabs'].split(',').indexOf('workflow') != -1) {
+            && appConfig['deploy.enabled.tabs'].split(',').indexOf('workflow') != -1) {
             console.debug('Route enabled: /workflow');
             $routeProviderReference.when('/workflow', {
               templateUrl : 'app/page/workflow/workflow.html',
@@ -159,8 +158,9 @@ tsApp.run([
             });
           }
 
-          // Edit View
-          if (appConfig['deploy.enabled.tabs'] && appConfig['deploy.enabled.tabs'].split(',').indexOf('edit') != -1) {
+          // Edit page
+          if (appConfig['deploy.enabled.tabs']
+            && appConfig['deploy.enabled.tabs'].split(',').indexOf('edit') != -1) {
             console.debug('Route enabled: /edit');
             $routeProviderReference.when('/edit', {
               templateUrl : 'app/page/edit/edit.html',
@@ -169,7 +169,18 @@ tsApp.run([
             });
           }
 
-          // Administrative Page
+          // Process page
+          if (appConfig['deploy.enabled.tabs']
+            && appConfig['deploy.enabled.tabs'].split(',').indexOf('process') != -1) {
+            console.debug('Route enabled: /process');
+            $routeProviderReference.when('/process', {
+              templateUrl : 'app/page/process/process.html',
+              controller : 'ProcessCtrl',
+              reloadOnSearch : false
+            });
+          }
+
+          // Admin page
           if (appConfig['deploy.enabled.tabs']
             && appConfig['deploy.enabled.tabs'].split(',').indexOf('admin') != -1) {
             console.debug('Route enabled: /admin');
@@ -236,7 +247,8 @@ tsApp.run([
           }
 
           // if none enabled, default is content/
-          if (appConfig['deploy.landing.enabled'] !== 'true' && appConfig['deploy.login.enabled'] !== 'true'
+          if (appConfig['deploy.landing.enabled'] !== 'true'
+            && appConfig['deploy.login.enabled'] !== 'true'
             && appConfig['deploy.license.enabled'] !== 'true') {
             console.debug('No landing, license, or login pages -- default route is /content');
             $routeProviderReference.when('/', {

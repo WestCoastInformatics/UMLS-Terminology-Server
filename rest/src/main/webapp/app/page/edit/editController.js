@@ -3,11 +3,9 @@ tsApp
   .controller('EditCtrl',
     [
       '$scope',
-      '$http',
       '$location',
       '$window',
       '$q',
-      'gpService',
       'tabService',
       'configureService',
       'securityService',
@@ -21,10 +19,9 @@ tsApp
       'metaEditingService',
       'contentService',
       '$uibModal',
-      function($scope, $http, $location, $window, $q, gpService, tabService, configureService,
-        securityService, workflowService, utilService, websocketService, configureService,
-        projectService, metadataService, reportService, metaEditingService, contentService,
-        $uibModal) {
+      function($scope, $location, $window, $q, tabService, configureService, securityService,
+        workflowService, utilService, websocketService, configureService, projectService,
+        metadataService, reportService, metaEditingService, contentService, $uibModal) {
         console.debug("configure EditCtrl");
 
         // Set up tabs and controller
@@ -93,8 +90,6 @@ tsApp
         $scope.paging['records'].callback = {
           getPagedList : getRecords
         };
-
-        $scope.errors = [];
 
         // Handle workflow changes
         $scope.$on('termServer::checklistChange', function(event, data) {
