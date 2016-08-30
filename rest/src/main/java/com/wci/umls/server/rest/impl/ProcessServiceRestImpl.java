@@ -140,15 +140,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final ProcessConfig newProcessConfig =
           processService.addProcessConfig(processConfig);
 
-      // For each of the process' algorithms, populate the properties based on
-      // its parameters' values.
-      for (AlgorithmConfig algorithmConfig : newProcessConfig.getSteps()) {
-        for (AlgorithmParameter param : algorithmConfig.getParameters()) {
-          algorithmConfig.getProperties().put(param.getFieldName(),
-              param.getValue());
-        }
-      }
-
       processService.addLogEntry(userName, projectId, processConfig.getId(),
           null, null, "ADD processConfig - " + processConfig);
 
@@ -337,10 +328,16 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // For each of the process' algorithms, populate the properties based on
       // its parameters' values.
+      // TODO - actually pull algorithm instance
       for (AlgorithmConfig algorithmConfig : processConfig.getSteps()) {
+        //TODO - get the instance
+        algorithmConfig.setParameters(instance.getParameters());
         for (AlgorithmParameter param : algorithmConfig.getParameters()) {
-          algorithmConfig.getProperties().put(param.getFieldName(),
-              param.getValue());
+          //TODO - check value vs. values (non-comma delimited vs. comma-delimited)
+          if(algorithmConfig.getProperties().get(param.getFieldName() != null)){
+          param.setValue(algorithmConfig.getProperties().get(param.getFieldName()));
+          param.setValues
+          }
         }
       }
 
@@ -376,7 +373,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call POST (Content): /config " + query);
+        .info("RESTful call POST (Process): /config " + query);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -385,6 +382,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "finding process configs", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
+      //TODO - go through and set steps to empty list for all returned processConfigs
+      
       return processService.findProcessConfigs(projectId, query, pfs);
 
     } catch (Exception e) {
@@ -451,6 +450,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Populate the algorithm's properties based on its parameters' values.
       for (AlgorithmParameter param : algorithmConfig.getParameters()) {
+        // TODO - map either Value OR Values (comma-delimited)
         algorithmConfig.getProperties().put(param.getFieldName(),
             param.getValue());
       }
@@ -745,8 +745,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/release");
+    Logger.getLogger(getClass()).info("RESTful call (Process): /algo/release");
 
     final ProcessService processService = new ProcessServiceJpa();
     try {

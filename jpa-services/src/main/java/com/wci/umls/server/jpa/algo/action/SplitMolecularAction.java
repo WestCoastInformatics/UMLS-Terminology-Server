@@ -40,7 +40,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
   private boolean copyRelationships;
 
   /** The relationship type abbr. */
-  private String relationshipType;
+  private String relationshipType = null;
 
   /** The originating concept pre updates. */
   private Concept originatingConceptPreUpdates;
@@ -164,13 +164,15 @@ public class SplitMolecularAction extends AbstractMolecularAction {
       throw new LocalException("Atom to split out not found in Concept");
     }
 
-    // Exists check on relationship Type, and populate
-    final RelationshipType type =
-        getRelationshipType(relationshipType, getTerminology(), getVersion());
+    // Exists check on relationship Type (if specified by user), and populate
+    if (relationshipType != null) {
+      final RelationshipType type =
+          getRelationshipType(relationshipType, getTerminology(), getVersion());
 
-    if (type == null) {
-      throw new LocalException(
-          "RelationshipType " + relationshipType + " not found.");
+      if (type == null) {
+        throw new LocalException(
+            "RelationshipType " + relationshipType + " not found.");
+      }
     }
 
     // Check preconditions
@@ -188,8 +190,7 @@ public class SplitMolecularAction extends AbstractMolecularAction {
 
     // Make copy of originating Concept before changes, to pass into
     // change event
-    originatingConceptPreUpdates =
-        new ConceptJpa(getFromConcept(), false);
+    originatingConceptPreUpdates = new ConceptJpa(getFromConcept(), false);
 
     //
     // Make a copy of each object in the originating Concept to be moved
@@ -290,26 +291,31 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     }
 
     //
-    // construct relationship between originating and created relationship
+    // construct relationship between originating and created relationship,
+    // if specified by user.
     //
-    ConceptRelationship newBetweenRel = new ConceptRelationshipJpa();
-    newBetweenRel.setBranch(Branch.ROOT);
-    newBetweenRel.setRelationshipType(relationshipType);
-    newBetweenRel.setAdditionalRelationshipType("");
-    newBetweenRel.setFrom(getFromConcept());
-    newBetweenRel.setTo(getToConcept());
-    newBetweenRel.setTerminology(getTerminology());
-    newBetweenRel.setTerminologyId("");
-    newBetweenRel.setVersion(getVersion());
-    newBetweenRel.setTimestamp(new Date());
-    newBetweenRel.setPublishable(true);
-    newBetweenRel.setAssertedDirection(false);
-    newBetweenRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+    ConceptRelationship newBetweenRel = null;
+    ConceptRelationshipJpa inverseBetweenRel = null;
+    if (relationshipType != null) {
+      newBetweenRel = new ConceptRelationshipJpa();
+      newBetweenRel.setBranch(Branch.ROOT);
+      newBetweenRel.setRelationshipType(relationshipType);
+      newBetweenRel.setAdditionalRelationshipType("");
+      newBetweenRel.setFrom(getFromConcept());
+      newBetweenRel.setTo(getToConcept());
+      newBetweenRel.setTerminology(getTerminology());
+      newBetweenRel.setTerminologyId("");
+      newBetweenRel.setVersion(getVersion());
+      newBetweenRel.setTimestamp(new Date());
+      newBetweenRel.setPublishable(true);
+      newBetweenRel.setAssertedDirection(false);
+      newBetweenRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
 
-    // construct relationship as well
-    ConceptRelationshipJpa inverseBetweenRel =
-        (ConceptRelationshipJpa) createInverseConceptRelationship(
-            newBetweenRel);
+      // construct inverse relationship as well
+      inverseBetweenRel =
+          (ConceptRelationshipJpa) createInverseConceptRelationship(
+              newBetweenRel);
+    }
 
     //
     // Create the new components to be added, and update modified objects
@@ -333,9 +339,11 @@ public class SplitMolecularAction extends AbstractMolecularAction {
       newInverseRels.add((ConceptRelationshipJpa) addRelationship(rel));
     }
 
-    newBetweenRel = (ConceptRelationshipJpa) addRelationship(newBetweenRel);
-    inverseBetweenRel =
-        (ConceptRelationshipJpa) addRelationship(inverseBetweenRel);
+    if (relationshipType != null) {
+      newBetweenRel = (ConceptRelationshipJpa) addRelationship(newBetweenRel);
+      inverseBetweenRel =
+          (ConceptRelationshipJpa) addRelationship(inverseBetweenRel);
+    }
 
     //
     // Add the components to the created concept (and related concepts)
@@ -352,8 +360,10 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : newInverseRels) {
       rel.getFrom().getRelationships().add(rel);
     }
-    getFromConcept().getRelationships().add(newBetweenRel);
-    getToConcept().getRelationships().add(inverseBetweenRel);
+    if (relationshipType != null) {
+      getFromConcept().getRelationships().add(newBetweenRel);
+      getToConcept().getRelationships().add(inverseBetweenRel);
+    }
 
     //
     // Change status of the concepts
@@ -377,19 +387,18 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     }
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(),
-        getFromConcept().getId(), getActivityId(), getWorkId(),
+    addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
+        getActivityId(), getWorkId(),
         getName() + " from concept " + getFromConcept().getId()
             + " into concept " + getToConcept().getId());
 
-    addLogEntry(getUserName(), getProject().getId(),
-        getToConcept().getId(), getActivityId(), getWorkId(),
-        getName() + " into concept " + getToConcept().getId()
-            + " from concept " + getFromConcept().getId());
+    addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
+        getActivityId(), getWorkId(),
+        getName() + " into concept " + getToConcept().getId() + " from concept "
+            + getFromConcept().getId());
 
     // Make copy of to and fromConcept to pass into change event
-    originatingConceptPostUpdates =
-        new ConceptJpa(getFromConcept(), false);
+    originatingConceptPostUpdates = new ConceptJpa(getFromConcept(), false);
     createdConceptPostUpdates = new ConceptJpa(getToConcept(), false);
 
   }

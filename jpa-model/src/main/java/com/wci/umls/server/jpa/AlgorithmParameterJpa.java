@@ -93,6 +93,7 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
   public AlgorithmParameterJpa(String name, String fieldName, String desc,
       String placeholder, int length, AlgorithmParameter.Type type) {
     this.name = name;
+    this.fieldName = fieldName;
     this.description = desc;
     this.placeholder = placeholder;
     this.length = length;
