@@ -35,9 +35,9 @@ tsApp
               $scope.selected.worklist = null;
               $scope.selected.record = null;
               $scope.selected.concept = null;
-
               $scope.lists.records = [];
               $scope.worklistReport = null;
+              $scope.reportRefresh = null;
 
               // This structure reused so don't conflate
               $scope.worklists = [];
@@ -247,7 +247,8 @@ tsApp
               }
 
               // Get $scope.worklistReport
-              $scope.findGeneratedReports = function() {
+              $scope.findGeneratedConceptReports = function() {
+                $scope.worklistReport = null;
                 workflowService.findGeneratedConceptReports($scope.selected.project.id,
                   $scope.selected.worklist.name, {
                     startIndex : 0,
@@ -256,6 +257,7 @@ tsApp
                 // Success
                 function(data) {
                   if (data.strings) {
+                    $scope.reportRefresh = null;
                     $scope.worklistReport = data.strings[0];
                   }
                 });
@@ -284,8 +286,13 @@ tsApp
               $scope.generateConceptReport = function() {
                 workflowService.generateConceptReport($scope.selected.project.id,
                   $scope.selected.worklist.id);
-                window.alert('Report is being generated in the background, ' + $scope.user.email
-                  + ' will receive notification when it is complete.');
+                $scope.reportRefresh = true;
+                $scope.refresh = $interval(function() {
+                  if (!$scope.reportRefresh) {
+                    $scope.refresh.cancel();
+                  }
+                  $scope.findGeneratedConceptReports();
+                }, 500);
               }
 
               // Convert time to a string
@@ -326,7 +333,7 @@ tsApp
                   $scope.parseStateHistory(worklist);
                 }
                 $scope.getRecords(worklist);
-                $scope.findGeneratedReports();
+                $scope.findGeneratedConceptReports();
               };
 
               // parse workflow state history
@@ -340,6 +347,7 @@ tsApp
                   }
                   $scope.stateHistory.push(state);
                 }
+                $scope.stateHistory = $scope.stateHistory.sort(utilService.sortBy('timestamp'))
               }
 
               // Unassign worklist

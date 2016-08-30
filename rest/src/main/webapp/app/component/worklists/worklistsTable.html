@@ -247,7 +247,8 @@
             <td>{{selected.worklist.stats.clusterCt}}/{{selected.worklist.stats.conceptCt}}</td>
           </tr>
 
-          <tr ng-repeat="state in stateHistory">
+          <tr
+            ng-repeat="state in stateHistory">
             <td>
               <b>{{state.name}} date:</b>
             </td>
@@ -259,27 +260,25 @@
               <b>Concept Reports</b>
             </td>
             <td>
-              <span ng-show="worklistReport">
+              <span ng-show="worklistReport && !reportRefresh">
                 <a ng-click="getGeneratedConceptReport()">{{worklistReport}}</a>
                 &nbsp;
                 <i ng-click="removeGeneratedConceptReport(selected.worklist);"
                   title="Remove report" class="noul glyphicon glyphicon-trash"></i>
               </span>
-              <span ng-show="!worklistReport">
-                <button
-                  confirm='Are you sure you want to generate the report, it may be generating in the background?'
-                  ng-click="generateConceptReport(selected.worklist);"
+              <span ng-show="!worklistReport && reportRefresh">
+                <i ng-click="findGeneratedReports();"
+                  title="Refresh concept report generation status"
+                  class="noul glyphicon glyphicon-refresh"></i>
+                ...Generating...
+              </span>
+              <span ng-show="!worklistReport && !reportRefresh">
+                <button ng-click="generateConceptReport(selected.worklist);"
                   title="Generate concept report" class="btn btn-xs btn-primary">Generate
                   Report</button>
-            </td>
-            </span>
-
+              </span>
             </td>
           </tr>
-
-
-
-
         </tbody>
       </table>
 
