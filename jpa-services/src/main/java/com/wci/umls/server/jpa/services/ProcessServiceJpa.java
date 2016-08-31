@@ -11,7 +11,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.AlgorithmConfig;
+import com.wci.umls.server.AlgorithmExecution;
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -19,9 +22,14 @@ import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProcessConfigList;
+import com.wci.umls.server.helpers.ProcessExecutionList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
+import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
+import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
+import com.wci.umls.server.jpa.helpers.ProcessExecutionListJpa;
 import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -163,6 +171,13 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     return algorithmList;
   }
 
+  /* see superclass */
+  @Override
+  public Algorithm getAlgorithmInstance(String key) throws Exception {
+    
+    return algorithmsMap.get(key);
+  }
+  
   /**
    * Validate init.
    *
@@ -272,6 +287,88 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     return processConfigList;
   }
 
+
+  /* see superclass */
+  @Override
+  public ProcessExecution addProcessExecution(ProcessExecution processExecution)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Process Service - add processExecution " + processExecution);
+
+    // Add processExecution
+    return addHasLastModified(processExecution);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeProcessExecution(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Process Service - remove processExecution " + id);
+
+    // Remove the processExecution
+    removeHasLastModified(id, ProcessExecutionJpa.class);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void updateProcessExecution(ProcessExecution processExecution)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Process Service - update processExecution " + processExecution);
+    // update processExecution
+    updateHasLastModified(processExecution);
+
+  }
+
+  /* see superclass */
+  @Override
+  public ProcessExecution getProcessExecution(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Process Service - get processExecution " + id);
+    final ProcessExecution processExecution =
+        manager.find(ProcessExecutionJpa.class, id);
+    handleLazyInit(processExecution);
+
+    return processExecution;
+  }
+
+  /* see superclass */
+  @Override
+  public ProcessExecutionList findProcessExecutions(Long projectId, String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Project Service - find processExecutions " + "/" + query);
+
+    final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
+
+    int totalCt[] = new int[1];
+    final List<ProcessExecution> results = new ArrayList<>();
+
+    final List<String> clauses = new ArrayList<>();
+    if (!ConfigUtility.isEmpty(query)) {
+      clauses.add(query);
+    }
+    if (projectId != null) {
+      clauses.add("projectId:" + projectId);
+    }
+    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+    List<ProcessExecutionJpa> processExecutions = searchHandler.getQueryResults(null,
+        null, Branch.ROOT, fullQuery, null, ProcessExecutionJpa.class,
+        ProcessExecutionJpa.class, pfs, totalCt, manager);
+
+    for (final ProcessExecution pe : processExecutions) {
+      handleLazyInit(pe);
+      results.add(pe);
+    }
+
+    final ProcessExecutionList processExecutionList = new ProcessExecutionListJpa();
+    processExecutionList.setObjects(results);
+
+    return processExecutionList;
+  }  
+  
   /* see superclass */
   @Override
   public AlgorithmConfig addAlgorithmConfig(AlgorithmConfig algorithmConfig)
@@ -317,6 +414,95 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     return algorithmConfig;
   }
 
+  /* see superclass */
+  @Override
+  public AlgorithmExecution addAlgorithmExecution(AlgorithmExecution algorithmExecution)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - add algorithmExecution " + algorithmExecution);
+
+    // Add algorithmExecution
+    return addHasLastModified(algorithmExecution);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeAlgorithmExecution(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - remove algorithmExecution " + id);
+
+    // Remove the algorithmExecution
+    removeHasLastModified(id, AlgorithmExecutionJpa.class);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void updateAlgorithmExecution(AlgorithmExecution algorithmExecution)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - update algorithmExecution " + algorithmExecution);
+    // update algorithmExecution
+    updateHasLastModified(algorithmExecution);
+
+  }
+
+  /* see superclass */
+  @Override
+  public AlgorithmExecution getAlgorithmExecution(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - get algorithmExecution " + id);
+    final AlgorithmExecution algorithmExecution =
+        manager.find(AlgorithmExecutionJpa.class, id);
+    handleLazyInit(algorithmExecution);
+
+    return algorithmExecution;
+  }  
+
+  /* see superclass */
+  @Override
+  public AlgorithmParameter addAlgorithmParameter(AlgorithmParameter algorithmParameter)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - add algorithmParameter " + algorithmParameter);
+
+    // Add algorithmParameter
+    return addHasLastModified(algorithmParameter);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeAlgorithmParameter(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - remove algorithmParameter " + id);
+
+    // Remove the algorithmParameter
+    removeHasLastModified(id, AlgorithmParameterJpa.class);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void updateAlgorithmParameter(AlgorithmParameter algorithmParameter)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - update algorithmParameter " + algorithmParameter);
+    // update algorithmParameter
+    updateHasLastModified(algorithmParameter);
+
+  }
+
+  /* see superclass */
+  @Override
+  public AlgorithmParameter getAlgorithmParameter(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Algorithm Service - get algorithmParameter " + id);
+    final AlgorithmParameter algorithmParameter =
+        manager.find(AlgorithmParameterJpa.class, id);
+
+    return algorithmParameter;
+  }  
+  
   /**
    * Handle lazy initialization.
    *
@@ -334,9 +520,27 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
 
   }
+  
+  /**
+   * Handle lazy init.
+   *
+   * @param processExecution the process execution
+   */
+  @SuppressWarnings("static-method")
+  private void handleLazyInit(ProcessExecution processExecution) {
+    if (processExecution == null) {
+      return;
+    }
+    processExecution.getSteps().size();
+    processExecution.getProject().getId();
+    for (AlgorithmExecution algo : processExecution.getSteps()) {
+      handleLazyInit(algo);
+    }
+
+  }  
 
   /**
-   * Handle lazy initialization
+   * Handle lazy initialization.
    *
    * @param algorithmConfig the algorithm config
    */
@@ -351,4 +555,21 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     algorithmConfig.getProcess().getId();
   }
 
+
+  /**
+   * Handle lazy initialization.
+   *
+   * @param algorithmExecution the algorithm execution
+   */
+  @SuppressWarnings("static-method")
+  private void handleLazyInit(AlgorithmExecution algorithmExecution) {
+    if (algorithmExecution == null) {
+      return;
+    }
+    algorithmExecution.getParameters().size();
+    algorithmExecution.getProperties().size();
+    algorithmExecution.getProject().getId();
+    algorithmExecution.getProcess().getId();
+  }  
+  
 }

@@ -4,10 +4,15 @@
 package com.wci.umls.server.services;
 
 import com.wci.umls.server.AlgorithmConfig;
+import com.wci.umls.server.AlgorithmExecution;
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.ProcessExecution;
+import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProcessConfigList;
+import com.wci.umls.server.helpers.ProcessExecutionList;
 
 /**
  * Represents a service for performing and monitoring processes.
@@ -37,6 +42,15 @@ public interface ProcessService extends ProjectService {
    * @throws Exception the exception
    */
   public KeyValuePairList getReleaseAlgorithms() throws Exception;
+
+  /**
+   * Returns the algorithm instance.
+   *
+   * @param key the key
+   * @return the algorithm instance
+   * @throws Exception the exception
+   */
+  public Algorithm getAlgorithmInstance(String key) throws Exception;
 
   /**
    * Adds the process config.
@@ -86,6 +100,54 @@ public interface ProcessService extends ProjectService {
     PfsParameter pfs) throws Exception;
 
   /**
+   * Adds the process execution.
+   *
+   * @param processExecution the process execution
+   * @return the process execution
+   * @throws Exception the exception
+   */
+  public ProcessExecution addProcessExecution(ProcessExecution processExecution)
+    throws Exception;
+
+  /**
+   * Removes the process execution.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeProcessExecution(Long id) throws Exception;
+
+  /**
+   * Update process execution.
+   *
+   * @param processExecution the process execution
+   * @throws Exception the exception
+   */
+  public void updateProcessExecution(ProcessExecution processExecution)
+    throws Exception;
+
+  /**
+   * Returns the process execution.
+   *
+   * @param id the id
+   * @return the process execution
+   * @throws Exception the exception
+   */
+  public ProcessExecution getProcessExecution(Long id) throws Exception;
+
+  /**
+   * Find process executions.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @return the process execution
+   * @throws Exception the exception
+   */
+  public ProcessExecutionList findProcessExecutions(Long projectId,
+    String query, PfsParameter pfs) throws Exception;
+
+  /**
    * Adds the algorithm config.
    *
    * @param algorithmConfig the algorithm config
@@ -120,6 +182,78 @@ public interface ProcessService extends ProjectService {
    * @throws Exception the exception
    */
   public AlgorithmConfig getAlgorithmConfig(Long id) throws Exception;
+
+  /**
+   * Adds the algorithm execution.
+   *
+   * @param algorithmExecution the algorithm execution
+   * @return the algorithm execution
+   * @throws Exception the exception
+   */
+  public AlgorithmExecution addAlgorithmExecution(
+    AlgorithmExecution algorithmExecution) throws Exception;
+
+  /**
+   * Removes the algorithm execution.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeAlgorithmExecution(Long id) throws Exception;
+
+  /**
+   * Update algorithm execution.
+   *
+   * @param algorithmExecution the algorithm execution
+   * @throws Exception the exception
+   */
+  public void updateAlgorithmExecution(AlgorithmExecution algorithmExecution)
+    throws Exception;
+
+  /**
+   * Returns the algorithm execution.
+   *
+   * @param id the id
+   * @return the algorithm execution
+   * @throws Exception the exception
+   */
+  public AlgorithmExecution getAlgorithmExecution(Long id) throws Exception;
+
+  /**
+   * Adds the algorithm parameter.
+   *
+   * @param algorithmParameter the algorithm parameter
+   * @return the algorithm parameter
+   * @throws Exception the exception
+   */
+  public AlgorithmParameter addAlgorithmParameter(
+    AlgorithmParameter algorithmParameter) throws Exception;
+
+  /**
+   * Returns the algorithm parameter.
+   *
+   * @param id the id
+   * @return the algorithm parameter
+   * @throws Exception the exception
+   */
+  public AlgorithmParameter getAlgorithmParameter(Long id) throws Exception;
+
+  /**
+   * Removes the algorithm parameter.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeAlgorithmParameter(Long id) throws Exception;
+
+  /**
+   * Update algorithm parameter.
+   *
+   * @param algorithmParameter the algorithm parameter
+   * @throws Exception the exception
+   */
+  public void updateAlgorithmParameter(AlgorithmParameter algorithmParameter)
+    throws Exception;
 
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
