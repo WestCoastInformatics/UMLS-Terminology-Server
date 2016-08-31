@@ -5,7 +5,6 @@ package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -17,8 +16,6 @@ import org.junit.Test;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.KeyValuePairList;
-import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.algo.maint.WaitAlgorithm;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
@@ -60,14 +57,8 @@ public class WaitAlgorithmTest extends IntegrationUnitSupport {
       algo = new WaitAlgorithm();
       
       // Also need to create and pass in required parameters.
-      AlgorithmParameter algoParam = new AlgorithmParameterJpa();
-      algoParam.setName("num");
-      algoParam.setValue("10");
-      algoParam.setDescription("Number of times the algorithm will run");
-
-      List<AlgorithmParameter> algoParams = new ArrayList<AlgorithmParameter>();
-      algoParams.add(algoParam);
-
+      List<AlgorithmParameter> algoParams = algo.getParameters();
+      algoParams.get(0).setValue("10");
       algo.setParameters(algoParams);
     }
 
@@ -77,7 +68,6 @@ public class WaitAlgorithmTest extends IntegrationUnitSupport {
     algo.setProject(algo.getProjects().getObjects().get(0));
     algo.setTerminology("UMLS");
     algo.setVersion("latest");
-
   }
 
   /**

@@ -318,7 +318,7 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     throws Exception {
     final Properties props = new Properties();
     for (final AlgorithmParameter param : parameters) {
-      props.setProperty(param.getName(), param.getValue());
+      props.setProperty(param.getFieldName(), param.getValue());
     }
     setProperties(props);
   }

@@ -164,17 +164,17 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     Logger.getLogger(getClass()).info("Add new admin users");
     UserJpa admin1 = (UserJpa) security.getUser("admin1", authToken);
     if (admin1 == null) {
-      admin1 = makeUser("admin1", "Admin1");
+      admin1 = makeUser("admin1", "Admin1",0);
       admin1 = (UserJpa) security.addUser(admin1, authToken);
     }
     UserJpa admin2 = (UserJpa) security.getUser("admin2", authToken);
     if (admin2 == null) {
-      admin2 = makeUser("admin2", "Admin2");
+      admin2 = makeUser("admin2", "Admin2",0);
       admin2 = (UserJpa) security.addUser(admin2, authToken);
     }
     UserJpa admin3 = (UserJpa) security.getUser("admin3", authToken);
     if (admin3 == null) {
-      admin3 = makeUser("admin3", "Admin3");
+      admin3 = makeUser("admin3", "Admin3",0);
       admin3 = (UserJpa) security.addUser(admin3, authToken);
     }
 
@@ -184,17 +184,17 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     Logger.getLogger(getClass()).info("Add new reviewer users");
     UserJpa reviewer1 = (UserJpa) security.getUser("reviewer1", authToken);
     if (reviewer1 == null) {
-      reviewer1 = makeUser("reviewer1", "Reviewer1");
+      reviewer1 = makeUser("reviewer1", "Reviewer1",0);
       reviewer1 = (UserJpa) security.addUser(reviewer1, authToken);
     }
     UserJpa reviewer2 = (UserJpa) security.getUser("reviewer2", authToken);
     if (reviewer2 == null) {
-      reviewer2 = makeUser("reviewer2", "Reviewer2");
+      reviewer2 = makeUser("reviewer2", "Reviewer2",0);
       reviewer2 = (UserJpa) security.addUser(reviewer2, authToken);
     }
     UserJpa reviewer3 = (UserJpa) security.getUser("reviewer3", authToken);
     if (reviewer3 == null) {
-      reviewer3 = makeUser("reviewer3", "Reviewer3");
+      reviewer3 = makeUser("reviewer3", "Reviewer3",0);
       reviewer3 = (UserJpa) security.addUser(reviewer3, authToken);
     }
 
@@ -204,17 +204,17 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     Logger.getLogger(getClass()).info("Add new author users");
     UserJpa author1 = (UserJpa) security.getUser("author1", authToken);
     if (author1 == null) {
-      author1 = makeUser("author1", "Author1");
+      author1 = makeUser("author1", "Author1",0);
       author1 = (UserJpa) security.addUser(author1, authToken);
     }
     UserJpa author2 = (UserJpa) security.getUser("author2", authToken);
     if (author2 == null) {
-      author2 = makeUser("author2", "Author2");
+      author2 = makeUser("author2", "Author2",0);
       author2 = (UserJpa) security.addUser(author2, authToken);
     }
     UserJpa author3 = (UserJpa) security.getUser("author3", authToken);
     if (author3 == null) {
-      author3 = makeUser("author3", "Author3");
+      author3 = makeUser("author3", "Author3",0);
       author3 = (UserJpa) security.addUser(author3, authToken);
     }
 
@@ -934,12 +934,13 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
    * @return the user
    */
   @SuppressWarnings("static-method")
-  private UserJpa makeUser(String userName, String name) {
+  private UserJpa makeUser(String userName, String name, int editorLevel) {
     final UserJpa user = new UserJpa();
     user.setUserName(userName);
     user.setName(name);
     user.setEmail(userName + "@example.com");
     user.setApplicationRole(UserRole.USER);
+    user.setEditorLevel(editorLevel);
     user.setTeam("TEAM" + userName.substring(userName.length() - 1));
     return user;
   }

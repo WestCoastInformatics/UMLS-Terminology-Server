@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 
@@ -19,12 +19,11 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
  */
 public class WaitAlgorithm extends AbstractAlgorithm {
 
-  /** The properties. */
-  protected static Properties properties;
-
-  /**  The number of times the algorithm will print to the log before finishing. */
+  /**
+   * The number of times the algorithm will print to the log before finishing.
+   */
   private Long num;
-  
+
   /**
    * Instantiates an empty {@link WaitAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -35,8 +34,6 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     setWorkId("WAIT");
     setUserName("admin");
 
-    // instantiate properties
-    properties = ConfigUtility.getConfigProperties();
   }
 
   /* see superclass */
@@ -54,11 +51,15 @@ public class WaitAlgorithm extends AbstractAlgorithm {
   @Override
   public void compute() throws Exception {
     logInfo("Starting WAIT");
-    
+
     // Print algorithm progress to the log, waiting a second between.
     for (int i = 1; i <= num; i += 1) {
+      if (this.isCancelled()) {
+        return;
+      }
       Thread.sleep(1000);
-      logInfo("WAIT progress: " + (100/num)*i + "%");
+      fireProgressEvent((int) (100 / num) * i,
+          "WAIT progress: " + (100 / num) * i + "%");
     }
 
     logInfo("Finished WAIT");
@@ -80,13 +81,18 @@ public class WaitAlgorithm extends AbstractAlgorithm {
 
     if (p.getProperty("num") != null) {
       num = Long.parseLong(p.getProperty("num"));
-    }    
+    }
   }
 
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() {
-    return super.getParameters();
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Number of Iterations",
+        "num", "Number of times the algorithm will run", "e.g. 5", 10,
+        AlgorithmParameter.Type.INTEGER);
+    params.add(param);
+    return params;
   }
 
 }

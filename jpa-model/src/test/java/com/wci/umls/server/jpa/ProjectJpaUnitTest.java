@@ -181,6 +181,7 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     tester.include("description");
     tester.include("isPublic");
     tester.include("teamBased");
+    tester.include("language");
     tester.include("terminology");
     tester.include("semanticTypeCategoryMap");
     tester.include("workflowPath");
