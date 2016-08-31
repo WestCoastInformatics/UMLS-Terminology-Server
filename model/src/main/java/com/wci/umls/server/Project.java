@@ -240,4 +240,18 @@ public interface Project extends HasLastModified {
    */
   public List<String> getNewAtomTermgroups();
 
+  /**
+   * Returns the language.
+   *
+   * @return the language
+   */
+  public String getLanguage();
+
+  /**
+   * Sets the language.
+   *
+   * @param language the language
+   */
+  public void setLanguage(String language);
+
 }

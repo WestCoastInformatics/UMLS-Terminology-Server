@@ -366,7 +366,7 @@ tsApp
               contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
                 function(data) {
                   $scope.lists.concepts.push(data);
-                  $scope.lists.concepts.sort(utilService.sort_by('id'));
+                  $scope.lists.concepts.sort(utilService.sortBy('id'));
                   // Select first, when the first concept is loaded
                   if (selectFirst && data.id == record.concepts[0].id) {
                     $scope.selectConcept($scope.lists.concepts[0]);
@@ -708,6 +708,10 @@ tsApp
 
         // Merge modal
         $scope.openMergeModal = function() {
+          if ($scope.lists.concepts.length < 2) {
+            window.alert('Merge requires at least two concepts in the list.');
+            return;
+          }
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/merge.html',
             controller : 'MergeModalCtrl',
@@ -718,6 +722,9 @@ tsApp
               },
               lists : function() {
                 return $scope.lists;
+              },
+              action : function() {
+                return 'Merge';
               },
               user : function() {
                 return $scope.user;
@@ -810,6 +817,37 @@ tsApp
 
         };
 
+        // Move modal
+        $scope.openMoveModal = function() {
+          
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/merge.html',
+            controller : 'MergeModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              action : function() {
+                return 'Move';
+              },
+              user : function() {
+                return $scope.user;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {
+            $scope.getRecords(false);
+            $scope.getConcepts($scope.selected.record, true);
+          });
+        };  
+          
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //

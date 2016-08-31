@@ -230,6 +230,10 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     project1.setPublic(true);
     project1.setTerminology(terminology);
     project1.setWorkflowPath(ConfigUtility.DEFAULT);
+    List<String> newAtomTermgroups = new ArrayList<>();
+    newAtomTermgroups.add("MTH/PN");
+    newAtomTermgroups.add("NCIMTH/PN");
+    project1.setNewAtomTermgroups(newAtomTermgroups);
 
     // Configure valid categories
     final List<String> validCategories = new ArrayList<>();

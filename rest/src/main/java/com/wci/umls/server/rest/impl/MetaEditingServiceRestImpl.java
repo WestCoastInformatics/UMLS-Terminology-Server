@@ -902,7 +902,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/concept/move")
+  @Path("/atom/move")
   @ApiOperation(value = "Move atoms from concept to concept", notes = "Move atoms from concept to concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult moveAtoms(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
@@ -916,7 +916,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/move " + projectId
+        .info("RESTful POST call (MetaEditing): /atom/move " + projectId
             + "," + conceptId + " move atoms for user " + authToken
             + " to concept " + conceptId2);
 

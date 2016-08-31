@@ -5,30 +5,59 @@ tsApp.controller('AtomModalCtrl',
     '$uibModalInstance',
     'utilService',
     'metaEditingService',
+    'metadataService',
     'atom',
     'action',
     'selected',
-    function($scope, $uibModalInstance, utilService, metaEditingService, atom, action, selected) {
+    function($scope, $uibModalInstance, utilService, metaEditingService, metadataService, atom, action, selected) {
       console.debug('Entered atom modal control', atom, action);
 
       // Scope vars
       $scope.selected = selected;
       $scope.atom = atom;
-      $scope.action = action;
+      $scope.action = action;       
+      $scope.metadata = metadataService.getModel();
       $scope.overrideWarnings = false;
       $scope.warnings = [];
       $scope.errors = [];
       $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
 
-
       // Init modal
       function initialize() {
+        if (!$scope.atom) {
+          $scope.atom = {workflowStatus : 'NEEDS_REVIEW', 
+                          publishable : true,
+                          language : 'ENG'
+                          };
+          $scope.selectedTermgroup = $scope.selected.project.newAtomTermgroups[0];
+        }
         
+        // get metadata
+        var projectTerminologyVersion = metadataService.getTerminologyVersion($scope.selected.project.terminology);
+        var termToSet = metadataService.getTerminology($scope.selected.project.terminology, projectTerminologyVersion); 
+        metadataService.setTerminology(termToSet).then(function() {
+          console.debug("metadata", $scope.metadata);
+        });
       }
 
       // Perform add or edit/update
       $scope.submitAtom = function(atom) {
       if ($scope.action == 'Add') {
+        if (!atom || !atom.name || !$scope.selectedTermgroup || 
+          (!atom.codeId && !atom.conceptId && !atom.descriptorId)) {
+          window.alert('Name, termgroup and at least one id must be entered for new atom.');
+          return;
+        }
+        atom.terminology = $scope.selectedTermgroup.substr(0, $scope.selectedTermgroup.indexOf('/'));
+        atom.termType = $scope.selectedTermgroup.substr($scope.selectedTermgroup.indexOf('/') + 1);
+        atom.version = metadataService.getTerminologyVersion(atom.terminology);
+        atom.terminologyId = '';
+        if (!atom.conceptId) atom.conceptId = '';
+        if (!atom.codeId) atom.codeId = '';
+        if (!atom.descriptorId) atom.descriptorId = '';
+        
+        
+        
         metaEditingService.addAtom($scope.selected.project.id, $scope.selected.activityId,
           $scope.selected.concept, atom, $scope.overrideWarnings).then(
         // Success

@@ -20,9 +20,19 @@
           <b>Termgroup</b>
         </td>
         <td>
-          <span ng-show="action == 'Add'"><select ng-model="atom.termgroup"
-            ng-options="item for item in termgroups"></select>  </span>        
+          <span ng-show="action == 'Add'"><select ng-model="selectedTermgroup"
+            ng-options="item for item in selected.project.newAtomTermgroups"></select>  </span>        
           <span ng-show="action != 'Add'">{{atom.terminology}}/{{atom.termType}}</span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Language</b>
+        </td>
+        <td>
+          <span ng-show="action == 'Add'"><select ng-model="atom.language"
+            ng-options="item.key as item.value for item in metadata.languages"></select>  </span>        
+          <span ng-show="action != 'Add'">{{atom.language}}</span>
         </td>
       </tr>
       <tr ng-show="action == 'Add' || atom.codeId">

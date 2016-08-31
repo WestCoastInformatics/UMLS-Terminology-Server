@@ -109,7 +109,7 @@ public class NotificationWebsocket {
 
     // Send message to all listeners
     synchronized (sessions) {
-      for (final Session session : sessions) {
+      for (final Session session : new HashSet<>(sessions)) {
         try {
           // Send async message
           session.getAsyncRemote().sendText(message);

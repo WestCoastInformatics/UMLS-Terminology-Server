@@ -416,8 +416,8 @@ tsApp
         };
 
         // split concept
-        this.splitConcept = function(projectId, activityId, concept1, concept2, atomIds,
-          overrideWarnings, copyRelationships, copySemanticTypes, relationshipType) {
+        this.splitConcept = function(projectId, activityId, concept1, atomIds,
+          copyRelationships, copySemanticTypes, relationshipType, overrideWarnings) {
           console.debug('split concept');
           var deferred = $q.defer();
 
@@ -430,15 +430,15 @@ tsApp
               + concept1.id
               + '&lastModified='
               + concept1.lastModified
-              + '&conceptId2='
-              + concept2.id
               + (activityId ? "&activityId=" + activityId : "")
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : '')
               + (copyRelationships != null && copyRelationships != '' ? '&copyRelationships='
                 + copyRelationships : '')
               + (copySemanticTypes != null && copySemanticTypes != '' ? '&copySemanticTypes='
-                + copySemanticTypes : '') + '&relationshipType=' + relationshipType, atomIds).then(
+                + copySemanticTypes : '') 
+              + (relationshipType != null && relationshipType != '' ? '&relationshipType=' 
+                + relationshipType : ''), atomIds).then(
           // success
           function(response) {
             console.debug('  validation = ', response.data);

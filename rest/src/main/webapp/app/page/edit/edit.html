@@ -246,8 +246,7 @@
         ng-click="approveNext()" title="Approve/Next"
         ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Approve/Next</button>
-      <button confirm="Are you sure you want to merge the selected concept?"
-        ng-click="openMergeModal()" title="Merge"
+      <button ng-click="openMergeModal()" title="Merge"
         ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Merge</button>
     </span>

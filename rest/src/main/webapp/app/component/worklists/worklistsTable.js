@@ -346,7 +346,7 @@ tsApp
               // Get the most recent note for display
               $scope.getLatestNote = function(worklist) {
                 if (worklist && worklist.notes && worklist.notes.length > 0) {
-                  return $sce.trustAsHtml(worklist.notes.sort(utilService.sort_by('lastModified',
+                  return $sce.trustAsHtml(worklist.notes.sort(utilService.sortBy('lastModified',
                     -1))[0].note);
                 }
                 return $sce.trustAsHtml('');

@@ -16,8 +16,8 @@
               ng-click="setSortField('atoms','name')">Name</span>
               <span ng-bind="getSortIndicator('atoms','name')"></span></th>
       <th class="col-md-2 col-xs-2"><span
-              ng-click="setSortField('atoms','terminology')">Termgroup</span>
-              <span ng-bind="getSortIndicator('atoms','terminology')"></span></th>
+              ng-click="setSortField('atoms','termType,terminology')">Termgroup</span>
+              <span ng-bind="getSortIndicator('atoms','terminology,termType')"></span></th>
       <th class="col-md-1 col-xs-1"><span
               ng-click="setSortField('atoms','codeId')">Code</span>
               <span ng-bind="getSortIndicator('atoms','codeId')"></span></th>
@@ -38,7 +38,7 @@
   </thead>
   <tbody>
     <tr ng-repeat="atom in pagedAtoms.data"
-        ng-class="getAtomStatus(atom)">
+        ng-click="selectAtom($event, atom)" class="{{getAtomClass(atom)}}" ng-class="{selected: isRowSelected(atom)}">
       <td>{{atom.name}}</td>
       <td>{{atom.terminology}}/{{atom.termType}}</td>
       <td>{{atom.codeId}}</td>
@@ -59,12 +59,17 @@
     </tr>
   </tbody>
 </table>
-
 <span style="float: right;">
-  <button confirm="Are you sure you want to approve the selected concept?"
+  <button confirm="Are you sure you want to approve the concept?"
     ng-click="approveConcept()" title="Approve" class="btn btn-xs btn-primary">Approve</button>
   <button 
     ng-click="next()" title="Next" class="btn btn-xs btn-primary">Next</button>
-  <button confirm="Are you sure you want to approve the selected concept?"
+  <button confirm="Are you sure you want to approve the concept?"
     ng-click="approveNext()" title="Approve/Next" class="btn btn-xs btn-primary">Approve/Next</button>
+  <button ng-click="openMergeModal()" ng-disabled="getSelectedAtomCount() == 0" title="Merge"
+        class="btn btn-xs btn-primary">Merge</button>
+  <button ng-click="openMoveModal()" ng-disabled="getSelectedAtomCount() == 0" title="Move"
+        class="btn btn-xs btn-primary">Move</button>
+  <button ng-click="openSplitModal()" ng-disabled="getSelectedAtomCount() == 0" title="Split"
+        class="btn btn-xs btn-primary">Split</button>
 </span>

@@ -107,6 +107,10 @@ public class ProjectJpa implements Project {
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
+
+  /**  The language. */
+  @Column(nullable = false)
+  private String language;
   
   /**  The new atom termgroups. */
   @ElementCollection(fetch = FetchType.EAGER)
@@ -191,6 +195,8 @@ public class ProjectJpa implements Project {
     precedenceList = project.getPrecedenceList();
     validCategories = project.getValidCategories();
     semanticTypeCategoryMap = project.getSemanticTypeCategoryMap();
+    language = project.getLanguage();
+    newAtomTermgroups = project.getNewAtomTermgroups();
   }
 
   /* see superclass */
@@ -359,6 +365,18 @@ public class ProjectJpa implements Project {
   @Override
   public void setBranch(String branch) {
     this.branch = branch;
+  }
+  
+  /* see superclass */
+  @Override
+  public String getLanguage() {
+    return language;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLanguage(String language) {
+    this.language = language;
   }
 
   /* see superclass */
@@ -588,7 +606,8 @@ public class ProjectJpa implements Project {
         + ", terminology=" + terminology + ", branch=" + branch
         + ", userRoleMap=" + userRoleMap + ", feedbackEmail=" + feedbackEmail
         + ", precedenceList=" + precedenceList + ", validationChecks="
-        + validationChecks + ", workflowPath=" + workflowPath + "]";
+        + validationChecks + ", workflowPath=" + workflowPath 
+        + ", language=" + language + "]";
   }
 
 }

@@ -27,7 +27,9 @@ tsApp.controller('AtomsCtrl', [
     $scope.parentWindowScope = window.opener.$windowScope;
     window.$windowScope = $scope;
     $scope.selected = $scope.parentWindowScope.selected;
-
+    $scope.lists = $scope.parentWindowScope.lists;
+    $scope.user = $scope.parentWindowScope.user;
+    $scope.selected.atoms = {};
     
     
     // Paging variables
@@ -36,9 +38,13 @@ tsApp.controller('AtomsCtrl', [
     $scope.paging['atoms'].sortField = 'id';
     $scope.paging['atoms'].pageSize = 10;
     $scope.paging['atoms'].filterFields = {};
-    $scope.paging['atoms'].filterFields.expandedForm = 1;
-    $scope.paging['atoms'].filterFields.typeId = 1;
-    $scope.paging['atoms'].filterFields.treeNumber = 1;
+    $scope.paging['atoms'].filterFields.name = 1;
+    $scope.paging['atoms'].filterFields.codeId = 1;
+    $scope.paging['atoms'].filterFields.descriptorId = 1;
+    $scope.paging['atoms'].filterFields.conceptId = 1;
+    $scope.paging['atoms'].filterFields.termType = 1;
+    $scope.paging['atoms'].filterFields.codeId = 1;
+    $scope.paging['atoms'].filterFields.terminology = 1;
     $scope.paging['atoms'].sortAscending = false;
     $scope.paging['atoms'].callback = {
       getPagedList : getPagedAtoms
@@ -107,7 +113,8 @@ tsApp.controller('AtomsCtrl', [
       return utilService.getSortIndicator(table, field, $scope.paging);
     };
     
-    $scope.getAtomStatus = function(atom) {
+    // indicates the style for an atom
+    $scope.getAtomClass = function(atom) {
       
         // NEEDS_REVIEW (red)
         if (atom.workflowStatus == 'NEEDS_REVIEW') 
@@ -129,6 +136,36 @@ tsApp.controller('AtomsCtrl', [
         // REVIEWED READY_FOR_PUBLICATION (black)
         return 'READY_FOR_PUBLICATION';
         
+    }
+    
+    // selects an atom
+    $scope.selectAtom = function(event, atom) {
+      
+      if (event.ctrlKey) {
+        selectWithCtrl(atom);
+      } else {
+        $scope.selected.atoms = {};
+        $scope.selected.atoms[atom.id] = atom;
+      }
+    };
+
+    // selects or deselects additional atom
+    function selectWithCtrl(atom) {
+      if ($scope.selected.atoms[atom.id]) {
+        delete $scope.selected.atoms[atom.id];
+      } else {
+        $scope.selected.atoms[atom.id] = atom;
+      }
+    }
+
+    // indicates if a particular row is selected
+    $scope.isRowSelected = function(atom) {
+      return $scope.selected.atoms[atom.id];
+    }
+    
+    // indicates the number of atoms selected
+    $scope.getSelectedAtomCount = function() {
+      return Object.keys($scope.selected.atoms).length;
     }
     
     //
@@ -154,7 +191,7 @@ tsApp.controller('AtomsCtrl', [
         controller : 'AtomModalCtrl',
         resolve : {
           atom : function() {
-            return latom;
+            return null;
           },
           action : function() {
             return 'Add';
@@ -198,4 +235,120 @@ tsApp.controller('AtomsCtrl', [
         $scope.getPagedAtoms();
       });
     };
+
+
+    // Merge modal
+    $scope.openMergeModal = function() {
+      if ($scope.lists.concepts.length < 2) {
+        window.alert('Merge requires at least two concepts in the list.');
+        return;
+      }
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/edit/merge.html',
+        controller : 'MergeModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          action : function() {
+            return 'Merge';
+          },
+          user : function() {
+            return $scope.user;
+          }
+        }
+      });
+    
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        $scope.parentWindowScope.getRecords(false);
+        $scope.parentWindowScope.getConcepts($scope.selected.record);
+      });
+    };
+
+      // Move modal
+      $scope.openMoveModal = function() {
+        if ($scope.getSelectedAtomCount() < 1 || $scope.lists.concepts.length < 2) {
+          window.alert('Move requires at least one atom to be selected and at least two concepts to be in the concept list.');
+          return;
+        }
+        if ($scope.selected.concept.atoms.length == $scope.getSelectedAtomCount()) {
+          window.alert('Not all atoms can be selected for move.  Concept cannot be left empty.');
+          return;
+        }
+        var modalInstance = $uibModal.open({
+          templateUrl : 'app/page/edit/merge.html',
+          controller : 'MergeModalCtrl',
+          backdrop : 'static',
+          resolve : {
+            selected : function() {
+              return $scope.selected;
+            },
+            lists : function() {
+              return $scope.lists;
+            },
+            action : function() {
+              return 'Move';
+            },
+            user : function() {
+              return $scope.user;
+            }
+          }
+        });
+
+        modalInstance.result.then(
+        // Success
+        function(data) {
+          $scope.parentWindowScope.getRecords(false);
+          $scope.parentWindowScope.getConcepts($scope.selected.record, true);
+        });     
+    };
+    
+    
+    // Split modal
+    $scope.openSplitModal = function() {
+      if ($scope.getSelectedAtomCount() < 1) {
+        window.alert('Split requires at least one atom to be selected.');
+        return;
+      }
+      if ($scope.selected.concept.atoms.length == $scope.getSelectedAtomCount()) {
+        window.alert('Not all atoms can be selected for split.  Concept cannot be left empty.');
+        return;
+      }
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/edit/merge.html',
+        controller : 'MergeModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          action : function() {
+            return 'Split';
+          },
+          user : function() {
+            return $scope.user;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        $scope.parentWindowScope.getRecords(false);
+        $scope.parentWindowScope.getConcepts($scope.selected.record, true);
+      });
+      
+    
+  };
+
   } ]);

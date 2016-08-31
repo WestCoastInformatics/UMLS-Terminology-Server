@@ -78,7 +78,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
       sb.append(" AND workflowStatus:NEW AND NOT authors:[* TO *]");
     } else if (UserRole.REVIEWER == role) {
       sb.append(
-          " AND workflowStatus:EDITING_IN_PROGRESS AND NOT reviewers:[* TO *]");
+          " AND workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *]");
           /*"NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS");*/
     } else if (UserRole.ADMINISTRATOR == role) {
       // n/a, query as is.

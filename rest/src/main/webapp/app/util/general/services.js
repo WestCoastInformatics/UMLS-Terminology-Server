@@ -186,7 +186,7 @@ tsApp
           if (secs) {
             var date = new Date(null);
             date.setSeconds(secs);
-            date.toISOString().substr(11, 8);
+            return date.toISOString().substr(11, 8);
           }
 
           // if (d == 0)
@@ -294,22 +294,6 @@ tsApp
           }
         };
 
-        // function for sorting an array by (string) field and direction
-        this.sort_by = function(field, reverse) {
-
-          // key: function to return field value from object
-          var key = function(x) {
-            return x[field];
-          };
-
-          // convert reverse to integer (1 = ascending, -1 =
-          // descending)
-          reverse = !reverse ? 1 : -1;
-
-          return function(a, b) {
-            return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-          };
-        };
 
         // Helper function to get a standard paging object
         // overwritten as needed
@@ -380,17 +364,32 @@ tsApp
         // function for sorting an array by (string) field and direction
         this.sortBy = function(field, reverse) {
 
-          // key: function to return field value from object
-          var key = function(x) {
-            return x[field];
-          };
+          var fields = field.split(',');
 
+          // key: function to return field value from object
+          var keys = {};
+          for (var i = 0; i < fields.length; i++) {
+            var f = fields[i];
+            keys[f] = function(x) {
+              return x[f];
+            };
+          }
+          
           // convert reverse to integer (1 = ascending, -1 =
           // descending)
           reverse = !reverse ? 1 : -1;
 
           return function(a, b) {
-            return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+            for (var i = 0; i < fields.length; i++) {
+              var key = fields[i];
+              a = keys[key](a);
+              b = keys[key](b);
+              if (a == b) {
+                continue;
+              }
+              return reverse * ((a > b) - (b > a));
+            }
+            return 0;
           };
         };
 

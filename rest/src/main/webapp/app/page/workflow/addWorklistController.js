@@ -19,6 +19,7 @@ tsApp
 
         // Scope vars
         $scope.bin = bin;
+        $scope.selected = selected;
         $scope.clusterType = clusterType;
         $scope.availableClusterCt = availableClusterCt;
 
@@ -75,7 +76,7 @@ tsApp
             $scope.clusterType, pfs).then(
           // Success
           function(data) {
-            workflowService.fireWorklistChanged(data);
+            //workflowService.fireWorklistChanged(data);
             $scope.completionMessage += data.name;
             $scope.completionMessage += ' completed. \n';
             $scope.worklistsCompleted++;
