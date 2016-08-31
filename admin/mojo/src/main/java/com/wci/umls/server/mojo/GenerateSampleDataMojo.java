@@ -228,6 +228,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     project1.setFeedbackEmail("info@westcoastinformatics.com");
     project1.setName("NCI-META Editing " + new Date().getTime());
     project1.setPublic(true);
+    project1.setLanguage("ENG");
     project1.setTerminology(terminology);
     project1.setWorkflowPath(ConfigUtility.DEFAULT);
     List<String> newAtomTermgroups = new ArrayList<>();
