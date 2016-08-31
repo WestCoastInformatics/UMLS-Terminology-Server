@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
@@ -19,9 +18,6 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
  * This will be used for testing purposes only
  */
 public class WaitAlgorithm extends AbstractAlgorithm {
-
-  /** The properties. */
-  protected static Properties properties;
 
   /**
    * The number of times the algorithm will print to the log before finishing.
@@ -38,8 +34,6 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     setWorkId("WAIT");
     setUserName("admin");
 
-    // instantiate properties
-    properties = ConfigUtility.getConfigProperties();
   }
 
   /* see superclass */

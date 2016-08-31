@@ -17,7 +17,6 @@ import org.hibernate.Session;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;

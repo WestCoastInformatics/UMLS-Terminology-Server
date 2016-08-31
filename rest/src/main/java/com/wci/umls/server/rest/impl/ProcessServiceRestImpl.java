@@ -4,6 +4,7 @@
 package com.wci.umls.server.rest.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -20,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.AlgorithmConfig;
@@ -326,17 +328,21 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify that passed projectId matches ID of the processConfig's project
       verifyProject(processConfig, projectId);
 
-      // For each of the process' algorithms, populate the properties based on
-      // its parameters' values.
-      // TODO - actually pull algorithm instance
+      // For each of the process' algorithms, populate the parameters based on
+      // its properties' values.
       for (AlgorithmConfig algorithmConfig : processConfig.getSteps()) {
-        //TODO - get the instance
+        Algorithm instance = processService
+            .getAlgorithmInstance(algorithmConfig.getAlgorithmKey());
         algorithmConfig.setParameters(instance.getParameters());
         for (AlgorithmParameter param : algorithmConfig.getParameters()) {
-          //TODO - check value vs. values (non-comma delimited vs. comma-delimited)
-          if(algorithmConfig.getProperties().get(param.getFieldName() != null)){
-          param.setValue(algorithmConfig.getProperties().get(param.getFieldName()));
-          param.setValues
+          // Populate both Value and Values (UI will determine which is required
+          // for each algorithm type)
+          if (algorithmConfig.getProperties()
+              .get(param.getFieldName()) != null) {
+            param.setValue(
+                algorithmConfig.getProperties().get(param.getFieldName()));
+            param.setValues(new ArrayList<String>(Arrays.asList(algorithmConfig
+                .getProperties().get(param.getFieldName()).split(","))));
           }
         }
       }
@@ -382,8 +388,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "finding process configs", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      //TODO - go through and set steps to empty list for all returned processConfigs
-      
+      ProcessConfigList processConfigs =
+          processService.findProcessConfigs(projectId, query, pfs);
+
+      // Set steps to empty list for all returned processConfigs
+      for (ProcessConfig processConfig : processConfigs.getObjects()) {
+        processConfig.setSteps(new ArrayList<AlgorithmConfig>());
+      }
+
       return processService.findProcessConfigs(projectId, query, pfs);
 
     } catch (Exception e) {
@@ -450,9 +462,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Populate the algorithm's properties based on its parameters' values.
       for (AlgorithmParameter param : algorithmConfig.getParameters()) {
-        // TODO - map either Value OR Values (comma-delimited)
-        algorithmConfig.getProperties().put(param.getFieldName(),
-            param.getValue());
+        // Note: map either Value OR Values (comma-delimited)
+        if (!param.getValues().isEmpty()) {
+          algorithmConfig.getProperties().put(param.getFieldName(),
+              StringUtils.join(param.getValues(), ','));
+        } else if (!param.getValue().isEmpty()) {
+          algorithmConfig.getProperties().put(param.getFieldName(),
+              param.getValue());
+        } else {
+          throw new Exception(
+              "Parameter " + param + " does not have valid value(s).");
+        }
       }
 
       // Add algorithmConfig
@@ -667,6 +687,21 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify that passed projectId matches ID of the algorithmConfig's
       // project
       verifyProject(algorithmConfig, projectId);
+
+      // Populate the parameters based on its properties' values.
+      Algorithm instance = processService
+          .getAlgorithmInstance(algorithmConfig.getAlgorithmKey());
+      algorithmConfig.setParameters(instance.getParameters());
+      for (AlgorithmParameter param : algorithmConfig.getParameters()) {
+        // Populate both Value and Values (UI will determine which is required
+        // for each algorithm type)
+        if (algorithmConfig.getProperties().get(param.getFieldName()) != null) {
+          param.setValue(
+              algorithmConfig.getProperties().get(param.getFieldName()));
+          param.setValues(new ArrayList<String>(Arrays.asList(algorithmConfig
+              .getProperties().get(param.getFieldName()).split(","))));
+        }
+      }
 
       return algorithmConfig;
     } catch (Exception e) {
