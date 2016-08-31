@@ -25,6 +25,7 @@ tsApp.controller('FinderModalCtrl', [
     };
     $scope.searchResults = [];
     $scope.errors = [];
+    $scope.metadata = metadataService.getModel();
 
     // Send concept back to edit controller
     $scope.addConcept = function(concept) {
