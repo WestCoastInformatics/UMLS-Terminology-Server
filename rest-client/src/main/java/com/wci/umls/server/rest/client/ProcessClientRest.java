@@ -384,49 +384,4 @@ public class ProcessClientRest extends RootClientRest
     return releaseAlgorithms;
   }
 
-  /**
-   * Returns the predefined processes.
-   *
-   * @param authToken the auth token
-   * @return the predefined processes
-   * @throws Exception the exception
-   */
-  @Override
-  public StringList getPredefinedProcesses(String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /* see superclass */
-  @Override
-  public Long runPredefinedProcess(Long projectId, String id, Properties p,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /* see superclass */
-  @Override
-  public Long runProcessConfig(Long projectId, Long processConfigId,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /* see superclass */
-  @Override
-  public int lookupProgress(Long projectId, Long processExecutionId,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
-  /* see superclass */
-  @Override
-  public boolean cancelProcessExecution(Long projectId, Long processExecutionId,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
 }

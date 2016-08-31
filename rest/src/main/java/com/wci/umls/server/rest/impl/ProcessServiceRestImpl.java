@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -27,15 +26,16 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
-import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
+import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
@@ -68,11 +68,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /** The security service. */
   private SecurityService securityService;
 
-  /** The lookup progress map. */
-  private static Map<Long, Integer> lookupProgressMap;
+  /** The lookup process execution progress map. */
+  private static Map<Long, Integer> lookupPeProgressMap;
 
-  /** The lookup process map. */
-  private static Map<Long, Algorithm> lookupProcessMap;
+  /** The lookup algorithm execution progress map. */
+  private static Map<Long, Integer> lookupAeProgressMap;
+
+  /** The map of which algorithm a process is currently running. */
+  private static Map<Long, Algorithm> processAlgorithmMap;
 
   /**
    * Instantiates an empty {@link ProcessServiceRestImpl}.
@@ -81,8 +84,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
    */
   public ProcessServiceRestImpl() throws Exception {
     securityService = new SecurityServiceJpa();
-    lookupProgressMap = new HashMap<Long, Integer>();
-    lookupProcessMap = new HashMap<Long, Algorithm>();
+    lookupPeProgressMap = new HashMap<Long, Integer>();
+    lookupAeProgressMap = new HashMap<Long, Integer>();
+    processAlgorithmMap = new HashMap<Long, Algorithm>();
   }
 
   /**
@@ -799,6 +803,93 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */  
+  @Override
+  @POST
+  @Path("/config/{id}/execute")
+  @ApiOperation(value = "Execute a process configuration", notes = "Execute the specified process configuration")
+  public Long executeProcess(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "ProcessConfig id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Background, e.g. true", required = true) @QueryParam("background") Boolean background,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Process): /config/" + id + "/execute, for user " + authToken);
+ 
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "execute processConfig", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+
+      // Load processConfig object
+      ProcessConfig processConfig = processService.getProcessConfig(id);
+
+      // Make sure processConfig exists
+      if (processConfig == null) {
+        throw new Exception("ProcessConfig " + id + " does not exist");
+      }
+
+      // Verify that passed projectId matches ID of the processConfig's project
+      verifyProject(processConfig, projectId);
+
+      // Make sure this processConfig is not already running
+      if(processService.findProcessExecutions(projectId, "processConfigId:" + processConfig.getId(), null).size()!=0){
+        throw new Exception("There is already a currently running execution of process " + id);
+      }
+      
+      // Create a new process Execution
+      ProcessExecution execution = new ProcessExecutionJpa();
+      
+      final Exception[] exceptions = new Exception[1];
+      Thread t = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+          //SourceDataHandler handler = null;
+          try {
+//            // instantiate the handler
+//            Class<?> sourceDataHandlerClass =
+//                Class.forName(sourceData.getHandler());
+//            handler = (SourceDataHandler) sourceDataHandlerClass.newInstance();
+//            handler.setLastModifiedBy(userName);
+//            handler.setSourceData(sourceData);
+//            handler.remove();
+
+          } catch (Exception e) {
+//            handleException(e,
+//                " during removal of loaded data from source data");
+          } finally {
+//            if (handler != null) {
+//              try {
+//                handler.close();
+//              } catch (Exception e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//              }
+//            }
+          }
+        }
+      });
+      if (background != null && background == true) {
+        t.start();
+        return 1L;
+      } else {
+        t.join();
+        if (exceptions[0] != null) {
+          throw new Exception(exceptions[0]);
+        }
+      }
+    }  catch (Exception e) {
+      handleException(e, "trying to remove a processConfig");
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+    return 1L;
+  }
+
   // /* see superclass */
   // @Override
   // @PUT
@@ -1068,87 +1159,5 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   // }
   // }
 
-  /**
-   * Returns the predefined processes.
-   *
-   * @param authToken the auth token
-   * @return the predefined processes
-   * @throws Exception the exception
-   */
-  /* see superclass */
-  @Override
-  public StringList getPredefinedProcesses(String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * Run predefined process.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param p the p
-   * @param authToken the auth token
-   * @return the long
-   * @throws Exception the exception
-   */
-  /* see superclass */
-  @Override
-  public Long runPredefinedProcess(Long projectId, String id, Properties p,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * Run process config.
-   *
-   * @param projectId the project id
-   * @param processConfigId the process config id
-   * @param authToken the auth token
-   * @return the long
-   * @throws Exception the exception
-   */
-  /* see superclass */
-  @Override
-  public Long runProcessConfig(Long projectId, Long processConfigId,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * Lookup progress.
-   *
-   * @param projectId the project id
-   * @param processExecutionId the process execution id
-   * @param authToken the auth token
-   * @return the int
-   * @throws Exception the exception
-   */
-  /* see superclass */
-  @Override
-  public int lookupProgress(Long projectId, Long processExecutionId,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
-  /**
-   * Cancel process execution.
-   *
-   * @param projectId the project id
-   * @param processExecutionId the process execution id
-   * @param authToken the auth token
-   * @return true, if successful
-   * @throws Exception the exception
-   */
-  /* see superclass */
-  @Override
-  public boolean cancelProcessExecution(Long projectId, Long processExecutionId,
-    String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return false;
-  }
 
 }
