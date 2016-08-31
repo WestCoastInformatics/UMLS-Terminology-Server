@@ -244,7 +244,6 @@ public class UmlsIdentityLoaderAlgorithm
             in.close();
             return;
           }
-          logInfo(line);
 
           final String[] fields = FieldedStringTokenizer.split(line, "|");
           final RelationshipIdentity identity = new RelationshipIdentityJpa();
