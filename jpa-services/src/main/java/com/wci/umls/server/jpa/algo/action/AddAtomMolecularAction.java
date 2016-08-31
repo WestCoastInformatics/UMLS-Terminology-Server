@@ -8,7 +8,6 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
-import com.wci.umls.server.jpa.services.handlers.LuceneNormalizedStringHandler;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
@@ -85,7 +84,7 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     }
 
     // Check preconditions
-    validationResult.merge(super.checkPreconditions()); 
+    validationResult.merge(super.checkPreconditions());
     validationResult.merge(super.validateAtom(getProject(), getAtom()));
     return validationResult;
   }
@@ -111,8 +110,8 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // Get normalization handler
     final LexicalClass lexClass = new LexicalClassJpa();
-    lexClass.setNormalizedName(new LuceneNormalizedStringHandler()
-        .getNormalizedString(atom.getName()));
+    lexClass.setLanguage(atom.getLanguage());
+    lexClass.setNormalizedName(getNormalizedString(atom.getName()));
     atom.setLexicalClassId(handler.getTerminologyId(lexClass));
 
     final String altId = handler.getTerminologyId(atom);
@@ -133,13 +132,14 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // Add the atom to concept
     getConcept().getAtoms().add(atom);
-    
+
     // update the concept
     updateConcept(getConcept());
 
     // log the REST call
     addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(), getName() + " to concept " + getConcept().getId() + " " + atom);
+        getActivityId(), getWorkId(),
+        getName() + " to concept " + getConcept().getId() + " " + atom);
 
   }
 

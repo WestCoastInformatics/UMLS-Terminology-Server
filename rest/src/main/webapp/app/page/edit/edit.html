@@ -56,9 +56,8 @@
               Last Modified
               <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
             </span></th>
-
           <!-- Actions header -->
-          <th class="col-md-2 col-xs-2"">Actions</th>
+          <th class="col-md-2 col-xs-2">Actions</th>
         </tr>
 
       </thead>
@@ -69,8 +68,6 @@
 
           <td>{{worklist.name}}</td>
           <td>{{toDate(worklist.lastModified)}}</td>
-
-          <td ng-show="type == 'Worklist'">{{getWorkflowState(worklist)}}</td>
 
           <!--  actions -->
           <td class="nobreak">
@@ -94,18 +91,17 @@
                 class="noul glyphicon glyphicon-hand-left"></i>
 
               <i
-                ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
+                ng-show="worklist.workflowStatus != 'REVIEW_DONE' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
                 ng-click="openFinishWorkflowModal(worklist);" title="Finish"
+                class="noul glyphicon glyphicon-ok"></i>
+              <i
+                ng-show="worklist.workflowStatus == 'REVIEW_DONE' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
+                ng-click="performWorkflowAction(worklist, 'FINISH');" title="Finish"
                 class="noul glyphicon glyphicon-ok"></i>
             </span>
             &nbsp;
           </td>
         </tr>
-      </tbody>
-
-      <!--  actions -->
-      <td ng-show="selected.worklistMode != 'Checklists'"></td>
-      </tr>
       </tbody>
     </table>
     <!-- Basic Worklist info -->
@@ -236,16 +232,21 @@
       <button ng-click="openStyWindow()" title="Stys"
         ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">STY</button>
+      <button ng-click="openAtomsWindow()" title="Stys"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
+        class="btn btn-xs btn-primary">Atoms</button>  
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveConcept(selected.concept)" title="Approve"
         ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Approve</button>
+      <button ng-click="next()" title="Next"
+        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
+        class="btn btn-xs btn-primary">Next</button>
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveNext()" title="Approve/Next"
         ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Approve/Next</button>
-      <button confirm="Are you sure you want to merge the selected concept?"
-        ng-click="openMergeModal()" title="Merge"
+      <button ng-click="openMergeModal()" title="Merge"
         ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
         class="btn btn-xs btn-primary">Merge</button>
     </span>

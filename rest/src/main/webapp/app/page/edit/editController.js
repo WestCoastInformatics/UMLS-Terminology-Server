@@ -407,7 +407,7 @@ tsApp
           if ($scope.lists.records.totalCount > $scope.paging['records'].pageSize
             * $scope.paging['records'].page) {
             $scope.paging['records'].page += 1;
-            $scope.getRecords($scope.selected.worklist, true);
+            $scope.getRecords(true);
           } else {
             // TODO; somehow notify sty window that no more records are
             // available so msg can be displayed
@@ -455,7 +455,7 @@ tsApp
 
         // Get $scope.lists.records
         $scope.getRecords = function(selectFirst) {
-          getRecords();
+          getRecords(selectFirst);
         }
         function getRecords(selectFirst) {
           var paging = $scope.paging['records'];
@@ -472,9 +472,15 @@ tsApp
 
             // Handle status
             if (value == 'N') {
-              pfs.queryRestriction += (pfs.queryRestriction ? ' AND ' : '') + ' workflowStatus:N*';
+              if (pfs.queryRestriction != null)
+                pfs.queryRestriction += ' AND workflowStatus:N*';
+              else
+                pfs.queryRestriction = 'workflowStatus:N*';
             } else if (value == 'R') {
-              pfs.queryRestriction += (pfs.queryRestriction ? ' AND ' : '') + ' workflowStatus:R*';
+              if (pfs.queryRestriction != null)
+                pfs.queryRestriction += ' AND workflowStatus:R*';
+              else
+                pfs.queryRestriction = 'workflowStatus:R*';
             }
           }
 
@@ -619,6 +625,9 @@ tsApp
         // Approves all selector concepts and moves on to next record
         $scope.approveNext = function() {
           for (var i = 0; i < $scope.lists.concepts.length; i++) {
+            if (!$scope.lists.concepts[i].id) {
+              continue;
+            }
             // ignore the websocket event from this.
             websocketService.incrementConceptIgnore($scope.lists.concepts[i].id);
             $scope.approveConcept($scope.lists.concepts[i]).then(
@@ -627,6 +636,11 @@ tsApp
               $scope.getRecords();
             });
           }
+          $scope.selectNextRecord($scope.selected.record);
+        }
+        
+        // Moves to next record without approving selected record
+        $scope.next = function() {
           $scope.selectNextRecord($scope.selected.record);
         }
 
@@ -652,6 +666,20 @@ tsApp
           return utilService.toTime(editingTime);
         };
 
+        $scope.performWorkflowAction = function(worklist, action) {
+          workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
+            $scope.user.userName, $scope.selected.projectRole, action).then(
+          // Success
+          function(data) {
+            $scope.getWorklists();
+            $scope.clearLists();
+          },
+          // Error
+          function(data) {
+            utilService.handleDialogError($scope.errors, data);
+          });
+        }
+        
         // open semantic type editor window
         $scope.openStyWindow = function() {
 
@@ -662,6 +690,18 @@ tsApp
             'width=600, height=600');
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
+        };
+        
+        // open atoms editor window
+        $scope.openAtomsWindow = function() {
+
+          var newUrl = utilService.composeUrl('edit/atoms');
+          window.$windowScope = $scope;
+
+          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow',
+            'width=1000, height=600');
+          $scope.windows['atom'].document.title = 'Atoms Editor';
+          $scope.windows['atom'].focus();
         };
 
         // closes child windows when term server tab is closed
@@ -688,6 +728,10 @@ tsApp
 
         // Merge modal
         $scope.openMergeModal = function() {
+          if ($scope.lists.concepts.length < 2) {
+            window.alert('Merge requires at least two concepts in the list.');
+            return;
+          }
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/merge.html',
             controller : 'MergeModalCtrl',
@@ -698,6 +742,9 @@ tsApp
               },
               lists : function() {
                 return $scope.lists;
+              },
+              action : function() {
+                return 'Merge';
               },
               user : function() {
                 return $scope.user;
@@ -755,10 +802,13 @@ tsApp
           });
 
         };
+        
+        
 
         // Add time modal
         $scope.openFinishWorkflowModal = function(lworklist) {
           console.debug('openFinishWorkflowModal ', lworklist);
+          
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/finishWorkflow.html',
             controller : 'FinishWorkflowModalCtrl',
@@ -787,6 +837,37 @@ tsApp
 
         };
 
+        // Move modal
+        $scope.openMoveModal = function() {
+          
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/merge.html',
+            controller : 'MergeModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              action : function() {
+                return 'Move';
+              },
+              user : function() {
+                return $scope.user;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {
+            $scope.getRecords(false);
+            $scope.getConcepts($scope.selected.record, true);
+          });
+        };  
+          
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //

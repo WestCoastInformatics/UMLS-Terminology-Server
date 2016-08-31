@@ -28,6 +28,7 @@ tsApp.controller('SemanticTypesCtrl', [
     window.$windowScope = $scope;
     $scope.selected = $scope.parentWindowScope.selected;
 
+    // sty lists
     $scope.fullStys = [];
     $scope.stysForDisplay = [];
     
@@ -35,27 +36,16 @@ tsApp.controller('SemanticTypesCtrl', [
     $scope.paging = {};
     $scope.paging['stys'] = utilService.getPaging();
     $scope.paging['stys'].sortField = 'typeId';
-    $scope.paging['stys'].ascending = true;
     $scope.paging['stys'].pageSize = 5;
     $scope.paging['stys'].filterFields = {};
     $scope.paging['stys'].filterFields.expandedForm = 1;
     $scope.paging['stys'].filterFields.typeId = 1;
     $scope.paging['stys'].filterFields.treeNumber = 1;
+    $scope.paging['stys'].sortAscending = false;
     $scope.paging['stys'].callback = {
       getPagedList : getPagedStys
     };
-    /*$scope.visibleSize = 4;
-    $scope.pageSize = 5;
-    $scope.paging = {};
-    $scope.paging['stys'] = {
-      page : 1,
-      filter : '',
-      typeFilter : '',
-      filterFields : {'expandedForm' : 1, 'typeId' : 1, 'treeNumber' : 1},
-      sortField : 'typeId',
-      ascending : true,
-      pageSize : $scope.pageSize
-    };*/
+
     
     $scope.$watch('selected.concept', function() {
       console.debug('in watch');
@@ -105,6 +95,11 @@ tsApp.controller('SemanticTypesCtrl', [
     // approve next
     $scope.approveNext = function() {
       $scope.parentWindowScope.approveNext();
+    }
+    
+    // next
+    $scope.next = function() {
+      $scope.parentWindowScope.next();
     }
 
     // refresh

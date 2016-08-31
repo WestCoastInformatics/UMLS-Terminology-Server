@@ -79,7 +79,8 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
       sb.append(" AND workflowStatus:NEW AND NOT authors:[* TO *]");
     } else if (UserRole.REVIEWER == role) {
       sb.append(
-          " AND workflowStatus:EDITING_IN_PROGRESS AND NOT reviewers:[* TO *]");
+          " AND workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *]");
+          /*"NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS");*/
     } else if (UserRole.ADMINISTRATOR == role) {
       // n/a, query as is.
     } else {
@@ -313,7 +314,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
       algo.setProject(worklist.getProject());
       algo.setTerminology(worklist.getProject().getTerminology());
       algo.setActivityId(worklist.getName());
-      algo.setUserName(userName);
+      algo.setUserName("S-" + userName);
       final ValidationResult result = algo.checkPreconditions();
       if (!result.isValid()) {
         throw new LocalException("Stamping failed - " + result.getErrors());

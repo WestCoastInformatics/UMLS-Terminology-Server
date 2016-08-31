@@ -54,7 +54,16 @@
             ng-click="project.terminology=''">Clear</button>
         </td>
       </tr>
-
+      <tr>
+        <td>
+          <b>Language</b>
+        </td>
+        <td>
+          <span><select ng-model="project.language"
+            ng-options="item.key as item.value for item in metadata.languages"></select>  </span>        
+          <span>{{project.language}}</span>
+        </td>
+      </tr>
     </table>
   </div>
   <div class="row">

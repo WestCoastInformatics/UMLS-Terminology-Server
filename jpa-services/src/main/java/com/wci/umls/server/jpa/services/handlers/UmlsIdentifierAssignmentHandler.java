@@ -174,6 +174,7 @@ public class UmlsIdentifierAssignmentHandler
       synchronized (LOCK) {
         // Create LexicalClassIdentity and populate from the lexicalClass.
         final LexicalClassIdentity identity = new LexicalClassIdentityJpa();
+        identity.setLanguage(lexicalClass.getLanguage());
         identity.setNormalizedName(lexicalClass.getNormalizedName());
 
         final LexicalClassIdentity identity2 =
@@ -550,7 +551,7 @@ public class UmlsIdentifierAssignmentHandler
    * @return the string
    * @throws Exception the exception
    */
-  private String convertId(Long id, String type) throws Exception {
+  public String convertId(Long id, String type) throws Exception {
     if (!prefixMap.containsKey(type) && !lengthMap.containsKey(type)) {
       throw new Exception("Identifier type " + type + " is not configured");
     }

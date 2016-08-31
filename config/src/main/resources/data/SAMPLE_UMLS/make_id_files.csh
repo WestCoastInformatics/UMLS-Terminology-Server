@@ -91,23 +91,23 @@ endif
 
 # Lexical class identity
 #  id|normString
-#
+# PREREQUISITE: LVG is installed at LVG_HOME listed below
 echo "  Compute lexical class identity for MRCONSO"
-setenv LVG_HOME d:/data/lvg2016
+setenv LVG_HOME c:/data/lvg2016
 /bin/rm -f lexicalClassIdentity.txt
 # handle ENG
-perl -ne '($d, $language, $d, $id, $d, $d, $d, $d, $d, $d, $d, $d, $d, $d, $string) = split /\|/; $id =~ s/L0*//; print "$id|$string\n" if $language eq "ENG";' MRCONSO.RRF | $LVG_HOME/bin/luiNorm.bat -t:2 | cut -d\| -f 1,3 | sed 's/$/\|/' | sort -u -o lexicalClassIdentity.txt
+perl -ne '($d, $language, $d, $id, $d, $d, $d, $d, $d, $d, $d, $d, $d, $d, $string) = split /\|/; $id =~ s/L0*//; print "$id|$language|$string\n" if $language eq "ENG";' MRCONSO.RRF | $LVG_HOME/bin/luiNorm.bat -t:3 | cut -d\| -f 1,2,4 | sed 's/$/\|/' | sort -u -o lexicalClassIdentity.txt
 if ($status != 0) then
 	echo "ERROR handling MRCONSO.RRF for LUI - ENG"
 	exit 1
 endif
 # verify that we don't have the same norm string for 2 different LUIs - e.g. norm string should be unique in the file
-cut -d\| -f 2 lexicalClassIdentity.txt | sort | uniq -d | sed 's/$/\\\|\$/; s/^/\\\|/;' >! x.$$
-egrep -f x.$$ lexicalClassIdentity.txt | sort -n | perl -ne 'chop; @_=split/\|/; if ($map{$_[1]}) { $_[1] = "$_[1]$map{$_[1]}";} $map{$_[1]}++; print join "|", @_; print "|\n";' >! y.$$
+cut -d\| -f 3 lexicalClassIdentity.txt | sort | uniq -d | sed 's/$/\\\|\$/; s/^/\\\|/;' >! x.$$
+egrep -f x.$$ lexicalClassIdentity.txt | sort -n | perl -ne 'chop; @_=split/\|/; if ($map{$_[2]}) { $_[2] = "$_[2]$map{$_[2]}";} $map{$_[2]}++; print join "|", @_; print "|\n";' >! y.$$
 egrep -v -f x.$$ lexicalClassIdentity.txt | grep -v '289447|carinu pneumocystis|' >> y.$$
 /bin/mv -f y.$$ lexicalClassIdentity.txt
 /bin/rm -f x.$$
-if (`cut -d\| -f 2 lexicalClassIdentity.txt | sort | uniq -d | wc -l` > 0) then
+if (`cut -d\| -f 3 lexicalClassIdentity.txt | sort | uniq -d | wc -l` > 0) then
 	echo "ERROR problem with lexicalClassIdentity.txt"
 	exit 1
 endif
@@ -117,7 +117,7 @@ if (`cut -d\| -f 1 lexicalClassIdentity.txt  | sort | uniq -d | wc -l` > 0) then
 endif
 
 # handle non-ENG
-perl -ne '($d, $language, $d, $id, $d, $d, $d, $d, $d, $d, $d, $d, $d, $d, $string) = split /\|/; $id =~ s/L0*//; print "$id|$string|\n" if $language ne "ENG";' MRCONSO.RRF | sort -u >> lexicalClassIdentity.txt
+perl -ne '($d, $language, $d, $id, $d, $d, $d, $d, $d, $d, $d, $d, $d, $d, $string) = split /\|/; $id =~ s/L0*//; print "$id|$language|$string|\n" if $language ne "ENG";' MRCONSO.RRF | sort -u >> lexicalClassIdentity.txt
 if ($status != 0) then
 	echo "ERROR handling MRCONSO.RRF for LUI - non ENG"
 	exit 1
@@ -136,10 +136,12 @@ lib/inverseRui.pl MRREL.RRF | sort -t\| -k 2,2 -o mrrel.txt
 join -t\| -j 2 -o 1.1 2.1 mrrel.txt mrrel.txt | perl -ne 'chop; @_ = split /\|/; print "$_\n" if $_[0] ne $_[1];' | sort -u -o inverseRui.txt
 /bin/rm -f mrrel.txt rel.txt rela.txt
 
-if (`cut -d\| -f 1 inverseRui.txt | sort | uniq -d | wc -l` > 1) then
-	echo "ERROR: duplicate inverse RUIs in MRREL, try using fixMrrel.pl"
-	exit 1
-endif
+#if (`cut -d\| -f 1 inverseRui.txt | sort | uniq -d | wc -l` > 1) then
+#	echo "ERROR: duplicate inverse RUIs in MRREL, try using fixMrrel.pl"
+#	exit 1
+#endif
+
+# verify each RUI is in inverse_ruis
 
 # C0000039|A0016511|AUI|SY|C0000039|A1317687|AUI|permuted_term_of|R28482429||MSH|MSH|||N||
 #
@@ -149,6 +151,12 @@ if ($status != 0) then
 	echo "ERROR handling MRREL.RRF"
 	exit 1
 endif
+
+if (`perl -ne '@_=split/\|/; print unless $_[11]' relationshipIdentity.txt | wc -l` > 0) then
+	echo "ERROR blank inverseRui in relationshipIdentity
+endif
+
+
 /bin/rm -f inverseRui.txt mrrel.txt rel.txt rela.txt
 
 echo "------------------------------------------"

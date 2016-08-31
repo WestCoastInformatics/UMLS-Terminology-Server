@@ -106,6 +106,7 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("name");
     tester.include("description");
+    tester.include("organization");
     tester.include("terminology");
     tester.include("branch");
     tester.include("public");

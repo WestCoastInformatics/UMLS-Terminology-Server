@@ -44,6 +44,20 @@ public interface Project extends HasLastModified {
   public void setDescription(String description);
 
   /**
+   * Returns the organization.
+   * 
+   * @return the organization
+   */
+  public String getOrganization();
+
+  /**
+   * Sets the organization.
+   * 
+   * @param organization the organization
+   */
+  public void setOrganization(String organization);
+
+  /**
    * Checks if the project is viewable by public roles.
    *
    * @return true, if is public
@@ -225,5 +239,33 @@ public interface Project extends HasLastModified {
    * @param workflowPath the workflow path
    */
   public void setWorkflowPath(String workflowPath);
+
+  /**
+   * Sets the new atom termgroups.
+   *
+   * @param newAtomTermgroups the new atom termgroups
+   */
+  public void setNewAtomTermgroups(List<String> newAtomTermgroups);
+
+  /**
+   * Returns the new atom termgroups.
+   *
+   * @return the new atom termgroups
+   */
+  public List<String> getNewAtomTermgroups();
+
+  /**
+   * Returns the language.
+   *
+   * @return the language
+   */
+  public String getLanguage();
+
+  /**
+   * Sets the language.
+   *
+   * @param language the language
+   */
+  public void setLanguage(String language);
 
 }

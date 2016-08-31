@@ -277,3 +277,15 @@ hr {
 .EMBRYO {
 	color: green;
 }
+
+.OBSOLETE {
+	color: purple;
+}
+
+.UNRELEASABLE {
+	color: green;
+}
+
+.RXNORM {
+	color: orange;
+}
