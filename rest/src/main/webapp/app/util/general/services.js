@@ -294,8 +294,6 @@ tsApp
           }
         };
 
-        // function for sorting an array by (string) field and direction
-        this.sortBy = function(field, reverse) {
 
         // Helper function to get a standard paging object
         // overwritten as needed
