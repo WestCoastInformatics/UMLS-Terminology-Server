@@ -231,8 +231,10 @@ public class EqualsHashcodeTester extends ProxyTester {
 
       if (o1.hashCode() == o2.hashCode()) {
         // if equals, fail here
-        Logger.getLogger(getClass()).info("  o1 = " + o1);
-        Logger.getLogger(getClass()).info("  o2 = " + o2);
+        Logger.getLogger(getClass())
+            .info("  o1 = " + o1.hashCode() + ", " + o1);
+        Logger.getLogger(getClass())
+            .info("  o2 = " + o2.hashCode() + ", " + o2);
         throw new Exception(
             "Hashcode did not change when field " + fieldName + " was changed");
       }

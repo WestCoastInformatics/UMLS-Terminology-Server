@@ -16,6 +16,7 @@ tsApp.service('securityService', [
       userName : null,
       password : null,
       name : null,
+      email : null,
       authToken : null,
       applicationRole : null,
       userPreferences : null
@@ -121,6 +122,7 @@ tsApp.service('securityService', [
     this.setUser = function(data) {
       user.userName = data.userName;
       user.name = data.name;
+      user.email = data.email;
       user.authToken = data.authToken;
       user.password = "";
       user.applicationRole = data.applicationRole;
@@ -203,7 +205,7 @@ tsApp.service('securityService', [
       console.trace();
       return false;
     };
-    
+
     // isAdmin function
     this.isAdmin = function() {
       return user.applicationRole === 'ADMINISTRATOR';

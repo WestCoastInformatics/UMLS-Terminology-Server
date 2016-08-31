@@ -205,7 +205,6 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("projectId");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("timestamp");
     tester.include("team");
     tester.include("epoch");
     tester.include("workflowStatus");

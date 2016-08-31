@@ -4,8 +4,15 @@
   <!-- R1C1 -->
   <div class="col-md-6 col-xs-12">
 
-    <div pager paging="paging['worklists']" count="worklists.totalCount"
-      callback="paging['worklists'].callback"></div>
+    <span style="float: right;">
+      <!-- Import -->
+      <i ng-show="type == 'Checklist'" ng-click="openImportModal(); "
+        title="Import or compute checklist"
+        class="noul glyphicon glyphicon-check"></i>
+    </span>
+    <div style="display: inline" pager paging="paging['worklists']"
+      count="worklists.totalCount" callback="paging['worklists'].callback">
+    </div>
 
     <!-- Basic Worklist info -->
     <span ng-show="worklists.totalCount == 0" style="display: block;"
@@ -88,6 +95,7 @@
           <td ng-show="type == 'Worklist'">{{getWorkflowState(worklist)}}</td>
 
           <!--  actions -->
+
           <td class="nobreak">
             <i title="Remove" ng-show="!worklist.staged"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
@@ -168,8 +176,16 @@
               <div log selected="selected" type="{{type}}"></div>
             </td>
           </tr>
-
-
+          <tr>
+            <td>
+              <b>Export</b>
+            </td>
+            <td>
+              <!-- Export -->
+              <i ng-click="exportList(selected.worklist);"
+                title="Export {{type}}" class="noul glyphicon glyphicon-export"></i>
+            </td>
+          </tr>
           <tr ng-show="type == 'Worklist'">
             <td>
               <b>Workflow Bin</b>
@@ -230,13 +246,39 @@
             </td>
             <td>{{selected.worklist.stats.clusterCt}}/{{selected.worklist.stats.conceptCt}}</td>
           </tr>
-          <tr ng-repeat="state in stateHistory">
+
+          <tr
+            ng-repeat="state in stateHistory">
             <td>
               <b>{{state.name}} date:</b>
             </td>
             <td>{{toDate(state.timestamp)}}</td>
           </tr>
 
+          <tr ng-show="type == 'Worklist'">
+            <td>
+              <b>Concept Reports</b>
+            </td>
+            <td>
+              <span ng-show="worklistReport && !reportRefresh">
+                <a ng-click="getGeneratedConceptReport()">{{worklistReport}}</a>
+                &nbsp;
+                <i ng-click="removeGeneratedConceptReport(selected.worklist);"
+                  title="Remove report" class="noul glyphicon glyphicon-trash"></i>
+              </span>
+              <span ng-show="!worklistReport && reportRefresh">
+                <i ng-click="findGeneratedReports();"
+                  title="Refresh concept report generation status"
+                  class="noul glyphicon glyphicon-refresh"></i>
+                ...Generating...
+              </span>
+              <span ng-show="!worklistReport && !reportRefresh">
+                <button ng-click="generateConceptReport(selected.worklist);"
+                  title="Generate concept report" class="btn btn-xs btn-primary">Generate
+                  Report</button>
+              </span>
+            </td>
+          </tr>
         </tbody>
       </table>
 

@@ -7,7 +7,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -19,6 +21,7 @@ import org.junit.Test;
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
@@ -37,16 +40,28 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
   private AlgorithmConfigJpa object;
 
   /** The test fixture p1. */
-  private ProcessConfig p1;
+  private Project p1;
 
   /** The test fixture p2. */
-  private ProcessConfig p2;
+  private Project p2;  
+  
+  /** The test fixture pc1. */
+  private ProcessConfig pc1;
+
+  /** The test fixture pc2. */
+  private ProcessConfig pc2;
 
   /** The test fixture l1. */
   private List<AlgorithmParameter> l1;
 
   /** The test fixture l2. */
   private List<AlgorithmParameter> l2;
+
+  /** The test fixture m1. */
+  private Map<String, String> m1;
+
+  /** The test fixture m2. */
+  private Map<String, String> m2;
 
   /**
    * Setup class.
@@ -64,15 +79,26 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
   public void setup() throws Exception {
     object = new AlgorithmConfigJpa();
 
-    p1 = new ProcessConfigJpa();
+
+    p1 = new ProjectJpa();
     p1.setId(1L);
-    p2 = new ProcessConfigJpa();
+    p2 = new ProjectJpa();
     p2.setId(2L);
+    pc1 = new ProcessConfigJpa();
+    pc1.setId(1L);
+    pc2 = new ProcessConfigJpa();
+    pc2.setId(2L);
     ProxyTester tester = new ProxyTester(new AlgorithmParameterJpa());
     l1 = new ArrayList<>();
     l1.add((AlgorithmParameter) tester.createObject(1));
     l2 = new ArrayList<>();
     l2.add((AlgorithmParameter) tester.createObject(2));
+
+    m1 = new HashMap<>();
+    m1.put("1", "1");
+    m2 = new HashMap<>();
+    m2.put("1", "2");
+    m2.put("2", "3");
   }
 
   /**
@@ -85,6 +111,7 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("processId");
+    tester.exclude("projectId");
     tester.test();
   }
 
@@ -99,19 +126,26 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("algorithmKey");
     tester.include("name");
+    tester.include("project");
     tester.include("description");
     tester.include("process");
     tester.include("terminology");
     tester.include("version");
+    tester.include("properties");
 
     // This is not a real getter, skip it
     tester.exclude("processId");
+    tester.exclude("projectId");
 
     // Set up objects
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-    tester.proxy(ProcessConfig.class, 1, p1);
-    tester.proxy(ProcessConfig.class, 2, p2);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
+    tester.proxy(Project.class, 1, p1);
+    tester.proxy(Project.class, 2, p2);
+    tester.proxy(ProcessConfig.class, 1, pc1);
+    tester.proxy(ProcessConfig.class, 2, pc2);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -135,8 +169,12 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     // Set up objects
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-    tester.proxy(ProcessConfig.class, 1, p1);
-    tester.proxy(ProcessConfig.class, 2, p2);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
+    tester.proxy(Project.class, 1, p1);
+    tester.proxy(Project.class, 2, p2);
+    tester.proxy(ProcessConfig.class, 1, pc1);
+    tester.proxy(ProcessConfig.class, 2, pc2);
 
     assertTrue(tester.testCopyConstructor(AlgorithmConfig.class));
   }
@@ -152,7 +190,8 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // Set up objects
     tester.proxy(List.class, 1, l1);
-    tester.proxy(ProcessConfig.class, 1, p1);
+    tester.proxy(Project.class, 1, p1);
+    tester.proxy(ProcessConfig.class, 1, pc1);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -191,6 +230,7 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
 
     // Test non analyzed fields - none
     tester = new IndexedFieldTester(object);
+    // No indexed Fields
     // assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }
@@ -206,11 +246,14 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     XmlSerializationTester tester = new XmlSerializationTester(object);
     // Set up objects
     tester.proxy(List.class, 1, l1);
-    tester.proxy(ProcessConfig.class, 1, p1);
+    tester.proxy(Project.class, 1, p1);
+    tester.proxy(ProcessConfig.class, 1, pc1);
     final AlgorithmConfig config = (AlgorithmConfig) tester.createObject(1);
     final String xml = ConfigUtility.getStringForGraph(config);
     assertTrue(xml.contains("<processId>"));
     assertFalse(xml.contains("<process>"));
+    assertTrue(xml.contains("<projectId>"));
+    assertFalse(xml.contains("<project>"));
   }
 
   /**

@@ -113,7 +113,8 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
   /* see superclass */
   @Override
   public String toString() {
-    return "AlgorithmConfigJpa [process=" + process + "] " + super.toString();
+    return "AlgorithmConfigJpa [processId=" + getProcessId() + "] "
+        + super.toString();
   }
 
 }

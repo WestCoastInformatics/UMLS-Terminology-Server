@@ -79,24 +79,26 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
     // Cannot change any field that would affect the identity of the atom:
     // codeId, conceptId, descriptorId, stringClassId, termType, terminology,
     // terminologyId
-    Atom oldAtom = getAtom(atom.getId());
+    final Atom oldAtom = getAtom(atom.getId());
 
-    List<String> identityFieldGetMethods = Arrays.asList("getCodeId",
-        "getConceptId", "getDescriptorId", "getStringClassId", "getTermType",
-        "getTerminology", "getTerminologyId");
+    // The only fields that should be getting updated through here is
+    // "suppressible", "obsolete", "publishable", or "workflowStauts"
+    // If any other field is changing, error out.
+    List<String> changeAllowedGetMethods = Arrays.asList("isSuppressible",
+        "isObsolete", "isPublishable", "getWorkflowStatus");
 
     List<Method> allGetMethods =
         IndexUtility.getAllColumnGetMethods(AtomJpa.class);
 
     for (Method method : allGetMethods) {
-      if (identityFieldGetMethods.contains(method.getName())) {
+      if (!changeAllowedGetMethods.contains(method.getName())) {
         final Object origValue = method.invoke(oldAtom);
         final Object newValue = method.invoke(getAtom());
         if (!origValue.toString().equals(newValue.toString())) {
           final String fieldName =
               method.toString().substring(3, 4).toLowerCase()
                   + method.toString().substring(4);
-          throw new Exception("Error: change deteced in identity-field "
+          throw new Exception("Error: change detected in unexpected field "
               + fieldName + " for atom " + atom.getName());
         }
       }
@@ -113,12 +115,12 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
   public void compute() throws Exception {
     //
     // Perform the "adding an atom" (contentService will create atomic "adding
-    // an atom"s for CRUD
-    // operations)
+    // an atom"s for CRUD operations)
     //
 
-    // Change status of the atom
-    if (getChangeStatusFlag()) {
+    // Let the update choose the new workflow status for the atom, unless null
+    // then set to needs review
+    if (atom.getWorkflowStatus() == null) {
       atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
 

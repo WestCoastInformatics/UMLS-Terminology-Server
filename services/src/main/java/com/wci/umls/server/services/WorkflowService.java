@@ -492,6 +492,15 @@ public interface WorkflowService extends ContentService {
     throws Exception;
 
   /**
+   * Lookup tracking record concepts.
+   *
+   * @param record the record
+   * @throws Exception the exception
+   */
+  public void lookupTrackingRecordConcepts(TrackingRecord record)
+    throws Exception;
+
+  /**
    * Handle lazy init.
    *
    * @param checklist the checklist

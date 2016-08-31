@@ -21,6 +21,10 @@ public interface AlgorithmParameter extends HasName, HasLastModified {
 
     /** boolean type. */
     BOOLEAN,
+
+    /** integer type. */
+    INTEGER,
+
     /** string type. */
     STRING,
     /** text type */

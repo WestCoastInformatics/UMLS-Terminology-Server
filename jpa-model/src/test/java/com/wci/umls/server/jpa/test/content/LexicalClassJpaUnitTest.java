@@ -79,6 +79,7 @@ public class LexicalClassJpaUnitTest extends ModelUnitSupport {
     tester.include("terminologyId");
     tester.include("version");
 
+    tester.include("language");
     tester.include("name");
     tester.include("normalizedName");
 
@@ -134,6 +135,7 @@ public class LexicalClassJpaUnitTest extends ModelUnitSupport {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("name");
+    tester.include("language");
     tester.include("workflowStatus");
 
     assertTrue(tester.testNotNullFields());

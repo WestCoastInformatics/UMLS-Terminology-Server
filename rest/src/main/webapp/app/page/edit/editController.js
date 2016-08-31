@@ -3,11 +3,9 @@ tsApp
   .controller('EditCtrl',
     [
       '$scope',
-      '$http',
       '$location',
       '$window',
       '$q',
-      'gpService',
       'tabService',
       'configureService',
       'securityService',
@@ -21,10 +19,9 @@ tsApp
       'metaEditingService',
       'contentService',
       '$uibModal',
-      function($scope, $http, $location, $window, $q, gpService, tabService, configureService,
-        securityService, workflowService, utilService, websocketService, configureService,
-        projectService, metadataService, reportService, metaEditingService, contentService,
-        $uibModal) {
+      function($scope, $location, $window, $q, tabService, configureService, securityService,
+        workflowService, utilService, websocketService, configureService, projectService,
+        metadataService, reportService, metaEditingService, contentService, $uibModal) {
         console.debug("configure EditCtrl");
 
         // Set up tabs and controller
@@ -94,7 +91,30 @@ tsApp
           getPagedList : getRecords
         };
 
-        $scope.errors = [];
+        // Handle workflow changes
+        $scope.$on('termServer::checklistChange', function(event, data) {
+          if (data.id == $scope.selected.project.id) {
+            // Checklists changed, refresh checklists list if showing
+            if ($scope.selected.worklistMode == 'Checklists') {
+              $scope.getWorklists();
+            } else {
+              $scope.getChecklistCt();
+            }
+
+          }
+        });
+
+        $scope.$on('termServer::worklistChange', function(event, data) {
+          if (data.id == $scope.selected.project.id) {
+            // Worklists changed, refresh worklists if not checklists tab
+            if ($scope.selected.worklistMode != 'Checklists') {
+              $scope.getWorklists();
+            } else {
+              $scope.getAssignedWorklistCt();
+              $scope.getAvailableWorklistCt();
+            }
+          }
+        });
 
         // Handle changes from actions performed by this user
         $scope.$on('termServer::conceptChange', function(event, concept) {
@@ -180,7 +200,7 @@ tsApp
           } else if ($scope.selected.worklistMode == 'Assigned') {
             $scope.getAssignedWorklists();
           } else if ($scope.selected.worklistMode == 'Checklists') {
-            $scope.findChecklists();
+            $scope.getChecklists();
           }
         }
 
@@ -257,7 +277,7 @@ tsApp
         };
 
         // Find checklists
-        $scope.findChecklists = function() {
+        $scope.getChecklists = function() {
           var paging = $scope.paging['worklists'];
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
@@ -363,14 +383,14 @@ tsApp
         $scope.getConcepts = function(record, selectFirst) {
           $scope.lists.concepts = [];
           for (var i = 0; i < record.concepts.length; i++) {
-              contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
-                function(data) {
-                  $scope.lists.concepts.push(data);
-                  $scope.lists.concepts.sort(utilService.sortBy('id'));
-                  // Select first, when the first concept is loaded
-                  if (selectFirst && data.id == record.concepts[0].id) {
-                    $scope.selectConcept($scope.lists.concepts[0]);
-                  }
+            contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
+              function(data) {
+                $scope.lists.concepts.push(data);
+                $scope.lists.concepts.sort(utilService.sortBy('id'));
+                // Select first, when the first concept is loaded
+                if (selectFirst && data.id == record.concepts[0].id) {
+                  $scope.selectConcept($scope.lists.concepts[0]);
+                }
               });
           }
         }
@@ -766,7 +786,7 @@ tsApp
           // Success
           function(data) {
             // return if concept is already on concept list
-            for (var i=0; i<$scope.lists.concepts.length; i++) {
+            for (var i = 0; i < $scope.lists.concepts.length; i++) {
               if ($scope.lists.concepts[i].id == data.id) {
                 window.alert('Concept ' + data.id + ' is already on the concept list.');
                 return;

@@ -45,6 +45,24 @@ tsApp.controller('WorkflowCtrl', [
       recordTypes : workflowService.getRecordTypes()
     }
 
+    // Handle worklist actions
+    $scope.$on('termServer::binsChange', function(event, project) {
+      if (project.id == $scope.selected.project.id) {
+        // Bins changed, refresh bins
+        $scope.getBins();
+      }
+    });
+
+    // $scope.$on('termServer::checklistChange', -- n/a, no action on checklist
+    // change
+
+    $scope.$on('termServer::worklistChange', function(event, data) {
+      if (data.id == $scope.selected.project.id) {
+        // could affect worklist bin counts
+        $scope.getBins();
+      }
+    });
+
     // Paging parameters
     $scope.resetPaging = function() {
       $scope.paging = utilService.getPaging();

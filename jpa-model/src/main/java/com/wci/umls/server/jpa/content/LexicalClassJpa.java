@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -41,6 +41,10 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
   @Column(nullable = true, length = 4000)
   private String normalizedName;
 
+  /** The language. */
+  @Column(nullable = false)
+  String language;
+
   /** The label sets. */
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(nullable = true)
@@ -61,6 +65,7 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
    */
   public LexicalClassJpa(LexicalClass lexicalClass, boolean deepCopy) {
     super(lexicalClass, deepCopy);
+    language = lexicalClass.getLanguage();
     normalizedName = lexicalClass.getNormalizedName();
     if (lexicalClass.getLabels() != null) {
       labels = new ArrayList<>(lexicalClass.getLabels());
@@ -107,12 +112,23 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
 
   /* see superclass */
   @Override
+  public String getLanguage() {
+    return language;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLanguage(String language) {
+    this.language = language;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime * result
-            + ((normalizedName == null) ? 0 : normalizedName.hashCode());
+    result = prime * result + ((language == null) ? 0 : language.hashCode());
+    result = prime * result
+        + ((normalizedName == null) ? 0 : normalizedName.hashCode());
     return result;
   }
 
@@ -126,12 +142,23 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     if (getClass() != obj.getClass())
       return false;
     LexicalClassJpa other = (LexicalClassJpa) obj;
+    if (language == null) {
+      if (other.language != null)
+        return false;
+    } else if (!language.equals(other.language))
+      return false;
     if (normalizedName == null) {
       if (other.normalizedName != null)
         return false;
     } else if (!normalizedName.equals(other.normalizedName))
       return false;
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return "LexicalClassJpa [normalizedName=" + normalizedName + ", language="
+        + language + ", labels=" + labels + "]";
   }
 
 }

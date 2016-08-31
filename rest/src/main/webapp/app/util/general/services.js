@@ -40,7 +40,7 @@ tsApp
             return '';
           }
 
-          // Add a * to the filter if set and doesn't contain a :
+          // Add a * to the filter if set and doesn't contain a : ( or "
           if (query.indexOf("(") == -1 && query.indexOf(":") == -1 && query.indexOf("\"") == -1) {
             var query2 = query.concat('*');
             return encodeURIComponent(query2);
@@ -294,6 +294,8 @@ tsApp
           }
         };
 
+        // function for sorting an array by (string) field and direction
+        this.sortBy = function(field, reverse) {
 
         // Helper function to get a standard paging object
         // overwritten as needed
@@ -374,7 +376,6 @@ tsApp
               return x[f];
             };
           }
-          
           // convert reverse to integer (1 = ascending, -1 =
           // descending)
           reverse = !reverse ? 1 : -1;

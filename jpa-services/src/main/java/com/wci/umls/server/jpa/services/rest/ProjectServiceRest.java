@@ -23,14 +23,6 @@ import com.wci.umls.server.model.actions.MolecularActionList;
 public interface ProjectServiceRest {
 
   /**
-   * Reload config properties.
-   *
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
-  public void reloadConfigProperties(String authToken) throws Exception;
-
-  /**
    * Adds the project.
    *
    * @param project the project
@@ -234,4 +226,23 @@ public interface ProjectServiceRest {
    * @throws Exception the exception
    */
   public StringList getQueryTypes(String authToken) throws Exception;
+
+  /**
+   * Force an exception.
+   *
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void reloadConfigProperties(String authToken) throws Exception;
+
+  /**
+   * Force an exception.
+   *
+   * @param localFlag the local flag
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void forceException(Boolean localFlag, String authToken)
+    throws Exception;
+
 }

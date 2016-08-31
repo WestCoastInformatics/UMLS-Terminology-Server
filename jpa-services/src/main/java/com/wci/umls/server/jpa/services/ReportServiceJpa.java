@@ -37,9 +37,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
     throws Exception {
 
     final StringBuilder sb = new StringBuilder();
-    sb.append("\n").append("CN# ");
+    sb.append("\r\n").append("CN# ");
     sb.append(concept.getId()).append(" ");
-    sb.append(concept.getName()).append("\n");
+    sb.append(concept.getName()).append("\r\n");
 
     // get all concept terminology ids associated with the atoms in this concept
     final List<String> conceptTerminologyIds = new ArrayList<>();
@@ -57,18 +57,18 @@ public class ReportServiceJpa extends HistoryServiceJpa
     sb.append("CUI ");
     sb.append(concept.getTerminologyId()).append("\t");
     sb.append("Concept Status is ")
-        .append(getStatusChar(concept.getWorkflowStatus())).append("\n");
+        .append(getStatusChar(concept.getWorkflowStatus())).append("\r\n");
     for (final String id : conceptTerminologyIds) {
-      sb.append(id).append("\n");
+      sb.append(id).append("\r\n");
     }
 
     sb.append("STY ");
     for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
       sb.append(sty.getSemanticType()).append("\t");
-      sb.append(getStatusChar(sty.getWorkflowStatus())).append("\n");
+      sb.append(getStatusChar(sty.getWorkflowStatus())).append("\r\n");
     }
 
-    sb.append("ATOMS").append("\n");
+    sb.append("ATOMS").append("\r\n");
 
     for (final Atom atom : concept.getAtoms()) {
       sb.append("   ");
@@ -78,9 +78,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(atom.getTerminology()).append("_").append(atom.getVersion())
           .append("/"); // TODO how to append terminology/version
       sb.append(atom.getTermType()).append("/");
-      sb.append(atom.getCodeId()).append("]").append("\n");
+      sb.append(atom.getCodeId()).append("]").append("\r\n");
     }
-    sb.append("\n");
+    sb.append("\r\n");
 
     return sb.toString();
   }

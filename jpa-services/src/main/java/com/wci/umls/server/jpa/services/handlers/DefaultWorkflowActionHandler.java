@@ -15,6 +15,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.algo.maint.StampingAlgorithm;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -306,6 +307,20 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     }
 
     service.updateWorklist(worklist);
+
+    // Stamp the worklist if "REVIEW_DONE"
+    if (worklist.getWorkflowStatus() == WorkflowStatus.REVIEW_DONE) {
+      final StampingAlgorithm algo = new StampingAlgorithm();
+      algo.setProject(worklist.getProject());
+      algo.setTerminology(worklist.getProject().getTerminology());
+      algo.setActivityId(worklist.getName());
+      algo.setUserName("S-" + userName);
+      final ValidationResult result = algo.checkPreconditions();
+      if (!result.isValid()) {
+        throw new LocalException("Stamping failed - " + result.getErrors());
+      }
+      algo.compute();
+    }
 
     return worklist;
   }

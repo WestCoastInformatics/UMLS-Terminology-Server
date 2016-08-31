@@ -255,7 +255,7 @@ public class AlgorithmExecutionJpa extends
   @Override
   public String toString() {
     return "AlgorithmExecutionJpa [startDate=" + startDate + ", finishDate="
-        + finishDate + ", failDate=" + failDate + ", process=" + process
+        + finishDate + ", failDate=" + failDate + ", processId=" + getProcessId()
         + ", activityId=" + activityId + ", algorithmConfigId="
         + algorithmConfigId + "] " + super.toString();
   }
