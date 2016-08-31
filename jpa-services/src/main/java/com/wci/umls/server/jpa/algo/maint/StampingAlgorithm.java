@@ -111,6 +111,15 @@ public class StampingAlgorithm extends AbstractAlgorithm {
     // n/a - No reset
   }
 
+  /**
+   * Sets the worklist id.
+   *
+   * @param worklistId the worklist id
+   */
+  public void setWorklistId(Long worklistId) {
+    this.worklistId = worklistId;
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
