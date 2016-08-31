@@ -18,6 +18,7 @@ import org.junit.Test;
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.Project;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
@@ -246,6 +247,36 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         addedAlgorithmConfig2.getId(), authToken));
 
   }
+  
+
+  /**
+   * Test get predefined algorithms.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testGetPredefinedAlgorithms() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Get the insertion Algorithms
+    KeyValuePairList insertionAlgorithms = processService.getInsertionAlgorithms(project.getId(), authToken);
+
+    // TEST: make sure insertion Algorithms were returned
+    assertNotNull(insertionAlgorithms);
+
+    // Get the maintenance Algorithms
+    KeyValuePairList maintenanceAlgorithms = processService.getMaintenanceAlgorithms(project.getId(), authToken);
+
+    // TEST: make sure maintenance Algorithms were returned
+    assertNotNull(maintenanceAlgorithms);
+    
+    // Get the release Algorithms
+    KeyValuePairList releaseAlgorithms = processService.getReleaseAlgorithms(project.getId(), authToken);
+
+    // TEST: make sure release Algorithms were returned
+    assertNotNull(releaseAlgorithms);
+
+  }  
   
   /**
    * Teardown.

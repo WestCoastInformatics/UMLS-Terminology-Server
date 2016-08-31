@@ -16,6 +16,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -111,6 +112,14 @@ public class ProjectJpa implements Project {
   @Column(nullable = false)
   private String terminology;
 
+  /**  The language. */
+  @Column(nullable = false)
+  private String language;
+  
+  /**  The new atom termgroups. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  private List<String> newAtomTermgroups;
+
   // Version?
   // "latest" is implied, and the actual next version is managed by "release
   // info"
@@ -191,6 +200,8 @@ public class ProjectJpa implements Project {
     precedenceList = project.getPrecedenceList();
     validCategories = project.getValidCategories();
     semanticTypeCategoryMap = project.getSemanticTypeCategoryMap();
+    language = project.getLanguage();
+    newAtomTermgroups = project.getNewAtomTermgroups();
   }
 
   /* see superclass */
@@ -372,6 +383,18 @@ public class ProjectJpa implements Project {
   public void setBranch(String branch) {
     this.branch = branch;
   }
+  
+  /* see superclass */
+  @Override
+  public String getLanguage() {
+    return language;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLanguage(String language) {
+    this.language = language;
+  }
 
   /* see superclass */
   @Override
@@ -511,6 +534,18 @@ public class ProjectJpa implements Project {
 
   /* see superclass */
   @Override
+  public void setNewAtomTermgroups(List<String> newAtomTermgroups) {
+    this.newAtomTermgroups = newAtomTermgroups;
+  }
+
+  /* see superclass */
+  @Override
+  public List<String> getNewAtomTermgroups() {
+    return this.newAtomTermgroups;
+  }
+  
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -596,7 +631,7 @@ public class ProjectJpa implements Project {
         + ", branch=" + branch + ", userRoleMap=" + userRoleMap
         + ", feedbackEmail=" + feedbackEmail + ", precedenceList="
         + precedenceList + ", validationChecks=" + validationChecks
-        + ", workflowPath=" + workflowPath + "]";
+        + ", workflowPath=" + workflowPath + ", language=" + language + "]";
   }
 
 }

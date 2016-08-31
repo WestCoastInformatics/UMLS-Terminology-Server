@@ -4,6 +4,7 @@
 package com.wci.umls.server.rest.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -20,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.AlgorithmConfig;
@@ -139,15 +141,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Add processConfig
       final ProcessConfig newProcessConfig =
           processService.addProcessConfig(processConfig);
-
-      // For each of the process' algorithms, populate the properties based on
-      // its parameters' values.
-      for (AlgorithmConfig algorithmConfig : newProcessConfig.getSteps()) {
-        for (AlgorithmParameter param : algorithmConfig.getParameters()) {
-          algorithmConfig.getProperties().put(param.getFieldName(),
-              param.getValue());
-        }
-      }
 
       processService.addLogEntry(userName, projectId, processConfig.getId(),
           null, null, "ADD processConfig - " + processConfig);
@@ -335,12 +328,22 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify that passed projectId matches ID of the processConfig's project
       verifyProject(processConfig, projectId);
 
-      // For each of the process' algorithms, populate the properties based on
-      // its parameters' values.
+      // For each of the process' algorithms, populate the parameters based on
+      // its properties' values.
       for (AlgorithmConfig algorithmConfig : processConfig.getSteps()) {
+        Algorithm instance = processService
+            .getAlgorithmInstance(algorithmConfig.getAlgorithmKey());
+        algorithmConfig.setParameters(instance.getParameters());
         for (AlgorithmParameter param : algorithmConfig.getParameters()) {
-          algorithmConfig.getProperties().put(param.getFieldName(),
-              param.getValue());
+          // Populate both Value and Values (UI will determine which is required
+          // for each algorithm type)
+          if (algorithmConfig.getProperties()
+              .get(param.getFieldName()) != null) {
+            param.setValue(
+                algorithmConfig.getProperties().get(param.getFieldName()));
+            param.setValues(new ArrayList<String>(Arrays.asList(algorithmConfig
+                .getProperties().get(param.getFieldName()).split(","))));
+          }
         }
       }
 
@@ -376,7 +379,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call POST (Content): /config " + query);
+        .info("RESTful call POST (Process): /config " + query);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -384,6 +387,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           authorizeProject(processService, projectId, securityService,
               authToken, "finding process configs", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
+
+      ProcessConfigList processConfigs =
+          processService.findProcessConfigs(projectId, query, pfs);
+
+      // Set steps to empty list for all returned processConfigs
+      for (ProcessConfig processConfig : processConfigs.getObjects()) {
+        processConfig.setSteps(new ArrayList<AlgorithmConfig>());
+      }
 
       return processService.findProcessConfigs(projectId, query, pfs);
 
@@ -451,8 +462,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Populate the algorithm's properties based on its parameters' values.
       for (AlgorithmParameter param : algorithmConfig.getParameters()) {
-        algorithmConfig.getProperties().put(param.getFieldName(),
-            param.getValue());
+        // Note: map either Value OR Values (comma-delimited)
+        if (!param.getValues().isEmpty()) {
+          algorithmConfig.getProperties().put(param.getFieldName(),
+              StringUtils.join(param.getValues(), ','));
+        } else if (!param.getValue().isEmpty()) {
+          algorithmConfig.getProperties().put(param.getFieldName(),
+              param.getValue());
+        } else {
+          throw new Exception(
+              "Parameter " + param + " does not have valid value(s).");
+        }
       }
 
       // Add algorithmConfig
@@ -668,6 +688,21 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // project
       verifyProject(algorithmConfig, projectId);
 
+      // Populate the parameters based on its properties' values.
+      Algorithm instance = processService
+          .getAlgorithmInstance(algorithmConfig.getAlgorithmKey());
+      algorithmConfig.setParameters(instance.getParameters());
+      for (AlgorithmParameter param : algorithmConfig.getParameters()) {
+        // Populate both Value and Values (UI will determine which is required
+        // for each algorithm type)
+        if (algorithmConfig.getProperties().get(param.getFieldName()) != null) {
+          param.setValue(
+              algorithmConfig.getProperties().get(param.getFieldName()));
+          param.setValues(new ArrayList<String>(Arrays.asList(algorithmConfig
+              .getProperties().get(param.getFieldName()).split(","))));
+        }
+      }
+
       return algorithmConfig;
     } catch (Exception e) {
       handleException(e, "trying to get a algorithmConfig");
@@ -745,8 +780,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/release");
+    Logger.getLogger(getClass()).info("RESTful call (Process): /algo/release");
 
     final ProcessService processService = new ProcessServiceJpa();
     try {

@@ -46,9 +46,7 @@ tsApp
           validationChecks : []
         }
 
-        // Metadata
-        $scope.metadata = metadataService.getModel();
-
+       
         // Track user preferences changes
         $scope.changed = {
           feedbackEmail : false
@@ -411,7 +409,7 @@ tsApp
         };
 
         // Add project controller
-        var AddProjectModalCtrl = function($scope, $uibModalInstance, metadata, user,
+        var AddProjectModalCtrl = function($scope, $uibModalInstance, user,
           validationChecks) {
 
           // Scope variables
@@ -420,14 +418,22 @@ tsApp
           $scope.project = {
             feedbackEmail : user.userPreferences.feedbackEmail
           };
-          $scope.terminologies = metadata.terminologies;
-          $scope.metadata = metadata;
+          $scope.metadata = metadataService.getModel();
           $scope.user = user;
           $scope.validationChecks = validationChecks;
           $scope.availableChecks = [];
           $scope.selectedChecks = [];
           $scope.errors = [];
 
+          // get metadata
+          var version = metadataService.getTerminologyVersion("UMLS");
+          var termToSet = metadataService.getTerminology("UMLS", version); 
+          metadataService.setTerminology(termToSet).then(function() {
+            console.debug("metadata", $scope.metadata);
+          });
+
+          $scope.terminologies = $scope.metadata.terminologies;
+          
           // Wire default validation check 'on' by default
           for (var i = 0; i < $scope.validationChecks.length; i++) {
             if ($scope.validationChecks[i].value.startsWith('Default')) {
@@ -538,19 +544,26 @@ tsApp
         };
 
         // Edit project modal controller
-        var EditProjectModalCtrl = function($scope, $uibModalInstance, project, metadata,
+        var EditProjectModalCtrl = function($scope, $uibModalInstance, project, 
           validationChecks) {
 
           // Scope variables
           $scope.action = 'Edit';
           $scope.project = project;
-          $scope.metadata = metadata;
-          $scope.terminologies = metadata.terminologies;
           $scope.validationChecks = validationChecks;
           $scope.availableChecks = [];
           $scope.selectedChecks = [];
           $scope.errors = [];
+          $scope.metadata = metadataService.getModel();
 
+          // get metadata
+          var version = metadataService.getTerminologyVersion("UMLS");
+          var termToSet = metadataService.getTerminology("UMLS", version); 
+          metadataService.setTerminology(termToSet).then(function() {
+            console.debug("metadata", $scope.metadata);
+          });
+
+          $scope.terminologies = $scope.metadata.terminologies;
           // Attach validation checks
           for (var i = 0; i < $scope.validationChecks.length; i++) {
             if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {

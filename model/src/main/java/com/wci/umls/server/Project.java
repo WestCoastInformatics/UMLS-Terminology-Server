@@ -240,4 +240,32 @@ public interface Project extends HasLastModified {
    */
   public void setWorkflowPath(String workflowPath);
 
+  /**
+   * Sets the new atom termgroups.
+   *
+   * @param newAtomTermgroups the new atom termgroups
+   */
+  public void setNewAtomTermgroups(List<String> newAtomTermgroups);
+
+  /**
+   * Returns the new atom termgroups.
+   *
+   * @return the new atom termgroups
+   */
+  public List<String> getNewAtomTermgroups();
+
+  /**
+   * Returns the language.
+   *
+   * @return the language
+   */
+  public String getLanguage();
+
+  /**
+   * Sets the language.
+   *
+   * @param language the language
+   */
+  public void setLanguage(String language);
+
 }
