@@ -70,6 +70,7 @@ public class LexicalClassIdentityJpaUnitTest extends ModelUnitSupport {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
     tester.include("normalizedName");
+    tester.include("language");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -113,6 +114,7 @@ public class LexicalClassIdentityJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
 
+    tester.include("language");
     tester.include("normalizedName");
     tester.include("normalizedNameHash");
 

@@ -313,7 +313,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
       algo.setProject(worklist.getProject());
       algo.setTerminology(worklist.getProject().getTerminology());
       algo.setActivityId(worklist.getName());
-      algo.setUserName(userName);
+      algo.setUserName("S-" + userName);
       final ValidationResult result = algo.checkPreconditions();
       if (!result.isValid()) {
         throw new LocalException("Stamping failed - " + result.getErrors());

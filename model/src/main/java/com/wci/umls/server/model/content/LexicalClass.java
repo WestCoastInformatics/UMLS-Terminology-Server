@@ -22,4 +22,18 @@ public interface LexicalClass extends AtomClass {
    * @param normalizedString the normalized string
    */
   public void setNormalizedName(String normalizedString);
+
+  /**
+   * Sets the language.
+   *
+   * @param language the language
+   */
+  public void setLanguage(String language);
+
+  /**
+   * Returns the language.
+   *
+   * @return the language
+   */
+  public String getLanguage();
 }

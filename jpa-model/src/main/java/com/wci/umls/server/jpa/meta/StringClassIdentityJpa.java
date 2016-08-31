@@ -19,7 +19,7 @@ import com.wci.umls.server.model.meta.StringClassIdentity;
 
 @Entity
 @Table(name = "string_class_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "nameHash", "language", "name"
+    "nameHash", "language", "id"
 }))
 @XmlRootElement(name = "stringIdentity")
 public class StringClassIdentityJpa implements StringClassIdentity {

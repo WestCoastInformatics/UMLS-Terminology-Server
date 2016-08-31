@@ -44,6 +44,20 @@ public interface Project extends HasLastModified {
   public void setDescription(String description);
 
   /**
+   * Returns the organization.
+   * 
+   * @return the organization
+   */
+  public String getOrganization();
+
+  /**
+   * Sets the organization.
+   * 
+   * @param organization the organization
+   */
+  public void setOrganization(String organization);
+
+  /**
    * Checks if the project is viewable by public roles.
    *
    * @return true, if is public

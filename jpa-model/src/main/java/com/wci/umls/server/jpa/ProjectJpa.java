@@ -95,6 +95,10 @@ public class ProjectJpa implements Project {
   @Column(nullable = false)
   private String description;
 
+  /** The organization. */
+  @Column(nullable = true)
+  private String organization;
+
   /** Whether this project is viewable by public roles. */
   @Column(nullable = false)
   private boolean isPublic = false;
@@ -177,6 +181,7 @@ public class ProjectJpa implements Project {
     timestamp = project.getTimestamp();
     name = project.getName();
     description = project.getDescription();
+    organization = project.getOrganization();
     isPublic = project.isPublic();
     teamBased = project.isTeamBased();
     terminology = project.getTerminology();
@@ -278,6 +283,18 @@ public class ProjectJpa implements Project {
   @Override
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  /* see superclass */
+  @Override
+  public String getOrganization() {
+    return organization;
+  }
+
+  /* see superclass */
+  @Override
+  public void setOrganization(String organization) {
+    this.organization = organization;
   }
 
   /* see superclass */
@@ -500,6 +517,8 @@ public class ProjectJpa implements Project {
     result = prime * result + ((branch == null) ? 0 : branch.hashCode());
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
+    result =
+        prime * result + ((organization == null) ? 0 : organization.hashCode());
     result = prime * result + (isPublic ? 1231 : 1237);
     result = prime * result + (teamBased ? 1231 : 1237);
     result = prime * result
@@ -535,6 +554,11 @@ public class ProjectJpa implements Project {
         return false;
     } else if (!description.equals(other.description))
       return false;
+    if (organization == null) {
+      if (other.organization != null)
+        return false;
+    } else if (!organization.equals(other.organization))
+      return false;
     if (isPublic != other.isPublic)
       return false;
     if (teamBased != other.teamBased)
@@ -567,11 +591,12 @@ public class ProjectJpa implements Project {
   public String toString() {
     return "ProjectJpa [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", name=" + name
-        + ", description=" + description + ", isPublic=" + isPublic
-        + ", terminology=" + terminology + ", branch=" + branch
-        + ", userRoleMap=" + userRoleMap + ", feedbackEmail=" + feedbackEmail
-        + ", precedenceList=" + precedenceList + ", validationChecks="
-        + validationChecks + ", workflowPath=" + workflowPath + "]";
+        + ", description=" + description + ", organization=" + organization
+        + ", isPublic=" + isPublic + ", terminology=" + terminology
+        + ", branch=" + branch + ", userRoleMap=" + userRoleMap
+        + ", feedbackEmail=" + feedbackEmail + ", precedenceList="
+        + precedenceList + ", validationChecks=" + validationChecks
+        + ", workflowPath=" + workflowPath + "]";
   }
 
 }

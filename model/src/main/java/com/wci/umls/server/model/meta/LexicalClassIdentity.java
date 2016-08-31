@@ -24,4 +24,18 @@ public interface LexicalClassIdentity extends HasId {
    */
   public void setNormalizedName(String normalizedName);
 
+  /**
+   * Returns the language.
+   *
+   * @return the language
+   */
+  public String getLanguage();
+
+  /**
+   * Sets the language.
+   *
+   * @param language the language
+   */
+  public void setLanguage(String language);
+
 }

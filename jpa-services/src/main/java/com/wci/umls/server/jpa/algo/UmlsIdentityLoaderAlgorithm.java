@@ -216,7 +216,8 @@ public class UmlsIdentityLoaderAlgorithm
           final String[] fields = FieldedStringTokenizer.split(line, "|");
           final LexicalClassIdentity identity = new LexicalClassIdentityJpa();
           identity.setId(Long.valueOf(fields[0]));
-          identity.setNormalizedName(fields[1]);
+          identity.setLanguage(fields[1]);
+          identity.setNormalizedName(fields[2]);
           service.addLexicalClassIdentity(identity);
           if (++ct % commitCt == 0) {
             service.commitClearBegin();
