@@ -210,9 +210,14 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     project1.setFeedbackEmail("info@westcoastinformatics.com");
     project1.setName("NCI-META Editing " + new Date().getTime());
     project1.setPublic(true);
+    project1.setLanguage("ENG");
     project1.setTerminology(terminology);
     project1.setWorkflowPath(ConfigUtility.DEFAULT);
-
+    List<String> newAtomTermgroups = new ArrayList<>();
+    newAtomTermgroups.add("MTH/PN");
+    newAtomTermgroups.add("NCIMTH/PN");
+    project1.setNewAtomTermgroups(newAtomTermgroups);
+    
     // Configure valid categories
     final List<String> validCategories = new ArrayList<>();
     validCategories.add("chem");
