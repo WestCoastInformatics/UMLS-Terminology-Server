@@ -839,8 +839,21 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         throw new Exception("There is already a currently running execution of process " + id);
       }
       
-      // Create a new process Execution
+      // Create and set up a new process Execution
       ProcessExecution execution = new ProcessExecutionJpa();
+      
+      execution.setDescription(processConfig.getDescription());
+      execution.setFeedbackEmail(processConfig.getFeedbackEmail());
+      execution.setName(processConfig.getName());
+      execution.setProcessConfigId(processConfig.getId());
+      execution.setProject(processConfig.getProject());
+      execution.setTerminology(processConfig.getTerminology());
+      execution.setVersion(processConfig.getVersion());
+      //TODO
+      //execution.setWorkId(workId);
+      //execution.setSteps(steps);
+      
+      processService.addProcessExecution(execution);
       
       final Exception[] exceptions = new Exception[1];
       Thread t = new Thread(new Runnable() {

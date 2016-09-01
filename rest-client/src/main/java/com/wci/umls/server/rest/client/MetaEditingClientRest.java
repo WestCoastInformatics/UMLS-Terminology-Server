@@ -433,7 +433,7 @@ public class MetaEditingClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/meta/concept/move?projectId=" + projectId + "&conceptId="
+        + "/meta/atom/move?projectId=" + projectId + "&conceptId="
         + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
         + "&lastModified=" + lastModified + "&conceptId2=" + conceptId2
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
