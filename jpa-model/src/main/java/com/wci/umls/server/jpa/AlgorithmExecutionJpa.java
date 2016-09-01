@@ -60,10 +60,6 @@ public class AlgorithmExecutionJpa extends
   @Column(nullable = true)
   private String activityId;
 
-  /** The enabled. */
-  @Column(nullable = false)
-  private boolean enabled = true;
-
   /** The project. */
   @ManyToOne(targetEntity = ProcessExecutionJpa.class, optional = false)
   private ProcessExecution process;
@@ -88,7 +84,6 @@ public class AlgorithmExecutionJpa extends
     failDate = exec.getFailDate();
     algorithmConfigId = exec.getAlgorithmConfigId();
     activityId = exec.getActivityId();
-    enabled = exec.isEnabled();
   }
 
   /* see superclass */
@@ -194,19 +189,6 @@ public class AlgorithmExecutionJpa extends
   @Override
   public void setActivityId(String activityId) {
     this.activityId = activityId;
-  }
-
-  /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  /* see superclass */
-  @Override
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
   }
 
   /* see superclass */

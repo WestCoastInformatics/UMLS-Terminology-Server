@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -24,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.AlgorithmConfig;
+import com.wci.umls.server.AlgorithmExecution;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
@@ -33,11 +35,14 @@ import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
+import com.wci.umls.server.helpers.ProcessExecutionList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
+import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
+import com.wci.umls.server.jpa.helpers.ProcessExecutionListJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProcessServiceRest;
@@ -313,7 +318,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "ProcessConfig internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /config/" + id);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Process): /config/" + id + ", for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -382,8 +388,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call POST (Process): /config " + query);
+    Logger.getLogger(getClass()).info("RESTful call POST (Process): /config "
+        + query + ", for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -400,11 +406,256 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         processConfig.setSteps(new ArrayList<AlgorithmConfig>());
       }
 
-      return processService.findProcessConfigs(projectId, query, pfs);
+      return processConfigs;
 
     } catch (Exception e) {
       handleException(e, "trying to find process configs");
       return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+  }
+
+  /**
+   * Returns the process execution.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param authToken the auth token
+   * @return the process execution
+   * @throws Exception the exception
+   */
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/execution/{id}")
+  @ApiOperation(value = "Get processExecution for id", notes = "Gets the processExecution for the specified id", response = ProcessExecutionJpa.class)
+  public ProcessExecution getProcessExecution(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "ProcessExecution internal id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Process): /execution/" + id + ", for user " + authToken);
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "getting the processExecution", UserRole.AUTHOR);
+      processService.setLastModifiedBy(userName);
+
+      // Load processExecution object
+      ProcessExecution processExecution =
+          processService.getProcessExecution(id);
+
+      if (processExecution == null) {
+        return processExecution;
+      }
+
+      // Verify that passed projectId matches ID of the processExecution's
+      // project
+      verifyProject(processExecution, projectId);
+
+      // For each of the process' algorithms, populate the parameters based on
+      // its properties' values.
+      for (AlgorithmExecution algorithmExecution : processExecution
+          .getSteps()) {
+        Algorithm instance = processService
+            .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
+        algorithmExecution.setParameters(instance.getParameters());
+        for (AlgorithmParameter param : algorithmExecution.getParameters()) {
+          // Populate both Value and Values (UI will determine which is required
+          // for each algorithm type)
+          if (algorithmExecution.getProperties()
+              .get(param.getFieldName()) != null) {
+            param.setValue(
+                algorithmExecution.getProperties().get(param.getFieldName()));
+            param.setValues(
+                new ArrayList<String>(Arrays.asList(algorithmExecution
+                    .getProperties().get(param.getFieldName()).split(","))));
+          }
+        }
+      }
+
+      return processExecution;
+    } catch (Exception e) {
+      handleException(e, "trying to get a processExecution");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+  }
+
+  /**
+   * Find process executions.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the process execution list
+   * @throws Exception the exception
+   */
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/execution")
+  @ApiOperation(value = "Find processExecutions", notes = "Find processExecutions", response = ProcessExecutionListJpa.class)
+  public ProcessExecutionList findProcessExecutions(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The query string", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call POST (Process): /execution "
+        + query + ", for user " + authToken);
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "finding process executions", UserRole.AUTHOR);
+      processService.setLastModifiedBy(userName);
+
+      ProcessExecutionList processExecutions =
+          processService.findProcessExecutions(projectId, query, pfs);
+
+      // Set steps to empty list for all returned processExecutions
+      for (ProcessExecution processExecution : processExecutions.getObjects()) {
+        processExecution.setSteps(new ArrayList<AlgorithmExecution>());
+      }
+
+      return processExecutions;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find process executions");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+  }
+
+  /**
+   * Find process executions.
+   *
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the process execution list
+   * @throws Exception the exception
+   */
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/executing")
+  @ApiOperation(value = "Find currently executing processes", notes = "Find currently executing processes", response = ProcessExecutionListJpa.class)
+  public ProcessExecutionList findCurrentlyExecutingProcesses(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call POST (Process): /executing, for user " + authToken);
+
+    Set<Long> executingProcesses = processAlgorithmMap.keySet();
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "finding process executions", UserRole.AUTHOR);
+      processService.setLastModifiedBy(userName);
+
+      ProcessExecutionList processExecutions =
+          processService.findProcessExecutions(projectId,
+              "NOT failDate:[* TO *] AND NOT finishDate:[* TO *]", null);
+
+      // Only keep process Executions if they are contained in the currently
+      // executing processes map
+      for (ProcessExecution processExecution : new ArrayList<ProcessExecution>(
+          processExecutions.getObjects())) {
+        if (!executingProcesses.contains(processExecution.getId())) {
+          processExecutions.getObjects().remove(processExecution);
+        }
+      }
+
+      return processExecutions;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find process executions");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+  }
+
+  /**
+   * Removes the process execution.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param cascade the cascade
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/execution/{id}/remove")
+  @ApiOperation(value = "Remove processExecution", notes = "Removes the processExecution with the specified id")
+  public void removeProcessExecution(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "ProcessExecution id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Cascade, e.g. true", required = true) @QueryParam("cascade") Boolean cascade,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call DELETE (Process): /execution/" + id
+            + "/remove, for user " + authToken);
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "remove processExecution", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+
+      // Load processExecution object
+      ProcessExecution processExecution =
+          processService.getProcessExecution(id);
+
+      // Make sure processExecution exists
+      if (processExecution == null) {
+        throw new Exception("ProcessExecution " + id + " does not exist");
+      }
+
+      // Verify that passed projectId matches ID of the processExecution's
+      // project
+      verifyProject(processExecution, projectId);
+
+      // If cascade if specified, Remove contained algorithmExecutions, if any,
+      // and
+      // update ProcessExecution before removing it
+      if (cascade && !processExecution.getSteps().isEmpty()) {
+        for (AlgorithmExecution algorithmExecution : new ArrayList<AlgorithmExecution>(
+            processExecution.getSteps())) {
+          processExecution.getSteps().remove(algorithmExecution);
+          processService.updateProcessExecution(processExecution);
+          processService.removeAlgorithmExecution(algorithmExecution.getId());
+        }
+      }
+
+      // Remove process execution
+      processService.removeProcessExecution(id);
+
+      processService.addLogEntry(userName, projectId, id, null, null,
+          "REMOVE processExecution " + id);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove a processExecution");
     } finally {
       processService.close();
       securityService.close();
@@ -521,7 +772,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @Path("/config/algo/update")
   @ApiOperation(value = "Update algorithm config", notes = "Updates the specified algorithm config")
   public void updateAlgorithmConfig(
-    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Project id, "
+        + "e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "AlgorithmConfig, e.g. existingAlgorithmConfig", required = true) AlgorithmConfigJpa algorithmConfig,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -671,8 +923,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "AlgorithmConfig internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /config/algo/" + id);
+    Logger.getLogger(getClass()).info("RESTful call (Process): /config/algo/"
+        + id + ", for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -717,6 +969,72 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /**
+   * Returns the algorithm config.
+   *
+   * @param projectId the project id
+   * @param key the key
+   * @param authToken the auth token
+   * @return the algorithm config
+   * @throws Exception the exception
+   */
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/config/algo/{key}")
+  @ApiOperation(value = "Get algorithm config for key", notes = "Gets the algorithm config for the specified key", response = AlgorithmConfigJpa.class)
+  public AlgorithmConfig getAlgorithmConfigForKey(
+    @ApiParam(value = "Project internal id, e.g. 2", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "AlgorithmConfig key, e.g. MATRIXINIT", required = true) @PathParam("key") String key,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Process): /config/algo/"
+        + key + ", for user " + authToken);
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "getting the algorithmConfig", UserRole.AUTHOR);
+      processService.setLastModifiedBy(userName);
+
+      // Load algorithmConfig object
+      AlgorithmConfig algorithmConfig =
+          (AlgorithmConfig) processService.getAlgorithmInstance(key);
+
+      if (algorithmConfig == null) {
+        return algorithmConfig;
+      }
+
+      // Verify that passed projectId matches ID of the algorithmConfig's
+      // project
+      verifyProject(algorithmConfig, projectId);
+
+      // Populate the parameters based on its properties' values.
+      Algorithm instance = processService
+          .getAlgorithmInstance(algorithmConfig.getAlgorithmKey());
+      algorithmConfig.setParameters(instance.getParameters());
+      for (AlgorithmParameter param : algorithmConfig.getParameters()) {
+        // Populate both Value and Values (UI will determine which is required
+        // for each algorithm type)
+        if (algorithmConfig.getProperties().get(param.getFieldName()) != null) {
+          param.setValue(
+              algorithmConfig.getProperties().get(param.getFieldName()));
+          param.setValues(new ArrayList<String>(Arrays.asList(algorithmConfig
+              .getProperties().get(param.getFieldName()).split(","))));
+        }
+      }
+
+      return algorithmConfig;
+    } catch (Exception e) {
+      handleException(e, "trying to get an algorithmConfig");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+  }
+
   /* see superclass */
   @Override
   @GET
@@ -727,7 +1045,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/insertion");
+        .info("RESTful call (Process): /algo/insertion, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -755,8 +1073,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/maintenance");
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Process): /algo/maintenance, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -784,7 +1102,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /algo/release");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Process): /algo/release, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -803,20 +1122,24 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /* see superclass */  
+  /* see superclass */
   @Override
   @POST
   @Path("/config/{id}/execute")
   @ApiOperation(value = "Execute a process configuration", notes = "Execute the specified process configuration")
   public Long executeProcess(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "ProcessConfig id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Process Config id, e.g. 3", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Background, e.g. true", required = true) @QueryParam("background") Boolean background,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /config/" + id + "/execute, for user " + authToken);
- 
+    Logger.getLogger(getClass()).info("RESTful call (Process): /config/" + id
+        + "/execute, for user " + authToken);
+
     final ProcessService processService = new ProcessServiceJpa();
+
+    Long executionId = null;
+
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
@@ -835,13 +1158,15 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       verifyProject(processConfig, projectId);
 
       // Make sure this processConfig is not already running
-      if(processService.findProcessExecutions(projectId, "processConfigId:" + processConfig.getId(), null).size()!=0){
-        throw new Exception("There is already a currently running execution of process " + id);
+      if (processService.findProcessExecutions(projectId,
+          "processConfigId:" + processConfig.getId(), null).size() != 0) {
+        throw new Exception(
+            "There is already a currently running execution of process " + id);
       }
-      
+
       // Create and set up a new process Execution
       ProcessExecution execution = new ProcessExecutionJpa();
-      
+
       execution.setDescription(processConfig.getDescription());
       execution.setFeedbackEmail(processConfig.getFeedbackEmail());
       execution.setName(processConfig.getName());
@@ -849,328 +1174,176 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       execution.setProject(processConfig.getProject());
       execution.setTerminology(processConfig.getTerminology());
       execution.setVersion(processConfig.getVersion());
-      //TODO
-      //execution.setWorkId(workId);
-      //execution.setSteps(steps);
-      
-      processService.addProcessExecution(execution);
-      
+      // TODO
+      // TODO - set WorkId to random UUID
+      // execution.setWorkId(???);
+      // execution.setSteps(steps);
+
+      execution = processService.addProcessExecution(execution);
+      executionId = execution.getId();
+
       final Exception[] exceptions = new Exception[1];
       Thread t = new Thread(new Runnable() {
 
         @Override
         public void run() {
-          //SourceDataHandler handler = null;
           try {
-//            // instantiate the handler
-//            Class<?> sourceDataHandlerClass =
-//                Class.forName(sourceData.getHandler());
-//            handler = (SourceDataHandler) sourceDataHandlerClass.newInstance();
-//            handler.setLastModifiedBy(userName);
-//            handler.setSourceData(sourceData);
-//            handler.remove();
+            for (AlgorithmConfig algorithmConfig : processConfig.getSteps()) {
+              if (algorithmConfig.isEnabled()) {
+                AlgorithmExecution algorithmExecution =
+                    new AlgorithmExecutionJpa();
+                algorithmExecution
+                    .setAlgorithmConfigId(algorithmConfig.getId());
+                algorithmExecution
+                    .setAlgorithmKey(algorithmConfig.getAlgorithmKey());
+                algorithmExecution
+                    .setDescription(algorithmConfig.getDescription());
+                algorithmExecution.setName(algorithmConfig.getName());
+                // TODO
+                // algorithmExecution.setParameters(parameters);
+                // algorithmExecution.setProcess(execution);
 
+                // TODO - once algorithmExecution is added, add to
+                // processExecution and update process
+              }
+            }
           } catch (Exception e) {
-//            handleException(e,
-//                " during removal of loaded data from source data");
-          } finally {
-//            if (handler != null) {
-//              try {
-//                handler.close();
-//              } catch (Exception e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//              }
-//            }
+            exceptions[0] = e;
           }
+
         }
       });
       if (background != null && background == true) {
         t.start();
-        return 1L;
+        return executionId;
       } else {
         t.join();
         if (exceptions[0] != null) {
           throw new Exception(exceptions[0]);
         }
       }
-    }  catch (Exception e) {
-      handleException(e, "trying to remove a processConfig");
+    } catch (Exception e) {
+      handleException(e, "trying to execute a process");
     } finally {
       processService.close();
       securityService.close();
     }
-    return 1L;
+    return executionId;
   }
 
-  // /* see superclass */
-  // @Override
-  // @PUT
-  // @Path("/parameter/algo/add")
-  // @ApiOperation(value = "Add new algorithm parameter", notes = "Creates a new
-  // algorithm parameter", response = AlgorithmParameterJpa.class)
-  // public AlgorithmParameter addAlgorithmParameter(
-  // @ApiParam(value = "Project id, e.g. 1", required = true)
-  // @QueryParam("projectId") Long projectId,
-  // @ApiParam(value = "AlgorithmParameter, e.g. newAlgorithmParameter",
-  // required = true) AlgorithmParameterJpa algorithmParameter,
-  // @ApiParam(value = "Authorization token, e.g. 'guest'", required = true)
-  // @HeaderParam("Authorization") String authToken)
-  // throws Exception {
-  // Logger.getLogger(getClass())
-  // .info("RESTful call PUT (Process): /parameter/algo/add for user "
-  // + authToken + ", " + algorithmParameter);
-  //
-  // final ProcessService processService = new ProcessServiceJpa();
-  // try {
-  // final String userName =
-  // authorizeProject(processService, projectId, securityService,
-  // authToken, "adding a process parameter", UserRole.ADMINISTRATOR);
-  // processService.setLastModifiedBy(userName);
-  //
-  // ProcessParameterJpa processParameter = null;
-  // // Load processParameter
-  // if (algorithmParameter.getProcess() != null) {
-  // processParameter = (ProcessParameterJpa) processService
-  // .getProcessParameter(algorithmParameter.getProcess().getId());
-  // }
-  //
-  // // Re-add processParameter to algorithmParameter (it does not make it
-  // intact
-  // // through XML)
-  // algorithmParameter.setProcess(processParameter);
-  //
-  // // Load project
-  // Project project = processService.getProject(projectId);
-  // project.setLastModifiedBy(userName);
-  //
-  // // Re-add project to algorithmParameter (it does not make it intact through
-  // // XML)
-  // algorithmParameter.setProject(project);
-  //
-  // // Verify that passed projectId matches ID of the algorithmParameter's
-  // // project
-  // verifyProject(algorithmParameter, projectId);
-  //
-  // // Populate the algorithm's properties based on its parameters' values.
-  // for (AlgorithmParameter param : algorithmParameter.getParameters()) {
-  // algorithmParameter.getProperties().put(param.getFieldName(),
-  // param.getValue());
-  // }
-  //
-  // // Add algorithmParameter
-  // final AlgorithmParameter newAlgorithmParameter =
-  // processService.addAlgorithmParameter(algorithmParameter);
-  //
-  // // If new algorithm parameter has an associated processParameter,
-  // // add the algorithm to it and update
-  // if (processParameter != null) {
-  // // Add algorithmParameter to processParameter
-  // processParameter.getSteps().add(newAlgorithmParameter);
-  //
-  // // update the processParameter
-  // processService.updateProcessParameter(processParameter);
-  // }
-  //
-  // processService.addLogEntry(userName, projectId, algorithmParameter.getId(),
-  // null, null, "ADD algorithmParameter - " + algorithmParameter);
-  //
-  // return newAlgorithmParameter;
-  // } catch (Exception e) {
-  // handleException(e, "trying to add an algorithmParameter");
-  // return null;
-  // } finally {
-  // processService.close();
-  // securityService.close();
-  // }
-  //
-  // }
-  //
-  // /* see superclass */
-  // @Override
-  // @POST
-  // @Path("/parameter/algo/update")
-  // @ApiOperation(value = "Update algorithm parameter", notes = "Updates the
-  // specified algorithm parameter")
-  // public void updateAlgorithmParameter(
-  // @ApiParam(value = "Project id, e.g. 1", required = true)
-  // @QueryParam("projectId") Long projectId,
-  // @ApiParam(value = "AlgorithmParameter, e.g. existingAlgorithmParameter",
-  // required = true) AlgorithmParameterJpa algorithmParameter,
-  // @ApiParam(value = "Authorization token, e.g. 'guest'", required = true)
-  // @HeaderParam("Authorization") String authToken)
-  // throws Exception {
-  // Logger.getLogger(getClass())
-  // .info("RESTful call PUT (Process): /parameter/algo/update for user "
-  // + authToken + ", " + algorithmParameter);
-  //
-  // final ProcessService processService = new ProcessServiceJpa();
-  // try {
-  // final String userName =
-  // authorizeProject(processService, projectId, securityService,
-  // authToken, "update algorithmParameter", UserRole.ADMINISTRATOR);
-  // processService.setLastModifiedBy(userName);
-  //
-  // // Load processParameter
-  // ProcessParameterJpa processParameter = (ProcessParameterJpa) processService
-  // .getProcessParameter(algorithmParameter.getProcess().getId());
-  //
-  // // Re-add processParameter to algorithmParameter (it does not make it
-  // intact
-  // // through XML)
-  // algorithmParameter.setProcess(processParameter);
-  //
-  // // Load project
-  // Project project = processService.getProject(projectId);
-  // project.setLastModifiedBy(userName);
-  //
-  // // Re-add project to algorithmParameter (it does not make it intact through
-  // // XML)
-  // algorithmParameter.setProject(project);
-  //
-  // // Verify that passed projectId matches ID of the algorithmParameter's
-  // // project
-  // verifyProject(algorithmParameter, projectId);
-  //
-  // // ensure algorithmParameter exists
-  // final AlgorithmParameter origAlgorithmParameter =
-  // processService.getAlgorithmParameter(algorithmParameter.getId());
-  // if (origAlgorithmParameter == null) {
-  // throw new Exception(
-  // "AlgorithmParameter " + algorithmParameter.getId() + " does not exist");
-  // }
-  //
-  // // Populate the algorithm's properties based on its parameters' values.
-  // for (AlgorithmParameter param : algorithmParameter.getParameters()) {
-  // algorithmParameter.getProperties().put(param.getFieldName(),
-  // param.getValue());
-  // }
-  //
-  // // Update algorithmParameter
-  // processService.updateAlgorithmParameter(algorithmParameter);
-  //
-  // processService.addLogEntry(userName, projectId, algorithmParameter.getId(),
-  // null, null, "UPDATE algorithmParameter " + algorithmParameter);
-  //
-  // } catch (Exception e) {
-  // handleException(e, "trying to update an algorithmParameter");
-  // } finally {
-  // processService.close();
-  // securityService.close();
-  // }
-  //
-  // }
-  //
-  // /* see superclass */
-  // @Override
-  // @DELETE
-  // @Path("/parameter/algo/{id}/remove")
-  // @ApiOperation(value = "Remove algorithm parameter", notes = "Removes the
-  // algorithm parameter with the specified id")
-  // public void removeAlgorithmParameter(
-  // @ApiParam(value = "Project id, e.g. 1", required = true)
-  // @QueryParam("projectId") Long projectId,
-  // @ApiParam(value = "AlgorithmParameter id, e.g. 3", required = true)
-  // @PathParam("id") Long id,
-  // @ApiParam(value = "Authorization token, e.g. 'guest'", required = true)
-  // @HeaderParam("Authorization") String authToken)
-  // throws Exception {
-  // Logger.getLogger(getClass())
-  // .info("RESTful call DELETE (Process): /parameter/algo/" + id
-  // + "/remove, for user " + authToken);
-  //
-  // final ProcessService processService = new ProcessServiceJpa();
-  // try {
-  // final String userName =
-  // authorizeProject(processService, projectId, securityService,
-  // authToken, "remove algorithmParameter", UserRole.ADMINISTRATOR);
-  // processService.setLastModifiedBy(userName);
-  //
-  // // Load algorithmParameter object
-  // AlgorithmParameter algorithmParameter =
-  // processService.getAlgorithmParameter(id);
-  //
-  // // ensure algorithmParameter exists
-  // if (algorithmParameter == null) {
-  // throw new Exception("AlgorithmParameter " + id + " does not exist");
-  // }
-  //
-  // // Verify that passed projectId matches ID of the algorithmParameter's
-  // // project
-  // verifyProject(algorithmParameter, projectId);
-  //
-  // // If the algorithm parameter has an associated processParameter,
-  // // remove the algorithm from it and update
-  // ProcessParameter processParameter = algorithmParameter.getProcess();
-  //
-  // if (processParameter != null) {
-  // // Remove algorithmParameter from processParameter
-  // processParameter.getSteps().add(algorithmParameter);
-  //
-  // // update the processParameter
-  // processService.updateProcessParameter(processParameter);
-  // }
-  //
-  // // Remove algorithm parameter
-  // processService.removeAlgorithmParameter(id);
-  //
-  // processService.addLogEntry(userName, projectId, id, null, null,
-  // "REMOVE algorithmParameter " + id);
-  //
-  // } catch (Exception e) {
-  // handleException(e, "trying to remove an algorithmParameter");
-  // } finally {
-  // processService.close();
-  // securityService.close();
-  // }
-  // }
-  //
-  // /* see superclass */
-  // @Override
-  // @GET
-  // @Path("/parameter/algo/{id}")
-  // @ApiOperation(value = "Get algorithm parameter for id", notes = "Gets the
-  // algorithm parameter for the specified id", response =
-  // AlgorithmParameterJpa.class)
-  // public AlgorithmParameter getAlgorithmParameter(
-  // @ApiParam(value = "Project internal id, e.g. 2", required = true)
-  // @QueryParam("projectId") Long projectId,
-  // @ApiParam(value = "AlgorithmParameter internal id, e.g. 2", required =
-  // true) @PathParam("id") Long id,
-  // @ApiParam(value = "Authorization token, e.g. 'guest'", required = true)
-  // @HeaderParam("Authorization") String authToken)
-  // throws Exception {
-  // Logger.getLogger(getClass())
-  // .info("RESTful call (Process): /parameter/algo/" + id);
-  //
-  // final ProcessService processService = new ProcessServiceJpa();
-  // try {
-  // final String userName =
-  // authorizeProject(processService, projectId, securityService,
-  // authToken, "getting the algorithmParameter", UserRole.AUTHOR);
-  // processService.setLastModifiedBy(userName);
-  //
-  // // Load algorithmParameter object
-  // AlgorithmParameter algorithmParameter =
-  // processService.getAlgorithmParameter(id);
-  //
-  // if (algorithmParameter == null) {
-  // return algorithmParameter;
-  // }
-  //
-  // // Verify that passed projectId matches ID of the algorithmParameter's
-  // // project
-  // verifyProject(algorithmParameter, projectId);
-  //
-  // return algorithmParameter;
-  // } catch (Exception e) {
-  // handleException(e, "trying to get a algorithmParameter");
-  // return null;
-  // } finally {
-  // processService.close();
-  // securityService.close();
-  // }
-  // }
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/execution/{id}/cancel")
+  @ApiOperation(value = "Cancel a running process execution", notes = "Execute the specified process configuration")
+  public void cancelProcess(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Process Execution id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Process): /execution/" + id
+        + "/cancel, for user " + authToken);
 
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "cancel process execution", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+
+      // TODO - determine if algorithm contained in map is the execution, or
+      // if the actual execution needs to be loaded at this point.
+      if (processAlgorithmMap.containsKey(id)) {
+        if (processAlgorithmMap.get(id).getProject().getId()
+            .equals(projectId)) {
+          processAlgorithmMap.get(id).cancel();
+        } else {
+          throw new Exception(
+              "Passed project id does not match running process execution " + id
+                  + "'s project");
+        }
+      }
+
+    } catch (Exception e) {
+      handleException(e, "trying to cancel a process execution");
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @GET
+  @Path("/{id}/progress")
+  @ApiOperation(value = "Find progress of specified executing process", notes = "Find progress of specified executing process", response = Integer.class)
+  @Override
+  public Integer getProcessProgress(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Process execution internal id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call POST (Process): /" + id
+        + "progress, for user " + authToken);
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "finding process progress", UserRole.AUTHOR);
+      processService.setLastModifiedBy(userName);
+
+      if (lookupPeProgressMap.containsKey(id)) {
+        return lookupPeProgressMap.get(id);
+      }
+      // Return -1 if id not contained in progress map.
+      else {
+        return -1;
+      }
+
+    } catch (Exception e) {
+      handleException(e, "trying to get progress");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @GET
+  @Path("algo/{id}/progress")
+  @ApiOperation(value = "Find progress of specified executing algorithm", notes = "Find progress of specified executing algorithm", response = Integer.class)
+  @Override
+  public Integer getAlgorithmProgress(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Algorithm execution internal id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call POST (Process): /algo/" + id
+        + "/progress, for user " + authToken);
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "finding algorithm progress", UserRole.AUTHOR);
+      processService.setLastModifiedBy(userName);
+
+      if (lookupAeProgressMap.containsKey(id)) {
+        return lookupAeProgressMap.get(id);
+      }
+      // Return -1 if id not contained in progress map.
+      else {
+        return -1;
+      }
+
+    } catch (Exception e) {
+      handleException(e, "trying to get progress");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+  }
 
 }

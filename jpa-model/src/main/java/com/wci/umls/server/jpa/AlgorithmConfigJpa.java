@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -10,7 +11,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
@@ -30,6 +35,10 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
   @ManyToOne(targetEntity = ProcessConfigJpa.class, optional = false)
   private ProcessConfig process;
 
+  /** The enabled. */
+  @Column(nullable = false)
+  private boolean enabled = true;
+  
   /**
    * Instantiates an empty {@link AlgorithmConfigJpa}.
    */
@@ -82,6 +91,19 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
     process.setId(processId);
   }
 
+  /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Override
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  /* see superclass */
+  @Override
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }  
+  
   /* see superclass */
   @Override
   public int hashCode() {

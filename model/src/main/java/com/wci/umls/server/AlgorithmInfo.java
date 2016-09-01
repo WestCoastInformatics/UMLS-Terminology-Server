@@ -17,7 +17,7 @@ import com.wci.umls.server.helpers.HasTerminology;
  */
 public interface AlgorithmInfo<T extends ProcessInfo<?>>
     extends HasLastModified, HasTerminology, HasName, HasProject {
-
+  
   /**
    * Returns the description.
    * 
