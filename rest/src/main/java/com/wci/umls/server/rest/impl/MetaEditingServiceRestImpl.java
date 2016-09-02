@@ -674,7 +674,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setProject(project);
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
-      action.setConceptId2(relationship.getTo().getId());
+      action.setConceptId2(relationship.getFrom().getId());
       action.setUserName(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);

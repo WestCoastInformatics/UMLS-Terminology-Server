@@ -7,7 +7,7 @@
     <tr>
       <td>
         <span ng-show="action == 'Merge'"><b>To Concept</b></span>
-        <span ng-show="action == 'Move'"><b>From Concept</b></span>
+        <span ng-show="action == 'Move' || action == 'Insert'"><b>From Concept</b></span>
         <span ng-show="action == 'Split'"><b>Concept</b></span>
       </td>
       <td>
@@ -24,7 +24,7 @@
             </tr>
             </tbody>
           </table>
-          <table class="table" ng-show="action != 'Merge'"> 
+          <table class="table" ng-show="action == 'Split' || action == 'Move'"> 
             <thead><th>Atoms:</th></thead>         
             <tbody>
               <tr ng-repeat="atom in selected.atoms">
@@ -39,13 +39,13 @@
     <tr ng-show="action != 'Split'">
       <td>        
         <span ng-show="action == 'Merge'"><b>From Concept</b></span>
-        <span ng-show="action == 'Move'"><b>To Concept</b></span>
+        <span ng-show="action == 'Move' || action == 'Insert'"><b>To Concept</b></span>
       </td>
       <td>
         <span ng-show="prospectiveMergeConcepts.length > 1">
           <table class="table">  
             <thead>
-              <b>Select a merge concept:</b>
+              <b>Select a concept:</b>
             </thead>          
             <tbody>
               <tr ng-repeat="concept in prospectiveMergeConcepts"
@@ -96,7 +96,7 @@
           title="Copy semantic types to new concept.">
       </td>
     </tr>
-    <tr ng-show="action == 'Split'">
+    <tr ng-show="action == 'Split' || action == 'Insert'">
         <td>
           <b>Relationship Type</b>
         </td>
@@ -104,6 +104,16 @@
           <span><select ng-model="selectedRelationshipType"
             ng-options="item.key as item.key.concat(' ', item.value) for item in acceptedRelationshipTypes"></select>  </span>        
        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Workflow Status</b>
+        </td>
+        <td>
+        
+          <select ng-model="selectedWorkflowStatus"
+            ng-options="item.substring(0, 1) for item in workflowStatuses"></select>
+        </td>
       </tr>
   </table>
 
@@ -121,5 +131,7 @@
     ng-click="move(selected.concept, mergeConcept);" title="Move concepts">Move</button>
   <button ng-show="action == 'Split'" class="btn btn-primary" 
     ng-click="split(selected.concept);" title="Split atoms">Split</button>
+  <button ng-show="action == 'Insert'" class="btn btn-primary" 
+    ng-click="insert(mergeConcept);" title="Insert relationship">Insert</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>

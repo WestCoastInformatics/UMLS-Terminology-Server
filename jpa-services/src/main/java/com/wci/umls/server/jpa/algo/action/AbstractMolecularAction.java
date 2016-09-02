@@ -206,7 +206,8 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     final List<Long> conceptIdList = new ArrayList<Long>();
     if (conceptId != null) {
       conceptIdList.add(conceptId);
-    }    if (conceptId2 != null && !(conceptId2.equals(conceptId))) {
+    }    
+    if (conceptId2 != null && !(conceptId2.equals(conceptId))) {
       conceptIdList.add(conceptId2);
     }
 

@@ -6,12 +6,13 @@ tsApp.controller('MergeModalCtrl',
     'utilService',
     'metaEditingService',
     'metadataService',
+    'contentService',
     'selected',
     'lists',
     'action',
     'user',
-    function($scope, $uibModalInstance, utilService, metaEditingService, metadataService, selected, lists,
-      action, user) {
+    function($scope, $uibModalInstance, utilService, metaEditingService, metadataService, 
+      contentService, selected, lists, action, user) {
       console.debug('Entered merge/move/split modal control', lists, action);
 
       // Scope vars
@@ -28,6 +29,8 @@ tsApp.controller('MergeModalCtrl',
       $scope.metadata = metadataService.getModel();
       $scope.warnings = [];
       $scope.errors = [];
+      $scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
+      $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
 
       // Init modal
       function initialize() {
@@ -36,7 +39,27 @@ tsApp.controller('MergeModalCtrl',
             $scope.prospectiveMergeConcepts.push($scope.lists.concepts[i]);
           }
         }
-        $scope.mergeConcept = $scope.prospectiveMergeConcepts[0];
+        // if selected relationship, add to prospective list
+        // set default from_concept
+        if ($scope.selected.relationship) {
+          contentService.getConcept($scope.selected.relationship.toId, $scope.selected.project.id).then(
+            function(data) {
+              var found = false;
+              for (var i = 0; i < $scope.prospectiveMergeConcepts.length; i++ ) {
+                if ($scope.prospectiveMergeConcepts[i].id == data.id) {
+                  found = true;
+                }
+              }
+              if (!found) {
+                $scope.prospectiveMergeConcepts.push(data);
+              }
+              $scope.mergeConcept = data;
+              $scope.selectedRelationshipType = $scope.selected.relationship.relationshipType;
+            });
+          
+        } else {
+          $scope.mergeConcept = $scope.prospectiveMergeConcepts[0];
+        }
         
         // get metadata
         var projectTerminologyVersion = metadataService.getTerminologyVersion($scope.selected.project.terminology);
@@ -125,6 +148,55 @@ tsApp.controller('MergeModalCtrl',
         });
       };
       
+      // Perform insert rel
+      $scope.insert = function(toConcept) {
+        var relationship = {
+          assertedDirection : false,
+          fromId : $scope.selected.concept.id,
+          fromName : $scope.selected.concept.name,
+          fromTerminology : $scope.selected.concept.terminology,
+          fromTerminologyId : $scope.selected.concept.terminologyId,
+          fromVersion : metadataService.getTerminologyVersion($scope.selected.project.terminology),
+          group : null,
+          hierarchical : false,
+          inferred : false,
+          name : null,
+          obsolete : false,
+          published : false,
+          relationshipType : $scope.selectedRelationshipType,
+          additionalRelationshipType : '',
+          stated : false,
+          suppressible : false,
+          terminology : $scope.selected.project.terminology,
+          terminologyId : "",
+          toId : toConcept.id,
+          toName : toConcept.name,
+          toTerminology : toConcept.terminology,
+          toTerminologyId : toConcept.terminologyId,
+          toVersion : metadataService.getTerminologyVersion(toConcept.terminology),
+          type : "RELATIONSHIP",
+          version : metadataService.getTerminologyVersion($scope.selected.project.terminology),
+          workflowStatus : $scope.selectedWorkflowStatus
+        };
+        
+        metaEditingService.addRelationship($scope.selected.project.id, $scope.selected.activityId,
+          toConcept, relationship, $scope.overrideWarnings).then(
+        // Success
+        function(data) {
+          $scope.warnings = data.warnings;
+          $scope.errors = data.errors;
+          if ($scope.warnings.length > 0) {
+            $scope.overrideWarnings = true;
+          }
+          if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
+            $uibModalInstance.close();
+          }
+        },
+        // Error
+        function(data) {
+          utilService.handleDialogError($scope.errors, data);
+        });
+      };
       
       // select the merge concept
       $scope.selectMergeConcept = function(concept) {

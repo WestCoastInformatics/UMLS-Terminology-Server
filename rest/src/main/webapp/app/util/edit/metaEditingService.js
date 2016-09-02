@@ -110,7 +110,7 @@ tsApp
         // add relationship
         this.addRelationship = function(projectId, activityId, concept, relationship,
           overrideWarnings) {
-          console.debug('add atom');
+          console.debug('add relationship');
           var deferred = $q.defer();
 
           gpService.increment();
