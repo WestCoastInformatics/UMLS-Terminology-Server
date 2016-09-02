@@ -23,7 +23,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 /**
  * A mechanism to reset to the stock dev database for NCI-META testing.
  */
-public class ResetMetaDevDatabase {
+public class ResetNciMetaDatabase {
 
   /** The properties. */
   static Properties config;

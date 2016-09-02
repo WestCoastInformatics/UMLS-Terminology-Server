@@ -696,9 +696,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         authToken, UserRole.REVIEWER, WorkflowAction.ASSIGN, authToken);
 
     // Finish review
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
-        authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
+    // authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
 
     //
     // Add a QA bins workflow config for the current project
