@@ -64,6 +64,13 @@ public interface Algorithm
   public void setWorkId(String workId);
 
   /**
+   * Sets the user name.
+   *
+   * @param userName the user name
+   */
+  public void setUserName(String userName);
+
+  /**
    * Returns the parameters.
    *
    * @return the parameters
