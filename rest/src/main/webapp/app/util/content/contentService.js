@@ -586,6 +586,34 @@ tsApp
           return deferred.promise;
         };
 
+        this.findRelationshipsForQuery = function(terminology, version, terminologyId, type, query, pfs) {
+          console.debug('find relationships', terminology, version, terminologyId, type,  query, pfs);
+
+          // Setup deferred
+          var deferred = $q.defer();
+          
+          // Make POST call
+          gpService.increment();
+          $http.post(
+            contentUrl + '/' + type.toLowerCase() + '/' + terminology + '/' + version + '/' + 
+              terminologyId + '/relationships?query='+ (query != '' && query != null ? '&query=' + query : ''),
+            utilService.prepPfs(pfs)).then(
+          // success
+          function(response) {
+            console.debug('  rels = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        };
+        
         // Handle paging of relationships (requires content service
         // call).
         this.findRelationships = function(wrapper, page, parameters) {
@@ -624,7 +652,7 @@ tsApp
 
           // For description logic sources, simply read all rels.
           // That way we ensure all "groups" are represented.
-          if (metadata.terminology.descriptionLogicTerminology) {
+          if (metadata.terminology && metadata.terminology.descriptionLogicTerminology) {
             pfs.startIndex = -1;
             pfs.maxResults = 1000000;
           } else {

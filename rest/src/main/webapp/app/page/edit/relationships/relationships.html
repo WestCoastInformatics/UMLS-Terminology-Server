@@ -1,0 +1,65 @@
+
+<h4>
+  <b>Relationships Editor</b>
+</h4>
+<h4 class="{{selected.concept.workflowStatus}}">{{selected.concept.name}}
+  {{selected.concept.id}}</h4>
+
+<div pager paging="paging['relationships']" count="selected.concept.relationships.length"
+      callback="paging['relationships'].callback"></div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th class="col-md-4 col-xs-4"><span
+              ng-click="setSortField('relationships','toName')">To Name</span>
+              <span ng-bind="getSortIndicator('relationships','toName')"></span></th>
+      <th class="col-md-2 col-xs-2"><span
+              ng-click="setSortField('relationships','toTerminologyId')">To Concept</span>
+              <span ng-bind="getSortIndicator('relationships','toTerminologyId')"></span></th>
+      <th class="col-md-1 col-xs-1"><span
+              ng-click="setSortField('relationships','relationshipType')">Rel Type</span>
+              <span ng-bind="getSortIndicator('relationships','relationshipType')"></span></th>
+      <th class="col-md-1 col-xs-1"><span
+              ng-click="setSortField('relationships','additionalRelationshipType')">Add Rel Type</span>
+              <span ng-bind="getSortIndicator('relationships','additionalRelationshipType')"></span></th>
+      <th class="col-md-1 col-xs-1"><span
+              ng-click="setSortField('relationships','terminology')">Terminology</span>
+              <span ng-bind="getSortIndicator('relationships','terminology')"></span></th>
+      <th class="col-md-1 col-xs-1"><span
+              ng-click="setSortField('relationships','lastModifiedBy')">Editor</span>
+              <span ng-bind="getSortIndicator('relationships','lastModifiedBy')"></span></th>
+      <th class="col-md-1 col-xs-1"><span style="float: right;">
+                <button ng-click="openInsertModal()" title="Add relationship"
+                  class="btn btn-xs btn-primary">Add Rel</button>
+              </span></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="relationship in pagedRelationships"
+        ng-click="selectRelationship($event, relationship)" class="{{getRelationshipClass(relationship)}}" ng-class="{selected: isRowSelected(relationship)}">
+      <td>{{relationship.toName}}</td>
+      <td>{{relationship.toTerminologyId}}</td>
+      <td>{{relationship.relationshipType}}</td>
+      <td>{{relationship.additionalRelationshipType}}</td>
+      <td>{{relationship.terminology}}</td>
+      <td>{{relationship.lastModifiedBy}}</td>
+      <td class="nobreak">
+
+              <i
+                confirm="Are you sure you want to remove the relationship ({{relationship.name}})?"
+                ng-click="removeRelationshipFromConcept(relationship); $event.stopPropagation()"
+                title="Delete" class="noul glyphicon glyphicon-trash"></i>
+              
+            </td>
+    </tr>
+  </tbody>
+</table>
+<span style="float: right;">
+
+  <button ng-click="transferConceptToEditor()" ng-disabled="!selected.relationship" title="Transfer concept to editor"
+        class="btn btn-xs btn-primary">Transfer</button>
+  <button ng-click="openMergeModal()" ng-disabled="!selected.relationship" title="Merge"
+        class="btn btn-xs btn-primary">Merge</button>
+  
+</span>

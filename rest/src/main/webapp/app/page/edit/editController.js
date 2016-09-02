@@ -643,6 +643,19 @@ tsApp
         $scope.next = function() {
           $scope.selectNextRecord($scope.selected.record);
         }
+        
+        // adds an additional concept to list
+        $scope.transferConceptToEditor = function(conceptId) {
+          contentService.getConcept(conceptId, $scope.selected.project.id).then(
+            function(data) {
+              $scope.lists.concepts.push(data);
+              $scope.lists.concepts.sort(utilService.sortBy('id'));
+              // Select first, when the first concept is loaded
+              if (selectFirst && data.id == record.concepts[0].id) {
+                $scope.selectConcept($scope.lists.concepts[0]);
+              }
+            });
+        }
 
         // unselects options from all tables
         $scope.resetSelected = function() {
@@ -702,6 +715,18 @@ tsApp
             'width=1000, height=600');
           $scope.windows['atom'].document.title = 'Atoms Editor';
           $scope.windows['atom'].focus();
+        };
+        
+        // open relationships editor window
+        $scope.openRelationshipsWindow = function() {
+
+          var newUrl = utilService.composeUrl('edit/relationships');
+          window.$windowScope = $scope;
+
+          $scope.windows['relationship'] = $window.open(newUrl, 'relationshipWindow',
+            'width=1000, height=600');
+          $scope.windows['relationship'].document.title = 'Relationships Editor';
+          $scope.windows['relationship'].focus();
         };
 
         // closes child windows when term server tab is closed
