@@ -38,6 +38,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
@@ -1202,7 +1203,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Set up vars for thread
       final Exception[] exceptions = new Exception[1];
-      final boolean handleException = background == null || !background;
+      final boolean handleException = background != null && background;
       final Thread t = new Thread(new Runnable() {
 
         @Override
@@ -1277,14 +1278,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               final int currentCt = stepCt;
               algorithm.addProgressListener(new ProgressListener() {
                 @Override
-                public void updateProgress(ProgressEvent pe) {
-                  lookupAeProgressMap.put(aeId, pe.getPercent());
+                public void updateProgress(ProgressEvent processEvent) {
+                  lookupAeProgressMap.put(aeId, processEvent.getPercent());
 
                   // pe progress is the current progress plus the scaled
                   // progress of the ae
                   lookupPeProgressMap.put(processExecution.getId(),
                       (int) ((100 * currentCt) / enabledSteps)
-                          + (int) (pe.getPercent() / enabledSteps));
+                          + (int) (processEvent.getPercent() / enabledSteps));
                 }
               });
 
@@ -1304,7 +1305,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               processService.updateAlgorithmExecution(algorithmExecution);
 
               // Mark algorithm as finished
-              lookupAeProgressMap.put(algorithmExecution.getId(), 100);
+              lookupAeProgressMap.remove(algorithmExecution.getId());
               processAlgorithmMap.remove(processExecution.getId());
 
             }
@@ -1314,9 +1315,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             processService.updateProcessExecution(processExecution);
 
             // Mark process as finished
-            // TODO: when does this map ever get cleared??
-            lookupPeProgressMap.put(processExecution.getId(), 100);
+            lookupPeProgressMap.remove(processExecution.getId());
 
+            
+            // TODO: send email
+            // recipients = processExecutino.getFeedbackEmail (only do this if not null)
+            //ConfigUtility.sendEmail(subject, from, recipients, body,
+            // ConfigUtility.getConfigProperties(), authFlag);
+            
           } catch (Exception e) {
             exceptions[0] = e;
 
@@ -1338,8 +1344,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               processExecution.setFailDate(new Date());
               processService.updateProcessExecution(processExecution);
             } catch (Exception ex) {
-              // n/a
+              handleException(ex, "trying to update execution info");
             }
+
+            // TODO: send email
+            // recipients = processExecutino.getFeedbackEmail (only do this if not null)
+            //ConfigUtility.sendEmail(subject, from, recipients, body,
+            // ConfigUtility.getConfigProperties(), authFlag);
 
             // Do this if NOT running in the background
             if (handleException) {
@@ -1441,6 +1452,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "finding process progress", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
+      final ProcessExecution processExecution =
+          processService.getProcessExecution(id);
+      if (processExecution.getFinishDate() != null) {
+        return 100;
+      }
+
       if (lookupPeProgressMap.containsKey(id)) {
         return lookupPeProgressMap.get(id);
       }
@@ -1478,6 +1495,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "finding algorithm progress", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
+      final AlgorithmExecution algoExecution =
+          processService.getAlgorithmExecution(id);
+      if (algoExecution.getFinishDate() != null) {
+        return 100;
+      }
       if (lookupAeProgressMap.containsKey(id)) {
         return lookupAeProgressMap.get(id);
       }
