@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.MojoFailureException;
 
+import com.wci.umls.server.AlgorithmConfig;
+import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -38,6 +40,8 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
+import com.wci.umls.server.jpa.AlgorithmConfigJpa;
+import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -51,6 +55,7 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
+import com.wci.umls.server.jpa.services.rest.ProcessServiceRest;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.jpa.worfklow.WorkflowBinDefinitionJpa;
@@ -68,6 +73,7 @@ import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.rest.impl.IntegrationTestServiceRestImpl;
 import com.wci.umls.server.rest.impl.MetadataServiceRestImpl;
+import com.wci.umls.server.rest.impl.ProcessServiceRestImpl;
 import com.wci.umls.server.rest.impl.ProjectServiceRestImpl;
 import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.rest.impl.WorkflowServiceRestImpl;
@@ -270,7 +276,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     validationData.add(typeKeyValue3);
 
     project1.setValidationData(validationData);
-
+    
     // Handle precedence list
     MetadataServiceRest metadataService = new MetadataServiceRestImpl();
     PrecedenceListJpa list =
@@ -286,6 +292,37 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     project1 = (ProjectJpa) project.addProject(project1, authToken);
     final Long projectId = project1.getId();
 
+    // Create and set up a process and algorithm configuration for testing
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+    
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Process for testing use");
+    processConfig.setFeedbackEmail("fake@fake.fake");
+    processConfig.setName("Test Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(terminology);
+    processConfig.setVersion(version);
+    processConfig.setTimestamp(new Date());
+    processConfig = process.addProcessConfig(projectId, (ProcessConfigJpa) processConfig, authToken); 
+    
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("WAIT");
+    algoConfig.setDescription("Algorithm for testing use");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("Test WAIT algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTerminology(terminology);
+    algoConfig.setTimestamp(new Date());
+    algoConfig.setVersion(version);
+    
+    // Create and set required algorithm properties
+    Map<String,String> algoProperties = new HashMap<String,String>();
+    algoProperties.put("num", "10");
+    algoConfig.setProperties(algoProperties);
+    
+    algoConfig = process.addAlgorithmConfig(projectId, (AlgorithmConfigJpa) algoConfig, authToken);
+    
     //
     // Assign project roles
     //
