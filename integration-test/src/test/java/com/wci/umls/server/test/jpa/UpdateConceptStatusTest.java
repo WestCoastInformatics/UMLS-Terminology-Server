@@ -94,7 +94,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     // verify terminology has expected value
     assertTrue(project.getTerminology().equals(umlsTerminology));
 
-    //instantiate required service objects
+    // instantiate required service objects
     contentService = new ContentServiceJpa();
     contentService.setLastModifiedBy("admin");
     contentService.setMolecularActionFlag(false);
@@ -105,10 +105,10 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     conceptJpa.setId(null);
     conceptJpa.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     conceptJpa = (ConceptJpa) contentService.addConcept(conceptJpa);
-    
+
     // Re-instantiate service so it can pickup the changed concept.
     contentService = new ContentServiceJpa();
-    
+
     concept = contentService.getConcept(conceptJpa.getId());
 
   }
@@ -128,7 +128,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     // Due to MySQL rounding to the second, we must also round our comparison
     // startDate.
     Date startDate = DateUtils.round(new Date(), Calendar.SECOND);
-    
+
     // Update the WorkflowStatus of the concept from READY_FOR_PUBLICATION to
     // NEEDS_REVIEW
     final UpdateConceptStatusMolecularAction action =
@@ -136,20 +136,20 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     ValidationResult validationResult = null;
     try {
 
-      // Configure the action 
+      // Configure the action
       action.setProject(project);
       action.setConceptId(concept.getId());
       action.setConceptId2(null);
-      action.setUserName("admin");
+      action.setLastModifiedBy("admin");
       action.setLastModified(concept.getLastModified().getTime());
       action.setOverrideWarnings(false);
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(true);
-      action.setChangeStatusFlag(true);  
-      
-      action.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);   
-      
-      //Perform the action
+      action.setChangeStatusFlag(true);
+
+      action.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+      // Perform the action
       validationResult = action.performMolecularAction(action);
 
     } catch (Exception e) {
@@ -159,7 +159,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     }
 
     assertTrue(validationResult.getErrors().isEmpty());
-    
+
     // Re-instantiate service so it can pickup the changed concept.
     contentService = new ContentServiceJpa();
 
@@ -192,8 +192,8 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
     assertNotNull(atomicActions.get(0).getNewValue());
-    assertEquals("workflowStatus", atomicActions.get(0).getField());    
-    
+    assertEquals("workflowStatus", atomicActions.get(0).getField());
+
   }
 
   /*
@@ -225,7 +225,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
 
   /**
    * Teardown.
-   * @throws Exception 
+   * @throws Exception
    */
   @After
   public void teardown() throws Exception {
@@ -233,7 +233,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
     contentService = new ContentServiceJpa();
     contentService.setLastModifiedBy("admin");
     contentService.setMolecularActionFlag(false);
-    
+
     if (concept != null && contentService.getConcept(concept.getId()) != null) {
       contentService.removeConcept(concept.getId());
     }

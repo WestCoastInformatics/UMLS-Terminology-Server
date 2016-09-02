@@ -110,7 +110,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       }
     }
 
-    validationResult.merge(super.checkPreconditions()); 
+    validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
 
@@ -175,12 +175,12 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     updateConcept(getConcept());
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "
             + getConcept2().getId() + " " + relationship);
-    addLogEntry(getUserName(), getProject().getId(), getConcept2().getId(),
-        getActivityId(), getWorkId(), getName() + " from concept "
-            + getConcept().getId() + " " + relationship);
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getConcept2().getId(), getActivityId(), getWorkId(), getName()
+            + " from concept " + getConcept().getId() + " " + relationship);
 
   }
 

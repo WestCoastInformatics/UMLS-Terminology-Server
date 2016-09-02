@@ -27,13 +27,6 @@ public interface MolecularActionAlgorithm extends Algorithm {
   public Concept getConcept2();
 
   /**
-   * Returns the user name.
-   *
-   * @return the user name
-   */
-  public String getUserName();
-
-  /**
    * Returns the last modified.
    *
    * @return the last modified
@@ -65,13 +58,11 @@ public interface MolecularActionAlgorithm extends Algorithm {
    * @param project the project
    * @param conceptId the concept id
    * @param conceptId2 the concept id2
-   * @param userName the user name
    * @param lastModified the last modified
    * @param molecularActionFlag the molecular action flag
    * @throws Exception the exception
    */
   public void initialize(Project project, Long conceptId, Long conceptId2,
-    String userName, Long lastModified, boolean molecularActionFlag)
-    throws Exception;
+    Long lastModified, boolean molecularActionFlag) throws Exception;
 
 }

@@ -121,7 +121,7 @@ public class MGV_BTest extends IntegrationUnitSupport {
     action.setProject(project);
     action.setConceptId(conceptMTH2.getId());
     action.setConceptId2(conceptMTH1.getId());
-    action.setUserName("admin");
+    action.setLastModifiedBy("admin");
     action.setLastModified(conceptMTH2.getLastModified().getTime());
     action.setOverrideWarnings(false);
     action.setTransactionPerOperation(false);
@@ -145,7 +145,7 @@ public class MGV_BTest extends IntegrationUnitSupport {
     action2.setProject(project);
     action2.setConceptId(conceptMTH2.getId());
     action2.setConceptId2(conceptNoMTH.getId());
-    action2.setUserName("admin");
+    action2.setLastModifiedBy("admin");
     action2.setLastModified(conceptMTH2.getLastModified().getTime());
     action2.setOverrideWarnings(false);
     action2.setTransactionPerOperation(false);

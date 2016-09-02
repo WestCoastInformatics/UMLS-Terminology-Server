@@ -38,7 +38,6 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
@@ -1254,7 +1253,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               algorithm.setProject(processExecution.getProject());
               algorithm.setWorkId(processExecution.getWorkId());
               algorithm.setActivityId(algorithmExecution.getActivityId());
-              algorithm.setUserName(userName);
+              algorithm.setLastModifiedBy(userName);
               // Convert Map<String,String> into properties to configure
               // algorihtm
               final Properties prop = new Properties();
@@ -1317,12 +1316,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             // Mark process as finished
             lookupPeProgressMap.remove(processExecution.getId());
 
-            
             // TODO: send email
-            // recipients = processExecutino.getFeedbackEmail (only do this if not null)
-            //ConfigUtility.sendEmail(subject, from, recipients, body,
+            // recipients = processExecutino.getFeedbackEmail (only do this if
+            // not null)
+            // ConfigUtility.sendEmail(subject, from, recipients, body,
             // ConfigUtility.getConfigProperties(), authFlag);
-            
+
           } catch (Exception e) {
             exceptions[0] = e;
 
@@ -1348,8 +1347,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             }
 
             // TODO: send email
-            // recipients = processExecutino.getFeedbackEmail (only do this if not null)
-            //ConfigUtility.sendEmail(subject, from, recipients, body,
+            // recipients = processExecutino.getFeedbackEmail (only do this if
+            // not null)
+            // ConfigUtility.sendEmail(subject, from, recipients, body,
             // ConfigUtility.getConfigProperties(), authFlag);
 
             // Do this if NOT running in the background

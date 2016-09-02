@@ -197,7 +197,7 @@ public class MGV_GTest extends IntegrationUnitSupport {
     action3.setProject(project);
     action3.setConceptId(conceptMSHCurrent2.getId());
     action3.setConceptId2(conceptMSHPrevious3.getId());
-    action3.setUserName("admin");
+    action3.setLastModifiedBy("admin");
     action3.setLastModified(conceptMSHCurrent2.getLastModified().getTime());
     action3.setOverrideWarnings(false);
     action3.setTransactionPerOperation(false);
@@ -221,7 +221,7 @@ public class MGV_GTest extends IntegrationUnitSupport {
     action.setProject(project);
     action.setConceptId(conceptMSHCurrent2.getId());
     action.setConceptId2(conceptNoMSH.getId());
-    action.setUserName("admin");
+    action.setLastModifiedBy("admin");
     action.setLastModified(conceptMSHCurrent2.getLastModified().getTime());
     action.setOverrideWarnings(false);
     action.setTransactionPerOperation(false);
@@ -245,7 +245,7 @@ public class MGV_GTest extends IntegrationUnitSupport {
     action2.setProject(project);
     action2.setConceptId(conceptMSHCurrent2.getId());
     action2.setConceptId2(conceptMSHCurrent1.getId());
-    action2.setUserName("admin");
+    action2.setLastModifiedBy("admin");
     action2.setLastModified(conceptMSHCurrent2.getLastModified().getTime());
     action2.setOverrideWarnings(false);
     action2.setTransactionPerOperation(false);

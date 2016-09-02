@@ -111,7 +111,7 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
     updateConcept(getConcept());
 
     // log the REST call
-    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "
             + getConcept().getId() + " " + sty);
 

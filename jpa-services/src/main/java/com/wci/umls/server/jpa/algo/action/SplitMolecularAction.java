@@ -387,12 +387,12 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     }
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getFromConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " from concept " + getFromConcept().getId()
             + " into concept " + getToConcept().getId());
 
-    addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getToConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " into concept " + getToConcept().getId() + " from concept "
             + getFromConcept().getId());

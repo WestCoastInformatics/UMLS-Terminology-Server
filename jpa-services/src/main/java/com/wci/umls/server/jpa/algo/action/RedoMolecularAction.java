@@ -257,13 +257,13 @@ public class RedoMolecularAction extends AbstractMolecularAction {
     this.updateMolecularAction(redoMolecularAction);
 
     // log the REST call
-    addLogEntry(getUserName(), getProject().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
         redoMolecularAction.getComponentId(), getActivityId(), getWorkId(),
         getName() + " " + redoMolecularAction.getName() + ", "
             + molecularActionId);
 
     if (redoMolecularAction.getComponentId2() != null) {
-      addLogEntry(getUserName(), getProject().getId(),
+      addLogEntry(getLastModifiedBy(), getProject().getId(),
           redoMolecularAction.getComponentId2(), getActivityId(), getWorkId(),
           getName() + " " + redoMolecularAction.getName() + ", "
               + molecularActionId);

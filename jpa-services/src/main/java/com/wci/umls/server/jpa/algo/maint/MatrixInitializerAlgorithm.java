@@ -40,7 +40,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
     super();
     setActivityId(UUID.randomUUID().toString());
     setWorkId("MATRIXINIT");
-    setUserName("admin");
+    setLastModifiedBy("admin");
   }
 
   /* see superclass */
@@ -150,8 +150,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.setProject(this.getProject());
             action.setConceptId(concept.getId());
             action.setConceptId2(null);
-            action.setUserName(getUserName());
-            action.setLastModifiedBy(getUserName());
+            action.setLastModifiedBy(getLastModifiedBy());
             action.setLastModified(concept.getLastModified().getTime());
             action.setOverrideWarnings(false);
             action.setTransactionPerOperation(false);

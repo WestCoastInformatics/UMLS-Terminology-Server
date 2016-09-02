@@ -33,7 +33,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
     super();
     setActivityId(UUID.randomUUID().toString());
     setWorkId("STAMPING");
-    setUserName("admin");
+    setLastModifiedBy("admin");
   }
 
   /* see superclass */
@@ -71,7 +71,8 @@ public class StampingAlgorithm extends AbstractAlgorithm {
           action.setActivityId(getActivityId());
           action.setConceptId(concept.getId());
           action.setConceptId2(null);
-          action.setUserName(getUserName());
+          action.setLastModifiedBy(getLastModifiedBy());
+          action.setLastModified(concept.getLastModified().getTime());
           action.setOverrideWarnings(true);
           action.setTransactionPerOperation(false);
           action.setMolecularActionFlag(true);
@@ -94,7 +95,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
       logInfo("  activityId = " + getActivityId());
-      logInfo("  user  = " + getUserName());
+      logInfo("  user  = " + getLastModifiedBy());
       logInfo("  count = " + ct);
       logInfo("Finished STAMPING");
 

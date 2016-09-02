@@ -228,11 +228,11 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     updateConcept(getFromConcept());
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getFromConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " " + atomIds + " from Concept " + getFromConcept().getId()
             + " to concept " + getToConcept().getId());
-    addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getToConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " " + atomIds + " to Concept " + getToConcept().getId()
             + " from concept " + getFromConcept().getId());

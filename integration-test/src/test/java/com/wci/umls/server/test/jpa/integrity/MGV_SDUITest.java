@@ -142,7 +142,7 @@ public class MGV_SDUITest extends IntegrationUnitSupport {
     action.setProject(project);
     action.setConceptId(concept2.getId());
     action.setConceptId2(concept1.getId());
-    action.setUserName("admin");
+    action.setLastModifiedBy("admin");
     action.setLastModified(concept2.getLastModified().getTime());
     action.setOverrideWarnings(false);
     action.setTransactionPerOperation(false);
@@ -166,7 +166,7 @@ public class MGV_SDUITest extends IntegrationUnitSupport {
     action2.setProject(project);
     action2.setConceptId(concept2.getId());
     action2.setConceptId2(newConcept.getId());
-    action2.setUserName("admin");
+    action2.setLastModifiedBy("admin");
     action2.setLastModified(concept2.getLastModified().getTime());
     action2.setOverrideWarnings(false);
     action2.setTransactionPerOperation(false);

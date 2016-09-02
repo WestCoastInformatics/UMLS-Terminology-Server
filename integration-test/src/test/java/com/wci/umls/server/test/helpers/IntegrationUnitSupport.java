@@ -72,8 +72,7 @@ public class IntegrationUnitSupport {
 
     action.beginTransaction();
     action.initialize(action.getProject(), action.getConceptId(),
-        action.getConceptId2(), action.getUserName(), action.getLastModified(),
-        false);
+        action.getConceptId2(), action.getLastModified(), false);
     final ValidationResult validationResult = action.checkPreconditions();
     action.rollback();
     action.close();

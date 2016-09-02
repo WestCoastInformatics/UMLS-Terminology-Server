@@ -37,7 +37,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
     super();
     setActivityId(UUID.randomUUID().toString());
     setWorkId("LUI_REASSIGNMENT");
-    setUserName("admin");
+    setLastModifiedBy("admin");
   }
 
   /* see superclass */
@@ -59,7 +59,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
     logInfo("  project = " + getProject().getId());
     logInfo("  workId = " + getWorkId());
     logInfo("  activityId = " + getActivityId());
-    logInfo("  user  = " + getUserName());
+    logInfo("  user  = " + getLastModifiedBy());
 
     try {
       // Assume this is configured to be a umls identifier handler properly

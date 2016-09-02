@@ -33,7 +33,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     super();
     setActivityId(UUID.randomUUID().toString());
     setWorkId("WAIT");
-    setUserName("admin");
+    setLastModifiedBy("admin");
 
   }
 

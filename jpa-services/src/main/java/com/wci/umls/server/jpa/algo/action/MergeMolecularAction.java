@@ -361,11 +361,11 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     removeConcept(getFromConcept().getId());
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(), getFromConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getFromConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " concept " + getFromConcept().getId() + " into concept "
             + getToConcept().getId());
-    addLogEntry(getUserName(), getProject().getId(), getToConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getToConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " concept " + getToConcept().getId() + " from concept "
             + getFromConcept().getId());

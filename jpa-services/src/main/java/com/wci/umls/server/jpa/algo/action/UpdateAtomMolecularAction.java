@@ -136,7 +136,7 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
     updateConcept(getConcept());
 
     // log the REST call
-    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " " + atom);
 
   }

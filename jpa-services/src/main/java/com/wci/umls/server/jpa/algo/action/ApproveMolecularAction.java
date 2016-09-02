@@ -221,7 +221,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
       getConcept().setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     }
 
-    getConcept().setLastApprovedBy(getUserName());
+    getConcept().setLastApprovedBy(getLastModifiedBy());
     getConcept().setLastApproved(new Date());
 
     //
@@ -234,7 +234,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     conceptPostUpdates = new ConceptJpa(getConcept(), false);
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " concept "
             + getConcept().getId() + " " + getConcept().getName());
 

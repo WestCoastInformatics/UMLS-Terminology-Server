@@ -78,9 +78,11 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     if (UserRole.AUTHOR == role) {
       sb.append(" AND workflowStatus:NEW AND NOT authors:[* TO *]");
     } else if (UserRole.REVIEWER == role) {
-      sb.append(
-          " AND workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *]");
-          /*"NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS");*/
+      sb.append(" AND workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *]");
+      /*
+       * "NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS"
+       * );
+       */
     } else if (UserRole.ADMINISTRATOR == role) {
       // n/a, query as is.
     } else {
@@ -311,10 +313,11 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     // Stamp the worklist if "REVIEW_DONE"
     if (worklist.getWorkflowStatus() == WorkflowStatus.REVIEW_DONE) {
       final StampingAlgorithm algo = new StampingAlgorithm();
+
       algo.setProject(worklist.getProject());
       algo.setTerminology(worklist.getProject().getTerminology());
       algo.setActivityId(worklist.getName());
-      algo.setUserName("S-" + userName);
+      algo.setLastModifiedBy("S-" + userName);
       algo.setWorklistId(worklist.getId());
 
       final ValidationResult result = algo.checkPreconditions();

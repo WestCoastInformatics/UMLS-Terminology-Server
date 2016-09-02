@@ -134,7 +134,7 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
       action.setProject(algo.getProject());
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName("admin");
+      action.setLastModifiedBy("admin");
       action.setLastModified(concept.getLastModified().getTime());
       action.setOverrideWarnings(false);
       action.setTransactionPerOperation(false);
@@ -173,8 +173,8 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     assertEquals(WorkflowStatus.DEMOTION, relationship.getWorkflowStatus());
 
     // Make sure containing concept is set to PUBLISHED
-     concept2 = contentService.getConcept(conceptId2);
-     assertEquals(WorkflowStatus.PUBLISHED, concept2.getWorkflowStatus());
+    concept2 = contentService.getConcept(conceptId2);
+    assertEquals(WorkflowStatus.PUBLISHED, concept2.getWorkflowStatus());
 
     // Send the whole project through the initializer
     try {
@@ -323,7 +323,7 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
         action.setProject(algo.getProject());
         action.setConceptId(concept.getId());
         action.setConceptId2(null);
-        action.setUserName("admin");
+        action.setLastModifiedBy("admin");
         action.setLastModified(concept.getLastModified().getTime());
         action.setOverrideWarnings(false);
         action.setTransactionPerOperation(false);
@@ -355,7 +355,7 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
         action2.setProject(algo.getProject());
         action2.setConceptId(concept2.getId());
         action2.setConceptId2(null);
-        action2.setUserName("admin");
+        action2.setLastModifiedBy("admin");
         action2.setLastModified(concept2.getLastModified().getTime());
         action2.setOverrideWarnings(false);
         action2.setTransactionPerOperation(false);
