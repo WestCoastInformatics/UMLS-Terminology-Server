@@ -55,7 +55,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
 
     // Print algorithm progress to the log, waiting a second between.
     for (int i = 1; i <= num; i += 1) {
-      if (this.isCancelled()) {
+      if (isCancelled()) {
         throw new CancelException("Cancelled");
       }
       Thread.sleep(1000);

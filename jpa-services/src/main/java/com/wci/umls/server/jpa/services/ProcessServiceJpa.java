@@ -175,6 +175,11 @@ public class ProcessServiceJpa extends ProjectServiceJpa
   @Override
   public Algorithm getAlgorithmInstance(String key) throws Exception {
     
+    // TODO:  do somethign like this (based on the key):
+    // final Algorithm algorithm =
+    // ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+    // handlerName, Algorithm.class);
+    // return algorithm
     return algorithmsMap.get(key);
   }
   
