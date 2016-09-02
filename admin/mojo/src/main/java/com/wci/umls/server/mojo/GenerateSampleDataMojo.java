@@ -303,7 +303,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     processConfig.setTerminology(terminology);
     processConfig.setVersion(version);
     processConfig.setTimestamp(new Date());
-    processConfig = process.addProcessConfig(projectId, (ProcessConfigJpa) processConfig, authToken); 
+    processConfig = process.addProcessConfig(projectId,(ProcessConfigJpa)processConfig,authToken);
+    process = new ProcessServiceRestImpl();
     
     AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("WAIT");
@@ -321,7 +322,11 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     algoProperties.put("num", "10");
     algoConfig.setProperties(algoProperties);
     
-    algoConfig = process.addAlgorithmConfig(projectId, (AlgorithmConfigJpa) algoConfig, authToken);
+    algoConfig = process.addAlgorithmConfig(projectId,(AlgorithmConfigJpa)algoConfig,authToken);
+    process = new ProcessServiceRestImpl();
+    
+    processConfig.getSteps().add(algoConfig);
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig, authToken);
     
     //
     // Assign project roles
