@@ -27,6 +27,7 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.AlgorithmExecution;
+import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
 
 /**
@@ -90,6 +91,16 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     for (final AlgorithmExecution step : exec.getSteps()) {
       getSteps().add(new AlgorithmExecutionJpa(step));
     }
+  }
+
+  /**
+   * Instantiates a {@link ProcessExecutionJpa} from the specified parameters.
+   *
+   * @param config the config
+   */
+  public ProcessExecutionJpa(ProcessConfig config) {
+    super(config);
+    processConfigId = config.getId();
   }
 
   /* see superclass */

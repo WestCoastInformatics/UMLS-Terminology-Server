@@ -23,6 +23,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
+import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
 import com.wci.umls.server.ProcessExecution;
 
@@ -84,6 +85,16 @@ public class AlgorithmExecutionJpa extends
     failDate = exec.getFailDate();
     algorithmConfigId = exec.getAlgorithmConfigId();
     activityId = exec.getActivityId();
+  }
+
+  /**
+   * Instantiates a {@link AlgorithmExecutionJpa} from the specified parameters.
+   *    
+   * @param config the config
+   */
+  public AlgorithmExecutionJpa(AlgorithmConfig config) {
+    super(config);
+    algorithmConfigId = config.getId();
   }
 
   /* see superclass */
@@ -237,8 +248,8 @@ public class AlgorithmExecutionJpa extends
   @Override
   public String toString() {
     return "AlgorithmExecutionJpa [startDate=" + startDate + ", finishDate="
-        + finishDate + ", failDate=" + failDate + ", processId=" + getProcessId()
-        + ", activityId=" + activityId + ", algorithmConfigId="
+        + finishDate + ", failDate=" + failDate + ", processId="
+        + getProcessId() + ", activityId=" + activityId + ", algorithmConfigId="
         + algorithmConfigId + "] " + super.toString();
   }
 
