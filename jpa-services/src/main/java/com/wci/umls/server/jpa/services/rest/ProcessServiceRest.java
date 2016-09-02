@@ -3,13 +3,12 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import java.util.Properties;
-
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProcessConfigList;
-import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.ProcessExecutionList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -80,6 +79,54 @@ public interface ProcessServiceRest {
     PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
+   * Returns the process execution.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param authToken the auth token
+   * @return the process execution
+   * @throws Exception the exception
+   */
+  public ProcessExecution getProcessExecution(Long projectId, Long id,
+    String authToken) throws Exception;
+
+  /**
+   * Find process execution.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the process execution
+   * @throws Exception the exception
+   */
+  public ProcessExecutionList findProcessExecutions(Long projectId,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Find currently executing processes.
+   *
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the process execution list
+   * @throws Exception the exception
+   */
+  public ProcessExecutionList findCurrentlyExecutingProcesses(Long projectId,
+    String authToken) throws Exception;
+
+  /**
+   * Removes the process execution.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param cascade the cascade
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeProcessExecution(Long projectId, Long id, Boolean cascade,
+    String authToken) throws Exception;  
+  
+  /**
    * Adds the algorithm config.
    *
    * @param projectId the project id
@@ -126,6 +173,18 @@ public interface ProcessServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Returns the algorithm config for key.
+   *
+   * @param projectId the project id
+   * @param algorithmKey the algorithm key
+   * @param authToken the auth token
+   * @return the algorithm config by key
+   * @throws Exception the exception
+   */
+  public AlgorithmConfig getAlgorithmConfigForKey(Long projectId, String algorithmKey,
+    String authToken) throws Exception;  
+  
+  /**
    * Returns the insertion algorithms.
    *
    * @param projectId the project id
@@ -158,116 +217,51 @@ public interface ProcessServiceRest {
   public KeyValuePairList getReleaseAlgorithms(Long projectId, String authToken)
     throws Exception;
 
-  // /**
-  // * Adds the algorithm parameter.
-  // *
-  // * @param projectId the project id
-  // * @param algorithmParameter the algorithm parameter
-  // * @param authToken the auth token
-  // * @return the algorithm parameter
-  // * @throws Exception the exception
-  // */
-  // public AlgorithmParameter addAlgorithmParameter(Long projectId,
-  // AlgorithmParameterJpa algorithmParameter, String authToken) throws
-  // Exception;
-  //
-  // /**
-  // * Update algorithm parameter.
-  // *
-  // * @param projectId the project id
-  // * @param algorithmParameter the algorithm parameter
-  // * @param authToken the auth token
-  // * @throws Exception the exception
-  // */
-  // public void updateAlgorithmParameter(Long projectId,
-  // AlgorithmParameterJpa algorithmParameter, String authToken) throws
-  // Exception;
-  //
-  // /**
-  // * Removes the algorithm parameter.
-  // *
-  // * @param projectId the project id
-  // * @param id the id
-  // * @param authToken the auth token
-  // * @throws Exception the exception
-  // */
-  // public void removeAlgorithmParameter(Long projectId, Long id, String
-  // authToken)
-  // throws Exception;
-  //
-  // /**
-  // * Returns the algorithm parameter.
-  // *
-  // * @param projectId the project id
-  // * @param id the id
-  // * @param authToken the auth token
-  // * @return the algorithm parameter
-  // * @throws Exception the exception
-  // */
-  // public AlgorithmParameter getAlgorithmParameter(Long projectId, Long id,
-  // String authToken) throws Exception;
-
   /**
-   * Returns the predefined processes.
+   * Execute process.
    *
+   * @param projectId the project id
+   * @param id the process config id
+   * @param background the background
    * @param authToken the auth token
-   * @return the predefined processes
+   * @return the long process execution id
    * @throws Exception the exception
    */
-  public StringList getPredefinedProcesses(String authToken) throws Exception;
-
-  // public ProcessConfigList getProcessConfigs(String authToken) throws
-  // Exception;
+  public Long executeProcess(Long projectId, Long id,
+    Boolean background, String authToken) throws Exception;
 
   /**
-   * Run predefined process.
+   * Cancel process.
    *
    * @param projectId the project id
    * @param id the id
-   * @param p the p
    * @param authToken the auth token
-   * @return the long
    * @throws Exception the exception
    */
-  // returns process execution id
-  public Long runPredefinedProcess(Long projectId, String id, Properties p,
-    String authToken) throws Exception;
-
+  public void cancelProcess(Long projectId, Long id, String authToken) throws Exception;
+  
+  
   /**
-   * Run process config.
+   * Returns the process progress.
    *
    * @param projectId the project id
-   * @param processConfigId the process config id
+   * @param id the id
    * @param authToken the auth token
-   * @return the long
+   * @return the progress
    * @throws Exception the exception
    */
-  // returns process execution id after immediately returning.
-  public Long runProcessConfig(Long projectId, Long processConfigId,
-    String authToken) throws Exception;
-
+  public Integer getProcessProgress(Long projectId, Long id, String authToken) throws Exception;
+  
   /**
-   * Lookup progress.
+   * Returns the algorithm progress.
    *
    * @param projectId the project id
-   * @param processExecutionId the process execution id
+   * @param id the id
    * @param authToken the auth token
-   * @return the int
+   * @return the algorithm progress
    * @throws Exception the exception
    */
-  public int lookupProgress(Long projectId, Long processExecutionId,
-    String authToken) throws Exception;
+  public Integer getAlgorithmProgress(Long projectId, Long id, String authToken) throws Exception;
 
-  /**
-   * Cancel process execution.
-   *
-   * @param projectId the project id
-   * @param processExecutionId the process execution id
-   * @param authToken the auth token
-   * @return true, if successful
-   * @throws Exception the exception
-   */
-  // Cancels a running process
-  public boolean cancelProcessExecution(Long projectId, Long processExecutionId,
-    String authToken) throws Exception;
+  
 }

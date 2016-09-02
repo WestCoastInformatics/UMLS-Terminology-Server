@@ -212,6 +212,7 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("algorithmKey");
     tester.include("terminology");
     tester.include("version");
+    tester.include("enabled");
     assertTrue(tester.testNotNullFields());
   }
 

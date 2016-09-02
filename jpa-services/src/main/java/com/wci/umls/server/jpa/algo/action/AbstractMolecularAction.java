@@ -602,6 +602,16 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       setObject = Long.parseLong(value);
     } else if (type == WorkflowStatus.class) {
       setObject = WorkflowStatus.valueOf(value);
+    } else if (type == boolean.class) {
+      if(value.equals("true")){
+        setObject = true;
+      }
+      else if (value.equals("false")){
+        setObject = false;
+      }
+      else{
+        setObject = null;
+      }
     } else {
       throw new Exception(
           "Unrecognized getter method type for undo operation - " + type);
