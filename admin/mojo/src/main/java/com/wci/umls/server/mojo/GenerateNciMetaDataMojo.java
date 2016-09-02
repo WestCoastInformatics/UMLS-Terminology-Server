@@ -217,7 +217,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     newAtomTermgroups.add("MTH/PN");
     newAtomTermgroups.add("NCIMTH/PN");
     project1.setNewAtomTermgroups(newAtomTermgroups);
-    
+
     // Configure valid categories
     final List<String> validCategories = new ArrayList<>();
     validCategories.add("chem");
@@ -893,7 +893,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     user.setName(name);
     user.setEmail(userName + "@example.com");
     user.setApplicationRole(UserRole.USER);
-    user.setTeam("TEAM" + userName.substring(userName.length() - 1));
+    user.setTeam("MSC");
     return user;
   }
 
