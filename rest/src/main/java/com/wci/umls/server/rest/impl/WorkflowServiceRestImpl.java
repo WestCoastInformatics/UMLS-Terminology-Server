@@ -3423,6 +3423,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
    * @return the input stream
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   private InputStream exportList(List<TrackingRecord> records,
     WorkflowService workflowService) throws Exception {
     // Write a header

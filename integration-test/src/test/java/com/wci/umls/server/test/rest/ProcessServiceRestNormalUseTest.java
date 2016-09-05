@@ -83,7 +83,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfigJpa.setVersion(umlsVersion);
     processConfigJpa = (ProcessConfigJpa) processService
         .addProcessConfig(project.getId(), processConfigJpa, authToken);
-    processConfig = (ProcessConfigJpa) processService
+    processConfig = processService
         .getProcessConfig(project.getId(), processConfigJpa.getId(), authToken);
   }
 

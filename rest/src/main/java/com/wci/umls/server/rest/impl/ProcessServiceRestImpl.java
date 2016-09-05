@@ -82,13 +82,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   private SecurityService securityService;
 
   /** The lookup process execution progress map. */
-  private static Map<Long, Integer> lookupPeProgressMap;
+  static Map<Long, Integer> lookupPeProgressMap;
 
   /** The lookup algorithm execution progress map. */
-  private static Map<Long, Integer> lookupAeProgressMap;
+  static Map<Long, Integer> lookupAeProgressMap;
 
   /** The map of which algorithm a process is currently running. */
-  private static Map<Long, Algorithm> processAlgorithmMap;
+  static Map<Long, Algorithm> processAlgorithmMap;
 
   /**
    * Instantiates an empty {@link ProcessServiceRestImpl}.
@@ -989,7 +989,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/config/algo/{key}")
+  @Path("/config/algo/key/{key}")
   @ApiOperation(value = "Get algorithm config for key", notes = "Gets the algorithm config for the specified key", response = AlgorithmConfigJpa.class)
   public AlgorithmConfig getAlgorithmConfigForKey(
     @ApiParam(value = "Project internal id, e.g. 2", required = true) @QueryParam("projectId") Long projectId,
@@ -1205,6 +1205,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final boolean handleException = background != null && background;
       final Thread t = new Thread(new Runnable() {
 
+        @SuppressWarnings("cast")
         @Override
         public void run() {
           // Declare execution so it can be accessed

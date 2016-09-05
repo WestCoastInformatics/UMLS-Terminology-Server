@@ -275,7 +275,8 @@ public class ProcessClientRest extends RootClientRest
     }
 
     // converting to object
-    return ConfigUtility.getGraphForString(resultString, ProcessExecutionList.class);
+    return ConfigUtility.getGraphForString(resultString,
+        ProcessExecutionList.class);
 
   }
 
@@ -314,7 +315,6 @@ public class ProcessClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/process/config/algo/add" + "?projectId=" + projectId);
-    ;
 
     final String algorithmConfigString = ConfigUtility.getStringForGraph(
         algorithmConfig == null ? new AlgorithmConfigJpa() : algorithmConfig);
@@ -438,7 +438,7 @@ public class ProcessClientRest extends RootClientRest
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/algo/" + key + "?projectId=" + projectId);
+        + "/process/config/algo/key/" + key + "?projectId=" + projectId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
@@ -539,16 +539,16 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public Long executeProcess(Long projectId, Long id,
-    Boolean background, String authToken) throws Exception {
+  public Long executeProcess(Long projectId, Long id, Boolean background,
+    String authToken) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
   /* see superclass */
   @Override
-  public void cancelProcess(Long projectId, Long id,
-    String authToken) throws Exception {
+  public void cancelProcess(Long projectId, Long id, String authToken)
+    throws Exception {
     Logger.getLogger(getClass())
         .debug("Process Client - cancel process execution " + id);
     Client client = ClientBuilder.newClient();
@@ -556,8 +556,7 @@ public class ProcessClientRest extends RootClientRest
         + "/execution/" + id + "/cancel" + "?projectId=" + projectId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken)
-        .get();
+        .header("Authorization", authToken).get();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing, successful
