@@ -19,7 +19,7 @@ import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
 /**
- * Implements a security handler that authorizes via IHTSDO authentication.
+ * Implements a security handler that authorizes via UTS authentication.
  */
 public class UtsSecurityServiceHandler implements SecurityServiceHandler {
 

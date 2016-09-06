@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -365,17 +365,11 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       // Lock on the concept id (in Java)
       synchronized (associatedConcept.getId().toString().intern()) {
 
-        // Fail if already locked - this is secondary protection
-        if (isObjectLocked(associatedConcept)) {
-          // unlock concepts and fail
-          rollback();
-          throw new Exception(
-              "Fatal error: concept is locked " + associatedConcept.getId());
+        // If already locked, no need to lock again
+        if (!isObjectLocked(associatedConcept)) {
+          // lock the concept via JPA
+          lockObject(associatedConcept);
         }
-
-        // lock the concept via JPA
-        lockObject(associatedConcept);
-
       }
     }
   }
