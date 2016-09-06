@@ -63,9 +63,10 @@ public class StampingAlgorithm extends AbstractAlgorithm {
       int ct = 0;
       for (final TrackingRecord record : worklist.getTrackingRecords()) {
         lookupTrackingRecordConcepts(record);
-        for (final Concept concept : record.getConcepts()) {
+        for (final Concept c : record.getConcepts()) {
           ct++;
           final ApproveMolecularAction action = new ApproveMolecularAction();
+          final Concept concept = action.getConcept(c.getId());
           // Configure the action
           action.setProject(getProject());
           action.setActivityId(getActivityId());

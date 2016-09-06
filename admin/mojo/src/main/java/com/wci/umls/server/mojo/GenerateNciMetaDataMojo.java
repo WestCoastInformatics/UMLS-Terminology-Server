@@ -191,6 +191,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       UserJpa user = (UserJpa) security.getUser(inits, authToken);
       if (user == null) {
         user = makeUser(inits, name);
+        if (user.getUserName().equals("LAR")
+            || user.getUserName().equals("LLW")) {
+          user.setEditorLevel(5);
+        }
         user.setApplicationRole(UserRole.valueOf("USER"));
         Logger.getLogger(getClass()).info("  user = " + user);
         user = (UserJpa) security.addUser(user, authToken);
