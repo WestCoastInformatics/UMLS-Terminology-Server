@@ -55,7 +55,7 @@
             <tbody>
               <tr ng-repeat="concept in toConcepts"
                 ng-click="selectToConcept(concept)"
-                ng-class="{selected: concept.id == mergeConcept.id}">
+                ng-class="{selected: concept.id == toConcept.id}">
                 <td class="col-md-2 col-xs-2">{{concept.id}}</td>
                 <td class="col-md-5 col-xs-5">{{concept.name}}</td>
                 <td class="col-md-5 col-xs-5">
