@@ -8,7 +8,7 @@ import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
 
 /**
- * Generically represents a change event for a model object.
+ * Generically represents a change event  object.
  */
 public interface ChangeEvent extends HasName, HasLastModified {
 

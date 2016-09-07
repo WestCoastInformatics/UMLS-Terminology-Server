@@ -53,6 +53,12 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     // Perform action specific validation - n/a
 
+    // Verify concept id1/2 are not the same
+    if (getConcept().getId().equals(getConcept2().getId())) {
+      throw new Exception(
+          "Unexpected self-referential relationship, the fromId should match conceptId1");
+    }
+
     // Metadata referential integrity checking
     if (getRelationshipType(relationship.getRelationshipType(),
         relationship.getTerminology(), relationship.getVersion()) == null) {

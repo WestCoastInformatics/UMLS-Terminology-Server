@@ -1,0 +1,148 @@
+// Edit relationship controller
+tsApp.controller('EditRelationshipCtrl', [
+  '$scope',
+  '$uibModalInstance',
+  'utilService',
+  'metaEditingService',
+  'metadataService',
+  'contentService',
+  'selected',
+  'lists',
+  'user',
+  'action',
+  function($scope, $uibModalInstance, utilService, metaEditingService, metadataService,
+    contentService, selected, lists, user, action) {
+    console.debug('Entered edit relationship modal control', lists, action);
+
+    // Scope vars
+    $scope.selected = selected;
+    $scope.lists = lists;
+    $scope.user = user;
+    $scope.action = action;
+
+    $scope.toConcepts = [];
+    $scope.toConcept = null;
+    $scope.overrideWarnings = false;
+    $scope.selectedRelationshipType = 'RO';
+    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'RQ', 'XR' ];
+    $scope.acceptedRelationshipTypes = [ {
+      'key' : '',
+      'value' : '(none)'
+    } ];
+    $scope.metadata = metadataService.getModel();
+    $scope.warnings = [];
+    $scope.errors = [];
+
+    $scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
+    $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
+
+    // Init modal
+    function initialize() {
+      for (var i = 0; i < $scope.lists.concepts.length; i++) {
+        if ($scope.lists.concepts[i].id != $scope.selected.concept.id) {
+          $scope.toConcepts.push($scope.lists.concepts[i]);
+        }
+      }
+      // if selected relationship, add to prospective list
+      // set default from_concept
+      if ($scope.selected.relationship) {
+        contentService.getConcept($scope.selected.relationship.toId, $scope.selected.project.id)
+          .then(function(data) {
+            var found = false;
+            for (var i = 0; i < $scope.toConcepts.length; i++) {
+              if ($scope.toConcepts[i].id == data.id) {
+                found = true;
+              }
+            }
+            if (!found) {
+              $scope.toConcepts.push(data);
+            }
+            $scope.toConcept = data;
+            $scope.selectedRelationshipType = $scope.selected.relationship.relationshipType;
+          });
+
+      } else {
+        $scope.toConcept = $scope.toConcepts[0];
+      }
+
+      // get metadata
+      var termToSet = metadataService.getTerminology($scope.selected.project.terminology);
+      metadataService.setTerminology(termToSet).then(
+        function() {
+          // only keep rel types that are on accepted list
+          for (var i = 0; i < $scope.metadata.relationshipTypes.length; i++) {
+            if ($scope.acceptedRelationshipTypeStrings
+              .includes($scope.metadata.relationshipTypes[i].key)) {
+              $scope.acceptedRelationshipTypes.push($scope.metadata.relationshipTypes[i]);
+            }
+          }
+        });
+    }
+
+    // Perform insert rel
+    $scope.addRelationship = function() {
+      $scope.errors = [];
+
+      var relationship = {
+        assertedDirection : false,
+        fromId : $scope.selected.concept.id,
+        fromName : $scope.selected.concept.name,
+        fromTerminology : $scope.selected.concept.terminology,
+        fromTerminologyId : $scope.selected.concept.terminologyId,
+        fromVersion : metadataService.getTerminologyVersion($scope.selected.project.terminology),
+        group : null,
+        hierarchical : false,
+        inferred : false,
+        name : null,
+        obsolete : false,
+        published : false,
+        relationshipType : $scope.selectedRelationshipType,
+        additionalRelationshipType : '',
+        stated : false,
+        suppressible : false,
+        terminology : $scope.selected.project.terminology,
+        terminologyId : "",
+        toId : $scope.toConcept.id,
+        toName : $scope.toConcept.name,
+        toTerminology : $scope.toConcept.terminology,
+        toTerminologyId : $scope.toConcept.terminologyId,
+        toVersion : metadataService.getTerminologyVersion(toConcept.terminology),
+        type : "RELATIONSHIP",
+        version : metadataService.getTerminologyVersion($scope.selected.project.terminology),
+        workflowStatus : $scope.selectedWorkflowStatus
+      };
+
+      metaEditingService.addRelationship($scope.selected.project.id, $scope.selected.activityId,
+        toConcept, relationship, $scope.overrideWarnings).then(
+      // Success
+      function(data) {
+        $scope.warnings = data.warnings;
+        $scope.errors = data.errors;
+        if ($scope.warnings.length > 0) {
+          $scope.overrideWarnings = true;
+        }
+        if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
+          $uibModalInstance.close();
+        }
+      },
+      // Error
+      function(data) {
+        utilService.handleDialogError($scope.errors, data);
+      });
+    };
+
+    // select the merge concept
+    $scope.selectToConcept = function(concept) {
+      $scope.toConcept = concept;
+    }
+
+    // Dismiss modal
+    $scope.cancel = function() {
+      $uibModalInstance.dismiss('cancel');
+    };
+
+    // initialize modal
+    initialize();
+
+    // end
+  } ]);

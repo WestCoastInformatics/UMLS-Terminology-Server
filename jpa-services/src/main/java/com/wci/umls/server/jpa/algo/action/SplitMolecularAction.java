@@ -387,13 +387,13 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     }
 
     // log the REST calls
-    addLogEntry(getLastModifiedBy(), getProject().getId(), getFromConcept().getId(),
-        getActivityId(), getWorkId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getFromConcept().getId(), getActivityId(), getWorkId(),
         getName() + " from concept " + getFromConcept().getId()
             + " into concept " + getToConcept().getId());
 
-    addLogEntry(getLastModifiedBy(), getProject().getId(), getToConcept().getId(),
-        getActivityId(), getWorkId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getToConcept().getId(), getActivityId(), getWorkId(),
         getName() + " into concept " + getToConcept().getId() + " from concept "
             + getFromConcept().getId());
 
@@ -401,6 +401,12 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     originatingConceptPostUpdates = new ConceptJpa(getFromConcept(), false);
     createdConceptPostUpdates = new ConceptJpa(getToConcept(), false);
 
+  }
+
+  /* see superclass */
+  @Override
+  public boolean lockRelatedConcepts() {
+    return true;
   }
 
 }

@@ -7,7 +7,7 @@ import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * The Interface AtomicAction.
+ * Generically represents a row-level change in the database.
  */
 public interface AtomicAction extends HasId {
 

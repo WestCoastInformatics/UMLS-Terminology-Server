@@ -638,23 +638,22 @@ tsApp
           }
           $scope.selectNextRecord($scope.selected.record);
         }
-        
+
         // Moves to next record without approving selected record
         $scope.next = function() {
           $scope.selectNextRecord($scope.selected.record);
         }
-        
+
         // adds an additional concept to list
         $scope.transferConceptToEditor = function(conceptId) {
-          contentService.getConcept(conceptId, $scope.selected.project.id).then(
-            function(data) {
-              $scope.lists.concepts.push(data);
-              $scope.lists.concepts.sort(utilService.sortBy('id'));
-              // Select first, when the first concept is loaded
-              if (selectFirst && data.id == record.concepts[0].id) {
-                $scope.selectConcept($scope.lists.concepts[0]);
-              }
-            });
+          contentService.getConcept(conceptId, $scope.selected.project.id).then(function(data) {
+            $scope.lists.concepts.push(data);
+            $scope.lists.concepts.sort(utilService.sortBy('id'));
+            // Select first, when the first concept is loaded
+            if (selectFirst && data.id == record.concepts[0].id) {
+              $scope.selectConcept($scope.lists.concepts[0]);
+            }
+          });
         }
 
         // unselects options from all tables
@@ -692,7 +691,7 @@ tsApp
             utilService.handleDialogError($scope.errors, data);
           });
         }
-        
+
         // open semantic type editor window
         $scope.openStyWindow = function() {
 
@@ -704,19 +703,18 @@ tsApp
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
         };
-        
+
         // open atoms editor window
         $scope.openAtomsWindow = function() {
 
           var newUrl = utilService.composeUrl('edit/atoms');
           window.$windowScope = $scope;
 
-          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow',
-            'width=1000, height=600');
+          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 'width=1000, height=600');
           $scope.windows['atom'].document.title = 'Atoms Editor';
           $scope.windows['atom'].focus();
         };
-        
+
         // open relationships editor window
         $scope.openRelationshipsWindow = function() {
 
@@ -758,8 +756,8 @@ tsApp
             return;
           }
           var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/edit/merge.html',
-            controller : 'MergeModalCtrl',
+            templateUrl : 'app/page/edit/mergeMoveSplit.html',
+            controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
               selected : function() {
@@ -768,11 +766,11 @@ tsApp
               lists : function() {
                 return $scope.lists;
               },
-              action : function() {
-                return 'Merge';
-              },
               user : function() {
                 return $scope.user;
+              },
+              action : function() {
+                return 'Merge';
               }
             }
           });
@@ -827,13 +825,11 @@ tsApp
           });
 
         };
-        
-        
 
         // Add time modal
         $scope.openFinishWorkflowModal = function(lworklist) {
           console.debug('openFinishWorkflowModal ', lworklist);
-          
+
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/finishWorkflow.html',
             controller : 'FinishWorkflowModalCtrl',
@@ -864,10 +860,10 @@ tsApp
 
         // Move modal
         $scope.openMoveModal = function() {
-          
+
           var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/edit/merge.html',
-            controller : 'MergeModalCtrl',
+            templateUrl : 'app/page/edit/mergeMoveSplit.html',
+            controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
               selected : function() {
@@ -891,8 +887,8 @@ tsApp
             $scope.getRecords(false);
             $scope.getConcepts($scope.selected.record, true);
           });
-        };  
-          
+        };
+
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //

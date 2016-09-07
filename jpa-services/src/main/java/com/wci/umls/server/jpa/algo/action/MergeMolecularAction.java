@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -118,7 +118,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     // Check superclass validation
     validationResult.merge(super.checkPreconditions());
     return validationResult;
-    
+
   }
 
   /**
@@ -205,9 +205,11 @@ public class MergeMolecularAction extends AbstractMolecularAction {
       removeSemanticTypeComponent(sty.getId());
     }
     for (final ConceptRelationship rel : fromRelationshipsCopies) {
+      System.out.println("remove rel : " + rel.getId());
       removeRelationship(rel.getId(), rel.getClass());
     }
     for (final ConceptRelationship rel : inverseRelationshipsCopies) {
+      System.out.println("invers rel : " + rel.getId());
       removeRelationship(rel.getId(), rel.getClass());
     }
 
@@ -361,18 +363,24 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     removeConcept(getFromConcept().getId());
 
     // log the REST calls
-    addLogEntry(getLastModifiedBy(), getProject().getId(), getFromConcept().getId(),
-        getActivityId(), getWorkId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getFromConcept().getId(), getActivityId(), getWorkId(),
         getName() + " concept " + getFromConcept().getId() + " into concept "
             + getToConcept().getId());
-    addLogEntry(getLastModifiedBy(), getProject().getId(), getToConcept().getId(),
-        getActivityId(), getWorkId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getToConcept().getId(), getActivityId(), getWorkId(),
         getName() + " concept " + getToConcept().getId() + " from concept "
             + getFromConcept().getId());
 
     // Make copy of toConcept to pass into change event
     toConceptPostUpdates = new ConceptJpa(getToConcept(), false);
 
+  }
+
+  /* see superclass */
+  @Override
+  public boolean lockRelatedConcepts() {
+    return true;
   }
 
 }

@@ -673,8 +673,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
+      // The relationship is FROM conceptId -> conceptId2, and REL
+      // is represented in that direction
       action.setConceptId(conceptId);
-      action.setConceptId2(relationship.getFrom().getId());
+      action.setConceptId2(relationship.getTo().getId());
       action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);

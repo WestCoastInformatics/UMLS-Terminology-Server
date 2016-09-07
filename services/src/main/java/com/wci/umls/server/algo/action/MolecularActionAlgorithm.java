@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.algo.action;
 
@@ -64,5 +64,12 @@ public interface MolecularActionAlgorithm extends Algorithm {
    */
   public void initialize(Project project, Long conceptId, Long conceptId2,
     Long lastModified, boolean molecularActionFlag) throws Exception;
+
+  /**
+   * Lock related concepts.
+   *
+   * @return true, if successful
+   */
+  public boolean lockRelatedConcepts();
 
 }

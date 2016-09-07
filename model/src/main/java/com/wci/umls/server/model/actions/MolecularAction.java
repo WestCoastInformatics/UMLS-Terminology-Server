@@ -10,7 +10,7 @@ import com.wci.umls.server.helpers.HasName;
 import com.wci.umls.server.helpers.HasTerminology;
 
 /**
- * Generically represents a molecular action
+ * Generically represents an action on a model element.
  */
 public interface MolecularAction
     extends HasTerminology, HasLastModified, HasName {
