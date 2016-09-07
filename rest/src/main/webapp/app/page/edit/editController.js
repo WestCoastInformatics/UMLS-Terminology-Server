@@ -35,7 +35,7 @@ tsApp
         $scope.assignedCt = 0;
         $scope.availableCt = 0;
         $scope.checklistCt = 0;
-        $scope.metadata = metadataService.getModel();
+
         // Selected variables
         $scope.selected = {
           project : null,
@@ -43,7 +43,9 @@ tsApp
           worklist : null,
           record : null,
           concept : null,
-          worklistMode : 'Assigned'
+          worklistMode : 'Assigned',
+          terminology : null,
+          metadata : null
         };
 
         // Lists
@@ -55,7 +57,8 @@ tsApp
           concepts : [],
           projectRoles : [],
           recordTypes : workflowService.getRecordTypes(),
-          worklistModes : [ 'Available', 'Assigned', 'Checklists' ]
+          worklistModes : [ 'Available', 'Assigned', 'Checklists' ],
+          terminologies : []
         }
 
         // Windows
@@ -337,11 +340,17 @@ tsApp
           });
 
           // Initialize metadata
-          metadataService.initialize().then(function() {
-            var term = metadataService.getLatestTerminology($scope.selected.project.terminology);
-            // Select project terminology - TODO: this is an async process and
-            // may need a "then" d
-            metadataService.setTerminology(term);
+          // TODO: deal with 'latest'
+          metadataService.getTerminology($scope.selected.project.terminology, 'latest').then(
+          // Success
+          function(data) {
+            $scope.selected.terminology = data;
+          });
+          console.debug('XXX');
+          metadataService.getAllMetadata($scope.selected.project.terminology, 'latest').then(
+          // Success
+          function(data) {
+            $scope.selected.metadata = data;
           });
 
         }
@@ -785,9 +794,6 @@ tsApp
             controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
-              metadata : function() {
-                return $scope.metadata;
-              },
               selected : function() {
                 return $scope.selected;
               },
@@ -894,9 +900,6 @@ tsApp
             controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
-              metadata : function() {
-                return $scope.metadata;
-              },
               selected : function() {
                 return $scope.selected;
               },
@@ -927,6 +930,11 @@ tsApp
           // configure tab
           securityService.saveTab($scope.user.userPreferences, '/edit');
           $scope.getProjects();
+          metadataService.getTerminologies().then(
+          // Success
+          function(data) {
+            $scope.lists.terminologies = data.terminologies;
+          });
 
         };
 

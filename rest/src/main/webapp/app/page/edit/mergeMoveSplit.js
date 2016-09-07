@@ -5,12 +5,11 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
   'utilService',
   'metaEditingService',
   'contentService',
-  'metadata',
   'selected',
   'lists',
   'user',
   'action',
-  function($scope, $uibModalInstance, utilService, metaEditingService, contentService, metadata,
+  function($scope, $uibModalInstance, utilService, metaEditingService, contentService,
     selected, lists, user, action) {
     console.debug('Entered merge/move/split modal control', lists, action);
 
@@ -31,7 +30,6 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
       'key' : '',
       'value' : '(none)'
     } ];
-    $scope.metadata = metadata;
     $scope.warnings = [];
     $scope.errors = [];
 
@@ -68,10 +66,10 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
       }
 
       // only keep rel types that are on accepted list
-      for (var i = 0; i < $scope.metadata.relationshipTypes.length; i++) {
+      for (var i = 0; i < $scope.selected.metadata.relationshipTypes.length; i++) {
         if ($scope.acceptedRelationshipTypeStrings
-          .includes($scope.metadata.relationshipTypes[i].key)) {
-          $scope.acceptedRelationshipTypes.push($scope.metadata.relationshipTypes[i]);
+          .includes($scope.selected.metadata.relationshipTypes[i].key)) {
+          $scope.acceptedRelationshipTypes.push($scope.selected.metadata.relationshipTypes[i]);
         }
       }
 

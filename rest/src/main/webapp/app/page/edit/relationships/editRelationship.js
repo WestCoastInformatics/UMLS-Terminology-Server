@@ -5,12 +5,11 @@ tsApp.controller('EditRelationshipModalCtrl', [
   'utilService',
   'metaEditingService',
   'contentService',
-  'metadata',
   'selected',
   'lists',
   'user',
   'action',
-  function($scope, $uibModalInstance, utilService, metaEditingService, contentService, metadata,
+  function($scope, $uibModalInstance, utilService, metaEditingService, contentService, 
     selected, lists, user, action) {
     console.debug('Entered edit relationship modal control', lists, action);
 
@@ -19,7 +18,6 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.lists = lists;
     $scope.user = user;
     $scope.action = action;
-    $scope.metadata = metadata;
 
     $scope.toConcepts = [];
     $scope.toConcept = null;
@@ -69,10 +67,10 @@ tsApp.controller('EditRelationshipModalCtrl', [
         $scope.toConcept = $scope.toConcepts[0];
       }
 
-      for (var i = 0; i < $scope.metadata.relationshipTypes.length; i++) {
+      for (var i = 0; i < $scope.selected.metadata.relationshipTypes.length; i++) {
         if ($scope.acceptedRelationshipTypeStrings
-          .includes($scope.metadata.relationshipTypes[i].key)) {
-          $scope.acceptedRelationshipTypes.push($scope.metadata.relationshipTypes[i]);
+          .includes($scope.selected.metadata.relationshipTypes[i].key)) {
+          $scope.acceptedRelationshipTypes.push($scope.selected.metadata.relationshipTypes[i]);
         }
       }
 

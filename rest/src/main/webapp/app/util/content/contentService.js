@@ -13,9 +13,6 @@ tsApp
       function($http, $q, gpService, utilService, tabService, metadataService) {
         console.debug("configure contentService");
 
-        // Initialize
-        var metadata = metadataService.getModel();
-
         // global history, used for main content view
         var history = {
           // the components stored

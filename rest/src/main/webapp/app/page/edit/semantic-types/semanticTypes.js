@@ -5,20 +5,14 @@ tsApp
     'SemanticTypesCtrl',
     [
       '$scope',
-      '$http',
-      '$location',
-      '$routeParams',
       '$window',
-      'gpService',
-      'utilService',
       'tabService',
-      'securityService',
       'utilService',
       'metadataService',
       'metaEditingService',
       '$uibModal',
-      function($scope, $http, $location, $routeParams, $window, gpService, utilService, tabService,
-        securityService, utilService, metadataService, metaEditingService, $uibModal) {
+      function($scope, $window, tabService, utilService, metadataService, metaEditingService,
+        $uibModal) {
 
         console.debug("configure SemanticTypesCtrl");
 
@@ -30,6 +24,7 @@ tsApp
         $scope.parentWindowScope = window.opener.$windowScope;
         window.$windowScope = $scope;
         $scope.selected = $scope.parentWindowScope.selected;
+        $scope.lists = $scope.parentWindowScope.lists;
 
         // sty lists
         $scope.fullStys = [];
@@ -133,16 +128,13 @@ tsApp
         $scope.initialize = function() {
 
           // Initialize metadata
-          metadataService.initialize().then(
-            function() {
-              var term = metadataService.getLatestTerminology($scope.selected.project.terminology);
-              metadataService.getSemanticTypes($scope.selected.project.terminology, term.version)
-                .then(function(data) {
-                  $scope.fullStys = data.types;
-                  $scope.getPagedStys();
-                });
+          metadataService.getSemanticTypes($scope.selected.project.terminology, 'latest').then(
+          // Success
+          function(data) {
+            $scope.fullStys = data.types;
+            $scope.getPagedStys();
+          });
 
-            });
         }
 
         // Call initialize

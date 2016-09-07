@@ -5,22 +5,16 @@ tsApp
     'RelationshipsCtrl',
     [
       '$scope',
-      '$http',
-      '$location',
-      '$routeParams',
       '$window',
-      'gpService',
       'utilService',
       'contentService',
       'tabService',
       'securityService',
       'utilService',
-      'metadataService',
       'metaEditingService',
       '$uibModal',
-      function($scope, $http, $location, $routeParams, $window, gpService, utilService,
-        contentService, tabService, securityService, utilService, metadataService,
-        metaEditingService, $uibModal) {
+      function($scope, $window, utilService, contentService, tabService, securityService,
+        utilService, metaEditingService, $uibModal) {
 
         console.debug("configure RelationshipsCtrl");
 
@@ -35,8 +29,6 @@ tsApp
         $scope.lists = $scope.parentWindowScope.lists;
         $scope.user = $scope.parentWindowScope.user;
         $scope.selected.relationship = null;
-
-        $scope.metadata = metadataService.getModel();
 
         // Paging variables
         $scope.paging = {};
@@ -60,11 +52,7 @@ tsApp
         $scope.$watch('selected.concept', function() {
           console.debug('in watch');
           $scope.selected.relationship = null;
-          // If metadata has finished initializing, go ahead
-          if ($scope.metadata.terminologies) {
-            $scope.getPagedRelationships();
-          }
-
+          $scope.getPagedRelationships();
         });
 
         // add relationship
@@ -93,9 +81,7 @@ tsApp
             queryRestriction : paging.filter
           };
 
-          var terminology = $scope.selected.project.terminology;
-          var version = metadataService.getTerminologyVersion(terminology);
-          contentService.findRelationshipsForQuery(terminology, version,
+          contentService.findRelationshipsForQuery($scope.selected.project.terminology, 'latest',
             $scope.selected.concept.terminologyId, 'Concept', null, pfs).then(
           // Success
           function(data) {
@@ -103,7 +89,6 @@ tsApp
             $scope.pagedRelationships.totalCount = data.totalCount
 
           });
-
         }
 
         $scope.transferConceptToEditor = function() {
@@ -178,9 +163,6 @@ tsApp
             controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
-              metadata : function() {
-                return $scope.metadata;
-              },
               selected : function() {
                 return $scope.selected;
               },
@@ -217,9 +199,6 @@ tsApp
             controller : 'EditRelationshipModalCtrl',
             backdrop : 'static',
             resolve : {
-              metadata : function() {
-                return $scope.metadata;
-              },
               selected : function() {
                 return $scope.selected;
               },
@@ -246,15 +225,7 @@ tsApp
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //
         $scope.initialize = function() {
-          // Initialize metadata
-          metadataService.initialize().then(function() {
-            var term = metadataService.getLatestTerminology($scope.selected.project.terminology);
-            // Select project terminology
-            metadataService.setTerminology(term).then(function() {
-              $scope.getPagedRelationships();
-            });
-          });
-
+          $scope.getPagedRelationships();
         }
 
         // Call initialize

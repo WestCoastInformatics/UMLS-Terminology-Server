@@ -1,25 +1,24 @@
 // report
-tsApp.directive('report', [ '$window', '$routeParams', 'metadataService',
-  function($window, $routeParams, metadataService) {
-    console.debug('configure report directive');
-    return {
-      restrict : 'A',
-      scope : {
-        // the metadata for the terminology
-        metadata : '=',
+tsApp.directive('report', [ '$window', '$routeParams', function($window, $routeParams) {
+  console.debug('configure report directive');
+  return {
+    restrict : 'A',
+    scope : {
+      // the metadata for the terminology
+      metadata : '=',
 
-        // the component to display
-        component : '=',
+      // the component to display
+      component : '=',
 
-        // callback functions
-        callbacks : '=',
+      // callback functions
+      callbacks : '=',
 
-      },
-      templateUrl : 'app/component/report/report.html',
-      link : function(scope, element, attrs) {
+    },
+    templateUrl : 'app/component/report/report.html',
+    link : function(scope, element, attrs) {
 
-        // declare the show hidden variable (suppressible/obsolete)
-        scope.showHidden = false;
-      }
-    };
-  } ]);
+      // declare the show hidden variable (suppressible/obsolete)
+      scope.showHidden = false;
+    }
+  };
+} ]);

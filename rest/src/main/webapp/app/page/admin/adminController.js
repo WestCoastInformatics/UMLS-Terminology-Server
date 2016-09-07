@@ -33,7 +33,9 @@ tsApp
 
         // Scope variables
         $scope.selected = {
-          project : null
+          project : null,
+          terminology : null,
+          metadata : null
         }
         $scope.lists = {
           projects : [],
@@ -43,10 +45,10 @@ tsApp
           unassignedUsers : [],
           projectRoles : [],
           applicationRoles : [],
-          validationChecks : []
+          validationChecks : [],
+          terminologies : []
         }
 
-       
         // Track user preferences changes
         $scope.changed = {
           feedbackEmail : false
@@ -230,6 +232,7 @@ tsApp
           $scope.getAssignedUsers();
 
           resetPaging();
+
         };
 
         // Removes a project
@@ -386,8 +389,8 @@ tsApp
             backdrop : 'static',
             controller : AddProjectModalCtrl,
             resolve : {
-              metadata : function() {
-                return $scope.metadata;
+              selected : function() {
+                return $scope.selected;
               },
               user : function() {
                 return $scope.user;
@@ -409,7 +412,7 @@ tsApp
         };
 
         // Add project controller
-        var AddProjectModalCtrl = function($scope, $uibModalInstance, user,
+        var AddProjectModalCtrl = function($scope, $uibModalInstance, selected, user,
           validationChecks) {
 
           // Scope variables
@@ -418,22 +421,13 @@ tsApp
           $scope.project = {
             feedbackEmail : user.userPreferences.feedbackEmail
           };
-          $scope.metadata = metadataService.getModel();
+          $scope.selected = selected;
           $scope.user = user;
           $scope.validationChecks = validationChecks;
           $scope.availableChecks = [];
           $scope.selectedChecks = [];
           $scope.errors = [];
 
-          // get metadata
-          var version = metadataService.getTerminologyVersion("UMLS");
-          var termToSet = metadataService.getTerminology("UMLS", version); 
-          metadataService.setTerminology(termToSet).then(function() {
-            console.debug("metadata", $scope.metadata);
-          });
-
-          $scope.terminologies = $scope.metadata.terminologies;
-          
           // Wire default validation check 'on' by default
           for (var i = 0; i < $scope.validationChecks.length; i++) {
             if ($scope.validationChecks[i].value.startsWith('Default')) {
@@ -456,6 +450,21 @@ tsApp
             var index = $scope.selectedChecks.indexOf(check);
             $scope.selectedChecks.splice(index, 1);
           };
+
+          $scope.setTerminology = function(Terminology) {
+            // TODO: need to select a version (then user edit it)
+            // look up the version from metadata service ,then...
+            // Initialize metadata
+            metadataService.getAllMetadata($scope.selected.project.terminology, 'latest').then(
+            // Success
+            function(data) {
+              $scope.selected.metadata = data;
+            });
+          }
+
+          $scope.setVersion = function(version) {
+            // reread get all metadata for language
+          }
 
           // Add the project
           $scope.submitProject = function(project) {
@@ -525,8 +534,8 @@ tsApp
               project : function() {
                 return lproject;
               },
-              metadata : function() {
-                return $scope.metadata;
+              selected : function() {
+                return $scope.selected;
               },
               validationChecks : function() {
                 return $scope.lists.validationChecks;
@@ -544,7 +553,7 @@ tsApp
         };
 
         // Edit project modal controller
-        var EditProjectModalCtrl = function($scope, $uibModalInstance, project, 
+        var EditProjectModalCtrl = function($scope, $uibModalInstance, project, selected,
           validationChecks) {
 
           // Scope variables
@@ -554,16 +563,8 @@ tsApp
           $scope.availableChecks = [];
           $scope.selectedChecks = [];
           $scope.errors = [];
-          $scope.metadata = metadataService.getModel();
+          $scope.selected = selected;
 
-          // get metadata
-          var version = metadataService.getTerminologyVersion("UMLS");
-          var termToSet = metadataService.getTerminology("UMLS", version); 
-          metadataService.setTerminology(termToSet).then(function() {
-            console.debug("metadata", $scope.metadata);
-          });
-
-          $scope.terminologies = $scope.metadata.terminologies;
           // Attach validation checks
           for (var i = 0; i < $scope.validationChecks.length; i++) {
             if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
@@ -767,6 +768,13 @@ tsApp
           $scope.getApplicationRoles();
           $scope.getProjectRoles();
           $scope.getValidationChecks();
+
+          // Get all terminologies
+          metadataService.getTerminologies().then(
+          // Success
+          function(data) {
+            $scope.lists.terminologies = data.terminologies;
+          });
 
           // Handle users with user preferences
           if ($scope.user.userPreferences) {
