@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -310,8 +310,8 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
     service.updateWorklist(worklist);
 
-    // Stamp the worklist if "REVIEW_DONE"
-    if (worklist.getWorkflowStatus() == WorkflowStatus.REVIEW_DONE) {
+    // Stamp the worklist when we send it for publication.
+    if (worklist.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION) {
       final StampingAlgorithm algo = new StampingAlgorithm();
 
       algo.setProject(worklist.getProject());
