@@ -1,17 +1,17 @@
 // Edit relationship controller
-tsApp.controller('EditRelationshipCtrl', [
+tsApp.controller('EditRelationshipModalCtrl', [
   '$scope',
   '$uibModalInstance',
   'utilService',
   'metaEditingService',
-  'metadataService',
   'contentService',
+  'metadata',
   'selected',
   'lists',
   'user',
   'action',
-  function($scope, $uibModalInstance, utilService, metaEditingService, metadataService,
-    contentService, selected, lists, user, action) {
+  function($scope, $uibModalInstance, utilService, metaEditingService, contentService, metadata,
+    selected, lists, user, action) {
     console.debug('Entered edit relationship modal control', lists, action);
 
     // Scope vars
@@ -19,6 +19,7 @@ tsApp.controller('EditRelationshipCtrl', [
     $scope.lists = lists;
     $scope.user = user;
     $scope.action = action;
+    $scope.metadata = metadata;
 
     $scope.toConcepts = [];
     $scope.toConcept = null;
@@ -29,7 +30,6 @@ tsApp.controller('EditRelationshipCtrl', [
       'key' : '',
       'value' : '(none)'
     } ];
-    $scope.metadata = metadataService.getModel();
     $scope.warnings = [];
     $scope.errors = [];
 
@@ -43,6 +43,10 @@ tsApp.controller('EditRelationshipCtrl', [
           $scope.toConcepts.push($scope.lists.concepts[i]);
         }
       }
+      if ($scope.toConcepts.length == 1) {
+        $scope.toConcept = $scope.toConcepts[0];
+      }
+
       // if selected relationship, add to prospective list
       // set default from_concept
       if ($scope.selected.relationship) {
@@ -65,18 +69,13 @@ tsApp.controller('EditRelationshipCtrl', [
         $scope.toConcept = $scope.toConcepts[0];
       }
 
-      // get metadata
-      var termToSet = metadataService.getTerminology($scope.selected.project.terminology);
-      metadataService.setTerminology(termToSet).then(
-        function() {
-          // only keep rel types that are on accepted list
-          for (var i = 0; i < $scope.metadata.relationshipTypes.length; i++) {
-            if ($scope.acceptedRelationshipTypeStrings
-              .includes($scope.metadata.relationshipTypes[i].key)) {
-              $scope.acceptedRelationshipTypes.push($scope.metadata.relationshipTypes[i]);
-            }
-          }
-        });
+      for (var i = 0; i < $scope.metadata.relationshipTypes.length; i++) {
+        if ($scope.acceptedRelationshipTypeStrings
+          .includes($scope.metadata.relationshipTypes[i].key)) {
+          $scope.acceptedRelationshipTypes.push($scope.metadata.relationshipTypes[i]);
+        }
+      }
+
     }
 
     // Perform insert rel
@@ -89,7 +88,7 @@ tsApp.controller('EditRelationshipCtrl', [
         fromName : $scope.selected.concept.name,
         fromTerminology : $scope.selected.concept.terminology,
         fromTerminologyId : $scope.selected.concept.terminologyId,
-        fromVersion : metadataService.getTerminologyVersion($scope.selected.project.terminology),
+        fromVersion : $scope.selected.concept.version,
         group : null,
         hierarchical : false,
         inferred : false,
@@ -106,14 +105,14 @@ tsApp.controller('EditRelationshipCtrl', [
         toName : $scope.toConcept.name,
         toTerminology : $scope.toConcept.terminology,
         toTerminologyId : $scope.toConcept.terminologyId,
-        toVersion : metadataService.getTerminologyVersion(toConcept.terminology),
+        toVersion : $scope.toConcept.version,
         type : "RELATIONSHIP",
-        version : metadataService.getTerminologyVersion($scope.selected.project.terminology),
+        version : $scope.toConcept.version,
         workflowStatus : $scope.selectedWorkflowStatus
       };
 
       metaEditingService.addRelationship($scope.selected.project.id, $scope.selected.activityId,
-        toConcept, relationship, $scope.overrideWarnings).then(
+        $scope.selected.concept, relationship, $scope.overrideWarnings).then(
       // Success
       function(data) {
         $scope.warnings = data.warnings;

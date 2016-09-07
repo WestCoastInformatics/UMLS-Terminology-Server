@@ -4,14 +4,14 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
   '$uibModalInstance',
   'utilService',
   'metaEditingService',
-  'metadataService',
   'contentService',
+  'metadata',
   'selected',
   'lists',
   'user',
   'action',
-  function($scope, $uibModalInstance, utilService, metaEditingService, metadataService,
-    contentService, selected, lists, user, action) {
+  function($scope, $uibModalInstance, utilService, metaEditingService, contentService, metadata,
+    selected, lists, user, action) {
     console.debug('Entered merge/move/split modal control', lists, action);
 
     // Scope vars
@@ -31,7 +31,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
       'key' : '',
       'value' : '(none)'
     } ];
-    $scope.metadata = metadataService.getModel();
+    $scope.metadata = metadata;
     $scope.warnings = [];
     $scope.errors = [];
 
@@ -67,21 +67,14 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
         $scope.toConcept = $scope.toConcepts[0];
       }
 
-      // get metadata
-      var projectTerminologyVersion = metadataService
-        .getTerminologyVersion($scope.selected.project.terminology);
-      var termToSet = metadataService.getTerminology($scope.selected.project.terminology,
-        projectTerminologyVersion);
-      metadataService.setTerminology(termToSet).then(
-        function() {
-          // only keep rel types that are on accepted list
-          for (var i = 0; i < $scope.metadata.relationshipTypes.length; i++) {
-            if ($scope.acceptedRelationshipTypeStrings
-              .includes($scope.metadata.relationshipTypes[i].key)) {
-              $scope.acceptedRelationshipTypes.push($scope.metadata.relationshipTypes[i]);
-            }
-          }
-        });
+      // only keep rel types that are on accepted list
+      for (var i = 0; i < $scope.metadata.relationshipTypes.length; i++) {
+        if ($scope.acceptedRelationshipTypeStrings
+          .includes($scope.metadata.relationshipTypes[i].key)) {
+          $scope.acceptedRelationshipTypes.push($scope.metadata.relationshipTypes[i]);
+        }
+      }
+
     }
 
     // Perform merge

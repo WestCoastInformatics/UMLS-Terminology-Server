@@ -80,13 +80,13 @@
             <span ng-show="selected.worklistMode != 'Checklists'">
               <i
                 ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Available'"
-                ng-click="assignWorklistToSelf(worklist);"
+                ng-click="assignWorklistToSelf(worklist); $event.stopPropagation();"
                 title="Claim worklist"
                 class="noul glyphicon glyphicon-hand-right"></i>
 
               <i confirm="Are you sure you want to unassign the worklist?"
                 ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
-                ng-click="unassignWorklist(worklist); "
+                ng-click="unassignWorklist(worklist); $event.stopPropagation(); "
                 title="Unassign worklist"
                 class="noul glyphicon glyphicon-hand-left"></i>
 

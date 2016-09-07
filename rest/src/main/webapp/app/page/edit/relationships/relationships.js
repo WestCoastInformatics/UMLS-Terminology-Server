@@ -60,7 +60,11 @@ tsApp
         $scope.$watch('selected.concept', function() {
           console.debug('in watch');
           $scope.selected.relationship = null;
-          $scope.getPagedRelationships();
+          // If metadata has finished initializing, go ahead
+          if ($scope.metadata.terminologies) {
+            $scope.getPagedRelationships();
+          }
+
         });
 
         // add relationship
@@ -88,11 +92,10 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-          // TODO no hardcoding
-          var terminology = "UMLS";
-          var version = "latest";
-          contentService.findRelationshipsForQuery(
-          /* $scope.selected.project.terminology */terminology, version,
+
+          var terminology = $scope.selected.project.terminology;
+          var version = metadataService.getTerminologyVersion(terminology);
+          contentService.findRelationshipsForQuery(terminology, version,
             $scope.selected.concept.terminologyId, 'Concept', null, pfs).then(
           // Success
           function(data) {
@@ -102,7 +105,6 @@ tsApp
           });
 
         }
-        ;
 
         $scope.transferConceptToEditor = function() {
           $scope.parentWindowScope.transferConceptToEditor($scope.selected.relationship.toId);
@@ -165,17 +167,6 @@ tsApp
         }
 
         //
-        // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
-        //
-        $scope.initialize = function() {
-          $scope.getPagedRelationships();
-
-        }
-
-        // Call initialize
-        $scope.initialize();
-
-        //
         // Modals
         //
 
@@ -183,10 +174,13 @@ tsApp
         $scope.openMergeModal = function() {
 
           var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/edit/mergeSplitMove.html',
-            controller : 'MergeSplitMoveModalCtrl',
+            templateUrl : 'app/page/edit/mergeMoveSplit.html',
+            controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
+              metadata : function() {
+                return $scope.metadata;
+              },
               selected : function() {
                 return $scope.selected;
               },
@@ -223,6 +217,9 @@ tsApp
             controller : 'EditRelationshipModalCtrl',
             backdrop : 'static',
             resolve : {
+              metadata : function() {
+                return $scope.metadata;
+              },
               selected : function() {
                 return $scope.selected;
               },
@@ -244,5 +241,23 @@ tsApp
             $scope.getPagedRelationships();
           });
         };
+
+        //
+        // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
+        //
+        $scope.initialize = function() {
+          // Initialize metadata
+          metadataService.initialize().then(function() {
+            var term = metadataService.getLatestTerminology($scope.selected.project.terminology);
+            // Select project terminology
+            metadataService.setTerminology(term).then(function() {
+              $scope.getPagedRelationships();
+            });
+          });
+
+        }
+
+        // Call initialize
+        $scope.initialize();
 
       } ]);

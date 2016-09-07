@@ -27,7 +27,7 @@ tsApp.controller('FinishWorkflowModalCtrl',
 
         $scope.errors = [];
         if ($scope.hours > 23) {
-          $scope.errors.push('Invalid nubmer of hours, > 24')
+          $scope.errors.push('Invalid number of hours, > 24')
           return;
         }
         if ($scope.minutes > 59) {
@@ -50,8 +50,7 @@ tsApp.controller('FinishWorkflowModalCtrl',
         },
         // Error
         function(data) {
-          $scope.errors[0] = data;
-          utilService.clearError();
+          utilService.handleDialogError($scope.errors, data);
         });
       };
 
@@ -71,7 +70,7 @@ tsApp.controller('FinishWorkflowModalCtrl',
 
       // Dismiss modal
       $scope.cancel = function() {
-        $uibModalInstance.close();
+        $uibModalInstance.dismiss();
       };
 
       // end

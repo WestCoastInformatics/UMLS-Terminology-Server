@@ -35,6 +35,7 @@ tsApp
         $scope.assignedCt = 0;
         $scope.availableCt = 0;
         $scope.checklistCt = 0;
+        $scope.metadata = metadataService.getModel();
         // Selected variables
         $scope.selected = {
           project : null,
@@ -333,6 +334,14 @@ tsApp
             // Get worklists
             $scope.resetPaging();
             $scope.getWorklists();
+          });
+
+          // Initialize metadata
+          metadataService.initialize().then(function() {
+            var term = metadataService.getLatestTerminology($scope.selected.project.terminology);
+            // Select project terminology - TODO: this is an async process and
+            // may need a "then" d
+            metadataService.setTerminology(term);
           });
 
         }
@@ -646,13 +655,17 @@ tsApp
 
         // adds an additional concept to list
         $scope.transferConceptToEditor = function(conceptId) {
-          contentService.getConcept(conceptId, $scope.selected.project.id).then(function(data) {
+          contentService.getConcept(conceptId, $scope.selected.project.id).then(
+          // Success
+          function(data) {
+            // Only add if not already there
+            for (var i = 0; i < $scope.lists.concepts.length; i++) {
+              if (conceptId == $scope.lists.concepts[i].id) {
+                return;
+              }
+            }
             $scope.lists.concepts.push(data);
             $scope.lists.concepts.sort(utilService.sortBy('id'));
-            // Select first, when the first concept is loaded
-            if (selectFirst && data.id == record.concepts[0].id) {
-              $scope.selectConcept($scope.lists.concepts[0]);
-            }
           });
         }
 
@@ -772,6 +785,9 @@ tsApp
             controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
+              metadata : function() {
+                return $scope.metadata;
+              },
               selected : function() {
                 return $scope.selected;
               },
@@ -878,6 +894,9 @@ tsApp
             controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
+              metadata : function() {
+                return $scope.metadata;
+              },
               selected : function() {
                 return $scope.selected;
               },
@@ -908,6 +927,7 @@ tsApp
           // configure tab
           securityService.saveTab($scope.user.userPreferences, '/edit');
           $scope.getProjects();
+
         };
 
         //

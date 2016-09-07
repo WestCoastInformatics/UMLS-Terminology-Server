@@ -33,6 +33,7 @@ tsApp
         $scope.lists = $scope.parentWindowScope.lists;
         $scope.user = $scope.parentWindowScope.user;
         $scope.selected.atoms = {};
+        $scope.metadata = metadataService.getModel();
 
         // Paging variables
         $scope.paging = {};
@@ -172,17 +173,6 @@ tsApp
         }
 
         //
-        // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
-        //
-        $scope.initialize = function() {
-          $scope.getPagedAtoms();
-
-        }
-
-        // Call initialize
-        $scope.initialize();
-
-        //
         // Modals
         //
         // Add atom modal
@@ -250,6 +240,9 @@ tsApp
             controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
+              metadata : function() {
+                return $scope.metadata;
+              },
               selected : function() {
                 return $scope.selected;
               },
@@ -289,6 +282,9 @@ tsApp
             controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
+              metadata : function() {
+                return $scope.metadata;
+              },
               selected : function() {
                 return $scope.selected;
               },
@@ -327,6 +323,9 @@ tsApp
             controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
+              metadata : function() {
+                return $scope.metadata;
+              },
               selected : function() {
                 return $scope.selected;
               },
@@ -350,5 +349,23 @@ tsApp
           });
 
         };
+
+        //
+        // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
+        //
+        $scope.initialize = function() {
+          // Initialize metadata
+          metadataService.initialize().then(function() {
+            var term = metadataService.getLatestTerminology($scope.selected.project.terminology);
+            // Select project terminology
+            metadataService.setTerminology(term).then(function() {
+              $scope.getPagedAtoms();
+            });
+          });
+
+        }
+
+        // Call initialize
+        $scope.initialize();
 
       } ]);
