@@ -252,7 +252,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     if (this instanceof MergeMolecularAction
         || this instanceof SplitMolecularAction
         || this instanceof ApproveMolecularAction) {
-      lockRelatedConcepts();
+      //lockRelatedConcepts();
     }
 
     if (concept != null) {

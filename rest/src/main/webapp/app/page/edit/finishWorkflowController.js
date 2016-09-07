@@ -16,8 +16,8 @@ tsApp.controller('FinishWorkflowModalCtrl', [
     $scope.project = selected.project;
     $scope.projectRole = selected.projectRole;
     $scope.user = user;
-    $scope.hours;
-    $scope.minutes;
+    $scope.hours = 0;
+    $scope.minutes = 0;
     $scope.errors = [];
 
     // Finish

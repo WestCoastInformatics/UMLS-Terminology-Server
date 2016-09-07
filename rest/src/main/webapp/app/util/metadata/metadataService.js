@@ -228,6 +228,29 @@ tsApp.service('metadataService', [
       // console.debug('no return');
     };
 
+    this.getCurrentTerminology = function(terminology) {
+      //return this.getTerminology(terminology, 'latest');
+      
+      if (!metadata || !metadata.terminology || terminology != metadata.terminology.terminology) {
+
+        // cycle over available terminologies for match
+        for (var i = 0; i < metadata.terminologies.length; i++) {
+          if (metadata.terminologies[i].terminology === terminology) {
+
+            // skip if version is set and does not match
+            /*if (!version || version != metadata.terminologies[i].version) {
+              continue;
+            }*/
+            return metadata.terminologies[i];
+          }
+        }
+      } else {
+        // console.debug('-1', metadata.terminology);
+        return metadata.terminology;
+      }
+    }
+    
+    
     // Get semantic types
     this.getSemanticTypes = function(terminology, version) {
       var deferred = $q.defer();
@@ -389,6 +412,9 @@ tsApp.service('metadataService', [
     // Initialize the service
     // get all terminologies
     this.initialize = function() {
+
+      var deferred = $q.defer();
+      
       // Get terminologies
       gpService.increment();
       $http.get(metadataUrl + '/terminology/current').then(
@@ -397,12 +423,16 @@ tsApp.service('metadataService', [
         console.debug("  terminologies = ", response.data);
         metadata.terminologies = response.data.terminologies;
         gpService.decrement();
+        deferred.resolve();
       },
       // error
       function(response) {
         utilService.handleError(response);
         gpService.decrement();
+        deferred.reject();
       });
+
+      return deferred.promise;
     };
 
     this.initialize();

@@ -85,15 +85,11 @@ tsApp.controller('RelationshipsCtrl', [
         ascending : paging.sortAscending,
         queryRestriction : paging.filter
       };
-      //var version = metadataService.getTerminologyVersion($scope.selected.project.terminology);
-      /*var terminologyId = "106182000";
-      var terminology = "SNOMEDCT_US";
-      var version = "2016_03_01";*/
-      var terminologyId = $scope.selected.concept.terminologyId;
+      // TODO no hardcoding
       var terminology = "UMLS";
       var version = "latest";
       contentService.findRelationshipsForQuery(/*$scope.selected.project.terminology*/ terminology, version,
-        /*$scope.selected.concept.terminologyId*/ terminologyId, 'Concept', null, pfs).then(
+        $scope.selected.concept.terminologyId, 'Concept', null, pfs).then(
       // Success
       function(data) {
         $scope.pagedRelationships = data.relationships;
