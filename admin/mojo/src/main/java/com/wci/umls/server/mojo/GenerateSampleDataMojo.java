@@ -237,6 +237,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     project1.setLanguage("ENG");
     project1.setTerminology(terminology);
     project1.setWorkflowPath(ConfigUtility.DEFAULT);
+    project1.setVersion(version);
     List<String> newAtomTermgroups = new ArrayList<>();
     newAtomTermgroups.add("MTH/PN");
     newAtomTermgroups.add("NCIMTH/PN");
