@@ -130,7 +130,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
       }
 
       metaEditingService.splitConcept($scope.selected.project.id, $scope.selected.activityId,
-        $scope.selectedConcept, atomsList, $scope.copyRelationships, $scope.copySemanticTypes,
+        $scope.selected.concept, atomsList, $scope.copyRelationships, $scope.copySemanticTypes,
         $scope.selectedRelationshipType, $scope.overrideWarnings).then(
       // Success
       function(data) {

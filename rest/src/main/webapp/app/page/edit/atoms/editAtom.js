@@ -7,11 +7,13 @@ tsApp.controller('AtomModalCtrl', [
   'atom',
   'action',
   'selected',
-  function($scope, $uibModalInstance, utilService, metaEditingService, atom, action, selected) {
+  'lists',
+  function($scope, $uibModalInstance, utilService, metaEditingService, atom, action, selected, lists) {
     console.debug('Entered atom modal control', atom, action);
 
     // Scope vars
     $scope.selected = selected;
+    $scope.lists = lists;
     $scope.atom = atom;
     $scope.action = action;
     $scope.overrideWarnings = false;

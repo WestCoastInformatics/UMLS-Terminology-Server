@@ -189,6 +189,9 @@ tsApp
               },
               selected : function() {
                 return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
               }
             }
           });
@@ -216,6 +219,9 @@ tsApp
               },
               selected : function() {
                 return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
               }
             }
           });
