@@ -324,13 +324,14 @@ tsApp
           });
 
           // Initialize metadata
-          // TODO: deal with 'latest'
-          metadataService.getTerminology($scope.selected.project.terminology, 'latest').then(
+          metadataService.getTerminology($scope.selected.project.terminology,
+            $scope.selected.project.version).then(
           // Success
           function(data) {
             $scope.selected.terminology = data;
           });
-          metadataService.getAllMetadata($scope.selected.project.terminology, 'latest').then(
+          metadataService.getAllMetadata($scope.selected.project.terminology,
+            $scope.selected.project.version).then(
           // Success
           function(data) {
             $scope.selected.metadata = data;

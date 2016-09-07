@@ -81,8 +81,12 @@ tsApp
             queryRestriction : paging.filter
           };
 
-          contentService.findRelationshipsForQuery($scope.selected.project.terminology, 'latest',
-            $scope.selected.concept.terminologyId, 'Concept', null, pfs).then(
+          contentService.findRelationshipsForQuery({
+            terminology : $scope.selected.project.terminology,
+            version : $scope.selected.project.version,
+            terminologyId : $scope.selected.concept.terminologyId,
+            type : 'CONCEPT'
+          }, null, pfs).then(
           // Success
           function(data) {
             $scope.pagedRelationships = data.relationships;

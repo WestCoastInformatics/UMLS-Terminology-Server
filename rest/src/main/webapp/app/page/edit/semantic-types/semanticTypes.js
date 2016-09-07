@@ -128,7 +128,8 @@ tsApp
         $scope.initialize = function() {
 
           // Initialize metadata
-          metadataService.getSemanticTypes($scope.selected.project.terminology, 'latest').then(
+          metadataService.getSemanticTypes($scope.selected.project.terminology,
+            $scope.selected.project.version).then(
           // Success
           function(data) {
             $scope.fullStys = data.types;
