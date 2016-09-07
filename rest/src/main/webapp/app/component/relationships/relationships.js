@@ -27,7 +27,6 @@ tsApp.directive('relationships', [
         scope.pageCallback = {
           getPagedList : getPagedList
         };
-
         scope.paging.sortField = 'group';
         scope.paging.sortAscending = true;
         scope.paging.showInferred = false;
@@ -69,7 +68,9 @@ tsApp.directive('relationships', [
               'additionalRelationshipType', 'toName' ];
           }
 
-          var parameters = {
+          var paging = {
+            page : scope.paging.page,
+            pageSize : scope.paging.pageSize,
             showSuppressible : scope.showHidden,
             showObsolete : scope.showHidden,
             showInferred : scope.paging.showInferred,
@@ -79,17 +80,23 @@ tsApp.directive('relationships', [
           };
 
           // Request from service
-          scope.callbacks.findRelationships(scope.component, scope.paging.page, parameters).then(
-            function(data) {
+          scope.callbacks.findRelationships(scope.component, paging).then(
+          // Success
+          function(data) {
 
-              scope.pagedData.data = data.relationships;
-              scope.pagedData.totalCount = data.totalCount;
+            scope.pagedData.data = data.relationships;
+            scope.pagedData.totalCount = data.totalCount;
 
-            });
+          });
         }
         // watch the component
         scope.$watch('component', function() {
           if (scope.component) {
+            // Reset paging
+            scope.paging.page = 1;
+            scope.paging.filter = null;
+
+            // Get data
             getPagedList();
           }
         }, true);

@@ -66,30 +66,14 @@ tsApp
 
         // Paging variables
         $scope.paging = {};
-        $scope.paging['worklists'] = {
-          page : 1,
-          pageSize : 10,
-          filter : '',
-          filterFields : null,
-          sortField : null,
-          sortAscending : true,
-          sortOptions : []
-        };// utilService.getPaging();
+        $scope.paging['worklists'] = utilService.getPaging();
         $scope.paging['worklists'].sortField = 'lastModified';
         $scope.paging['worklists'].pageSize = 5;
         $scope.paging['worklists'].callback = {
           getPagedList : getWorklists
         };
 
-        $scope.paging['records'] = {
-          page : 1,
-          pageSize : 10,
-          filter : '',
-          filterFields : null,
-          sortField : null,
-          sortAscending : true,
-          sortOptions : []
-        };// utilService.getPaging();
+        $scope.paging['records'] = utilService.getPaging();
         $scope.paging['records'].sortField = 'clusterId';
         $scope.paging['records'].callback = {
           getPagedList : getRecords

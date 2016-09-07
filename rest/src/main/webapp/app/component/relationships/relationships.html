@@ -27,7 +27,7 @@
       <span class="label label-default" ng-show="item.obsolete"
         uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
       <span class="label label-info"
-        uib-tooltip="{{callbacks.getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
+        uib-tooltip="{{callbacks.getRelationshipTypeName(item.relationshipType,metadata)}}">{{item.relationshipType}}</span>
       {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
         class="hidden-xs">
         <a ng-show="callbacks.getComponent"

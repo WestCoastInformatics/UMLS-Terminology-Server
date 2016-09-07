@@ -29,27 +29,6 @@ tsApp.controller('EditProjectModalCtrl', [
     $scope.languages = [];
     $scope.errors = [];
 
-    // Configure validation checks
-    if (project) {
-      // Attach validation checks
-      for (var i = 0; i < $scope.validationChecks.length; i++) {
-        if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
-          $scope.selectedChecks.push($scope.validationChecks[i].value);
-        } else {
-          $scope.availableChecks.push($scope.validationChecks[i].value);
-        }
-      }
-    } else {
-      // Wire default validation check 'on' by default
-      for (var i = 0; i < $scope.validationChecks.length; i++) {
-        if ($scope.validationChecks[i].value.startsWith('Default')) {
-          $scope.selectedChecks.push($scope.validationChecks[i].value);
-        } else {
-          $scope.availableChecks.push($scope.validationChecks[i].value);
-        }
-      }
-    }
-
     // move a check from unselected to selected
     $scope.selectValidationCheck = function(check) {
       $scope.selectedChecks.push(check);
@@ -166,6 +145,32 @@ tsApp.controller('EditProjectModalCtrl', [
     $scope.cancel = function() {
       $uibModalInstance.dismiss('cancel');
     };
+
+    //
+    // INITIALIZE
+    //
+
+    // Configure validation checks
+    if (project) {
+      // Attach validation checks
+      for (var i = 0; i < $scope.validationChecks.length; i++) {
+        if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
+          $scope.selectedChecks.push($scope.validationChecks[i].value);
+        } else {
+          $scope.availableChecks.push($scope.validationChecks[i].value);
+        }
+      }
+      $scope.setTerminology(project.terminology);
+    } else {
+      // Wire default validation check 'on' by default
+      for (var i = 0; i < $scope.validationChecks.length; i++) {
+        if ($scope.validationChecks[i].value.startsWith('Default')) {
+          $scope.selectedChecks.push($scope.validationChecks[i].value);
+        } else {
+          $scope.availableChecks.push($scope.validationChecks[i].value);
+        }
+      }
+    }
 
     // end
   } ]);

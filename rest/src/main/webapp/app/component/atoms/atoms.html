@@ -34,7 +34,7 @@
           [
           <span ng-show="item.terminology != component.terminology">
             {{item.terminology}} /</span>
-          <span uib-tooltip="{{callbacks.getTermTypeName(item.termType)}}">{{item.termType}}</span>
+          <span uib-tooltip="{{callbacks.getTermTypeName(item.termType,metadata)}}">{{item.termType}}</span>
           , {{item.language}} ]
 
           <!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
@@ -86,7 +86,7 @@
                 <li
                   ng-repeat="attribute in item.attributes | orderBy: ['name', 'value']">
                   <span class="label label-info"
-                    uib-tooltip="{{callbacks.getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                    uib-tooltip="{{callbacks.getAttributeNameName(attribute.name,metadata)}}">{{attribute.name}}</span>
                   = {{attribute.value}}
                 </li>
               </ul>
@@ -104,7 +104,7 @@
                       <li
                         ng-repeat="attribute in member.attributes | orderBy: ['name']">
                         <span class="label label-info"
-                          uib-tooltip="{{callbacks.getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                          uib-tooltip="{{callbacks.getAttributeNameName(attribute.name,metadata)}}">{{attribute.name}}</span>
                         = {{attribute.value}}
                       </li>
                     </ul>
@@ -120,7 +120,7 @@
                 <li
                   ng-repeat="relationship in item.relationships | orderBy:['relationshipType', 'toName']"><span
                     class="label label-info"
-                    uib-tooltip="{{callbacks.getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
+                    uib-tooltip="{{callbacks.getRelationshipTypeName(relationship.relationshipType,metadata)}}">{{relationship.relationshipType}}</span>
                   {{relationship.additionalRelationshipType}} <a
                     ng-click="callbacks.findComponentsForQuery(relationship.toName)"
                     uib-tooltip="Search in {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>

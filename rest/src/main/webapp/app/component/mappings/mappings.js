@@ -15,52 +15,48 @@ tsApp.directive('mappings', [
       templateUrl : 'app/component/mappings/mappings.html',
       link : function(scope, element, attrs) {
 
-        // instantiate paging and paging callback function
+        // Paging vars
         scope.pagedData = [];
         scope.paging = utilService.getPaging();
         scope.pageCallback = {
           getPagedList : getPagedList
         };
 
-        function getPagedList() {
-
-          var parameters = {
-            showSuppressible : scope.showHidden,
-            showObsolete : scope.showHidden,
-            showInferred : scope.paging.showInferred,
-            text : scope.paging.filter,
-            sortFields : null,
-            sortAscending : true
-          };
-
-          // Request from service
-          contentService.findMappings(scope.component.terminologyId,
-            scope.component.terminology, scope.component.version, scope.paging.page,
-            parameters).then(function(data) {
-
-            scope.pagedMappings = data.mapping;
-            scope.pagedMappings.totalCount = data.totalCount;
-
-          });
-        }
-
         // watch the component
         scope.$watch('component', function() {
           if (scope.component) {
+            // Clear paging
+            scope.paging = utilService.getPaging();
+            scope.pageCallback = {
+              getPagedList : getPagedList
+            };
+            // Get data
             getPagedList();
           }
         }, true);
 
+        // Get paged data
+        function getPagedList() {
 
-        // watch show hidden flag
-        scope.$watch('showHidden', function(newValue, oldValue) {
-          scope.paging.showHidden = scope.showHidden;
-          
-          // if value changed, get paged list
-          if (newValue != oldValue) {
-            getPagedList();
-          }
-        });
+          var paging = $scope.paging;
+          var pfs = {
+            startIndex : (paging.page - 1) * paging.pageSize,
+            maxResults : paging.pageSize,
+            sortField : paging.sortField,
+            ascending : paging.sortAscending,
+            queryRestriction : paging.filter
+          };
+
+          // Request from service
+          contentService.findMappings(scope.component.type, scope.component.terminologyId,
+            scope.component.terminology, scope.component.version, pfs).then(
+          // Success
+          function(data) {
+            scope.pagedMappings = data.mappings;
+            scope.pagedMappings.totalCount = data.totalCount;
+          });
+        }
+
       }
     };
   } ]);

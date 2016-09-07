@@ -70,7 +70,7 @@
         </td>
         <td>
           <span>
-            <select ng-model="project.language"
+            <select ng-disabled="!project.language" ng-model="project.language"
               ng-options="item.key as item.value for item in languages"></select>
           </span>
           <span>{{project.language}}</span>

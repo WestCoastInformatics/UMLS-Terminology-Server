@@ -65,7 +65,7 @@ tsApp.directive('treeSearchResult', [
         // workaround used to get around $sce.trustAsHtml infinite digest loops
         scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
           scope.labelTooltipHtml = $sce.trustAsHtml('<div style="text-align:left;">'
-            + metadataService.getDerivedLabelSetsValue(nodeScope.$modelValue) + '</div>');
+            + metadataService.getDerivedLabelSetsValue(nodeScope.$modelValue, scope.metadata) + '</div>');
 
         };
 
@@ -82,7 +82,7 @@ tsApp.directive('treeSearchResult', [
         // workaround used to get around $sce.trustAsHtml infinite digest loops
         scope.getLabelSetsValueFromTree = function(nodeScope) {
           scope.labelTooltipHtml = $sce.trustAsHtml('<div style="text-align:left;">'
-            + metadataService.getLabelSetsValue(nodeScope.$modelValue) + '</div>');
+            + metadataService.getLabelSetsValue(nodeScope.$modelValue, scope.metadata) + '</div>');
         };
 
         scope.isLabelSetFromTree = function(nodeScope) {

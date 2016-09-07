@@ -1,4 +1,4 @@
-// Semantic types controller
+// Atoms types controller
 
 tsApp
   .controller(
