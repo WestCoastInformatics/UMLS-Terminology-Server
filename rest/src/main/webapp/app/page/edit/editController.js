@@ -727,6 +727,18 @@ tsApp
           $scope.windows['relationship'].focus();
         };
 
+        // open contexts window
+        $scope.openContextsWindow = function() {
+
+          var newUrl = utilService.composeUrl('contexts');
+          window.$windowScope = $scope;
+
+          $scope.windows['context'] = $window.open(newUrl, 'contextWindow',
+            'width=1000, height=600');
+          $scope.windows['context'].document.title = 'Contexts';
+          $scope.windows['context'].focus();
+        };
+
         // closes child windows when term server tab is closed
         $window.onbeforeunload = function(evt) {
           for ( var key in $scope.windows) {
