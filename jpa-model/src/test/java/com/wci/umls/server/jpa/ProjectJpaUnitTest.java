@@ -183,6 +183,7 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     tester.include("teamBased");
     tester.include("language");
     tester.include("terminology");
+    tester.include("version");
     tester.include("semanticTypeCategoryMap");
     tester.include("workflowPath");
     assertTrue(tester.testNotNullFields());

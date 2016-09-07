@@ -102,6 +102,20 @@ public interface Project extends HasLastModified {
   public void setTerminology(String terminology);
 
   /**
+   * Returns the version.
+   * 
+   * @return the version
+   */
+  public String getVersion();
+
+  /**
+   * Sets the version.
+   * 
+   * @param version the version
+   */
+  public void setVersion(String version);
+
+  /**
    * Returns the user role map.
    *
    * @return the user role map

@@ -346,12 +346,13 @@ tsApp
           function(data) {
             $scope.selected.terminology = data;
           });
-          console.debug('XXX');
           metadataService.getAllMetadata($scope.selected.project.terminology, 'latest').then(
           // Success
           function(data) {
             $scope.selected.metadata = data;
           });
+
+          $scope.removeWindows();
 
         }
 
@@ -444,10 +445,15 @@ tsApp
 
         // remove window from map when it is closed
         $scope.removeWindow = function(windowName) {
+          if ($scope.windows.hasOwnProperty(windowName)) {
+            delete $scope.windows[windowName];
+          }
+        }
+
+        // remove windows
+        $scope.removeWindows = function() {
           for ( var win in $scope.windows) {
-            if ($scope.windows.hasOwnProperty(windowName)) {
-              delete $scope.windows[windowName];
-            }
+            delete $scope.windows[win];
           }
         }
 

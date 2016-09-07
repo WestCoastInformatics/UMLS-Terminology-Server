@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -112,11 +112,15 @@ public class ProjectJpa implements Project {
   @Column(nullable = false)
   private String terminology;
 
-  /**  The language. */
+  /** The version. */
+  @Column(nullable = false)
+  private String version;
+
+  /** The language. */
   @Column(nullable = false)
   private String language;
-  
-  /**  The new atom termgroups. */
+
+  /** The new atom termgroups. */
   @ElementCollection(fetch = FetchType.EAGER)
   private List<String> newAtomTermgroups;
 
@@ -194,6 +198,7 @@ public class ProjectJpa implements Project {
     isPublic = project.isPublic();
     teamBased = project.isTeamBased();
     terminology = project.getTerminology();
+    version = project.getVersion();
     branch = project.getBranch();
     userRoleMap = project.getUserRoleMap();
     feedbackEmail = project.getFeedbackEmail();
@@ -265,6 +270,18 @@ public class ProjectJpa implements Project {
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
+  }
+
+  /* see superclass */
+  @Override
+  public String getVersion() {
+    return version;
+  }
+
+  /* see superclass */
+  @Override
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /* see superclass */
@@ -383,7 +400,7 @@ public class ProjectJpa implements Project {
   public void setBranch(String branch) {
     this.branch = branch;
   }
-  
+
   /* see superclass */
   @Override
   public String getLanguage() {
@@ -543,7 +560,7 @@ public class ProjectJpa implements Project {
   public List<String> getNewAtomTermgroups() {
     return this.newAtomTermgroups;
   }
-  
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -628,8 +645,8 @@ public class ProjectJpa implements Project {
         + ", lastModifiedBy=" + lastModifiedBy + ", name=" + name
         + ", description=" + description + ", organization=" + organization
         + ", isPublic=" + isPublic + ", terminology=" + terminology
-        + ", branch=" + branch + ", userRoleMap=" + userRoleMap
-        + ", feedbackEmail=" + feedbackEmail + ", precedenceList="
+        + ", version=" + version + ", branch=" + branch + ", userRoleMap="
+        + userRoleMap + ", feedbackEmail=" + feedbackEmail + ", precedenceList="
         + precedenceList + ", validationChecks=" + validationChecks
         + ", workflowPath=" + workflowPath + ", language=" + language + "]";
   }

@@ -44,15 +44,24 @@
         </td>
         <td>
           <input class="input-filter" placeholder="Enter terminology"
-          ng-change="selectTerminology(project.terminology)"
-            type="text" ng-model="project.terminology"
-            list="project-terminologies">
+            ng-change="setTerminology(project.terminology)" type="text"
+            ng-model="project.terminology" list="project-terminologies">
           <datalist id="project-terminologies">
             <option
-              ng-repeat="terminology in selected.lists.terminologies | filter:{current:true} | orderBy:'terminology'">{{terminology.terminology}}</option>
+              ng-repeat="terminology in lists.terminologies | filter:{current:true} | orderBy:'terminology'">{{terminology.terminology}}</option>
           </datalist>
           <button class="btn btn-xs btn-warning" ng-show="project.terminology"
             ng-click="project.terminology=''">Clear</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Version</b>
+        </td>
+        <td>
+          <input class="input-filter" placeholder="Enter version"
+            ng-blur="setVersion(project.version)" type="text"
+            ng-model="project.version">
         </td>
       </tr>
       <tr>
@@ -62,8 +71,8 @@
         <td>
           <span>
             <select ng-model="project.language"
-              ng-options="item.key as item.value for item in selected.metadata.languages"></select>
-          </span>        
+              ng-options="item.key as item.value for item in languages"></select>
+          </span>
           <span>{{project.language}}</span>
         </td>
       </tr>
