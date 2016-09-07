@@ -155,7 +155,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
-                <include>**/com/wci/umls/server/test/mojo/ResetMetaDevDatabase.java</include>
+                <include>**/com/wci/umls/server/test/mojo/ResetNciMetaDatabase.java</include>
               </includes>
               <additionalClasspathElements>
                 <additionalClasspathElement>src/main/resources</additionalClasspathElement>

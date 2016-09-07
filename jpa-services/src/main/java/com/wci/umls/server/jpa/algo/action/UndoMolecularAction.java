@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -256,12 +256,12 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
 
-    addLogEntry(getUserName(), getProject().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
         undoMolecularAction.getComponentId(), getActivityId(), getWorkId(),
         getName() + " " + undoMolecularAction.getName() + ", "
             + molecularActionId);
     if (undoMolecularAction.getComponentId2() != null) {
-      addLogEntry(getUserName(), getProject().getId(),
+      addLogEntry(getLastModifiedBy(), getProject().getId(),
           undoMolecularAction.getComponentId2(), getActivityId(), getWorkId(),
           getName() + " " + undoMolecularAction.getName() + ", "
               + molecularActionId);

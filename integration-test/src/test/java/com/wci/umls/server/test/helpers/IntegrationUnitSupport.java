@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.helpers;
 
@@ -72,8 +72,7 @@ public class IntegrationUnitSupport {
 
     action.beginTransaction();
     action.initialize(action.getProject(), action.getConceptId(),
-        action.getConceptId2(), action.getUserName(), action.getLastModified(),
-        false);
+        action.getConceptId2(), action.getLastModified(), false);
     final ValidationResult validationResult = action.checkPreconditions();
     action.rollback();
     action.close();

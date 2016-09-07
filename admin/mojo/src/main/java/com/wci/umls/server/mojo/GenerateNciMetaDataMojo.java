@@ -191,6 +191,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       UserJpa user = (UserJpa) security.getUser(inits, authToken);
       if (user == null) {
         user = makeUser(inits, name);
+        if (user.getUserName().equals("LAR")
+            || user.getUserName().equals("LLW")) {
+          user.setEditorLevel(5);
+        }
         user.setApplicationRole(UserRole.valueOf("USER"));
         Logger.getLogger(getClass()).info("  user = " + user);
         user = (UserJpa) security.addUser(user, authToken);
@@ -217,7 +221,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     newAtomTermgroups.add("MTH/PN");
     newAtomTermgroups.add("NCIMTH/PN");
     project1.setNewAtomTermgroups(newAtomTermgroups);
-    
+
     // Configure valid categories
     final List<String> validCategories = new ArrayList<>();
     validCategories.add("chem");
@@ -696,9 +700,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         authToken, UserRole.REVIEWER, WorkflowAction.ASSIGN, authToken);
 
     // Finish review
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
-        authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
+    // authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
 
     //
     // Add a QA bins workflow config for the current project
@@ -893,7 +897,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     user.setName(name);
     user.setEmail(userName + "@example.com");
     user.setApplicationRole(UserRole.USER);
-    user.setTeam("TEAM" + userName.substring(userName.length() - 1));
+    user.setTeam("MSC");
     return user;
   }
 

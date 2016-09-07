@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.jpa.integrity;
 
@@ -130,7 +130,7 @@ public class MGV_ETest extends IntegrationUnitSupport {
     action.setProject(project);
     action.setConceptId(conceptICD10CMRelated2.getId());
     action.setConceptId2(conceptICD10CMRelated1.getId());
-    action.setUserName("admin");
+    action.setLastModifiedBy("admin");
     action.setLastModified(conceptICD10CMRelated2.getLastModified().getTime());
     action.setOverrideWarnings(false);
     action.setTransactionPerOperation(false);
@@ -154,7 +154,7 @@ public class MGV_ETest extends IntegrationUnitSupport {
     action2.setProject(project);
     action2.setConceptId(conceptICD10CMRelated2.getId());
     action2.setConceptId2(conceptICD10CMUnrelated.getId());
-    action2.setUserName("admin");
+    action2.setLastModifiedBy("admin");
     action2.setLastModified(conceptICD10CMRelated2.getLastModified().getTime());
     action2.setOverrideWarnings(false);
     action2.setTransactionPerOperation(false);

@@ -204,6 +204,20 @@ tsApp.run([
             controller : 'AtomsCtrl',
             reloadOnSearch : false
           });
+          
+          console.debug('Route enabled: /edit/relationships');
+          $routeProviderReference.when('/edit/relationships', {
+            templateUrl : 'app/page/edit/relationships/relationships.html',
+            controller : 'RelationshipsCtrl',
+            reloadOnSearch : false
+          });
+          
+          console.debug('Route enabled: /contexts');
+          $routeProviderReference.when('/contexts', {
+            templateUrl : 'app/page/contexts/contexts.html',
+            controller : 'ContextsCtrl',
+            reloadOnSearch : false
+          });
 
           //
           // Configurable routes

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.maint;
 
@@ -33,7 +33,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
     super();
     setActivityId(UUID.randomUUID().toString());
     setWorkId("STAMPING");
-    setUserName("admin");
+    setLastModifiedBy("admin");
   }
 
   /* see superclass */
@@ -63,15 +63,17 @@ public class StampingAlgorithm extends AbstractAlgorithm {
       int ct = 0;
       for (final TrackingRecord record : worklist.getTrackingRecords()) {
         lookupTrackingRecordConcepts(record);
-        for (final Concept concept : record.getConcepts()) {
+        for (final Concept c : record.getConcepts()) {
           ct++;
           final ApproveMolecularAction action = new ApproveMolecularAction();
+          final Concept concept = action.getConcept(c.getId());
           // Configure the action
           action.setProject(getProject());
           action.setActivityId(getActivityId());
           action.setConceptId(concept.getId());
           action.setConceptId2(null);
-          action.setUserName(getUserName());
+          action.setLastModifiedBy(getLastModifiedBy());
+          action.setLastModified(concept.getLastModified().getTime());
           action.setOverrideWarnings(true);
           action.setTransactionPerOperation(false);
           action.setMolecularActionFlag(true);
@@ -94,7 +96,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
       logInfo("  activityId = " + getActivityId());
-      logInfo("  user  = " + getUserName());
+      logInfo("  user  = " + getLastModifiedBy());
       logInfo("  count = " + ct);
       logInfo("Finished STAMPING");
 

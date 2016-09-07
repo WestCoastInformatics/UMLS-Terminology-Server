@@ -3,13 +3,12 @@ tsApp.controller('FinderModalCtrl', [
   '$scope',
   '$uibModalInstance',
   'utilService',
-  'metadataService',
   'contentService',
   'reportService',
   'selected',
   'lists',
   'user',
-  function($scope, $uibModalInstance, utilService, metadataService, contentService, reportService,
+  function($scope, $uibModalInstance, utilService, contentService, reportService,
     selected, lists, user) {
     console.debug('Entered finder modal control');
 
@@ -25,7 +24,6 @@ tsApp.controller('FinderModalCtrl', [
     };
     $scope.searchResults = [];
     $scope.errors = [];
-    $scope.metadata = metadataService.getModel();
 
     // Send concept back to edit controller
     $scope.addConcept = function(concept) {
@@ -55,8 +53,7 @@ tsApp.controller('FinderModalCtrl', [
         queryRestriction : paging.filter
       };
 
-      var version = metadataService.getTerminologyVersion($scope.selected.project.terminology);
-      contentService.findConcepts($scope.selected.project.terminology, version, $scope.query, pfs)
+      contentService.findConcepts($scope.selected.project.terminology, 'latest', $scope.query, pfs)
         .then(
         // Success
         function(data) {

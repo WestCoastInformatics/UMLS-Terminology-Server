@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.jpa.integrity;
 
@@ -120,7 +120,7 @@ public class MGV_H2Test extends IntegrationUnitSupport {
     action.setProject(project);
     action.setConceptId(conceptMSH_DC2.getId());
     action.setConceptId2(conceptMSH_DC1.getId());
-    action.setUserName("admin");
+    action.setLastModifiedBy("admin");
     action.setLastModified(conceptMSH_DC2.getLastModified().getTime());
     action.setOverrideWarnings(false);
     action.setTransactionPerOperation(false);
@@ -144,7 +144,7 @@ public class MGV_H2Test extends IntegrationUnitSupport {
     action2.setProject(project);
     action2.setConceptId(conceptMSH_DC2.getId());
     action2.setConceptId2(conceptMSHNoDC.getId());
-    action2.setUserName("admin");
+    action2.setLastModifiedBy("admin");
     action2.setLastModified(conceptMSH_DC2.getLastModified().getTime());
     action2.setOverrideWarnings(false);
     action2.setTransactionPerOperation(false);
@@ -169,7 +169,7 @@ public class MGV_H2Test extends IntegrationUnitSupport {
     action3.setProject(project);
     action3.setConceptId(conceptMSH_DC2.getId());
     action3.setConceptId2(conceptNoMSH.getId());
-    action3.setUserName("admin");
+    action3.setLastModifiedBy("admin");
     action3.setLastModified(conceptMSH_DC2.getLastModified().getTime());
     action3.setOverrideWarnings(false);
     action3.setTransactionPerOperation(false);

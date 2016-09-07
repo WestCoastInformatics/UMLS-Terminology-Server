@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Language" content="en" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Terminology Server Demo</title>
+<title>{{deploy.title}}</title>
 <style type="text/css" media="all"></style>
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="images/favicon.png" />
@@ -81,24 +81,28 @@
 <script src="app/page/metadata/metadataController.js"></script>
 <script src="app/page/content/contentController.js"></script>
 <script src="app/page/admin/adminController.js"></script>
+<script src="app/page/admin/editProject.js"></script>
+<script src="app/page/admin/editUser.js"></script>
 <script src="app/page/source/sourceController.js"></script>
 <script src="app/page/configure/configureController.js"></script>
 <script src="app/page/workflow/workflowController.js"></script>
 <script src="app/page/edit/editController.js"></script>
 <script src="app/page/edit/semantic-types/semanticTypes.js"></script>
 <script src="app/page/edit/atoms/atoms.js"></script>
+<script src="app/page/edit/relationships/relationships.js"></script>
+<script src="app/page/edit/relationships/editRelationship.js"></script>
 <script src="app/page/process/processController.js"></script>
 <!-- Modal Controllers -->
-<script src="app/page/workflow/addChecklistController.js"></script>
-<script src="app/page/workflow/importController.js"></script>
-<script src="app/page/workflow/addWorklistController.js"></script>
-<script src="app/page/workflow/assignWorklistController.js"></script>
-<script src="app/page/workflow/editConfigController.js"></script>
-<script src="app/page/workflow/editBinController.js"></script>
-<script src="app/page/edit/mergeController.js"></script>
-<script src="app/page/edit/finderController.js"></script>
-<script src="app/page/edit/finishWorkflowController.js"></script>
-<script src="app/page/edit/atoms/editAtomController.js"></script>
+<script src="app/page/workflow/addChecklist.js"></script>
+<script src="app/page/workflow/import.js"></script>
+<script src="app/page/workflow/addWorklist.js"></script>
+<script src="app/page/workflow/assignWorklist.js"></script>
+<script src="app/page/workflow/editConfig.js"></script>
+<script src="app/page/workflow/editBin.js"></script>
+<script src="app/page/edit/mergeMoveSplit.js"></script>
+<script src="app/page/edit/finder.js"></script>
+<script src="app/page/edit/finishWorkflow.js"></script>
+<script src="app/page/edit/atoms/editAtom.js"></script>
 <!-- UTS Component Report Directives -->
 <script src="app/component/report/report.js"></script>
 <script src="app/component/report/reportPre.js"></script>
@@ -130,7 +134,7 @@
   <!--  Javascript detection -->
   <noscript>
     <div class="alert alert-danger">You must have Javascript enabled to
-      use the Terminology Server Demo</div>
+      use the {{deploy.title}}</div>
   </noscript>
   <!-- Header -->
   <div ts-header></div>

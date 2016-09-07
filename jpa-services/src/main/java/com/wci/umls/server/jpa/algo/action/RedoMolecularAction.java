@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -257,13 +257,13 @@ public class RedoMolecularAction extends AbstractMolecularAction {
     this.updateMolecularAction(redoMolecularAction);
 
     // log the REST call
-    addLogEntry(getUserName(), getProject().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
         redoMolecularAction.getComponentId(), getActivityId(), getWorkId(),
         getName() + " " + redoMolecularAction.getName() + ", "
             + molecularActionId);
 
     if (redoMolecularAction.getComponentId2() != null) {
-      addLogEntry(getUserName(), getProject().getId(),
+      addLogEntry(getLastModifiedBy(), getProject().getId(),
           redoMolecularAction.getComponentId2(), getActivityId(), getWorkId(),
           getName() + " " + redoMolecularAction.getName() + ", "
               + molecularActionId);

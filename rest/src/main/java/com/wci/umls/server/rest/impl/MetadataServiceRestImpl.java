@@ -12,9 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 
@@ -22,6 +20,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
@@ -163,9 +162,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
         }
       }
       if (rootTerminology == null) {
-        // terminology does not exist, throw 204 (No Content)
-        throw new WebApplicationException(Response.status(204)
-            .entity("No terminology " + terminology + " is loaded").build());
+        throw new LocalException(
+            "Unexpected missing terminology - " + terminology);
       }
 
       Terminology term = null;
@@ -177,9 +175,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
         }
       }
       if (term == null) {
-        throw new WebApplicationException(
-            Response.status(204).entity("No version " + version
-                + " is loaded for terminology " + terminology).build());
+        throw new LocalException("Unexpected missing terminology/version - "
+            + terminology + ", " + version);
+
       }
 
       // call jpa service and get complex map return type

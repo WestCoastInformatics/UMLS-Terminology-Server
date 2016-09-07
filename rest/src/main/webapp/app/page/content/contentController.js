@@ -121,83 +121,6 @@ tsApp
 
         });
 
-        // Wait for "terminologies" to load
-        $scope.$watch('metadata.terminologies', function() {
-          // Load all terminologies upon controller load (unless already
-          // loaded)
-          if ($scope.metadata.terminologies && !$scope.metadata.terminology) {
-
-            // if route parameters are specified, set the terminology and
-            // retrieve the specified concept
-            if ($routeParams.terminology && $routeParams.version) {
-
-              var termToSet = null;
-              for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                var terminology = $scope.metadata.terminologies[i];
-                // Determine whether to set as default
-                if (terminology.terminology === $routeParams.terminology
-                  && terminology.version === $routeParams.version) {
-                  termToSet = terminology;
-                  break;
-                }
-              }
-
-              if (!termToSet) {
-                utilService.setError('Terminology specified in URL not found');
-              } else {
-
-                // set the terminology
-                $scope.setTerminology(termToSet).then(
-                  function() {
-
-                    // get the component
-                    $scope.getComponent($routeParams.id, $routeParams.type,
-                      $routeParams.terminologyId, $routeParams.terminology, $routeParams.version);
-                  });
-              }
-            }
-
-            // otherwise, specify the default terminology
-            else {
-
-              var found = false;
-              if ($scope.user.userPreferences && $scope.user.userPreferences.lastTerminology) {
-                for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                  var terminology = $scope.metadata.terminologies[i];
-                  // set from user prefs
-                  if (terminology.terminology === $scope.user.userPreferences.lastTerminology) {
-                    $scope.setTerminology(terminology);
-                    found = true;
-                    break;
-                  }
-                }
-              }
-
-              // otherwise look for metathesaurus
-              if (!found) {
-                for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                  var terminology = $scope.metadata.terminologies[i];
-                  // Determine whether to set as default
-                  if (terminology.metathesaurus) {
-                    $scope.setTerminology(terminology);
-                    found = true;
-                    break;
-                  }
-                }
-              }
-
-              // If nothing set, pick the first one
-              if (!found) {
-                if (!$scope.metadata.terminologies) {
-                  window.alert('No terminologies found, database may not be properly loaded.');
-                } else {
-                  $scope.setTerminology($scope.metadata.terminologies[0]);
-                }
-              }
-            }
-          }
-        });
-
         // on route changes, save search params and last viewed component
         $scope.$on('$routeChangeStart', function() {
           contentService.setLastSearchParams($scope.searchParams);
@@ -806,6 +729,87 @@ tsApp
             .extendCallbacks($scope.favoritesCallbacks, $scope.componentRetrievalCallbacks);
 
         };
+
+        // Wait for "terminologies" to load
+        $scope.initMetadata = function() {
+          metadataService.initialize().then(
+            function() {
+              // Load all terminologies upon controller load (unless already
+              // loaded)
+              if ($scope.metadata.terminologies && !$scope.metadata.terminology) {
+
+                // if route parameters are specified, set the terminology and
+                // retrieve the specified concept
+                if ($routeParams.terminology && $routeParams.version) {
+
+                  var termToSet = null;
+                  for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                    var terminology = $scope.metadata.terminologies[i];
+                    // Determine whether to set as default
+                    if (terminology.terminology === $routeParams.terminology
+                      && terminology.version === $routeParams.version) {
+                      termToSet = terminology;
+                      break;
+                    }
+                  }
+
+                  if (!termToSet) {
+                    utilService.setError('Terminology specified in URL not found');
+                  } else {
+
+                    // set the terminology
+                    $scope.setTerminology(termToSet).then(
+                      function() {
+
+                        // get the component
+                        $scope.getComponent($routeParams.id, $routeParams.type,
+                          $routeParams.terminologyId, $routeParams.terminology,
+                          $routeParams.version);
+                      });
+                  }
+                }
+
+                // otherwise, specify the default terminology
+                else {
+
+                  var found = false;
+                  if ($scope.user.userPreferences && $scope.user.userPreferences.lastTerminology) {
+                    for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                      var terminology = $scope.metadata.terminologies[i];
+                      // set from user prefs
+                      if (terminology.terminology === $scope.user.userPreferences.lastTerminology) {
+                        $scope.setTerminology(terminology);
+                        found = true;
+                        break;
+                      }
+                    }
+                  }
+
+                  // otherwise look for metathesaurus
+                  if (!found) {
+                    for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                      var terminology = $scope.metadata.terminologies[i];
+                      // Determine whether to set as default
+                      if (terminology.metathesaurus) {
+                        $scope.setTerminology(terminology);
+                        found = true;
+                        break;
+                      }
+                    }
+                  }
+
+                  // If nothing set, pick the first one
+                  if (!found) {
+                    if (!$scope.metadata.terminologies) {
+                      window.alert('No terminologies found, database may not be properly loaded.');
+                    } else {
+                      $scope.setTerminology($scope.metadata.terminologies[0]);
+                    }
+                  }
+                }
+              }
+            });
+        }
 
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION

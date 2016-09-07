@@ -33,7 +33,9 @@ tsApp
 
         // Scope variables
         $scope.selected = {
-          project : null
+          project : null,
+          terminology : null,
+          metadata : null
         }
         $scope.lists = {
           projects : [],
@@ -43,10 +45,10 @@ tsApp
           unassignedUsers : [],
           projectRoles : [],
           applicationRoles : [],
-          validationChecks : []
+          validationChecks : [],
+          terminologies : []
         }
 
-       
         // Track user preferences changes
         $scope.changed = {
           feedbackEmail : false
@@ -230,6 +232,7 @@ tsApp
           $scope.getAssignedUsers();
 
           resetPaging();
+
         };
 
         // Removes a project
@@ -384,16 +387,25 @@ tsApp
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/admin/editProject.html',
             backdrop : 'static',
-            controller : AddProjectModalCtrl,
+            controller : 'EditProjectModalCtrl',
             resolve : {
-              metadata : function() {
-                return $scope.metadata;
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
               },
               user : function() {
                 return $scope.user;
               },
+              project : function() {
+                return null;
+              },
               validationChecks : function() {
                 return $scope.lists.validationChecks;
+              },
+              action : function() {
+                return 'Add';
               }
             }
           });
@@ -408,111 +420,6 @@ tsApp
           });
         };
 
-        // Add project controller
-        var AddProjectModalCtrl = function($scope, $uibModalInstance, user,
-          validationChecks) {
-
-          // Scope variables
-          $scope.action = 'Add';
-          // Default values for project
-          $scope.project = {
-            feedbackEmail : user.userPreferences.feedbackEmail
-          };
-          $scope.metadata = metadataService.getModel();
-          $scope.user = user;
-          $scope.validationChecks = validationChecks;
-          $scope.availableChecks = [];
-          $scope.selectedChecks = [];
-          $scope.errors = [];
-
-          // get metadata
-          var version = metadataService.getTerminologyVersion("UMLS");
-          var termToSet = metadataService.getTerminology("UMLS", version); 
-          metadataService.setTerminology(termToSet).then(function() {
-            console.debug("metadata", $scope.metadata);
-          });
-
-          $scope.terminologies = $scope.metadata.terminologies;
-          
-          // Wire default validation check 'on' by default
-          for (var i = 0; i < $scope.validationChecks.length; i++) {
-            if ($scope.validationChecks[i].value.startsWith('Default')) {
-              $scope.selectedChecks.push($scope.validationChecks[i].value);
-            } else {
-              $scope.availableChecks.push($scope.validationChecks[i].value);
-            }
-          }
-
-          // move a check from unselected to selected
-          $scope.selectValidationCheck = function(check) {
-            $scope.selectedChecks.push(check);
-            var index = $scope.availableChecks.indexOf(check);
-            $scope.availableChecks.splice(index, 1);
-          };
-
-          // move a check from selected to unselected
-          $scope.removeValidationCheck = function(check) {
-            $scope.availableChecks.push(check);
-            var index = $scope.selectedChecks.indexOf(check);
-            $scope.selectedChecks.splice(index, 1);
-          };
-
-          // Add the project
-          $scope.submitProject = function(project) {
-            if (!project || !project.name || !project.description || !project.terminology) {
-              window.alert('The name, description, and terminology fields cannot be blank. ');
-              return;
-            }
-            // Connect validation checks
-            project.validationChecks = [];
-            for (var i = 0; i < $scope.validationChecks.length; i++) {
-              if ($scope.selectedChecks.indexOf($scope.validationChecks[i].value) != -1) {
-                project.validationChecks.push($scope.validationChecks[i].key);
-              }
-            }
-
-            // Add project - this will validate the expression
-            projectService.addProject(project).then(
-              // Success
-              function(data) {
-                // if not an admin, add user as a project admin
-                if ($scope.user.applicationRole != 'ADMINISTRATOR') {
-                  var projectId = data.id;
-                  projectService
-                    .assignUserToProject(data.id, $scope.user.userName, 'ADMINISTRATOR').then(
-                      function(data) {
-                        // Update 'anyrole'
-                        projectService.getUserHasAnyRole();
-
-                        // Set the "last project" setting to this project
-                        $scope.user.userPreferences.lastProjectId = projectId;
-                        securityService.updateUserPreferences($scope.user.userPreferences);
-                        $uibModalInstance.close(data);
-                      },
-                      // Error
-                      function(data) {
-                        $scope.errors[0] = data;
-                        utilService.clearError();
-                      });
-                } else {
-                  // Close modal and send back the project
-                  $uibModalInstance.close(data);
-                }
-              },
-              // Error
-              function(data) {
-                $scope.errors[0] = data;
-                utilService.clearError();
-              });
-          };
-
-          // Dismiss the modal
-          $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
-          };
-
-        };
-
         // modal for editing a project - only application admins can do
         // this
         $scope.openEditProjectModal = function(lproject) {
@@ -520,16 +427,25 @@ tsApp
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/admin/editProject.html',
             backdrop : 'static',
-            controller : EditProjectModalCtrl,
+            controller : 'EditProjectModalCtrl',
             resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
               project : function() {
                 return lproject;
               },
-              metadata : function() {
-                return $scope.metadata;
-              },
               validationChecks : function() {
                 return $scope.lists.validationChecks;
+              },
+              action : function() {
+                return 'Edit';
               }
             }
           });
@@ -544,7 +460,7 @@ tsApp
         };
 
         // Edit project modal controller
-        var EditProjectModalCtrl = function($scope, $uibModalInstance, project, 
+        var EditProjectModalCtrl = function($scope, $uibModalInstance, project, selected,
           validationChecks) {
 
           // Scope variables
@@ -554,16 +470,8 @@ tsApp
           $scope.availableChecks = [];
           $scope.selectedChecks = [];
           $scope.errors = [];
-          $scope.metadata = metadataService.getModel();
+          $scope.selected = selected;
 
-          // get metadata
-          var version = metadataService.getTerminologyVersion("UMLS");
-          var termToSet = metadataService.getTerminology("UMLS", version); 
-          metadataService.setTerminology(termToSet).then(function() {
-            console.debug("metadata", $scope.metadata);
-          });
-
-          $scope.terminologies = $scope.metadata.terminologies;
           // Attach validation checks
           for (var i = 0; i < $scope.validationChecks.length; i++) {
             if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
@@ -622,18 +530,21 @@ tsApp
         };
 
         // Add user modal
-        $scope.openAddUserModal = function(luser) {
+        $scope.openAddUserModal = function() {
 
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/admin/editUser.html',
             backdrop : 'static',
-            controller : AddUserModalCtrl,
+            controller : 'EditUserModalCtrl',
             resolve : {
               user : function() {
-                return luser;
+                return null;
               },
               applicationRoles : function() {
                 return $scope.lists.applicationRoles;
+              },
+              action : function() {
+                return 'Add';
               }
             }
           });
@@ -646,41 +557,6 @@ tsApp
           });
         };
 
-        // Add user controller
-        var AddUserModalCtrl = function($scope, $uibModalInstance, user, applicationRoles) {
-
-          // Scope vars
-          $scope.action = 'Add';
-          $scope.user = user;
-          $scope.applicationRoles = applicationRoles;
-          $scope.errors = [];
-
-          // Add user
-          $scope.submitUser = function(user) {
-            if (!user || !user.name || !user.userName || !user.applicationRole) {
-              window.alert('The name, user name, and application role fields cannot be blank. ');
-              return;
-            }
-            securityService.addUser(user).then(
-            // Success
-            function(data) {
-              $uibModalInstance.close(data);
-            },
-            // Error
-            function(data) {
-              $scope.errors[0] = data;
-              utilService.clearError();
-            });
-
-          };
-
-          // Dismiss the modal
-          $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
-          };
-
-        };
-
         // modal for editing a user - only application admins can do
         // this
         $scope.openEditUserModal = function(luser) {
@@ -688,13 +564,16 @@ tsApp
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/admin/editUser.html',
             backdrop : 'static',
-            controller : EditUserModalCtrl,
+            controller : 'EditUserModalCtrl',
             resolve : {
               user : function() {
                 return luser;
               },
               applicationRoles : function() {
                 return $scope.lists.applicationRoles;
+              },
+              action : function() {
+                return 'Edit';
               }
             }
           });
@@ -705,49 +584,6 @@ tsApp
             $scope.getUnassignedUsers();
             $scope.getAssignedUsers();
           });
-        };
-
-        // Edit user controller
-        var EditUserModalCtrl = function($scope, $uibModalInstance, user, applicationRoles) {
-
-          $scope.action = 'Edit';
-          $scope.user = user;
-          // copy data structure so it will be fresh each time modal is opened
-          $scope.applicationRoles = applicationRoles;
-          $scope.errors = [];
-
-          // those without application admin roles, can't give themselves admin
-          // roles
-          if (user.applicationRole != 'ADMINISTRATOR') {
-            var index = $scope.applicationRoles.indexOf('ADMINISTRATOR');
-            $scope.applicationRoles.splice(index, 1);
-          }
-
-          // Save the user
-          $scope.submitUser = function(user) {
-
-            if (!user || !user.name || !user.userName || !user.applicationRole) {
-              window.alert('The name, user name, and application role fields cannot be blank. ');
-              return;
-            }
-
-            securityService.updateUser(user).then(
-            // Success
-            function(data) {
-              $uibModalInstance.close(data);
-            },
-            // Error
-            function(data) {
-              $scope.error[0] = data;
-              utilService.clearError();
-            });
-          };
-
-          // Dismiss the dialog
-          $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
-          };
-
         };
 
         // Configure the tab
@@ -767,6 +603,13 @@ tsApp
           $scope.getApplicationRoles();
           $scope.getProjectRoles();
           $scope.getValidationChecks();
+
+          // Get all terminologies
+          metadataService.getTerminologies().then(
+          // Success
+          function(data) {
+            $scope.lists.terminologies = data.terminologies;
+          });
 
           // Handle users with user preferences
           if ($scope.user.userPreferences) {

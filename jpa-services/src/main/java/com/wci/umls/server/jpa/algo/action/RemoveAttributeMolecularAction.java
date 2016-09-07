@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -115,7 +115,7 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
     updateConcept(getConcept());
 
     // log the REST call
-    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " from concept "
             + getConcept().getId() + " " + attribute);
 

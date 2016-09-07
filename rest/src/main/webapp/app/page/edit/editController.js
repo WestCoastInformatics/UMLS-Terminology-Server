@@ -35,6 +35,7 @@ tsApp
         $scope.assignedCt = 0;
         $scope.availableCt = 0;
         $scope.checklistCt = 0;
+
         // Selected variables
         $scope.selected = {
           project : null,
@@ -42,7 +43,9 @@ tsApp
           worklist : null,
           record : null,
           concept : null,
-          worklistMode : 'Assigned'
+          worklistMode : 'Assigned',
+          terminology : null,
+          metadata : null
         };
 
         // Lists
@@ -54,7 +57,8 @@ tsApp
           concepts : [],
           projectRoles : [],
           recordTypes : workflowService.getRecordTypes(),
-          worklistModes : [ 'Available', 'Assigned', 'Checklists' ]
+          worklistModes : [ 'Available', 'Assigned', 'Checklists' ],
+          terminologies : []
         }
 
         // Windows
@@ -335,6 +339,21 @@ tsApp
             $scope.getWorklists();
           });
 
+          // Initialize metadata
+          // TODO: deal with 'latest'
+          metadataService.getTerminology($scope.selected.project.terminology, 'latest').then(
+          // Success
+          function(data) {
+            $scope.selected.terminology = data;
+          });
+          metadataService.getAllMetadata($scope.selected.project.terminology, 'latest').then(
+          // Success
+          function(data) {
+            $scope.selected.metadata = data;
+          });
+
+          $scope.removeWindows();
+
         }
 
         // Reset paging
@@ -426,10 +445,15 @@ tsApp
 
         // remove window from map when it is closed
         $scope.removeWindow = function(windowName) {
+          if ($scope.windows.hasOwnProperty(windowName)) {
+            delete $scope.windows[windowName];
+          }
+        }
+
+        // remove windows
+        $scope.removeWindows = function() {
           for ( var win in $scope.windows) {
-            if ($scope.windows.hasOwnProperty(windowName)) {
-              delete $scope.windows[windowName];
-            }
+            delete $scope.windows[win];
           }
         }
 
@@ -638,10 +662,26 @@ tsApp
           }
           $scope.selectNextRecord($scope.selected.record);
         }
-        
+
         // Moves to next record without approving selected record
         $scope.next = function() {
           $scope.selectNextRecord($scope.selected.record);
+        }
+
+        // adds an additional concept to list
+        $scope.transferConceptToEditor = function(conceptId) {
+          contentService.getConcept(conceptId, $scope.selected.project.id).then(
+          // Success
+          function(data) {
+            // Only add if not already there
+            for (var i = 0; i < $scope.lists.concepts.length; i++) {
+              if (conceptId == $scope.lists.concepts[i].id) {
+                return;
+              }
+            }
+            $scope.lists.concepts.push(data);
+            $scope.lists.concepts.sort(utilService.sortBy('id'));
+          });
         }
 
         // unselects options from all tables
@@ -679,7 +719,7 @@ tsApp
             utilService.handleDialogError($scope.errors, data);
           });
         }
-        
+
         // open semantic type editor window
         $scope.openStyWindow = function() {
 
@@ -691,17 +731,40 @@ tsApp
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
         };
-        
+
         // open atoms editor window
         $scope.openAtomsWindow = function() {
 
           var newUrl = utilService.composeUrl('edit/atoms');
           window.$windowScope = $scope;
 
-          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow',
-            'width=1000, height=600');
+          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 'width=1000, height=600');
           $scope.windows['atom'].document.title = 'Atoms Editor';
           $scope.windows['atom'].focus();
+        };
+
+        // open relationships editor window
+        $scope.openRelationshipsWindow = function() {
+
+          var newUrl = utilService.composeUrl('edit/relationships');
+          window.$windowScope = $scope;
+
+          $scope.windows['relationship'] = $window.open(newUrl, 'relationshipWindow',
+            'width=1000, height=600');
+          $scope.windows['relationship'].document.title = 'Relationships Editor';
+          $scope.windows['relationship'].focus();
+        };
+
+        // open contexts window
+        $scope.openContextsWindow = function() {
+
+          var newUrl = utilService.composeUrl('contexts');
+          window.$windowScope = $scope;
+
+          $scope.windows['context'] = $window.open(newUrl, 'contextWindow',
+            'width=1000, height=600');
+          $scope.windows['context'].document.title = 'Contexts';
+          $scope.windows['context'].focus();
         };
 
         // closes child windows when term server tab is closed
@@ -733,8 +796,8 @@ tsApp
             return;
           }
           var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/edit/merge.html',
-            controller : 'MergeModalCtrl',
+            templateUrl : 'app/page/edit/mergeMoveSplit.html',
+            controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
               selected : function() {
@@ -743,11 +806,11 @@ tsApp
               lists : function() {
                 return $scope.lists;
               },
-              action : function() {
-                return 'Merge';
-              },
               user : function() {
                 return $scope.user;
+              },
+              action : function() {
+                return 'Merge';
               }
             }
           });
@@ -802,13 +865,11 @@ tsApp
           });
 
         };
-        
-        
 
         // Add time modal
         $scope.openFinishWorkflowModal = function(lworklist) {
           console.debug('openFinishWorkflowModal ', lworklist);
-          
+
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/finishWorkflow.html',
             controller : 'FinishWorkflowModalCtrl',
@@ -839,10 +900,10 @@ tsApp
 
         // Move modal
         $scope.openMoveModal = function() {
-          
+
           var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/edit/merge.html',
-            controller : 'MergeModalCtrl',
+            templateUrl : 'app/page/edit/mergeMoveSplit.html',
+            controller : 'MergeMoveSplitModalCtrl',
             backdrop : 'static',
             resolve : {
               selected : function() {
@@ -866,8 +927,8 @@ tsApp
             $scope.getRecords(false);
             $scope.getConcepts($scope.selected.record, true);
           });
-        };  
-          
+        };
+
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //
@@ -875,6 +936,12 @@ tsApp
           // configure tab
           securityService.saveTab($scope.user.userPreferences, '/edit');
           $scope.getProjects();
+          metadataService.getTerminologies().then(
+          // Success
+          function(data) {
+            $scope.lists.terminologies = data.terminologies;
+          });
+
         };
 
         //

@@ -6,9 +6,12 @@ package com.wci.umls.server.jpa.algo.action;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import com.google.common.base.CaseFormat;
 import com.wci.umls.server.AlgorithmParameter;
@@ -39,6 +42,9 @@ import com.wci.umls.server.services.ContentService;
  */
 public abstract class AbstractMolecularAction extends AbstractAlgorithm
     implements MolecularActionAlgorithm {
+
+  /** The Constant LOCK. */
+  private final static String LOCK = "lock";
 
   /** The concept id. */
   private Long conceptId;
@@ -195,23 +201,46 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   /* see superclass */
   @Override
   public void initialize(Project project, Long conceptId, Long conceptId2,
-    String userName, Long lastModified, boolean molecularActionFlag)
-    throws Exception {
+    Long lastModified, boolean molecularActionFlag) throws Exception {
 
     setProject(project);
-    setUserName(userName);
     this.lastModified = lastModified;
 
-    // Extract concept ids and sort them
-    final List<Long> conceptIdList = new ArrayList<Long>();
-    if (conceptId != null) {
-      conceptIdList.add(conceptId);
-    }    if (conceptId2 != null && !(conceptId2.equals(conceptId))) {
-      conceptIdList.add(conceptId2);
+    if (lastModified == null) {
+      throw new Exception("Unexpected null concept last modified value");
     }
 
+    // Global lock to acquire list of concept ids to lock.
+    final List<Long> conceptIdList = new ArrayList<>();
+    synchronized (LOCK) {
+      // Extract concept ids and sort them
+      final Set<Long> conceptIds = new HashSet<>();
+      if (conceptId != null) {
+        conceptIds.add(conceptId);
+      }
+      if (conceptId2 != null && !(conceptId2.equals(conceptId))) {
+        conceptIds.add(conceptId2);
+      }
+
+      // If locking related concepts, add them to the list
+      if (lockRelatedConcepts()) {
+        for (final Long id : new ArrayList<>(conceptIds)) {
+          final Concept concept = getConcept(id);
+          for (final ConceptRelationship rel : concept.getRelationships()) {
+            conceptIds.add(rel.getTo().getId());
+          }
+        }
+      }
+      conceptIdList.addAll(conceptIds);
+      // Sort in id order for locking
+      Collections.sort(conceptIdList);
+    }
+
+    // Clear concept references (this is probably unnecessary)
     this.concept = null;
     this.concept2 = null;
+
+    // Iterate
     for (final Long i : conceptIdList) {
       Concept tempConcept = null;
 
@@ -248,39 +277,28 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       }
     }
 
-    // If the action is of a type that can affect other concepts, lock those as
-    // well
-    if (this instanceof MergeMolecularAction
-        || this instanceof SplitMolecularAction
-        || this instanceof ApproveMolecularAction) {
-      lockRelatedConcepts();
+    // Pick up the terminology/version from concept
+    if (concept != null) {
+      setTerminology(concept.getTerminology());
+      setVersion(concept.getVersion());
+    } else {
+      rollback();
+      throw new Exception("Unexpected missing concept for action " + conceptId);
     }
 
-    if(concept!=null){
-    setTerminology(concept.getTerminology());
-    setVersion(concept.getVersion());
-    }
-    else if (concept2!=null){
-      setTerminology(concept2.getTerminology());
-      setVersion(concept2.getVersion());      
-    }
-    else{
-      rollback();
-      throw new Exception("Error: action could not load any concepts");
-    }
-    
     // Prepare the service
     setMolecularActionFlag(molecularActionFlag);
     setLastModifiedFlag(true);
-    setLastModifiedBy(userName);
 
     // construct the molecular action
     if (molecularActionFlag) {
       final MolecularAction molecularAction = new MolecularActionJpa();
-      molecularAction.setTerminology((concept!=null ? concept.getTerminology() : concept2.getTerminology()));
+      molecularAction.setTerminology((concept != null ? concept.getTerminology()
+          : concept2.getTerminology()));
       molecularAction.setComponentId(conceptId);
       molecularAction.setComponentId2(conceptId2);
-      molecularAction.setVersion((concept!=null ? concept.getVersion() : concept2.getVersion()));
+      molecularAction.setVersion(
+          (concept != null ? concept.getVersion() : concept2.getVersion()));
       molecularAction.setName(getName());
       molecularAction.setTimestamp(new Date());
       molecularAction.setActivityId(getActivityId());
@@ -296,85 +314,22 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     }
 
     // throw exception on terminology mismatch
-    if (!project.getTerminology().equals((concept!=null ? concept.getTerminology() : concept2.getTerminology()))) {
+    if (!project.getTerminology().equals((concept != null
+        ? concept.getTerminology() : concept2.getTerminology()))) {
       // unlock concepts and fail
       rollback();
       throw new Exception("Project and concept terminologies do not match");
     }
 
-    // Concept freshness check - either concept mus match
-    // because the user picks one that may not wind up being "concept"
-    // TODO: probably both should match
-    if (lastModified != null && !((concept != null
-        && concept.getLastModified().getTime() == lastModified.longValue()) || 
-        (concept2 != null
-        && concept2.getLastModified().getTime() == lastModified.longValue()))) {
-        // unlock concepts and fail
-        rollback();
-        throw new LocalException(
-            "Concept has changed since last read, please refresh and try again ("
-                + lastModified + (concept!= null ? ", " + concept.getLastModified().getTime() : " ") 
-                + (concept2!= null ? ", " + concept2.getLastModified().getTime() : " "));
-      }
-  }
-
-  /**
-   * Lock related concepts.
-   *
-   * @throws Exception the exception
-   */
-  public void lockRelatedConcepts() throws Exception {
-
-    Concept sourceConcept = null;
-    // For merges, conceptId2 will have the affected relationships
-    if (this instanceof MergeMolecularAction) {
-      sourceConcept = getConcept2();
-    }
-    // For splits and approvals, conceptId will have the affected relationships
-    if (this instanceof ApproveMolecularAction
-        || this instanceof SplitMolecularAction) {
-      sourceConcept = getConcept();
-    }
-
-    // Get all of the inverse relationships associated with the source concept
-    List<ConceptRelationship> relationships = sourceConcept.getRelationships();
-
-    // Lock all of the concepts that are NOT concept or concept2
-    for (final ConceptRelationship rel : relationships) {
-      // Grab the concept from the relationship
-      Concept associatedConcept = rel.getTo();
-
-      // Verify concept exists
-      if (associatedConcept == null) {
-        // unlock concepts and fail
-        rollback();
-        throw new Exception("Concept does not exist");
-      }
-
-      // Make sure we're not trying to re-lock Concept or Concept2
-      if (getConcept().getId().equals(associatedConcept.getId())) {
-        continue;
-      }
-      if (getConcept2() != null
-          && getConcept2().getId().equals(associatedConcept.getId())) {
-        continue;
-      }
-
-      // Lock on the concept id (in Java)
-      synchronized (associatedConcept.getId().toString().intern()) {
-
-        // Fail if already locked - this is secondary protection
-        if (isObjectLocked(associatedConcept)) {
-          // unlock concepts and fail
-          rollback();
-          throw new Exception(
-              "Fatal error: concept is locked " + associatedConcept.getId());
-        }
-
-        // lock the concept via JPA
-        lockObject(associatedConcept);
-
-      }
+    // Concept freshness check - the driving concept of the action
+    // should match the "last modified" value.
+    if (concept.getLastModified().getTime() != lastModified.longValue()) {
+      // unlock concepts and fail
+      rollback();
+      throw new LocalException(
+          "Concept has changed since last read, please refresh and try again ("
+              + lastModified + (concept != null
+                  ? ", " + concept.getLastModified().getTime() : " "));
     }
   }
 
@@ -602,13 +557,11 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     } else if (type == WorkflowStatus.class) {
       setObject = WorkflowStatus.valueOf(value);
     } else if (type == boolean.class) {
-      if(value.equals("true")){
+      if (value.equals("true")) {
         setObject = true;
-      }
-      else if (value.equals("false")){
+      } else if (value.equals("false")) {
         setObject = false;
-      }
-      else{
+      } else {
         setObject = null;
       }
     } else {
@@ -684,6 +637,12 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       }
     }
 
+  }
+
+  /* see superclass */
+  @Override
+  public boolean lockRelatedConcepts() {
+    return false;
   }
 
 }

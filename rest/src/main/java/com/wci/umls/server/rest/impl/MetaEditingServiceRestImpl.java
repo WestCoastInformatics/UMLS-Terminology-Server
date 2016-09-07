@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -135,7 +135,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -213,7 +213,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -290,7 +290,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -369,7 +369,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -445,7 +445,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -522,7 +522,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -597,7 +597,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -673,9 +673,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
+      // The relationship is FROM conceptId -> conceptId2, and REL
+      // is represented in that direction
       action.setConceptId(conceptId);
       action.setConceptId2(relationship.getTo().getId());
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -759,7 +761,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -836,7 +838,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -906,9 +908,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/move " + projectId
-            + "," + conceptId + " move atoms for user " + authToken
-            + " to concept " + conceptId2);
+        .info("RESTful POST call (MetaEditing): /atom/move " + projectId + ","
+            + conceptId + " move atoms for user " + authToken + " to concept "
+            + conceptId2);
 
     // Instantiate services
     final MoveMolecularAction action = new MoveMolecularAction();
@@ -926,7 +928,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -1020,7 +1022,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -1115,7 +1117,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -1204,7 +1206,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(false);
       action.setChangeStatusFlag(true);
@@ -1306,7 +1308,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setUserName(userName);
+      action.setLastModifiedBy(userName);
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(false);
       action.setChangeStatusFlag(true);

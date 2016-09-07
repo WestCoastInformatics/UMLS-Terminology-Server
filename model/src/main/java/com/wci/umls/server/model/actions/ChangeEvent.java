@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.actions;
 
@@ -8,7 +8,7 @@ import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
 
 /**
- * Generically represents a change event for a model object.
+ * Generically represents a change event  object.
  */
 public interface ChangeEvent extends HasName, HasLastModified {
 

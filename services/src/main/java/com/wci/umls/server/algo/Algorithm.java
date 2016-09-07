@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.algo;
 
@@ -62,13 +62,6 @@ public interface Algorithm
    * @param workId the work id
    */
   public void setWorkId(String workId);
-
-  /**
-   * Sets the user name.
-   *
-   * @param userName the user name
-   */
-  public void setUserName(String userName);
 
   /**
    * Returns the parameters.

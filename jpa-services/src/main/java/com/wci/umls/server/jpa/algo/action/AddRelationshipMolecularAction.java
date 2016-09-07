@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -52,6 +52,12 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     final ValidationResult validationResult = new ValidationResultJpa();
 
     // Perform action specific validation - n/a
+
+    // Verify concept id1/2 are not the same
+    if (getConcept().getId().equals(getConcept2().getId())) {
+      throw new Exception(
+          "Unexpected self-referential relationship, the fromId should match conceptId1");
+    }
 
     // Metadata referential integrity checking
     if (getRelationshipType(relationship.getRelationshipType(),
@@ -110,7 +116,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       }
     }
 
-    validationResult.merge(super.checkPreconditions()); 
+    validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
 
@@ -175,12 +181,12 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     updateConcept(getConcept());
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "
             + getConcept2().getId() + " " + relationship);
-    addLogEntry(getUserName(), getProject().getId(), getConcept2().getId(),
-        getActivityId(), getWorkId(), getName() + " from concept "
-            + getConcept().getId() + " " + relationship);
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getConcept2().getId(), getActivityId(), getWorkId(), getName()
+            + " from concept " + getConcept().getId() + " " + relationship);
 
   }
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -38,7 +38,6 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
@@ -83,13 +82,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   private SecurityService securityService;
 
   /** The lookup process execution progress map. */
-  private static Map<Long, Integer> lookupPeProgressMap;
+  static Map<Long, Integer> lookupPeProgressMap;
 
   /** The lookup algorithm execution progress map. */
-  private static Map<Long, Integer> lookupAeProgressMap;
+  static Map<Long, Integer> lookupAeProgressMap;
 
   /** The map of which algorithm a process is currently running. */
-  private static Map<Long, Algorithm> processAlgorithmMap;
+  static Map<Long, Algorithm> processAlgorithmMap;
 
   /**
    * Instantiates an empty {@link ProcessServiceRestImpl}.
@@ -990,7 +989,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/config/algo/{key}")
+  @Path("/config/algo/key/{key}")
   @ApiOperation(value = "Get algorithm config for key", notes = "Gets the algorithm config for the specified key", response = AlgorithmConfigJpa.class)
   public AlgorithmConfig getAlgorithmConfigForKey(
     @ApiParam(value = "Project internal id, e.g. 2", required = true) @QueryParam("projectId") Long projectId,
@@ -1206,6 +1205,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final boolean handleException = background != null && background;
       final Thread t = new Thread(new Runnable() {
 
+        @SuppressWarnings("cast")
         @Override
         public void run() {
           // Declare execution so it can be accessed
@@ -1254,7 +1254,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               algorithm.setProject(processExecution.getProject());
               algorithm.setWorkId(processExecution.getWorkId());
               algorithm.setActivityId(algorithmExecution.getActivityId());
-              algorithm.setUserName(userName);
+              algorithm.setLastModifiedBy(userName);
               // Convert Map<String,String> into properties to configure
               // algorihtm
               final Properties prop = new Properties();
@@ -1317,12 +1317,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             // Mark process as finished
             lookupPeProgressMap.remove(processExecution.getId());
 
-            
             // TODO: send email
-            // recipients = processExecutino.getFeedbackEmail (only do this if not null)
-            //ConfigUtility.sendEmail(subject, from, recipients, body,
+            // recipients = processExecutino.getFeedbackEmail (only do this if
+            // not null)
+            // ConfigUtility.sendEmail(subject, from, recipients, body,
             // ConfigUtility.getConfigProperties(), authFlag);
-            
+
           } catch (Exception e) {
             exceptions[0] = e;
 
@@ -1348,8 +1348,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             }
 
             // TODO: send email
-            // recipients = processExecutino.getFeedbackEmail (only do this if not null)
-            //ConfigUtility.sendEmail(subject, from, recipients, body,
+            // recipients = processExecutino.getFeedbackEmail (only do this if
+            // not null)
+            // ConfigUtility.sendEmail(subject, from, recipients, body,
             // ConfigUtility.getConfigProperties(), authFlag);
 
             // Do this if NOT running in the background

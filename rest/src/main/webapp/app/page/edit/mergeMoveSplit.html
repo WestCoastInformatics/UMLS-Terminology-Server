@@ -1,0 +1,142 @@
+<div class="modal-header">
+  <h4>{{action}}</h4>
+</div>
+
+<div class="modal-body">
+  <table class="table">
+    <tr>
+      <td>
+        <span ng-show="action != 'Split'">
+          <b>From Concept</b>
+        </span>
+        <span ng-show="action == 'Split'">
+          <b>Concept</b>
+        </span>
+      </td>
+      <td>
+        <table class="table">
+          <tbody>
+            <tr>
+              <td class="col-md-2 col-xs-2">{{selected.concept.id}}</td>
+              <td class="col-md-5 col-xs-5">{{selected.concept.name}}</td>
+              <td class="col-md-5 col-xs-5">
+                <span ng-repeat='sty in selected.concept.semanticTypes'>
+                  {{sty.semanticType}}</br>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table" ng-show="action == 'Split' || action == 'Move'">
+          <thead>
+            <th>Atoms:</th>
+          </thead>
+          <tbody>
+            <tr ng-repeat="atom in selected.atoms">
+              <td class="col-md-5 col-xs-5">{{atom.name}}</td>
+              <td class="col-md-3 col-xs-3">{{atom.terminology}}/{{atom.termType}}</td>
+              <td class="col-md-4 col-xs-4">{{atom.codeId}}
+                {{atom.conceptId}} {{atom.descriptorId}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr ng-show="action != 'Split'">
+      <td>
+        <b>To Concept</b>
+      </td>
+      <td>
+        <span ng-show="toConcepts.length > 1">
+          <table class="table">
+            <thead>
+              <b>Select a concept:</b>
+            </thead>
+            <tbody>
+              <tr ng-repeat="concept in toConcepts"
+                ng-click="selectToConcept(concept)"
+                ng-class="{selected: concept.id == mergeConcept.id}">
+                <td class="col-md-2 col-xs-2">{{concept.id}}</td>
+                <td class="col-md-5 col-xs-5">{{concept.name}}</td>
+                <td class="col-md-5 col-xs-5">
+                  <span ng-repeat='sty in concept.semanticTypes'>
+                    {{sty.semanticType}}</br>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </span>
+        <span ng-show="toConcepts.length == 1">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td class="col-md-2 col-xs-2">{{toConcepts[0].id}}</td>
+                <td class="col-md-5 col-xs-5">{{toConcepts[0].name}}</td>
+                <td class="col-md-5 col-xs-5">
+                  <span ng-repeat='sty in toConcepts[0].semanticTypes'>
+                    {{sty.semanticType}}</br>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+      </td>
+    </tr>
+    <tr ng-show="action == 'Split'">
+      <td>
+        <b>Copy Relationships</b>
+      </td>
+      <td>
+        <input type="checkbox" ng-model="copyRelationships"
+          title="Copy relationships to new concept.">
+      </td>
+    </tr>
+    <tr ng-show="action == 'Split'">
+      <td>
+        <b>Copy Semantic Types</b>
+      </td>
+      <td>
+        <input type="checkbox" ng-model="copySemanticTypes"
+          title="Copy semantic types to new concept.">
+      </td>
+    </tr>
+    <tr ng-show="action == 'Split' || action == 'Insert'">
+      <td>
+        <b>Relationship Type</b>
+      </td>
+      <td>
+        <span>
+          <select ng-model="selectedRelationshipType"
+            ng-options="item.key as item.key.concat(' ', item.value) for item in acceptedRelationshipTypes"></select>
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Workflow Status</b>
+      </td>
+      <td>
+        <select ng-model="selectedWorkflowStatus"
+          ng-options="item.substring(0, 1) for item in workflowStatuses"></select>
+      </td>
+    </tr>
+  </table>
+
+
+  <!-- Errors -->
+  <div errors="errors" warnings="warnings"></div>
+
+</div>
+
+
+<div class="modal-footer">
+  <button ng-show="action == 'Merge'" class="btn btn-primary"
+    ng-disabled="!toConcept" ng-click="merge();" title="Merge concepts">Merge</button>
+  <button ng-show="action == 'Move'" class="btn btn-primary" ng-click="move();"
+    ng-disabled="!toConcept" title="Move concepts">Move</button>
+  <button ng-show="action == 'Split'" class="btn btn-primary"
+    ng-disabled="!toConcept"
+      ng-click="split(selected.concept);" title="Split atoms">Split</button>
+  <button class="btn btn-warning" ng-click="cancel()">Close</button>
+</div>

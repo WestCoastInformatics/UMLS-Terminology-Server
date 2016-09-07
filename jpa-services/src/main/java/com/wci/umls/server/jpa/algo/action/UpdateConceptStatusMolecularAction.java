@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -110,7 +110,7 @@ public class UpdateConceptStatusMolecularAction
     conceptPostUpdates = new ConceptJpa(getConcept(), false);
 
     // log the REST calls
-    addLogEntry(getUserName(), getProject().getId(), getConcept().getId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " " + getConcept());
 
   }

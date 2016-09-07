@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.rest;
 
@@ -83,7 +83,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfigJpa.setVersion(umlsVersion);
     processConfigJpa = (ProcessConfigJpa) processService
         .addProcessConfig(project.getId(), processConfigJpa, authToken);
-    processConfig = (ProcessConfigJpa) processService
+    processConfig = processService
         .getProcessConfig(project.getId(), processConfigJpa.getId(), authToken);
   }
 

@@ -1,0 +1,100 @@
+<div class="modal-header">
+  <h4>{{action}}</h4>
+</div>
+
+<div class="modal-body">
+  <table class="table">
+    <tr>
+      <td>
+        <b>From Concept</b>
+      </td>
+      <td>
+        <table class="table">
+          <tbody>
+            <tr>
+              <td class="col-md-2 col-xs-2">{{selected.concept.id}}</td>
+              <td class="col-md-5 col-xs-5">{{selected.concept.name}}</td>
+              <td class="col-md-5 col-xs-5">
+                <span ng-repeat='sty in selected.concept.semanticTypes'>
+                  {{sty.semanticType}}</br>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>To Concept</b>
+      </td>
+      <td ng-show="toConcepts.length > 1">
+        <table class="table">
+          <thead>
+            <b>Select a concept:</b>
+          </thead>
+          <tbody>
+            <tr ng-repeat="concept in toConcepts"
+              ng-click="selectToConcept(concept)"
+              ng-class="{selected: concept.id == toConcept.id}">
+              <td class="col-md-2 col-xs-2">{{concept.id}}</td>
+              <td class="col-md-5 col-xs-5">{{concept.name}}</td>
+              <td class="col-md-5 col-xs-5">
+                <span ng-repeat='sty in concept.semanticTypes'>
+                  {{sty.semanticType}}</br>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td ng-show="toConcepts.length == 1">
+        <table class="table">
+          <tbody>
+            <tr>
+              <td class="col-md-2 col-xs-2">{{toConcepts[0].id}}</td>
+              <td class="col-md-5 col-xs-5">{{toConcepts[0].name}}</td>
+              <td class="col-md-5 col-xs-5">
+                <span ng-repeat='sty in toConcepts[0].semanticTypes'>
+                  {{sty.semanticType}}</br>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Relationship Type</b>
+      </td>
+      <td>
+        <span>
+          <select ng-model="selectedRelationshipType"
+            ng-options="item.key as item.key.concat(' ', item.value) for item in acceptedRelationshipTypes"></select>
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Workflow Status</b>
+      </td>
+      <td>
+
+        <select ng-model="selectedWorkflowStatus"
+          ng-options="item.substring(0, 1) for item in workflowStatuses"></select>
+      </td>
+    </tr>
+  </table>
+
+
+  <!-- Errors -->
+  <div errors="errors" warnings="warnings"></div>
+
+</div>
+
+<div class="modal-footer">
+  <button ng-disabled="!toConcept" class="btn btn-primary"
+    ng-click="addRelationship();" title="Add relationship">Add</button>
+  <button class="btn btn-warning" ng-click="cancel()">Close</button>
+</div>

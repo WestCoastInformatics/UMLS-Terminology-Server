@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -78,9 +78,11 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     if (UserRole.AUTHOR == role) {
       sb.append(" AND workflowStatus:NEW AND NOT authors:[* TO *]");
     } else if (UserRole.REVIEWER == role) {
-      sb.append(
-          " AND workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *]");
-          /*"NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS");*/
+      sb.append(" AND workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *]");
+      /*
+       * "NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS"
+       * );
+       */
     } else if (UserRole.ADMINISTRATOR == role) {
       // n/a, query as is.
     } else {
@@ -308,13 +310,14 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
     service.updateWorklist(worklist);
 
-    // Stamp the worklist if "REVIEW_DONE"
-    if (worklist.getWorkflowStatus() == WorkflowStatus.REVIEW_DONE) {
+    // Stamp the worklist when we send it for publication.
+    if (worklist.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION) {
       final StampingAlgorithm algo = new StampingAlgorithm();
+
       algo.setProject(worklist.getProject());
       algo.setTerminology(worklist.getProject().getTerminology());
       algo.setActivityId(worklist.getName());
-      algo.setUserName("S-" + userName);
+      algo.setLastModifiedBy("S-" + userName);
       algo.setWorklistId(worklist.getId());
 
       final ValidationResult result = algo.checkPreconditions();
@@ -351,8 +354,8 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     if (role == UserRole.AUTHOR) {
       return service.findWorklists(project,
           "epoch:" + service.getCurrentWorkflowEpoch(project).getName()
-              + " AND authors:" + userName
-              + " AND NOT workflowStatus:EDITING_DONE AND NOT workflowStatus:READY_FOR_PUBLICATION",
+              + " AND authors:" + userName + " AND NOT reviewers:[* TO *]"
+              + " AND NOT workflowStatus:EDITING_DONE AND NOT workflowStatus:READY_FOR_PUBLICATION ",
           pfs);
     } else if (role == UserRole.REVIEWER) {
       return service.findWorklists(project,

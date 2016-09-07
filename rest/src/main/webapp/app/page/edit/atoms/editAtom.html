@@ -31,7 +31,7 @@
         </td>
         <td>
           <span ng-show="action == 'Add'"><select ng-model="atom.language"
-            ng-options="item.key as item.value for item in metadata.languages"></select>  </span>        
+            ng-options="item.key as item.value for item in selected.metadata.languages"></select>  </span>        
           <span ng-show="action != 'Add'">{{atom.language}}</span>
         </td>
       </tr>

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -513,7 +513,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
    *
    * @param processConfig the process config
    */
-  @SuppressWarnings("static-method")
   private void handleLazyInit(ProcessConfig processConfig) {
     if (processConfig == null) {
       return;
@@ -531,7 +530,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
    *
    * @param processExecution the process execution
    */
-  @SuppressWarnings("static-method")
   private void handleLazyInit(ProcessExecution processExecution) {
     if (processExecution == null) {
       return;

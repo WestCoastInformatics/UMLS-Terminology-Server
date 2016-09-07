@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.actions;
 
@@ -7,7 +7,7 @@ import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
- * The Interface AtomicAction.
+ * Generically represents a row-level change in the database.
  */
 public interface AtomicAction extends HasId {
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.maint;
 
@@ -37,7 +37,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
     super();
     setActivityId(UUID.randomUUID().toString());
     setWorkId("LUI_REASSIGNMENT");
-    setUserName("admin");
+    setLastModifiedBy("admin");
   }
 
   /* see superclass */
@@ -53,13 +53,14 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   }
 
   /* see superclass */
+  @SuppressWarnings("unused")
   @Override
   public void compute() throws Exception {
     logInfo("Starting Lexical Class Assignment");
     logInfo("  project = " + getProject().getId());
     logInfo("  workId = " + getWorkId());
     logInfo("  activityId = " + getActivityId());
-    logInfo("  user  = " + getUserName());
+    logInfo("  user  = " + getLastModifiedBy());
 
     try {
       // Assume this is configured to be a umls identifier handler properly

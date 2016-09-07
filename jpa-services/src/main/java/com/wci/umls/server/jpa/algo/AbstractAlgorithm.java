@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -45,9 +45,6 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
 
   /** The project. */
   private Project project;
-  
-  /** The user name. */
-  private String userName;  
 
   /**
    * Instantiates an empty {@link AbstractAlgorithm}.
@@ -288,25 +285,6 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     return ConfigUtility.getNameFromClass(getClass());
   }
 
-  /**
-   * Returns the user name.
-   *
-   * @return the user name
-   */
-  public String getUserName() {
-    return userName;
-  }
-
-  /**
-   * Sets the user name.
-   *
-   * @param userName the user name
-   */
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
-  
-  
   /**
    * Sets the parameters.
    *

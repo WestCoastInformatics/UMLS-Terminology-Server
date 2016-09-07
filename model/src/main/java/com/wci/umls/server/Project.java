@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -100,6 +100,20 @@ public interface Project extends HasLastModified {
    * @param terminology the terminology
    */
   public void setTerminology(String terminology);
+
+  /**
+   * Returns the version.
+   * 
+   * @return the version
+   */
+  public String getVersion();
+
+  /**
+   * Sets the version.
+   * 
+   * @param version the version
+   */
+  public void setVersion(String version);
 
   /**
    * Returns the user role map.

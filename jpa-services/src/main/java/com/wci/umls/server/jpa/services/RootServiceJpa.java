@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -1424,8 +1424,7 @@ public abstract class RootServiceJpa implements RootService {
     // Do some standard intialization and precondition checking
     // action and prep services
     action.initialize(action.getProject(), action.getConceptId(),
-        action.getConceptId2(), action.getUserName(), action.getLastModified(),
-        molecularActionFlag);
+        action.getConceptId2(), action.getLastModified(), molecularActionFlag);
 
     //
     // Check prerequisites

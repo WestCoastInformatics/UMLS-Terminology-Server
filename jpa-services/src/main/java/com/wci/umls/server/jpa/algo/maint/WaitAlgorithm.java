@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.maint;
 
@@ -33,7 +33,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     super();
     setActivityId(UUID.randomUUID().toString());
     setWorkId("WAIT");
-    setUserName("admin");
+    setLastModifiedBy("admin");
 
   }
 
