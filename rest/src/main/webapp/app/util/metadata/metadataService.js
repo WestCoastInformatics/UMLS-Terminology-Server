@@ -4,6 +4,55 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
   function($http, $q, gpService, utilService, tabService) {
     console.debug('configure metadataService');
 
+    var metadata = getDefaultMetadata();
+
+    // Default for metadata
+    function getDefaultMetadata() {
+      return {
+        terminology : null,
+        version : null,
+        entries : null,
+        languages : null,
+        relationshipTypes : null,
+        attributeNames : null,
+        termTypes : null,
+        generalEntries : null,
+        labelSets : null,
+        atomsLabel : 'Atoms',
+        hierarchiesLabel : 'Hierarchies',
+        attributesLabel : 'Attributes',
+        definitionsLabel : 'Definitions',
+        mappingsLabel : 'Mappings',
+        subsetsLabel : 'Subsets',
+        relationshipsLabel : 'Relationships',
+        semanticTypesLabel : 'Semantic Types',
+        atomRelationshipsLabel : 'Relationships',
+        extensionsLabel : 'Extensions',
+        obsoleteLabel : 'Obsolete',
+        obsoleteIndicator : 'O',
+        suppressibleLabel : 'Suppressible',
+        suppressibleIndicator : 'S',
+        treeSortField : 'nodeName'
+      };
+    }
+    // Share a metadata model across controllers
+    this.setModel = function(model) {
+      for ( var key in model) {
+        metadata[key] = model[key];
+      }
+    }
+
+    // Share a terminology model across controllers
+    this.setTerminology = function(terminology) {
+      for ( var key in terminology) {
+        metadata.terminology[key] = terminology[key];
+      }
+    }
+
+    this.getModel = function() {
+      return metadata;
+    }
+
     // Returns all metadata for terminology/version
     this.getAllMetadata = function(terminology, version) {
       console.debug('getAllMetadata', terminology, version);
@@ -14,35 +63,10 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       // success
       function(response) {
         // declare metadata defaults
-        var metadata = {
-          terminology : null,
-          version : null,
-          precedenceList : null,
-          entries : null,
-          languages : null,
-          relationshipTypes : null,
-          attributeNames : null,
-          termTypes : null,
-          generalEntries : null,
-          labelSets : null,
-          atomsLabel : 'Atoms',
-          hierarchiesLabel : 'Hierarchies',
-          attributesLabel : 'Attributes',
-          definitionsLabel : 'Definitions',
-          mappingsLabel : 'Mappings',
-          subsetsLabel : 'Subsets',
-          relationshipsLabel : 'Relationships',
-          semanticTypesLabel : 'Semantic Types',
-          atomRelationshipsLabel : 'Relationships',
-          extensionsLabel : 'Extensions',
-          obsoleteLabel : 'Obsolete',
-          obsoleteIndicator : 'O',
-          suppressibleLabel : 'Suppressible',
-          suppressibleIndicator : 'S',
-          treeSortField : 'nodeName'
-        };
-        metadata.terminology = terminology;
-        metadata.version = version;
+        var metadata = getDefaultMetadata();
+        metadata.terminology = {};
+        metadata.terminology.terminology = terminology;
+        metadata.terminology.version = version;
         metadata.entries = response.data.keyValuePairLists;
 
         // Fail if no terminology found
@@ -133,7 +157,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
     }
 
     // Gets the precedence for the terminology/version
-    this.getPrecedence = function(terminology, version) {
+    this.getPrecedenceList = function(terminology, version) {
       console.debug('getPrecedence', terminology, version);
       // get precedence
       var deferred = $q.defer();
@@ -141,7 +165,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       $http.get(metadataUrl + '/precedence/' + terminology + '/' + version).then(
       // success
       function(response) {
-        console.debug('  precedence = ', response.data.precedence);
+        console.debug('  precedence = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -276,14 +300,14 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
     };
 
     // for popovers
-    this.getDerivedLabelSetsValue = function(tree) {
+    this.getDerivedLabelSetsValue = function(tree, metadata) {
       if (tree.labels == undefined) {
         return;
       }
       var retval = 'Ancestor of content in:<br>';
       var j = 0;
       for (var i = 0; i < tree.labels.length; i++) {
-        var name = this.getLabelSetName(tree.labels[i]);
+        var name = this.getLabelSetName(tree.labels[i], metadata);
         if (tree.labels[i].startsWith('LABELFOR')) {
           if (j++ > 0) {
             retval += '<br>';
@@ -295,14 +319,14 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
     };
 
     // For popovers
-    this.getLabelSetsValue = function(tree) {
+    this.getLabelSetsValue = function(tree, metadata) {
       if (tree.labels == undefined) {
         return;
       }
       var retval = 'Content in:<br>';
       var j = 0;
       for (var i = 0; i < tree.labels.length; i++) {
-        var name = this.getLabelSetName(tree.labels[i]);
+        var name = this.getLabelSetName(tree.labels[i], metadata);
         if (!tree.labels[i].startsWith('LABELFOR')) {
           if (j++ > 0) {
             retval += '<br>';

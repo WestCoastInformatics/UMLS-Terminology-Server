@@ -12,6 +12,7 @@ tsApp.directive('annotatedContent', [
       scope : {
         // NOTE: metadata used for non-matching terminology display in html only
         metadata : '=',
+        component : '=',
         callbacks : '='
       },
       templateUrl : 'app/util/annotated-content/annotatedContent.html',

@@ -461,22 +461,24 @@ tsApp.service('securityService', [
     // User Favorites
     //
 
-    // TODO Add null checks on user, user preferences to all functions
-
     // Create the base user favorite string, without timestamp
-    function getUserFavoriteStr(type, terminology, version, terminologyId, name) {
+    function getUserFavoriteStr(component) {
+      var type = component.type;
+      var terminology = component.terminology;
+      var version = component.version;
+      var terminologyId = component.terminologyId;
+      var name = component.name;
       return type + '~~' + terminology + '~~' + version + '~~' + terminologyId + '~~' + name;
     }
 
     // Gets the user favorite string object without reference to name or
     // timestamp
-    function getUserFavorite(type, terminology, version, terminologyId) {
+    function getUserFavorite(component) {
 
       if (!user || !user.userPreferences || !user.userPreferences.favorites) {
         return null;
       }
-
-      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
+      var delimitedStr = getUserFavoriteStr(component);
 
       var matchFound = false;
       for (var i = 0; i < user.userPreferences.favorites.length; i++) {
@@ -489,8 +491,8 @@ tsApp.service('securityService', [
 
     // Determines whether object is in favorites (without reference to name or
     // timestamp)
-    this.isUserFavorite = function(type, terminology, version, terminologyId) {
-      var favorite = getUserFavorite(type, terminology, version, terminologyId);
+    this.isUserFavorite = function(component) {
+      var favorite = getUserFavorite(component);
       if (favorite) {
         return true;
       } else {
@@ -500,7 +502,12 @@ tsApp.service('securityService', [
     };
 
     // Adds a user favorite
-    this.addUserFavorite = function(type, terminology, version, terminologyId, name) {
+    this.addUserFavorite = function(component) {
+      var type = component.type;
+      var terminology = component.terminology;
+      var version = component.version;
+      var terminologyId = component.terminologyId;
+      var name = component.name;
 
       var deferred = $q.defer();
       if (this.isGuestUser()) {
@@ -509,12 +516,12 @@ tsApp.service('securityService', [
         if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
           deferred.reject('Insufficient arguments');
         }
-        var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
+        var delimitedStr = getUserFavoriteStr(component);
         if (!user.userPreferences.favorites) {
           user.userPreferences.favorites = [];
         }
 
-        if (!this.isUserFavorite(type, terminology, version, terminologyId)) {
+        if (!this.isUserFavorite(component)) {
 
           // add the timestamp after verifying this component info is not
           // matched
@@ -535,14 +542,19 @@ tsApp.service('securityService', [
     };
 
     // Removes a user favorite
-    this.removeUserFavorite = function(type, terminology, version, terminologyId, name) {
+    this.removeUserFavorite = function(component) {
+      var type = component.type;
+      var terminology = component.terminology;
+      var version = component.version;
+      var terminologyId = component.terminologyId;
+      var name = component.name;
       console.debug('remove user favorite', type, terminology, version, terminologyId, name);
 
       var deferred = $q.defer();
       if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
         deferred.reject('Insufficient arguments');
       }
-      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
+      var delimitedStr = getUserFavoriteStr(component);
 
       var matchFound = false;
       for (var i = 0; i < user.userPreferences.favorites.length; i++) {
@@ -605,7 +617,12 @@ tsApp.service('securityService', [
     };
 
     // Get favorite
-    this.getFavorite = function(type, terminology, version, terminologyId) {
+    this.getFavorite = function(component) {
+      var type = component.type;
+      var terminology = component.terminology;
+      var version = component.version;
+      var terminologyId = component.terminologyId;
+      var name = component.name;
       return this.getUser().userPreferences.favorites.filter(function(item) {
         return item.terminology === terminology && item.terminologyId === terminologyId
           && item.version === version && item.type === type;

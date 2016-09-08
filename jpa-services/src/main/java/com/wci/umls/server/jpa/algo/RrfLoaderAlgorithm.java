@@ -962,7 +962,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       sourceList.setPrecedence(kvpl);
       addPrecedenceList(list);
 
-      logInfo("    precedence " + sourceList.getPrecedence());
+      logInfo("    precedence = " + sourceList.getPrecedence());
 
     }
 

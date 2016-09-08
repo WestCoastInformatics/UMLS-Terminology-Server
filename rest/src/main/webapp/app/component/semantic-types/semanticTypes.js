@@ -26,6 +26,12 @@ tsApp.directive('semanticTypes', [ 'utilService', function(utilService) {
       // watch the component
       scope.$watch('component', function() {
         if (scope.component) {
+          // Clear paging
+          scope.paging = utilService.getPaging();
+          scope.pageCallback = {
+            getPagedList : getPagedList
+          };
+          // Get data
           getPagedList();
         }
       }, true);

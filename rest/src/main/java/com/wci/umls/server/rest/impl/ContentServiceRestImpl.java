@@ -3654,7 +3654,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName = authorizeApp(securityService, authToken,
           "add concept note", UserRole.VIEWER);
-
+      contentService.setLastModifiedBy(userName);
       final Concept concept = contentService.getConcept(terminologyId,
           terminology, version, Branch.ROOT);
 
@@ -3697,8 +3697,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "remove concept note",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "remove concept note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
 
       final ConceptNoteJpa note =
           (ConceptNoteJpa) contentService.getNote(noteId, ConceptNoteJpa.class);
@@ -3741,6 +3742,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName = authorizeApp(securityService, authToken,
           "add code note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
 
       Code code = contentService.getCode(terminologyId, terminology, version,
           Branch.ROOT);
@@ -3782,8 +3784,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "remove code note",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "remove code note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
 
       final CodeNoteJpa note =
           (CodeNoteJpa) contentService.getNote(noteId, CodeNoteJpa.class);
@@ -3824,6 +3827,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName = authorizeApp(securityService, authToken,
           "add descriptor note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
 
       Descriptor descriptor = contentService.getDescriptor(terminologyId,
           terminology, version, Branch.ROOT);
@@ -3866,8 +3870,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "remove descriptor note",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "remove descriptor note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
 
       final DescriptorNoteJpa note = (DescriptorNoteJpa) contentService
           .getNote(noteId, DescriptorNoteJpa.class);

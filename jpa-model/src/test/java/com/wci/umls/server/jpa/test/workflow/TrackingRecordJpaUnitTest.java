@@ -27,7 +27,7 @@ import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
+import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 
 /**

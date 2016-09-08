@@ -67,7 +67,7 @@ tsApp.controller('selectComponentModalCtrl', function($scope, $q, $uibModalInsta
     }
     contentService.findComponentsAsList($scope.searchParams.query,
       $scope.metadata.terminology.organizingClassType, $scope.metadata.terminology.terminology,
-      $scope.metadata.terminology.version, $scope.searchParams.page, $scope.searchParams).then(
+      $scope.metadata.terminology.version, $scope.searchParams).then(
       function(data) {
 
         $scope.searchResults = data;

@@ -19,8 +19,8 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Note;
-import com.wci.umls.server.jpa.worfklow.ChecklistNoteJpa;
-import com.wci.umls.server.jpa.worfklow.WorklistNoteJpa;
+import com.wci.umls.server.jpa.workflow.ChecklistNoteJpa;
+import com.wci.umls.server.jpa.workflow.WorklistNoteJpa;
 
 /**
  * Abstract implementation of a {@link Note}.

@@ -14,7 +14,11 @@ tsApp.directive('attributes', [ 'utilService', function(utilService) {
     link : function(scope, element, attrs) {
 
       function getPagedList() {
-        scope.pagedData = utilService.getPagedArray(scope.component.attributes, scope.paging);
+        scope.pagedData = utilService.getPagedArray(scope.component.attributes.filter(
+        // handle hidden flag
+        function(item) {
+          return scope.paging.showHidden || (!item.obsolete && !item.suppressible);
+        }), scope.paging);
       }
 
       // instantiate paging and paging callback function
@@ -27,6 +31,12 @@ tsApp.directive('attributes', [ 'utilService', function(utilService) {
       // watch the component
       scope.$watch('component', function() {
         if (scope.component) {
+          // Clear paging
+          scope.paging = utilService.getPaging();
+          scope.pageCallback = {
+            getPagedList : getPagedList
+          };
+          // Get data
           getPagedList();
         }
       }, true);

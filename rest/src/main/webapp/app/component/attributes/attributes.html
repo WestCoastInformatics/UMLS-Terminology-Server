@@ -11,7 +11,7 @@
       <span class="label label-default" ng-show="item.obsolete"
         uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
       <span class="label label-info"
-        uib-tooltip="{{callbacks.getAttributeNameName(item.name)}}">{{item.name}}</span>
+        uib-tooltip="{{callbacks.getAttributeNameName(item.name,metadata)}}">{{item.name}}</span>
       = {{item.value}}
   </ul>
 </div>

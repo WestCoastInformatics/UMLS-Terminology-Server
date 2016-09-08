@@ -13,6 +13,7 @@ tsApp.directive('favorites', [
       scope : {
         // NOTE: metadata used for non-matching terminology display in html only
         metadata : '=',
+        component : '=',
         favorites : '=',
         callbacks : '='
       },

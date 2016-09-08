@@ -2,11 +2,10 @@
 <div>
   <div class="row">
     <div class="col-md-1 col-xs-0"></div>
-    <div class="col-md-10 col-xs-12 nobreak "
-      ng-if="component != null">
+    <div class="col-md-10 col-xs-12 nobreak " ng-if="selected.component != null">
       <div class="alert alert-info" style="width: 100%;">
-        {{component.terminology}} {{getComponentTypeText()}} Report</div>
-      <div report component="component" metadata="metadata"
+        {{selected.component.terminology}} {{selected.component.type}} Report</div>
+      <div report component="selected.component" metadata="selected.metadata"
         callbacks="componentReportCallbacks"></div>
     </div>
     <div class="col-md-1 col-xs-0"></div>

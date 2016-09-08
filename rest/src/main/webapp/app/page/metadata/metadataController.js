@@ -22,6 +22,7 @@ tsApp.controller('MetadataCtrl', [
 
     // Scope vars
     $scope.metadata = metadataService.getModel();
+    $scope.precedenceList = null;
     $scope.resultsCollapsed = {};
 
     // pretty print
@@ -38,13 +39,21 @@ tsApp.controller('MetadataCtrl', [
     $scope.initialize = function() {
 
       // If terminology is blank, then redirect to /content to set a terminology
-      if (!$scope.metadata.terminologies) {
+      if (!$scope.metadata.terminology) {
         $location.path("/content");
       }
 
       // configure tab
       securityService.saveTab($scope.user.userPreferences, '/metadata');
 
+      metadataService.getPrecedenceList($scope.metadata.terminology.terminology,
+        $scope.metadata.terminology.version).then(
+        // Success
+          function(data) {
+            $scope.precedenceList = data.precedence;
+          }
+        );
+      
     };
 
     //
