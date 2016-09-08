@@ -94,6 +94,8 @@ public class AlgorithmExecutionJpa extends
    */
   public AlgorithmExecutionJpa(AlgorithmConfig config) {
     super(config);
+    //Clear out the id copied from the config
+    this.setId(null);
     algorithmConfigId = config.getId();
   }
 

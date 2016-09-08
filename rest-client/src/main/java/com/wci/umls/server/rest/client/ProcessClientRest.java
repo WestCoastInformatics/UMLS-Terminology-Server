@@ -541,8 +541,28 @@ public class ProcessClientRest extends RootClientRest
   @Override
   public Long executeProcess(Long projectId, Long id, Boolean background,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+
+    Logger.getLogger(getClass()).debug(
+        "Project Client - find progress of currently executing algorithm");
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/config/" + id + "/execute?projectId=" + projectId + (background ? "&background=true" : ""));
+    final Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return Long.parseLong(resultString);
+
   }
 
   /* see superclass */

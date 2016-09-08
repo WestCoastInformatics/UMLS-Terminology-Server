@@ -100,6 +100,8 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
    */
   public ProcessExecutionJpa(ProcessConfig config) {
     super(config);
+    //Clear out the id copied from the config
+    this.setId(null);
     processConfigId = config.getId();
   }
 

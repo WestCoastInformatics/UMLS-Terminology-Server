@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -567,8 +566,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call POST (Process): /executing, for user " + authToken);
 
-    Set<Long> executingProcesses = processAlgorithmMap.keySet();
-
     final ProcessService processService = new ProcessServiceJpa();
     try {
       final String userName =
@@ -580,15 +577,15 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           processService.findProcessExecutions(projectId,
               "NOT failDate:[* TO *] AND NOT finishDate:[* TO *]", null);
 
-      // Only keep process Executions if they are contained in the currently
-      // executing processes map
+      // Only keep process Executions if they in the currently
+      // executing processes progress map and have a progress of less than 100
       for (ProcessExecution processExecution : new ArrayList<ProcessExecution>(
           processExecutions.getObjects())) {
-        if (!executingProcesses.contains(processExecution.getId())) {
+        if (!(lookupPeProgressMap.containsKey(processExecution.getId())
+            && lookupPeProgressMap.get(processExecution.getId()) != 100)) {
           processExecutions.getObjects().remove(processExecution);
         }
       }
-
       return processExecutions;
 
     } catch (Exception e) {
@@ -1142,8 +1139,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
    */
   /* see superclass */
   @Override
-  @POST
+  @GET
   @Path("/config/{id}/execute")
+  @Produces("text/plain")
   @ApiOperation(value = "Execute a process configuration", notes = "Execute the specified process configuration")
   public Long executeProcess(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
@@ -1176,16 +1174,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       verifyProject(processConfig, projectId);
 
       // Make sure this processConfig is not already running
-      // Look up by config id without finish or fail date
-      for (final ProcessExecution exec : processService
-          .findProcessExecutions(projectId,
-              "processConfigId:" + processConfig.getId()
-                  + " AND NOT finishDate:[* TO *] AND NOT failDate:[* TO *]",
-              null)
-          .getObjects()) {
-        // Verify still actually running
-        if (lookupPeProgressMap.containsKey(exec.getId())
-            && lookupPeProgressMap.get(exec.getId()) != 100) {
+      for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
+          projectId, authToken).getObjects()) {
+        if (exec.getProcessConfigId().equals(processConfig.getId())) {
           throw new Exception(
               "There is already a currently running execution of process "
                   + processConfig.getId());
@@ -1235,6 +1226,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
               // Instantiate and configure the algorithm execution
               algorithmExecution = new AlgorithmExecutionJpa(algorithmConfig);
+              // Create a copy of the properties to add to algorithmExecution
+              // (using same object causes shared references to a collection
+              // error
+              algorithmExecution.setProperties(
+                  new HashMap<String, String>(algorithmConfig.getProperties()));
               algorithmExecution.setProcess(processExecution);
               algorithmExecution.setActivityId(UUID.randomUUID().toString());
               algorithmExecution.setStartDate(new Date());

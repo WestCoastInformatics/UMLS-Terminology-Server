@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.rest;
 
@@ -277,6 +277,24 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     assertNotNull(releaseAlgorithms);
 
   }  
+
+  /**
+   * Test executing a predefined process
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void executeProcess() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    //Get the pre-defined test process
+    ProcessConfig processConfig = processService.findProcessConfigs(project.getId(), "name:Test Process", null, authToken).getObjects().get(0);
+    assertNotNull(processConfig);
+    
+    //Execute the process
+    processService.executeProcess(project.getId(), processConfig.getId(), true, authToken);
+    
+  }       
   
   /**
    * Teardown.
