@@ -344,6 +344,7 @@ tsApp
         // Gets the tree for the specified component
         this.getTree = function(wrapper, startIndex) {
 
+          console.trace();
           console.debug('getTree', wrapper, startIndex);
 
           if (startIndex === undefined) {
