@@ -10,6 +10,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -21,6 +22,7 @@ import com.wci.umls.server.helpers.HasLastModified;
 /**
  * Abstract implementation of {@link HasLastModified} for use with JPA.
  */
+@Audited
 @MappedSuperclass
 public abstract class AbstractHasLastModified implements HasLastModified {
 
@@ -32,16 +34,16 @@ public abstract class AbstractHasLastModified implements HasLastModified {
   /** the timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;
+  protected Date timestamp = null;
 
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date lastModified = null;
+  protected Date lastModified = null;
 
   /** The last modified. */
   @Column(nullable = false)
-  private String lastModifiedBy;
+  protected String lastModifiedBy;
 
   /**
    * Instantiates an empty {@link AbstractHasLastModified}.
