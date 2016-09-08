@@ -11,9 +11,9 @@ import org.junit.Test;
 
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.WorkflowBinList;
-import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
+import com.wci.umls.server.jpa.workflow.WorkflowBinJpa;
 
 /**
  * Unit testing for {@link WorkflowBinList}.

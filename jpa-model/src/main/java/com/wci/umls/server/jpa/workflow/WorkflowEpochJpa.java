@@ -1,7 +1,4 @@
-/*
- *    Copyright 2016 West Coast Informatics, LLC
- */
-package com.wci.umls.server.jpa.worfklow;
+package com.wci.umls.server.jpa.workflow;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,13 +11,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -34,19 +29,19 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
-import com.wci.umls.server.model.workflow.WorkflowConfig;
+import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.model.workflow.WorkflowEpoch;
 
 /**
- * JPA and JAXB enabled implementation of {@link WorkflowConfig}.
+ * JAXB and JPA enabled implementation of a {@link WorkflowEpoch}.
  */
 @Entity
-@Table(name = "workflow_configs", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "project_id", "type"
+@Table(name = "workflow_epochs", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "name", "project_id"
 }))
 @Indexed
-@XmlRootElement(name = "workflowConfig")
-public class WorkflowConfigJpa implements WorkflowConfig {
+@XmlRootElement(name = "workflowEpoch")
+public class WorkflowEpochJpa implements WorkflowEpoch {
 
   /** The id. */
   @TableGenerator(name = "EntityIdGenWorkflow", table = "table_generator_wf", pkColumnValue = "Entity")
@@ -68,55 +63,46 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
 
-  /**
-   * The type - just a String now to keep it more flexible, the enum was too
-   * binding.
-   */
+  /** The name. */
   @Column(nullable = false)
-  private String type;
+  private String name;
 
-  /** The mutually exclusive. */
+  /** The active. */
   @Column(nullable = false)
-  private boolean mutuallyExclusive;
+  private boolean active;
 
-  /** The last partition time. */
-  @Column(nullable = true)
-  private Long lastPartitionTime;
-
-  /** The workflow bin definitions. */
-  @OneToMany(mappedBy = "workflowConfig", targetEntity = WorkflowBinDefinitionJpa.class)
-  @OrderColumn
-  private List<WorkflowBinDefinition> workflowBinDefinitions =
-      new ArrayList<>();
+  /** The workflow bins. */
+  @OneToMany(targetEntity = WorkflowBinJpa.class)
+  private List<WorkflowBin> workflowBins = null;
 
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
 
   /**
-   * Instantiates a new workflow bin definitions jpa.
+   * Instantiates an empty {@link WorkflowEpochJpa}.
    */
-  public WorkflowConfigJpa() {
+  public WorkflowEpochJpa() {
     // do nothing
   }
 
   /**
-   * Instantiates a new project workflow config jpa.
+   * Instantiates a {@link WorkflowEpochJpa} from the specified parameters.
    *
-   * @param config the project workflow configuration
+   * @param epoch the workflow epoch
+   * @param deepCopy the deep copy
    */
-  public WorkflowConfigJpa(WorkflowConfig config) {
-    super();
-    id = config.getId();
-    lastModified = config.getLastModified();
-    lastModifiedBy = config.getLastModifiedBy();
-    lastPartitionTime = config.getLastPartitionTime();
-    project = config.getProject();
-    timestamp = config.getTimestamp();
-    mutuallyExclusive = config.isMutuallyExclusive();
-    type = config.getType();
-    workflowBinDefinitions =
-        new ArrayList<>(config.getWorkflowBinDefinitions());
+  public WorkflowEpochJpa(WorkflowEpoch epoch, boolean deepCopy) {
+    id = epoch.getId();
+    lastModified = epoch.getLastModified();
+    lastModifiedBy = epoch.getLastModifiedBy();
+    timestamp = epoch.getTimestamp();
+    name = epoch.getName();
+    active = epoch.isActive();
+    project = epoch.getProject();
+    if (deepCopy) {
+      workflowBins = new ArrayList<>(epoch.getWorkflowBins());
+    }
   }
 
   /* see superclass */
@@ -170,62 +156,33 @@ public class WorkflowConfigJpa implements WorkflowConfig {
 
   /* see superclass */
   @Override
-  @XmlElement(type = WorkflowBinDefinitionJpa.class)
-  public List<WorkflowBinDefinition> getWorkflowBinDefinitions() {
-    if (workflowBinDefinitions == null) {
-      workflowBinDefinitions = new ArrayList<>();
-    }
-    return workflowBinDefinitions;
-  }
-
-  /* see superclass */
-  @Override
-  public void setWorkflowBinDefinitions(
-    List<WorkflowBinDefinition> definitions) {
-    this.workflowBinDefinitions = definitions;
-  }
-
-  /* see superclass */
-  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getType() {
-    return type;
+  public String getName() {
+    return name;
   }
 
   /* see superclass */
   @Override
-  public void setType(String type) {
-    this.type = type;
+  public void setName(String name) {
+    this.name = name;
   }
 
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
-  public boolean isMutuallyExclusive() {
-    return mutuallyExclusive;
+  public boolean isActive() {
+    return active;
   }
 
   /* see superclass */
   @Override
-  public void setMutuallyExclusive(boolean mutuallyExclusive) {
-    this.mutuallyExclusive = mutuallyExclusive;
+  public void setActive(boolean active) {
+    this.active = active;
   }
 
   /* see superclass */
-  @Override
-  public Long getLastPartitionTime() {
-    return lastPartitionTime;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastPartitionTime(Long lastPartitionTime) {
-    this.lastPartitionTime = lastPartitionTime;
-  }
-
-  /* see superclass */
-  @Override
   @XmlTransient
+  @Override
   public Project getProject() {
     return project;
   }
@@ -260,15 +217,29 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   }
 
   /* see superclass */
+  @XmlTransient
+  @Override
+  public List<WorkflowBin> getWorkflowBins() {
+    if (workflowBins == null) {
+      return new ArrayList<>();
+    }
+    return workflowBins;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowBins(List<WorkflowBin> workflowBins) {
+    this.workflowBins = workflowBins;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (mutuallyExclusive ? 1231 : 1237);
-    result = prime * result + ((type == null) ? 0 : type.hashCode());
+    result = prime * result + (active ? 1231 : 1237);
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((project == null) ? 0 : project.hashCode());
-    result = prime * result + ((workflowBinDefinitions == null) ? 0
-        : workflowBinDefinitions.hashCode());
     return result;
   }
 
@@ -281,23 +252,18 @@ public class WorkflowConfigJpa implements WorkflowConfig {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    WorkflowConfigJpa other = (WorkflowConfigJpa) obj;
-    if (mutuallyExclusive != other.mutuallyExclusive)
+    WorkflowEpochJpa other = (WorkflowEpochJpa) obj;
+    if (active != other.active)
+      return false;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
       return false;
     if (project == null) {
       if (other.project != null)
         return false;
     } else if (!project.equals(other.project))
-      return false;
-    if (type == null) {
-      if (other.type != null)
-        return false;
-    } else if (!type.equals(other.type))
-      return false;
-    if (workflowBinDefinitions == null) {
-      if (other.workflowBinDefinitions != null)
-        return false;
-    } else if (!workflowBinDefinitions.equals(other.workflowBinDefinitions))
       return false;
     return true;
   }
@@ -305,11 +271,9 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   /* see superclass */
   @Override
   public String toString() {
-    return "WorkflowConfigJpa [id=" + id + ", lastModified=" + lastModified
+    return "WorkflowEpochJpa [lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
-        + ", type=" + type + ", mutuallyExclusive=" + mutuallyExclusive
-        + ", lastPartitionTime=" + lastPartitionTime + ", getProjectId()="
-        + getProjectId() + "]";
+        + ", name=" + name + ", active=" + active + "]";
   }
 
 }

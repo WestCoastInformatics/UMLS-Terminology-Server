@@ -28,7 +28,7 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
-import com.wci.umls.server.jpa.worfklow.WorklistJpa;
+import com.wci.umls.server.jpa.workflow.WorklistJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;

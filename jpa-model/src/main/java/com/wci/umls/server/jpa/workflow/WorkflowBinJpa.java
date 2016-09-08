@@ -1,4 +1,4 @@
-package com.wci.umls.server.jpa.worfklow;
+package com.wci.umls.server.jpa.workflow;
 
 import java.util.ArrayList;
 import java.util.Date;
