@@ -214,7 +214,7 @@ public class AlgorithmExecutionJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("version");
     tester.include("startDate");
-    tester.include("algorithmConfiGId");
+    tester.include("algorithmConfigId");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -234,7 +234,14 @@ public class AlgorithmExecutionJpaUnitTest extends ModelUnitSupport {
     // Test non analyzed fields - none
     tester = new IndexedFieldTester(object);
     // No indexed Fields
-    //assertTrue(tester.testNotAnalyzedIndexedFields());
+    tester.include("projectId");
+    tester.include("algorithmConfigId");
+    tester.include("processId");
+    tester.include("activityId");
+    tester.include("failDate");
+    tester.include("finishDate");
+    tester.include("startDate");
+    assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }
 

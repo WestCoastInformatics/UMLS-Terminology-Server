@@ -918,9 +918,6 @@ public abstract class RootServiceJpa implements RootService {
         hasLastModified.setLastModifiedBy(getLastModifiedBy());
       }
       hasLastModified.setLastModified(new Date());
-      if (hasLastModified.getTimestamp() == null) {
-        hasLastModified.setTimestamp(new Date());
-      }
     }
     updateObject(hasLastModified);
 

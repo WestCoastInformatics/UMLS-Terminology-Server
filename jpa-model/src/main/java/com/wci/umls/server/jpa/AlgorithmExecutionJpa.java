@@ -94,11 +94,14 @@ public class AlgorithmExecutionJpa extends
    */
   public AlgorithmExecutionJpa(AlgorithmConfig config) {
     super(config);
+    //Clear out the id copied from the config
+    this.setId(null);
     algorithmConfigId = config.getId();
   }
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
   public Date getStartDate() {
     return startDate;
   }
@@ -111,6 +114,7 @@ public class AlgorithmExecutionJpa extends
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
   public Date getFinishDate() {
     return finishDate;
   }
@@ -123,6 +127,7 @@ public class AlgorithmExecutionJpa extends
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
   public Date getFailDate() {
     return failDate;
   }

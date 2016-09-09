@@ -635,6 +635,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       if (background != null && background == true) {
         t.start();
       } else {
+        t.start();
         t.join();
         if (exceptions[0] != null) {
           throw new Exception(exceptions[0]);

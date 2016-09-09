@@ -204,6 +204,9 @@ public class ProcessExecutionJpaUnitTest extends ModelUnitSupport {
     tester.include("projectId");
     tester.include("processConfigId");
     tester.include("workId");
+    tester.include("failDate");
+    tester.include("finishDate");
+    tester.include("startDate");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

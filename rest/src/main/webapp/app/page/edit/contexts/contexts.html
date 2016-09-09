@@ -34,8 +34,10 @@
   </tbody>
 </table>
 
-  <div tree-component component="component" metadata="metadata"
+  <div tree-component component="component" metadata="selected.metadata"
     callbacks="callbacks"></div>
-    
-    **
+
+<div ng-if="treeCount == 0">
+  <span style="display: block;" class="alert alert-warning">No hierarchies</span>
+</div>
 

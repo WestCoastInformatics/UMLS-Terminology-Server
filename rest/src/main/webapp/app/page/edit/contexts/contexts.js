@@ -29,7 +29,8 @@ tsApp.controller('ContextsCtrl', [
     $scope.paging = {};
     $scope.paging['entries'] = utilService.getPaging();
     $scope.paging['entries'].sortField = 'terminology';
-    $scope.paging['entries'].pageSize = 10;
+    $scope.paging['entries'].pageSize = 5;
+    $scope.paging['entries'].filterList = ['SNOMED_CT', 'ICD10CM'];
     $scope.paging['entries'].filterFields = {};
     $scope.paging['entries'].filterFields.terminology = 1;
     $scope.paging['entries'].sortAscending = false;
@@ -39,7 +40,7 @@ tsApp.controller('ContextsCtrl', [
 
     $scope.$watch('selected.concept', function() {
       console.debug('in watch');
-      // $scope.getPagedEntries();
+      $scope.getPagedEntries();
     });
 
     // Get the terminology object for the terminology value
@@ -56,6 +57,7 @@ tsApp.controller('ContextsCtrl', [
       getPagedEntries();
     }
     function getPagedEntries() {
+      $scope.entries = [];
       for (var i = 0; i < $scope.selected.concept.atoms.length; i++) {
         var entry = {};
         var fullTerminology = $scope.getTerminology($scope.selected.concept.atoms[i].terminology)
@@ -113,10 +115,7 @@ tsApp.controller('ContextsCtrl', [
     // selects an entry
     $scope.selectEntry = function(event, entry) {
       $scope.selected.entry = entry;
-      contentService.getTree(entry, 0).then(function(data) {
-        $scope.selected.component = data;
-        $scope.component = data;
-      });
+      $scope.component = entry;
     };
 
     // indicates if a particular row is selected

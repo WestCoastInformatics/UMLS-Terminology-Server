@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.rest;
 
@@ -124,8 +124,8 @@ public interface ProcessServiceRest {
    * @throws Exception the exception
    */
   public void removeProcessExecution(Long projectId, Long id, Boolean cascade,
-    String authToken) throws Exception;  
-  
+    String authToken) throws Exception;
+
   /**
    * Adds the algorithm config.
    *
@@ -181,9 +181,9 @@ public interface ProcessServiceRest {
    * @return the algorithm config by key
    * @throws Exception the exception
    */
-  public AlgorithmConfig getAlgorithmConfigForKey(Long projectId, String algorithmKey,
-    String authToken) throws Exception;  
-  
+  public AlgorithmConfig getAlgorithmConfigForKey(Long projectId,
+    String algorithmKey, String authToken) throws Exception;
+
   /**
    * Returns the insertion algorithms.
    *
@@ -227,8 +227,8 @@ public interface ProcessServiceRest {
    * @return the long process execution id
    * @throws Exception the exception
    */
-  public Long executeProcess(Long projectId, Long id,
-    Boolean background, String authToken) throws Exception;
+  public Long executeProcess(Long projectId, Long id, Boolean background,
+    String authToken) throws Exception;
 
   /**
    * Cancel process.
@@ -238,9 +238,21 @@ public interface ProcessServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void cancelProcess(Long projectId, Long id, String authToken) throws Exception;
-  
-  
+  public void cancelProcess(Long projectId, Long id, String authToken)
+    throws Exception;
+
+  /**
+   * Restart process.
+   *
+   * @param projectId the project id
+   * @param id the id
+   * @param background the background
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void restartProcess(Long projectId, Long id, Boolean background,
+    String authToken) throws Exception;
+
   /**
    * Returns the process progress.
    *
@@ -250,8 +262,9 @@ public interface ProcessServiceRest {
    * @return the progress
    * @throws Exception the exception
    */
-  public Integer getProcessProgress(Long projectId, Long id, String authToken) throws Exception;
-  
+  public Integer getProcessProgress(Long projectId, Long id, String authToken)
+    throws Exception;
+
   /**
    * Returns the algorithm progress.
    *
@@ -261,7 +274,7 @@ public interface ProcessServiceRest {
    * @return the algorithm progress
    * @throws Exception the exception
    */
-  public Integer getAlgorithmProgress(Long projectId, Long id, String authToken) throws Exception;
+  public Integer getAlgorithmProgress(Long projectId, Long id, String authToken)
+    throws Exception;
 
-  
 }

@@ -214,11 +214,12 @@ tsApp.run([
           
           console.debug('Route enabled: /contexts');
           $routeProviderReference.when('/contexts', {
-            templateUrl : 'app/page/contexts/contexts.html',
+            templateUrl : 'app/page/edit/contexts/contexts.html',
             controller : 'ContextsCtrl',
             reloadOnSearch : false
           });
 
+          
           //
           // Configurable routes
           //
