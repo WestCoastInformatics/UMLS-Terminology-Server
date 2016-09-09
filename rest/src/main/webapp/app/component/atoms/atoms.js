@@ -14,7 +14,12 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
 
       // Paging function
       function getPagedList() {
-        scope.pagedData = utilService.getPagedArray(scope.component.atoms, scope.paging);
+        scope.pagedData = utilService.getPagedArray(scope.component.atoms.filter(
+        // handle hidden flag
+        function(item) {
+          return scope.paging.showHidden || (!item.obsolete && !item.suppressible);
+        }), scope.paging);
+
         console.debug('paged atoms', scope.pagedData);
       }
 
@@ -28,6 +33,12 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
       // watch the component
       scope.$watch('component', function() {
         if (scope.component) {
+          // reset paging
+          scope.paging = utilService.getPaging();
+          scope.pageCallback = {
+            getPagedList : getPagedList
+          };
+          // get data
           getPagedList();
         }
       }, true);

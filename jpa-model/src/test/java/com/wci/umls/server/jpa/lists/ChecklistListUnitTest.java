@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
-import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
+import com.wci.umls.server.jpa.workflow.ChecklistJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 
 /**

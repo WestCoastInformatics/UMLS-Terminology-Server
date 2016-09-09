@@ -59,7 +59,9 @@ tsApp.directive('relationshipsDeep', [
               'additionalRelationshipType' ];
           }
 
-          var parameters = {
+          var paging = {
+            page : scope.paging.page,
+            pageSize : scope.paging.pageSize,
             showSuppressible : scope.showHidden,
             showObsolete : scope.showHidden,
             text : scope.paging.filter,
@@ -67,7 +69,7 @@ tsApp.directive('relationshipsDeep', [
             sortAscending : scope.paging.sortAscending
           };
 
-          var wrapper = {
+          var component = {
             id : scope.component.id,
             type : scope.metadata.terminology.organizingClassType,
             terminology : scope.component.terminology,
@@ -76,18 +78,22 @@ tsApp.directive('relationshipsDeep', [
           };
 
           // Request from service
-          contentService.findDeepRelationships(wrapper, scope.paging.page, parameters).then(
-            function(data) {
-
-              scope.pagedData.data = data.relationships;
-              scope.pagedData.totalCount = data.totalCount;
-
-            });
+          contentService.findDeepRelationships(component, paging).then(
+          // Success
+          function(data) {
+            scope.pagedData.data = data.relationships;
+            scope.pagedData.totalCount = data.totalCount;
+          });
         }
 
         // watch the component
         scope.$watch('component', function() {
           if (scope.component) {
+            // Reset paging
+            scope.paging.page = 1;
+            scope.paging.filter = null;
+
+            // Get data
             getPagedList();
           }
         }, true);

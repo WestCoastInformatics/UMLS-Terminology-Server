@@ -6,37 +6,29 @@ tsApp
     [
       '$http',
       '$q',
+      '$window',
       'gpService',
       'utilService',
       'tabService',
       'metadataService',
-      function($http, $q, gpService, utilService, tabService, metadataService) {
+      function($http, $q, $window, gpService, utilService, tabService, metadataService) {
         console.debug("configure contentService");
 
-        // global history, used for main content view
+        var metadata = metadataService.getModel();
+
+        // Shared data model for history
         var history = {
           // the components stored
           components : [],
-
           // the index of the currently viewed component
-          index : -1
+          index : -1,
+          pageSize : 5
         };
 
-        // Default page sizes object
-        var pageSizes = {
-          general : 10,
-          rels : 10,
-          roots : 125,
-          trees : 5,
-          search : 10,
-          sibling : 10,
-          filter : 5,
-          sort : 1
-        };
-
-        // Default search results object
+        // Shared data model for search params
         var searchParams = {
           page : 1,
+          pageSize : 10,
           query : null,
           expression : null,
           advancedMode : false,
@@ -56,16 +48,9 @@ tsApp
           }
         };
 
-        // the last search params saved by a controller or service
+        // prior search results
         var lastSearchParams = null;
-
-        // the last component saved by a controller or service
         var lastComponent = null;
-
-        // Get new copy of default page sizes
-        this.getPageSizes = function() {
-          return angular.copy(pageSizes);
-        };
 
         // Get new copy of default search parameters
         this.getSearchParams = function() {
@@ -130,11 +115,6 @@ tsApp
           return expressions;
         };
 
-        // broadcasts a concept change
-        this.fireConceptChanged = function(concept) {
-          $rootScope.$broadcast('termServer::conceptChanged', project);
-        };
-
         // Get autocomplete results
         this.autocomplete = function(searchTerms, autocompleteUrl) {
 
@@ -164,25 +144,23 @@ tsApp
           return deferred.promise;
         };
 
-        // Get the component from a component wrapper
-        // where wrapper is at minimum { id: ..., type: ..., terminology: ...,
+        // Get the component from a component
+        // where component is at minimum { id: ..., type: ..., terminology: ...,
         // version:
         // ..., terminologyId: ...}
         // Search results and components can be passed directly
-        this.getComponent = function(wrapper) {
+        this.getComponent = function(component) {
 
-          console.debug('getComponent', wrapper);
+          console.debug('getComponent', component);
 
           var deferred = $q.defer();
 
           // check prereqs
-          if (!wrapper.type || !wrapper.terminologyId || !wrapper.terminology || !wrapper.version) {
+          if (!component.type || !component.terminologyId || !component.terminology
+            || !component.version) {
             utilService.setError('Component object not fully specified');
             deferred.reject('Component object not fully specified');
           } else {
-
-            // the component object to be returned
-            var component = {};
 
             // Make GET call
             gpService.increment();
@@ -190,19 +168,20 @@ tsApp
             // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
             // path
             $http.get(
-              contentUrl + '/' + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
-                + wrapper.version + "/" + wrapper.terminologyId).then(
+              contentUrl + '/' + component.type.toLowerCase() + "/" + component.terminology + "/"
+                + component.version + "/" + component.terminologyId).then(
               // success
               function(response) {
                 var data = response.data;
 
                 if (!data) {
-                  deferred.reject('Could not retrieve ' + wrapper.type + ' data for '
-                    + wrapper.terminologyId + '/' + wrapper.terminology + '/' + wrapper.version);
+                  deferred.reject('Could not retrieve ' + component.type + ' data for '
+                    + component.terminologyId + '/' + component.terminology + '/'
+                    + component.version);
                 } else {
 
                   // Set the type of the returned component
-                  data.type = wrapper.type;
+                  data.type = component.type;
 
                   // cycle over all atoms for pre-processing
                   for (var i = 0; i < data.atoms.length; i++) {
@@ -247,24 +226,34 @@ tsApp
         // NOTE: Currently only set in contentController.js
         //
 
+        // Sets last search params
         this.setLastSearchParams = function(searchParams) {
           this.searchParams = searchParams;
         };
 
+        // Gets last search params
         this.getLastSearchParams = function() {
           return this.searchParams;
         };
 
+        // Sets last component
         this.setLastComponent = function(component) {
           this.lastComponent = component;
         };
 
+        // Gets last component
         this.getLastComponent = function() {
           return this.lastComponent;
         };
 
         // add a component history entry
-        this.addComponentToHistory = function(terminologyId, terminology, version, type, name) {
+        this.addComponentToHistory = function(component) {
+
+          var terminologyId = component.terminologyId;
+          var terminology = component.terminology;
+          var version = component.version;
+          var type = component.type;
+          var name = component.name;
 
           // if history exists
           if (history && history.index != -1) {
@@ -314,12 +303,12 @@ tsApp
             deferred.reject('Invalid history index: ' + index);
           } else {
 
-            // extract wrapper object
-            var wrapper = history.components[index];
+            // extract component object
+            var component = history.components[index];
 
             // set the index and get the component from history
             // information
-            this.getComponent(wrapper).then(function(data) {
+            this.getComponent(component).then(function(data) {
               // set the index and return
               history.index = index;
               deferred.resolve(data);
@@ -342,9 +331,8 @@ tsApp
         }
 
         // Gets the tree for the specified component
-        this.getTree = function(wrapper, startIndex) {
+        this.getTree = function(component, startIndex) {
 
-          console.trace();
           console.debug('getTree', wrapper, startIndex);
 
           if (startIndex === undefined) {
@@ -364,8 +352,8 @@ tsApp
           // Make post call
           gpService.increment();
           $http.post(
-            contentUrl + '/' + wrapper.type.toLowerCase() + '/' + wrapper.terminology + '/'
-              + wrapper.version + '/' + wrapper.terminologyId + '/trees', pfs).then(
+            contentUrl + '/' + component.type.toLowerCase() + '/' + component.terminology + '/'
+              + component.version + '/' + component.terminologyId + '/trees', pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -391,7 +379,7 @@ tsApp
           // PFS
           var pfs = {
             startIndex : startIndex,
-            maxResults : pageSizes.general,
+            maxResults : 10,
             sortField : 'nodeName',
             queryRestriction : null
           };
@@ -420,15 +408,16 @@ tsApp
         };
 
         // Gets the tree roots for the specified params
-        this.getTreeRoots = function(type, terminology, version, page) {
+        this.getTreeRoots = function(type, terminology, version) {
           // Setup deferred
           var deferred = $q.defer();
 
-          // PFS
-          // construct the pfs
+          // PFS - large page size to hopefully read them all except in
+          // degenerate cases
+          var pageSize = 30;
           var pfs = {
-            startIndex : (page - 1) * pageSizes.general,
-            maxResults : pageSizes.roots,
+            startIndex : (page - 1) * pageSize,
+            maxResults : pageSize,
             sortField : metadata.treeSortField,
             queryRestriction : null
           };
@@ -457,18 +446,16 @@ tsApp
         };
 
         // Finds components as a list
-        this.findComponentsAsList = function(queryStr, type, terminology, version, page,
-          searchParams) {
-
-          console.debug('findComponentsAsList', queryStr, type, terminology, version, page);
+        this.findComponentsAsList = function(queryStr, type, terminology, version, searchParams) {
+          console.debug('findComponentsAsList', queryStr, type, terminology, version, searchParams);
 
           // Setup deferred
           var deferred = $q.defer();
 
           // PFS
           var pfs = {
-            startIndex : (page - 1) * pageSizes.general,
-            maxResults : pageSizes.general,
+            startIndex : (searchParams.page - 1) * searchParams.pageSize,
+            maxResults : searchParams.pageSize,
             sortField : null,
             expression : searchParams && searchParams.expression ? searchParams.expression.value
               : null,
@@ -525,16 +512,16 @@ tsApp
         };
 
         // Finds components as a tree
-        this.findComponentsAsTree = function(queryStr, type, terminology, version, page,
-          semanticType) {
+        this.findComponentsAsTree = function(queryStr, type, terminology, version, searchParams) {
+          console.debug('findComponentsAsTree', queryStr, type, terminology, version, searchParams);
 
           // Setup deferred
           var deferred = $q.defer();
 
           // PFS
           var pfs = {
-            startIndex : (page - 1) * pageSizes.trees,
-            maxResults : pageSizes.trees,
+            startIndex : (searchParams.page - 1) * searchParams.pageSize,
+            maxResults : searchParams.pageSize,
             sortField : metadata.treeSortField,
             queryRestriction : null
           };
@@ -542,7 +529,7 @@ tsApp
           // check parameters for advanced mode
           if (searchParams.advancedMode) {
 
-            if (semanticType) {
+            if (searchParams.semanticType) {
               pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
             }/*
                * if (searchParams.semanticType) { pfs.queryRestriction += " AND
@@ -584,66 +571,72 @@ tsApp
           return deferred.promise;
         };
 
-        this.findRelationshipsForQuery = function(terminology, version, terminologyId, type, query, pfs) {
-          console.debug('find relationships', terminology, version, terminologyId, type,  query, pfs);
+        // Find relationships for query
+        this.findRelationshipsForQuery = function(component, query, pfs) {
+          console.debug('find relationships', component, query, pfs);
+
+          var type = component.type;
+          var terminology = component.terminology;
+          var version = component.version;
+          var terminologyId = component.terminologyId;
 
           // Setup deferred
           var deferred = $q.defer();
-          
+
           // Make POST call
           gpService.increment();
           $http.post(
-            contentUrl + '/' + type.toLowerCase() + '/' + terminology + '/' + version + '/' + 
-              terminologyId + '/relationships?query='+ (query != '' && query != null ? '&query=' + query : ''),
-            utilService.prepPfs(pfs)).then(
-          // success
-          function(response) {
-            console.debug('  rels = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            contentUrl + '/' + type.toLowerCase() + '/' + terminology + '/' + version + '/'
+              + terminologyId + '/relationships?query='
+              + (query != '' && query != null ? '&query=' + query : ''), utilService.prepPfs(pfs))
+            .then(
+            // success
+            function(response) {
+              console.debug('  rels = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
 
           return deferred.promise;
         };
-        
+
         // Handle paging of relationships (requires content service
         // call).
-        this.findRelationships = function(wrapper, page, parameters) {
+        this.findRelationships = function(component, paging) {
 
-          console.debug('findRelationships', wrapper, page, parameters);
+          console.debug('findRelationships', component, paging);
           var deferred = $q.defer();
 
-          if (parameters)
+          if (paging) {
 
             var pfs = {
-              startIndex : (page - 1) * pageSizes.general,
-              maxResults : pageSizes.general,
-              sortFields : parameters.sortFields ? parameters.sortFields : [ 'group',
-                'relationshipType' ],
-              ascending : parameters.sortAscending,
+              startIndex : (paging.page - 1) * paging.pageSize,
+              maxResults : paging.pageSize,
+              sortFields : paging.sortFields ? paging.sortFields : [ 'group', 'relationshipType' ],
+              ascending : paging.sortAscending,
               queryRestriction : null
-            // constructed from filters
             };
+          }
 
           // Show only inferred rels for now
           // construct query restriction if needed
           var qr = '';
-          if (!parameters.showSuppressible) {
+          if (!paging.showSuppressible) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
           }
-          if (!parameters.showObsolete) {
+          if (!paging.showObsolete) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
           }
-          if (parameters.showInferred) {
+          if (paging.showInferred) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'inferred:true';
           }
-          if (!parameters.showInferred) {
+          if (!paging.showInferred) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
           }
           pfs.queryRestriction = qr;
@@ -654,10 +647,10 @@ tsApp
             pfs.startIndex = -1;
             pfs.maxResults = 1000000;
           } else {
-            pfs.maxResults = pageSizes.general;
+            pfs.maxResults = paging.pageSize;
           }
 
-          var query = parameters.text;
+          var query = paging.text;
 
           // Add wildcard to allow better matching from basic search
           // NOTE: searching for "a"* is interpreted by lucene as a
@@ -671,8 +664,8 @@ tsApp
           // path
           gpService.increment();
           $http.post(
-            contentUrl + '/' + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
-              + wrapper.version + "/" + wrapper.terminologyId + "/relationships?query="
+            contentUrl + '/' + component.type.toLowerCase() + "/" + component.terminology + "/"
+              + component.version + "/" + component.terminologyId + "/relationships?query="
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             gpService.decrement();
             deferred.resolve(response.data);
@@ -687,22 +680,21 @@ tsApp
 
         // Handle paging of relationships (requires content service
         // call).
-        this.findDeepRelationships = function(wrapper, page, parameters) {
+        this.findDeepRelationships = function(component, paging) {
 
           var deferred = $q.defer();
 
-          if (wrapper.type.toLowerCase() !== 'concept') {
+          if (component.type.toLowerCase() !== 'concept') {
             defer.reject('Deep relationships cannot be retrieved for type previs ' + prefix);
           }
 
-          if (parameters) {
+          if (paging) {
 
             var pfs = {
-              startIndex : (page - 1) * pageSizes.general,
-              maxResults : pageSizes.general,
-              sortFields : parameters.sortFields ? parameters.sortFields : [ 'group',
-                'relationshipType' ],
-              ascending : parameters.sortAscending,
+              startIndex : (paging.page - 1) * paging.pageSize,
+              maxResults : paging.pageSize,
+              sortFields : paging.sortFields ? paging.sortFields : [ 'group', 'relationshipType' ],
+              ascending : paging.sortAscending,
 
               // NOTE: Deep relationships do not support query restrictions,
               // instead using
@@ -713,15 +705,15 @@ tsApp
 
           // set filter/query; unlike relationships, does not require * for
           // filtering
-          var query = parameters.text;
+          var query = paging.text;
 
           // do not use glass pane, produces additional user lag on initial
           // concept load
           // i.e. retrieve concept, THEN get deep relationships
           // gpService.increment();
           $http.post(
-            contentUrl + '/' + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
-              + wrapper.version + "/" + wrapper.terminologyId + "/relationships/deep?query="
+            contentUrl + '/' + component.type.toLowerCase() + "/" + component.terminology + "/"
+              + component.version + "/" + component.terminologyId + "/relationships/deep?query="
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             // gpService.decrement();
             deferred.resolve(response.data);
@@ -754,16 +746,17 @@ tsApp
             });
         };
 
-        this.addComponentNote = function(wrapper, note) {
+        // Add a component note
+        this.addComponentNote = function(component, note) {
           var deferred = $q.defer();
-          if (!wrapper || !note) {
+          if (!component || !note) {
             deferred.reject('Concept id and note must be specified');
           } else {
 
             gpService.increment();
             $http.post(
-              contentUrl + '/' + wrapper.type.toLowerCase() + '/note/' + wrapper.terminology + '/'
-                + wrapper.version + '/' + wrapper.terminologyId + '/add', note).then(
+              contentUrl + '/' + component.type.toLowerCase() + '/note/' + component.terminology
+                + '/' + component.version + '/' + component.terminologyId + '/add', note).then(
               function(response) {
                 gpService.decrement();
                 deferred.resolve(response.data);
@@ -779,17 +772,17 @@ tsApp
         };
 
         // Remove component note
-        this.removeComponentNote = function(wrapper, noteId) {
-          console.debug('removeComponentNote', wrapper, noteId);
+        this.removeComponentNote = function(component, noteId) {
+          console.debug('removeComponentNote', component, noteId);
           var deferred = $q.defer();
-          if (!wrapper || !noteId) {
-            deferred.reject('Component wrapper (minimum type) and note id must be specified');
+          if (!component || !noteId) {
+            deferred.reject('Component component (minimum type) and note id must be specified');
           } else {
 
             gpService.increment();
             $http['delete'](
-              contentUrl + '/' + wrapper.type.toLowerCase() + '/note/' + noteId + '/remove').then(
-              function(response) {
+              contentUrl + '/' + component.type.toLowerCase() + '/note/' + noteId + '/remove')
+              .then(function(response) {
                 console.debug('  successful remove note');
                 gpService.decrement();
                 deferred.resolve(response.data);
@@ -809,19 +802,19 @@ tsApp
         // parallel to uses in component report elements (atoms,
         // relationships...)
         // instead of the getSearchParams structure for standard queries
-        this.getUserFavorites = function(parameters) {
-          console.debug('get user favorites', parameters);
+        this.getUserFavorites = function(paging) {
+          console.debug('get user favorites', paging);
           var deferred = $q.defer();
-          if (!parameters) {
-            deferred.reject('Parameters must be specified');
+          if (!paging) {
+            deferred.reject('Paging must be specified');
           } else {
 
             var pfs = {
-              startIndex : (parameters.page - 1) * pageSizes.general,
-              maxResults : pageSizes.general,
-              sortField : parameters.sortField ? parameters.sortField : 'lastModified',
-              queryRestriction : parameters.filter,
-              ascending : parameters.sortAscending
+              startIndex : (paging.page - 1) * paging.pageSize,
+              maxResults : paging.pageSize,
+              sortField : paging.sortField ? paging.sortField : 'lastModified',
+              queryRestriction : paging.filter,
+              ascending : paging.sortAscending
             };
 
             gpService.increment();
@@ -839,15 +832,15 @@ tsApp
           return deferred.promise;
         };
 
-        this.getComponentsWithNotesForUser = function(query, parameters) {
-          console.debug('get components with notes', query, parameters);
+        this.getComponentsWithNotesForUser = function(query, paging) {
+          console.debug('get components with notes', query, paging);
           var deferred = $q.defer();
 
           var pfs = {
-            startIndex : (parameters.page - 1) * parameters.pageSize,
-            maxResults : parameters.pageSize,
-            sortField : parameters.sortField ? parameters.sortField : 'name',
-            ascending : parameters.sortAscending
+            startIndex : (paging.page - 1) * paging.pageSize,
+            maxResults : paging.pageSize,
+            sortField : paging.sortField ? paging.sortField : 'name',
+            ascending : paging.sortAscending
           };
 
           if (query && !query.endsWith("*")) {
@@ -977,4 +970,44 @@ tsApp
           return deferred.promise;
         };
 
+        // Find mappings
+        this.findMappings = function(component, pfs) {
+          console.debug('findMappings', component, pfs);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/' + type.toLowerCase() + '/' + component.terminologyId + '/'
+              + component.terminology + '/' + component.version + '/mappings', pfs).then(
+          // success
+          function(response) {
+            console.debug('  mappings =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+
+        // Popout component into new concept
+        this.popout = function(component) {
+          var currentUrl = window.location.href;
+          var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+          // TODO; don't hardcode this - maybe "simple" should be a parameter
+          var newUrl = baseUrl + '/content/simple/' + component.type + '/' + component.terminology
+            + '/' + component.version + '/' + component.terminologyId;
+          var myWindow = $window.open(newUrl, component.terminology + '/' + component.version
+            + ', ' + component.terminologyId + ', ' + component.name, 'width=500, height=600');
+          myWindow.focus();
+
+        };
       } ]);

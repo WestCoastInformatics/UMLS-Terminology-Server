@@ -32,20 +32,20 @@ tsApp
 
         // Paging variables
         $scope.paging = {};
-        $scope.paging['relationships'] = utilService.getPaging();
-        $scope.paging['relationships'].sortField = 'id';
-        $scope.paging['relationships'].pageSize = 10;
-        $scope.paging['relationships'].filterFields = {};
-        $scope.paging['relationships'].filterFields.toName = 1;
-        $scope.paging['relationships'].filterFields.fromName = 1;
-        $scope.paging['relationships'].filterFields.toTerminologyId = 1;
-        $scope.paging['relationships'].filterFields.fromTerminologyId = 1;
-        $scope.paging['relationships'].filterFields.relationshipType = 1;
-        $scope.paging['relationships'].filterFields.additionalRelationshipType = 1;
-        $scope.paging['relationships'].filterFields.terminology = 1;
-        $scope.paging['relationships'].filterFields.lastModifiedBy = 1;
-        $scope.paging['relationships'].sortAscending = false;
-        $scope.paging['relationships'].callback = {
+        $scope.paging = utilService.getPaging();
+        $scope.paging.sortField = 'id';
+        $scope.paging.pageSize = 10;
+        $scope.paging.filterFields = {};
+        $scope.paging.filterFields.toName = 1;
+        $scope.paging.filterFields.fromName = 1;
+        $scope.paging.filterFields.toTerminologyId = 1;
+        $scope.paging.filterFields.fromTerminologyId = 1;
+        $scope.paging.filterFields.relationshipType = 1;
+        $scope.paging.filterFields.additionalRelationshipType = 1;
+        $scope.paging.filterFields.terminology = 1;
+        $scope.paging.filterFields.lastModifiedBy = 1;
+        $scope.paging.sortAscending = false;
+        $scope.paging.callback = {
           getPagedList : getPagedRelationships
         };
 
@@ -72,7 +72,7 @@ tsApp
           getPagedRelationships();
         }
         function getPagedRelationships() {
-          var paging = $scope.paging['relationships'];
+          var paging = $scope.paging;
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -81,8 +81,12 @@ tsApp
             queryRestriction : paging.filter
           };
 
-          contentService.findRelationshipsForQuery($scope.selected.project.terminology, 'latest',
-            $scope.selected.concept.terminologyId, 'Concept', null, pfs).then(
+          contentService.findRelationshipsForQuery({
+            terminology : $scope.selected.project.terminology,
+            version : $scope.selected.project.version,
+            terminologyId : $scope.selected.concept.terminologyId,
+            type : 'CONCEPT'
+          }, null, pfs).then(
           // Success
           function(data) {
             $scope.pagedRelationships = data.relationships;

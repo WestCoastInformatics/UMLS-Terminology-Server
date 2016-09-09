@@ -11,7 +11,7 @@
     <table class="table table-hover" ng-show="pagedData.results.length > 0">
       <tbody>
         <!-- table-hover makes use of the active class -->
-        <tr ng-class="{active: favorite.active}"
+        <tr ng-class="{selected: favorite.id == component.id}"
           ng-mouseenter="favorite.hover = true;"
           ng-mouseleave="favorite.hover = false;"
           ng-repeat="favorite in pagedData.results">

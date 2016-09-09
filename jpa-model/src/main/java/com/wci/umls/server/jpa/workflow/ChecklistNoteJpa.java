@@ -1,7 +1,7 @@
 /**
  * Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.worfklow;
+package com.wci.umls.server.jpa.workflow;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -20,28 +20,28 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.content.AbstractNote;
-import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.model.workflow.Checklist;
 
 /**
- * JPA enabled implementation of {@link Note} connected to a {@link Worklist}.
- * NOTE: the worklist is not exposed through the API, it exists to separate
+ * JPA enabled implementation of {@link Note} connected to a {@link Checklist}.
+ * NOTE: the checklist is not exposed through the API, it exists to separate
  * notes by type and avoid a table
  * 
  */
 @Entity
-@Table(name = "worklist_notes")
+@Table(name = "checklist_notes")
 @Audited
-@XmlRootElement(name = "worklistNote")
-public class WorklistNoteJpa extends AbstractNote {
+@XmlRootElement(name = "checklistNote")
+public class ChecklistNoteJpa extends AbstractNote {
 
-  /** The Worklist. */
-  @ManyToOne(targetEntity = WorklistJpa.class, optional = false)
-  private Worklist worklist;
+  /** The Checklist. */
+  @ManyToOne(targetEntity = ChecklistJpa.class, optional = false)
+  private Checklist checklist;
 
   /**
    * The default constructor.
    */
-  public WorklistNoteJpa() {
+  public ChecklistNoteJpa() {
     // n/a
   }
 
@@ -50,53 +50,53 @@ public class WorklistNoteJpa extends AbstractNote {
    *
    * @param note the note
    */
-  public WorklistNoteJpa(WorklistNoteJpa note) {
+  public ChecklistNoteJpa(ChecklistNoteJpa note) {
     super(note);
-    worklist = note.getWorklist();
+    checklist = note.getChecklist();
   }
 
   /**
-   * Returns the worklist.
+   * Returns the checklist.
    *
-   * @return the worklist
+   * @return the checklist
    */
   @XmlTransient
-  public Worklist getWorklist() {
-    return worklist;
+  public Checklist getChecklist() {
+    return checklist;
   }
 
   /**
-   * Sets the worklist.
+   * Sets the checklist.
    *
-   * @param worklist the worklist
+   * @param checklist the checklist
    */
-  public void setWorklist(Worklist worklist) {
-    this.worklist = worklist;
+  public void setChecklist(Checklist checklist) {
+    this.checklist = checklist;
   }
 
   /**
-   * Returns the worklist id.
+   * Returns the checklist id.
    *
-   * @return the worklist id
+   * @return the checklist id
    */
   @XmlElement
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public Long getWorklistId() {
-    return (worklist != null) ? worklist.getId() : 0;
+  public Long getChecklistId() {
+    return (checklist != null) ? checklist.getId() : 0;
   }
 
   /**
-   * Sets the worklist id.
+   * Sets the checklist id.
    *
-   * @param worklistId the worklist id
+   * @param checklistId the checklist id
    */
   @SuppressWarnings("unused")
-  private void setWorklistId(Long worklistId) {
-    if (worklist == null) {
-      worklist = new WorklistJpa();
+  private void setChecklistId(Long checklistId) {
+    if (checklist == null) {
+      checklist = new ChecklistJpa();
     }
-    worklist.setId(worklistId);
+    checklist.setId(checklistId);
   }
 
   /* see superclass */
@@ -104,8 +104,7 @@ public class WorklistNoteJpa extends AbstractNote {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result
-        + ((getWorklistId() == null) ? 0 : getWorklistId().hashCode());
+    result = prime * result + ((getChecklistId() == null) ? 0 : getChecklistId().hashCode());
     return result;
   }
 
@@ -118,11 +117,11 @@ public class WorklistNoteJpa extends AbstractNote {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    WorklistNoteJpa other = (WorklistNoteJpa) obj;
-    if (getWorklistId() == null) {
-      if (other.getWorklistId() != null)
+    ChecklistNoteJpa other = (ChecklistNoteJpa) obj;
+    if (getChecklistId() == null) {
+      if (other.getChecklistId() != null)
         return false;
-    } else if (!getWorklistId().equals(other.getWorklistId()))
+    } else if (!getChecklistId().equals(other.getChecklistId()))
       return false;
     return true;
   }
@@ -130,7 +129,7 @@ public class WorklistNoteJpa extends AbstractNote {
   /* see superclass */
   @Override
   public String toString() {
-    return "WorklistNoteJpa [worklist=" + worklist + ", getLastModified()="
+    return "ChecklistNoteJpa [checklist=" + checklist + ", getLastModified()="
         + getLastModified() + ", getLastModifiedBy()=" + getLastModifiedBy()
         + ", getClass()=" + getClass() + ", toString()=" + super.toString()
         + "]";

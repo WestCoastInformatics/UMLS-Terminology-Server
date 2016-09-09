@@ -16,7 +16,7 @@
         <ul>
           <li ng-repeat="attribute in item.attributes | orderBy: ['subsetName']">
             <span class="label label-info"
-              uib-tooltip="{{callbacks.getAttributeNameName(attribute.name)">{{attribute.name}}</span>
+              uib-tooltip="{{callbacks.getAttributeNameName(attribute.name,metadata)">{{attribute.name}}</span>
             = {{attribute.value}}
           </li>
         </ul>

@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.WorkflowBinList;
-import com.wci.umls.server.jpa.worfklow.WorkflowBinJpa;
+import com.wci.umls.server.jpa.workflow.WorkflowBinJpa;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 
 /**

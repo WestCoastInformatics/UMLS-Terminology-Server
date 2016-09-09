@@ -23,7 +23,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
   /**
    * The number of times the algorithm will print to the log before finishing.
    */
-  private Long num;
+  private Double num;
 
   /**
    * Instantiates an empty {@link WaitAlgorithm}.
@@ -59,8 +59,8 @@ public class WaitAlgorithm extends AbstractAlgorithm {
         throw new CancelException("Cancelled");
       }
       Thread.sleep(1000);
-      fireProgressEvent((int) (100 / num) * i,
-          "WAIT progress: " + (100 / num) * i + "%");
+      fireProgressEvent((int) ((100 / num) * i),
+          "WAIT progress: " + ((int) ((100 / num) * i)) + "%");
     }
 
     logInfo("Finished WAIT");
@@ -81,7 +81,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     }, p);
 
     if (p.getProperty("num") != null) {
-      num = Long.parseLong(p.getProperty("num"));
+      num = Double.parseDouble(p.getProperty("num"));
     }
   }
 

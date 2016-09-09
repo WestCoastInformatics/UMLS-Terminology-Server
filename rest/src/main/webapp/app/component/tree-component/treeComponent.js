@@ -115,7 +115,7 @@ tsApp.directive('treeComponent', [
 
         scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
-          return scope.getDerivedLabelSetsValue(tree);
+          return scope.getDerivedLabelSetsValue(tree, scope.metadata);
         };
 
         scope.isLabelSetFromTree = function(nodeScope) {
@@ -125,7 +125,7 @@ tsApp.directive('treeComponent', [
 
         scope.getLabelSetsValueFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
-          return scope.getLabelSetsValue(tree);
+          return scope.getLabelSetsValue(tree, scope.metadata);
         };
 
         // retrieves the children for a node (from DOM)

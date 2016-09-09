@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.TrackingRecordList;
-import com.wci.umls.server.jpa.worfklow.TrackingRecordJpa;
+import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 
 /**

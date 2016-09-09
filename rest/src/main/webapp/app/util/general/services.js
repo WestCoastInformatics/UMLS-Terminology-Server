@@ -1,4 +1,4 @@
-// Error service
+// Util service
 tsApp
   .service(
     'utilService',
@@ -294,7 +294,6 @@ tsApp
           }
         };
 
-
         // Helper function to get a standard paging object
         // overwritten as needed
         // Example of filterFields
@@ -395,7 +394,6 @@ tsApp
         // Get array by filter text matching terminologyId or name
         this.getArrayByFilter = function(array, filter, fields) {
           var newArray = [];
-
           for ( var object in array) {
 
             if (this.objectContainsFilterText(array[object], filter, fields)) {
@@ -429,7 +427,8 @@ tsApp
             return false;
 
           for ( var prop in object) {
-            if (!fields || !fields[prop]) {
+            // skip if fields are defined but not specified in prop
+            if (fields && !fields[prop]) {
               continue;
             }
             var value = object[prop];

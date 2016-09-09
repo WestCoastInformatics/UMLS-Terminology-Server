@@ -10,12 +10,12 @@
       <div class="row m10">
         <div class="col-md-1 col-xs-3">Terminology</div>
         <div class="col-md-11 col-xs-9">
-          <select ng-model="metadata.terminology"
-            ng-change="setTerminology(metadata.terminology)"
+          <select ng-model="selected.terminology"
+            ng-change="setTerminology(selected.terminology)"
             ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'">
           </select>
           <button style="margin-left: 15px;"
-            ng-show="!metadata.terminology.metathesaurus" type="button"
+            ng-show="!selected.terminology.metathesaurus" type="button"
             class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
             uib-tooltip="Click to browse top level hierarchy">Browse</button>
         </div>
@@ -27,8 +27,7 @@
           <span class="pull-right">
             <i class="glyphicon glyphicon-cog noul"
               ng-click="searchParams.advancedMode = !searchParams.advancedMode"
-              title="Advanced Search Options"
-              tooltip-placement="bottom-right"></i>
+              title="Advanced Search Options" tooltip-placement="bottom-right"></i>
           </span>
         </div>
         <div class="col-md-11 col-xs-9">
@@ -60,7 +59,7 @@
   <!-- Advanced Search Controls -->
   <div class="col-md-4 col-xs-12">
     <div ng-show="searchParams.advancedMode">
-      <div ng-show="metadata.semanticTypes.length > 1" class="row m10">
+      <div ng-show="selected.metadata.semanticTypes.length > 1" class="row m10">
         <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
           Semantic Type
@@ -70,16 +69,16 @@
         </div>
         <div class="col-md-8 col-xs-8">
           <select style="margin-bottom: 5px; width: 100%;"
-            ng-show="metadata.semanticTypes"
+            ng-show="selected.metadata.semanticTypes"
             ng-model="searchParams.semanticType"
-            ng-options="item.value as item.value for item in metadata.semanticTypes | orderBy:'value'">
+            ng-options="item.value as item.value for item in selected.metadata.semanticTypes | orderBy:'value'">
             <option value="">--- All ---</option>
           </select>
         </div>
       </div>
       <!-- As of 4/28/16, do not show term type select for non-metathesaurus terminologies -->
       <div
-        ng-show="metadata.terminology.metathesaurus && metadata.termTypes.length > 1"
+        ng-show="selected.terminology.metathesaurus && selected.metadata.termTypes.length > 1"
         class="row m10">
         <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
@@ -90,14 +89,14 @@
         </div>
         <div class="col-md-8 col-xs-8">
           <select style="margin-bottom: 5px; width: 100%" type="text"
-            ng-options="termType.key as termType.key + ' / ' + termType.value for termType in metadata.termTypes"
+            ng-options="termType.key as termType.key + ' / ' + termType.value for termType in selected.metadata.termTypes"
             ng-model="searchParams.termType">
             <option value="">--- All ---</option>
           </select>
         </div>
       </div>
       <!-- Only show match terminology for metathesaurus -->
-      <div ng-show="metadata.terminology.metathesaurus" class="row m10">
+      <div ng-show="selected.terminology.metathesaurus" class="row m10">
         <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
           Match Terminology
@@ -114,7 +113,7 @@
         </div>
       </div>
       <!--  Show only if more than one language -->
-      <div ng-show="metadata.languages.length > 1" class="row m10">
+      <div ng-show="selected.metadata.languages.length > 1" class="row m10">
         <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
           Language
@@ -124,14 +123,14 @@
         </div>
         <div class="col-md-8 col-xs-8">
           <select style="margin-bottom: 5px; width: 100%" type="text"
-            ng-options="language.key as language.key + ' / ' + language.value for language in metadata.languages"
+            ng-options="language.key as language.key + ' / ' + language.value for language in selected.metadata.languages"
             ng-model="searchParams.language">
             <option value="">--- All ---
           </select>
         </div>
       </div>
       <!-- Expressions -->
-      <div ng-show="metadata.terminology.descriptionLogicTerminology">
+      <div ng-show="selected.terminology.descriptionLogicTerminology">
         <div class="row m10">
           <div class="col-md-4 col-xs-4"
             style="margin-right: 0px; padding-right: 0px;">
@@ -188,7 +187,8 @@
       <div class="row m10">
         <div class="col-md-12 col-xs-12">
           <small>Want more search features? <a
-              href="mailto:{{appConfig['deploy.feedback.email']}}">Let us know!</a></small>
+              href="mailto:{{appConfig['deploy.feedback.email']}}">Let us
+              know!</a></small>
         </div>
       </div>
     </div>
@@ -199,34 +199,39 @@
         ng-click="searchResultsCollapsed = !searchResultsCollapsed">
         <i class="glyphicon"
           ng-class="[{'glyphicon-chevron-right' : searchResultsCollapsed}, {'glyphicon-chevron-down' : !searchResultsCollapsed}]"></i>
-        &nbsp; Search Results 
+        &nbsp; Search Results
         <span ng-show="searchResults.results">({{searchResults.totalCount}})</span>
         <span ng-show="!searchResults.results">(no search yet)</span>
-        <i ng-show="!metadata.terminology.metathesaurus"
+        <i ng-show="!selected.terminology.metathesaurus"
           class="pull-right glyphicon glyphicon-tree-conifer"
           ng-click="setTreeView()" title="Switch to tree view"
           tooltip-placement="right"></i>
       </div>
       <div ng-show="!searchResultsCollapsed">
         <!--  Margin added to prevent crowding -->
-        <uib-pagination items-per-page="pageSizes.general" max-size="5"
+
+        <!-- NOTE: pager doesn't work well here -->
+        <uib-pagination items-per-page="searchParams.pageSize" max-size="5"
           boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
           next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-          ng-show="searchResults.totalCount > pageSizes.general"
+          ng-show="searchResults.totalCount > searchParams.pageSize"
           total-items="searchResults.totalCount" ng-model="searchParams.page"
           ng-change="findComponents(false)"></uib-pagination>
+
         <table class="table table-hover" style="margin-top: 10px;"
           ng-show="searchResults.results.length > 0">
           <tbody>
             <!-- table-hover makes use of the active class -->
-            <tr ng-class="{active: searchResult.active}"
+            <tr ng-class="{selected: searchResult.id == selected.component.id}"
               ng-repeat="searchResult in searchResults.results"
-              ng-click="getComponent(searchResult.id, metadata.terminology.organizingClassType, searchResult.terminologyId, searchResult.terminology, searchResult.version)">
+              ng-click="getComponent({ id: searchResult.id, type :selected.terminology.organizingClassType, 
+              terminologyId : searchResult.terminologyId, terminology : searchResult.terminology, 
+              version :searchResult.version})">
               <td class="col-md-4 col-xs-4">
                 <span>
                   <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
                   <span
-                    ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
+                    ng-show="searchResult.terminology != selected.terminology.terminology">{{searchResult.terminology}}/</span>
                   <span class="breakword">{{searchResult.terminologyId}}</span>
                 </span>
               </td>
@@ -234,7 +239,7 @@
                 <span class="breakword"> {{searchResult.value}}</span>
                 <span class="label label-default"
                   ng-show="searchResult.obsolete"
-                  uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+                  uib-tooltip="{{selected.metadata.obsoleteLabel}}">{{selected.metadata.obsoleteIndicator}}</span>
               </td>
             </tr>
           </tbody>
@@ -254,11 +259,11 @@
           Results</span>
         <span class="pull-right">
           <i class="glyphicon glyphicon-star"
-            ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
+            ng-show="showExtension&& !terminology.metathesaurus && selected.metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
             ng-click="toggleExtension()"
             title="Click to hide extension highlights in tree"> </i>
           <i class="glyphicon glyphicon-star-empty"
-            ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
+            ng-show="!showExtension && !terminology.metathesaurus && selected.metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
             ng-click="toggleExtension()"
             title="Click to show extension highlights in tree"> </i>
           &nbsp;
@@ -267,35 +272,35 @@
             tooltip-placement="bottom"></i>
         </span>
       </div>
-      <uib-pagination style="display:block;" items-per-page="pageSizes.trees"
-        max-size="5" boundary-links="true" class="pagination-sm"
-        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
-        last-text="&raquo;"
-        ng-show="searchResults.tree.totalCount > pageSizes.trees"
+
+      <!-- NOTE: pager doesn't work well here -->
+      <uib-pagination style="display:block;"
+        items-per-page="searchParams.pageSize" max-size="5"
+        boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
+        next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+        ng-show="searchResults.tree.totalCount > searchParams.pageSize"
         total-items="searchResults.tree.totalCount" ng-model="searchParams.page"
         ng-change="findComponents(false)"></uib-pagination>
-      <div tree-search-result metadata="metadata" search-results="searchResults"
-        parameters="searchParams" callbacks="srtCallbacks"></div>
+
+      <div tree-search-result metadata="selected.metadata"
+        search-results="searchResults" parameters="searchParams"
+        callbacks="srtCallbacks"></div>
       <p style="display: block;">&nbsp;</p>
     </div>
     <!--  Favorites -->
     <div ng-show="!isGuestUser()" favorites="user.userPreferences.favorites"
-      metadata="metadata" callbacks="favoritesCallbacks"></div>
+      component="selected.component" metadata="selected.metadata"
+      callbacks="favoritesCallbacks"></div>
     <!--  Components with user notes -->
-    <div annotated-content metadata="metadata" callbacks="favoritesCallbacks"></div>
+    <div annotated-content metadata="selected.metadata"
+      component="selected.component" callbacks="favoritesCallbacks"></div>
   </div>
   <div class="col-md-8 col-xs-12">
-    <!-- error bar for reports section -->
-    <div ng-show="component.error != null" class="row alert alert-warning">
-      {{component.error}}
-      <button class="btn btn-xs btn-primary"
-        ng-click="getComponentFromHistory(history.index - 2)"
-        title="{{getComponentHistoryStr(history.index - 2)}}">Back</button>
-    </div>
+
     <!-- Title bar & Navigation history -->
     <div class="row">
       <div class="col-md-12 col-xs-12 nobreak alert alert-info"
-        ng-if="component != null">
+        ng-if="selected.component != null">
         <div style="display: inline" uib-dropdown dropdown-append-to-body>
           <i title="View All History" ng-show="history.components.length > 2"
             class="glyphicon glyphicon-time dropdown-toggle noul"
@@ -318,38 +323,37 @@
           ng-show="history.index > 0"
           title="{{getComponentStr(history[history.index - 1])}}"></i>
         <span
-          ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
-        {{component.type}} Report
+          ng-show="selected.component.terminology != selected.terminology.terminology">{{selected.component.terminology}}</span>
+        {{selected.component.type}} Report
         <i class="glyphicon glyphicon-step-forward noul"
           ng-click="getComponentFromHistory(history.index + 1)"
           ng-show="history.components.length > history.index + 1 && history.components.length > 0"
           title="{{getComponentStr(history[history.index + 1])}}"></i>
         &nbsp;&nbsp;
         <!-- Popout control -->
-        <i ng-click="popout()" title="Open {{component.type}} in new window"
+        <i ng-click="popout()"
+          title="Open {{selected.component.type}} in new window"
           class="glyphicon glyphicon-share noul glyphicon-muted"></i>
         &nbsp;&nbsp;
         <!-- Notes controls -->
         <i ng-show="component.notes.length > 0" ng-click="viewNotes()"
           title="View, Add, or Remove Notes"
           class="glyphicon glyphicon-tags noul glyphicon-muted"></i>
-        <i ng-show="component.notes.length == 0" ng-click="viewNotes()"
+        <i ng-show="selected.component.notes.length == 0" ng-click="viewNotes()"
           title="Add Notes" class="glyphicon glyphicon-tag glyphicon-muted"></i>
         &nbsp;&nbsp;
         <!-- Favorite control -->
         <i ng-show="!isFavorite && !isGuestUser()"
-          ng-click="toggleFavorite(component.type, component.terminology, component.version, component.terminologyId, component.name)"
-          title="Add to favorites"
+          ng-click="toggleFavorite(selected.component)" title="Add to favorites"
           class="glyphicon glyphicon-heart-empty noul glyphicon-muted"></i>
         <i ng-show="isFavorite  && !isGuestUser()"
-          ng-click="toggleFavorite(component.type, component.terminology, component.version, component.terminologyId, component.name)"
-          title="Remove favorites"
+          ng-click="toggleFavorite(selected.component)" title="Remove favorites"
           class="glyphicon glyphicon-heart noul glyphicon-muted"></i>
       </div>
     </div>
     <!-- Component display -->
-    <div class="row" ng-if="component != null">
-      <div report component="component" metadata="metadata"
+    <div class="row" ng-if="selected.component != null">
+      <div report component="selected.component" metadata="selected.metadata"
         callbacks="componentReportCallbacks"></div>
       <!-- end Component Display -->
     </div>

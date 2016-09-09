@@ -8,8 +8,8 @@ tsApp.controller('FinderModalCtrl', [
   'selected',
   'lists',
   'user',
-  function($scope, $uibModalInstance, utilService, contentService, reportService,
-    selected, lists, user) {
+  function($scope, $uibModalInstance, utilService, contentService, reportService, selected, lists,
+    user) {
     console.debug('Entered finder modal control');
 
     // Scope
@@ -53,17 +53,17 @@ tsApp.controller('FinderModalCtrl', [
         queryRestriction : paging.filter
       };
 
-      contentService.findConcepts($scope.selected.project.terminology, 'latest', $scope.query, pfs)
-        .then(
-        // Success
-        function(data) {
-          $scope.searchResults = data.results;
-          $scope.searchResults.totalCount = data.totalCount;
-        },
-        // Error
-        function(data) {
-          utilService.handleDialogError($scope.errors, data);
-        });
+      contentService.findConcepts($scope.selected.project.terminology,
+        $scope.selected.project.version, $scope.query, pfs).then(
+      // Success
+      function(data) {
+        $scope.searchResults = data.results;
+        $scope.searchResults.totalCount = data.totalCount;
+      },
+      // Error
+      function(data) {
+        utilService.handleDialogError($scope.errors, data);
+      });
 
     }
     ;

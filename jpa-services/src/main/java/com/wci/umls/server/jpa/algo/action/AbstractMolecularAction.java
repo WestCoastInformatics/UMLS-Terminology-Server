@@ -206,9 +206,10 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     setProject(project);
     this.lastModified = lastModified;
 
-    if (lastModified == null) {
-      throw new Exception("Unexpected null concept last modified value");
-    }
+    // For undo-redo, lastModified can be null.
+    // if (lastModified == null) {
+    // throw new Exception("Unexpected null concept last modified value");
+    // }
 
     // Global lock to acquire list of concept ids to lock.
     final List<Long> conceptIdList = new ArrayList<>();
@@ -281,6 +282,12 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     if (concept != null) {
       setTerminology(concept.getTerminology());
       setVersion(concept.getVersion());
+    }
+    // In some situations, concept will be null (e.g. undoing a merge). Use
+    // concept2 instead.
+    else if (concept2 != null) {
+      setTerminology(concept2.getTerminology());
+      setVersion(concept2.getVersion());
     } else {
       rollback();
       throw new Exception("Unexpected missing concept for action " + conceptId);
@@ -323,7 +330,8 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
     // Concept freshness check - the driving concept of the action
     // should match the "last modified" value.
-    if (concept.getLastModified().getTime() != lastModified.longValue()) {
+    if (lastModified != null
+        && concept.getLastModified().getTime() != lastModified.longValue()) {
       // unlock concepts and fail
       rollback();
       throw new LocalException(

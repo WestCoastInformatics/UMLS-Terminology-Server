@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
-import com.wci.umls.server.jpa.worfklow.WorkflowConfigJpa;
+import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 
 /**

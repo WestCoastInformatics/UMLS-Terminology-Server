@@ -19,8 +19,8 @@ import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.worfklow.ChecklistJpa;
-import com.wci.umls.server.jpa.worfklow.ChecklistNoteJpa;
+import com.wci.umls.server.jpa.workflow.ChecklistJpa;
+import com.wci.umls.server.jpa.workflow.ChecklistNoteJpa;
 import com.wci.umls.server.model.workflow.Checklist;
 
 /**

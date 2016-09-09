@@ -20,7 +20,7 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
-import com.wci.umls.server.jpa.worfklow.ClusterTypeStatsJpa;
+import com.wci.umls.server.jpa.workflow.ClusterTypeStatsJpa;
 import com.wci.umls.server.model.workflow.ClusterTypeStats;
 
 /**

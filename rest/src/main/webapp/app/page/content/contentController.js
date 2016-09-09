@@ -44,18 +44,27 @@ tsApp
         // pass app configuration constants to scope (for email link)
         $scope.appConfig = appConfig;
 
+        // History
+        $scope.history = contentService.getHistory();
+
         //
         // Scope Variables
         //
 
         // Scope variables initialized from services
-        // TODO Add this to other controllers where preferences are modified
         $scope.user = securityService.getUser();
         $scope.isGuestUser = securityService.isGuestUser;
         $scope.mode = $routeParams.mode === 'simple' ? 'simple' : 'full';
-        $scope.metadata = metadataService.getModel();
-        $scope.component = null;
-        $scope.pageSizes = contentService.getPageSizes();
+
+        $scope.selected = {
+          metadata : metadataService.getModel(),
+          component : null
+        };
+
+        $scope.lists = {
+          terminologies : [],
+          history : []
+        };
 
         // Search parameters
         $scope.searchParams = contentService.getSearchParams();
@@ -79,15 +88,9 @@ tsApp
         $scope.queryForTree = false;
         // whether to query for tree
 
-        // Variables for iterating through trees in report
-        $scope.treeCount = null;
-        $scope.treeViewed = null;
-        $scope.componentTree = null;
-
-        // component scoring
+        // Stuff for scoring
         $scope.scoreExcellent = 0.7;
         $scope.scoreGood = 0.3;
-
         $scope.getColorForScore = function(score) {
           if (score > $scope.scoreExcellent) {
             return 'green';
@@ -102,29 +105,10 @@ tsApp
         // Watch expressions
         //
 
-        // Watch for changes in metadata.terminologies (indicates application
-        // readiness)
-        $scope.$watch('metadata.terminology', function() {
-          // clear the terminology-specific variables
-          $scope.autoCompleteUrl = null;
-
-          // if no terminology specified, stop
-          if ($scope.metadata.terminology == null) {
-            return;
-          }
-
-          // set the autocomplete url, with pattern:
-          // /type/{terminology}/{version}/autocomplete/{searchTerm}
-          $scope.autocompleteUrl = $scope.metadata.terminology.organizingClassType.toLowerCase()
-            + '/' + $scope.metadata.terminology.terminology + '/'
-            + $scope.metadata.terminology.version + "/autocomplete/";
-
-        });
-
         // on route changes, save search params and last viewed component
         $scope.$on('$routeChangeStart', function() {
           contentService.setLastSearchParams($scope.searchParams);
-          contentService.setLastComponent($scope.component);
+          contentService.setLastComponent($scope.selected.component);
         });
 
         //
@@ -133,10 +117,25 @@ tsApp
 
         // Sets the terminololgy
         $scope.setTerminology = function(terminology) {
+          // Set selected terminology
+          $scope.selected.terminology = terminology;
 
+          // set the autocomplete url, with pattern:
+          // /type/{terminology}/{version}/autocomplete/{searchTerm}
+          $scope.autocompleteUrl = $scope.selected.terminology.organizingClassType.toLowerCase()
+            + '/' + $scope.selected.terminology.terminology + '/'
+            + $scope.selected.terminology.version + "/autocomplete/";
+
+          // Load all metadata for this terminology, store it in the metadata
+          // service and return deferred promise
           var deferred = $q.defer();
+          metadataService.getAllMetadata(terminology.terminology, terminology.version).then(
+          // Success
+          function(data) {
 
-          metadataService.setTerminology(terminology).then(function() {
+            // Set the shared model in the metadata service
+            metadataService.setModel(data);
+            metadataService.setTerminology(terminology);
 
             // if metathesaurus, ensure list view set
             if (terminology.metathesaurus) {
@@ -206,22 +205,15 @@ tsApp
 
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a search result
-        $scope.getComponent = function(id, type, terminologyId, terminology, version) {
-          console.debug('getComponent', id, type, terminologyId, terminology, version);
+        $scope.getComponent = function(component) {
+          console.debug('getComponent', component);
 
-          var wrapper = {
-            id : id,
-            type : type,
-            terminologyId : terminologyId,
-            terminology : terminology,
-            version : version
-          };
+          contentService.getComponent(component).then(
+          // Success
+          function(response) {
 
-          contentService.getComponent(wrapper).then(function(response) {
-
-            $scope.component = response;
+            $scope.selected.component = response;
             $scope.checkFavoriteStatus();
-            $scope.setActiveRow(terminologyId);
             $scope.addComponentHistory();
 
           });
@@ -243,6 +235,9 @@ tsApp
         // Find concepts based on current search
         // - loadFirst indicates whether to auto-load result[0]
         $scope.findComponents = function(loadFirst, suppressWarnings) {
+          findComponents(loadFirst, suppressWarnings);
+        }
+        function findComponents(loadFirst, suppressWarnings) {
           $scope.searchOrBrowse = "SEARCH";
           if ($scope.queryForList) {
             $scope.findComponentsAsList(loadFirst, suppressWarnings);
@@ -253,7 +248,8 @@ tsApp
           $location.hash('top');
           $anchorScroll();
 
-        };
+        }
+        ;
 
         // Perform search and populate list view
         $scope.findComponentsAsList = function(loadFirst, suppressWarnings) {
@@ -273,7 +269,7 @@ tsApp
           if (!hasQuery && !hasExpr && !hasNotes) {
             if (!suppressWarnings) {
               alert("You must use at least one character to search"
-                + ($scope.searchParams.advancedMode ? ($scope.metadata.terminology.descriptionLogicTerminology ? ", supply an expression,"
+                + ($scope.searchParams.advancedMode ? ($scope.selected.terminology.descriptionLogicTerminology ? ", supply an expression,"
                   : "")
                   + " or search user notes"
                   : ""));
@@ -286,14 +282,14 @@ tsApp
           }
 
           contentService.findComponentsAsList($scope.searchParams.query,
-            $scope.metadata.terminology.organizingClassType,
-            $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-            $scope.searchParams.page, $scope.searchParams).then(function(data) {
+            $scope.selected.terminology.organizingClassType,
+            $scope.selected.terminology.terminology, $scope.selected.terminology.version,
+            $scope.searchParams).then(function(data) {
             $scope.searchResults = data;
 
             if (loadFirst && $scope.searchResults.results.length > 0) {
-              // pass the search result (as wrapper)
-              $scope.getComponentFromWrapper($scope.searchResults.results[0]);
+              // pass the search result (as component)
+              $scope.getComponent($scope.searchResults.results[0]);
             }
           });
         };
@@ -311,9 +307,9 @@ tsApp
           }
 
           contentService.findComponentsAsTree($scope.searchParams.query,
-            $scope.metadata.terminology.organizingClassType,
-            $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-            $scope.searchParams.page, $scope.searchParams).then(function(data) {
+            $scope.selected.terminology.organizingClassType,
+            $scope.selected.terminology.terminology, $scope.selected.terminology.version,
+            $scope.searchParams).then(function(data) {
 
             // for ease and consistency of use of the ui tree
             // directive force the single tree into a ui-tree structure
@@ -331,19 +327,17 @@ tsApp
 
         // set the top level component from a tree node
         // TODO Consider changing nodeTerminologyId to terminologyId, adding
-        // type to allow wrapper universality
+        // type to allow component universality
         $scope.getComponentFromTree = function(type, nodeScope) {
           console.debug('getComponentFromTree', type, nodeScope);
           var tree = nodeScope.$modelValue;
-          $scope.getComponent(tree.nodeId, type, tree.nodeTerminologyId, tree.terminology,
-            tree.version);
-        };
-
-        // helper function to get component from wrapper
-        $scope.getComponentFromWrapper = function(wrapper) {
-          console.debug('getComponentFromWrapper', wrapper);
-          $scope.getComponent(wrapper.id, wrapper.type, wrapper.terminologyId, wrapper.terminology,
-            wrapper.version);
+          $scope.getComponent({
+            id : tree.nodeId,
+            type : type,
+            terminologyId : tree.nodeTerminologyId,
+            terminology : tree.terminology,
+            version : tree.version
+          });
         };
 
         // Load hierarchy into tree view
@@ -352,26 +346,26 @@ tsApp
           $scope.queryForTree = true;
           $scope.queryForList = false;
           $scope.browsingHierarchy = true;
-          $scope.searchParams.page = 1;
+          $scope.searchResults.page = 1
           $scope.searchParams.query = null;
 
-          contentService.getTreeRoots($scope.metadata.terminology.organizingClassType,
-            $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-            $scope.searchParams.page).then(function(data) {
-            // for ease and consistency of use of the ui tree
-            // directive
-            // force the single tree into a ui-tree data
-            // structure with count
-            // variables
-            $scope.queryForTree = true;
-            $scope.searchResults.tree = [];
-            $scope.searchResults.tree.push(data);
-            // treeList array of size 1
-            $scope.searchResults.tree.totalCount = data.totalCount;
-            if (data.objects) {
-              $scope.searchResults.tree.objects.length = data.objects.length
-            }
-          });
+          contentService.getTreeRoots($scope.selected.terminology.organizingClassType,
+            $scope.selected.terminology.terminology, $scope.selected.terminology.version).then(
+            function(data) {
+              // for ease and consistency of use of the ui tree
+              // directive
+              // force the single tree into a ui-tree data
+              // structure with count
+              // variables
+              $scope.queryForTree = true;
+              $scope.searchResults.tree = [];
+              $scope.searchResults.tree.push(data);
+              // treeList array of size 1
+              $scope.searchResults.tree.totalCount = data.totalCount;
+              if (data.objects) {
+                $scope.searchResults.tree.objects.length = data.objects.length
+              }
+            });
         };
 
         $scope.toggleAtomElement = function() {
@@ -404,63 +398,29 @@ tsApp
           }
         };
 
-        // 
-        // Misc helper functions
-        // 
-
-        // Helper function to select an item in the list view
-        $scope.setActiveRow = function(terminologyId) {
-
-          // set for search results
-          if ($scope.searchResults && $scope.searchResults.results
-            && $scope.searchResults.results.length > 0) {
-
-            for (var i = 0; i < $scope.searchResults.results.length; i++) {
-              if ($scope.searchResults.results[i].terminologyId === terminologyId) {
-                $scope.searchResults.results[i].active = true;
-              } else {
-                $scope.searchResults.results[i].active = false;
-              }
-            }
-          }
-
-          // set for favorites
-          if ($scope.favorites && $scope.favorites.results && $scope.favorites.results.length > 0) {
-
-            for (var i = 0; i < $scope.favorites.results.length; i++) {
-              if ($scope.favorites.results[i].terminologyId === terminologyId) {
-                $scope.favorites.results[i].active = true;
-              } else {
-                $scope.favorites.results[i].active = false;
-              }
-            }
-          }
-
-        };
-
         //
         // METADATA related functions
         //
 
         // Find a terminology version
         $scope.getTerminologyVersion = function(terminology) {
-          for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-            if (terminology === $scope.metadata.terminologies[i].terminology) {
-              return $scope.metadata.terminologies[i].version;
+          for (var i = 0; i < $scope.lists.terminologies.length; i++) {
+            if (terminology === $scope.lists.terminologies[i].terminology) {
+              return $scope.lists.terminologies[i].version;
             }
           }
         };
         // Function to filter viewable terminologies for picklist
         $scope.getViewableTerminologies = function() {
           var viewableTerminologies = new Array();
-          if (!$scope.metadata.terminologies) {
+          if (!$scope.lists.terminologies) {
             return null;
           }
-          for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+          for (var i = 0; i < $scope.lists.terminologies.length; i++) {
             // exclude MTH and SRC
-            if ($scope.metadata.terminologies[i].terminology != 'MTH'
-              && $scope.metadata.terminologies[i].terminology != 'SRC')
-              viewableTerminologies.push($scope.metadata.terminologies[i]);
+            if ($scope.lists.terminologies[i].terminology != 'MTH'
+              && $scope.lists.terminologies[i].terminology != 'SRC')
+              viewableTerminologies.push($scope.lists.terminologies[i]);
           }
           return viewableTerminologies;
         };
@@ -470,14 +430,11 @@ tsApp
         //
 
         // Local history variables for the display.
-        $scope.history = contentService.getHistory();
-        $scope.historyPage = {};
-
         function setHistoryPage() {
           console.debug('setHistoryPage: ', $scope.history);
 
           // convenience variables
-          var hps = parseInt($scope.pageSizes.general / 2);
+          var hps = $scope.historyPageSize;
           var ct = $scope.history.components.length;
           var index = $scope.history.index;
 
@@ -510,7 +467,7 @@ tsApp
           }
 
           contentService.getComponentFromHistory(index).then(function(data) {
-            $scope.component = data;
+            $scope.selected.component = data;
             $scope.checkFavoriteStatus();
             setHistoryPage();
           });
@@ -529,25 +486,14 @@ tsApp
         // an index For cases where history > page size, returns array
         // [index - pageSize / 2 + 1 : index + pageSize]
         $scope.addComponentHistory = function(index) {
-          contentService.addComponentToHistory($scope.component.terminologyId,
-            $scope.component.terminology, $scope.component.version, $scope.component.type,
-            $scope.component.name);
+          contentService.addComponentToHistory($scope.selected.component);
           setHistoryPage();
 
         };
 
         // Pop out content window
         $scope.popout = function() {
-          var currentUrl = window.location.href;
-          var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-          // TODO; don't hardcode this - maybe "simple" should be a parameter
-          var newUrl = baseUrl + '/content/simple/' + $scope.component.type + '/'
-            + $scope.component.terminology + '/' + $scope.component.version + '/'
-            + $scope.component.terminologyId;
-          var myWindow = window.open(newUrl, $scope.component.terminology + '/'
-            + $scope.component.version + ', ' + $scope.component.terminologyId + ', '
-            + $scope.component.name);
-          myWindow.focus();
+          contentService.popout($scope.selected.component);
         };
 
         //
@@ -632,7 +578,7 @@ tsApp
             size : 'lg',
             resolve : {
               component : function() {
-                return $scope.component;
+                return $scope.selected.component;
 
               }
             }
@@ -641,10 +587,10 @@ tsApp
           // on close or cancel, re-retrieve the concept for updated notes
           modalInstance.result.then(function() {
             // re-retrieve the concept
-            $scope.getComponentFromWrapper($scope.component);
+            $scope.getComponent($scope.selected.component);
           }, function() {
             // re-retrieve the concept
-            $scope.getComponentFromWrapper($scope.component);
+            $scope.getComponent($scope.selected.component);
           });
         };
 
@@ -654,25 +600,22 @@ tsApp
 
         // Check favorite status
         $scope.checkFavoriteStatus = function() {
-          $scope.isFavorite = $scope.component ? securityService.isUserFavorite(
-            $scope.component.type, $scope.component.terminology, $scope.component.version,
-            $scope.component.terminologyId) : false;
+          $scope.isFavorite = $scope.selected.component ? securityService
+            .isUserFavorite($scope.selected.component) : false;
         };
 
         // Toggle favorite
-        $scope.toggleFavorite = function(type, terminology, version, terminologyId, name) {
-          if (securityService.isUserFavorite(type, terminology, version, terminologyId)) {
-            securityService.removeUserFavorite(type, terminology, version, terminologyId, name)
-              .then(function() {
-                $scope.isFavorite = false;
-                websocketService.fireFavoriteChange();
-              });
+        $scope.toggleFavorite = function(component) {
+          if (securityService.isUserFavorite(component)) {
+            securityService.removeUserFavorite(component).then(function() {
+              $scope.isFavorite = false;
+              websocketService.fireFavoriteChange();
+            });
           } else {
-            securityService.addUserFavorite(type, terminology, version, terminologyId, name).then(
-              function() {
-                $scope.isFavorite = true;
-                websocketService.fireFavoriteChange();
-              });
+            securityService.addUserFavorite(component).then(function() {
+              $scope.isFavorite = true;
+              websocketService.fireFavoriteChange();
+            });
           }
         };
 
@@ -692,7 +635,6 @@ tsApp
           $scope.componentRetrievalCallbacks = {
             getComponent : $scope.getComponent,
             getComponentFromTree : $scope.getComponentFromTree,
-            getComponentFromWrapper : $scope.getComponentFromWrapper,
             findComponentsForQuery : $scope.findComponentsForQuery
           };
 
@@ -732,19 +674,23 @@ tsApp
 
         // Wait for "terminologies" to load
         $scope.initMetadata = function() {
-          metadataService.initialize().then(
-            function() {
+
+          metadataService.getTerminologies().then(
+            // Success
+            function(data) {
+              $scope.lists.terminologies = data.terminologies;
+
               // Load all terminologies upon controller load (unless already
               // loaded)
-              if ($scope.metadata.terminologies && !$scope.metadata.terminology) {
+              if ($scope.lists.terminologies && !$scope.selected.terminology) {
 
                 // if route parameters are specified, set the terminology and
                 // retrieve the specified concept
                 if ($routeParams.terminology && $routeParams.version) {
 
                   var termToSet = null;
-                  for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                    var terminology = $scope.metadata.terminologies[i];
+                  for (var i = 0; i < $scope.lists.terminologies.length; i++) {
+                    var terminology = $scope.lists.terminologies[i];
                     // Determine whether to set as default
                     if (terminology.terminology === $routeParams.terminology
                       && terminology.version === $routeParams.version) {
@@ -758,14 +704,11 @@ tsApp
                   } else {
 
                     // set the terminology
-                    $scope.setTerminology(termToSet).then(
-                      function() {
+                    $scope.setTerminology(termToSet).then(function(data) {
 
-                        // get the component
-                        $scope.getComponent($routeParams.id, $routeParams.type,
-                          $routeParams.terminologyId, $routeParams.terminology,
-                          $routeParams.version);
-                      });
+                      // get the component
+                      $scope.getComponent($routeParams);
+                    });
                   }
                 }
 
@@ -774,8 +717,8 @@ tsApp
 
                   var found = false;
                   if ($scope.user.userPreferences && $scope.user.userPreferences.lastTerminology) {
-                    for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                      var terminology = $scope.metadata.terminologies[i];
+                    for (var i = 0; i < $scope.lists.terminologies.length; i++) {
+                      var terminology = $scope.lists.terminologies[i];
                       // set from user prefs
                       if (terminology.terminology === $scope.user.userPreferences.lastTerminology) {
                         $scope.setTerminology(terminology);
@@ -787,8 +730,8 @@ tsApp
 
                   // otherwise look for metathesaurus
                   if (!found) {
-                    for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                      var terminology = $scope.metadata.terminologies[i];
+                    for (var i = 0; i < $scope.lists.terminologies.length; i++) {
+                      var terminology = $scope.lists.terminologies[i];
                       // Determine whether to set as default
                       if (terminology.metathesaurus) {
                         $scope.setTerminology(terminology);
@@ -800,15 +743,17 @@ tsApp
 
                   // If nothing set, pick the first one
                   if (!found) {
-                    if (!$scope.metadata.terminologies) {
+                    if (!$scope.lists.terminologies) {
                       window.alert('No terminologies found, database may not be properly loaded.');
                     } else {
-                      $scope.setTerminology($scope.metadata.terminologies[0]);
+                      $scope.setTerminology($scope.lists.terminologies[0]);
                     }
                   }
                 }
               }
+
             });
+
         }
 
         //
@@ -830,9 +775,13 @@ tsApp
           }
 
           if (contentService.getLastComponent()) {
-            $scope.component = contentService.getLastComponent();
+            $scope.selected.component = contentService.getLastComponent();
             $scope.checkFavoriteStatus();
           }
+
+          // Initialize metadata
+          $scope.initMetadata();
+
         };
 
         //
