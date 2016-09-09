@@ -276,7 +276,7 @@ public class ProcessClientRest extends RootClientRest
 
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
-        ProcessExecutionList.class);
+        ProcessExecutionListJpa.class);
 
   }
 
@@ -573,7 +573,7 @@ public class ProcessClientRest extends RootClientRest
         .debug("Process Client - cancel process execution " + id);
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/execution/" + id + "/cancel" + "?projectId=" + projectId);
+        + "/process/execution/" + id + "/cancel" + "?projectId=" + projectId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
@@ -587,6 +587,30 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public void restartProcess(Long projectId, Long id, Boolean background,
+    String authToken) throws Exception {
+
+    Logger.getLogger(getClass()).debug(
+        "Project Client - restart a previously canceled process");
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/execution/" + id + "/restart?projectId=" + projectId + (background ? "&background=true" : ""));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }  
+  
+  /* see superclass */
+  @Override
   public Integer getProcessProgress(Long projectId, Long id, String authToken)
     throws Exception {
 
@@ -598,7 +622,7 @@ public class ProcessClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/process/" + id + "/progress?projectId=" + projectId);
-    final Response response = target.request(MediaType.APPLICATION_XML)
+    final Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
@@ -609,7 +633,7 @@ public class ProcessClientRest extends RootClientRest
     }
 
     // converting to object
-    return ConfigUtility.getGraphForString(resultString, Integer.class);
+    return Integer.parseInt(resultString);
 
   }
 
@@ -626,7 +650,7 @@ public class ProcessClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/process/algo/" + id + "/progress?projectId=" + projectId);
-    final Response response = target.request(MediaType.APPLICATION_XML)
+    final Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
@@ -637,7 +661,7 @@ public class ProcessClientRest extends RootClientRest
     }
 
     // converting to object
-    return ConfigUtility.getGraphForString(resultString, Integer.class);
+    return Integer.parseInt(resultString);
 
   }
 

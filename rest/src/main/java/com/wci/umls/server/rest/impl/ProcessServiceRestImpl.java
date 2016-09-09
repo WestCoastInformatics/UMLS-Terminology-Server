@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -36,6 +37,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.helpers.AlgorithmExecutionList;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
@@ -81,13 +83,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   private SecurityService securityService;
 
   /** The lookup process execution progress map. */
-  static Map<Long, Integer> lookupPeProgressMap;
+  static Map<Long, Integer> lookupPeProgressMap = new HashMap<Long, Integer>();
 
   /** The lookup algorithm execution progress map. */
-  static Map<Long, Integer> lookupAeProgressMap;
+  static Map<Long, Integer> lookupAeProgressMap = new HashMap<Long, Integer>();
 
   /** The map of which algorithm a process is currently running. */
-  static Map<Long, Algorithm> processAlgorithmMap;
+  static Map<Long, Algorithm> processAlgorithmMap =
+      new HashMap<Long, Algorithm>();
 
   /**
    * Instantiates an empty {@link ProcessServiceRestImpl}.
@@ -96,9 +99,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
    */
   public ProcessServiceRestImpl() throws Exception {
     securityService = new SecurityServiceJpa();
-    lookupPeProgressMap = new HashMap<Long, Integer>();
-    lookupAeProgressMap = new HashMap<Long, Integer>();
-    processAlgorithmMap = new HashMap<Long, Algorithm>();
   }
 
   /**
@@ -469,6 +469,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // its properties' values.
       for (AlgorithmExecution algorithmExecution : processExecution
           .getSteps()) {
+        //TODO - once figure out why this is happening, get rid of
+        if (algorithmExecution == null) {
+          continue;
+        }
         Algorithm instance = processService
             .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
         algorithmExecution.setParameters(instance.getParameters());
@@ -581,8 +585,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // executing processes progress map and have a progress of less than 100
       for (ProcessExecution processExecution : new ArrayList<ProcessExecution>(
           processExecutions.getObjects())) {
-        if (!(lookupPeProgressMap.containsKey(processExecution.getId())
-            && lookupPeProgressMap.get(processExecution.getId()) != 100)) {
+        if (!lookupPeProgressMap.containsKey(processExecution.getId())
+            || lookupPeProgressMap.get(processExecution.getId()) == 100) {
           processExecutions.getObjects().remove(processExecution);
         }
       }
@@ -1191,187 +1195,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           processService.addProcessExecution(execution);
       executionId = processExecution.getId();
 
-      // Set up vars for thread
-      final Exception[] exceptions = new Exception[1];
-      final boolean handleException = background != null && background;
-      final Thread t = new Thread(new Runnable() {
+      // Create a thread and run the process
+      runProcessAsThread(projectId, processConfig, processExecution, userName, background,
+          false);
 
-        @SuppressWarnings("cast")
-        @Override
-        public void run() {
-          // Declare execution so it can be accessed
-          AlgorithmExecution algorithmExecution = null;
-          ProcessService processService = null;
-          try {
-            processService = new ProcessServiceJpa();
-            processService.setLastModifiedBy(userName);
-
-            // Set initial progress to zero and count the number of steps to
-            // execute
-            lookupPeProgressMap.put(processExecution.getId(), 0);
-            final int enabledSteps =
-                processConfig.getSteps().stream().filter(ac -> ac.isEnabled())
-                    .collect(Collectors.toList()).size();
-
-            // Start step counter at 0
-            int stepCt = 0;
-            // Iterate through algorithm configs
-            for (final AlgorithmConfig algorithmConfig : processConfig
-                .getSteps()) {
-
-              // Skip steps that are not enabled
-              if (!algorithmConfig.isEnabled()) {
-                continue;
-              }
-
-              // Instantiate and configure the algorithm execution
-              algorithmExecution = new AlgorithmExecutionJpa(algorithmConfig);
-              // Create a copy of the properties to add to algorithmExecution
-              // (using same object causes shared references to a collection
-              // error
-              algorithmExecution.setProperties(
-                  new HashMap<String, String>(algorithmConfig.getProperties()));
-              algorithmExecution.setProcess(processExecution);
-              algorithmExecution.setActivityId(UUID.randomUUID().toString());
-              algorithmExecution.setStartDate(new Date());
-              algorithmExecution =
-                  processService.addAlgorithmExecution(algorithmExecution);
-
-              // Add the algorithm execution to the process
-              processExecution.getSteps().add(algorithmExecution);
-              processService.updateProcessExecution(processExecution);
-
-              // Create and configure the algorithm
-              // TODO: this method should create a fully configured instance of
-              // the algorithm, including taking into account config.properties
-              // settings for the algorithm
-              final Algorithm algorithm = processService
-                  .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
-              algorithm.setProject(processExecution.getProject());
-              algorithm.setWorkId(processExecution.getWorkId());
-              algorithm.setActivityId(algorithmExecution.getActivityId());
-              algorithm.setLastModifiedBy(userName);
-              // Convert Map<String,String> into properties to configure
-              // algorihtm
-              final Properties prop = new Properties();
-              for (final Map.Entry<String, String> entry : algorithmExecution
-                  .getProperties().entrySet()) {
-                prop.setProperty(entry.getKey(), entry.getValue());
-              }
-              algorithm.setProperties(prop);
-
-              // track currently running algorithm
-              processAlgorithmMap.put(processExecution.getId(), algorithm);
-
-              // Check preconditions
-              final ValidationResult result = algorithm.checkPreconditions();
-              if (!result.isValid()) {
-                throw new Exception("Algorithm " + algorithmExecution.getId()
-                    + " failed preconditions: " + result.getErrors());
-              }
-
-              final Long aeId = algorithmExecution.getId();
-              final int currentCt = stepCt;
-              algorithm.addProgressListener(new ProgressListener() {
-                @Override
-                public void updateProgress(ProgressEvent processEvent) {
-                  lookupAeProgressMap.put(aeId, processEvent.getPercent());
-
-                  // pe progress is the current progress plus the scaled
-                  // progress of the ae
-                  lookupPeProgressMap.put(processExecution.getId(),
-                      (int) ((100 * currentCt) / enabledSteps)
-                          + (int) (processEvent.getPercent() / enabledSteps));
-                }
-              });
-
-              // Start progress at 0 for the algoithm
-              lookupAeProgressMap.put(algorithmExecution.getId(), 0);
-
-              // Execute algorithm
-              algorithm.compute();
-
-              // Take the number of steps completed times 100 and divided by the
-              // total number of steps
-              lookupPeProgressMap.put(processExecution.getId(),
-                  (int) ((100 * ++stepCt) / enabledSteps));
-
-              // algorithm has finished
-              algorithmExecution.setFinishDate(new Date());
-              processService.updateAlgorithmExecution(algorithmExecution);
-
-              // Mark algorithm as finished
-              lookupAeProgressMap.remove(algorithmExecution.getId());
-              processAlgorithmMap.remove(processExecution.getId());
-
-            }
-
-            // Process has finished
-            processExecution.setFinishDate(new Date());
-            processService.updateProcessExecution(processExecution);
-
-            // Mark process as finished
-            lookupPeProgressMap.remove(processExecution.getId());
-
-            // TODO: send email
-            // recipients = processExecutino.getFeedbackEmail (only do this if
-            // not null)
-            // ConfigUtility.sendEmail(subject, from, recipients, body,
-            // ConfigUtility.getConfigProperties(), authFlag);
-
-          } catch (Exception e) {
-            exceptions[0] = e;
-
-            // Remove process and algorithm from the maps
-            processAlgorithmMap.remove(processExecution.getId());
-            lookupPeProgressMap.remove(processExecution.getId());
-            lookupAeProgressMap.remove(algorithmExecution.getId());
-
-            // Mark algorithm and process as failed
-            try {
-              // set cancel conditions if cancel was used.
-              if (e instanceof CancelException) {
-                algorithmExecution.setFinishDate(new Date());
-                processExecution.setFinishDate(new Date());
-              }
-              algorithmExecution.setFailDate(new Date());
-              processService.updateAlgorithmExecution(algorithmExecution);
-
-              processExecution.setFailDate(new Date());
-              processService.updateProcessExecution(processExecution);
-            } catch (Exception ex) {
-              handleException(ex, "trying to update execution info");
-            }
-
-            // TODO: send email
-            // recipients = processExecutino.getFeedbackEmail (only do this if
-            // not null)
-            // ConfigUtility.sendEmail(subject, from, recipients, body,
-            // ConfigUtility.getConfigProperties(), authFlag);
-
-            // Do this if NOT running in the background
-            if (handleException) {
-              handleException(e, "trying to execute a process");
-            }
-
-          } finally {
-            try {
-              processService.close();
-            } catch (Exception e) {
-              // n/a
-            }
-          }
-
-        }
-      });
-      if (background != null && background == true) {
-        t.start();
-      } else {
-        t.join();
-        if (exceptions[0] != null) {
-          throw new Exception(exceptions[0]);
-        }
-      }
       // Always return the execution id
       return executionId;
 
@@ -1384,6 +1211,67 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
     return executionId;
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/execution/{id}/restart")
+  @ApiOperation(value = "Execute a process configuration", notes = "Execute the specified process configuration")
+  public void restartProcess(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Process Execution id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Background, e.g. true", required = true) @QueryParam("background") Boolean background,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Process): /execution/" + id
+        + "/restart, for user " + authToken);
+
+    final ProcessService processService = new ProcessServiceJpa();
+
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "restart processExecution", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+
+      // Load processExecution object
+      final ProcessExecution processExecution =
+          processService.getProcessExecution(id);
+
+      // Make sure processExecution exists
+      if (processExecution == null) {
+        throw new Exception("ProcessExecution " + id + " does not exist");
+      }
+
+      // Make sure the processExecution isn't already running
+      for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
+          projectId, authToken).getObjects()) {
+        if (exec.getId().equals(processExecution.getId())) {
+          throw new Exception("Process execution " + processExecution.getId()
+              + " is already currently running");
+        }
+      }
+
+      // Load the processExecution's config
+      final ProcessConfig processConfig = processService
+          .getProcessConfig(processExecution.getProcessConfigId());
+
+      // Verify that passed projectId matches ID of the processConfig's project
+      verifyProject(processConfig, projectId);
+
+      // Create a thread and run the process
+      runProcessAsThread(projectId, processConfig, processExecution, userName, background,
+          true);
+
+    } catch (
+
+    Exception e) {
+      handleException(e, "trying to restart a process execution");
+    } finally {
+      processService.close();
+      securityService.close();
+    }
   }
 
   /* see superclass */
@@ -1414,6 +1302,21 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify the project
       verifyProject(processExecution, projectId);
 
+      // Make sure this process execution is running
+      boolean processRunning = false;
+      for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
+          projectId, authToken).getObjects()) {
+        if (exec.getId().equals(id)) {
+          processRunning = true;
+          break;
+        }
+      }
+
+      if (!processRunning) {
+        throw new Exception("Error canceling process Execution " + id
+            + ": not currently running.");
+      }
+
       // Find the algorithm and call cancel on it
       if (processAlgorithmMap.containsKey(id)) {
         // this will throw a CancelException which will clean up all the maps
@@ -1432,6 +1335,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @GET
   @Path("/{id}/progress")
+  @Produces("text/plain")
   @ApiOperation(value = "Find progress of specified executing process", notes = "Find progress of specified executing process", response = Integer.class)
   @Override
   public Integer getProcessProgress(
@@ -1475,6 +1379,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @GET
   @Path("algo/{id}/progress")
+  @Produces("text/plain")
   @ApiOperation(value = "Find progress of specified executing algorithm", notes = "Find progress of specified executing algorithm", response = Integer.class)
   @Override
   public Integer getAlgorithmProgress(
@@ -1512,6 +1417,277 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.close();
       securityService.close();
     }
+  }
+
+  private void runProcessAsThread(Long projectId, ProcessConfig processConfig,
+    ProcessExecution processExecution, String userName, Boolean background,
+    Boolean restart) throws Exception {
+
+    // Set up vars for thread
+    final Exception[] exceptions = new Exception[1];
+    final boolean handleException = background != null && background;
+
+    final Thread t = new Thread(new Runnable() {
+
+      @SuppressWarnings("cast")
+      @Override
+      public void run() {
+        // Declare execution so it can be accessed
+        AlgorithmExecution algorithmExecution = null;
+        ProcessService processService = null;
+        try {
+          processService = new ProcessServiceJpa();
+          processService.setLastModifiedBy(userName);
+
+          // TESTTEST
+          System.out.println(
+              "TESTTEST - Here is the PeProgressMap before adding the processExecution: "
+                  + lookupPeProgressMap.toString());
+
+          // Set initial progress to zero and count the number of steps to
+          // execute
+          lookupPeProgressMap.put(processExecution.getId(), 0);
+
+          // TESTTEST
+          System.out.println(
+              "TESTTEST - Here is the PeProgressMap after adding the processExecution: "
+                  + lookupPeProgressMap.toString());
+
+          final int enabledSteps = processConfig.getSteps().stream()
+              .filter(ac -> ac.isEnabled()).collect(Collectors.toList()).size();
+
+          // Start step counter at 0
+          int stepCt = 0;
+
+          // If this is a restart, find the steps that already ran
+          List<Long> previouslyCompletedAlgorithmIds = new ArrayList<>();
+          AlgorithmExecution algorithmToRestart = null;
+          if (restart) {
+            AlgorithmExecutionList previouslyStartedAlgorithms = processService
+                .findAlgorithmExecutions(projectId,
+                    "processId:" + processExecution.getId(), null);
+            for (AlgorithmExecution ae : previouslyStartedAlgorithms
+                .getObjects()) {
+              // If the algorithm finished, save the algorithmConfigId (so it
+              // can be skipped later)
+              if (ae.getFinishDate() != null && ae.getFailDate() == null) {
+                previouslyCompletedAlgorithmIds.add(ae.getAlgorithmConfigId());
+              }
+              // If the algorithm was mid-run, save the algorithm Execution to
+              // run
+              else if (ae.getFinishDate() != null && ae.getFailDate() != null) {
+                algorithmToRestart = ae;
+              }
+            }
+            // Update the processExecution progress and step-count
+            stepCt = previouslyCompletedAlgorithmIds.size();
+            lookupPeProgressMap.put(processExecution.getId(),
+                (int) ((100 * stepCt) / enabledSteps));
+          }
+
+          // Iterate through algorithm configs
+          for (final AlgorithmConfig algorithmConfig : processConfig
+              .getSteps()) {
+
+            // Skip steps that are not enabled
+            if (!algorithmConfig.isEnabled()) {
+              continue;
+            }
+
+            // Skip steps that completed on a previous run (if any)
+            if (restart && previouslyCompletedAlgorithmIds
+                .contains(algorithmConfig.getId())) {
+              continue;
+            }
+
+            // If this is a restart, use the loaded algorithm Execution
+            if (algorithmToRestart != null) {
+              algorithmExecution = algorithmToRestart;
+              algorithmExecution.setFailDate(null);
+              algorithmExecution.setFinishDate(null);
+            }
+            // Otherwise, instantiate and configure the algorithm execution
+            else {
+              algorithmExecution = new AlgorithmExecutionJpa(algorithmConfig);
+              // Create a copy of the properties to add to algorithmExecution
+              // (using same object causes shared references to a collection
+              // error
+              algorithmExecution.setProperties(
+                  new HashMap<String, String>(algorithmConfig.getProperties()));
+              algorithmExecution.setProcess(processExecution);
+              algorithmExecution.setActivityId(UUID.randomUUID().toString());
+              algorithmExecution.setStartDate(new Date());
+              algorithmExecution =
+                  processService.addAlgorithmExecution(algorithmExecution);
+
+              // Add the algorithm execution to the process
+              processExecution.getSteps().add(algorithmExecution);
+              processService.updateProcessExecution(processExecution);
+            }
+
+            // Create and configure the algorithm
+            // TODO: this method should create a fully configured instance of
+            // the algorithm, including taking into account config.properties
+            // settings for the algorithm
+            final Algorithm algorithm = processService
+                .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
+            algorithm.setProject(processExecution.getProject());
+            algorithm.setWorkId(processExecution.getWorkId());
+            algorithm.setActivityId(algorithmExecution.getActivityId());
+            algorithm.setLastModifiedBy(userName);
+            // Convert Map<String,String> into properties to configure
+            // algorithm
+            final Properties prop = new Properties();
+            for (final Map.Entry<String, String> entry : algorithmExecution
+                .getProperties().entrySet()) {
+              prop.setProperty(entry.getKey(), entry.getValue());
+            }
+            algorithm.setProperties(prop);
+
+            // TESTTEST
+            System.out.println(
+                "TESTTEST - Here is the AlgorithmMap before adding the algorithm: "
+                    + processAlgorithmMap.toString());
+
+            // track currently running algorithm
+            processAlgorithmMap.put(processExecution.getId(), algorithm);
+
+            // TESTTEST
+            System.out.println(
+                "TESTTEST - Here is the AlgorithmMap after adding the algorithm: "
+                    + processAlgorithmMap.toString());
+
+            // Check preconditions
+            final ValidationResult result = algorithm.checkPreconditions();
+            if (!result.isValid()) {
+              throw new Exception("Algorithm " + algorithmExecution.getId()
+                  + " failed preconditions: " + result.getErrors());
+            }
+
+            final Long aeId = algorithmExecution.getId();
+            final int currentCt = stepCt;
+            algorithm.addProgressListener(new ProgressListener() {
+              @Override
+              public void updateProgress(ProgressEvent processEvent) {
+                lookupAeProgressMap.put(aeId, processEvent.getPercent());
+
+                // pe progress is the current progress plus the scaled
+                // progress of the ae
+                lookupPeProgressMap.put(processExecution.getId(),
+                    (int) ((100 * currentCt) / enabledSteps)
+                        + (int) (processEvent.getPercent() / enabledSteps));
+              }
+            });
+
+            // Start progress at 0 for the algorithm
+            lookupAeProgressMap.put(algorithmExecution.getId(), 0);
+
+            // Execute algorithm
+            algorithm.compute();
+
+            // Take the number of steps completed times 100 and divided by the
+            // total number of steps
+            lookupPeProgressMap.put(processExecution.getId(),
+                (int) ((100 * ++stepCt) / enabledSteps));
+
+            // algorithm has finished
+            algorithmExecution.setFinishDate(new Date());
+            processService.updateAlgorithmExecution(algorithmExecution);
+
+            // TESTTEST
+            System.out.println(
+                "TESTTEST - Here is the PeProgressMap after an algorithm finishes: "
+                    + lookupPeProgressMap.toString());
+
+            // Mark algorithm as finished
+            lookupAeProgressMap.remove(algorithmExecution.getId());
+            processAlgorithmMap.remove(processExecution.getId());
+
+          }
+
+          // Process has finished
+          processExecution.setFinishDate(new Date());
+          processService.updateProcessExecution(processExecution);
+
+          // Mark process as finished
+          lookupPeProgressMap.remove(processExecution.getId());
+
+          // TESTTEST
+          System.out.println(
+              "TESTTEST - Here is the PeProgressMap after the process execution is removed: "
+                  + lookupPeProgressMap.toString());
+
+          // TODO: send email
+          // recipients = processExecutino.getFeedbackEmail (only do this if
+          // not null)
+          // ConfigUtility.sendEmail(subject, from, recipients, body,
+          // ConfigUtility.getConfigProperties(), authFlag);
+
+        } catch (Exception e) {
+          exceptions[0] = e;
+
+          // TESTTEST
+          System.out.println(
+              "TESTTEST - Here is the AlgorithmMap before it getting modified after a failed run: "
+                  + processAlgorithmMap.toString());
+
+          // Remove process and algorithm from the maps
+          processAlgorithmMap.remove(processExecution.getId());
+          lookupPeProgressMap.remove(processExecution.getId());
+          lookupAeProgressMap.remove(algorithmExecution.getId());
+
+          // TESTTEST
+          System.out.println(
+              "TESTTEST - Here is the AlgorithmMap after it getting modified after a failed run: "
+                  + processAlgorithmMap.toString());
+
+          // Mark algorithm and process as failed
+          try {
+            // set cancel conditions if cancel was used.
+            if (e instanceof CancelException) {
+              algorithmExecution.setFinishDate(new Date());
+              processExecution.setFinishDate(new Date());
+            }
+            algorithmExecution.setFailDate(new Date());
+            processService.updateAlgorithmExecution(algorithmExecution);
+
+            processExecution.setFailDate(new Date());
+            processService.updateProcessExecution(processExecution);
+          } catch (Exception ex) {
+            handleException(ex, "trying to update execution info");
+          }
+
+          // TODO: send email
+          // recipients = processExecutino.getFeedbackEmail (only do this if
+          // not null)
+          // ConfigUtility.sendEmail(subject, from, recipients, body,
+          // ConfigUtility.getConfigProperties(), authFlag);
+
+          // Do this if IS running in the background
+          if (handleException) {
+            handleException(e, "trying to execute a process");
+          }
+
+        } finally {
+          try {
+            processService.close();
+          } catch (Exception e) {
+            // n/a
+          }
+        }
+
+      }
+    });
+    if (background != null && background == true) {
+      t.start();
+    } else {
+      t.start();
+      t.join();
+      if (exceptions[0] != null) {
+        throw new Exception(exceptions[0]);
+      }
+    }
+
   }
 
 }

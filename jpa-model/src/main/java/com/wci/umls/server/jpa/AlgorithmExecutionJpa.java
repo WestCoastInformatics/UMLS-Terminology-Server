@@ -101,6 +101,7 @@ public class AlgorithmExecutionJpa extends
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
   public Date getStartDate() {
     return startDate;
   }
@@ -113,6 +114,7 @@ public class AlgorithmExecutionJpa extends
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
   public Date getFinishDate() {
     return finishDate;
   }
@@ -125,6 +127,7 @@ public class AlgorithmExecutionJpa extends
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
   public Date getFailDate() {
     return failDate;
   }

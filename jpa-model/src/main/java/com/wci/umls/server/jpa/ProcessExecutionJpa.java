@@ -100,13 +100,14 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
    */
   public ProcessExecutionJpa(ProcessConfig config) {
     super(config);
-    //Clear out the id copied from the config
+    // Clear out the id copied from the config
     this.setId(null);
     processConfigId = config.getId();
   }
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getStartDate() {
     return startDate;
   }
@@ -119,6 +120,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getFinishDate() {
     return finishDate;
   }
@@ -131,6 +133,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getFailDate() {
     return failDate;
   }
