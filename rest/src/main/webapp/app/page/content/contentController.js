@@ -27,8 +27,8 @@ tsApp
         console.debug('configure ContentCtrl', $routeParams);
 
         // Set up tabs and controller
-        if ($routeParams.mode == 'simple') {
-          console.debug('  simple mode deletected, hide tabs');
+        if ($routeParams.mode) {
+          console.debug('  ' + $routeParams.mode + '  mode deletected, hide tabs');
           tabService.setShowing(false);
           utilService.setHeaderFooterShowing(false);
         } else {

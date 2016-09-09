@@ -219,6 +219,7 @@ tsApp.run([
             reloadOnSearch : false
           });
 
+          
           //
           // Configurable routes
           //

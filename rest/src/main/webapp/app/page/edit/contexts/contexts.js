@@ -30,6 +30,7 @@ tsApp.controller('ContextsCtrl', [
     $scope.paging['entries'] = utilService.getPaging();
     $scope.paging['entries'].sortField = 'terminology';
     $scope.paging['entries'].pageSize = 5;
+    $scope.paging['entries'].filterList = ['SNOMED_CT', 'ICD10CM'];
     $scope.paging['entries'].filterFields = {};
     $scope.paging['entries'].filterFields.terminology = 1;
     $scope.paging['entries'].sortAscending = false;
