@@ -7,7 +7,7 @@
   </div>
   <div ng-show="!favoritesCollapsed">
     <div pager paging="paging" count="pagedData.totalCount"
-      callback="pageCallback"></div>
+      callbacks="pageCallbacks"></div>
     <table class="table table-hover" ng-show="pagedData.results.length > 0">
       <tbody>
         <!-- table-hover makes use of the active class -->
@@ -15,7 +15,7 @@
           ng-mouseenter="favorite.hover = true;"
           ng-mouseleave="favorite.hover = false;"
           ng-repeat="favorite in pagedData.results">
-          <!--  Only put ng-click callback on first two cells (i.e. not the controls cell) -->
+          <!--  Only put ng-click callbacks on first two cells (i.e. not the controls cell) -->
           <td class="col-md-4 col-xs-4"
             ng-click="callbacks.getComponent(favorite.id, favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
             <span

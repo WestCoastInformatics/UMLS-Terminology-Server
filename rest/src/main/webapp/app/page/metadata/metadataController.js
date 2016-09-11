@@ -21,8 +21,11 @@ tsApp.controller('MetadataCtrl', [
     projectService.getUserHasAnyRole();
 
     // Scope vars
-    $scope.metadata = metadataService.getModel();
-    $scope.precedenceList = null;
+    $scope.selected = {
+      metadata : metadataService.getModel(),
+      precedenceList : []
+    }
+    
     $scope.resultsCollapsed = {};
 
     // pretty print
@@ -39,21 +42,20 @@ tsApp.controller('MetadataCtrl', [
     $scope.initialize = function() {
 
       // If terminology is blank, then redirect to /content to set a terminology
-      if (!$scope.metadata.terminology) {
+      if (!$scope.selected.metadata.terminology) {
         $location.path("/content");
       }
 
       // configure tab
       securityService.saveTab($scope.user.userPreferences, '/metadata');
 
-      metadataService.getPrecedenceList($scope.metadata.terminology.terminology,
-        $scope.metadata.terminology.version).then(
-        // Success
-          function(data) {
-            $scope.precedenceList = data.precedence;
-          }
-        );
-      
+      metadataService.getPrecedenceList($scope.selected.metadata.terminology.terminology,
+        $scope.selected.metadata.terminology.version).then(
+      // Success
+      function(data) {
+        $scope.selected.precedenceList = data.precedence;
+      });
+
     };
 
     //

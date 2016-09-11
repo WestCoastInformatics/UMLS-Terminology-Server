@@ -62,7 +62,7 @@ tsApp.controller('AtomModalCtrl', [
           atom.descriptorId = '';
 
         metaEditingService.addAtom($scope.selected.project.id, $scope.selected.activityId,
-          $scope.selected.concept, atom, $scope.overrideWarnings).then(
+          $scope.selected.component, atom, $scope.overrideWarnings).then(
         // Success
         function(data) {
           $scope.warnings = data.warnings;
@@ -80,7 +80,7 @@ tsApp.controller('AtomModalCtrl', [
         });
       } else {
         metaEditingService.updateAtom($scope.selected.project.id, $scope.selected.activityId,
-          $scope.selected.concept, atom, $scope.overrideWarnings).then(
+          $scope.selected.component, atom, $scope.overrideWarnings).then(
         // Success
         function(data) {
           $scope.warnings = data.warnings;

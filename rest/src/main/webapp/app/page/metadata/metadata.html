@@ -2,18 +2,18 @@
 <div class="row">
 
   <div class="col-md-3 col-xs-3 alert alert-warning" style="margin-left: 25px;"
-    ng-show="!metadata.terminology.terminology">No terminology selected.</div>
+    ng-show="!selected.metadata.terminology.terminology">No terminology selected.</div>
 
   <!-- Metadata -->
-  <div class="col-md-12 col-xs-12" ng-show="metadata.terminology.terminology">
+  <div class="col-md-12 col-xs-12" ng-show="selected.metadata.terminology.terminology">
 
 
-    <h3>Metadata for {{metadata.terminology.terminology}}</h3>
+    <h3>Metadata for {{selected.metadata.terminology.terminology}}</h3>
     <ul>
-      <li>Preferred Name: {{metadata.terminology.preferredName}}</li>
-      <li>Version: {{metadata.terminology.version}}</li>
+      <li>Preferred Name: {{selected.metadata.terminology.preferredName}}</li>
+      <li>Version: {{selected.metadata.terminology.version}}</li>
       <li>Organizing Class Type:
-        {{metadata.terminology.organizingClassType}}</li>
+        {{selected.metadata.terminology.organizingClassType}}</li>
     </ul>
 
     <!-- PrecedenceList -->
@@ -25,12 +25,12 @@
         &nbsp; Precedence List (in rank order)
       </div>
       <ul ng-show="resultsExpanded['pl']">
-        <li ng-repeat="pair in precedenceList.keyValuePairs">{{pair.key}}/{{pair.value}}</li>
+        <li ng-repeat="pair in selected.precedenceList.keyValuePairs">{{pair.key}}/{{pair.value}}</li>
       </ul>
     </div>
 
     <!-- Other metadata -->
-    <div ng-repeat="item in metadata.entries">
+    <div ng-repeat="item in selected.metadata.entries">
       <div ng-click="resultsExpanded[item.name] = !resultsExpanded[item.name]"
         class="alert alert-success">
         <i class="glyphicon"

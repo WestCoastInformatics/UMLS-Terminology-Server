@@ -11,17 +11,26 @@ tsApp.directive('recordsTable', [ function() {
       paging : '='
     },
     templateUrl : 'app/component/records/recordsTable.html',
-    controller : [ '$scope', function($scope) {
+    controller : [ '$scope', 'contentService', function($scope, contentService) {
 
       // Clear component on record list change
       $scope.$watch('lists.records', function() {
-        $scope.selected.concept = null;
+        $scope.selected.component = null;
       });
 
-      // Selects a concept (setting $scope.selected.concept)
-      $scope.selectConcept = function(concept) {
-        // Set the concept for display
-        $scope.selected.concept = concept;
+      // Callbacks for report
+      $scope.callbacks = contentService.getCallbacks();
+
+      // Selects a concept (setting $scope.selected.component)
+      $scope.selectConcept = function(component) {
+
+        contentService.getConcept(component.id, $scope.selected.project.id).then(
+        // Success
+        function(data) {
+          // Set the component for display
+          $scope.selected.component = data;
+
+        });
       };
 
       // end

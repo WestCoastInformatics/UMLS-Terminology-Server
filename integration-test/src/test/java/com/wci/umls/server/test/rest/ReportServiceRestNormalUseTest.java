@@ -33,9 +33,6 @@ public class ReportServiceRestNormalUseTest extends ReportServiceRestTest {
 
   /** The umls version. */
   private String umlsVersion = "latest";
-  
-
-
 
   /**
    * Create test fixtures per test.
@@ -59,7 +56,6 @@ public class ReportServiceRestNormalUseTest extends ReportServiceRestTest {
     assertTrue(project.getTerminology().equals(umlsTerminology));
     // TODO assertTrue(project.getBranch().equals(Branch.ROOT));
 
-    
   }
 
   /**
@@ -71,13 +67,13 @@ public class ReportServiceRestNormalUseTest extends ReportServiceRestTest {
   public void testGetConceptReport() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    Logger.getLogger(getClass()).info(
-        "TEST - Get concept report" + project + ", " + authToken);
-    Concept concept = contentService.getConcept("C0002499", umlsTerminology, umlsVersion, project.getId(), authToken);
-    String report = reportService.getConceptReport(project.getId(), concept.getId(), authToken);
+    Logger.getLogger(getClass())
+        .info("TEST - Get concept report" + project + ", " + authToken);
+    Concept concept = contentService.getConcept("C0002499", umlsTerminology,
+        umlsVersion, project.getId(), authToken);
+    String report = reportService.getConceptReport(concept.getId(), authToken);
     assertTrue(report.contains(concept.getTerminologyId()));
   }
-
 
   /**
    * Teardown.

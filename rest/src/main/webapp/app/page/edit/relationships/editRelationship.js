@@ -37,7 +37,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
     // Init modal
     function initialize() {
       for (var i = 0; i < $scope.lists.concepts.length; i++) {
-        if ($scope.lists.concepts[i].id != $scope.selected.concept.id) {
+        if ($scope.lists.concepts[i].id != $scope.selected.component.id) {
           $scope.toConcepts.push($scope.lists.concepts[i]);
         }
       }
@@ -82,11 +82,11 @@ tsApp.controller('EditRelationshipModalCtrl', [
 
       var relationship = {
         assertedDirection : false,
-        fromId : $scope.selected.concept.id,
-        fromName : $scope.selected.concept.name,
-        fromTerminology : $scope.selected.concept.terminology,
-        fromTerminologyId : $scope.selected.concept.terminologyId,
-        fromVersion : $scope.selected.concept.version,
+        fromId : $scope.selected.component.id,
+        fromName : $scope.selected.component.name,
+        fromTerminology : $scope.selected.component.terminology,
+        fromTerminologyId : $scope.selected.component.terminologyId,
+        fromVersion : $scope.selected.component.version,
         group : null,
         hierarchical : false,
         inferred : false,
@@ -110,7 +110,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
       };
 
       metaEditingService.addRelationship($scope.selected.project.id, $scope.selected.activityId,
-        $scope.selected.concept, relationship, $scope.overrideWarnings).then(
+        $scope.selected.component, relationship, $scope.overrideWarnings).then(
       // Success
       function(data) {
         $scope.warnings = data.warnings;

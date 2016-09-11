@@ -18,7 +18,7 @@ tsApp.directive('mappings', [
         // Paging vars
         scope.pagedData = [];
         scope.paging = utilService.getPaging();
-        scope.pageCallback = {
+        scope.pageCallbacks = {
           getPagedList : getPagedList
         };
 
@@ -27,7 +27,7 @@ tsApp.directive('mappings', [
           if (scope.component) {
             // Clear paging
             scope.paging = utilService.getPaging();
-            scope.pageCallback = {
+            scope.pageCallbacks = {
               getPagedList : getPagedList
             };
             // Get data

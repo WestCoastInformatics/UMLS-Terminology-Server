@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -469,7 +469,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // its properties' values.
       for (AlgorithmExecution algorithmExecution : processExecution
           .getSteps()) {
-        //TODO - once figure out why this is happening, get rid of
+        // TODO - once figure out why this is happening, get rid of
         if (algorithmExecution == null) {
           continue;
         }
@@ -1196,8 +1196,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       executionId = processExecution.getId();
 
       // Create a thread and run the process
-      runProcessAsThread(projectId, processConfig, processExecution, userName, background,
-          false);
+      runProcessAsThread(projectId, processConfig, processExecution, userName,
+          background, false);
 
       // Always return the execution id
       return executionId;
@@ -1261,8 +1261,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       verifyProject(processConfig, projectId);
 
       // Create a thread and run the process
-      runProcessAsThread(projectId, processConfig, processExecution, userName, background,
-          true);
+      runProcessAsThread(projectId, processConfig, processExecution, userName,
+          background, true);
 
     } catch (
 
@@ -1419,6 +1419,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /**
+   * Run process as thread.
+   *
+   * @param projectId the project id
+   * @param processConfig the process config
+   * @param processExecution the process execution
+   * @param userName the user name
+   * @param background the background
+   * @param restart the restart
+   * @throws Exception the exception
+   */
   private void runProcessAsThread(Long projectId, ProcessConfig processConfig,
     ProcessExecution processExecution, String userName, Boolean background,
     Boolean restart) throws Exception {
@@ -1463,8 +1474,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           List<Long> previouslyCompletedAlgorithmIds = new ArrayList<>();
           AlgorithmExecution algorithmToRestart = null;
           if (restart) {
-            AlgorithmExecutionList previouslyStartedAlgorithms = processService
-                .findAlgorithmExecutions(projectId,
+            AlgorithmExecutionList previouslyStartedAlgorithms =
+                processService.findAlgorithmExecutions(projectId,
                     "processId:" + processExecution.getId(), null);
             for (AlgorithmExecution ae : previouslyStartedAlgorithms
                 .getObjects()) {

@@ -47,25 +47,47 @@ tsApp
         $scope.paging['atoms'].filterFields.codeId = 1;
         $scope.paging['atoms'].filterFields.terminology = 1;
         $scope.paging['atoms'].sortAscending = false;
-        $scope.paging['atoms'].callback = {
+        $scope.paging['atoms'].filterList = [];
+        $scope.paging['atoms'].callbacks = {
           getPagedList : getPagedAtoms
         };
 
-        $scope.$watch('selected.concept', function() {
-          console.debug('in watch');
+        $scope.$watch('selected.component', function() {
           $scope.getPagedAtoms();
+
+          // Clear filterList and reset based on current component
+          $scope.paging['atoms'].filterList.length = 0;
+          var list = $scope.getPagingFilterList();
+          for (var i = 0; i < list.length; i++) {
+            $scope.paging['atoms'].filterList.push(list[i]);
+          }
+
         });
+
+        // Get paging filter list
+        $scope.getPagingFilterList = function() {
+          var map = {};
+          for (var i = 0; i < $scope.selected.component.atoms.length; i++) {
+            map[$scope.selected.component.atoms[i].terminology] = 1;
+          }
+          var filterList = new Array();
+          for ( var key in map) {
+            filterList.push(key);
+          }
+          console.debug('ZZZ', filterList);
+          return filterList.sort();
+        }
 
         // add atom
         $scope.addAtomToConcept = function(atom) {
-          metaEditingService.addAtom($scope.selected.project.id, null, $scope.selected.concept,
+          metaEditingService.addAtom($scope.selected.project.id, null, $scope.selected.component,
             atom);
         }
 
         // remove atom
         $scope.removeAtomFromConcept = function(atom) {
-          metaEditingService.removeAtom($scope.selected.project.id, null, $scope.selected.concept,
-            atom.id, true);
+          metaEditingService.removeAtom($scope.selected.project.id, null,
+            $scope.selected.component, atom.id, true);
         }
 
         // Get paged atoms (assume all are loaded)
@@ -74,14 +96,14 @@ tsApp
         }
         function getPagedAtoms() {
           // page from the stys that are available to add
-          $scope.pagedAtoms = utilService.getPagedArray($scope.selected.concept.atoms,
+          $scope.pagedAtoms = utilService.getPagedArray($scope.selected.component.atoms,
             $scope.paging['atoms']);
         }
         ;
 
         // approve concept
         $scope.approveConcept = function() {
-          $scope.parentWindowScope.approveConcept($scope.selected.concept);
+          $scope.parentWindowScope.approveConcept($scope.selected.component);
         }
 
         // approve next
@@ -274,7 +296,7 @@ tsApp
               .alert('Move requires at least one atom to be selected and at least two concepts to be in the concept list.');
             return;
           }
-          if ($scope.selected.concept.atoms.length == $scope.getSelectedAtomCount()) {
+          if ($scope.selected.component.atoms.length == $scope.getSelectedAtomCount()) {
             window.alert('Not all atoms can be selected for move.  Concept cannot be left empty.');
             return;
           }
@@ -312,7 +334,7 @@ tsApp
             window.alert('Split requires at least one atom to be selected.');
             return;
           }
-          if ($scope.selected.concept.atoms.length == $scope.getSelectedAtomCount()) {
+          if ($scope.selected.component.atoms.length == $scope.getSelectedAtomCount()) {
             window.alert('Not all atoms can be selected for split.  Concept cannot be left empty.');
             return;
           }

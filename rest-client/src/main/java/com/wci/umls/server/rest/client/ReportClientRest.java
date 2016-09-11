@@ -14,7 +14,8 @@ import com.wci.umls.server.jpa.services.rest.ReportServiceRest;
 /**
  * A client for connecting to a history REST service.
  */
-public class ReportClientRest implements ReportServiceRest {
+public class ReportClientRest extends RootClientRest
+    implements ReportServiceRest {
 
   /** The config. */
   private Properties config = null;
@@ -30,15 +31,15 @@ public class ReportClientRest implements ReportServiceRest {
 
   /* see superclass */
   @Override
-  public String getConceptReport(Long projectId, Long conceptId,
-    String authToken) throws Exception {
+  public String getConceptReport(Long conceptId, String authToken)
+    throws Exception {
+
+    validateNotEmpty(conceptId, "conceptId");
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/report/concept"
-            + "?projectId=" + projectId + "&conceptId=" + conceptId);
-    Response response =
-        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
-            .get();
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/report/concept/" + conceptId);
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
       return null;
     }
@@ -56,4 +57,58 @@ public class ReportClientRest implements ReportServiceRest {
     return resultString;
   }
 
+  /* see superclass */
+  @Override
+  public String getDescriptorReport(Long descriptorId, String authToken)
+    throws Exception {
+
+    validateNotEmpty(descriptorId, "descriptorId");
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/report/descriptor/" + descriptorId);
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
+    if (response.getStatus() == 204) {
+      return null;
+    }
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    }
+    // handle null response
+    else if (response.getStatus() == 204) {
+      return null;
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    return resultString;
+  }
+
+  /* see superclass */
+  @Override
+  public String getCodeReport(Long codeId, String authToken) throws Exception {
+
+    validateNotEmpty(codeId, "codeId");
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/report/code/" + codeId);
+    Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
+    if (response.getStatus() == 204) {
+      return null;
+    }
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    }
+    // handle null response
+    else if (response.getStatus() == 204) {
+      return null;
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    return resultString;
+  }
 }

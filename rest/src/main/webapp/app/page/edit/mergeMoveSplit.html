@@ -17,10 +17,10 @@
         <table class="table">
           <tbody>
             <tr>
-              <td class="col-md-2 col-xs-2">{{selected.concept.id}}</td>
-              <td class="col-md-5 col-xs-5">{{selected.concept.name}}</td>
+              <td class="col-md-2 col-xs-2">{{selected.component.id}}</td>
+              <td class="col-md-5 col-xs-5">{{selected.component.name}}</td>
               <td class="col-md-5 col-xs-5">
-                <span ng-repeat='sty in selected.concept.semanticTypes'>
+                <span ng-repeat='sty in selected.component.semanticTypes'>
                   {{sty.semanticType}}</br>
                 </span>
               </td>
@@ -136,7 +136,7 @@
   <button ng-show="action == 'Move'" class="btn btn-primary" ng-click="move();"
     ng-disabled="!toConcept" title="Move concepts">Move</button>
   <button ng-show="action == 'Split'" class="btn btn-primary"
-    ng-disabled="!toConcept"
-      ng-click="split(selected.concept);" title="Split atoms">Split</button>
+    ng-disabled="!toConcept" ng-click="split(selected.component);"
+    title="Split atoms">Split</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>
