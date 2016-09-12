@@ -307,8 +307,7 @@ public class ConfigUtility {
     for (final Object prop : config.keySet()) {
       final String str = prop.toString();
 
-      if (str.startsWith("deploy.") || str.startsWith("site.")
-          || str.equals("base.url")) {
+      if (str.startsWith("deploy.") || str.equals("base.url")) {
         p.put(prop, config.getProperty(prop.toString()));
       }
 
