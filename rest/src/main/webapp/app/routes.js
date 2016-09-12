@@ -126,8 +126,8 @@ tsApp.run([
               });
 
             // Content with mode set (e.g. 'simple' for component report)
-            console.debug('Route enabled: /content/:mode/:id');
-            $routeProviderReference.when('/content/:mode/:id', {
+            console.debug('Route enabled: /content/:mode/:type/:terminology/:id');
+            $routeProviderReference.when('/content/:mode/:type/:terminology/:id', {
               templateUrl : function(urlAttr) {
                 return 'app/page/content/' + urlAttr.mode + '.html';
               },
@@ -193,28 +193,28 @@ tsApp.run([
 
           console.debug('Route enabled: /edit/semantic-types');
           $routeProviderReference.when('/edit/semantic-types', {
-            templateUrl : 'app/page/edit/semantic-types/semanticTypes.html',
+            templateUrl : 'app/page/edit/semantic-types/semanticTypesWindow.html',
             controller : 'SemanticTypesCtrl',
             reloadOnSearch : false
           });
-          
+
           console.debug('Route enabled: /edit/atoms');
           $routeProviderReference.when('/edit/atoms', {
-            templateUrl : 'app/page/edit/atoms/atoms.html',
+            templateUrl : 'app/page/edit/atoms/atomsWindow.html',
             controller : 'AtomsCtrl',
             reloadOnSearch : false
           });
-          
+
           console.debug('Route enabled: /edit/relationships');
           $routeProviderReference.when('/edit/relationships', {
-            templateUrl : 'app/page/edit/relationships/relationships.html',
+            templateUrl : 'app/page/edit/relationships/relationshipsWindow.html',
             controller : 'RelationshipsCtrl',
             reloadOnSearch : false
           });
-          
+
           console.debug('Route enabled: /contexts');
           $routeProviderReference.when('/contexts', {
-            templateUrl : 'app/page/contexts/contexts.html',
+            templateUrl : 'app/page/edit/contexts/contextsWindow.html',
             controller : 'ContextsCtrl',
             reloadOnSearch : false
           });

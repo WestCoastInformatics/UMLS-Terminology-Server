@@ -6,22 +6,22 @@ tsApp
       '$location',
       '$window',
       '$q',
+      '$uibModal',
       'tabService',
+      'utilService',
       'configureService',
       'securityService',
-      'workflowService',
-      'utilService',
       'websocketService',
+      'workflowService',
       'configureService',
       'projectService',
       'metadataService',
+      'contentService',
       'reportService',
       'metaEditingService',
-      'contentService',
-      '$uibModal',
-      function($scope, $location, $window, $q, tabService, configureService, securityService,
-        workflowService, utilService, websocketService, configureService, projectService,
-        metadataService, reportService, metaEditingService, contentService, $uibModal) {
+      function($scope, $location, $window, $q, $uibModal, tabService, utilService,
+        configureService, securityService, websocketService, workflowService, configureService,
+        projectService, metadataService, contentService, reportService, metaEditingService) {
         console.debug("configure EditCtrl");
 
         // Set up tabs and controller
@@ -36,13 +36,16 @@ tsApp
         $scope.availableCt = 0;
         $scope.checklistCt = 0;
 
+        // Callbacks for report
+        $scope.callbacks = contentService.getCallbacks();
+
         // Selected variables
         $scope.selected = {
           project : null,
           projectRole : null,
           worklist : null,
           record : null,
-          concept : null,
+          component : null,
           worklistMode : 'Assigned',
           terminology : null,
           metadata : null
@@ -54,7 +57,7 @@ tsApp
           worklists : [],
           configs : [],
           projects : [],
-          concepts : [],
+          components : [],
           projectRoles : [],
           recordTypes : workflowService.getRecordTypes(),
           worklistModes : [ 'Available', 'Assigned', 'Checklists' ],
@@ -69,13 +72,13 @@ tsApp
         $scope.paging['worklists'] = utilService.getPaging();
         $scope.paging['worklists'].sortField = 'lastModified';
         $scope.paging['worklists'].pageSize = 5;
-        $scope.paging['worklists'].callback = {
+        $scope.paging['worklists'].callbacks = {
           getPagedList : getWorklists
         };
 
         $scope.paging['records'] = utilService.getPaging();
         $scope.paging['records'].sortField = 'clusterId';
-        $scope.paging['records'].callback = {
+        $scope.paging['records'].callbacks = {
           getPagedList : getRecords
         };
 
@@ -108,7 +111,7 @@ tsApp
         $scope.$on('termServer::conceptChange', function(event, concept) {
 
           // Refresh the selected concept
-          if ($scope.selected.concept.id == concept.id) {
+          if ($scope.selected.component.id == concept.id) {
             contentService.getConcept(concept.id, $scope.selected.project.id).then(
             // Success
             function(data) {
@@ -364,7 +367,7 @@ tsApp
         // Looks up current release info and records.
         $scope.selectWorklist = function(worklist) {
           $scope.selected.worklist = worklist;
-          $scope.selected.concept = null;
+          $scope.selected.component = null;
           if ($scope.value == 'Worklist') {
             $scope.parseStateHistory(worklist);
           }
@@ -444,19 +447,14 @@ tsApp
 
         // select concept & get concept report
         $scope.selectConcept = function(concept) {
-          $scope.selected.concept = concept;
+          $scope.selected.component = concept;
           $scope.refreshWindows();
-          reportService.getConceptReport($scope.selected.project.id, $scope.selected.concept.id)
-            .then(
-            // Success
-            function(data) {
-              $scope.selected.concept.report = data;
-            });
+
           // Update the selected concept in the list
           for (var i = 0; i < $scope.lists.concepts.length; i++) {
             var concept = $scope.lists.concepts[i];
-            if (concept.id == $scope.selected.concept.id) {
-              $scope.lists.concepts[i] = $scope.selected.concept;
+            if (concept.id == $scope.selected.component.id) {
+              $scope.lists.concepts[i] = $scope.selected.component;
               break;
             }
           }
@@ -673,7 +671,7 @@ tsApp
         $scope.resetSelected = function() {
           $scope.selected.worklist = null;
           $scope.selected.record = null;
-          $scope.selected.concept = null;
+          $scope.selected.component = null;
         }
 
         // clears lists
@@ -813,7 +811,7 @@ tsApp
         $scope.openFinderModal = function(lrecord) {
           console.debug('openFinderModal ', lrecord);
           var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/edit/finder.html',
+            templateUrl : 'app/component/finder/finder.html',
             controller : 'FinderModalCtrl',
             backdrop : 'static',
             size : 'lg',
@@ -826,6 +824,9 @@ tsApp
               },
               user : function() {
                 return $scope.user;
+              },
+              type : function() {
+                return 'Concept';
               }
             }
           });

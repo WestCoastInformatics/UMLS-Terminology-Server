@@ -61,7 +61,7 @@ tsApp.directive('notes', [ function() {
           $scope.paging = utilService.getPaging();
           $scope.paging.sortField = 'lastModified';
           $scope.paging.sortAscending = true;
-          $scope.paging.callback = {
+          $scope.paging.callbacks = {
             getPagedList : getPagedNotes
           };
 

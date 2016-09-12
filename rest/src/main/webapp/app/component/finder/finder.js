@@ -8,26 +8,38 @@ tsApp.controller('FinderModalCtrl', [
   'selected',
   'lists',
   'user',
+  'type',
   function($scope, $uibModalInstance, utilService, contentService, reportService, selected, lists,
-    user) {
+    user, type) {
     console.debug('Entered finder modal control');
 
-    // Scope
-    $scope.concept = null;
-    $scope.selected = selected;
+    // Scope vars
+    $scope.type = type;
+    $scope.selected = {
+      component : null,
+      project : selected.project,
+      metadata : selected.metadata
+    };
     $scope.query = null;
+    $scope.searchResults = [];
+
+    // Callbacks for report
+    $scope.callbacks = contentService.getCallbacks();
+
+    // Paging vars
     $scope.paging = utilService.getPaging();
     $scope.paging.pageSize = 10;
     $scope.paging.disableFilter = true;
-    $scope.paging.callback = {
+    $scope.paging.callbacks = {
       getPagedList : getSearchResults
     };
-    $scope.searchResults = [];
+
+    // Errors
     $scope.errors = [];
 
-    // Send concept back to edit controller
-    $scope.addConcept = function(concept) {
-      $uibModalInstance.close(concept);
+    // Send component back to edit controller
+    $scope.addComponent = function(component) {
+      $uibModalInstance.close(component);
     };
 
     // clear, then get search results
@@ -53,12 +65,16 @@ tsApp.controller('FinderModalCtrl', [
         queryRestriction : paging.filter
       };
 
-      contentService.findConcepts($scope.selected.project.terminology,
-        $scope.selected.project.version, $scope.query, pfs).then(
+      contentService.findComponentsAsList($scope.query, $scope.type,
+        $scope.selected.project.terminology, $scope.selected.project.version, pfs).then(
       // Success
       function(data) {
         $scope.searchResults = data.results;
         $scope.searchResults.totalCount = data.totalCount;
+        // Select first component automatically
+        if ($scope.searchResults && $scope.searchResults.length > 1) {
+          $scope.selectComponent($scope.searchResults[0]);
+        }
       },
       // Error
       function(data) {
@@ -68,23 +84,19 @@ tsApp.controller('FinderModalCtrl', [
     }
     ;
 
-    // select concept and get concept data
-    $scope.selectConcept = function(concept) {
-      $scope.concept = concept;
-      reportService.getConceptReport($scope.selected.project.id, concept.id).then(
-      // Success
-      function(data) {
-        $scope.conceptReport = data;
-      },
-      // Error
-      function(data) {
-        utilService.handleDialogError($scope.errors, data);
-      });
+    // select component and get component data
+    $scope.selectComponent = function(component) {
+      // Read the component
+      contentService.getComponent(component).then(
+        // Success
+        function(data) {
+          $scope.selected.component = data;         
+        });
     };
 
     // Dismiss modal
     $scope.cancel = function() {
-      $uibModalInstance.close();
+      $uibModalInstance.dismiss();
     };
 
     // end

@@ -9,8 +9,8 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
   'lists',
   'user',
   'action',
-  function($scope, $uibModalInstance, utilService, metaEditingService, contentService,
-    selected, lists, user, action) {
+  function($scope, $uibModalInstance, utilService, metaEditingService, contentService, selected,
+    lists, user, action) {
     console.debug('Entered merge/move/split modal control', lists, action);
 
     // Scope vars
@@ -39,7 +39,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
     // Init modal
     function initialize() {
       for (var i = 0; i < $scope.lists.concepts.length; i++) {
-        if ($scope.lists.concepts[i].id != $scope.selected.concept.id) {
+        if ($scope.lists.concepts[i].id != $scope.selected.component.id) {
           $scope.toConcepts.push($scope.lists.concepts[i]);
         }
       }
@@ -79,7 +79,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
     $scope.merge = function() {
 
       metaEditingService.mergeConcepts($scope.selected.project.id, $scope.selected.activityId,
-        $scope.selected.concept, $scope.toConcept, $scope.overrideWarnings).then(
+        $scope.selected.component, $scope.toConcept, $scope.overrideWarnings).then(
       // Success
       function(data) {
         $scope.warnings = data.warnings;
@@ -104,7 +104,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
         atomsList.push(atom);
       }
       metaEditingService.moveAtoms($scope.selected.project.id, $scope.selected.activityId,
-        $scope.selected.concept, $scope.toConcept, atomsList, $scope.overrideWarnings).then(
+        $scope.selected.component, $scope.toConcept, atomsList, $scope.overrideWarnings).then(
       // Success
       function(data) {
         $scope.warnings = data.warnings;
@@ -130,7 +130,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
       }
 
       metaEditingService.splitConcept($scope.selected.project.id, $scope.selected.activityId,
-        $scope.selected.concept, atomsList, $scope.copyRelationships, $scope.copySemanticTypes,
+        $scope.selected.component, atomsList, $scope.copyRelationships, $scope.copySemanticTypes,
         $scope.selectedRelationshipType, $scope.overrideWarnings).then(
       // Success
       function(data) {

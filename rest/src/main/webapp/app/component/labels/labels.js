@@ -22,10 +22,10 @@ tsApp.directive('labels', [ 'utilService', function(utilService) {
         scope.pagedData = utilService.getPagedArray(scope.component.labels, scope.paging);
       }
 
-      // instantiate paging and paging callback function
+      // instantiate paging and paging callbacks function
       scope.pagedData = [];
       scope.paging = utilService.getPaging();
-      scope.pageCallback = {
+      scope.pageCallbacks = {
         getPagedList : getPagedList
       };
 
@@ -34,7 +34,7 @@ tsApp.directive('labels', [ 'utilService', function(utilService) {
         if (scope.component) {
           // Clear paging
           scope.paging = utilService.getPaging();
-          scope.pageCallback = {
+          scope.pageCallbacks = {
             getPagedList : getPagedList
           };
           // Get data

@@ -41,7 +41,8 @@
     <div></div>
 
     <div pager paging="paging['worklists']" style="margin-top: 5px"
-      count="lists.worklists.totalCount" callback="paging['worklists'].callback"></div>
+      count="lists.worklists.totalCount"
+      callbacks="paging['worklists'].callbacks"></div>
 
     <table ng-show="lists.worklists.totalCount > 0" class="table">
       <thead class="pointer">
@@ -72,7 +73,8 @@
           <!--  actions -->
           <td class="nobreak">
 
-            <i title="Remove worklist" ng-show="selected.projectRole == 'ADMINISTRATOR'"
+            <i title="Remove worklist"
+              ng-show="selected.projectRole == 'ADMINISTRATOR'"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
               class="noul glyphicon glyphicon-trash"></i>
@@ -96,8 +98,8 @@
                 class="noul glyphicon glyphicon-ok"></i>
               <i
                 ng-show="worklist.workflowStatus == 'REVIEW_DONE' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
-                ng-click="performWorkflowAction(worklist, 'FINISH');" title="Finish"
-                class="noul glyphicon glyphicon-ok"></i>
+                ng-click="performWorkflowAction(worklist, 'FINISH');"
+                title="Finish" class="noul glyphicon glyphicon-ok"></i>
             </span>
             &nbsp;
           </td>
@@ -128,7 +130,7 @@
       </span>
       <div>
         <div pager paging="paging['records']" count="lists.records.totalCount"
-          callback="paging['records'].callback"></div>
+          callbacks="paging['records'].callbacks"></div>
 
         <table
           ng-show="lists.records.totalCount > 0 || paging['records'].filter || paging['records'].typeFilter"
@@ -208,59 +210,59 @@
 
         <tr ng-repeat="concept in lists.concepts"
           ng-click="selectConcept(concept);"
-          ng-class="{selected : concept.id == selected.concept.id}"
+          ng-class="{selected : concept.id == selected.component.id}"
           class="{{concept.workflowStatus}}">
           <td>{{concept.id}}</td>
           <td>{{concept.terminologyId}}</td>
           <td>{{concept.name}}</td>
           <td>
             <span ng-repeat='sty in concept.semanticTypes'>
-              {{sty.semanticType}}</br>
+              {{sty.semanticType}}<br>
             </span>
           </td>
-          <td><i title="Remove from list" ng-show="concept.id == selected.concept.id"
+          <td>
+            <i title="Remove from list"
+              ng-show="concept.id == selected.component.id"
               ng-click="removeConceptFromList(concept); $event.stopPropagation()"
-              class="noul glyphicon glyphicon-remove"></i></td>
+              class="noul glyphicon glyphicon-remove"></i>
+          </td>
         </tr>
       </tbody>
     </table>
     <span ng-show="lists.concepts.length == 0" style="display: block;"
       class="alert alert-warning">No concepts</span>
 
-
-    <span style="float: right;">
+    <!-- Open new windows -->
+    <span style="float: left;">
       <button ng-click="openStyWindow()" title="Stys"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
-        class="btn btn-xs btn-primary">STY</button>
+        ng-disabled="!selected.component" class="btn btn-xs btn-primary">STY</button>
       <button ng-click="openAtomsWindow()" title="Atoms"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
-        class="btn btn-xs btn-primary">Atoms</button>  
+        ng-disabled="!selected.component" class="btn btn-xs btn-primary">Atoms</button>
       <button ng-click="openRelationshipsWindow()" title="Relationships"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
-        class="btn btn-xs btn-primary">Rels</button>
+        ng-disabled="!selected.component" class="btn btn-xs btn-primary">Rels</button>
       <button ng-click="openContextsWindow()" title="Contexts"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
-        class="btn btn-xs btn-primary">Contexts</button>
+        ng-disabled="!selected.component" class="btn btn-xs btn-primary">Contexts</button>
+    </span>
+
+    <!-- Concept actions -->
+    <span style="float: right;">
       <button confirm="Are you sure you want to approve the selected concept?"
-        ng-click="approveConcept(selected.concept)" title="Approve"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
-        class="btn btn-xs btn-primary">Approve</button>
-      <button ng-click="next()" title="Next"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
+        ng-click="approveConcept(selected.component)" title="Approve"
+        ng-disabled="!selected.component" class="btn btn-xs btn-primary">Approve</button>
+      <button ng-click="next()" title="Next" ng-disabled="!selected.component"
         class="btn btn-xs btn-primary">Next</button>
       <button confirm="Are you sure you want to approve the selected concept?"
         ng-click="approveNext()" title="Approve/Next"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
-        class="btn btn-xs btn-primary">Approve/Next</button>
+        ng-disabled="!selected.component" class="btn btn-xs btn-primary">Approve/Next</button>
       <button ng-click="openMergeModal()" title="Merge"
-        ng-disabled="!selected.concept || selected.worklistMode == 'Available'"
-        class="btn btn-xs btn-primary">Merge</button>
+        ng-disabled="!selected.component" class="btn btn-xs btn-primary">Merge</button>
     </span>
 
     <br />
     <hr>
+    <!-- Concept Report -->
+    <div report-panel selected="selected" callbacks="callbacks"></div>
 
-    <div report-pre selected="selected" lists="lists" user="user"></div>
   </div>
 </div>
 

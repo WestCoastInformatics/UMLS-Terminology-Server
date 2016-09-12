@@ -42,7 +42,7 @@
       <td>
         <select ng-model="sortOrder" title="Sort order for creating worklist">
           <option value="clusterId">Cluster id</option>
-          <option value="indexedData">Concept name</option>
+          <option value="indexedData">Name</option>
           <option value="RANDOM">Randomize</option>
       </td>
     </tr>
@@ -63,7 +63,6 @@
 
 {{completionMessage}}
 <div class="modal-footer">
-  <button class="btn btn-primary"
-    ng-click="createWorklist();">Add</button>
+  <button class="btn btn-primary" ng-click="createWorklist();">Add</button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

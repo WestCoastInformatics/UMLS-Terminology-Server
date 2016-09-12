@@ -58,27 +58,27 @@ tsApp
         $scope.paging = {};
         $scope.paging['project'] = utilService.getPaging();
         $scope.paging['project'].sortField = 'lastModified';
-        $scope.paging['project'].callback = {
+        $scope.paging['project'].callbacks = {
           getPagedList : getProjects
         };
         $scope.paging['candidateProject'] = utilService.getPaging();
         $scope.paging['candidateProject'].sortField = 'lastModified';
-        $scope.paging['candidateProject'].callback = {
+        $scope.paging['candidateProject'].callbacks = {
           getPagedList : getCandidateProjects
         };
         $scope.paging['user'] = utilService.getPaging();
         $scope.paging['user'].sortField = 'userName';
-        $scope.paging['user'].callback = {
+        $scope.paging['user'].callbacks = {
           getPagedList : getUsers
         };
         $scope.paging['assignedUser'] = utilService.getPaging();
         $scope.paging['assignedUser'].sortField = 'userName';
-        $scope.paging['assignedUser'].callback = {
+        $scope.paging['assignedUser'].callbacks = {
           getPagedList : getAssignedUsers
         };
         $scope.paging['unassignedUser'] = utilService.getPaging();
         $scope.paging['unassignedUser'].sortField = 'userName';
-        $scope.paging['unassignedUser'].callback = {
+        $scope.paging['unassignedUser'].callbacks = {
           getPagedList : getUnassignedUsers
         };
 

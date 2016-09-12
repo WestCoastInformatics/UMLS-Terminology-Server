@@ -2210,7 +2210,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.setLastModifiedBy(userName);
 
       // Read vars
-      final Project project = workflowService.getProject(projectId);
       final Worklist worklist = workflowService.getWorklist(id);
       final List<TrackingRecord> recordList = worklist.getTrackingRecords();
 
@@ -2241,8 +2240,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           final Concept concept = reportService.getConcept(conceptId);
           // TODO: conceptReportType and relationshipCt will become
           // parameters to getConceptReport
-          conceptReport
-              .append(reportService.getConceptReport(project, concept));
+          conceptReport.append(reportService.getConceptReport(concept));
           conceptReport.append("---------------------------------------------");
         }
       }

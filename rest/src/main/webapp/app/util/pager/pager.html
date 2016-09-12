@@ -5,34 +5,33 @@
     items-per-page="paging.pageSize" max-size="3" boundary-links="true"
     class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;"
     first-text="&laquo;" last-text="&raquo;" total-items="count"
-    ng-model="paging.page" ng-change="callback.getPagedList()"></uib-pagination>
+    ng-model="paging.page" ng-change="callbacks.getPagedList()"></uib-pagination>
   <!--  Filters  -->
 
   <!--  TODO Add generalization note to Wiki -->
   <input class="input-filter"
     ng-show="!paging.disableFilter && (paging.filter || count > 5)"
     placeholder="Enter filter text" type="text" ng-model="paging.filter"
-    ng-model-options="{ debounce: 500 }" ng-change="callback.getPagedList()"
+    ng-model-options="{ debounce: 500 }" ng-change="callbacks.getPagedList()"
     list="filter-list">
   <datalist ng-if="paging.filterList" id="filter-list">
-    <option ng-repeat="filter in paging.filterList | orderBy:'value'"
-      value="{{filter.value}}" />
+    <option ng-repeat="filter in paging.filterList" value="{{filter}}" />
   </datalist>
 
   <button class="btn btn-xs btn-warning" ng-show="paging.filter"
-    ng-click="paging.filter = ''; callback.getPagedList(); "
+    ng-click="paging.filter = ''; callbacks.getPagedList(); "
     uib-tooltip="Click to clear filter text">Clear</button>
   <!-- Field sort order -->
   <span class="nobreak"
     ng-show="paging.sortOptions && paging.sortOptions.length>0 && count > 5">
     <span
       uib-tooltip="Sort - {{paging.sortAscending ? 'Ascending' : 'Descending'}}"
-      ng-click="paging.page = 1; paging.sortAscending = !paging.sortAscending; callback.getPagedList();"
+      ng-click="paging.page = 1; paging.sortAscending = !paging.sortAscending; callbacks.getPagedList();"
       class="glyphicon"
       ng-class="[{'glyphicon-sort-by-attributes': paging.sortAscending}, {'glyphicon-sort-by-attributes-alt': !paging.sortAscending}]"></span>
     <select class="input-filter" ng-model="paging.sortField"
       ng-options="o.value as o.key for o in paging.sortOptions"
-      ng-change="paging.page = 1; callback.getPagedList()">
+      ng-change="paging.page = 1; callbacks.getPagedList()">
     </select>
   </span>
 </span>

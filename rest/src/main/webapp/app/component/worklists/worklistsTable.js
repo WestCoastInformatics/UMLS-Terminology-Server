@@ -34,7 +34,6 @@ tsApp
               // Reset some scope settings
               $scope.selected.worklist = null;
               $scope.selected.record = null;
-              $scope.selected.concept = null;
               $scope.lists.records = [];
               $scope.worklistReport = null;
               $scope.reportRefresh = null;
@@ -47,12 +46,12 @@ tsApp
               $scope.paging['worklists'] = utilService.getPaging();
               $scope.paging['worklists'].sortField = 'lastModified';
               $scope.paging['worklists'].sortAscending = false;
-              $scope.paging['worklists'].callback = {
+              $scope.paging['worklists'].callbacks = {
                 getPagedList : getWorklists
               };
               $scope.paging['records'] = utilService.getPaging();
               $scope.paging['records'].sortField = 'clusterId';
-              $scope.paging['records'].callback = {
+              $scope.paging['records'].callbacks = {
                 getPagedList : getRecords
               };
 
@@ -96,7 +95,7 @@ tsApp
                     filterList.push("reviewers:" + userName);
                   }
                 }
-                return filterList;
+                return filterList.sort();
               }
 
               // See if any project users have a team
@@ -147,7 +146,11 @@ tsApp
                 $scope.project = project;
                 $scope.getWorklists();
                 if ($scope.type == 'Worklist') {
-                  $scope.paging['worklists'].filterList = $scope.getPagingFilterList();
+                  $scope.paging['worklists'].filterList.length = 0;
+                  var list = $scope.getPagingFilterList();
+                  for (var i = 0; i < list.length; i++) {
+                    $scope.paging['worklists'].filterList.push(list[i]);
+                  }
                 }
               };
 
@@ -327,8 +330,6 @@ tsApp
               // Looks up current release info and records.
               $scope.selectWorklist = function(worklist) {
                 $scope.selected.worklist = worklist;
-                // clear selected concept
-                $scope.selected.concept = null;
                 if ($scope.type == 'Worklist') {
                   $scope.parseStateHistory(worklist);
                 }
@@ -421,7 +422,6 @@ tsApp
 
               // Export a worklist
               $scope.exportList = function(worklist) {
-                console.debug('YYY', worklist);
                 if ($scope.type == 'Checklist') {
                   workflowService.exportChecklist($scope.selected.project.id, worklist.id,
                     worklist.name);

@@ -7,18 +7,19 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ReportServiceRest;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.services.ReportService;
 import com.wci.umls.server.services.SecurityService;
 
@@ -59,11 +60,10 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
   @Override
   @GET
   @Produces(MediaType.TEXT_PLAIN)
-  @Path("/concept")
+  @Path("/concept/{id}")
   @ApiOperation(value = "Get concept report", notes = "Gets a concept report", response = String.class)
   public String getConceptReport(
-    @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Concept id, e.g. UMLS", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Concept id, e.g. UMLS", required = true) @PathParam("id") Long conceptId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Report): /report");
@@ -73,12 +73,69 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "get concept report",
           UserRole.VIEWER);
 
-      Project project = reportService.getProject(projectId);
       Concept concept = reportService.getConcept(conceptId);
-      return reportService.getConceptReport(project, concept);
+      return reportService.getConceptReport(concept);
 
     } catch (Exception e) {
       handleException(e, "trying to get concept report");
+      return null;
+    } finally {
+      reportService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("/descriptor/{id}")
+  @ApiOperation(value = "Get descriptor report", notes = "Gets a descriptor report", response = String.class)
+  public String getDescriptorReport(
+    @ApiParam(value = "Descriptor id, e.g. UMLS", required = true) @PathParam("id") Long descriptorId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Report): /report");
+
+    ReportService reportService = new ReportServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get descriptor report",
+          UserRole.VIEWER);
+
+      Descriptor descriptor = reportService.getDescriptor(descriptorId);
+      return reportService.getDescriptorReport(descriptor);
+
+    } catch (Exception e) {
+      handleException(e, "trying to get descriptor report");
+      return null;
+    } finally {
+      reportService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("/code/{id}")
+  @ApiOperation(value = "Get code report", notes = "Gets a code report", response = String.class)
+  public String getCodeReport(
+    @ApiParam(value = "Code id, e.g. UMLS", required = true) @PathParam("id") Long codeId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Report): /report");
+
+    ReportService reportService = new ReportServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get code report",
+          UserRole.VIEWER);
+
+      Code code = reportService.getCode(codeId);
+      return reportService.getCodeReport(code);
+
+    } catch (Exception e) {
+      handleException(e, "trying to get code report");
       return null;
     } finally {
       reportService.close();

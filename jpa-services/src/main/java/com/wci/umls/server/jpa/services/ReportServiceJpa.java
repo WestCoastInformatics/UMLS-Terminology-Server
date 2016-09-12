@@ -7,9 +7,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import com.wci.umls.server.Project;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.HistoryService;
@@ -33,9 +39,44 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
   /* see superclass */
   @Override
-  public String getConceptReport(Project project, Concept concept)
-    throws Exception {
+  public String getConceptReport(Concept concept) throws Exception {
 
+    // TODO: make sure to use \r\n as line separator
+
+    // TODO:
+    // Call this.validateConcept(project,concept)
+    // for any errors or warnings in the validation result, write one line for
+    // each one.
+    //
+    // work.append("As of ");
+    // work.append(new Date());
+    // if (checks.length > 0) {
+    // work.append(", this entry has the following problems/issues: ");
+    // }
+    // else {
+    // work.append(", this entry had no problems/issues.");
+    //
+    // }
+
+    // TODO: write separator
+    // ---------------------------------------------------------------------------
+
+    //
+    //Options
+    //
+    int max_relationship_count = 20;
+    int max_cxt_rel_count = 20;
+    boolean include_siblings = false;
+    
+    //
+    // Handle validation/integrity checks
+    //
+    
+    
+    
+    //
+    // Concept information
+    //
     final StringBuilder sb = new StringBuilder();
     sb.append("\r\n").append("CN# ");
     sb.append(concept.getId()).append(" ");
@@ -62,12 +103,48 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(id).append("\r\n");
     }
 
+    //
+    // Semantic Types
+    //
     sb.append("STY ");
     for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
       sb.append(sty.getSemanticType()).append("\t");
       sb.append(getStatusChar(sty.getWorkflowStatus())).append("\r\n");
     }
 
+    //
+    // Definitions
+    //
+    sb.append("DEF ");
+    for (final Atom atom : concept.getAtoms()) {
+      for (final Definition def : atom.getDefinitions()) {
+        sb.append(def.isPublishable() ? "[Release] " : "[Do Not Release] ");
+        sb.append(def.getTerminology()).append("_").append(def.getVersion()).append("\r\n");
+        sb.append("  -").append(atom.getTerminology()).append("/").append(atom.getTermType());
+        sb.append("|").append(WordUtils.wrap(def.getValue(), 65, "\r\n", false)).append("\r\n");
+        
+      }
+    }
+    
+    //
+    // SOS
+    //
+    sb.append("SOS ");
+    for (final Atom atom : concept.getAtoms()) {
+      for (final Attribute att : atom.getAttributes()) {
+        if (att.getName().equals("SOS")) {
+          sb.append(att.isPublishable() ? "[Release] " : "[Do Not Release] ");
+          sb.append(att.getTerminology()).append("_").append(att.getVersion()).append("\r\n");
+          sb.append("  -").append(atom.getTerminology()).append("/").append(atom.getTermType());
+          sb.append("|").append(WordUtils.wrap(att.getValue(), 65, "\r\n", false)).append("\r\n");
+          
+        }
+      }
+    }
+    
+    //
+    // Atoms
+    //
     sb.append("ATOMS").append("\r\n");
 
     for (final Atom atom : concept.getAtoms()) {
@@ -100,5 +177,19 @@ public class ReportServiceJpa extends HistoryServiceJpa
     } else {
       return "R";
     }
+  }
+
+  @Override
+  public String getDescriptorReport(Descriptor descriptor) throws Exception {
+    // TODO: factor out getconceptReport into getComponentReport, have it take
+    // an AtomClass and do most of what it does, except with slightly different
+    // behavior for concepts (e.g. "get deep relationships", etc).
+    return "TBD";
+  }
+
+  @Override
+  public String getCodeReport(Code code) throws Exception {
+    // TODO:
+    return "TBD";
   }
 }

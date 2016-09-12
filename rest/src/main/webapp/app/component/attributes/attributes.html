@@ -2,7 +2,7 @@
 <div ng-show="pagedData.totalCount > 0 || paging.filter">
   <h4>{{metadata.attributesLabel}} ({{pagedData.totalCount}})</h4>
   <div pager paging="paging" count="pagedData.totalCount"
-    callback="pageCallback"></div>
+    callbacks="pageCallbacks"></div>
   <ul class="icon-list">
     <li class="cr-list" ng-repeat="item in pagedData.data"><span
         class="label label-warning"

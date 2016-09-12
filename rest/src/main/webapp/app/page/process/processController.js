@@ -57,13 +57,13 @@ tsApp.controller('ProcessCtrl', [
     };// utilService.getPaging();
     $scope.paging['process'].sortField = 'lastModified';
     $scope.paging['process'].pageSize = 5;
-    $scope.paging['process'].callback = {
+    $scope.paging['process'].callbacks = {
       getPagedList : getProcesses
     };
 
     $scope.paging['algo'] = utilService.getPaging();
     $scope.paging['algo'].sortField = 'lastModified';
-    $scope.paging['algo'].callback = {
+    $scope.paging['algo'].callbacks = {
       getPagedList : getAlgorithms
     };
 

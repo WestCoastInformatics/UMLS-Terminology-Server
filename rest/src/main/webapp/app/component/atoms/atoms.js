@@ -23,10 +23,10 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
         console.debug('paged atoms', scope.pagedData);
       }
 
-      // instantiate paging and paging callback function
+      // instantiate paging and paging callbacks function
       scope.pagedData = [];
       scope.paging = utilService.getPaging();
-      scope.pageCallback = {
+      scope.pageCallbacks = {
         getPagedList : getPagedList
       };
 
@@ -35,7 +35,7 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
         if (scope.component) {
           // reset paging
           scope.paging = utilService.getPaging();
-          scope.pageCallback = {
+          scope.pageCallbacks = {
             getPagedList : getPagedList
           };
           // get data

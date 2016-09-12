@@ -32,8 +32,15 @@ tsApp.directive('tsFooter', [
         scope.deployPresentedBy = function() {
           return $sce.trustAsHtml(scope.appConfig['deploy.presented.by']);
         }
+
+        // Site tracking code
         scope.siteTrackingCode = function() {
-          return $sce.trustAsHtml(scope.appConfig['site.tracking.code']);
+          return $sce.trustAsHtml(scope.appConfig['deploy.tracking.code']);
+        }
+
+        // Site tracking code
+        scope.siteCookieCode = function() {
+          return $sce.trustAsHtml(scope.appConfig['deploy.cookie.code']);
         }
 
         // Declare user

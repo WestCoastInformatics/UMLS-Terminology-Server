@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -1423,6 +1423,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /**
+   * Run process as thread.
+   *
+   * @param projectId the project id
+   * @param processConfig the process config
+   * @param processExecution the process execution
+   * @param userName the user name
+   * @param background the background
+   * @param restart the restart
+   * @throws Exception the exception
+   */
   private void runProcessAsThread(Long projectId, ProcessConfig processConfig,
     ProcessExecution processExecution, String userName, Boolean background,
     Boolean restart) throws Exception {

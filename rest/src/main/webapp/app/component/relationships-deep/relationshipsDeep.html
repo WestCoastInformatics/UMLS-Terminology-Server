@@ -5,7 +5,7 @@
   <h4>Deep {{metadata.relationshipsLabel}}
     ({{pagedData.totalCount}})&nbsp;&nbsp;</h4>
   <div pager paging="paging" count="pagedData.totalCount"
-    callback="pageCallback"></div>
+    callbacks="pageCallbacks"></div>
   <ul class="icon-list">
     <li class="cr-list" ng-repeat="item in pagedData.data"><span
         ng-show="item.group > 0">

@@ -5,7 +5,7 @@
     {{selected.bin.name}}&nbsp;({{lists.records.totalCount}})</h4>
 
   <div pager paging="paging" count="lists.records.totalCount"
-    callback="paging.callback"></div>
+    callbacks="paging.callbacks"></div>
 
   <table
     ng-show="lists.records.totalCount > 0 || paging.filter || paging.typeFilter"
@@ -16,7 +16,7 @@
         <th class="col-md-1 col-xs-1"><select style="width: 40px;"
           ng-model="paging.typeFilter"
           ng-options="item for item in lists.recordTypes"
-          ng-change="paging.callback.getPagedList()">
+          ng-change="paging.callbacks.getPagedList()">
             <option value="">All</option>
         </select></th>
         <th class="col-md-3 col-xs-3">Concept Id</th>
@@ -40,7 +40,7 @@
         </td>
       </tr>
       <tr ng-click="selectConcept(concept);"
-        ng-class="{selected : concept.id == selected.concept.id}"
+        ng-class="{selected : concept.id == selected.component.id}"
         class={{concept.workflowStatus}} ng-repeat="concept in record.concepts">
         <td>{{concept.id}}</td>
         <td>{{concept.name}}</td>
@@ -57,5 +57,5 @@
 
 <!-- C2 -->
 <div class="col-md-6 col-xs-12">
-  <div report-pre selected="selected"></div>
+  <div report-panel selected="selected" callbacks="callbacks"></div>
 </div>

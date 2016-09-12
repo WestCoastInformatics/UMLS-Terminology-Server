@@ -284,16 +284,16 @@
 
       <div tree-search-result metadata="selected.metadata"
         search-results="searchResults" parameters="searchParams"
-        callbacks="srtCallbacks"></div>
+        callbacks="callbacks"></div>
       <p style="display: block;">&nbsp;</p>
     </div>
     <!--  Favorites -->
     <div ng-show="!isGuestUser()" favorites="user.userPreferences.favorites"
       component="selected.component" metadata="selected.metadata"
-      callbacks="favoritesCallbacks"></div>
+      callbacks="callbacks"></div>
     <!--  Components with user notes -->
     <div annotated-content metadata="selected.metadata"
-      component="selected.component" callbacks="favoritesCallbacks"></div>
+      component="selected.component" callbacks="callbacks"></div>
   </div>
   <div class="col-md-8 col-xs-12">
 
@@ -353,8 +353,7 @@
     </div>
     <!-- Component display -->
     <div class="row" ng-if="selected.component != null">
-      <div report component="selected.component" metadata="selected.metadata"
-        callbacks="componentReportCallbacks"></div>
+      <div report selected="selected" callbacks="callbacks"></div>
       <!-- end Component Display -->
     </div>
   </div>

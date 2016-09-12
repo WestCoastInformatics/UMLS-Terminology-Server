@@ -45,11 +45,11 @@ tsApp
         $scope.paging.filterFields.terminology = 1;
         $scope.paging.filterFields.lastModifiedBy = 1;
         $scope.paging.sortAscending = false;
-        $scope.paging.callback = {
+        $scope.paging.callbacks = {
           getPagedList : getPagedRelationships
         };
 
-        $scope.$watch('selected.concept', function() {
+        $scope.$watch('selected.component', function() {
           console.debug('in watch');
           $scope.selected.relationship = null;
           $scope.getPagedRelationships();
@@ -58,13 +58,13 @@ tsApp
         // add relationship
         $scope.addRelationshipToConcept = function(relationship) {
           metaEditingService.addRelationship($scope.selected.project.id, null,
-            $scope.selected.concept, relationship);
+            $scope.selected.component, relationship);
         }
 
         // remove relationship
         $scope.removeRelationshipFromConcept = function(relationship) {
           metaEditingService.removeRelationship($scope.selected.project.id, null,
-            $scope.selected.concept, relationship.id, true);
+            $scope.selected.component, relationship.id, true);
         }
 
         // Get paged relationships
@@ -84,8 +84,8 @@ tsApp
           contentService.findRelationshipsForQuery({
             terminology : $scope.selected.project.terminology,
             version : $scope.selected.project.version,
-            terminologyId : $scope.selected.concept.terminologyId,
-            type : 'CONCEPT'
+            terminologyId : $scope.selected.component.terminologyId,
+            type : $scope.selected.component.type
           }, null, pfs).then(
           // Success
           function(data) {
