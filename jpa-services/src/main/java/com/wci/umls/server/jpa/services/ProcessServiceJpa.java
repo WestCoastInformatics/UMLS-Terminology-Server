@@ -16,7 +16,6 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.algo.Algorithm;
-import com.wci.umls.server.helpers.AlgorithmExecutionList;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -29,7 +28,6 @@ import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.helpers.AlgorithmExecutionListJpa;
 import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
 import com.wci.umls.server.jpa.helpers.ProcessExecutionListJpa;
 import com.wci.umls.server.services.ProcessService;
@@ -462,43 +460,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
     return algorithmExecution;
   }  
-
-  /* see superclass */
-  @Override
-  public AlgorithmExecutionList findAlgorithmExecutions(Long projectId, String query,
-    PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .info("Project Service - find algorithmExecutions " + "/" + query);
-
-    final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
-
-    int totalCt[] = new int[1];
-    final List<AlgorithmExecution> results = new ArrayList<>();
-
-    final List<String> clauses = new ArrayList<>();
-    clauses.add("*:*");
-    if (projectId != null) {
-      clauses.add("projectId:" + projectId);
-    }    
-    if (!ConfigUtility.isEmpty(query)) {
-      clauses.add(query);
-    }
-    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-
-    List<AlgorithmExecutionJpa> algorithmExecutions = searchHandler.getQueryResults(null,
-        null, Branch.ROOT, fullQuery, null, AlgorithmExecutionJpa.class,
-        AlgorithmExecutionJpa.class, pfs, totalCt, manager);
-
-    for (final AlgorithmExecution ae : algorithmExecutions) {
-      handleLazyInit(ae);
-      results.add(ae);
-    }
-
-    final AlgorithmExecutionList algorithmExecutionList = new AlgorithmExecutionListJpa();
-    algorithmExecutionList.setObjects(results);
-
-    return algorithmExecutionList;
-  }    
   
   /* see superclass */
   @Override

@@ -33,9 +33,9 @@ public interface HasExecution {
   /**
    * Sets the finish date.
    *
-   * @param startDate the finish date
+   * @param finishDate the finish date
    */
-  public void setFinishDate(Date startDate);
+  public void setFinishDate(Date finishDate);
 
   /**
    * Returns the fail date.
@@ -47,8 +47,8 @@ public interface HasExecution {
   /**
    * Sets the fail date.
    *
-   * @param startDate the fail date
+   * @param failDate the fail date
    */
-  public void setFailDate(Date startDate);
+  public void setFailDate(Date failDate);
 
 }

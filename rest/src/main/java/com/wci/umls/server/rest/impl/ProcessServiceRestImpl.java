@@ -37,8 +37,8 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
-import com.wci.umls.server.helpers.AlgorithmExecutionList;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
@@ -469,7 +469,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // its properties' values.
       for (AlgorithmExecution algorithmExecution : processExecution
           .getSteps()) {
-        //TODO - once figure out why this is happening, get rid of
+        // TODO - once figure out why this is happening, get rid of
         if (algorithmExecution == null) {
           continue;
         }
@@ -1196,8 +1196,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       executionId = processExecution.getId();
 
       // Create a thread and run the process
-      runProcessAsThread(projectId, processConfig, processExecution, userName, background,
-          false);
+      runProcessAsThread(projectId, processConfig, processExecution, userName,
+          background, false);
 
       // Always return the execution id
       return executionId;
@@ -1260,9 +1260,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify that passed projectId matches ID of the processConfig's project
       verifyProject(processConfig, projectId);
 
+      // Clear out any previous fail/finish dates from previous runs
+      processExecution.setFailDate(null);
+      processExecution.setFinishDate(null);
+      
       // Create a thread and run the process
-      runProcessAsThread(projectId, processConfig, processExecution, userName, background,
-          true);
+      runProcessAsThread(projectId, processConfig, processExecution, userName,
+          background, true);
 
     } catch (
 
@@ -1463,13 +1467,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           List<Long> previouslyCompletedAlgorithmIds = new ArrayList<>();
           AlgorithmExecution algorithmToRestart = null;
           if (restart) {
-            AlgorithmExecutionList previouslyStartedAlgorithms = processService
-                .findAlgorithmExecutions(projectId,
-                    "processId:" + processExecution.getId(), null);
-            for (AlgorithmExecution ae : previouslyStartedAlgorithms
-                .getObjects()) {
+            List<AlgorithmExecution> previouslyStartedAlgorithms = processExecution.getSteps();
+            for (AlgorithmExecution ae : previouslyStartedAlgorithms) {
               // If the algorithm finished, save the algorithmConfigId (so it
               // can be skipped later)
+              // TODO - this shouldn't be necessary. Test to determine.
+              if(ae==null){
+                continue;
+              }
               if (ae.getFinishDate() != null && ae.getFailDate() == null) {
                 previouslyCompletedAlgorithmIds.add(ae.getAlgorithmConfigId());
               }
@@ -1501,7 +1506,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             }
 
             // If this is a restart, use the loaded algorithm Execution
-            if (algorithmToRestart != null) {
+            if (algorithmToRestart != null && algorithmToRestart.getAlgorithmConfigId().equals(algorithmConfig.getId())) {
               algorithmExecution = algorithmToRestart;
               algorithmExecution.setFailDate(null);
               algorithmExecution.setFinishDate(null);
@@ -1617,11 +1622,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               "TESTTEST - Here is the PeProgressMap after the process execution is removed: "
                   + lookupPeProgressMap.toString());
 
-          // TODO: send email
-          // recipients = processExecutino.getFeedbackEmail (only do this if
-          // not null)
-          // ConfigUtility.sendEmail(subject, from, recipients, body,
-          // ConfigUtility.getConfigProperties(), authFlag);
+          // Send email notifying about successful completion
+          String recipients = processExecution.getFeedbackEmail();
+
+          if (recipients != null) {
+            final Properties config = ConfigUtility.getConfigProperties();
+            ConfigUtility.sendEmail("[Terminology Server] Process Run Complete",
+                config.getProperty("mail.smtp.user"), recipients,
+                "The process " + processExecution.getName()
+                    + " has successfully completed.",
+                config, "true".equals(config.get("mail.smtp.auth")));
+          }
 
         } catch (Exception e) {
           exceptions[0] = e;
@@ -1657,11 +1668,22 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             handleException(ex, "trying to update execution info");
           }
 
-          // TODO: send email
-          // recipients = processExecutino.getFeedbackEmail (only do this if
-          // not null)
-          // ConfigUtility.sendEmail(subject, from, recipients, body,
-          // ConfigUtility.getConfigProperties(), authFlag);
+          // Send email notifying about failed run
+          String recipients = processExecution.getFeedbackEmail();
+
+          if (recipients != null) {
+            try {
+              final Properties config = ConfigUtility.getConfigProperties();
+              ConfigUtility.sendEmail(
+                  "[Terminology Server] Process Run Failed",
+                  config.getProperty("mail.smtp.user"), recipients,
+                  "The process " + processExecution.getName()
+                      + " has failed at step " + algorithmExecution.getName(),
+                  config, "true".equals(config.get("mail.smtp.auth")));
+            } catch (Exception e2) {
+              // n/a
+            }
+          }
 
           // Do this if IS running in the background
           if (handleException) {
