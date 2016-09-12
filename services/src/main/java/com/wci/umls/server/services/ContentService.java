@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -224,7 +224,7 @@ public interface ContentService extends MetadataService {
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
   /**
-   * Find deep relationships for concept.
+   * Find deep relationships for concept by terminology id.
    *
    * @param conceptId the concept id
    * @param terminology the terminology
@@ -232,13 +232,18 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @param filter the filter
    * @param inverseFlag the inverse flag
+   * @param includeConceptRels the include concept rels
+   * @param preferredOnly the preferred only
+   * @param includeSelfReferential the include self referential
    * @param pfs the pfs
    * @return the relationship list
    * @throws Exception the exception
    */
   public RelationshipList findConceptDeepRelationships(String conceptId,
     String terminology, String version, String branch, String filter,
-    boolean inverseFlag, PfsParameter pfs) throws Exception;
+    boolean inverseFlag, boolean includeConceptRels, boolean preferredOnly,
+    boolean includeSelfReferential,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find relationships for descriptor.
@@ -1175,7 +1180,8 @@ public interface ContentService extends MetadataService {
    * @return the semantic type component
    * @throws Exception the exception
    */
-  public SemanticTypeComponent getSemanticTypeComponent(Long id) throws Exception;
+  public SemanticTypeComponent getSemanticTypeComponent(Long id)
+    throws Exception;
 
   /**
    * Remove semantic type component.

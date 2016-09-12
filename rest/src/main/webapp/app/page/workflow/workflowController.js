@@ -51,6 +51,7 @@ tsApp.controller('WorkflowCtrl', [
 
     // Handle worklist actions
     $scope.$on('termServer::binsChange', function(event, project) {
+      console.debug('abc');
       if (project.id == $scope.selected.project.id) {
         // Bins changed, refresh bins
         $scope.getBins();
@@ -59,8 +60,8 @@ tsApp.controller('WorkflowCtrl', [
 
     // $scope.$on('termServer::checklistChange', -- n/a, no action on checklist
     // change
-
     $scope.$on('termServer::worklistChange', function(event, data) {
+      console.debug('def');
       if (data.id == $scope.selected.project.id) {
         // could affect worklist bin counts
         $scope.getBins();

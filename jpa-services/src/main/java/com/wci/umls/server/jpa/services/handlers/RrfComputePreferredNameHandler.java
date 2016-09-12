@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -16,17 +16,21 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
  * Implementation {@link ComputePreferredNameHandler} for data with term-type
  * ordering.
  */
-public class RrfComputePreferredNameHandler implements
-    ComputePreferredNameHandler {
+public class RrfComputePreferredNameHandler
+    implements ComputePreferredNameHandler {
 
   /** The tty rank map. */
   private Map<Long, Map<String, String>> ttyRankMap = new HashMap<>();
+
+  /** The terminology rank map. */
+  private Map<Long, Map<String, String>> terminologyRankMap = new HashMap<>();
 
   /**
    * Instantiates an empty {@link RrfComputePreferredNameHandler}.
@@ -37,8 +41,8 @@ public class RrfComputePreferredNameHandler implements
 
   /* see superclass */
   @Override
-  public String computePreferredName(Collection<Atom> atoms, PrecedenceList list)
-    throws Exception {
+  public String computePreferredName(Collection<Atom> atoms,
+    PrecedenceList list) throws Exception {
 
     cacheList(list);
     // Use ranking algorithm from MetamorphoSys
@@ -65,7 +69,7 @@ public class RrfComputePreferredNameHandler implements
 
   /* see superclass */
   @Override
-  public List<Atom> sortByPreference(Collection<Atom> atoms, PrecedenceList list)
+  public List<Atom> sortAtoms(Collection<Atom> atoms, PrecedenceList list)
     throws Exception {
 
     cacheList(list);
@@ -100,33 +104,73 @@ public class RrfComputePreferredNameHandler implements
 
     // Bail if no list specified or found
     if (list == null) {
-      return "00000000000000000000000000";
+      return "000000000000000000000000000";
     }
 
     // Fail if list hasn't been cached
     if (!ttyRankMap.containsKey(list.getId())) {
-      throw new Exception("Unexpected condition, list is not cached - "
-          + list.getId());
+      throw new Exception(
+          "Unexpected condition, list is not cached - " + list.getId());
     }
 
     final Map<String, String> ttyRanks = ttyRankMap.get(list.getId());
     // Compute the rank as a fixed length string
-    // [obsolete][suppressible][tty rank][SUI][atomId]
+    // [publishable][obsolete][suppressible][tty rank][SUI][atomId]
     // Higher values are better.
     String rank = null;
     if (atom.getStringClassId() != null && !atom.getStringClassId().isEmpty()) {
-      rank =
-          (atom.isObsolete() ? 0 : 1)
-              + (atom.isSuppressible() ? 0 : 1)
-              + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
-              + (10000000000L - Long.parseLong(atom.getStringClassId()
-                  .substring(1))) + (100000000000L - atom.getId());
+      rank = "" + (atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
+
+          + (atom.isSuppressible() ? 0 : 1)
+          + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
+          + (10000000000L
+              - Long.parseLong(atom.getStringClassId().substring(1)))
+          + (100000000000L - atom.getId());
     } else {
-      rank =
-          (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
-              + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
-              + (100000000000L - atom.getId());
+      rank = "" + (atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
+          + (atom.isSuppressible() ? 0 : 1)
+          + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
+          + (100000000000L - atom.getId());
     }
+    return rank;
+  }
+
+  /**
+   * Returns the rank for the relationship.
+   *
+   * @param relationship the rel
+   * @param list the list
+   * @return the rank
+   * @throws Exception the exception
+   */
+  protected <T extends Relationship<?, ?>> String getRank(T relationship,
+    PrecedenceList list) throws Exception {
+    // Bail if no list specified or found
+    if (list == null) {
+      return "0000000000000000000";
+    }
+
+    // Fail if list hasn't been cached
+    if (!terminologyRankMap.containsKey(list.getId())) {
+      throw new Exception(
+          "Unexpected condition, list is not cached - " + list.getId());
+    }
+
+    // Compute the rank as a fixed length string
+    // [SAB matching list, e.g. project][publishable][terminology_rank][id]
+    // Higher values are better.
+    final Map<String, String> terminologyRanks =
+        terminologyRankMap.get(list.getId());
+
+    // compute rank
+    String rank = ""
+        + (relationship.getTerminology().equals(list.getTerminology()) ? 1 : 0)
+        + (relationship.isPublishable() ? 1 : 0)
+        + (relationship.isObsolete() ? 0 : 1)
+        + (relationship.isSuppressible() ? 0 : 1)
+        + terminologyRanks.get(relationship.getTerminology())
+        + (100000000000L - relationship.getId());
+
     return rank;
   }
 
@@ -153,6 +197,10 @@ public class RrfComputePreferredNameHandler implements
     Logger.getLogger(getClass()).info("  default precedence list = " + list);
     ttyRankMap.put(list.getId(), ttyRanks);
 
+    // Otherwise, build the terminology map
+    Map<String, String> terminologyRanks = list.getTerminologyRankMap();
+    terminologyRankMap.put(list.getId(), terminologyRanks);
+
   }
 
   /* see superclass */
@@ -165,6 +213,30 @@ public class RrfComputePreferredNameHandler implements
   @Override
   public void setProperties(Properties p) throws Exception {
     // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public <T extends Relationship<?, ?>> List<T> sortRelationships(
+    Collection<T> rels, PrecedenceList list) throws Exception {
+    cacheList(list);
+
+    final List<T> sortedRels = new ArrayList<>(rels);
+    // Get each rel rank
+    final Map<T, String> relRanks = new HashMap<>();
+    for (final T rel : rels) {
+      final String rank = getRank(rel, list);
+      relRanks.put(rel, rank);
+    }
+    // Sort by rel rank - this works because rel ranks are designed to be
+    // fixed-length strings that are directly comparable
+    Collections.sort(sortedRels, new Comparator<T>() {
+      @Override
+      public int compare(T o1, T o2) {
+        return relRanks.get(o2).compareTo(relRanks.get(o1));
+      }
+    });
+    return sortedRels;
   }
 
 }

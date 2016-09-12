@@ -82,7 +82,7 @@ public class ComputePreferredNameHandlerTest extends IntegrationUnitSupport {
     // Test that the first one is the preferred one
     pn =
         handlerService
-            .sortByPreference(
+            .sortAtoms(
                 icdConcept.getAtoms(),
                 contentService.getPrecedenceList("SNOMEDCT_US",
                     "2016_03_01")).iterator().next().getName();
@@ -117,7 +117,7 @@ public class ComputePreferredNameHandlerTest extends IntegrationUnitSupport {
     // Call isPreferredName(null)
     // TEST: exception
     try {
-      handlerService.sortByPreference(null, null);
+      handlerService.sortAtoms(null, null);
       fail("Calling sortByPreference(null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing
@@ -140,7 +140,7 @@ public class ComputePreferredNameHandlerTest extends IntegrationUnitSupport {
 
     // Call computePreferredName(new HashSet<Description>())
     // TEST: returns null
-    assertEquals(handlerService.sortByPreference(new HashSet<Atom>(),
+    assertEquals(handlerService.sortAtoms(new HashSet<Atom>(),
         (PrecedenceList) null), new ArrayList<Atom>());
 
   }
