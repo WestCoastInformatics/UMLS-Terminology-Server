@@ -58,12 +58,12 @@ tsApp.directive('log', [ function() {
 
             }
 
-            // Project/concept
-            else if (type == 'Project' || type == 'Concept') {
+            // Project/component
+            else if (type == 'Project' || type == 'Concept'
+              || type == 'Descriptor'|| type == 'Code') {
 
               // Make different calls depending upon the object type
-              var objectId = (type == 'Project' ? selected.project.id : null);
-              var objectId = (type == 'Concept' ? selected.concept.id : objectId);
+              var objectId = (type == 'Project' ? null : selected.component.id);
               projectService.getLog(selected.project.id, objectId).then(
               // Success
               function(data) {

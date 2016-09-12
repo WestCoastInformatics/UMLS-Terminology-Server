@@ -20,7 +20,7 @@ tsApp.directive('treeSearchResult', [
         // pass parameters for styling (e.g. extension highlighting)
         parameters : '=',
 
-        // callback functions from parent scope
+        // callbacks functions from parent scope
         callbacks : '='
       },
       templateUrl : 'app/util/tree-search-result/treeSearchResult.html',

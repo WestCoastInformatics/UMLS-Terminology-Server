@@ -1,20 +1,20 @@
-<div ng-if="component">
+<div ng-if="selected.component">
   <!-- Title -->
   <h3 style="font-size: 20px;">
-    {{component.terminologyId}} {{component.name}}
+    {{selected.component.terminologyId}} {{selected.component.name}}
     <span class="label label-warning"
-      ng-show="metadata.terminology.metathesaurus && component.suppressible"
-      uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span>
-    <span class="label label-default" ng-show="component.obsolete"
-      uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+      ng-show="selected.metadata.terminology.metathesaurus && selected.component.suppressible"
+      uib-tooltip="{{selected.metadata.suppressibleLabel}}">{{selected.metadata.suppressibleIndicator}}</span>
+    <span class="label label-default" ng-show="selected.component.obsolete"
+      uib-tooltip="{{selected.metadata.obsoleteLabel}}">{{selected.metadata.obsoleteIndicator}}</span>
     <span style="padding-bottom: 2px;"
-      ng-show="metadata.terminology.descriptionLogicTerminology && component.anonymous"
+      ng-show="selected.metadata.terminology.descriptionLogicTerminology && selected.component.anonymous"
       class="label label-info" uib-tooltip="Anonymous">A</span>
     <span style="padding-bottom: 2px;"
-      ng-show="metadata.terminology.descriptionLogicTerminology && !component.fullyDefined && !component.anonymous"
+      ng-show="selected.metadata.terminology.descriptionLogicTerminology && !selected.component.fullyDefined && !selected.component.anonymous"
       class="label label-info" uib-tooltip="Primitive">P</span>
     <span style="padding-bottom: 2px;"
-      ng-show="metadata.terminology.descriptionLogicTerminology && component.fullyDefined"
+      ng-show="selected.metadata.terminology.descriptionLogicTerminology && selected.component.fullyDefined"
       class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
   </h3>
   <!-- Buttons for suppressible/obsolete -->
@@ -23,36 +23,37 @@
   <button ng-click="showHidden = !showHidden" class="btn btn-xs btn-primary">
     <span ng-show="showHidden">Hide</span>
     <span ng-show="!showHidden">Show </span>
-    <span ng-show="metadata.obsoleteLabel">{{metadata.obsoleteLabel}}</span>
-    <span ng-show="!metadata.obsoleteLabel">Suppressible &amp; Obsolete</span>
+    <span ng-show="selected.metadata.obsoleteLabel">{{selected.metadata.obsoleteLabel}}</span>
+    <span ng-show="!selected.metadata.obsoleteLabel">Suppressible &amp;
+      Obsolete</span>
   </button>
   <!-- Hierarchical tree -->
-  <div tree-component component="component" metadata="metadata"
-    callbacks="callbacks"></div>
+  <div tree-component component="selected.component"
+    metadata="selected.metadata" callbacks="callbacks"></div>
   <!-- Semantic Types -->
-  <div semantic-types component="component" metadata="metadata"
-    show-hidden="showHidden" callbacks="callbacks"></div>
+  <div semantic-types component="selected.component"
+    metadata="selected.metadata" show-hidden="showHidden" callbacks="callbacks"></div>
   <!-- Definitions -->
-  <div definitions component="component" metadata="metadata"
+  <div definitions component="selected.component" metadata="selected.metadata"
     show-hidden="showHidden" callbacks="callbacks"></div>
   <!-- Atoms -->
-  <div atoms component="component" metadata="metadata" show-hidden="showHidden"
-    callbacks="callbacks"></div>
+  <div atoms component="selected.component" metadata="selected.metadata"
+    show-hidden="showHidden" callbacks="callbacks"></div>
   <!-- Attributes -->
-  <div attributes component="component" metadata="metadata"
+  <div attributes component="selected.component" metadata="selected.metadata"
     show-hidden="showHidden" callbacks="callbacks"></div>
   <!-- Subsets -->
-  <div subsets component="component" metadata="metadata"
+  <div subsets component="selected.component" metadata="selected.metadata"
     show-hidden="showHidden" callbacks="callbacks"></div>
   <!-- Relationships -->
-  <div relationships component="component" metadata="metadata"
+  <div relationships component="selected.component" metadata="selected.metadata"
     show-hidden="showHidden" callbacks="callbacks"></div>
   <!-- Deep relationships -->
   <div
-    ng-if="metadata.terminology.metathesaurus && component.type === 'CONCEPT'"
-    relationships-deep component="component" metadata="metadata"
-    show-hidden="showHidden" callbacks="callbacks"></div>
+    ng-if="selected.metadata.terminology.metathesaurus && selected.component.type === 'CONCEPT'"
+    relationships-deep component="selected.component"
+    metadata="selected.metadata" show-hidden="showHidden" callbacks="callbacks"></div>
   <!-- Mappings 
-  <div mappings component="component" metadata="metadata"
+  <div mappings component="selected.component" metadata="selected.metadata"
     show-hidden="showHidden" callbacks="callbacks"></div>-->
 </div>

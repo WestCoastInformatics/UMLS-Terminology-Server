@@ -814,7 +814,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Iterate through terminologies
     for (final String terminology : versionsMap.keySet()) {
 
-      // Skip terminologies not reprsented
+      // Skip terminologies not represented
       if (!sourceMetadataMap.containsKey(terminology)) {
         continue;
       }
@@ -942,9 +942,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
 
       logInfo("    metadata = " + sourceMetadataMap.get(terminology));
-
       final PrecedenceList list =
           getPrecedenceList(getTerminology(), getVersion());
+   // TODO: make sure precedence is actually getting loaded
+      logInfo("    default precedence = " + list.getPrecedence().getKeyValuePairs());
       final PrecedenceList sourceList = new PrecedenceListJpa();
       sourceList.setName(getTerminology());
       sourceList.setTimestamp(releaseVersionDate);

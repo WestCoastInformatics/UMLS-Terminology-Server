@@ -1,10 +1,10 @@
 
 <!-- Mappings -->
 <div>
-  <button ng-click="pageCallback.getPagedList()">Test</button>
+  <button ng-click="pageCallbacks.getPagedList()">Test</button>
   <h4>{{metadata.mappingsLabel}} ({{pagedMappings.totalCount}})</h4>
   <div pager paging="paging" count="pagedData.totalCount"
-    callback="pageCallback"></div>
+    callbacks="pageCallbacks"></div>
   <ul class="icon-list">
     <li class="cr-list" ng-repeat="item in pagedData"><span
         ng-show="item.group > 0">

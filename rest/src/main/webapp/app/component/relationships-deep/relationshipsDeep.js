@@ -15,10 +15,10 @@ tsApp.directive('relationshipsDeep', [
       templateUrl : 'app/component/relationships-deep/relationshipsDeep.html',
       link : function(scope, element, attrs) {
 
-        // instantiate paging and paging callback function
+        // instantiate paging and paging callbacks function
         scope.pagedData = [];
         scope.paging = utilService.getPaging();
-        scope.pageCallback = {
+        scope.pageCallbacks = {
           getPagedList : getPagedList
         };
 

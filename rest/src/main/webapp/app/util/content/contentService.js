@@ -156,68 +156,72 @@ tsApp
           var deferred = $q.defer();
 
           // check prereqs
-          if (!component.type || !component.terminologyId || !component.terminology
-            || !component.version) {
+          if (!(component.type && component.id)
+            && !(component.type && component.terminologyId && component.terminology && component.version)) {
             utilService.setError('Component object not fully specified');
             deferred.reject('Component object not fully specified');
-          } else {
+            return;
+          }
 
-            // Make GET call
-            gpService.increment();
+          // Make GET call
+          gpService.increment();
 
-            // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
-            // path
-            $http.get(
-              contentUrl + '/' + component.type.toLowerCase() + "/" + component.terminology + "/"
-                + component.version + "/" + component.terminologyId).then(
-              // success
-              function(response) {
-                var data = response.data;
+          // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
 
-                if (!data) {
-                  deferred.reject('Could not retrieve ' + component.type + ' data for '
+          // compose the URL, if the version is specified use terminologyId,
+          // otherwise use "id"
+          var url = component.version ? contentUrl + '/' + component.type.toLowerCase() + "/"
+            + component.terminology + "/" + component.version + "/" + component.terminologyId
+            : contentUrl + '/' + component.type.toLowerCase() + "/" + component.id;
+
+          $http.get(url).then(
+            // success
+            function(response) {
+              var data = response.data;
+              if (!data) {
+                deferred
+                  .reject('Could not retrieve ' + component.type + ' data for '
                     + component.terminologyId + '/' + component.terminology + '/'
                     + component.version);
-                } else {
+              } else {
 
-                  // Set the type of the returned component
-                  data.type = component.type;
+                // Set the type of the returned component
+                data.type = component.type;
 
-                  // cycle over all atoms for pre-processing
-                  for (var i = 0; i < data.atoms.length; i++) {
+                // cycle over all atoms for pre-processing
+                for (var i = 0; i < data.atoms.length; i++) {
 
-                    // assign expandable content flag
-                    data.atoms[i].hasContent = atomHasContent(data.atoms[i]);
+                  // assign expandable content flag
+                  data.atoms[i].hasContent = atomHasContent(data.atoms[i]);
 
-                    // push any definitions up to top level
-                    for (var j = 0; j < data.atoms[i].definitions.length; j++) {
-                      var definition = data.atoms[i].definitions[j];
+                  // push any definitions up to top level
+                  for (var j = 0; j < data.atoms[i].definitions.length; j++) {
+                    var definition = data.atoms[i].definitions[j];
 
-                      // set the atom element flag
-                      definition.atomElement = true;
+                    // set the atom element flag
+                    definition.atomElement = true;
 
-                      // add the atom information for tooltip
-                      // display
-                      definition.atomElementStr = data.atoms[i].name + " ["
-                        + data.atoms[i].terminology + "/" + data.atoms[i].termType + "]";
+                    // add the atom information for tooltip
+                    // display
+                    definition.atomElementStr = data.atoms[i].name + " ["
+                      + data.atoms[i].terminology + "/" + data.atoms[i].termType + "]";
 
-                      // add the definition to the top level
-                      // component
-                      data.definitions.push(definition);
-                    }
+                    // add the definition to the top level
+                    // component
+                    data.definitions.push(definition);
                   }
-
                 }
 
-                gpService.decrement();
-                deferred.resolve(data);
-              }, function(response) {
-                utilService.handleError(response);
-                gpService.decrement();
-                deferred.reject(response.data);
-              });
+              }
 
-          }
+              gpService.decrement();
+              deferred.resolve(data);
+            }, function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+
           return deferred.promise;
         };
 
@@ -333,7 +337,7 @@ tsApp
         // Gets the tree for the specified component
         this.getTree = function(component, startIndex) {
 
-          console.debug('getTree', wrapper, startIndex);
+          console.debug('getTree', component, startIndex);
 
           if (startIndex === undefined) {
             startIndex = 0;
@@ -864,7 +868,7 @@ tsApp
         };
 
         /**
-         * Callback functions needed by directives NOTE: getComponent and
+         * Callbacks functions needed by directives NOTE: getComponent and
          * getComponentForTree deliberately excluded as each view should
          * interact with the content service directly for history and other
          * considerations
@@ -900,32 +904,6 @@ tsApp
         };
         // end
 
-        // Finds concepts matching general query
-        this.findConceptsForGeneralQuery = function(query, jql, pfs) {
-          // Setup deferred
-          var deferred = $q.defer();
-
-          // Make POST call
-          gpService.increment();
-
-          $http.post(
-            contentUrl + '/concept?query=' + query
-              + (jql != '' && jql != null ? '&jql=' + jql : ''), pfs).then(
-          // success
-          function(response) {
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
-
-          return deferred.promise;
-        };
-
         // function for getting concept
         this.getConcept = function(conceptId, projectId) {
           var deferred = $q.defer();
@@ -941,31 +919,6 @@ tsApp
               gpService.decrement();
               deferred.reject(response.data);
             });
-
-          return deferred.promise;
-        };
-
-        // Finds concepts
-        this.findConcepts = function(terminology, version, query, pfs) {
-          // Setup deferred
-          var deferred = $q.defer();
-
-          // Make POST call
-          gpService.increment();
-
-          $http.post(contentUrl + '/concept/' + terminology + '/' + version + '?query=' + query,
-            pfs).then(
-          // success
-          function(response) {
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
 
           return deferred.promise;
         };
@@ -998,16 +951,18 @@ tsApp
           return deferred.promise;
         }
 
-        // Popout component into new concept
+        // Popout component into new window
         this.popout = function(component) {
           var currentUrl = window.location.href;
           var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
           // TODO; don't hardcode this - maybe "simple" should be a parameter
           var newUrl = baseUrl + '/content/simple/' + component.type + '/' + component.terminology
             + '/' + component.version + '/' + component.terminologyId;
-          var myWindow = $window.open(newUrl, component.terminology + '/' + component.version
-            + ', ' + component.terminologyId + ', ' + component.name, 'width=500, height=600');
-          myWindow.focus();
+          var title = 'Component-' + component.terminology + '/' + component.version + ', '
+            + component.terminologyId;
+          var newWindow = $window.open(newUrl, title, 'width=500, height=600');
+          newWindow.document.title = title;
+          newWindow.focus();
 
         };
       } ]);

@@ -6,7 +6,7 @@ tsApp.directive('pager', [ function() {
     scope : {
       paging : '=',
       count : '=',
-      callback : '='
+      callbacks : '='
     },
     templateUrl : 'app/util/pager/pager.html',
     link : function(scope, element, attrs) {

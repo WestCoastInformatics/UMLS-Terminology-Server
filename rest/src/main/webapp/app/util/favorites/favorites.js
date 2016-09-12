@@ -20,10 +20,10 @@ tsApp.directive('favorites', [
       templateUrl : 'app/util/favorites/favorites.html',
       link : function(scope, element, attrs) {
 
-        // instantiate paging and paging callback function
+        // instantiate paging and paging callbacks function
         scope.pagedData = null;
         scope.paging = utilService.getPaging();
-        scope.pageCallback = {
+        scope.pageCallbacks = {
           getPagedList : getPagedList
         };
 

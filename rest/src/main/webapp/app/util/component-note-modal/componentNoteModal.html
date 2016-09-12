@@ -11,7 +11,7 @@
     </h5>
 
     <div pager paging="paging" count="pagedData.totalCount"
-      callback="pageCallback"></div>
+      callbacks="pageCallbacks"></div>
     <table ng-show="pagedData.data.length > 0" class="table table-hover">
       <tbody>
         <tr ng-repeat="note in pagedData.data"

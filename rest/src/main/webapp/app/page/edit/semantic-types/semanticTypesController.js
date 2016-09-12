@@ -40,11 +40,11 @@ tsApp
         $scope.paging['stys'].filterFields.typeId = 1;
         $scope.paging['stys'].filterFields.treeNumber = 1;
         $scope.paging['stys'].sortAscending = false;
-        $scope.paging['stys'].callback = {
+        $scope.paging['stys'].callbacks = {
           getPagedList : getPagedStys
         };
 
-        $scope.$watch('selected.concept', function() {
+        $scope.$watch('selected.component', function() {
           console.debug('in watch');
           $scope.getPagedStys();
         });
@@ -52,13 +52,13 @@ tsApp
         // add semantic type
         $scope.addSemanticTypeToConcept = function(semanticType) {
           metaEditingService.addSemanticType($scope.selected.project.id, null,
-            $scope.selected.concept, semanticType);
+            $scope.selected.component, semanticType);
         }
 
         // remove semantic type
         $scope.removeSemanticTypeFromConcept = function(semanticType) {
           metaEditingService.removeSemanticType($scope.selected.project.id, null,
-            $scope.selected.concept, semanticType.id, true);
+            $scope.selected.component, semanticType.id, true);
         }
 
         // Get paged stys (assume all are loaded)
@@ -70,8 +70,8 @@ tsApp
           // first only display stys that aren't already on concept
           for (var i = 0; i < $scope.fullStys.length; i++) {
             var found = false;
-            for (var j = 0; j < $scope.selected.concept.semanticTypes.length; j++) {
-              if ($scope.selected.concept.semanticTypes[j].semanticType == $scope.fullStys[i].expandedForm) {
+            for (var j = 0; j < $scope.selected.component.semanticTypes.length; j++) {
+              if ($scope.selected.component.semanticTypes[j].semanticType == $scope.fullStys[i].expandedForm) {
                 found = true;
                 break;
               }
@@ -88,7 +88,7 @@ tsApp
 
         // approve concept
         $scope.approveConcept = function() {
-          $scope.parentWindowScope.approveConcept($scope.selected.concept);
+          $scope.parentWindowScope.approveConcept($scope.selected.component);
         }
 
         // approve next

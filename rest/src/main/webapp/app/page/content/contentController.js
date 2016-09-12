@@ -24,7 +24,7 @@ tsApp
       function($rootScope, $scope, $routeParams, $uibModal, $location, $q, $anchorScroll, $sce,
         $uibModal, gpService, utilService, tabService, configureService, securityService,
         projectService, metadataService, contentService, appConfig) {
-        console.debug('configure ContentCtrl', $routeParams);
+        console.debug('configure ContentCtrl');
 
         // Set up tabs and controller
         if ($routeParams.mode) {
@@ -32,7 +32,7 @@ tsApp
           tabService.setShowing(false);
           utilService.setHeaderFooterShowing(false);
         } else {
-          console.debug('  non-simple mode detected, show tabs');
+          console.debug('  no-params mode detected, show tabs');
           tabService.setShowing(true);
           utilService.setHeaderFooterShowing(true);
         }
@@ -54,16 +54,16 @@ tsApp
         // Scope variables initialized from services
         $scope.user = securityService.getUser();
         $scope.isGuestUser = securityService.isGuestUser;
-        $scope.mode = $routeParams.mode === 'simple' ? 'simple' : 'full';
-
+        $scope.callbacks = contentService.getCallbacks();
+        console.debug('callbacks',$scope.callbacks);
+        // Scope vars
+        $scope.mode = $routeParams.mode ? $routeParams.mode : 'full';
         $scope.selected = {
           metadata : metadataService.getModel(),
           component : null
         };
-
         $scope.lists = {
-          terminologies : [],
-          history : []
+          terminologies : []
         };
 
         // Search parameters
@@ -206,11 +206,12 @@ tsApp
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a search result
         $scope.getComponent = function(component) {
-          console.debug('getComponent', component);
-
           contentService.getComponent(component).then(
           // Success
           function(response) {
+
+            // If we still don't know the terminology (because of a link in),
+            // look it up first
 
             $scope.selected.component = response;
             $scope.checkFavoriteStatus();
@@ -381,13 +382,6 @@ tsApp
         // Supporting search result trees
         // /////////////////////////////////////////
 
-        // search result tree callbacks
-        // NOTE Search Result Tree uses list search parameters
-        $scope.srtCallbacks = {
-          // set top level component from tree node
-          getComponentFromTree : $scope.getComponentFromTree
-        };
-
         // Function to toggle showing of extension info
         $scope.toggleExtension = function() {
           if ($scope.searchParams.showExtension == null
@@ -543,28 +537,16 @@ tsApp
 
         $scope.selectComponent = function(key) {
 
-          var modalScope = $rootScope.$new();
+          window.alert('wire this to finder modal which should be its own component');
 
-          var modalInstance = $uibModal.open({
-            animation : $scope.animationsEnabled,
-            templateUrl : 'app/util/select-component-modal/selectComponentModal.html',
-            controller : 'selectComponentModalCtrl',
-            scope : $rootScope,
-            size : 'lg',
-            resolve : {
-              metadata : function() {
-                return $scope.metadata;
-              }
-            }
-          });
-
-          modalInstance.result.then(function(component) {
-            $scope.searchParams.expression.fields[key] = component.terminologyId + ' | '
-              + component.name + ' |';
-            $scope.setExpression();
-          }, function() {
-            // do nothing
-          });
+          // modalInstance.result.then(function(component) {
+          // $scope.searchParams.expression.fields[key] =
+          // component.terminologyId + ' | '
+          // + component.name + ' |';
+          // $scope.setExpression();
+          // }, function() {
+          // // do nothing
+          // });
         };
 
         // Open notes modal, from either wrapper or component
@@ -620,22 +602,18 @@ tsApp
         };
 
         //
-        // Callback Function Objects
+        // Callbacks Function Objects
         //
         $scope.configureCallbacks = function() {
-
-          // declare the callbacks objects
-          $scope.componentRetrievalCallbacks = {};
-          $scope.componentReportCallbacks = {};
-          $scope.favoritesCallbacks = {};
 
           //
           // Local scope functions pertaining to component retrieval
           //
-          $scope.componentRetrievalCallbacks = {
+          $scope.callbacks = {
             getComponent : $scope.getComponent,
             getComponentFromTree : $scope.getComponentFromTree,
-            findComponentsForQuery : $scope.findComponentsForQuery
+            findComponentsForQuery : $scope.findComponentsForQuery,
+            checkFavoriteStatus : $scope.checkFavoriteStatus
           };
 
           //
@@ -643,32 +621,11 @@ tsApp
           //
 
           // pass metadata callbacks for tooltip and general display
-          utilService.extendCallbacks($scope.componentReportCallbacks, metadataService
-            .getCallbacks());
+          utilService.extendCallbacks($scope.callbacks, metadataService.getCallbacks());
 
           // add content callbacks for special content retrieval (relationships,
           // mappings, etc.)
-          utilService.extendCallbacks($scope.componentReportCallbacks, contentService
-            .getCallbacks());
-
-          // if in simple mode
-          if ($routeParams.mode === 'simple') {
-            // do nothing
-          } else {
-            // add content callbacks for top-level component retrieval
-            utilService.extendCallbacks($scope.componentReportCallbacks,
-              $scope.componentRetrievalCallbacks);
-          }
-
-          //
-          // Favorites Callbacks
-          // 
-          $scope.favoritesCallbacks = {
-            checkFavoriteStatus : $scope.checkFavoriteStatus
-          };
-          // add content callbacks for top-level component retrieval
-          utilService
-            .extendCallbacks($scope.favoritesCallbacks, $scope.componentRetrievalCallbacks);
+          utilService.extendCallbacks($scope.callbacks, contentService.getCallbacks());
 
         };
 
@@ -686,30 +643,28 @@ tsApp
 
                 // if route parameters are specified, set the terminology and
                 // retrieve the specified concept
-                if ($routeParams.terminology && $routeParams.version) {
+                var terminologies = [];
 
-                  var termToSet = null;
-                  for (var i = 0; i < $scope.lists.terminologies.length; i++) {
-                    var terminology = $scope.lists.terminologies[i];
-                    // Determine whether to set as default
-                    if (terminology.terminology === $routeParams.terminology
-                      && terminology.version === $routeParams.version) {
-                      termToSet = terminology;
-                      break;
-                    }
-                  }
+                if ($routeParams.terminology
+                  && (($routeParams.version && $routeParams.terminologyId) || $routeParams.id)) {
 
-                  if (!termToSet) {
-                    utilService.setError('Terminology specified in URL not found');
-                  } else {
-
+                  terminologies = $scope.lists.terminologies.filter(function(item) {
+                    return item.terminology == $routeParams.terminology
+                      && (!$routeParams.version || item.version == $routeParams.version);
+                  });
+                  if (terminologies && terminologies.length == 1) {
                     // set the terminology
-                    $scope.setTerminology(termToSet).then(function(data) {
+                    $scope.setTerminology(terminologies[0]).then(function(data) {
 
                       // get the component
                       $scope.getComponent($routeParams);
                     });
+                  } else if (terminologies && terminologies.length > 1) {
+                    utilService.setError('Too many matching terminologies found');
+                  } else {
+                    utilService.setError('Terminology specified in URL not found');
                   }
+
                 }
 
                 // otherwise, specify the default terminology

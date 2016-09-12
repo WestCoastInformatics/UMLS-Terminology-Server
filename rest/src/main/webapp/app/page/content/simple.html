@@ -1,12 +1,12 @@
 <!-- Title bar & Navigation history -->
+<div ng-if="!selected.component">NO MATCHING COMPONENT FOUND</div>
 <div>
   <div class="row">
     <div class="col-md-1 col-xs-0"></div>
     <div class="col-md-10 col-xs-12 nobreak " ng-if="selected.component != null">
       <div class="alert alert-info" style="width: 100%;">
         {{selected.component.terminology}} {{selected.component.type}} Report</div>
-      <div report component="selected.component" metadata="selected.metadata"
-        callbacks="componentReportCallbacks"></div>
+      <div report selected="selected" callbacks="callbacks"></div>
     </div>
     <div class="col-md-1 col-xs-0"></div>
   </div>

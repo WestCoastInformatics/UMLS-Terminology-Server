@@ -1,24 +1,19 @@
-// report
+// Report directive
 tsApp.directive('report', [ '$window', '$routeParams', function($window, $routeParams) {
   console.debug('configure report directive');
   return {
     restrict : 'A',
     scope : {
-      // the metadata for the terminology
-      metadata : '=',
-
-      // the component to display
-      component : '=',
-
-      // callback functions
-      callbacks : '=',
-
+      // selected features
+      selected : '=',
+      // callbacks functions
+      callbacks : '='
     },
     templateUrl : 'app/component/report/report.html',
-    link : function(scope, element, attrs) {
+    controller : [ '$scope', 'reportService', function($scope, reportService) {
+      // Scope vars
+      $scope.showHidden = false;
 
-      // declare the show hidden variable (suppressible/obsolete)
-      scope.showHidden = false;
-    }
+    } ]
   };
 } ]);

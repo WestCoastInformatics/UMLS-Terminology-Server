@@ -30,15 +30,15 @@ tsApp.controller('ContextsCtrl', [
     $scope.paging['entries'] = utilService.getPaging();
     $scope.paging['entries'].sortField = 'terminology';
     $scope.paging['entries'].pageSize = 5;
-    $scope.paging['entries'].filterList = ['SNOMED_CT', 'ICD10CM'];
+    $scope.paging['entries'].filterList = [ 'SNOMED_CT', 'ICD10CM' ];
     $scope.paging['entries'].filterFields = {};
     $scope.paging['entries'].filterFields.terminology = 1;
     $scope.paging['entries'].sortAscending = false;
-    $scope.paging['entries'].callback = {
+    $scope.paging['entries'].callbacks = {
       getPagedList : getPagedEntries
     };
 
-    $scope.$watch('selected.concept', function() {
+    $scope.$watch('selected.component', function() {
       console.debug('in watch');
       $scope.getPagedEntries();
     });
@@ -58,19 +58,19 @@ tsApp.controller('ContextsCtrl', [
     }
     function getPagedEntries() {
       $scope.entries = [];
-      for (var i = 0; i < $scope.selected.concept.atoms.length; i++) {
+      for (var i = 0; i < $scope.selected.component.atoms.length; i++) {
         var entry = {};
-        var fullTerminology = $scope.getTerminology($scope.selected.concept.atoms[i].terminology)
+        var fullTerminology = $scope.getTerminology($scope.selected.component.atoms[i].terminology)
         entry.type = fullTerminology.organizingClassType;
         entry.terminology = fullTerminology.terminology;
         entry.version = fullTerminology.version;
         entry.terminologyId = null;
         if (entry.type == 'CODE') {
-          entry.terminologyId = $scope.selected.concept.atoms[i].codeId;
+          entry.terminologyId = $scope.selected.component.atoms[i].codeId;
         } else if (entry.type == 'CONCEPT') {
-          entry.terminologyId = $scope.selected.concept.atoms[i].conceptId;
+          entry.terminologyId = $scope.selected.component.atoms[i].conceptId;
         } else if (entry.type == 'DESCRIPTOR') {
-          entry.terminologyId = $scope.selected.concept.atoms[i].descriptorId;
+          entry.terminologyId = $scope.selected.component.atoms[i].descriptorId;
         } else {
           continue;
         }

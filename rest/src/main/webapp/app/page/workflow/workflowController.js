@@ -9,11 +9,13 @@ tsApp.controller('WorkflowCtrl', [
   'tabService',
   'configureService',
   'securityService',
-  'workflowService',
   'projectService',
+  'metadataService',
+  'workflowService',
   'reportService',
   function($scope, $http, $location, $uibModal, utilService, websocketService, tabService,
-    configureService, securityService, workflowService, projectService, reportService) {
+    configureService, securityService, projectService, metadataService, workflowService,
+    reportService) {
     console.debug("configure WorkflowCtrl");
 
     // Set up tabs and controller
@@ -31,7 +33,9 @@ tsApp.controller('WorkflowCtrl', [
       clusterType : null,
       projectRole : null,
       // Used to trigger events in worklist-table directive controller
-      refreshCt : 0
+      refreshCt : 0,
+      terminology : null,
+      metadata : null
     };
 
     // Lists
@@ -67,7 +71,7 @@ tsApp.controller('WorkflowCtrl', [
     $scope.resetPaging = function() {
       $scope.paging = utilService.getPaging();
       $scope.paging.sortField = 'clusterId';
-      $scope.paging.callback = {
+      $scope.paging.callbacks = {
         getPagedList : getPagedList
       };
     }
@@ -123,6 +127,21 @@ tsApp.controller('WorkflowCtrl', [
           $scope.lists.users = data.users;
           $scope.lists.users.totalCount = data.totalCount;
         });
+
+      // Initialize metadata
+      metadataService.getTerminology($scope.selected.project.terminology,
+        $scope.selected.project.version).then(
+      // Success
+      function(data) {
+        $scope.selected.terminology = data;
+      });
+      metadataService.getAllMetadata($scope.selected.project.terminology,
+        $scope.selected.project.version).then(
+      // Success
+      function(data) {
+        $scope.selected.metadata = data;
+      });
+
     }
 
     // Retrieve all projects

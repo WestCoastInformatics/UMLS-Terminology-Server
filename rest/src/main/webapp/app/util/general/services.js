@@ -337,11 +337,6 @@ tsApp
             newArray = this.getArrayByFilter(newArray, paging.filter, paging.filterFields);
           }
 
-          // apply active status filter
-          if (paging.typeFilter) {
-            newArray = this.getArrayByActiveStatus(newArray, paging.typeFilter);
-          }
-
           // get the page indices (if supplied)
           var results;
           if (paging.pageSize != -1) {
@@ -397,23 +392,6 @@ tsApp
           for ( var object in array) {
 
             if (this.objectContainsFilterText(array[object], filter, fields)) {
-              newArray.push(array[object]);
-            }
-          }
-          return newArray;
-        };
-
-        // Get array by filter on conceptActive status
-        this.getArrayByActiveStatus = function(array, filter) {
-          var newArray = [];
-
-          for ( var object in array) {
-
-            if (array[object].conceptActive && filter == 'Active') {
-              newArray.push(array[object]);
-            } else if (!array[object].conceptActive && filter == 'Retired') {
-              newArray.push(array[object]);
-            } else if (array[object].conceptActive && filter == 'All') {
               newArray.push(array[object]);
             }
           }

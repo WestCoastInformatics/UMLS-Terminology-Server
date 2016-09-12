@@ -12,8 +12,10 @@ import org.apache.commons.lang3.text.WordUtils;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.HistoryService;
@@ -37,8 +39,27 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
   /* see superclass */
   @Override
-  public String getConceptReport(Project project, Concept concept)
-    throws Exception {
+  public String getConceptReport(Concept concept) throws Exception {
+
+    // TODO: make sure to use \r\n as line separator
+
+    // TODO:
+    // Call this.validateConcept(project,concept)
+    // for any errors or warnings in the validation result, write one line for
+    // each one.
+    //
+    // work.append("As of ");
+    // work.append(new Date());
+    // if (checks.length > 0) {
+    // work.append(", this entry has the following problems/issues: ");
+    // }
+    // else {
+    // work.append(", this entry had no problems/issues.");
+    //
+    // }
+
+    // TODO: write separator
+    // ---------------------------------------------------------------------------
 
     //
     //Options
@@ -156,5 +177,19 @@ public class ReportServiceJpa extends HistoryServiceJpa
     } else {
       return "R";
     }
+  }
+
+  @Override
+  public String getDescriptorReport(Descriptor descriptor) throws Exception {
+    // TODO: factor out getconceptReport into getComponentReport, have it take
+    // an AtomClass and do most of what it does, except with slightly different
+    // behavior for concepts (e.g. "get deep relationships", etc).
+    return "TBD";
+  }
+
+  @Override
+  public String getCodeReport(Code code) throws Exception {
+    // TODO:
+    return "TBD";
   }
 }

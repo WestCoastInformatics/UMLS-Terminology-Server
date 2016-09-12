@@ -13,10 +13,10 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
     console.debug($scope.pagedData);
   }
 
-  // instantiate paging and paging callback function
+  // instantiate paging and paging callbacks function
   $scope.pagedData = [];
   $scope.paging = utilService.getPaging();
-  $scope.pageCallback = {
+  $scope.pageCallbacks = {
     getPagedList : getPagedList
   };
 
@@ -40,7 +40,7 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
   $scope.addNote = function(note) {
     console.debug('Adding note: ', note);
     contentService.addComponentNote($scope.component, note).then(function(response) {
-      $scope.refreshConcept();
+      $scope.refreshComponent();
       websocketService.fireNoteChange({
         component : $scope.component
       });
@@ -50,14 +50,14 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
   $scope.removeNote = function(note) {
     console.debug('Remove note: ', note.id);
     contentService.removeComponentNote($scope.component, note.id).then(function(response) {
-      $scope.refreshConcept();
+      $scope.refreshComponent();
       websocketService.fireNoteChange({
         component : $scope.component
       });
     });
   };
 
-  $scope.refreshConcept = function() {
+  $scope.refreshComponent = function() {
     // re-retrieve the component (from either wrapper or full component)
     contentService.getComponent($scope.component).then(function(response) {
       $scope.component = response;
@@ -74,7 +74,7 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
   // Initialization
   // 
   $scope.initialize = function() {
-    $scope.refreshConcept();
+    $scope.refreshComponent();
   };
   $scope.initialize();
 
