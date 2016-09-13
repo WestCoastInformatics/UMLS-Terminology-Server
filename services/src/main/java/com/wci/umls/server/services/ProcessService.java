@@ -9,7 +9,6 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.algo.Algorithm;
-import com.wci.umls.server.helpers.AlgorithmExecutionList;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProcessConfigList;
@@ -220,18 +219,6 @@ public interface ProcessService extends ProjectService {
    */
   public AlgorithmExecution getAlgorithmExecution(Long id) throws Exception;
 
-  /**
-   * Find algorithm executions.
-   *
-   * @param projectId the project id
-   * @param query the query
-   * @param pfs the pfs
-   * @return the algorithm execution list
-   * @throws Exception the exception
-   */
-  public AlgorithmExecutionList findAlgorithmExecutions(Long projectId,
-    String query, PfsParameter pfs) throws Exception;  
-  
   /**
    * Adds the algorithm parameter.
    *

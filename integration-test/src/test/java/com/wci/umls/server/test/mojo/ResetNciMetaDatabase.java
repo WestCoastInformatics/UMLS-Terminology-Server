@@ -77,7 +77,7 @@ public class ResetNciMetaDatabase {
     p.setProperty("terminology", "UMLS");
     p.setProperty("version", "latest");
     p.setProperty("input.dir",
-        "../../config/src/main/resources/data/SAMPLE_UMLS");
+        "../../config/src/main/resources/data/SAMPLE_NCIM");
     request.setProperties(p);
     Invoker invoker = new DefaultInvoker();
     InvocationResult result = invoker.execute(request);

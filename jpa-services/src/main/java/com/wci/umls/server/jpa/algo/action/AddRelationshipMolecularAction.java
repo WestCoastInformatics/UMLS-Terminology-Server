@@ -98,6 +98,12 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // EXCEPTION: can add a DEMOTION relationship on top of an existing
     // relationship, and can add a non-DEMOTION relationship on top of a
     // DEMOTION.
+    // TODO - this needs to change:
+    /*
+    * Needs to look to atoms to remove demotions 
+    * New relationships CAN be added on top of old relationships. 
+    * Previous relationship is deleted, and new relationship takes it place.
+    */
     if (!relationship.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
       for (final ConceptRelationship rel : getConcept().getRelationships()) {
         if (rel.getTo().getId() == relationship.getTo().getId()
@@ -159,6 +165,11 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       inverseRelationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
 
+    //TODO - find if any matching relationships, and remove them.
+
+    //TODO - look through atoms for demotion relationships, and remove them.
+    //Note: push helper to super class.
+    
     // Add the relationships
     relationship = (ConceptRelationshipJpa) addRelationship(relationship);
     final ConceptRelationshipJpa newInverseRelationship =

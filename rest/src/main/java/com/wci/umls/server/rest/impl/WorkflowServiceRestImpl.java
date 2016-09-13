@@ -1739,7 +1739,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         // Websocket notification
         final ChangeEvent event =
-            new ChangeEventJpa("ComputeWorklist", authToken, "CHECLIST",
+            new ChangeEventJpa("ComputeWorklist", authToken, "WORKLIST",
                 newWorklist.getId(), getProjectInfo(project));
         sendChangeEvent(event);
 
