@@ -469,10 +469,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // its properties' values.
       for (AlgorithmExecution algorithmExecution : processExecution
           .getSteps()) {
-        // TODO - once figure out why this is happening, get rid of
-        if (algorithmExecution == null) {
-          continue;
-        }
         Algorithm instance = processService
             .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
         algorithmExecution.setParameters(instance.getParameters());
@@ -1263,7 +1259,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Clear out any previous fail/finish dates from previous runs
       processExecution.setFailDate(null);
       processExecution.setFinishDate(null);
-      
+
       // Create a thread and run the process
       runProcessAsThread(projectId, processConfig, processExecution, userName,
           background, true);
@@ -1348,7 +1344,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call POST (Process): /" + id
-        + "progress, for user " + authToken);
+        + "/progress, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -1359,7 +1355,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       final ProcessExecution processExecution =
           processService.getProcessExecution(id);
-      if (processExecution.getFinishDate() != null) {
+      // If process has already completed successfully, return 100
+      if (processExecution.getFinishDate() != null
+          && processExecution.getFailDate() == null) {
         return 100;
       }
 
@@ -1403,7 +1401,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       final AlgorithmExecution algoExecution =
           processService.getAlgorithmExecution(id);
-      if (algoExecution.getFinishDate() != null) {
+      // If algorithm has already completed successfully, return 100
+      if (algoExecution.getFinishDate() != null && algoExecution.getFailDate() == null) {
         return 100;
       }
       if (lookupAeProgressMap.containsKey(id)) {
@@ -1454,19 +1453,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           processService = new ProcessServiceJpa();
           processService.setLastModifiedBy(userName);
 
-          // TESTTEST
-          System.out.println(
-              "TESTTEST - Here is the PeProgressMap before adding the processExecution: "
-                  + lookupPeProgressMap.toString());
-
           // Set initial progress to zero and count the number of steps to
           // execute
           lookupPeProgressMap.put(processExecution.getId(), 0);
-
-          // TESTTEST
-          System.out.println(
-              "TESTTEST - Here is the PeProgressMap after adding the processExecution: "
-                  + lookupPeProgressMap.toString());
 
           final int enabledSteps = processConfig.getSteps().stream()
               .filter(ac -> ac.isEnabled()).collect(Collectors.toList()).size();
@@ -1478,14 +1467,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           List<Long> previouslyCompletedAlgorithmIds = new ArrayList<>();
           AlgorithmExecution algorithmToRestart = null;
           if (restart) {
-            List<AlgorithmExecution> previouslyStartedAlgorithms = processExecution.getSteps();
+            List<AlgorithmExecution> previouslyStartedAlgorithms =
+                processExecution.getSteps();
             for (AlgorithmExecution ae : previouslyStartedAlgorithms) {
               // If the algorithm finished, save the algorithmConfigId (so it
               // can be skipped later)
-              // TODO - this shouldn't be necessary. Test to determine.
-              if(ae==null){
-                continue;
-              }
               if (ae.getFinishDate() != null && ae.getFailDate() == null) {
                 previouslyCompletedAlgorithmIds.add(ae.getAlgorithmConfigId());
               }
@@ -1517,7 +1503,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             }
 
             // If this is a restart, use the loaded algorithm Execution
-            if (algorithmToRestart != null && algorithmToRestart.getAlgorithmConfigId().equals(algorithmConfig.getId())) {
+            if (algorithmToRestart != null && algorithmToRestart
+                .getAlgorithmConfigId().equals(algorithmConfig.getId())) {
               algorithmExecution = algorithmToRestart;
               algorithmExecution.setFailDate(null);
               algorithmExecution.setFinishDate(null);
@@ -1560,18 +1547,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             }
             algorithm.setProperties(prop);
 
-            // TESTTEST
-            System.out.println(
-                "TESTTEST - Here is the AlgorithmMap before adding the algorithm: "
-                    + processAlgorithmMap.toString());
-
             // track currently running algorithm
             processAlgorithmMap.put(processExecution.getId(), algorithm);
-
-            // TESTTEST
-            System.out.println(
-                "TESTTEST - Here is the AlgorithmMap after adding the algorithm: "
-                    + processAlgorithmMap.toString());
 
             // Check preconditions
             final ValidationResult result = algorithm.checkPreconditions();
@@ -1610,11 +1587,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             algorithmExecution.setFinishDate(new Date());
             processService.updateAlgorithmExecution(algorithmExecution);
 
-            // TESTTEST
-            System.out.println(
-                "TESTTEST - Here is the PeProgressMap after an algorithm finishes: "
-                    + lookupPeProgressMap.toString());
-
             // Mark algorithm as finished
             lookupAeProgressMap.remove(algorithmExecution.getId());
             processAlgorithmMap.remove(processExecution.getId());
@@ -1627,11 +1599,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
           // Mark process as finished
           lookupPeProgressMap.remove(processExecution.getId());
-
-          // TESTTEST
-          System.out.println(
-              "TESTTEST - Here is the PeProgressMap after the process execution is removed: "
-                  + lookupPeProgressMap.toString());
 
           // Send email notifying about successful completion
           String recipients = processExecution.getFeedbackEmail();
@@ -1648,20 +1615,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         } catch (Exception e) {
           exceptions[0] = e;
 
-          // TESTTEST
-          System.out.println(
-              "TESTTEST - Here is the AlgorithmMap before it getting modified after a failed run: "
-                  + processAlgorithmMap.toString());
-
           // Remove process and algorithm from the maps
           processAlgorithmMap.remove(processExecution.getId());
           lookupPeProgressMap.remove(processExecution.getId());
           lookupAeProgressMap.remove(algorithmExecution.getId());
-
-          // TESTTEST
-          System.out.println(
-              "TESTTEST - Here is the AlgorithmMap after it getting modified after a failed run: "
-                  + processAlgorithmMap.toString());
 
           // Mark algorithm and process as failed
           try {
@@ -1685,8 +1642,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           if (recipients != null) {
             try {
               final Properties config = ConfigUtility.getConfigProperties();
-              ConfigUtility.sendEmail(
-                  "[Terminology Server] Process Run Failed",
+              ConfigUtility.sendEmail("[Terminology Server] Process Run Failed",
                   config.getProperty("mail.smtp.user"), recipients,
                   "The process " + processExecution.getName()
                       + " has failed at step " + algorithmExecution.getName(),

@@ -10,7 +10,6 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -67,10 +66,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
 
   /** The steps . */
   @OneToMany(mappedBy = "process", targetEntity = AlgorithmExecutionJpa.class)
-  @OrderColumn(name = "orderBy")
-  @OrderBy(value = "orderBy")
-  //OrderBy and OrderColumn used to handle null-value issues:
-  //https://www.intertech.com/Blog/hibernate-why-are-there-nulls-in-my-collection/
+  @OrderColumn
   private List<AlgorithmExecution> steps = new ArrayList<>();
 
   /**

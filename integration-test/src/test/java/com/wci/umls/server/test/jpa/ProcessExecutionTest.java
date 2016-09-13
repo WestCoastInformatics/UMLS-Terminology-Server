@@ -210,12 +210,16 @@ public class ProcessExecutionTest extends IntegrationUnitSupport {
     processService = new ProcessServiceJpa();
     processService.setLastModifiedBy("admin");
     
-    //Ensure the steps values havean't changed with the update
+
+    //Look up the process execution by ID
+    processExecution = processService.getProcessExecution(processExecutionId);        
+    
+    //Ensure the steps values havean't changed with the update and lookup
     assertEquals(algorithmExecution,processExecution.getSteps().get(0));
     assertEquals(algorithmExecution2,processExecution.getSteps().get(1));
     
   }  
-
+  
   /**
    * Teardown.
    *
