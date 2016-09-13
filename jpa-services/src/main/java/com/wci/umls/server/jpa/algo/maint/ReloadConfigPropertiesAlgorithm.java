@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.maint;
 
@@ -11,6 +11,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 
 /**
  * Implementation of an algorithm to reload config properties. This is
@@ -39,9 +40,13 @@ public class ReloadConfigPropertiesAlgorithm extends AbstractAlgorithm {
     // Clear existing properties
     ConfigUtility.clearConfigProperties();
 
+    // Handle security service (different type hierarchy)
+    new SecurityServiceJpa().refreshCaches();
+
     // Refresh caches (will handle WorkflowServiceJpa and all superclasses)
     // If others have caches, explicitly create and refresh them here.
     refreshCaches();
+
   }
 
   /* see superclass */
