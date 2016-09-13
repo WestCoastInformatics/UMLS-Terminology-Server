@@ -4169,7 +4169,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public RelationshipList findConceptDeepRelationships(String conceptId,
     String terminology, String version, String branch, String filter,
-    boolean inverseFlag, PfsParameter pfs) throws Exception {
+    boolean inverseFlag, boolean includeConceptRels, boolean preferredOnly,
+    boolean includeSelfReferential, PfsParameter pfs) throws Exception {
+    
+    // TODO: this could probably all be made faster with some more indexing
     Logger.getLogger(getClass())
         .debug("Content Service - find deep relationships for concept "
             + conceptId + "/" + terminology + "/" + version + "/" + filter);
@@ -4186,28 +4189,34 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final Concept concept =
           getConcept(conceptId, terminology, version, branch);
       final List<Object[]> results = new ArrayList<>();
-      String queryStr =
-          "select a.id, a.terminologyId, a.terminology, a.version, "
-              + "a.relationshipType, a.additionalRelationshipType, "
-              + (inverseFlag ? "a.from.terminologyId" : "a.to.terminologyId")
-              + ", a.obsolete, a.suppressible, a.published, a.publishable, "
-              + (inverseFlag ? "a.from.name " : "a.to.name ")
-              + "from ConceptRelationshipJpa a " + "where "
-              + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId ";
-      javax.persistence.Query query = manager.createQuery(queryStr);
-      query.setParameter("conceptId", concept.getId());
-      results.addAll(query.getResultList());
+
+      String queryStr = null;
+      javax.persistence.Query query = null;
+      if (includeConceptRels) {
+        queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
+            + "a.relationshipType, a.additionalRelationshipType, "
+            + (inverseFlag ? "a.from.terminologyId" : "a.to.terminologyId")
+            + ", a.obsolete, a.suppressible, a.published, a.publishable, "
+            + (inverseFlag ? "a.from.name " : "a.to.name ") + ", "
+            + (inverseFlag ? "a.from.id " : "a.to.id ")
+            + "from ConceptRelationshipJpa a " + "where "
+            + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId ";
+        query = manager.createQuery(queryStr);
+        query.setParameter("conceptId", concept.getId());
+        results.addAll(query.getResultList());
+      }
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
-          + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+          + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId, "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ")
-          + "from AtomRelationshipJpa a join "
-          + (inverseFlag ? "a.from.conceptTerminologyIds"
-              : "a.to.conceptTerminologyIds")
-          + " cui2 " + "where key(cui2) = '" + concept.getTerminology()
-          + "' and " + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds) ";
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + "from AtomRelationshipJpa a, ConceptJpa c2 join c2.atoms ca "
+          + "where c2.terminology = :terminology and c2.version = :version and "
+          + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ")
+          + " and " + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds) ";
       query = manager.createQuery(queryStr);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
       final Set<Long> atomIds = new HashSet<>();
       for (final Atom atom : concept.getAtoms()) {
         atomIds.add(atom.getId());
@@ -4216,56 +4225,68 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.addAll(query.getResultList());
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
-          + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+          + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ")
-          + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
-          + "DescriptorJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
-          + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
-          + "and b.terminologyId = c.descriptorId "
-          + "and b.terminology = c.terminology " + "and b.version = c.version "
-          + "and b.name = c.name and c.id in (:atomIds) " + "and a."
-          + (inverseFlag ? "from" : "to") + ".id = d.id "
-          + "and d.terminologyId = e.descriptorId "
-          + "and d.terminology = e.terminology " + "and d.version = e.version "
-          + "and d.name = e.name ";
-      query = manager.createQuery(queryStr);
-      query.setParameter("atomIds", atomIds);
-      results.addAll(query.getResultList());
-
-      queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
-          + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
-          + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ")
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
           + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
-          + "ConceptJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
+          + "ConceptJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
           + "and b.terminologyId = c.conceptId "
-          + "and b.terminology = c.terminology " + "and b.version = c.version "
+          + "and b.terminology = c.terminology and b.version = c.version "
           + "and b.name = c.name and c.id in (:atomIds) " + "and a."
           + (inverseFlag ? "from" : "to") + ".id = d.id "
           + "and d.terminologyId = e.conceptId "
-          + "and d.terminology = e.terminology " + "and d.version = e.version "
-          + "and d.name = e.name ";
+          + "and d.terminology = e.terminology and d.version = e.version "
+          + "and d.name = e.name "
+          + "and c2.terminology = :terminology and c2.version = :version and "
+          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ");
       query = manager.createQuery(queryStr);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
       query.setParameter("atomIds", atomIds);
       results.addAll(query.getResultList());
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
-          + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+          + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ")
-          + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
-          + "CodeJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
+          + "DescriptorJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
+          + "and b.terminologyId = c.descriptorId "
+          + "and b.terminology = c.terminology and b.version = c.version "
+          + "and b.name = c.name and c.id in (:atomIds) " + "and a."
+          + (inverseFlag ? "from" : "to") + ".id = d.id "
+          + "and d.terminologyId = e.descriptorId "
+          + "and d.terminology = e.terminology and d.version = e.version "
+          + "and d.name = e.name "
+          + "and c2.terminology = :terminology and c2.version = :version and "
+          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ");
+      query = manager.createQuery(queryStr);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      query.setParameter("atomIds", atomIds);
+      results.addAll(query.getResultList());
+
+      queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
+          + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
+          + "a.obsolete, a.suppressible, a.published, a.publishable, "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
+          + "CodeJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca " + "where a."
+          + (inverseFlag ? "to" : "from") + ".id = b.id "
           + "and b.terminologyId = c.codeId "
-          + "and b.terminology = c.terminology " + "and b.version = c.version "
+          + "and b.terminology = c.terminology and b.version = c.version "
           + "and b.name = c.name and c.id in (:atomIds) " + "and a."
           + (inverseFlag ? "from" : "to") + ".id = d.id "
           + "and d.terminologyId = e.codeId "
-          + "and d.terminology = e.terminology " + "and d.version = e.version "
-          + "and d.name = e.name ";
+          + "and d.terminology = e.terminology and d.version = e.version "
+          + "and d.name = e.name "
+          + "and c2.terminology = :terminology and c2.version = :version and "
+          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ");
       query = manager.createQuery(queryStr);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
       query.setParameter("atomIds", atomIds);
       results.addAll(query.getResultList());
 
@@ -4273,13 +4294,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final Set<ConceptRelationship> conceptRels = new HashSet<>();
       for (final Object[] result : results) {
         final ConceptRelationship relationship = new ConceptRelationshipJpa();
+        relationship.setId(Long.parseLong(result[0].toString()));
+        relationship.setFrom(concept);
         final Concept toConcept = new ConceptJpa();
         toConcept.setTerminology(concept.getTerminology());
         toConcept.setVersion(concept.getVersion());
         toConcept.setTerminologyId(result[6].toString());
+        toConcept.setId(Long.valueOf(result[12].toString()));
         toConcept.setName(result[11].toString());
-        relationship.setId(Long.parseLong(result[0].toString()));
-        relationship.setFrom(concept);
+        relationship.setTo(toConcept);
         relationship.setTerminologyId(result[1].toString());
         relationship.setTerminology(result[2].toString());
         relationship.setVersion(result[3].toString());
@@ -4291,10 +4314,37 @@ public class ContentServiceJpa extends MetadataServiceJpa
         relationship.setSuppressible(result[8].toString().equals("1"));
         relationship.setPublished(result[9].toString().equals("1"));
         relationship.setPublishable(result[10].toString().equals("1"));
-        relationship.setTo(toConcept);
-        conceptRels.add(relationship);
+
+        // handle self-referential
+        if (includeSelfReferential || !relationship.getFrom().getId()
+            .equals(relationship.getTo().getId())) {
+          conceptRels.add(relationship);
+        }
       }
-      List<ConceptRelationship> conceptRelList = new ArrayList<>(conceptRels);
+
+      List<ConceptRelationship> conceptRelList = new ArrayList<>();
+
+      // Handle preferred only
+      if (preferredOnly) {
+        //
+        final List<ConceptRelationship> tmpRelList =
+            getComputePreferredNameHandler(terminology).sortRelationships(
+                conceptRels, getPrecedenceList(terminology, version));
+        final Set<Long> seen = new HashSet<>();
+        for (final ConceptRelationship rel : tmpRelList) {
+          if (!inverseFlag && seen.contains(rel.getTo().getId())) {
+            continue;
+          }
+          if (inverseFlag && seen.contains(rel.getFrom().getId())) {
+            continue;
+          }
+          seen.add(inverseFlag ? rel.getFrom().getId() : rel.getTo().getId());
+          conceptRelList.add(rel);
+        }
+
+      } else {
+        conceptRelList.addAll(conceptRels);
+      }
 
       // set filter as query restriction for use in applyPfsToList
       final PfsParameter pfsLocal = new PfsParameterJpa(pfs);

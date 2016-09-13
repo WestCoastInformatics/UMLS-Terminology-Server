@@ -1,0 +1,4105 @@
+1000848|ENG|biosynthesis|
+1004029|ENG|bisacodyl|
+1004107|ENG|bisacodyl product|
+1004113|ENG|bisacodyl substance|
+1005092|ENG|bistropamide|
+1006806|ENG|bl|
+1007663|ENG|black melena stool tarry|
+1007801|ENG|black stool|
+1007802|ENG|black stool tarry|
+1009087|ENG|bladder disease gall|
+1009825|ENG|bladder infection|
+1009832|ENG|bladder inflammation|
+1013667|ENG|bleed|
+1014045|ENG|bleed find|
+1014173|ENG|bleed gastrointestinal|
+1014174|ENG|bleed gastrointestinal gi|
+1014185|ENG|bleed gastrointestinal tract|
+1014193|ENG|bleed gi|
+1014197|ENG|bleed gi tract|
+1017115|ENG|blood|
+1017143|ENG|blood blood certain disease disorder form immune involve mechanism organ|
+1017202|ENG|blood blood disease form or organ|
+1017206|ENG|blood blood disease form organ|
+1017211|ENG|blood blood disease form organ unspecified|
+1019573|ENG|blood diagnose disorder|
+1019699|ENG|blood disease|
+1019727|ENG|blood disorder|
+1019907|ENG|blood disorder system|
+1020167|ENG|blood dyscrasia|
+1020447|ENG|blood extravasation|
+1020742|ENG|blood find symptom vomit|
+1021263|ENG|blood hematemesis vomit|
+1021767|ENG|blood lo|
+1022451|ENG|blood supply|
+1022458|ENG|blood symptom vomit|
+1022505|ENG|blood vomit|
+1022576|ENG|bloody emesis|
+1024226|ENG|bms232632|
+1024267|ENG|bmtp|
+1024371|ENG|bncpthp|
+1035702|ENG|body disorder disorder system|
+1035987|ENG|body disorder function or organ system|
+1036063|ENG|body disorder system|
+1044971|ENG|body gastrointestinal system|
+1067585|ENG|bop mine protocol|
+1072519|ENG|bowel ca cancer|
+1072524|ENG|bowel cancer|
+1072635|ENG|bowel constipation impaction obstruction|
+1072716|ENG|bowel difficulty open|
+1072723|ENG|bowel disease|
+1072738|ENG|bowel disease functional|
+1072939|ENG|bowel functional syndrome|
+1072970|ENG|bowel ib irritable syndrome|
+1072981|ENG|bowel incontinence|
+1072982|ENG|bowel incontinent|
+1073027|ENG|bowel irritable|
+1073028|ENG|bowel irritable syndrome|
+1073127|ENG|bowel obstruction|
+108470|ENG|1 class descriptor mesh|
+1088096|ENG|breath find smell unpleasant|
+1088104|ENG|breath foul|
+1088129|ENG|breath hepatic|
+1088213|ENG|breath odor|
+1088214|ENG|breath offensive smell|
+1088244|ENG|breath smell unpleasant|
+1088245|ENG|breath smelly|
+1096302|ENG|broncholysin|
+1097850|ENG|bronze cirrhosis|
+1097861|ENG|bronze diabetes|
+1097862|ENG|bronze diabetes disorder|
+1099391|ENG|brunac|
+1099715|ENG|bruxism|
+1099717|ENG|bruxism disorder grind tooth|
+1099719|ENG|bruxism grind tooth|
+1099727|ENG|bruxomania|
+1108093|ENG|burn reflux|
+1113135|ENG|c|
+1113577|ENG|c celiac sprue|
+1114035|ENG|c colitis difficile|
+1116075|ENG|c hcv hepatitis human virus|
+1116077|ENG|c hcv hepatitis virus|
+1116097|ENG|c hepatitis|
+1116098|ENG|c hepatitis human virus|
+1116122|ENG|c hepatitis organism virus|
+1116141|ENG|c hepatitis virus|
+1118015|ENG|c04886 nci|
+1118705|ENG|c15 esophagus malignant neoplasm|
+1119549|ENG|c25 malignant neoplasm pancreas|
+1121291|ENG|ca cancer esophagus|
+1121297|ENG|ca cancer intestine|
+1121301|ENG|ca cancer liver|
+1121565|ENG|ca esophagus|
+1136086|ENG|can down food get|
+1136087|ENG|can down food get t|
+1138582|ENG|cancer ctep evaluation program therapy|
+1138650|ENG|cancer digestive|
+1138653|ENG|cancer digestive system|
+1138782|ENG|cancer esophageal|
+1138801|ENG|cancer esophagus|
+1138965|ENG|cancer gallbladder|
+1138981|ENG|cancer gastric|
+1139008|ENG|cancer gastrointestinal|
+1139014|ENG|cancer gastrointestinal tract|
+1139140|ENG|cancer hepatic|
+1139163|ENG|cancer hereditary syndrome|
+1139418|ENG|cancer information system|
+1139434|ENG|cancer intestinal|
+1139439|ENG|cancer intestine|
+1139567|ENG|cancer liver|
+1139572|ENG|cancer liver or tumor|
+1139850|ENG|cancer pancreas|
+1139854|ENG|cancer pancreatic|
+1140102|ENG|cancer stomach|
+1142373|ENG|canker oral sore|
+1142374|ENG|canker sore|
+1151855|ENG|carboline|
+1152791|ENG|carboplatin filgrastim ifosfamide mercaptoethane sulfonate|
+1152792|ENG|carboplatin filgrastim ifosfamide mesna|
+1152812|ENG|carboplatin ifosfamide mercaptoethane sulfonate|
+1152813|ENG|carboplatin ifosfamide mesna|
+1153275|ENG|carboxylate pyridine|
+1155840|ENG|carcinoma disorder gallbladder|
+1156064|ENG|carcinoma disorder stomach|
+1156769|ENG|carcinoma gallbladder|
+1156785|ENG|carcinoma gastric|
+1158112|ENG|carcinoma stomach|
+1162535|ENG|care classification international primary|
+1164400|ENG|care nurse|
+1166006|ENG|carmustine cyclophosphamid etoposide mesna|
+1170174|ENG|casanthranol|
+1170187|ENG|casanthranol product|
+1170191|ENG|casanthranol substance|
+1171560|ENG|caster liquid oil|
+1171561|ENG|caster liquid oil product|
+1171580|ENG|caster oil|
+1171599|ENG|caster oil substance|
+1173936|ENG|categorisation|
+1173944|ENG|categorise classify|
+1177683|ENG|category device medical nomenclature product system thesaurus universal|
+1177687|ENG|category disease mesh|
+1177805|ENG|category mesh psychiatry psychology|
+1177830|ENG|category product thesaurus umdns|
+118032|ENG|1 hyaluronidase lotion mg ml topical|
+1181692|ENG|causality|
+1181702|ENG|cause|
+1181712|ENG|cause certain consequence external injury other poison|
+1182128|ENG|cause disease disorder parasite|
+1182147|ENG|cause disease parasite|
+1182155|ENG|cause disease virus|
+118220|ENG|1 hydrogen salt sodium sulfate tetradecanol|
+1182567|ENG|cause external morbidity mortality|
+1182779|ENG|cause peritonitis undetermined|
+1182780|ENG|cause peritonitis unspecified|
+1184352|ENG|cavity concept disease gland jaw navigational oral salivary|
+1184613|ENG|cavity cyst oral|
+1184702|ENG|cavity disease gland jaw oral salivary|
+1184709|ENG|cavity disease oral|
+1184834|ENG|cavity disorder oral|
+1186160|ENG|cbdca csf g iff mesna|
+1186207|ENG|cbdca iff mesna|
+1186586|ENG|cc|
+1186642|ENG|cc level multi|
+1186828|ENG|cchpr|
+1187758|ENG|cd celiac disease|
+1189232|ENG|cdc|
+1189692|ENG|cddp iff mesna mito|
+1192525|ENG|celiac disease|
+1192526|ENG|celiac disease disorder|
+1192574|ENG|celiac sprue|
+1192575|ENG|celiac syndrome|
+1197480|ENG|cell islet procedure transplant|
+1197484|ENG|cell islet transplant|
+1197485|ENG|cell islet transplantation|
+1199524|ENG|cellular secretion|
+1201330|ENG|center control disease prevention s u|
+1201472|ENG|center information|
+1206677|ENG|cerebral disorder pseudosclerosis|
+1207299|ENG|cerebral pseudosclerosis|
+1207715|ENG|cerebrospinal fluid|
+1213050|ENG|certain condition originate perinatal period|
+1213060|ENG|certain disease infectious parasitic|
+1213063|ENG|certain disorder immune involve mechanism|
+121404|ENG|1 naphthalenamine|
+121421|ENG|1 naphthylamine|
+121443|ENG|1 naththylamine|
+121444|ENG|1 naththylamine substance|
+1218647|ENG|cf|
+1219876|ENG|ch|
+1220017|ENG|ch3 coenzyme m s|
+1222944|ENG|change degenerative|
+1223646|ENG|channel communication|
+1224800|ENG|charcot joint|
+1224802|ENG|charcot joint neurogenic osteoarthropathy|
+1226716|ENG|chem|
+1226742|ENG|chemet|
+1227212|ENG|chemical informatics|
+1227429|ENG|chemical synthese|
+1227472|ENG|cheminformatic|
+1227493|ENG|chemistry|
+1227945|ENG|chemotherapy|
+1229063|ENG|chest find pain|
+1229432|ENG|chest nonspecific pain|
+1229472|ENG|chest pain|
+1229498|ENG|chest pain unspecified|
+1231229|ENG|child development disorder|
+1231247|ENG|child development health human institute national|
+1231295|ENG|child disorder mental|
+1231852|ENG|childbirth complicate digestive disease pregnancy puerperium system|
+1231973|ENG|childbirth complication pregnancy puerperium|
+1232145|ENG|childbirth pregnancy puerperium|
+1232259|ENG|childhood diagnose disorder mental|
+123530|ENG|10 10 19 22 22 25 3 3beta 5 5z 7 7 9 diol secoergosta tetraene|
+123534|ENG|10 10 19 22 25 3 5 7 9 beta diol secoergosta tetraene|
+1239481|ENG|chlorphenamine|
+1239560|ENG|chlorpheniramine|
+1239981|ENG|chlorpheniramine product|
+1239987|ENG|chlorpheniramine substance|
+1240178|ENG|chlorprophenpyridamine|
+1240716|ENG|choice|
+1241151|ENG|cholecystectomy post syndrome|
+1242559|ENG|choline glycerophospholipid|
+1242628|ENG|choline phosphoglyceride|
+1243921|ENG|chorea gower|
+1247073|ENG|chronic digestive disease system|
+1247074|ENG|chronic digestive disorder disorder system|
+1247075|ENG|chronic digestive disorder system|
+1250782|ENG|ci|
+1254470|ENG|circulatory disease system|
+1254471|ENG|circulatory disorder|
+1254490|ENG|circulatory disorder system|
+1254491|ENG|circulatory disorder system unspecified|
+1255154|ENG|cirrhosis|
+1255155|ENG|cirrhosis cl liver|
+1255180|ENG|cirrhosis disorder liver|
+1255216|ENG|cirrhosis hepatic|
+1255226|ENG|cirrhosis liver|
+1255253|ENG|cirrhosis pigmentary|
+1255710|ENG|cisplatin ifosfamide mesna mitomycin|
+1257641|ENG|cl|
+1258925|ENG|class|
+1259312|ENG|class loinc type|
+1259379|ENG|class qualifier value|
+1259563|ENG|classification|
+1259565|ENG|classification clinical health policy research|
+1259566|ENG|classification clinical software|
+1259586|ENG|classification disease|
+1259587|ENG|classification disease disorder|
+1259588|ENG|classification disease health international problem relate statistical|
+1259589|ENG|classification disease icd international oncology|
+1259590|ENG|classification disease international|
+1259594|ENG|classification disorder|
+1259597|ENG|classification drug|
+1259688|ENG|classification qualifier system value|
+1259692|ENG|classification system|
+1259696|ENG|classification tumor who|
+1259698|ENG|classify|
+1259892|ENG|classify cyst elsewhere not oral region|
+1259963|ENG|classify digestive disorder elsewhere functional not|
+1260666|ENG|classify qualifier value|
+1263613|ENG|clerk occupation research survey|
+1263646|ENG|clerk research survey|
+1264942|ENG|clinical disease or present syndrome|
+1264943|ENG|clinical disease or syndrome|
+1264951|ENG|clinical disorder epidemiologic glossary human methodologic study term|
+1265020|ENG|clinical epidemiologic glossary term|
+1265073|ENG|clinical find|
+1265074|ENG|clinical find find|
+1265242|ENG|clinical information patient trial|
+1265244|ENG|clinical information physician trial|
+1265245|ENG|clinical information system|
+1265473|ENG|clinical snomed term|
+126572|ENG|10 2 2 3 3 6 acridinyl bi di dimethylamino ethyl o palmitoylglycero phosphate|
+1266999|ENG|clopidol|
+1267000|ENG|clopidol substance|
+1267002|ENG|clopindol|
+1269686|ENG|clostridium colitis difficile|
+1269736|ENG|clostridium difficile disorder infection|
+1269750|ENG|clostridium difficile gastrointestinal infection tract|
+1269752|ENG|clostridium difficile infection|
+1272581|ENG|cme thpyr|
+1272800|ENG|cmp thphp|
+1272801|ENG|cmp thpp|
+1273087|ENG|cn|
+1273099|ENG|cn constipation|
+1273146|ENG|cn disorder|
+1273768|ENG|co|
+1276027|ENG|cob com s s|
+1278438|ENG|code common healthcare procedure system|
+1278517|ENG|code icd map nci neoplasm seer|
+1278518|ENG|code identifier logical name observation|
+1278553|ENG|code residual unclassified|
+1278559|ENG|code system|
+1279454|ENG|coenzyme m|
+1279457|ENG|coenzyme m methyl|
+1280619|ENG|cola disorder|
+1280987|ENG|cola ic irritable|
+1281034|ENG|cola intestine obstruction or|
+1281035|ENG|cola intestine occlusion or|
+1281060|ENG|cola irritable|
+1281061|ENG|cola irritable syndrome|
+1281362|ENG|cola spasm|
+1281363|ENG|cola spastic|
+1282302|ENG|colfosceril palmitate|
+1282304|ENG|colfosceril palmitate product|
+1282305|ENG|colfosceril palmitate substance|
+1285304|ENG|colitis disorder enteritis infective non|
+1285346|ENG|colitis enteritis infective non|
+1285348|ENG|colitis enteritis noninfectious|
+1285371|ENG|colitis gastroenteritis noninfective unspecified|
+1285401|ENG|colitis membranous|
+1285404|ENG|colitis mucous|
+1285407|ENG|colitis nervous|
+1285435|ENG|colitis spastic|
+1286637|ENG|collection data|
+1286718|ENG|collection fluid peripancreatic|
+1288137|ENG|colonic disease|
+1288142|ENG|colonic disorder|
+1290371|ENG|com methyl|
+1292200|ENG|common criterion toxicity|
+1292202|ENG|common cvi immunodeficiency variable|
+1292203|ENG|common cvid immunodeficiency variable|
+1292473|ENG|common hypogammaglobulinemia variable|
+1292538|ENG|common immunodeficiency unspecified variable|
+1292539|ENG|common immunodeficiency variable|
+1293182|ENG|communication|
+1293296|ENG|communication form|
+1293348|ENG|communication media|
+1293370|ENG|communication optical|
+1297804|ENG|complication|
+1298569|ENG|complication disorder hemorrhoid without|
+1299441|ENG|complication hemorrhoid mention unspecified without|
+1299447|ENG|complication hemorrhoid unspecified without|
+1299448|ENG|complication hemorrhoid without|
+1301547|ENG|compound mercapto|
+1301770|ENG|compound picoline|
+1301813|ENG|compound pyridinium|
+1301879|ENG|compound sulfhydryl|
+1302633|ENG|compute methodology|
+1302672|ENG|computer database information project retrieval scientific|
+1302736|ENG|computer information project retrieval scientific thesaurus|
+1302808|ENG|computer security|
+1304219|ENG|concentration dipalmitoylphosphatidylcholine ma point quantitative serum time|
+1306755|ENG|concept ct ctv3 rt snomed snomed|
+1306756|ENG|concept ct snomed|
+1306770|ENG|concept disease general health|
+1306772|ENG|concept disorder endocrin immunity metabolic navigational nutritional|
+1306832|ENG|concept injury navigational poison|
+1307552|ENG|condition|
+1307778|ENG|condition ear|
+1307946|ENG|condition genetic|
+1308038|ENG|condition malabsorption|
+1308130|ENG|condition pathological sign symptom|
+1310031|ENG|congenital|
+1310543|ENG|congenital deformity digestive system|
+1310860|ENG|congenital digestive malformation system|
+1310861|ENG|congenital digestive malformation system unspecified|
+1310908|ENG|congenital disease|
+1310909|ENG|congenital disease disorder|
+1310923|ENG|congenital disease disorder immunodeficiency|
+1310958|ENG|congenital disease immunodeficiency|
+1311048|ENG|congenital disorder|
+1311998|ENG|congenital dysgammaglobulinemia|
+1312529|ENG|congenital gastrointestinal malformation|
+1312814|ENG|congenital hypogammaglobulinemia link non sex|
+1315856|ENG|connective disease musculoskeletal system tissue|
+1315864|ENG|connective disease skin tissue|
+1315930|ENG|connective disorder musculoskeletal tissue|
+1315978|ENG|connective find soft tissue|
+1316415|ENG|conotoxin|
+1316482|ENG|conotoxin substance|
+1317332|ENG|constipate|
+1317335|ENG|constipation|
+1317337|ENG|constipation disorder|
+1317374|ENG|constipation unspecified|
+1317952|ENG|construction procedure stoma|
+1317966|ENG|construction stoma|
+1317967|ENG|construction stoma surgical|
+1318962|ENG|contact factor health health influence service status|
+1320496|ENG|contextual exposure qualifier qualifier value|
+1322372|ENG|contraindication|
+132314|ENG|10 bisacodyl bullet magic mg rectal suppository|
+132318|ENG|10 bisacodyl enema mg|
+132324|ENG|10 bisacodyl laxative mg rectal suppository|
+132328|ENG|10 bisacodyl mg rectal suppository|
+1323965|ENG|control vocabulary|
+132549|ENG|10 bullet magic mg rectal suppository|
+1326437|ENG|copper disease storage|
+1327119|ENG|copy|
+1327134|ENG|copy process|
+133520|ENG|10 classification disease health icd international problem relate revision statistical tenth|
+1335958|ENG|costar|
+1336093|ENG|costiveness|
+133616|ENG|10 cm icd|
+1337254|ENG|cough e hernia impulse o show|
+1339082|ENG|cow enteropathy milk|
+1339791|ENG|cp62993|
+1340258|ENG|cpd edppc|
+1341520|ENG|cph thpyr|
+1344194|ENG|crch|
+1345912|ENG|create order|
+1348966|ENG|crisp|
+1348981|ENG|crisp thesaurus|
+1354379|ENG|csf|
+1355269|ENG|csp|
+1355363|ENG|cst|
+1355416|ENG|ct|
+1355699|ENG|ct snomed|
+1355799|ENG|ctc|
+1355802|ENG|ctcae|
+1356056|ENG|ctep|
+1356057|ENG|ctep04|
+1357593|ENG|cullen find sign|
+1357596|ENG|cullen sign|
+136157|ENG|10 icd|
+1361963|ENG|cutaneous disorder|
+1363269|ENG|cvag|
+1363360|ENG|cvx|
+1363611|ENG|cy|
+1368951|ENG|cyperquat|
+1369775|ENG|cyst developmental nonodontogenic oral region|
+1370726|ENG|cyst mouth|
+1370783|ENG|cyst nonodontogenic|
+1370800|ENG|cyst oral region unspecified|
+1371180|ENG|cystalgia|
+1371351|ENG|cysteine|
+1371515|ENG|cysteine l|
+1371576|ENG|cysteine preparation|
+1371577|ENG|cysteine preparation product|
+1371604|ENG|cysteine substance|
+1372133|ENG|cystine half|
+1372225|ENG|cystitis|
+1372233|ENG|cystitis disorder|
+1372319|ENG|cystitis unspecified|
+1373685|ENG|cytology|
+1374399|ENG|cytoprotectant|
+1374401|ENG|cytoprotective drug|
+1378188|ENG|dacarbazine doxorubicin ifosfamide mesna|
+1378202|ENG|dacarbazine mesna|
+1381498|ENG|data display|
+1381532|ENG|data find molecular sequence|
+1381592|ENG|data molecular sequence|
+1381605|ENG|data pdq physician query|
+1381607|ENG|data physician query|
+1381619|ENG|data retrieval|
+1381638|ENG|database|
+1381642|ENG|database electronic|
+1382895|ENG|db|
+1383437|ENG|dcp|
+1384010|ENG|de|
+1387757|ENG|decrease intake po|
+1389334|ENG|defecate difficulty|
+1389751|ENG|defect find humoral immune|
+1389752|ENG|defect find immune|
+1389784|ENG|defect function sensory|
+1389860|ENG|defect humoral immune|
+1389865|ENG|defect immune|
+1389868|ENG|defect immunologic|
+1390744|ENG|deficiency|
+1391052|ENG|deficiency disorder disorder immune primary|
+1391053|ENG|deficiency disorder disorder immune secondary|
+1391095|ENG|deficiency disorder enzyme specific|
+1391263|ENG|deficiency disorder immune|
+1391264|ENG|deficiency disorder immune primary|
+1391265|ENG|deficiency disorder immune secondary|
+1391608|ENG|deficiency enzyme|
+1391613|ENG|deficiency enzyme specific|
+1391719|ENG|deficiency find humoral immunity|
+1391972|ENG|deficiency humoral immunity|
+1391973|ENG|deficiency humoral immunity other|
+1392054|ENG|deficiency immunity unspecified|
+1392057|ENG|deficiency immunoglobulin|
+1392059|ENG|deficiency immunoglobulin late onset|
+1392066|ENG|deficiency immunologic|
+1392067|ENG|deficiency immunologic syndrome|
+1392068|ENG|deficiency immunological syndrome|
+1393558|ENG|degeneration|
+1393748|ENG|degeneration hepatolenticular|
+1393749|ENG|degeneration hepatocerebral|
+1393751|ENG|degeneration hepatolenticular syndrome|
+1393789|ENG|degeneration lenticular progressive|
+1393860|ENG|degeneration neurohepatic|
+1393984|ENG|degenerative disease|
+1394024|ENG|degenerative disorder|
+1394025|ENG|degenerative disorder disorder|
+1394183|ENG|deglutition disorder|
+1396107|ENG|delay developmental disorder|
+1400683|ENG|dental disease|
+1400685|ENG|dental disease exclude mouth|
+1400689|ENG|dental disorder|
+1405668|ENG|derivative pyridine|
+1405669|ENG|derivative pyridine substance|
+1406737|ENG|dermatological disease|
+1406740|ENG|dermatological disorder|
+1407085|ENG|dermatosis|
+1407347|ENG|dermis disorder subcutaneous tissue|
+1407464|ENG|dermopathy|
+1407707|ENG|desc|
+1407960|ENG|descriptor mesh|
+1412565|ENG|development growth|
+1412768|ENG|developmental disability|
+1412772|ENG|developmental disease disorder|
+1412794|ENG|developmental disorder|
+1412795|ENG|developmental disorder disorder|
+1416501|ENG|dh|
+1416600|ENG|dhad iff mesna|
+1416867|ENG|dhp|
+1417020|ENG|di|
+1417380|ENG|diabetes disorder not pancreatic|
+1418652|ENG|diag|
+1418680|ENG|diagnose|
+1418684|ENG|diagnose digestive system|
+1418695|ENG|diagnose disorder gastrointestinal|
+1418717|ENG|diagnose disorder skin|
+1418829|ENG|diagnose hemorrhoid|
+1418832|ENG|diagnose hernia hiatus|
+1418970|ENG|diagnose ray x|
+1418995|ENG|diagnose ultrasonic|
+1421283|ENG|diaphragmatic hernia hiatus|
+1425877|ENG|diet therapy|
+1427294|ENG|difficult motion pa|
+1427303|ENG|difficult swallow|
+1427380|ENG|difficulty dysphagia swallow|
+1427674|ENG|difficulty find swallow|
+1427892|ENG|difficulty pa stool|
+1427974|ENG|difficulty swallow|
+1428733|ENG|digestion|
+1428757|ENG|digestive|
+1428759|ENG|digestive disease|
+1428762|ENG|digestive disease disorder infectious tract|
+1428773|ENG|digestive disease family history system|
+1428779|ENG|digestive disease infectious tract|
+1428782|ENG|digestive disease other specify system|
+1428784|ENG|digestive disease other system|
+1428786|ENG|digestive disease procedure screen system|
+1428787|ENG|digestive disease screen system|
+1428788|ENG|digestive disease system|
+1428789|ENG|digestive disease system unspecified|
+1428792|ENG|digestive disorder|
+1428793|ENG|digestive disorder disorder fetus newborn or specific system|
+1428795|ENG|digestive disorder disorder hereditary system|
+1428796|ENG|digestive disorder disorder inflammatory system|
+1428803|ENG|digestive disorder family history|
+1428806|ENG|digestive disorder fetus newborn or specific system|
+1428810|ENG|digestive disorder gastrointestinal|
+1428811|ENG|digestive disorder gastrointestinal injury|
+1428812|ENG|digestive disorder hereditary system|
+1428813|ENG|digestive disorder infection system|
+1428815|ENG|digestive disorder inflammatory system|
+1428828|ENG|digestive disorder mouse system|
+1428831|ENG|digestive disorder neoplasm system|
+1428832|ENG|digestive disorder neoplasm tract|
+1428836|ENG|digestive disorder perinatal system|
+1428837|ENG|digestive disorder perinatal system unspecified|
+1428840|ENG|digestive disorder system|
+1428855|ENG|digestive endoscopy metathesaurus minimal standard terminology version|
+1428863|ENG|digestive entity function observable system|
+1428893|ENG|digestive find find system|
+1428904|ENG|digestive find symptom|
+1428906|ENG|digestive find system|
+1428908|ENG|digestive fistula system|
+1428922|ENG|digestive function system|
+1428929|ENG|digestive gastrointestinal injury|
+1428935|ENG|digestive hemorrhage tract|
+1428945|ENG|digestive infection system|
+1428983|ENG|digestive nature neoplasm system unspecified|
+1428986|ENG|digestive neoplasm|
+1428991|ENG|digestive neoplasm system|
+1428993|ENG|digestive neoplasm tract|
+1428996|ENG|digestive observation system|
+1429044|ENG|digestive structure|
+1429050|ENG|digestive symptom system|
+1429051|ENG|digestive system|
+1431666|ENG|dihydropyridine|
+1432086|ENG|diisopyramide|
+1433061|ENG|dime protocol|
+1433268|ENG|dimercaprol|
+1433271|ENG|dimercaprol product|
+1433272|ENG|dimercaprol substance|
+1433277|ENG|dimercaptopropanol|
+1433496|ENG|dimethindene|
+1433509|ENG|dimethindene product|
+1433511|ENG|dimethindene substance|
+1433580|ENG|dimethpyrindene|
+1434199|ENG|dimetindene|
+1434427|ENG|dimyristoyllecithin|
+1434429|ENG|dimyristoylphosphatidylcholine|
+1435699|ENG|dipalmitoylglycerophosphocholine|
+1435700|ENG|dipalmitoyllecithin|
+1435702|ENG|dipalmitoylphosphatidylcholine|
+1435703|ENG|dipalmitoylphosphatidylcholine mcnc pt qn ser|
+1437953|ENG|dipyridoxolyldisulfide|
+1438659|ENG|disability|
+1438695|ENG|disability find|
+1441153|ENG|discomfort esophageal|
+1441537|ENG|disease|
+1441589|ENG|disease disorder|
+1441772|ENG|disease disorder duodenal esophageal stomach|
+1441868|ENG|disease disorder endocrin immunity metabolic nutritional|
+1442065|ENG|disease disorder gastresophageal reflux|
+1442259|ENG|disease disorder hereditary|
+1442398|ENG|disease disorder infectious intestinal|
+1442434|ENG|disease disorder inflammatory liver|
+1442685|ENG|disease disorder metabolic|
+1442776|ENG|disease disorder nerve peripheral|
+1442785|ENG|disease disorder nervous organ sense system|
+1442822|ENG|disease disorder occupational|
+1442828|ENG|disease disorder or|
+1443173|ENG|disease disorder viral|
+1443186|ENG|disease disorder wilson|
+1443240|ENG|disease drug orphan|
+1443275|ENG|disease due fecal incontinence not organic|
+1443429|ENG|disease duodenal esophageal stomach|
+1443432|ENG|disease duodenum esophagus stomach|
+1443437|ENG|disease duodenum stomach unspecified|
+1443443|ENG|disease duration therapy|
+1443466|ENG|disease ear|
+1443494|ENG|disease ear mastoid process|
+1443603|ENG|disease endocrin|
+1443613|ENG|disease endocrin gland|
+1443623|ENG|disease endocrin metabolic nutritional|
+1443635|ENG|disease endocrin system|
+1443690|ENG|disease esophageal|
+1443693|ENG|disease esophageal gastro gerd reflux|
+1443699|ENG|disease esophagus|
+1443705|ENG|disease esophagus unspecified|
+1443747|ENG|disease exclude gingiva lesion oral soft specific tissue tongue|
+1443807|ENG|disease eye|
+1443823|ENG|disease eyeball|
+1444324|ENG|disease gallbladder unspecified|
+1444335|ENG|disease gastric|
+1444339|ENG|disease gastresophageal reflux|
+1444340|ENG|disease gastrointestinal|
+1444386|ENG|disease genetic|
+1444408|ENG|disease genitourinary|
+1444417|ENG|disease genitourinary system|
+1444444|ENG|disease git|
+1444631|ENG|disease hemapoietic|
+1444633|ENG|disease hematologic|
+1444636|ENG|disease hematological|
+1444731|ENG|disease health|
+1444733|ENG|disease hemic lymphatic|
+1444828|ENG|disease hepatic|
+1444831|ENG|disease hepatic wilson|
+1444836|ENG|disease hepato neurologic wilson|
+1444838|ENG|disease hepatocellular|
+1444840|ENG|disease hereditary|
+1445248|ENG|disease immune|
+1445252|ENG|disease immune system|
+1445256|ENG|disease immunodeficiency|
+1445257|ENG|disease immunologic|
+1445258|ENG|disease immunological|
+1445304|ENG|disease infectious intestinal|
+1445307|ENG|disease infectious intestine|
+1445383|ENG|disease infectious viral|
+1445389|ENG|disease inflammatory liver|
+1445393|ENG|disease inflammatory liver unspecified|
+1445435|ENG|disease inherit|
+1445437|ENG|disease injury|
+1445447|ENG|disease integumentary|
+1445477|ENG|disease intestinal|
+1445490|ENG|disease intestine other|
+1445491|ENG|disease intestine other peritoneum|
+1445498|ENG|disease intestine unspecified|
+1445522|ENG|disease iron storage|
+1445545|ENG|disease joint|
+1445601|ENG|disease kinnier wilson|
+1445652|ENG|disease ld liver|
+1445705|ENG|disease lip mucosa oral other|
+1445712|ENG|disease liver|
+1445728|ENG|disease liver unspecified|
+1445811|ENG|disease lymphatic|
+1445858|ENG|disease management|
+1445875|ENG|disease manifestation or physiologic state|
+1445881|ENG|disease manifestation skin|
+1445945|ENG|disease metabolic|
+1445947|ENG|disease metabolic nutritional|
+1446000|ENG|disease molecular|
+1446036|ENG|disease mouth|
+1446038|ENG|disease mouth tooth|
+1446070|ENG|disease musculoskeletal|
+1446122|ENG|disease neoplastic|
+1446152|ENG|disease nerve|
+1446157|ENG|disease nerve peripheral|
+1446173|ENG|disease nervous organ sense system|
+1446175|ENG|disease nervous peripheral pn system|
+1446178|ENG|disease nervous peripheral system|
+1446181|ENG|disease nervous system|
+1446187|ENG|disease neurologic|
+1446188|ENG|disease neurological|
+1446231|ENG|disease nutritional|
+1446248|ENG|disease occupational|
+1446274|ENG|disease or present syndrome|
+1446285|ENG|disease oral other soft tissue unspecified|
+1446381|ENG|disease otorhinolaryngologic|
+1446382|ENG|disease otorhinolaryngological|
+1446429|ENG|disease pancreas|
+1446432|ENG|disease pancreas unspecified|
+1446433|ENG|disease pancreatic|
+1446444|ENG|disease parasitic|
+1446479|ENG|disease peptic pud ulcer|
+1446481|ENG|disease peptic ulcer|
+1446501|ENG|disease peritoneal|
+1446503|ENG|disease peritoneum|
+1446544|ENG|disease plant|
+1446551|ENG|disease pn|
+1446664|ENG|disease rectal|
+1446692|ENG|disease reproductive system|
+1446696|ENG|disease respiratory|
+1446700|ENG|disease respiratory system|
+1446701|ENG|disease respiratory system unspecified|
+1446705|ENG|disease respiratory tract|
+1446821|ENG|disease site|
+1446825|ENG|disease skin|
+1446827|ENG|disease skin subcutaneous tissue|
+1446870|ENG|disease stomach|
+1446872|ENG|disease stomatognathic|
+1446880|ENG|disease strumpell westphal|
+1446898|ENG|disease system urinary|
+1446913|ENG|disease taxonomy|
+1446946|ENG|disease tract urinary|
+1446964|ENG|disease typology|
+1446977|ENG|disease urogenital|
+1446978|ENG|disease urologic|
+1446979|ENG|disease urological|
+1447001|ENG|disease viral|
+1447002|ENG|disease virus|
+1447020|ENG|disease wd wilson|
+1447033|ENG|disease wilson|
+1447076|ENG|disfunction|
+1447252|ENG|disfunction immune|
+1447268|ENG|disfunction joint|
+1449198|ENG|disopyramide|
+1449245|ENG|disopyramide product|
+1449249|ENG|disopyramide substance|
+1449257|ENG|disorder|
+1449310|ENG|disorder disorder ear|
+1449381|ENG|disorder disorder endocrin system|
+1449387|ENG|disorder disorder eosinophilic|
+1449436|ENG|disorder disorder eye proper|
+1449537|ENG|disorder disorder gallbladder|
+1449546|ENG|disorder disorder gastrointestinal tract|
+1449552|ENG|disorder disorder generalise metabolic|
+1449704|ENG|disorder disorder immunodeficiency|
+1449769|ENG|disorder disorder integument|
+1449857|ENG|disorder disorder liver|
+1449869|ENG|disorder disorder lymph lymphatic node|
+1449871|ENG|disorder disorder lymphatic system|
+1449930|ENG|disorder disorder metabolism porphyrin|
+1449963|ENG|disorder disorder multisystem|
+1450031|ENG|disorder disorder nervous peripheral system|
+1450033|ENG|disorder disorder nervous system|
+1450078|ENG|disorder disorder nutritional|
+1450084|ENG|disorder disorder occupational|
+1450256|ENG|disorder disorder reproductive system|
+1450261|ENG|disorder disorder rumination|
+1450279|ENG|disorder disorder sensory|
+1450322|ENG|disorder disorder system urinary|
+1451212|ENG|disorder drug medicinal or poison substance|
+1451921|ENG|disorder duodenum stomach unspecified|
+1452102|ENG|disorder dysphagia|
+1452376|ENG|disorder ear|
+1452466|ENG|disorder ear mastoid process|
+1452516|ENG|disorder ear unspecified|
+1453577|ENG|disorder endocrin|
+1453588|ENG|disorder endocrin gland|
+1453618|ENG|disorder endocrin immunity metabolic nutritional|
+1453679|ENG|disorder endocrin system|
+1453681|ENG|disorder endocrin unspecified|
+1453931|ENG|disorder environmental origin|
+1453967|ENG|disorder eosinophilic|
+1454536|ENG|disorder esophageal|
+1454586|ENG|disorder esophagus|
+1454617|ENG|disorder esophagus malignant tumor|
+1454646|ENG|disorder esophagus unspecified|
+1455209|ENG|disorder eye|
+1455323|ENG|disorder eye unspecified|
+1455324|ENG|disorder eyeball|
+1456024|ENG|disorder felty syndrome|
+1456917|ENG|disorder fistula gastrointestinal|
+1458436|ENG|disorder gallbladder|
+1458467|ENG|disorder gallbladder unspecified|
+1458600|ENG|disorder gastric|
+1458683|ENG|disorder gastroenteritis|
+1458691|ENG|disorder gastroenteritis noninfectious|
+1458701|ENG|disorder gastrointestinal|
+1458702|ENG|disorder gastrointestinal hemorrhage|
+1458731|ENG|disorder gastrointestinal low|
+1458747|ENG|disorder gastrointestinal other|
+1458750|ENG|disorder gastrointestinal other unspecified|
+1458764|ENG|disorder gastrointestinal tract|
+1458768|ENG|disorder gastrointestinal upper|
+1458816|ENG|disorder general metabolic|
+1458834|ENG|disorder generalise metabolic|
+1458864|ENG|disorder genetic|
+1458874|ENG|disorder genital|
+1458959|ENG|disorder genitourinary|
+1458978|ENG|disorder genitourinary system|
+1459074|ENG|disorder gingivostomatitis|
+1459294|ENG|disorder globe|
+1459299|ENG|disorder globe unspecified|
+1459793|ENG|disorder grind tooth|
+1459944|ENG|disorder haem metabolism porphyrin|
+1459978|ENG|disorder hemapoietic|
+1460006|ENG|disorder hematemesis|
+1460018|ENG|disorder hematologic|
+1460034|ENG|disorder hematological|
+1460136|ENG|disorder hematopoietic system|
+1460156|ENG|disorder hemachromatosis|
+1460400|ENG|disorder hemorrhoid|
+1460975|ENG|disorder hepatic|
+1461048|ENG|disorder hereditary|
+1461054|ENG|disorder hereditary hypoplasia splenic|
+1461108|ENG|disorder heritable|
+1461112|ENG|disorder hernia hiatal|
+1461190|ENG|disorder hernia obstruction|
+1461378|ENG|disorder high mental process|
+1462876|ENG|disorder immune|
+1462880|ENG|disorder immune involve mechanism|
+1462882|ENG|disorder immune involve mechanism unspecified|
+1462888|ENG|disorder immune mechanism unspecified|
+1462894|ENG|disorder immune relate system|
+1462895|ENG|disorder immune system|
+1462897|ENG|disorder immunity|
+1462899|ENG|disorder immunity metabolic other|
+1462903|ENG|disorder immunodeficiency|
+1462904|ENG|disorder immunodeficiency immunosuppression|
+1464020|ENG|disorder inflammatory liver|
+1464047|ENG|disorder inflammatory polyarthropathy|
+1464185|ENG|disorder injury|
+1464671|ENG|disorder integument|
+1465637|ENG|disorder intestinal|
+1465662|ENG|disorder intestinal obstruction|
+1465685|ENG|disorder intestine|
+1465712|ENG|disorder intestine malignant tumor|
+1465727|ENG|disorder intestine other|
+1465743|ENG|disorder intestine small|
+1465754|ENG|disorder intestine unspecified|
+1465767|ENG|disorder intolerance lactose|
+1465986|ENG|disorder iron storage|
+1466127|ENG|disorder jaw tooth|
+1466156|ENG|disorder joint|
+1466274|ENG|disorder joint site unspecified unspecified|
+1466296|ENG|disorder joint unspecified|
+1467740|ENG|disorder liver|
+1467745|ENG|disorder liver malignant neoplasm|
+1467778|ENG|disorder liver unspecified|
+1468056|ENG|disorder lymph lymphatic node|
+1468227|ENG|disorder lymphatic|
+1468234|ENG|disorder lymphatic system|
+1468410|ENG|disorder malabsorption syndrome|
+1468964|ENG|disorder malignant pancreas tumor|
+1469071|ENG|disorder manifestation mental|
+1469138|ENG|disorder mastication|
+1469199|ENG|disorder md metabolic|
+1469293|ENG|disorder melena|
+1469601|ENG|disorder metabolic|
+1469634|ENG|disorder metabolic unspecified|
+1469637|ENG|disorder metabolism|
+1469667|ENG|disorder metabolism porphyrin|
+1469682|ENG|disorder metabolism unspecified|
+1470082|ENG|disorder mouth|
+1470093|ENG|disorder mouth recurrent ulcer|
+1470205|ENG|disorder multisystem|
+1470306|ENG|disorder musculoskeletal system|
+1470621|ENG|disorder nausea vomit|
+1471024|ENG|disorder nerve peripheral|
+1471057|ENG|disorder nervous|
+1471076|ENG|disorder nervous peripheral system|
+1471081|ENG|disorder nervous system|
+1471085|ENG|disorder nervous system unspecified|
+1471164|ENG|disorder neurologic|
+1471169|ENG|disorder neurological|
+1471486|ENG|disorder nutrition|
+1471490|ENG|disorder nutritional|
+1471609|ENG|disorder occupational|
+1471758|ENG|disorder ophthalmological|
+1471807|ENG|disorder oral|
+1471811|ENG|disorder oral pharyngeal|
+1471881|ENG|disorder oropharyngeal|
+1472477|ENG|disorder pediatric|
+1472518|ENG|disorder pancreas|
+1472524|ENG|disorder pancreatic|
+1472529|ENG|disorder pancreatitis|
+1472841|ENG|disorder peptic ulcer|
+1472981|ENG|disorder peritoneal|
+1472984|ENG|disorder peritoneum|
+1472986|ENG|disorder peritoneum unspecified|
+1472988|ENG|disorder peritonitis|
+1473321|ENG|disorder pn|
+1473692|ENG|disorder porphyria|
+1473695|ENG|disorder porphyrin|
+1473696|ENG|disorder porphyrinopathy|
+1473735|ENG|disorder postcholecystectomy syndrome|
+147396|ENG|100 injectable mesna mesnex mg ml solution|
+147397|ENG|100 injectable mesnex mg ml solution|
+147400|ENG|100 injectable mesna mg ml solution|
+1474054|ENG|disorder psychogenic rumination|
+1474297|ENG|disorder rectal|
+1474300|ENG|disorder rectum|
+1474382|ENG|disorder renal urinary|
+1474388|ENG|disorder reproductive system|
+1474389|ENG|disorder reproductive tract|
+1474394|ENG|disorder respiration|
+1474396|ENG|disorder respiratory|
+1474402|ENG|disorder respiratory system|
+1474406|ENG|disorder respiratory unspecified|
+1474548|ENG|disorder rumination|
+1474791|ENG|disorder sensory|
+1474792|ENG|disorder sensory system|
+1474905|ENG|disorder site|
+1474919|ENG|disorder skin|
+1474930|ENG|disorder skin subcutaneous tissue|
+1474932|ENG|disorder skin subcutaneous tissue unspecified|
+1475120|ENG|disorder stomach|
+1475167|ENG|disorder structure support tooth unspecified|
+1475169|ENG|disorder strumpell syndrome westphal|
+1475214|ENG|disorder swallow|
+1475320|ENG|disorder system unspecified urinary|
+1475321|ENG|disorder system urinary|
+1475487|ENG|disorder tract unspecified urethra urinary|
+1475489|ENG|disorder tract urinary|
+1475624|ENG|disorder urogenital|
+1475626|ENG|disorder urologic|
+1475627|ENG|disorder urological|
+1476214|ENG|display information|
+1476866|ENG|dissemination information|
+1479195|ENG|disturbance endocrin|
+1479213|ENG|disturbance epithelium include leucoplakia oral other tongue|
+1479329|ENG|disturbance hormone|
+1479357|ENG|disturbance mastication|
+1479451|ENG|disturbance sensory|
+147948|ENG|100 mesna mg ml|
+1479754|ENG|dithioglycerol|
+1480353|ENG|diverticulitis diverticulosis|
+1482132|ENG|dmcp|
+1482363|ENG|dmpc|
+1482445|ENG|dmsa|
+1485767|ENG|documentation|
+1485994|ENG|dodecyl sodium sulfate|
+1486888|ENG|dolor|
+1488119|ENG|dopamine|
+1488122|ENG|dopamine drug|
+1488166|ENG|dopamine preparation|
+1488167|ENG|dopamine product|
+1488182|ENG|dopaminergic drug|
+1492555|ENG|dox dtic iff mesna|
+1492984|ENG|doxylamine|
+1493005|ENG|doxylamine substance|
+1493394|ENG|dppao|
+1493396|ENG|dppc mcnc ser|
+1499971|ENG|drug|
+1500070|ENG|drug effect|
+1500416|ENG|drug file national reference terminology|
+1500570|ENG|drug general product type|
+1500571|ENG|drug general type|
+1500983|ENG|drug hypersensitivity|
+1501240|ENG|drug intoxication|
+1501347|ENG|drug medicinal or poison substance|
+1501348|ENG|drug medicinal or poison substance unspecified|
+1501570|ENG|drug poison|
+1501631|ENG|drug product|
+1501660|ENG|drug protective|
+1501816|ENG|drug therapy|
+1501826|ENG|drug tox|
+1501827|ENG|drug toxicity|
+1501841|ENG|drug uroprotective|
+1502450|ENG|dt|
+1502592|ENG|dtic mesna|
+1502645|ENG|dtp|
+1506029|ENG|dulcolax|
+1506161|ENG|dump syndrome|
+1507203|ENG|duplicate process|
+1510132|ENG|dyspepsia|
+1510153|ENG|dysphagia|
+1510163|ENG|dysphagia r13|
+1510164|ENG|dysphagia radiation|
+1511083|ENG|e|
+1516042|ENG|early satiety|
+1516348|ENG|ate excessive|
+1516349|ENG|ate excessive find polyphagia|
+1516350|ENG|ate excessive polyphagia|
+1516381|ENG|find overeat|
+1516421|ENG|overeat|
+1516792|ENG|ec|
+1518036|ENG|echography|
+1518081|ENG|echotomography|
+1518474|ENG|economics|
+1518589|ENG|ecotrin|
+1519400|ENG|ed|
+1520344|ENG|educ|
+1520351|ENG|education|
+1521788|ENG|effect radiation|
+1521810|ENG|effect side|
+1522999|ENG|eh|
+152677|ENG|100mg 10ml ampul injection mesna ml product solution|
+152678|ENG|100mg 10ml ampul injection mesna ml solution|
+1530051|ENG|em|
+1530783|ENG|embryology|
+153157|ENG|100mg 4ml ampul injection mesna ml product solution|
+153158|ENG|100mg 4ml ampul injection mesna ml solution|
+1532020|ENG|empirin|
+1532035|ENG|employee|
+1532542|ENG|en|
+1533646|ENG|encopresis|
+1533649|ENG|encopresis functional|
+1533652|ENG|encopresis non organic|
+1533654|ENG|encopresis nonorganic origin|
+1534395|ENG|endo|
+1535083|ENG|endocrin problem|
+1535161|ENG|endocrinopathy|
+1539254|ENG|enlarge lymph node|
+1540114|ENG|entericin|
+1540815|ENG|enteropathy|
+1540817|ENG|enteropathy gluten|
+1540818|ENG|enteropathy gluten gse sensitive|
+1540819|ENG|enteropathy gluten induce syndrome|
+1540821|ENG|enteropathy gluten sensitive|
+1540829|ENG|enteropathy sensitive wheat|
+1549127|ENG|enzyme|
+1549710|ENG|enzymology|
+1549914|ENG|eosinophilia|
+1549979|ENG|eosinophilic leucocytosis|
+1550038|ENG|ep|
+155067|ENG|100mg inj mesna ml|
+1551031|ENG|epidemiology|
+1551046|ENG|epidemiology list mcmaster submit term university|
+1551047|ENG|epidemiology mcmaster term university|
+1555111|ENG|eptp|
+1556279|ENG|ercalcidiol|
+1556841|ENG|ergothioneine|
+1559814|ENG|eshap mine protocol|
+1559898|ENG|esophageal|
+1559968|ENG|esophageal gastro gor reflux|
+1560013|ENG|esophageal hernia hiatal|
+1560024|ENG|esophageal hernia hiatus|
+1560146|ENG|esophageal malignant neoplasm|
+1560149|ENG|esophageal malignant tumor|
+1560282|ENG|esophageal reflux|
+1560607|ENG|esophagus|
+1560844|ENG|esophagus malignant neoplasm|
+1560858|ENG|esophagus malignant neoplasm unspecified|
+1560862|ENG|esophagus malignant tumor|
+1562746|ENG|eszopiclone|
+1562747|ENG|et|
+1562835|ENG|et mo mptp n|
+1563636|ENG|ethics|
+1564101|ENG|ethnology|
+1565273|ENG|etop ifosfa mesna|
+1565298|ENG|etoposide ifosfamide mesna|
+1565299|ENG|etoposide ifosfamide mesna mitoxantrone|
+1565300|ENG|etoposide ifosfamide mesna topotecan|
+1569519|ENG|evidence level|
+1569877|ENG|ex fetor ore|
+1574272|ENG|exclude incontinence p12|
+1574391|ENG|excretion increase ion organic renal|
+1575842|ENG|exosurf neonatal|
+1576063|ENG|expectorant|
+1576101|ENG|expectorant mucolytic|
+1577040|ENG|expose|
+1577056|ENG|exposure|
+1581912|ENG|extren|
+1582123|ENG|eye|
+1585335|ENG|fabrol|
+1588489|ENG|fecal incontinence|
+1588492|ENG|fecal incontinence r15|
+1588584|ENG|feces find incontinence|
+1588631|ENG|feces incontinence|
+1588632|ENG|feces incontinence nonorganic origin|
+1588634|ENG|feces incontinent|
+1590965|ENG|familial hepatitis|
+1596933|ENG|fda|
+1598630|ENG|felty syndrome|
+1602783|ENG|fetor find hepatici|
+1602785|ENG|fetor hepatici|
+1602786|ENG|fetor o|
+160478|ENG|10mg 30ml bisacodyl enema rtl|
+160497|ENG|10mg 4 5mg bisacodyl bisacodyl supp tab|
+1606701|ENG|field information science|
+1607938|ENG|file|
+1607965|ENG|filesna|
+1609299|ENG|find find joint|
+1609700|ENG|find find musculoskeletal|
+1610184|ENG|find find site|
+1611536|ENG|find gastrointestinal system|
+1611948|ENG|find grind tooth|
+1612521|ENG|find heartburn|
+1612663|ENG|find hiccup|
+1613215|ENG|find hypogammaglobulinemia|
+1613519|ENG|find incontinence|
+1613702|ENG|find indigestion|
+161391|ENG|10mg bisacodyl bullet magic rtl supp|
+161394|ENG|10mg bisacodyl ec tab|
+161395|ENG|10mg bisacodyl enema|
+161396|ENG|10mg bisacodyl product suppository|
+161399|ENG|10mg bisacodyl rtl supp|
+161400|ENG|10mg bisacodyl suppository|
+1614351|ENG|find jaundice|
+1614375|ENG|find joint|
+1616578|ENG|find musculoskeletal|
+1617719|ENG|find pain|
+1617723|ENG|find pain pelvic perineal|
+1617724|ENG|find pain pelvis|
+1617807|ENG|find painful swallow|
+1618045|ENG|find peristalse visable|
+1619211|ENG|find site|
+1623466|ENG|fistula|
+1623489|ENG|fistula gastrointestinal|
+1623496|ENG|fistula gastroenteric|
+1624054|ENG|fistulous tract|
+162797|ENG|10ml 1g injection mesna|
+162798|ENG|10ml 1g injection mesna product solution vial|
+162799|ENG|10ml 1g injection mesna solution vial|
+1628478|ENG|flocofil|
+1629690|ENG|fluatox|
+1630473|ENG|fluimucetin|
+1630474|ENG|fluimucil|
+1630475|ENG|fluimucil neo|
+1631877|ENG|fluprowit|
+163767|ENG|11 12 13 14 14 3 4 acid aza carboxy dithiapentadecanesulfonic hydroxy oxo phosphate|
+1648229|ENG|function|
+1652559|ENG|ga|
+1652578|ENG|ga gastrointestinal|
+1652750|ENG|ga nerve|
+1652751|ENG|ga nerve substance|
+1654907|ENG|gallstone|
+1658867|ENG|gastrocardiac syndrome|
+1658964|ENG|gastroduodenal ulcer|
+1658996|ENG|gastroenteritis|
+1658997|ENG|gastroenteritis ge|
+1659012|ENG|gastroenteritis noninfectious|
+1659080|ENG|gastroenteropathy|
+1659112|ENG|gastresophageal reflux|
+1659156|ENG|gastrointestinal gi hemorrhage|
+1659160|ENG|gastrointestinal gih hemorrhage|
+1659163|ENG|gastrointestinal git hemorrhage tract|
+1659173|ENG|gastrointestinal hemorrhage|
+1659183|ENG|gastrointestinal hemorrhage tract|
+1659184|ENG|gastrointestinal hemorrhage tract unspecified|
+1659186|ENG|gastrointestinal hemorrhage unspecified|
+1659237|ENG|gastrointestinal infection|
+1659339|ENG|gastrointestinal malformation|
+1659346|ENG|gastrointestinal malignant neoplasm|
+1659350|ENG|gastrointestinal malignant neoplasm tract|
+1659397|ENG|gastrointestinal nec sign symptom|
+1659433|ENG|gastrointestinal organ system|
+1659438|ENG|gastrointestinal pain|
+1659584|ENG|gastrointestinal system|
+1659712|ENG|gastropathy|
+1660690|ENG|gd|
+1660903|ENG|ge|
+1667608|ENG|gene ontology|
+1676265|ENG|general pathology symptom|
+1676372|ENG|general taxonomy|
+1676666|ENG|genet|
+1676809|ENG|genetics|
+1677515|ENG|genitourinary syndrome system|
+1679879|ENG|ger|
+1680041|ENG|gerd|
+1680978|ENG|gi hemorrhage|
+1681003|ENG|gi infection|
+1681029|ENG|gi malformation|
+1681030|ENG|gi malignant neoplasm|
+1681050|ENG|gi pain|
+1682320|ENG|gingivostomatitis|
+1686895|ENG|gloss nci|
+1689299|ENG|gluten intolerance|
+1689303|ENG|gluten responsive sprue|
+1689416|ENG|gluttony|
+1692914|ENG|gnash tooth|
+1693160|ENG|go|
+1696111|ENG|gpc ppa|
+1697395|ENG|graft islet langerhans|
+1697422|ENG|graft liver|
+1697609|ENG|graft pancreas|
+1698840|ENG|granuloma granuloma lesion like mucosa oral|
+1699593|ENG|grate tooth|
+1701133|ENG|grind tooth|
+1702760|ENG|group sulfhydryl|
+1702892|ENG|growth|
+1703072|ENG|growth neoplastic|
+1703073|ENG|growth neoplastic ng|
+1703078|ENG|growth new|
+1703079|ENG|growth new ng|
+1705636|ENG|gut pain|
+1706978|ENG|h hernia|
+1708754|ENG|hematemesis|
+1708930|ENG|hematologic problem|
+1709287|ENG|hematopoietic syndrome system|
+1709293|ENG|hematoporphyria|
+1709454|ENG|hemachromatosis|
+1710995|ENG|hemorrhage|
+1711495|ENG|hemorrhage unspecified|
+1711623|ENG|hemorrhoid|
+1711659|ENG|hemorrhoid pile|
+1712426|ENG|haldol|
+1712791|ENG|halitosis|
+1713509|ENG|haloperidol|
+1713533|ENG|haloperidol product|
+1713540|ENG|haloperidol substance|
+1715240|ENG|handicap|
+1716884|ENG|hav|
+1717860|ENG|hbv|
+1718880|ENG|hcpcs|
+1718881|ENG|hcpcs hierarchical metathesaurus term|
+1718882|ENG|hcpcs hierarchical term umls|
+1718932|ENG|hcv|
+1719621|ENG|head medical subject|
+1720398|ENG|health impair|
+1720513|ENG|health medlineplu topic|
+1720629|ENG|health personal|
+1720752|ENG|health state|
+1720776|ENG|healthcare information system|
+1721709|ENG|heartburn|
+1721711|ENG|heartburn r12|
+1721712|ENG|heartburn symptom|
+1722881|ENG|helicobacter infection pylorus|
+1725470|ENG|hepatic malignant neoplasm|
+1725477|ENG|hepatic malignant tumor|
+1725599|ENG|hepatic transplantation|
+1725656|ENG|hepatitis|
+1725671|ENG|hepatitis ih infectious|
+1725679|ENG|hepatitis infectious|
+1725684|ENG|hepatitis infectious viral|
+1725736|ENG|hepatitis nonspecific|
+1725771|ENG|hepatitis serum|
+1725772|ENG|hepatitis serum sh|
+1725786|ENG|hepatitis unspecified|
+1725953|ENG|hepatopathy|
+1726576|ENG|hereditary hypoplasia splenic|
+1726646|ENG|hereditary neoplastic syndrome|
+1726833|ENG|hernia|
+1726839|ENG|hernia hh hiatus|
+1726840|ENG|hernia hiatal|
+1726851|ENG|hernia hiatus|
+1727028|ENG|hernia internal|
+1727038|ENG|hernia intraperitoneal|
+1727112|ENG|hernia obstruction|
+1727280|ENG|herniate tissue|
+1727281|ENG|herniation|
+1729171|ENG|hexahydropyridine|
+1729885|ENG|hgnc|
+1730016|ENG|hi|
+1730241|ENG|hiccup|
+1730245|ENG|hiccup observation|
+1730413|ENG|hierarchy root uwda|
+1732551|ENG|hist|
+1733175|ENG|history|
+1748260|ENG|human resource|
+1749070|ENG|hurt part|
+1749121|ENG|hustengetrank optipect|
+1753147|ENG|hydroxy meta mptp|
+1754023|ENG|hydroxytyramine|
+1755132|ENG|hyperalimentation|
+1755821|ENG|hyperphagia|
+1757412|ENG|hypogammaglobulinemia|
+1757423|ENG|hypogammaglobulinemia unspecified|
+1757646|ENG|hypoimmunity|
+1760526|ENG|ib|
+1760610|ENG|ibd|
+1760705|ENG|ibotenate|
+1760950|ENG|icd|
+1760951|ENG|icd map nci seer|
+1760960|ENG|icd9cm|
+1761060|ENG|ich|
+1761303|ENG|icpc|
+1761372|ENG|icteric|
+1761409|ENG|icterus|
+1762416|ENG|idiopathic steatorrhea|
+1762563|ENG|idv|
+1762882|ENG|ifosfamide injectable mesna solution|
+1762892|ENG|ifosfamide mesna|
+1762893|ENG|ifosfamide mesna mitoxantrone|
+1767488|ENG|illness viral|
+1767612|ENG|im|
+1767889|ENG|image radionuclide|
+1767897|ENG|image ray x|
+1768933|ENG|immunodeficiency|
+1768953|ENG|immunodeficiency primary|
+1768954|ENG|immunodeficiency primary syndrome|
+1768961|ENG|immunodeficiency secondary|
+1768966|ENG|immunodeficiency syndrome|
+1768968|ENG|immunodeficiency unspecified|
+1769230|ENG|immunol|
+1769314|ENG|immunology|
+1769356|ENG|immunopathology|
+1769652|ENG|impaction|
+1769720|ENG|impairment|
+1772387|ENG|incl leucoplakia mucosa oral tongue|
+1772404|ENG|include leucoplakia mucosa oral tongue|
+1772653|ENG|incontinence|
+1773607|ENG|index|
+1773989|ENG|indigestion|
+1773994|ENG|indigestions|
+1774077|ENG|indinavir|
+1774089|ENG|indinavir product|
+1774090|ENG|indinavir substance|
+1774315|ENG|indolizine|
+1774506|ENG|induce methylphenyltetrahydropyridine mptp parkinsonism|
+1774507|ENG|induce methylphenyltetrahydropyridine parkinsonism|
+1774512|ENG|induce mptp parkinsonism|
+1775497|ENG|infection intestinal|
+1775961|ENG|infection norwalk virus|
+1776059|ENG|infection other viral|
+1776461|ENG|infection site unspecified viral|
+1776655|ENG|infection unspecified viral|
+1776685|ENG|infection viral|
+1776686|ENG|infection virus|
+1777965|ENG|infirmity|
+1778023|ENG|inflammation liver|
+1778093|ENG|inflammation peritoneum|
+1778230|ENG|inflammatory or polyarthritis polyarthropathy|
+1778246|ENG|inflammatory polyarthritis|
+1778248|ENG|inflammatory polyarthropathy|
+1778249|ENG|inflammatory polyarthropathy unspecified|
+1778589|ENG|informatics|
+1778605|ENG|information management|
+1778611|ENG|information management resource|
+1778619|ENG|information medical system|
+1778641|ENG|information pdq system|
+1778654|ENG|information process retrieval storage|
+1778671|ENG|information retrieval|
+1778673|ENG|information retrieval storage|
+1778675|ENG|information science|
+1778677|ENG|information service|
+1778685|ENG|information system|
+1778691|ENG|information technology|
+1778692|ENG|information theory|
+1779533|ENG|inhalant mesna solution|
+1779777|ENG|inheritance man mendelian online|
+1780634|ENG|injectable mesna solution|
+1782160|ENG|injury|
+1783062|ENG|injury poison|
+1783295|ENG|injury traumatic|
+1783304|ENG|injury unspecified|
+1783331|ENG|injury wind|
+1783559|ENG|innervation|
+1785081|ENG|instrumentation|
+1785944|ENG|intellectual property|
+1787091|ENG|interactive multimedia|
+1789777|ENG|intestinal io obstruction|
+1789852|ENG|intestinal malabsorption|
+1789857|ENG|intestinal malabsorption unspecified|
+1789861|ENG|intestinal malignant neoplasm|
+1789863|ENG|intestinal malignant neoplasm part tract unspecified|
+1789870|ENG|intestinal malignant tumor|
+1789934|ENG|intestinal obstruction|
+1789950|ENG|intestinal obstruction unspecified|
+1789951|ENG|intestinal occlusion|
+1790095|ENG|intestinali pneumatosis|
+1790309|ENG|intestine malignant neoplasm|
+1790325|ENG|intestine malignant tumor|
+1790392|ENG|intestine obstruction|
+1790680|ENG|intolerance lactose|
+1790682|ENG|intolerance lactose malabsorption or|
+1790688|ENG|intolerance lactose unspecified|
+1790695|ENG|intolerance milk|
+1792444|ENG|invasive procedure|
+1792805|ENG|involuntary stool|
+1794314|ENG|ip|
+1794736|ENG|ir|
+1796743|ENG|island langerhans transplantation|
+1796769|ENG|island pancreas transplantation|
+1796826|ENG|islet langerhans transplantation|
+1796833|ENG|islet pancreatic transplantation|
+1796836|ENG|islet transplantation|
+1797195|ENG|ismipur|
+1797877|ENG|isol|
+1800438|ENG|itp regimen|
+1800896|ENG|ivadic regimen|
+1802395|ENG|jaundice|
+1802420|ENG|jaundice r17 unspecified|
+1802423|ENG|jaundice unspecified|
+1802424|ENG|jaundiced|
+1802811|ENG|jejunal syndrome|
+1804471|ENG|joint neuropathic|
+1804496|ENG|joint observation|
+1813094|ENG|knowledge|
+1818331|ENG|lactose lm malabsorption|
+1818337|ENG|lactose malabsorption|
+1824609|ENG|lauryl sodium sulfate|
+1828671|ENG|lecithin|
+1828699|ENG|lecithin product|
+1828700|ENG|lecithin product product|
+1832463|ENG|lesion oral|
+1832592|ENG|lesion relate stomatitis|
+1833967|ENG|leucoplakia mucosa oral|
+1834289|ENG|leukerin|
+1834337|ENG|leupurin|
+1835787|ENG|library medicine national project rxnorm|
+1835799|ENG|library science|
+1842820|ENG|liver ltx transplant|
+1842828|ENG|liver malignant neoplasm|
+1842835|ENG|liver malignant neoplasm unspecified|
+1842839|ENG|liver malignant tumor|
+1843029|ENG|liver procedure transplantation|
+1843129|ENG|liver t transplantation|
+1843140|ENG|liver transplant|
+1843142|ENG|liver transplantation|
+1843474|ENG|lnc|
+1844818|ENG|loinc|
+1844819|ENG|loinc root|
+1846457|ENG|lo surgery weight|
+1851730|ENG|lymphadenopathy|
+1851869|ENG|lymphangiopathy|
+1853406|ENG|m methoxy mptp|
+1853476|ENG|m mptp|
+1857017|ENG|maid|
+1857023|ENG|maid protocol|
+1857621|ENG|malabsorption|
+1857638|ENG|malabsorption syndrome|
+1859194|ENG|malignant neoplasm pancreas|
+1859195|ENG|malignant neoplasm pancreas part unspecified|
+1859206|ENG|malignant neoplasm pancreas unspecified|
+1859207|ENG|malignant neoplasm pancreatic|
+1859722|ENG|malignant pancreas tumor|
+1860736|ENG|man|
+1862003|ENG|manifestation oral|
+1862884|ENG|manpower|
+1864233|ENG|marine substance toxin|
+1864238|ENG|marine toxin|
+1865275|ENG|ma|
+1867724|ENG|mbztp|
+1867952|ENG|mcm|
+186915|ENG|131 albumen i macroaggregated|
+187013|ENG|131 i maa|
+1870235|ENG|mctp|
+1870414|ENG|mdr|
+1872623|ENG|measurin|
+1873233|ENG|meddra|
+1873258|ENG|media|
+1874231|ENG|medical qmr quick reference|
+1874235|ENG|medical quick reference|
+1874304|ENG|medicament poison|
+1874376|ENG|medication|
+1874491|ENG|medicinal poison|
+1874495|ENG|medicine|
+1874508|ENG|medicine nomenclature systematise|
+1874736|ENG|medlineplu|
+1875716|ENG|melena|
+1878950|ENG|mercaleukim|
+1878951|ENG|mercaleukin|
+1878956|ENG|mercaptan|
+1878964|ENG|mercaptina|
+1878989|ENG|mercaptoethanesulfonate|
+1878990|ENG|mercaptoethanol|
+1878992|ENG|mercaptoethylamine|
+1879012|ENG|mercaptopurine|
+1879027|ENG|mercaptopurine product|
+1879030|ENG|mercaptopurine substance|
+1879032|ENG|mercaptopurina|
+1879043|ENG|mercapurin|
+1879045|ENG|mercasolyl|
+1879049|ENG|mercazolyl|
+1879331|ENG|merkazolil|
+1879364|ENG|mern|
+1879507|ENG|merycism|
+1879731|ENG|mesh|
+1879837|ENG|mesnex|
+1879840|ENG|mesnil|
+1879841|ENG|mesna|
+1879842|ENG|mesna nasal solution|
+1879843|ENG|mesna nova plus|
+1879844|ENG|mesna oral tablet|
+1879846|ENG|mesna product|
+1879847|ENG|mesna substance|
+1880374|ENG|mesilate|
+1880515|ENG|metabolism|
+1881631|ENG|metastatic|
+1881848|ENG|metathesaurus|
+1881849|ENG|metathesaurus name|
+1881850|ENG|metathesaurus name source terminology|
+1881851|ENG|metathesaurus source terminology|
+1881852|ENG|metathesaurus umls|
+1882203|ENG|methanesulfonate|
+1882527|ENG|methbipyranone|
+1882611|ENG|methymazol|
+1882615|ENG|methymazol product|
+1882616|ENG|methymazol substance|
+1882771|ENG|method|
+1883058|ENG|methopyrapone|
+1883548|ENG|methyl viologen|
+1883938|ENG|methylenesulfonate|
+1884170|ENG|methylmercaptoimidazol|
+1884481|ENG|methylphenyltetrahydropyridine|
+1884484|ENG|methylphenyltetrahydropyridine substance|
+1884892|ENG|metichlorpindol|
+1884893|ENG|meticlorpindol|
+1884984|ENG|metopiron|
+1884985|ENG|metopirone|
+1885253|ENG|metyrapone|
+1885259|ENG|metyrapone product|
+1885262|ENG|metyrapone substance|
+1885318|ENG|mexan|
+1886531|ENG|microbiology|
+1889219|ENG|mimic|
+1889421|ENG|mine|
+1889434|ENG|mine protocol|
+1889435|ENG|mine regimen|
+1890082|ENG|mint protocol|
+1890799|ENG|mi|
+1890871|ENG|mistabron|
+1890872|ENG|mistabronco|
+1890950|ENG|mitexan|
+1892444|ENG|mo|
+1896705|ENG|mortality|
+1900977|ENG|mouth recurrent ulcer|
+1900983|ENG|mouth rehabilitation|
+1901315|ENG|mp|
+1901496|ENG|mpp|
+1901546|ENG|mptp|
+1901547|ENG|mptp n oxide|
+1901548|ENG|mptp neurotoxicity syndrome|
+1901549|ENG|mptp pc|
+1901550|ENG|mptp poison|
+1901860|ENG|msa|
+1901965|ENG|msh|
+1902091|ENG|mt|
+1902183|ENG|mth|
+1902193|ENG|mthhh|
+1902195|ENG|mthicd9|
+1902199|ENG|mthmst|
+1902434|ENG|muco sanigen|
+1902438|ENG|mucocedyl|
+1902459|ENG|mucofluid|
+1902473|ENG|mucolator|
+1902474|ENG|mucolene|
+1902480|ENG|mucolyticum|
+1902482|ENG|mucomyst|
+1902750|ENG|mucosolvin|
+1902774|ENG|mucret|
+1905280|ENG|musculoskeletal observation|
+1905285|ENG|musculoskeletal observation system|
+1905361|ENG|musculoskeletal system|
+1906828|ENG|mydral|
+1906830|ENG|mydriacyl|
+1908735|ENG|n nausea v vomit|
+1908984|ENG|n oxide polyvinylpyridine|
+1909669|ENG|nac|
+1909679|ENG|nac zamba|
+1911026|ENG|naphthalidine|
+1911087|ENG|naphthylvinylpyridine|
+1911094|ENG|napim protocol|
+1912349|ENG|nature neoplasm site unspecified unspecified|
+1912352|ENG|nature neoplasm unspecified|
+1912432|ENG|nausea r11 vomit|
+1912440|ENG|nausea symptom vomit|
+1912442|ENG|nausea vomit|
+1912772|ENG|ncbi|
+1912773|ENG|ncbi root taxonomy|
+1912774|ENG|ncbi taxonomy|
+1912809|ENG|nci|
+1912815|ENG|nci thesaurus|
+1912820|ENG|ncise|
+1912939|ENG|ndfrt|
+1913234|ENG|nec neuropathy peripheral|
+1915778|ENG|neoplasia|
+1915788|ENG|neoplasm|
+1915915|ENG|neoplasm pancreas|
+1919411|ENG|neuropathy peripheral|
+1919710|ENG|neurotoxin|
+1919721|ENG|neurotoxin substance|
+1919923|ENG|nevirapine|
+1919928|ENG|nevirapine product|
+1919929|ENG|nevirapine substance|
+1920605|ENG|nic|
+1920663|ENG|nichd|
+1920960|ENG|nicotine|
+1920974|ENG|nicotine product|
+1920984|ENG|nicotine substance|
+192247|ENG|147693 pd|
+1922946|ENG|nitrosothiol s|
+1924523|ENG|nomenclature product standard|
+1924778|ENG|non sprue tropical|
+1926580|ENG|nosology|
+1926676|ENG|not otherwise pancreatic specify transplant|
+1927627|ENG|npo|
+1928110|ENG|nu|
+1929203|ENG|nurse|
+1931294|ENG|observation pain|
+1931864|ENG|obstructive uropathy|
+1933779|ENG|oculopathy|
+1934129|ENG|odynophagia|
+1935412|ENG|olea ricini|
+1936323|ENG|omim|
+1937733|ENG|operation|
+1938526|ENG|operative procedure|
+1939231|ENG|ophthalmopathy|
+1939680|ENG|opticyl|
+1940815|ENG|oral recurrent rou ulceration|
+1940816|ENG|oral recurrent ulceration|
+1941442|ENG|oral tablet|
+1942520|ENG|order sort|
+1942798|ENG|organ|
+1946931|ENG|oropharyngeal|
+1948134|ENG|osteoarthrosis|
+1948646|ENG|ostomy|
+1949677|ENG|ototoxin|
+1951431|ENG|oxidopamine|
+1952293|ENG|p|
+1953828|ENG|pack|
+1954434|ENG|pain|
+1954450|ENG|pain pelvic|
+1954451|ENG|pain pelvic perineal|
+1954454|ENG|pain pelvis|
+1954575|ENG|pain sense|
+1954616|ENG|pain swallow|
+1954633|ENG|pain thoracic|
+1954661|ENG|pain unspecified|
+1954687|ENG|painful|
+1954702|ENG|painful swallow|
+1955484|ENG|palmitoylpalmitoleoylphosphatidylcholine|
+1955930|ENG|pancreas|
+1955958|ENG|pancreas procedure transplantation|
+1956007|ENG|pancreas transplant|
+1956009|ENG|pancreas transplantation|
+1956120|ENG|pancreatic transplant|
+1956184|ENG|pancreatitis|
+1956639|ENG|pantetheine|
+1958462|ENG|paraquat|
+1958464|ENG|paraquat substance|
+1958608|ENG|parasitology|
+1958619|ENG|parasitosis|
+1960258|ENG|parvolex|
+1960922|ENG|pathogenicity|
+1960964|ENG|pathology|
+1960972|ENG|pathology process|
+1961001|ENG|pathophysiology|
+1961408|ENG|pattern recognition|
+1961840|ENG|pc|
+1962187|ENG|pd|
+1962414|ENG|pdq|
+1965266|ENG|peptic pu ulcer|
+1965270|ENG|peptic site ulcer unspecified|
+1965273|ENG|peptic syndrome ulcer|
+1965274|ENG|peptic ulcer|
+1965276|ENG|peptic ulceration|
+1967417|ENG|peristalse visable|
+1967532|ENG|peritonitis|
+1967551|ENG|peritonitis unspecified|
+1968224|ENG|personnel|
+1969387|ENG|ph|
+1970071|ENG|pharmaceutic preparation|
+1970080|ENG|pharmaceutical preparation|
+1970113|ENG|pharmacokinetics|
+1970131|ENG|pharmacology|
+1970150|ENG|pharmacotherapeutic|
+1970152|ENG|pharmacotherapy|
+1970839|ENG|pheniramine|
+1970845|ENG|pheniramine product|
+1970847|ENG|pheniramine substance|
+1972798|ENG|phosphatidylcholine|
+1972806|ENG|phosphatidylcholine substance|
+1974174|ENG|phylogeny|
+1974472|ENG|physiology|
+1974488|ENG|physiopathology|
+1975018|ENG|picoline|
+1975137|ENG|pid|
+1975499|ENG|pile|
+1976361|ENG|piperidine|
+1976362|ENG|piperidine substance|
+1976604|ENG|piritinol|
+1977087|ENG|pk|
+1980446|ENG|pma|
+1981024|ENG|po|
+1981449|ENG|poi|
+1981515|ENG|poison|
+1982415|ENG|polyarthritis|
+1982419|ENG|polyarthritis unspecified|
+1983288|ENG|polyphagia|
+1984780|ENG|porphyria|
+1984824|ENG|porphyrinopathy|
+1985361|ENG|postcholecystectomy syndrome|
+1986446|ENG|pp|
+1986673|ENG|pptp|
+1990076|ENG|procedure|
+1991920|ENG|process secretion|
+1992459|ENG|product pyridostigmine|
+1992582|ENG|product sacrosidase|
+1992672|ENG|product sodium sulfate tetradecyl|
+1992747|ENG|product succimer|
+1992973|ENG|product triprolidine|
+1992980|ENG|product tropicamide|
+1994145|ENG|propheniramine|
+1994147|ENG|prophenpyridamine|
+1994171|ENG|prophylax|
+1998571|ENG|protocol tic|
+1998604|ENG|protocol vacime|
+1998669|ENG|protocol vie|
+1998676|ENG|protocol vimp|
+1998680|ENG|protocol vlhp|
+2000633|ENG|pseudosclerosis|
+2000635|ENG|pseudosclerosis westphal|
+2001192|ENG|psychogenic rumination|
+2001257|ENG|psychology|
+2002345|ENG|publication|
+2002370|ENG|publish|
+2002432|ENG|pud|
+2003382|ENG|purimethol|
+2003394|ENG|purinethiol|
+2003395|ENG|purinethol|
+2003754|ENG|px|
+2003760|ENG|py|
+2004357|ENG|pyridine|
+2004377|ENG|pyridinone|
+2004390|ENG|pyridone|
+2004392|ENG|pyridostigmine|
+2004394|ENG|pyridostigmine substance|
+2004412|ENG|pyridoxinedisulfide|
+2004425|ENG|pyridylcarbinol|
+2004485|ENG|pyrithioxin|
+2004487|ENG|pyrithioxine|
+2004654|ENG|pyrosis|
+2005149|ENG|qmr|
+2005478|ENG|qualifier rout sublingual value|
+2006049|ENG|qualifier value virologic|
+2006519|ENG|quinolinate|
+2006900|ENG|ra|
+2007090|ENG|raclopride|
+2007228|ENG|radiation therapy|
+2007405|ENG|radiography|
+2007466|ENG|radioisotope scan|
+2007560|ENG|radionuclide|
+2007619|ENG|radiotherapy|
+2008899|ENG|ray x|
+2009055|ENG|re|
+2010055|ENG|rectum|
+2010849|ENG|regimen tic|
+2010850|ENG|regimen tip|
+2011218|ENG|rehabilitation|
+2011768|ENG|renal|
+2012417|ENG|research|
+2012426|ENG|research study|
+2012694|ENG|respaire|
+2013676|ENG|reyataz|
+2013771|ENG|rh|
+2015320|ENG|ri|
+2017158|ENG|roentgenography|
+2017940|ENG|rout sublingual|
+2018241|ENG|rt|
+2018788|ENG|rumination|
+2019210|ENG|rxnorm|
+2019912|ENG|sacrosidase|
+2019913|ENG|sacrosidase substance|
+2022568|ENG|sc|
+2025012|ENG|sd|
+2025060|ENG|se|
+2025337|ENG|second|
+2025365|ENG|secondary|
+2025453|ENG|secretion|
+2028796|ENG|sign symptom|
+2029419|ENG|singultation|
+2029420|ENG|singultous|
+2029421|ENG|singultus|
+2029551|ENG|sinus|
+2029597|ENG|sinus tract|
+2030104|ENG|skeletal|
+2030203|ENG|skin|
+2030402|ENG|skin yellow|
+2030475|ENG|sl|
+2031018|ENG|sn|
+2031146|ENG|snomed|
+2031382|ENG|sodium sotradecol|
+2031386|ENG|sodium std sulfate tetradecyl|
+2031397|ENG|sodium substance sulfate tetradecyl|
+2031440|ENG|sodium sulfate tetradecyl|
+2032415|ENG|sotradecol|
+2035081|ENG|spn|
+2035473|ENG|sprue|
+2035715|ENG|src|
+2035826|ENG|st|
+2035999|ENG|stage system|
+2036173|ENG|stand|
+2036189|ENG|standard|
+2037667|ENG|stomach|
+2037730|ENG|stomatitis ulcerative|
+2037743|ENG|stomatodysodia|
+2037796|ENG|stool tarry|
+2038602|ENG|structure subcellular|
+2038795|ENG|strumpell syndrome westphal|
+2039052|ENG|su|
+2039367|ENG|sublingual|
+2039373|ENG|sublingual use|
+2039483|ENG|substance succimer|
+2039540|ENG|substance sulfhydryl|
+2039630|ENG|substance taurine|
+2039927|ENG|substance triprolidine|
+2039938|ENG|substance tropicamide|
+2040232|ENG|succimer|
+2040326|ENG|sucraid|
+2040765|ENG|sulfhydryl|
+2040851|ENG|sulfonate|
+204089|ENG|16 67 mesna mg ml|
+2041344|ENG|supply|
+2041572|ENG|surg|
+2041583|ENG|surgery|
+2042494|ENG|syndrome|
+2042539|ENG|syndrome tract urinary|
+2043173|ENG|systematics|
+2043234|ENG|t thp|
+2044133|ENG|tapazole|
+2044417|ENG|taufon|
+2044429|ENG|taurine|
+2044518|ENG|taxonomy|
+2044725|ENG|td|
+2044877|ENG|technique|
+2045088|ENG|telecommunication|
+204677|ENG|16 bcnu ctx mesna vp|
+2047017|ENG|th|
+2047441|ENG|therapeutic use|
+2047450|ENG|therapy|
+2047502|ENG|theriacs|
+2047722|ENG|thesaurismosis|
+2047724|ENG|thesaurus|
+2047775|ENG|thimazol|
+2047862|ENG|thienopyridine|
+2047962|ENG|thiocholine|
+2048032|ENG|thioglycolate|
+2048033|ENG|thioglycollate|
+2048051|ENG|thiol|
+2048065|ENG|thiomalate|
+2048091|ENG|thioneine|
+2049546|ENG|tixair|
+2049634|ENG|tm|
+2050027|ENG|tolperisone|
+2050613|ENG|tox|
+2050632|ENG|toxicity|
+2050781|ENG|tppcmp|
+2050799|ENG|tr|
+2051317|ENG|transmission|
+2051352|ENG|transplantation|
+2051523|ENG|trauma|
+205155|ENG|16 dhad iff mesna vp|
+2051593|ENG|treatment|
+2051739|ENG|trend|
+2053224|ENG|triprolidine|
+2053663|ENG|tropicacyl|
+2053668|ENG|tropicamide|
+2054081|ENG|tu|
+2054284|ENG|tumor|
+2054943|ENG|ucb3983|
+2055102|ENG|ul|
+205520|ENG|16 iff mesna topo vp|
+205521|ENG|16 iff mesna vp|
+2055238|ENG|ultrasonography|
+2055239|ENG|ultrasonography use|
+2055251|ENG|ultreon|
+2055316|ENG|umd|
+2055318|ENG|umdns|
+2055765|ENG|ur|
+2056019|ENG|urine|
+2056144|ENG|uromitexan|
+2056163|ENG|uropathy|
+2056194|ENG|uroprotectant|
+2056290|ENG|us|
+2056300|ENG|use|
+2056456|ENG|uwda|
+2057064|ENG|vasculature|
+2057228|ENG|ve|
+2057864|ENG|vet|
+2058297|ENG|viramune|
+2058385|ENG|virologic|
+2058386|ENG|virological|
+2058387|ENG|virology|
+2058406|ENG|virus|
+2059211|ENG|wd|
+2059532|ENG|wind|
+2059619|ENG|wnd|
+2059711|ENG|worker|
+2061076|ENG|zebrafish|
+2061225|ENG|ziken|
+2061308|ENG|zithromax|
+2061311|ENG|zitromax|
+2061918|ENG|16 bcnu ctx msa vp|
+2061947|ENG|16 dhad iff msa vp|
+2061948|ENG|16 iff msa topo vp|
+2061949|ENG|16 iff msa vp|
+2062951|ENG|cbdca csf g iff msa|
+2062960|ENG|cbdca iff msa|
+2062991|ENG|cddp iff mito msa|
+2063248|ENG|dhad iff msa|
+2063296|ENG|dox dtic iff msa|
+2063467|ENG|hem|
+2063872|ENG|mdbcac|
+2063971|ENG|1 10 10 10r 11 11r 12 12 13 13 14 14r 2 2 2r 3 3 3 3 3 3 3s 4 4 4r 5 5r 6 6 6 6 8 8r alfa azacyclopentade beta c d dideoxy dimethylamino ethyl heptamethyl hexopyranosyl hexopyranosyl l methyl methyl o oxa oxy oxy ribo trideoxy trihydroxy xylo|
+2064093|ENG|1 2 3 methyl pyridyl pyrrolidine|
+2064201|ENG|1 6 6h 7 dihydro monohydrate purine thione|
+2064275|ENG|10 10 11 a aza deoxy dihydroerythromycin methyl n|
+2065126|ENG|2 4 5 trihydroxyphenethylamine|
+2065155|ENG|2 acid mercaptoethanesulfonic salt sodium|
+2065524|ENG|450 xz|
+2065949|ENG|activity dictionary medical regulatory|
+2066161|ENG|administration drug formulary national reference terminology us veteran|
+2066225|ENG|affair department drug formulary national reference terminology us veteran|
+2066323|ENG|alfa beta methylpyrrolidine n pyridyl|
+2067105|ENG|biocarta|
+2067422|ENG|cancer institute national thesaurus|
+206750|ENG|1625 jr mcn|
+206751|ENG|1625 r|
+2068199|ENG|cla|
+2068634|ENG|database kegg pathway|
+2068750|ENG|developmental nci program therapeutics|
+2068861|ENG|disease disorder find or|
+2068913|ENG|disorder hematologic lymphocytic|
+2069021|ENG|do form oral tablet|
+2069120|ENG|dosage form oral tablet|
+2069329|ENG|enteropathy gluten induce|
+2069969|ENG|go ontology|
+2070335|ENG|inj|
+2070436|ENG|jax|
+2070468|ENG|kegg|
+2070753|ENG|me|
+2071668|ENG|ut|
+2071755|ENG|icdo|
+2071765|ENG|bioc|
+2076772|ENG|bioinformatics clinical ontology|
+2076873|ENG|cbo|
+2078289|ENG|1 2 3 dipalmitoyl glycero phosphocholine sn|
+2078324|ENG|1 2 dithioglycerol|
+2078389|ENG|1 7683 ro|
+2078694|ENG|10 3 4 4 4 5 7 9 oxide oxido oxo palmitoyl phosphapentacosyl r trimethylammonium trioxa|
+2079083|ENG|2 4 ethyl hydracrylamide n n phenyl pyridylmethyl|
+2079325|ENG|2 mercaptoethanesulfonate salt sodium|
+2080160|ENG|administration control drug enforcement label product schedule structure substance|
+2080265|ENG|administration rout sublingual|
+2080337|ENG|adverse classification event|
+2081150|ENG|control schedule substance|
+2081449|ENG|do form pack|
+2081502|ENG|dosage form pack|
+2082269|ENG|grade system|
+2082403|ENG|l picamide|
+2082936|ENG|sop|
+2083025|ENG|tropimil|
+2083047|ENG|v1|
+2083187|ENG|1 6112 76 monohydrate|
+2083240|ENG|113891|
+2083261|ENG|1226|
+2083369|ENG|19767 4 45|
+2083385|ENG|2 44 50|
+2083391|ENG|2 50 78|
+2083442|ENG|24850|
+2083444|ENG|25232|
+2083585|ENG|406186|
+2083888|ENG|755|
+2084210|ENG|10172 acute classification org stroke treatment trial|
+2084462|ENG|cdisc|
+2084503|ENG|classification ischemic stroke subtype|
+2084504|ENG|classification toast|
+2084505|ENG|clinical consortium data interchange standard|
+2084534|ENG|dicom|
+2084656|ENG|toast|
+2084663|ENG|12 mdbcac2005|
+2085578|ENG|a adverse code reaction symbol term thesaurus|
+2085758|ENG|adverse code reaction symbol term thesaurus|
+2085759|ENG|adverse common criterion event toxicity|
+2087587|ENG|clinical medicine nomenclature systematise term|
+2088076|ENG|costart|
+2088085|ENG|ctcae grade|
+2088129|ENG|degeneration tissue|
+2088452|ENG|grade standard toxicity|
+2088765|ENG|pathogen|
+2088845|ENG|radiation sickness syndrome|
+2090592|ENG|pharmaceutical product|
+2090641|ENG|metathesaurus nci|
+2090642|ENG|ncimth|
+2097188|ENG|0 3 hl7 version|
+2112674|ENG|100 mesna mesnex mg ml|
+2121509|ENG|1994 dxplain|
+2121512|ENG|1995 costart|
+2127234|ENG|2 iso3166|
+2130512|ENG|2005 classification clinical software|
+2133676|ENG|250 azithromycin coat dihydrate film mg oral tablet zithromax|
+2133680|ENG|250 azithromycin mg zithromax|
+2144497|ENG|400 mesna mesnex mg|
+2151571|ENG|6 brand glaxo mercaptopurine wellcome|
+2151572|ENG|6 brand glaxosmithkline mercaptopurine|
+218831|ENG|1989 1995 ambulatory computer costar record store|
+218832|ENG|1989 1995 costar|
+218941|ENG|1992 clinical disorder epidemiologic glossary human methodologic study term|
+218942|ENG|1992 epidemiology list mcmaster submit term university|
+218943|ENG|1992 epidemiology mcmaster term university|
+218965|ENG|1993 care classification international primary|
+218976|ENG|1993 icpc|
+219096|ENG|1996 medical qmr quick reference|
+219234|ENG|1999 code icd map nci neoplasm seer|
+219258|ENG|1999 ncise|
+220999|ENG|1g 20ml injection mesna product solution vial|
+221000|ENG|1g 20ml injection mesna solution vial|
+221631|ENG|1g injection mesna|
+221707|ENG|1gm 1gm amp ifosfamide inj mesna pkg vil|
+221709|ENG|1gm 200mg amp ifosfamide inj mesna pkg vil|
+221719|ENG|1gm 3gm amp ifosfamide inj mesna pkg vil|
+222048|ENG|1h 2 2 3 4 alfa carboxy dihydro ethanaminium imidazol inner n n n s salt thioxo trimethyl|
+2225297|ENG|a hep|
+2227295|ENG|abdomen disorder|
+2227296|ENG|abdomen disorder disorder|
+2227502|ENG|abdominal disorder|
+2228463|ENG|abnormality herniate morphologic structure|
+2228481|ENG|abnormality joint|
+2252394|ENG|action mechanism qualifier|
+2252396|ENG|action mode|
+2254302|ENG|acute enterocolitis pseudomembranous|
+2257897|ENG|administration aspect organisation|
+2257909|ENG|administration dosage|
+2260187|ENG|adverse aspect effect|
+2260232|ENG|adverse code costart reaction symbol term thesaurus|
+2260613|ENG|aspect etiology|
+2263806|ENG|agon|
+228037|ENG|2 2 3 3 3 3 4 amino butanamide dihydroxy dimethyl mercaptoethyl n oxopropyl r|
+2285316|ENG|allergy disorder drug|
+2285402|ENG|alliance brand metyrapone|
+2291605|ENG|american classification industry north system|
+2301078|ENG|analog derivative|
+2301142|ENG|analyse aspect|
+2302735|ENG|anatomy histology|
+2302738|ENG|anatomy submicroscopic|
+232363|ENG|2 2 acid dithiobi ethanesulfonic|
+232364|ENG|2 2 acid dithiodiethanesulfonic|
+232883|ENG|2 2 bipyridine|
+232900|ENG|2 2 bipyridyl|
+233370|ENG|2 2 dipyridil|
+2339830|ENG|aphhnou stomatitis|
+2343686|ENG|appendix disorder disorder|
+234763|ENG|2 25 d hydroxyvitamin|
+234764|ENG|2 25 d hydroxyvitamin sub sub|
+2353689|ENG|arthritis involvement joint multiple|
+2363405|ENG|aspect blood supply|
+2363408|ENG|aspect cellular|
+2363410|ENG|aspect chemical|
+2363412|ENG|aspect complication|
+2363422|ENG|aspect development growth|
+2363428|ENG|aspect educational|
+2363429|ENG|aspect effect radiation|
+2363439|ENG|aspect genetic|
+2363444|ENG|aspect historical qualifier|
+2363445|ENG|aspect image radionuclide|
+2363446|ENG|aspect immunology|
+2363453|ENG|aspect metabolic|
+2363456|ENG|aspect mortality statistic|
+2363458|ENG|aspect pathogenicity|
+2363459|ENG|aspect pathological|
+2363461|ENG|aspect physiological|
+2363462|ENG|aspect poison|
+2363472|ENG|aspect rehabilitation|
+2363476|ENG|aspect surgical|
+2363481|ENG|aspect therapeutic|
+2363482|ENG|aspect toxicity|
+2366701|ENG|asta brand medica mesna|
+237169|ENG|2 3 4 5 6 dichloro dimethyl pyridinol|
+2379934|ENG|b hep|
+2389126|ENG|bioformation|
+2393744|ENG|birg587|
+2393757|ENG|birth disorder|
+2394610|ENG|black color stool|
+2395577|ENG|blood blood concept disease form navigational or organ|
+2397466|ENG|body disorder disorder site|
+2397469|ENG|body disorder site|
+239832|ENG|2 3 acid butanedioic dimercapto r s|
+2400364|ENG|bowel disease irritable|
+2400371|ENG|bowel incontinena|
+2400835|ENG|brand bristol mesna myers squibb|
+2401081|ENG|brand cell mesna pharm|
+2401653|ENG|brand dimercaprol taylor|
+2401846|ENG|brand eli lilly methymazol|
+2402793|ENG|brand jones methymazol|
+2402808|ENG|brand kendrick mesna|
+2402992|ENG|brand mesna sanf|
+2402993|ENG|brand mesna ucb|
+2403024|ENG|brand metyrapone novartis|
+2403359|ENG|brand sanofi succimer|
+2403598|ENG|brash|
+2407701|ENG|burn heart|
+240837|ENG|2 3 cf mptp|
+241364|ENG|2 3 dimercaptopropanol|
+2416632|ENG|cancer carcinoma gallbladder|
+2416633|ENG|cancer carcinoma gastric|
+243057|ENG|2 4 4 bi diacetate ester phenol pyridinylmethylene|
+2431963|ENG|cardioesophageal gastresophageal reflux relaxation|
+2441595|ENG|cell mesna|
+2447378|ENG|characteristic standard|
+2447542|ENG|chauffard hanot syndrome troisi|
+2447634|ENG|chemically induce|
+2456292|ENG|cisplatin ifosfamide mesna mitomycin protocol|
+246198|ENG|2 4 chlorophenyl dimethyl gamma n n pyridinepropanamine|
+2469537|ENG|codesystem|
+2469919|ENG|cola disorder disorder|
+2478049|ENG|common immunodeficiency vary|
+2484173|ENG|concept disorder hematopoietic navigational system|
+2484174|ENG|concept disorder immune navigational system|
+2488906|ENG|connatal|
+2488912|ENG|connective disorder disorder musculoskeletal tissue|
+2495705|ENG|control prevention|
+2503904|ENG|counterindication|
+2516229|ENG|cvid|
+2519075|ENG|dacarbazine doxorubicin ifosfamide mesna protocol|
+2519959|ENG|data numerical statistic|
+2519960|ENG|data nurse perioperative set|
+2537971|ENG|dermatopathy|
+2562857|ENG|dietary management|
+256467|ENG|2 acetyloxy acid benzoic|
+2565098|ENG|digestive disorder disorder organ|
+2565099|ENG|digestive disorder disorder system|
+2565100|ENG|digestive disorder disorder tract|
+2565105|ENG|digestive disorder organ|
+2565106|ENG|digestive disorder tract|
+256587|ENG|2 acid albumen mercaptoethanesulfonic|
+256643|ENG|2 acid amino ethanesulfonic|
+2570128|ENG|disease joint neuropathic|
+2570157|ENG|disease qualifier transmission|
+257175|ENG|2 acid ethanesulfonic mercapto monosodium salt|
+257176|ENG|2 acid ethanesulfonic methylthio|
+2572705|ENG|disorder disorder esophagus|
+2572721|ENG|disorder disorder function immune|
+2572726|ENG|disorder disorder genitourinary system|
+2572747|ENG|disorder disorder intestine|
+2572749|ENG|disorder disorder intestine small|
+2572761|ENG|disorder disorder lymphoid system|
+2572768|ENG|disorder disorder mouth|
+2572769|ENG|disorder disorder musculoskeletal system|
+2572777|ENG|disorder disorder or skin subcutaneous tissue|
+2572779|ENG|disorder disorder or structure support tooth|
+2572781|ENG|disorder disorder oropharynx|
+2572786|ENG|disorder disorder pancreas|
+2572792|ENG|disorder disorder peritoneum|
+2572800|ENG|disorder disorder rectum|
+2572804|ENG|disorder disorder respiratory system|
+2572812|ENG|disorder disorder skin|
+2572814|ENG|disorder disorder stomach|
+2572849|ENG|disorder due gastrointestinal hemorrhage melena|
+2572993|ENG|disorder function immune|
+2573002|ENG|disorder gastrointestinal general|
+2573113|ENG|disorder injury traumatic|
+2573158|ENG|disorder lymphoid system|
+2573189|ENG|disorder metabolic nutritional|
+2573235|ENG|disorder ophthalmic|
+2573236|ENG|disorder or skin subcutaneous tissue|
+2573238|ENG|disorder or structure support tooth|
+2573242|ENG|disorder oropharynx|
+2576714|ENG|distribution supply|
+2581062|ENG|dopamine substance|
+2581964|ENG|doxylamine product|
+2584143|ENG|drug file national|
+2584180|ENG|drug medicament or|
+2584182|ENG|drug medicament or substance|
+2584476|ENG|due gastrointestinal hemorrhage melena|
+2584586|ENG|dulco lax|
+2584587|ENG|dulco lax perles|
+2584589|ENG|dulcolax perles|
+2585595|ENG|durolax|
+2587836|ENG|economic|
+2592394|ENG|effect injurious|
+2592398|ENG|effect pharmacologic|
+2592401|ENG|effect undesirable|
+2598533|ENG|embryologic|
+2615682|ENG|epidemiologic|
+262247|ENG|2 arginin l mercaptoethanesulfonate mono|
+262250|ENG|2 arginin mercaptoethane sulfonate|
+264191|ENG|2 betaine histidine l thiol|
+26540|ENG|0 333 bisacodyl enema mg ml|
+266944|ENG|2 ch3 mptp|
+2676044|ENG|eszopiclone product|
+2676045|ENG|eszopiclone substance|
+2676392|ENG|ethics qualifier|
+2676410|ENG|ethnologic|
+269767|ENG|2 cysteine disulfide mercaptoethanesulfonate|
+2701926|ENG|fector hepatici|
+270887|ENG|2 dimethyl gamma n n phenyl pyridinepropanamine|
+2712529|ENG|fistula pathologic|
+2712605|ENG|fistula specimen type|
+2714557|ENG|florisan n|
+272335|ENG|2 et mptp|
+272357|ENG|2 ethanaminium mercapto n n n trimethyl|
+272361|ENG|2 ethanesulfonate methylthio|
+272644|ENG|2 f mptp|
+2743135|ENG|ge reflux|
+2759005|ENG|guideline model usp|
+2761461|ENG|hemorrhage term|
+2768119|ENG|head mesh|
+277601|ENG|2 me|
+277738|ENG|2 mercaptoethanesulfonate|
+277739|ENG|2 mercaptoethanesulfonate sodium|
+277740|ENG|2 mercaptoethanol|
+277741|ENG|2 mercaptoethanol substance|
+277773|ENG|2 mescd|
+277876|ENG|2 methyl mptp|
+277881|ENG|2 methyl n pyridineethanamine|
+2779620|ENG|herniate structure|
+278682|ENG|2 mptp nh2|
+278790|ENG|2 n oxide poly vinylpyridine|
+2818735|ENG|infectivity|
+2824420|ENG|injectable mesna mesnex solution|
+2837168|ENG|intolerance milk sugar|
+2859892|ENG|isolation purification|
+2862199|ENG|jurisprudence legislation|
+2868803|ENG|lauryl sodium substance sulfate|
+2896309|ENG|lunesta|
+289643|ENG|200 inhalant mesna mg ml solution|
+289674|ENG|200 injectable mesna mg ml solution|
+289885|ENG|200 mesna mg ml|
+2904118|ENG|management nutritional|
+290445|ENG|2000 alcohol drug other thesaurus|
+2912819|ENG|mdn|
+2912845|ENG|measure preventive|
+291796|ENG|2001 digestive endoscopy metathesaurus minimal standard terminology version|
+2937857|ENG|mesna mesnex oral tablet|
+293897|ENG|2003 nomenclature product standard|
+2939053|ENG|metastatic qualifier|
+2942492|ENG|microbiological|
+295368|ENG|200mg 2ml ampul injection mesna product solution|
+295369|ENG|200mg 2ml ampul injection mesna solution|
+2960387|ENG|mvx|
+2964995|ENG|naics|
+296555|ENG|200mg injection mesna|
+2981308|ENG|nerve supply|
+2996743|ENG|nurse therapy|
+3011196|ENG|operative therapy|
+305499|ENG|232632 bm|
+3055351|ENG|periumbilical purpura|
+305604|ENG|23390 sch|
+3059011|ENG|pharmacologic therapy|
+3059153|ENG|physiopathological|
+3068919|ENG|pnd|
+3069255|ENG|polaronil|
+3083074|ENG|preventive therapy|
+3110117|ENG|pseudosclerosis strumpell westphal|
+3110866|ENG|psychology qualifier|
+3115942|ENG|qualifier trauma|
+3115943|ENG|qualifier trend|
+3115945|ENG|qualifier utilisation|
+3127760|ENG|radiotherapeutic|
+316317|ENG|25 d2 hydroxyvitamin|
+316619|ENG|25 ergocalciferol hydroxy|
+316620|ENG|25 ergocalciferol hydroxy substance|
+317042|ENG|25 hydroxycalciferol|
+317049|ENG|25 hydroxyergocalciferol|
+3186194|ENG|roentgenographic|
+319255|ENG|250 azithromycin coat dihydrate film mg oral tablet|
+319256|ENG|250 azithromycin coat film mg oral tablet|
+319258|ENG|250 azithromycin mg|
+319259|ENG|250 azithromycin mg oral tablet|
+319260|ENG|250 azithromycin mg oral tablet zithromax|
+321063|ENG|250 mg oral tablet zithromax|
+322022|ENG|250mg 6 azithromycin pkt tab|
+322388|ENG|250mg azithromycin dihydrate product tablet|
+322389|ENG|250mg azithromycin dihydrate tablet|
+322391|ENG|250mg azithromycin tab|
+3235874|ENG|systematic|
+3244510|ENG|taxonomic|
+3253305|ENG|teratologic|
+328318|ENG|2785 wr|
+3291211|ENG|ucum|
+3292810|ENG|ultrastructure|
+3297054|ENG|utilisation|
+3311030|ENG|veterinary|
+3319354|ENG|workforce|
+3326753|ENG|code measure unify unit|
+3328054|ENG|0 hl7v3|
+3328056|ENG|vandf|
+3328057|ENG|uspmg|
+3328058|ENG|dxp|
+3328062|ENG|administration drug file health national veteran|
+3328063|ENG|dxplain|
+3328065|ENG|0 3 hl7 version vocabulary|
+3332710|ENG|cancer gastrointestinal system|
+3333383|ENG|information nomenclature registry system|
+3333644|ENG|reni|
+3333814|ENG|abdo discomfort|
+3333817|ENG|abdominal catastrophe|
+3336401|ENG|congestion intestinal|
+3336780|ENG|discomfort pelvic|
+3336838|ENG|disorder neurodevelopmental|
+3337117|ENG|esophageal food impaction|
+3337397|ENG|ga portal venous|
+3337569|ENG|hepatic pathology|
+3337674|ENG|hypophagia|
+3337926|ENG|intake oral reduce|
+336439|ENG|3 3 4 5 6 bi dithiobi hydroxy methyl methylen pyridinemethanol|
+337821|ENG|3 3 mptp trimethyl|
+340361|ENG|3 4 b indole pyrido|
+340918|ENG|3 4 dihydroxyphenethylamine|
+3426884|ENG|0 1 hyaluronidase lotion topical|
+3428697|ENG|1 2 2 3 3 4 aminocaproyl diazol glycero n nitrobenz oxa palmitoyl phosphocholine sn|
+3455748|ENG|aspect innervation|
+3455751|ENG|aspect veterinary|
+345846|ENG|3 acetyl mercaptoalanine n|
+3460018|ENG|cpd nbdpc|
+3462870|ENG|excl incontinence p12|
+3465548|ENG|immunopathology manifestation|
+346593|ENG|3 acid mercapto propanoic|
+346596|ENG|3 acid mercaptopropanoic|
+346597|ENG|3 acid mercaptopropionic|
+3471529|ENG|communicative|
+3471748|ENG|secrete|
+3471749|ENG|secretory|
+3475227|ENG|classification industrial standard|
+3475287|ENG|dimyristoyl lecithin|
+3475418|ENG|sic|
+3475608|ENG|angele assessment classification endoscopic esophagitis lo reflux system|
+3475609|ENG|angele classification lo system|
+3475731|ENG|classification la system|
+3477787|ENG|1 616 91|
+3477818|ENG|11 5 54|
+3477824|ENG|111180|
+3477943|ENG|170973|
+3478254|ENG|5065|
+3478263|ENG|52 8 86|
+3478684|ENG|9251 calgb regimen|
+3478772|ENG|adriamycin dacarbazine ifosfamide mesna regimen|
+3478775|ENG|adriamycin dtic ifosfamide mesna regimen|
+3478778|ENG|adriamycin ifosfamide mesna regimen|
+3478783|ENG|aim regimen|
+3478810|ENG|arac cyclophosphamid doxorubicin ifosfamide methotrexate oncovin regimen vepesid|
+3479051|ENG|classification miller payne|
+3479061|ENG|code establish fda identifier ingredient name terminology unique|
+3479062|ENG|code fda terminology unii|
+3479065|ENG|codox ivac m regimen|
+3479126|ENG|disorder neurosensory|
+3479151|ENG|etoposide ifosfamide mesna novantrone regimen|
+3479215|ENG|ice r regimen|
+3479219|ENG|ifosfamide platinol regimen taxol|
+3479220|ENG|ifosfamide platinol regimen velban|
+3479251|ENG|maid regimen|
+3479302|ENG|regimen rice|
+3479306|ENG|regimen veip|
+3487620|ENG|abnormality morphologic sinus|
+3492904|ENG|alcohol nicotinyl substance|
+3496832|ENG|betahistine substance|
+3499847|ENG|cough disorder examination hernia impulse show|
+3500662|ENG|digestive symptom|
+3500802|ENG|disease due virus|
+3504903|ENG|product taurine|
+3517386|ENG|2006 crisp thesaurus|
+3537293|ENG|anatomic cancer code current nom pt site site system type xxx|
+3541645|ENG|aspect deficiency|
+358172|ENG|3 hydroxymethylpyridine|
+359055|ENG|3 m ptp|
+359234|ENG|3 methanol pyridine|
+359782|ENG|3 mptp ol|
+3598598|ENG|base data|
+3598684|ENG|bio informatics|
+3598707|ENG|bladder disorder gall|
+3598710|ENG|bladder gall|
+3598717|ENG|bleed gastro intestinal|
+3598718|ENG|bleed gastro intestinal tract|
+3599199|ENG|choline phosphatidyl|
+3599270|ENG|colitis enteritis noninfective|
+3599491|ENG|databank|
+3599517|ENG|deficiency immuno|
+3599519|ENG|degeneration hepato lenticular|
+3599626|ENG|dipalmitoyl phosphatidylcholine|
+3599636|ENG|disease esophageal gastro reflux|
+3599638|ENG|disease gallbladder|
+3599655|ENG|disorder gastro intestinal|
+3599665|ENG|disorder musculoskeletal|
+3599798|ENG|encopresis nonorganic|
+3599837|ENG|esophageal gastro reflux|
+3600036|ENG|gastroenteritis infectious non|
+3600256|ENG|icd10|
+3600507|ENG|mercaptoethane sulfonate|
+3600512|ENG|methane sulfonate|
+3600613|ENG|nethol puri|
+3600662|ENG|nontropical sprue|
+3600715|ENG|pa|
+3601078|ENG|2 ethanol mercapto|
+3601097|ENG|2 mercaptoethane sodium sulfonate|
+3601458|ENG|acetyl cysteine|
+3601459|ENG|acetyl cysteine n|
+3602286|ENG|131 mge ontology|
+3602654|ENG|fma|
+3602767|ENG|mge|
+3602768|ENG|mge ontology|
+3602769|ENG|mged131|
+3602772|ENG|mgedontology|
+360589|ENG|3 pyridinemethanol|
+3672224|ENG|5 bisacodyl delay mg oral release tablet|
+3676471|ENG|sublingualroute|
+3676738|ENG|cdisc organisation|
+3677763|ENG|mcgrath regimen|
+3679330|ENG|2 pyridinylmethylsulfinylbenzimidazole|
+3681377|ENG|benzimidazole methylpyridine sulfoxide|
+3682057|ENG|complication disease female pregnancy urogenital|
+3682457|ENG|disease genitourinary male|
+3682459|ENG|disease male urogenital|
+3684301|ENG|1 1 2 3 4 6 induce methyl mptp parkinsonism phenyl tetrahydropyridine|
+3687686|ENG|allergic digestive disorder disorder system|
+3687687|ENG|allergic digestive disorder system|
+3687724|ENG|allergy digestive system|
+3691752|ENG|classification health organisation tumor who world|
+3692169|ENG|condition skin|
+3694470|ENG|encopresis find|
+3694471|ENG|encopresis find functional|
+3702660|ENG|2003 authorise osteopathic thesaurus|
+3713048|ENG|aspect contraindication|
+3713049|ENG|aspect instrumentation|
+3716990|ENG|class taxonomic|
+371812|ENG|323h 57 bw|
+3720056|ENG|file record|
+3721055|ENG|gastrointestinal mucositis ulcerative|
+3722863|ENG|nutritional problem|
+3723004|ENG|pain symptom|
+3724269|ENG|cancer gastric stomach|
+3724546|ENG|2 3 acid amino propanoic r sulfanyl|
+3724930|ENG|choline phospholipid|
+3724957|ENG|conference harmonisation international|
+3725114|ENG|hl7 nci|
+3728850|ENG|azasite|
+3728928|ENG|category code data genomic sample|
+3729677|ENG|dicom terminology|
+3764758|ENG|aspect diagnose|
+3764992|ENG|authorise osteopathic thesaurus|
+3767214|ENG|aot|
+3768191|ENG|code measure scheme unit|
+3768201|ENG|communication digital image medicine|
+3768395|ENG|measure system unit|
+3768396|ENG|measurement system|
+3768944|ENG|a hepatitis infection|
+3770033|ENG|002 mercaptoethanesulfonate|
+3770391|ENG|01 01 02 03 04 06 methylphenyltetrahydropyridine|
+3770459|ENG|01 04 methylphenylpyridinium|
+3770537|ENG|01 acid carboxyglutamic|
+3770560|ENG|01 aminonaphthalene|
+3770728|ENG|01 naphthylamine|
+3770785|ENG|0102 dipalmitoylphosphatidylcholine|
+3770935|ENG|02 02 bipyridine|
+3770937|ENG|02 02 dipyridil|
+3770995|ENG|02 25 d hydroxyvitamin|
+3771252|ENG|02 pyridinylmethylsulfinylbenzimidazole|
+3771327|ENG|025 hydroxyergocalciferol|
+3771424|ENG|03 acid mercaptopropanoic|
+3771425|ENG|03 acid mercaptopropionic|
+3771908|ENG|06 a b vitamin|
+3771911|ENG|06 a mercaptopurine|
+3771947|ENG|06 hydroxydopamine|
+3771961|ENG|06 ohda|
+3772296|ENG|1 1 2 3 4 6 methyl phenyl poi tetrahydropyridine|
+3772539|ENG|1 2 3 4 4 5 5h 5s 6 6 7 7 b carboxylate chloropyridine dihydro methyl oxo piperazine pyrazin pyrrolo yl yl|
+3775928|ENG|a administration|
+3775941|ENG|a anatomy|
+3776061|ENG|a growth|
+3776084|ENG|a isolation|
+3776135|ENG|a prevention|
+3776286|ENG|ab legislation|
+3776307|ENG|abnorm|
+3776320|ENG|abnorm congenital di hereditary neonatal|
+3776324|ENG|abnorm digestive system|
+3776784|ENG|admin|
+3776806|ENG|admin drug sublingual|
+3776841|ENG|admin sublingual|
+3776930|ENG|adv eff|
+3777087|ENG|ah|
+3777512|ENG|anal system|
+3777541|ENG|andd organisation|
+3777649|ENG|antag|
+3777656|ENG|antag dopamine|
+3777657|ENG|antag dopamine recept|
+3777658|ENG|antag dopaminergic|
+3779258|ENG|biliary di tract|
+3779353|ENG|biosyn|
+3779400|ENG|bladder di gall|
+3779459|ENG|blood di|
+3780287|ENG|celiac di|
+3780603|ENG|chem ind|
+3780621|ENG|chem syn|
+3780645|ENG|child development di|
+3780870|ENG|class di health international problem relat stati|
+3780871|ENG|class di international|
+3781117|ENG|colonic di|
+3781156|ENG|common immunodefic variable|
+3781187|ENG|compl|
+3781188|ENG|compl di female pregnancy urogenital|
+3781261|ENG|compute methodol|
+3781278|ENG|condition pathol sign symptom|
+3781294|ENG|congen|
+3781343|ENG|congenital di|
+3781355|ENG|connective di skin tissue|
+3781384|ENG|contra|
+3781594|ENG|cpd mercapto|
+3781667|ENG|cpd pyridinium|
+3781681|ENG|cpd sulfhydryl|
+3781969|ENG|cytol|
+3782050|ENG|data mol seq|
+3782051|ENG|data molec seq|
+3782099|ENG|defic|
+3782150|ENG|defic immunol syndrome|
+3782186|ENG|deglutition di|
+3782507|ENG|df|
+3782527|ENG|di digestive system|
+3782543|ENG|di ear|
+3782557|ENG|di endocrin|
+3782558|ENG|di endocrin system|
+3782565|ENG|di esophageal|
+3782576|ENG|di eye|
+3782633|ENG|di gallbladder|
+3782636|ENG|di gastresophageal reflux|
+3782637|ENG|di gastric|
+3782638|ENG|di gastrointestinal|
+3782659|ENG|di genitourinary male|
+3782698|ENG|di grind tooth|
+3782734|ENG|di hematol|
+3782735|ENG|di hemic lymphatic|
+3782747|ENG|di hepatoneurologic wilson|
+3782748|ENG|di hereditary|
+3782790|ENG|di immune system|
+3782791|ENG|di immunol|
+3782792|ENG|di immunological|
+3782818|ENG|di intestinal|
+3782828|ENG|di joint|
+3782845|ENG|di kinnier wilson|
+3782878|ENG|di liver|
+3782894|ENG|di lymphatic|
+3782899|ENG|di male urogenital|
+3782930|ENG|di metab|
+3782931|ENG|di metab nutritional|
+3782956|ENG|di mouth|
+3782957|ENG|di mouth tooth|
+3782971|ENG|di musculoskeletal|
+3782988|ENG|di nerve peripheral|
+3783005|ENG|di nervous peripheral pn system|
+3783006|ENG|di nervous peripheral system|
+3783008|ENG|di nervous system|
+3783012|ENG|di neurolog|
+3783014|ENG|di neurological|
+3783030|ENG|di nutrition|
+3783031|ENG|di nutritional|
+3783033|ENG|di occup|
+3783042|ENG|di orl|
+3783048|ENG|di otorhinolaryngol|
+3783053|ENG|di pancreatic|
+3783061|ENG|di parasitic|
+3783082|ENG|di peritoneal|
+3783103|ENG|di plant|
+3783105|ENG|di pn|
+3783146|ENG|di rectal|
+3783153|ENG|di respiration|
+3783154|ENG|di respiratory tract|
+3783162|ENG|di rumination|
+3783189|ENG|di sensory|
+3783198|ENG|di skin|
+3783224|ENG|di stomach|
+3783225|ENG|di stomatognathic|
+3783231|ENG|di swallow|
+3783257|ENG|di tract urinary|
+3783267|ENG|di urol|
+3783276|ENG|di viral|
+3783277|ENG|di virus|
+3783287|ENG|di wilson|
+3783388|ENG|diet ther|
+3783415|ENG|digestive neopl system|
+3783469|ENG|dipyridil|
+3783588|ENG|dppc|
+3783672|ENG|drug eff|
+3783686|ENG|drug ther|
+3783779|ENG|econ|
+3783902|ENG|eff rad|
+3783963|ENG|embryol|
+3784174|ENG|enzymol|
+3784204|ENG|epidemiol|
+3784317|ENG|ethnol|
+3784330|ENG|etiol|
+3784865|ENG|general pathol symptom|
+3785304|ENG|hepatic transpl|
+3785306|ENG|hepatitis infect|
+3785318|ENG|hereditary neopl syndrome|
+3786105|ENG|ind mptp parkinsonism|
+3786279|ENG|information serv|
+3786362|ENG|inj wind|
+3786382|ENG|innerv|
+3786398|ENG|instrum|
+3786486|ENG|island langerhans transpl|
+3786487|ENG|island pancreas transpl|
+3786488|ENG|islet langerhans transpl|
+3786489|ENG|islet pancreatic transpl|
+3786490|ENG|islet transpl|
+3786652|ENG|legi|
+3786716|ENG|liver transpl|
+3786717|ENG|lj|
+3786984|ENG|metab|
+3787033|ENG|microbiol|
+3787127|ENG|mortal|
+3787333|ENG|mouth rehabil|
+3787340|ENG|mptp neurotox syndrome|
+3787341|ENG|mptp poi|
+3787470|ENG|neopl|
+3787705|ENG|nurr|
+3787781|ENG|og|
+3787899|ENG|pancreas transpl|
+3787912|ENG|parasitol|
+3787920|ENG|pathol|
+3788009|ENG|pharm preparation|
+3788021|ENG|pharmacokin|
+3788022|ENG|pharmacol|
+3788072|ENG|physiol|
+3788082|ENG|physiopathol|
+3788386|ENG|psychol|
+3788479|ENG|radiogr|
+3788492|ENG|radioth|
+3788592|ENG|rehabil|
+3788631|ENG|risa|
+3788685|ENG|secret|
+3788769|ENG|statist|
+3788844|ENG|ther|
+3788852|ENG|ther use|
+3788889|ENG|transm|
+3788892|ENG|transpl|
+3788914|ENG|ultrasonogr|
+3788915|ENG|ultrastruct|
+3788923|ENG|util|
+3788943|ENG|virol|
+3791808|ENG|body digestive structure structure system|
+3793184|ENG|clostridium colitis difficile disorder|
+3794122|ENG|digestive structure system|
+380343|ENG|3983 ucb|
+381546|ENG|3gm 400mg amp ifosfamide inj mesna pkg vil|
+381591|ENG|3h 6 purine thiol|
+3853139|ENG|abnormality skeletal|
+3861133|ENG|administration affair department drug file health national s u veteran veteran|
+3867119|ENG|anatomic another cancer code current i message nominal part point site site specify system time type|
+3867120|ENG|anatomic another cancer code i message nominal original part point site specify system time type|
+3867610|ENG|another arbitrary cancer central i message numb ordinal part patient point sequence specify time|
+3882221|ENG|arthritis polyarticular|
+389261|ENG|4 alfa benzeneacetamide ethyl hydroxymethyl n n pyridinylmethyl|
+389669|ENG|4 amino mptp|
+3899428|ENG|cancer hepatocellular|
+3908847|ENG|cleft larynx posterior|
+3913638|ENG|congenital mesh qualifier|
+3919749|ENG|decrease immunoglobulin serum|
+3939555|ENG|fda label metathesaurus product structure|
+3939556|ENG|fda label product structure|
+3947533|ENG|gastrointestinal malignant tract tumor|
+3966112|ENG|inflammation peritoneal|
+396618|ENG|4 ethyl n n pyridylmethyl tropamide|
+397027|ENG|4 fme mptp|
+397028|ENG|4 fmeph me thp|
+3982550|ENG|mthspl|
+3992528|ENG|poor swallow|
+399587|ENG|4 methyl n phenylpyridine|
+399588|ENG|4 methyl n phenylpyridinium|
+400142|ENG|4 mztp|
+4015094|ENG|classification clinical disease international modification ninth revision|
+4015096|ENG|classification disease international revision tenth|
+4015099|ENG|cm icd9|
+4015382|ENG|ncit|
+4015632|ENG|abdominal hernia internal|
+4018285|ENG|degeneration musculoskeletal|
+4020431|ENG|pancreatic transplantation|
+4020621|ENG|radlex|
+4021145|ENG|dabigatran|
+4022105|ENG|grade system tumor|
+4023384|ENG|database model organism zebrafish|
+4023485|ENG|zfin|
+4027917|ENG|a index topic|
+4028417|ENG|akorn brand tropicamide|
+4029434|ENG|blocker dopamine|
+4029675|ENG|brand ocusoft tropicamide|
+4030859|ENG|di otologic|
+4030932|ENG|disease ent|
+4030939|ENG|disease otolaryngologic|
+4030940|ENG|disease otolaryngological|
+4030941|ENG|disease otologic|
+4030942|ENG|disease otological|
+4036803|ENG|aphthous disorder mouth ulcer|
+4036805|ENG|aphthous mouth ulcer|
+4042469|ENG|cough examination hernia impulse show|
+4043785|ENG|disorder eye proper|
+4047978|ENG|oral qualifier tablet value|
+4048248|ENG|substance thioglycolate|
+405207|ENG|400 mesna mesnex mg oral tablet|
+405208|ENG|400 mesnex mg oral tablet|
+405209|ENG|400 mesna mg|
+405210|ENG|400 mesna mg oral tablet|
+405774|ENG|400mg 4ml amp injection mesna product solution vial|
+405775|ENG|400mg 4ml amp injection mesna solution vial|
+405776|ENG|400mg 4ml injection mesna|
+405965|ENG|400mg amp injection mesna|
+406303|ENG|400mg mesna product tablet|
+406304|ENG|400mg mesna tab|
+406305|ENG|400mg mesna tablet|
+4072644|ENG|250 azithromycin coat film mg monohydrate oral tablet|
+4084833|ENG|abdmnal generalise pain|
+4084857|ENG|abdmnal pain site unspcf|
+4089125|ENG|acute pancreatitis smq|
+4091775|ENG|agt medicinal poison|
+4096091|ENG|analyse isolation purification|
+4096236|ENG|anatomy histology qualifier|
+4097868|ENG|anom digestive syst|
+4102524|ENG|arthropathy di nerve w|
+4102554|ENG|arthropathy unspec|
+4111410|ENG|benign cyst include malignant neoplasm polyp unspecified|
+4128815|ENG|circulatory disease|
+41293|ENG|1 1 1 2 2 3 3 4 4 5 6 methoxy methyl tetrahydropyridine thiadiazol yl|
+4131699|ENG|common immunodef variabl|
+413849|ENG|4748 u|
+4138577|ENG|def humoral immunity nec|
+4138627|ENG|deficiency immunity|
+4140404|ENG|di gastroduodenal|
+4140412|ENG|di gi perinat sy|
+4140455|ENG|di hx resp system|
+4140461|ENG|di immune mechanism|
+4140487|ENG|di joint jt unspec|
+4140539|ENG|di metabolism porphyrin|
+4140559|ENG|di nec oral soft tissue|
+4142034|ENG|disease resp system|
+4142166|ENG|disorder menstrual nec|
+4144285|ENG|dysphagia unspecified|
+4147421|ENG|esophagus mal neo|
+4153285|ENG|gastroint hemor|
+4153933|ENG|gi mucositis ulceratve|
+4157183|ENG|haya|
+4159926|ENG|hypogammaglobulinem|
+4161108|ENG|inflam polyarthrop|
+4161427|ENG|inte malabsorption|
+4161518|ENG|intestinal obstruct|
+4161522|ENG|intestine malig neo|
+4166604|ENG|liver malignant neo|
+4168562|ENG|malig neo pancreas|
+4175062|ENG|pancreat transplant|
+41759|ENG|1 1 1 2 3 3 3 4 4 6 cyclohexen hydroxyphenyl methyl phenyl pyridine tetrahydro yl|
+41775|ENG|1 1 1 2 3 3 3 4 6 cyclohexen hydroxyphenyl hydroxyphenyl methyl p p pyridine tetrahydro yl|
+41778|ENG|1 1 1 2 3 3 3 4 6 cyclohexen methyl phenyl phenyl pyridine tetrahydro yl|
+4178000|ENG|postcholecystectomy synd|
+4179523|ENG|qualifier therapeutic use|
+4183783|ENG|biliary calculus substance|
+4183847|ENG|entity radlex|
+4186341|ENG|classification current former never|
+4186486|ENG|ncf|
+4188198|ENG|agent drug organ tissue toxicity|
+4197308|ENG|5mg bisacodyl gastro resistant tablet|
+4200386|ENG|disorder fistula|
+4200403|ENG|disorder gastrointestinal malignant neoplasm tract|
+42028|ENG|1 1 1 2 3 4 e methylphenyl propenyl pyridine pyrrolidinyl|
+42035|ENG|1 1 1 2 3 4 methyl methylphenyl piperidinyl propanone|
+4212936|ENG|250 6 azithromycin mg oral pack pak tablet z zithromax|
+4212937|ENG|250 6 azithromycin mg oral pack tablet|
+4231542|ENG|dysphagia malignant|
+4234198|ENG|injection mesna|
+4235519|ENG|pak z|
+4236214|ENG|thoracalgia|
+4236958|ENG|1 2 3 4 4 5 5 5h 5s 6 6 7 7 b carboxylate chloropyridin dihydro methylpiperazine oxo pyrazin pyrrolo yl yl|
+4236989|ENG|190 sep|
+4237336|ENG|s zopiclone|
+4241598|ENG|gastr|
+4241670|ENG|immun|
+4241797|ENG|musc|
+4241811|ENG|nerv|
+42479|ENG|1 1 1 4 4 4 4 4 butanone chlorophenyl fluorophenyl hydroxy piperidinyl|
+424957|ENG|5 bisacodyl coat enteric mg oral tablet|
+424961|ENG|5 bisacodyl mg oral tablet|
+424962|ENG|5 bisacodyl mg rectal suppository|
+4256761|ENG|aloe substance|
+4261155|ENG|contextual exposure qualifier|
+4262191|ENG|disorder disorder proper tract urinary|
+4262305|ENG|disorder proper tract urinary|
+42726|ENG|1 1 10 10 3 3 4 4 5 6 7 9 acridinium bi dimethylamino endo hydroxy oxo oxohexadecyl oxy phosphapentacosan trioxa yl|
+4273704|ENG|1 1 2 3 4 6 chemical ingredient methyl phenyl tetrahydropyridine|
+4275297|ENG|1 2 chemical dipalmitoylphosphatidylcholine ingredient|
+4276735|ENG|1 4 chemical ingredient methyl phenylpyridinium|
+4277801|ENG|1 acid carboxyglutamic chemical ingredient|
+4279049|ENG|1 chemical ingredient naphthylamine|
+4279949|ENG|10 10 100 50 ifosfamide injectable injectable mesna mg mg ml ml pack solution solution|
+4281375|ENG|100 2 50 6 ifosfamide injectable injectable mesna mg mg ml ml pack solution solution|
+4281434|ENG|100 3 5 50 ifosfamide injectable injectable mesna mg mg ml ml pack solution solution|
+4283196|ENG|100mg inj mesna ml product va|
+4284082|ENG|10mg 30ml bisacodyl enema product rtl va|
+4284098|ENG|10mg 4 5mg bisacodyl bisacodyl product supp tab va|
+4284258|ENG|10mg bisacodyl bullet magic product rtl supp va|
+4284259|ENG|10mg bisacodyl ec product tab va|
+4284260|ENG|10mg bisacodyl enema product va|
+4284261|ENG|10mg bisacodyl product rtl supp va|
+4300522|ENG|1gm 1gm amp ifosfamide inj mesna pkg product va vil|
+4300525|ENG|1gm 200mg amp ifosfamide inj mesna pkg product va vil|
+4300537|ENG|1gm 3gm amp ifosfamide inj mesna pkg product va vil|
+4301541|ENG|2 2 chemical dipyridil ingredient|
+4301840|ENG|2 25 chemical d hydroxyvitamin ingredient|
+4304763|ENG|2 chemical ingredient pyridinylmethylsulfinylbenzimidazole|
+430850|ENG|5 ice protocol|
+4311898|ENG|250 anhydrous azithromycin coat film mg oral tablet|
+4312082|ENG|250mg 6 azithromycin pkt product tab va|
+4312135|ENG|250mg azithromycin product tab va|
+4315364|ENG|3 acid chemical ingredient mercaptopropionic|
+43169|ENG|1 1 10 3 4 4 4 5 7 9 9 aminium hexadecenyl hydroxide hydroxy inner n n n oxide oxo oxo oxy phosphapentacosan r salt trimethyl trioxa z|
+43173|ENG|1 1 10 3 4 4 4 5 7 9 aminium hydroxy inner n n n oxide oxo oxohexadecyl oxy phosphapentacosan salt trimethyl trioxa|
+43174|ENG|1 1 10 3 4 4 4 5 7 9 aminium hydroxy inner n n n oxide oxo oxotetradecyl oxy phosphatricosan salt trimethyl trioxa|
+4319522|ENG|3gm 400mg amp ifosfamide inj mesna pkg product va vil|
+4321354|ENG|400mg mesna product tab va|
+4327155|ENG|5mg bisacodyl ec product tab ud va|
+4327156|ENG|5mg bisacodyl ec product tab va|
+4327157|ENG|5mg bisacodyl product rtl supp va|
+4327910|ENG|6 b chemical ingredient vitamin|
+4327994|ENG|6 chemical ingredient mercaptopurine|
+4331223|ENG|8500 ml oral product sacrosidase soln unt va|
+4331224|ENG|8500 ml sacrosidase soln unt|
+4333415|ENG|a disease find hepatitis|
+4335038|ENG|abdomen acute disease find|
+4335205|ENG|abdominal disease find hernia|
+4335208|ENG|abdominal disease find pain|
+4335493|ENG|abnormality congenital disease disease find hereditary neonatal|
+4335495|ENG|abnormality digestive disease find system|
+4337194|ENG|acetylcysteine chemical ingredient|
+4338756|ENG|acid chemical ingredient isonicotinic|
+4338787|ENG|acid chemical ingredient nicotinic|
+4338836|ENG|acid chemical ingredient picolinic|
+4338850|ENG|acid chemical ingredient quinolinic|
+4344716|ENG|activity bind|
+4344724|ENG|activity bind moa|
+4356050|ENG|albumen chemical ingredient iodinate radio serum|
+4356296|ENG|alcohol chemical ingredient nicotinyl|
+4357003|ENG|alkanesulfonate chemical ingredient|
+4357575|ENG|aloe cap product tab va vera|
+4357576|ENG|aloe cleanse pad product va vera|
+4357580|ENG|aloe gel product top va vera|
+4357582|ENG|aloe liquid oral product va vera|
+4359030|ENG|aminopyridine chemical ingredient|
+4360155|ENG|analog chemical derivative ingredient|
+4360435|ENG|anatomy foundational model|
+4360436|ENG|anatomy foundational model ontology|
+4365772|ENG|aphthous disease find stomatitis|
+4371524|ENG|arthropathy disease find neurogenic|
+4373097|ENG|aspirin chemical ingredient|
+4376459|ENG|azithromycin chemical ingredient|
+4376883|ENG|b disease find hepatitis|
+438048|ENG|50 mesna mg ml|
+438049|ENG|50 mesna mg ml nasal solution|
+4381862|ENG|bellyache|
+4382725|ENG|betahistine chemical ingredient|
+4383444|ENG|biliary disease disease find tract|
+4384474|ENG|bisacodyl chemical ingredient|
+4389622|ENG|bowel disease find irritable syndrome|
+4389624|ENG|bowel dulcolax kit prep|
+4393732|ENG|bruxism disease find|
+4395463|ENG|c diff infection|
+4398793|ENG|carboline chemical ingredient|
+4400056|ENG|caster chemical ingredient oil|
+4400061|ENG|caster oil product va|
+4401793|ENG|celiac disease disease find|
+4406526|ENG|chemical chlorpheniramine ingredient|
+4406664|ENG|chemical clopidol ingredient|
+4406853|ENG|chemical compound ingredient pyridinium|
+4406862|ENG|chemical compound ingredient sulfhydryl|
+4406895|ENG|chemical conotoxin ingredient|
+4407063|ENG|chemical cysteine ingredient|
+4407419|ENG|chemical dihydropyridine ingredient|
+4407437|ENG|chemical dimercaprol ingredient|
+4407440|ENG|chemical dimethindene ingredient|
+4407458|ENG|chemical dimyristoylphosphatidylcholine ingredient|
+4407533|ENG|chemical disopyramide ingredient|
+4407605|ENG|chemical dodecyl ingredient sodium sulfate|
+4407615|ENG|chemical dopamine ingredient|
+4407627|ENG|chemical doxylamine ingredient|
+4407831|ENG|chemical ergothioneine ingredient|
+4407865|ENG|chemical eszopiclone ingredient|
+4408586|ENG|chemical haloperidol ingredient|
+4408926|ENG|chemical indinavir ingredient|
+4408931|ENG|chemical indolizine ingredient|
+4409365|ENG|chemical ingredient marine toxin|
+4409427|ENG|chemical ingredient mercaptoethanol|
+4409428|ENG|chemical ingredient mercaptoethylamine|
+4409437|ENG|chemical ingredient mesilate|
+4409439|ENG|chemical ingredient mesna|
+4409540|ENG|chemical ingredient methymazol|
+4409555|ENG|chemical ingredient metyrapone|
+4409685|ENG|chemical ingredient n oxide polyvinylpyridine|
+4409721|ENG|chemical ingredient naphthylvinylpyridine|
+4409771|ENG|chemical ingredient nevirapine|
+4409785|ENG|chemical ingredient nicotine|
+4409846|ENG|chemical ingredient nitrosothiol s|
+4410031|ENG|chemical ingredient oxidopamine|
+4410086|ENG|chemical ingredient pantetheine|
+4410100|ENG|chemical ingredient paraquat|
+4410198|ENG|chemical ingredient pheniramine|
+4410258|ENG|chemical ingredient phosphatidylcholine|
+4410308|ENG|chemical ingredient picoline|
+4410612|ENG|chemical ingredient pyridine|
+4410614|ENG|chemical ingredient pyridone|
+4410623|ENG|chemical ingredient pyrithioxin|
+4410666|ENG|chemical ingredient raclopride|
+4410907|ENG|chemical ingredient sodium sulfate tetradecyl|
+4410974|ENG|chemical ingredient succimer|
+4411068|ENG|chemical ingredient taurine|
+4411159|ENG|chemical ingredient thiocholine|
+4411163|ENG|chemical ingredient thioglycolate|
+4411169|ENG|chemical ingredient thiomalate|
+4411241|ENG|chemical ingredient tolperisone|
+4411337|ENG|chemical ingredient triprolidine|
+4411347|ENG|chemical ingredient tropicamide|
+4411588|ENG|chest disease find pain|
+4411753|ENG|child teenager|
+4411756|ENG|childhood diagnose disease disorder find mental|
+4413547|ENG|cirrhosis disease find liver|
+4415587|ENG|colonic disease disease find|
+4416278|ENG|common disease find immunodeficiency variable|
+4417609|ENG|condition disease find pathological sign symptom|
+4417848|ENG|connective disease disease find skin tissue|
+4418065|ENG|constipation disease find|
+4422618|ENG|cyst disease find nonodontogenic|
+4422692|ENG|cystitis disease find|
+4423166|ENG|dairy intolerance product|
+4424579|ENG|deficiency disease find immunologic syndrome|
+4424617|ENG|degeneration disease find hepatolenticular|
+4424626|ENG|deglutition disease disorder find|
+4425436|ENG|dermatologic disorder|
+4425909|ENG|developmental disability disease find|
+4427128|ENG|digestive disease disease find system|
+4427129|ENG|digestive disease find fistula system|
+4427130|ENG|digestive disease find neoplasm system|
+4427134|ENG|digestorium systema|
+4427827|ENG|disease disease ear find|
+4427829|ENG|disease disease endocrin find system|
+4427830|ENG|disease disease esophageal find|
+4427832|ENG|disease disease eye find|
+4427841|ENG|disease disease find|
+4427848|ENG|disease disease find gallbladder|
+4427849|ENG|disease disease find gastrointestinal|
+4427886|ENG|disease disease find hematologic|
+4427887|ENG|disease disease find hemic lymphatic|
+4427900|ENG|disease disease find immune system|
+4427908|ENG|disease disease find intestinal|
+4427913|ENG|disease disease find joint|
+4427927|ENG|disease disease find liver|
+4427934|ENG|disease disease find lymphatic|
+4427939|ENG|disease disease find manifestation or physiologic state|
+4427948|ENG|disease disease find metabolic|
+4427949|ENG|disease disease find metabolic nutritional|
+4427954|ENG|disease disease find mouth|
+4427957|ENG|disease disease find musculoskeletal|
+4427968|ENG|disease disease find nervous peripheral system|
+4427969|ENG|disease disease find nervous system|
+4427976|ENG|disease disease find occupational|
+4427978|ENG|disease disease find otorhinolaryngologic|
+4427980|ENG|disease disease find pancreatic|
+4427983|ENG|disease disease find parasitic|
+4427994|ENG|disease disease find peritoneal|
+4428004|ENG|disease disease find rectal|
+4428007|ENG|disease disease find respiratory tract|
+4428018|ENG|disease disease find skin|
+4428025|ENG|disease disease find stomach|
+4428026|ENG|disease disease find stomatognathic|
+4428041|ENG|disease disease find urologic|
+4428047|ENG|disease disease find virus|
+4428073|ENG|disease disorder environmental find origin|
+4428105|ENG|disease disorder find manifestation mental|
+4428120|ENG|disease disorder find nutrition|
+4428143|ENG|disease disorder find respiration|
+4428185|ENG|disease drug find hypersensitivity|
+4428186|ENG|disease drug find toxicity|
+4428202|ENG|disease dump find syndrome|
+4428228|ENG|disease dyspepsia find|
+4428339|ENG|disease encopresis find|
+4428378|ENG|disease eosinophilia find|
+4428532|ENG|disease fecal find incontinence|
+4428537|ENG|disease felty find syndrome|
+4428599|ENG|disease find fistula|
+4428702|ENG|disease find gastresophageal reflux|
+4428707|ENG|disease find gastroenteritis|
+4428709|ENG|disease find gastrointestinal hemorrhage|
+4428807|ENG|disease find halitosis|
+4428839|ENG|disease find heartburn|
+4428846|ENG|disease find hemachromatosis|
+4428854|ENG|disease find hematemesis|
+4428882|ENG|disease find hemorrhage|
+4428902|ENG|disease find hemorrhoid|
+4428914|ENG|disease find hepatitis|
+4428924|ENG|disease find hereditary neoplastic syndrome|
+4428931|ENG|disease find hernia|
+4428932|ENG|disease find hernia hiatal|
+4428949|ENG|disease find hiccup|
+4429038|ENG|disease find hyperphagia|
+4429269|ENG|disease find injury wind|
+4429289|ENG|disease find intestinal obstruction|
+4429295|ENG|disease find intolerance lactose|
+4429324|ENG|disease find jaundice|
+4429500|ENG|disease find malabsorption syndrome|
+4429516|ENG|disease find manifestation oral|
+4429548|ENG|disease find melena|
+4429614|ENG|disease find mptp poison|
+4429689|ENG|disease find neoplasm|
+4429875|ENG|disease find pain|
+4429877|ENG|disease find pain pelvic|
+4429885|ENG|disease find pancreatitis|
+4429934|ENG|disease find peptic ulcer|
+4429948|ENG|disease find peritonitis|
+4430018|ENG|disease find porphyria|
+4430021|ENG|disease find postcholecystectomy syndrome|
+4430179|ENG|disease find sign symptom|
+4430244|ENG|disease find syndrome|
+4430364|ENG|disease iron overload|
+4437840|ENG|excretion increase ion organic pe renal|
+4441936|ENG|foodborne illness|
+4453067|ENG|infection norovirus|
+4461959|ENG|m preparation|
+4477967|ENG|3 icd o|
+4478653|ENG|2004 cancer evaluation program therapy|
+4478657|ENG|12 2005 aberration cancer chromosome database mitelman|
+4479247|ENG|1 1 1h 2 2h 3 5 6 dimethyl dione indene ion nitro|
+4479341|ENG|1 2 2 2 3 dimethylamino ethyl ethyl inden pyridine yl|
+4479536|ENG|2 2 3 alfa beta dimethylaminoethyl ethyl indene pyridyl|
+4479562|ENG|2 3 acid dimercaptosuccinic meso|
+4480618|ENG|find musculoskeletal system|
+4481018|ENG|classification shimada system|
+4481406|ENG|myochosi|
+4481607|ENG|cisplatin ifosfamide mesna regimen velban|
+4482797|ENG|oral tab|
+4489632|ENG|sch23390|
+451482|ENG|57323h bw|
+451996|ENG|587 bi rg|
+454202|ENG|5mg bisacodyl c e product tablet|
+454203|ENG|5mg bisacodyl c e tablet|
+454207|ENG|5mg bisacodyl ec tab|
+454208|ENG|5mg bisacodyl ec tab ud|
+454210|ENG|5mg bisacodyl pediatric product suppository|
+454211|ENG|5mg bisacodyl pediatric suppository|
+454213|ENG|5mg bisacodyl rtl supp|
+4550248|ENG|icd10pc|
+457093|ENG|6 8ci purine thiol|
+4586958|ENG|aloe cream top vera|
+459133|ENG|6 b preparation sub sub vitamin|
+459134|ENG|6 b preparation vitamin|
+459137|ENG|6 b sub sub vitamin|
+459138|ENG|6 b vitamin|
+462172|ENG|6 hydroxydopamine|
+462649|ENG|6 mercapto purine|
+462654|ENG|6 mercaptopurine|
+462655|ENG|6 mercaptopurine monohydrate|
+462885|ENG|6 monohydrate purine thiol|
+462912|ENG|6 mp|
+463031|ENG|6 ohda|
+463219|ENG|6 purinethiol|
+463318|ENG|6 thiohypoxanthine|
+463320|ENG|6 thiopurine|
+463324|ENG|6 thioxopurine|
+4638892|ENG|10 icd pc|
+4638894|ENG|1gm 1gm 2 amp ifosfamide inj mesna pkg vil|
+465574|ENG|600 mesna mg|
+465575|ENG|600 mesna mg oral tablet|
+466094|ENG|600mg mesna product tablet|
+466095|ENG|600mg mesna tablet|
+46746|ENG|1 1 2 2 3 4 6 aminophenyl methyl tetrahydropyridine|
+46754|ENG|1 1 2 2 3 4 6 ethylphenyl methyl tetrahydropyridine|
+46755|ENG|1 1 2 2 3 4 6 fluoromethyl methyl phenyl tetrahydropyridine|
+46757|ENG|1 1 2 2 3 4 6 methyl methylphenyl tetrahydropyridine|
+467772|ENG|62993 cp|
+4679367|ENG|dipalmitoylphosphatidylcholine ma serum volume|
+4683108|ENG|1 1gm 1gm amp ifosfamide inj mesna pkg vil|
+46967|ENG|1 1 2 2 3 di methyl propanone pyridinyl|
+472209|ENG|6mp|
+472210|ENG|6mp mercaptopurine|
+47468|ENG|1 1 2 2 dimethyl ethanamine ethoxy n n phenyl pyridinyl|
+47714|ENG|1 1 2 2h 3 dihydro imidazol methyl thione|
+477244|ENG|7093 asta d|
+477245|ENG|7093 astad|
+477246|ENG|7093 d|
+47811|ENG|1 1 2 3 3 3 4 6 phenyl tetrahydropyridine trimethyl|
+478416|ENG|73547 cgp|
+479950|ENG|750 aloe cream mg ml preparation topical vera|
+48020|ENG|1 1 2 3 3 4 6 ethyl methoxyphenyl tetrahydropyridine|
+48021|ENG|1 1 2 3 3 4 6 hydroxyphenyl methyl tetrahydropyridine|
+48023|ENG|1 1 2 3 3 4 6 methoxyphenyl methyl tetrahydropyridine|
+48024|ENG|1 1 2 3 3 4 6 methyl phenyl pyridinol tetrahydro|
+48104|ENG|1 1 2 3 3 6 methyl phenyl tetrahydropyridine|
+4815927|ENG|200 injection mesna mg|
+48295|ENG|1 1 2 3 4 4 6 amino methyl phenyl tetrahydropyridine|
+48300|ENG|1 1 2 3 4 4 6 chlorophenyl methyl tetrahydropyridine|
+48302|ENG|1 1 2 3 4 4 6 dimethylaminophenylethenyl methyl tetrahydropyridine|
+483772|ENG|8 aminonaphthalene|
+48482|ENG|1 1 2 3 4 6 amino phenyl tetrahydropyridine|
+48488|ENG|1 1 2 3 4 6 benzyl cyclopropyl tetrahydropyridine|
+48489|ENG|1 1 2 3 4 6 benzyl methyl tetrahydropyridine|
+48494|ENG|1 1 2 3 4 6 cyclohexyl methyl tetrahydropyridine|
+48496|ENG|1 1 2 3 4 6 cyclopropyl methyl tetrahydropyridine|
+48497|ENG|1 1 2 3 4 6 cyclopropyl phenyl tetrahydropyridine|
+48501|ENG|1 1 2 3 4 6 erythro phenyl propyl pyridine tetrahydro|
+48502|ENG|1 1 2 3 4 6 ethyl phenyl tetrahydropyridine|
+48506|ENG|1 1 2 3 4 6 methyl n oxide phenyl tetrahydropyridine|
+48507|ENG|1 1 2 3 4 6 methyl phenyl poison tetrahydropyridine|
+48508|ENG|1 1 2 3 4 6 methyl phenyl pyridine tetrahydro|
+48509|ENG|1 1 2 3 4 6 methyl phenyl tetrahydropyridine|
+485146|ENG|8 depn|
+4852207|ENG|adapt biocarta map molecular nci online pathway use|
+4852208|ENG|cancer center hawaii nutrition research terminology|
+4852209|ENG|cancer division nci prevention program|
+4852210|ENG|adapt jackson laboratory mouse nci terminology use|
+4852211|ENG|cancer dictionary nci term|
+4852212|ENG|7 health level nci|
+4854249|ENG|2010 application management portfolio|
+4854260|ENG|pma2010|
+4855301|ENG|agent combination drug|
+4855471|ENG|diagnose disease|
+4855954|ENG|abd acute|
+4856409|ENG|arth|
+4857907|ENG|entity ontology radlex|
+4859504|ENG|ncpdp terminology|
+4861242|ENG|disease pediatric|
+4862985|ENG|agent class trial|
+4865057|ENG|concept other|
+4865672|ENG|cancer database institute interaction national nature pathway|
+4865829|ENG|database interaction nature pathway|
+4866993|ENG|2 3 acid amino sulfanylpropanoic|
+4867003|ENG|cancer nanoparticle nanotechnology npo ontology research|
+4867270|ENG|cancer nanoparticle nanotechnology ontology research|
+4873043|ENG|bear food illness|
+4879510|ENG|disease foodborne|
+4881492|ENG|bladder cancer gall|
+4891692|ENG|early find satiety|
+490198|ENG|8500 ml oral sacrosidase soln unt|
+490201|ENG|8500 ml oral sacrosidase solution unt|
+490206|ENG|8500iu ml product sacrosidase solution|
+490207|ENG|8500iu ml sacrosidase solution|
+4910523|ENG|100 concentrate injectable mesnex mg ml solution|
+4935517|ENG|discipline informatics|
+4937100|ENG|1 100 injection intravenous mesna mg ml solution|
+493778|ENG|9 cm icd|
+4945810|ENG|cancer code current site site system|
+4952225|ENG|10 100 20 20 3 5 50 concentrate ifosfamide injectable injectable kit mesna mg mg mg ml ml ml ml ml solution solution vial vial|
+4953116|ENG|2 250 azithromycin coat dihydrate film mg oral tablet zithromax|
+4953117|ENG|2 250 azithromycin coat film mg monohydrate oral tablet|
+4954831|ENG|250 6 azithromycin count mg oral pack tablet|
+4980981|ENG|10 100 2 20 50 6 60 concentrate ifosfamide injectable injectable kit mesna mg mg mg ml ml ml ml ml solution solution vial vial|
+4981846|ENG|1 250 azithromycin coat dihydrate film mg oral tablet zithromax|
+5010577|ENG|1 250 azithromycin coat film mg monohydrate oral tablet|
+5023076|ENG|1 100 injection intravenous mesna mesnex mg ml solution|
+50249|ENG|1 1 3 3 acid amino propanetricarboxylic|
+50310|ENG|1 1 3 4 4 4 5 6 8 9 aminium hydroxide hydroxy inner methyl n n n oxide oxo oxohexadecyl oxy phosphatetracosan salt trimethyl trioxa|
+5031574|ENG|cancer central numb patient sequence|
+505647|ENG|a arthropathy associate disorder disorder neurological|
+505652|ENG|a arthropathy associate disorder neurological|
+506334|ENG|a b hepatitis non non post transfusion virus|
+5066879|ENG|10 10 10 100 20 20 50 concentrate ifosfamide injectable injectable kit mesna mg mg mg ml ml ml ml ml solution solution vial vial|
+5072770|ENG|cancer code original site system|
+509461|ENG|a construction stoma surgical|
+5101423|ENG|cancer code original site sy|
+51029|ENG|1 1 4 4 bipyridinium dimethyl|
+510398|ENG|a disorder hepatitis type viral|
+511906|ENG|a hepatitis|
+511907|ENG|a hepatitis hepatitis infectious|
+511959|ENG|a hepatitis type viral|
+511967|ENG|a hepatitis viral|
+5124554|ENG|council drug national prescription program|
+5125414|ENG|bariatric gastrointestinal surgery|
+5125618|ENG|ncpdp|
+5127878|ENG|colitis mucus|
+5127890|ENG|thoracodynia|
+5128733|ENG|biomedical domain group integrate model research|
+5129472|ENG|bridg|
+5129812|ENG|veip|
+5129831|ENG|cancer inherit syndrome|
+513282|ENG|a naphthylamine|
+5137254|ENG|mize protocol|
+5139630|ENG|novak syndrome|
+5142562|ENG|cleft hypoplasia laryngotracheoesophageal pulmonary|
+5145043|ENG|arthritis neutropenia rheumatoid splenomegaly|
+5145576|ENG|derivative thienopyridine|
+5146689|ENG|descriptor topical|
+517852|ENG|aa|
+5183332|ENG|porphyria unspecified|
+518466|ENG|ab|
+5205003|ENG|additional classification clinical disease entry international metathesaurus modification ninth revision term|
+5213469|ENG|9 cm entry icd term|
+5226241|ENG|abdominal pain unspecified|
+5247746|ENG|10 cm disease icd injury list tabular|
+5265546|ENG|disease disease find male urogenital|
+5266393|ENG|abdominal other pain|
+5267495|ENG|encopresis psychogenic|
+5273819|ENG|chemical ingredient lecithin|
+5278812|ENG|2 250 anhydrous azithromycin coat film mg oral tablet|
+5285330|ENG|cancer central patient seq|
+5298734|ENG|disease disease find foodborne|
+53163|ENG|1 10 10 10r 11 11r 12 12 13 13 14 14r 15 2 2 2r 2r 3 3 3 3 3 3 3s 4 4 4r 5 5r 6 6 6 6 8 8r alfa azacyclopentadecan beta c d dideoxy dimethylamino ethyl heptamethyl hexopyranosyl hexopyranosyl l methyl methyl o one oxa oxy oxy ribo trideoxy trihydroxy xylo|
+5317592|ENG|nausea unspecified vomit|
+5319646|ENG|chemical ingredient sacrosidase|
+5321634|ENG|1 10 10 11 12 13 14 15 2 2 2r 2r 3 3 3 3 3 3 3s 4 4 4r 5 5r 6 6 6 6 8 8r alfa azacyclopentadecan beta c d dideoxy dimethylamino ethyl heptamethyl hexopyranosyl hexopyranosyl l methyl methyl o one oxa oxy oxy ribo trideoxy trihydroxy xylo|
+5327189|ENG|disease history personal respiratory system unspecified|
+5330678|ENG|antidote tc|
+533851|ENG|abcess cellulitis mouth|
+5347327|ENG|aloe cream product top va vera|
+5347403|ENG|1 250 anhydrous azithromycin coat film mg oral tablet|
+5350688|ENG|10th classification clinical disease edition international modification|
+535543|ENG|abd pain|
+535571|ENG|abdo pain|
+535592|ENG|abdomen|
+535630|ENG|abdomen acute|
+535633|ENG|abdomen acute disorder|
+535636|ENG|abdomen acute mimic|
+5363176|ENG|disorder ear ear unspecified unspecified|
+5363837|ENG|chemical colfosceril ingredient palmitate|
+536580|ENG|abdomen localise low other pain part|
+536582|ENG|abdomen localise pain upper|
+536700|ENG|abdomen pain|
+536805|ENG|abdomen surgical|
+536825|ENG|abdomen volume|
+536948|ENG|abdominal acute pain syndrome|
+536949|ENG|abdominal acute syndrome|
+5371794|ENG|abdominal pain unspecified upper|
+537434|ENG|abdominal ap pain|
+537532|ENG|abdominal around discoloration umbilicus|
+537895|ENG|abdominal body structure structure|
+538168|ENG|abdominal cavity disorder hernia|
+538259|ENG|abdominal cavity hernia|
+538588|ENG|abdominal discomfort|
+538589|ENG|abdominal discomfort find|
+538637|ENG|abdominal disorder hernia intra|
+538962|ENG|abdominal find generalise pain|
+538998|ENG|abdominal find pain|
+539004|ENG|abdominal find pain upper|
+539096|ENG|abdominal general pain symptom|
+539098|ENG|abdominal generalise pain|
+5391106|ENG|casanthranol chemical ingredient|
+539128|ENG|abdominal hernia|
+539131|ENG|abdominal hernia intra|
+539147|ENG|abdominal hernia unspecified|
+539149|ENG|abdominal herniation|
+5392571|ENG|felty site syndrome unspecified|
+539381|ENG|abdominal luq pain ruq|
+539517|ENG|abdominal other pain unspecified|
+539530|ENG|abdominal pain|
+539531|ENG|abdominal pain pelvic|
+539532|ENG|abdominal pain pelvic r10|
+539545|ENG|abdominal pain site unspecified|
+539549|ENG|abdominal pain upper|
+5396404|ENG|abdominal abdominal generalise pain rigidity severe|
+539684|ENG|abdominal structure|
+539695|ENG|abdominal symptom|
+539881|ENG|abdominopelvi|
+539897|ENG|abdominopelvic region|
+540804|ENG|aberration cancer chromosome database mdbcac mitelman|
+540815|ENG|aberration sensory|
+5418180|ENG|complication disease disease female find pregnancy urogenital|
+5418718|ENG|icd10cm|
+5425279|ENG|compound j|
+5425338|ENG|nvp|
+5425567|ENG|0587 birg|
+5425855|ENG|1 1 1 1 1 1h 1s 2 2 2 2 2 2r 3 3 3 4 5 5 5 amino carbonyl d dihydro dimethylethyl erythro hydroxy inden n pentonamide phenylmethyl piperazinyl pyridinylmethyl s trideoxy yl|
+5426501|ENG|02 cbo2011|
+5426608|ENG|02 2011 bioinformatics clinical ontology|
+5427321|ENG|clinical sign|
+5427481|ENG|familial neoplastic syndrome|
+5428163|ENG|gastrointestinal malignant neoplasm system|
+5428290|ENG|disease gastrointestinal system|
+5428326|ENG|bile disorder duct intrahepatic liver|
+5429051|ENG|disorder gastrointestinal system|
+5429211|ENG|gastrointestinal infection system|
+5429545|ENG|disorder viral|
+5429763|ENG|disease disorder or pediatric|
+5429896|ENG|intellectual product|
+5434059|ENG|1 1h 2 2 4 5 alanine amino aminoiminomethyl benzimidazol beta carbonyl methyl methyl n n phenyl pyridinyl yl|
+5445270|ENG|10 bisacodyl bisacodyl mg rectal suppository|
+5445978|ENG|disease e00 e89 endocrin metabolic nutritional|
+5449883|ENG|disease ear h60 h95 mastoid process|
+5451777|ENG|a00 b99 certain disease infectious parasitic|
+5453982|ENG|blood blood certain d50 d89 disease disorder form immune involve mechanism organ|
+5454208|ENG|hemachromatosis unspecified|
+5455958|ENG|disease l00 l99 skin subcutaneous tissue|
+5462018|ENG|disease genitourinary n00 n99 system|
+5462019|ENG|biliary disorder gallbladder k80 k87 pancreas tract|
+5463670|ENG|5 bisacodyl coat laxative mg oral tablet up up womens|
+5464028|ENG|disease j00 j99 respiratory system|
+5464124|ENG|contact factor health health influence service status z00 z99|
+5465216|ENG|chemical ingredient thienopyridine|
+5466242|ENG|hernia k40 k46|
+5467444|ENG|1 1000 aquacalm g metomidate mg powder topical|
+5467750|ENG|5 bisacodyl coat laxative mg oral sunmark tablet womans|
+5467751|ENG|5 bisacodyl coat dr lax mg oral p sugar tablet|
+546926|ENG|abnormal bleed disorder female from genital menstruation other other tract|
+5471494|ENG|10 bisacodyl bisacodyl laxative mg rectal suppository|
+5472194|ENG|disease g00 g99 nervous system|
+5472478|ENG|inflammatory m05 m14 polyarthropathy|
+5475330|ENG|abnormal classify clinical elsewhere find laboratory not r00 r99 sign symptom|
+5475722|ENG|abnormal degeneration|
+5476912|ENG|colitis enteritis k50 k52 noninfective|
+5477906|ENG|5 bisacodyl coat dr lax mg oral sugar tablet y|
+548031|ENG|abnormal classify clinical elsewhere find laboratory not sign symptom|
+5480446|ENG|1 3 anatomy foundational model ontology|
+5481171|ENG|2nd data edition nurse perioperative set|
+5482196|ENG|abnormality chromosomal congenital deformation malformation q00 q99|
+5483153|ENG|2011 3rd data edition nurse perioperative set|
+5484354|ENG|disease duodenum esophagus k20 k31 stomach|
+5492377|ENG|disease k70 k77 liver|
+5492378|ENG|connective disease m00 m99 musculoskeletal system tissue|
+5496071|ENG|5 bisacodyl coat laxative leader mg oral tablet womens|
+5498379|ENG|certain d80 d89 disorder immune involve mechanism|
+5498560|ENG|circulatory disease i00 i99 system|
+5502310|ENG|5 bisacodyl delay lax medi medique mg oral release tablet|
+5502662|ENG|appendix disease k35 k38|
+5502663|ENG|adnexa disease eye h00 h59|
+5504391|ENG|5 bisacodyl laxative mg oral tablet topcare|
+5504392|ENG|5 bisacodyl correct delay mg new oral release tablet|
+5504551|ENG|certain condition originate p00 p96 perinatal period|
+5505025|ENG|a00 a09 disease infectious intestinal|
+550644|ENG|abnormal sinus tract|
+550766|ENG|abnormality|
+550774|ENG|abnormality abnormality degenerative morphologic|
+5508864|ENG|ani disorder epithelial malignant neoplasm|
+5509426|ENG|allergy medicine|
+5512222|ENG|digestive disorder malignant neoplasm system|
+5512506|ENG|ani epithelial malignant neoplasm|
+5512508|ENG|digestive malignant neoplasm system|
+5513214|ENG|gdu|
+5513296|ENG|prev|
+5513362|ENG|2 3 3 chlorophenyl dimethylpropylamine n n p pyridyl|
+5513835|ENG|4 chloropheniramine|
+5513851|ENG|allergican|
+5514538|ENG|hayna|
+5514818|ENG|chloropheniramine|
+5514819|ENG|chlorophenylpyridamine|
+5514820|ENG|chloropiril|
+5515713|ENG|allergisan|
+5516363|ENG|histadur|
+551759|ENG|abnormality aptha morphologic|
+5519769|ENG|10 3 4 4 4 5 7 9 myristoyl oxide oxido oxo phosphatricosyl r trimethylammonium trioxa|
+5520204|ENG|criterion deauville london point scale|
+5520468|ENG|129618 2 40|
+5520640|ENG|641530|
+5520719|ENG|01 5 83905|
+5520882|ENG|643732|
+5521135|ENG|08 12 2011 cancer nanoparticle nanotechnology npo ontology research|
+5521183|ENG|08 12 npo2011|
+5522476|ENG|azithromycin form unspecified|
+5523210|ENG|or sign symptom|
+5524919|ENG|1 2 3 dimyristoyl glycero phosphocholine sn|
+5525527|ENG|dmpc l|
+5525720|ENG|dmpc r|
+5529167|ENG|bowel disorder irritable syndrome|
+5529560|ENG|1 1 2 3 4 6 disorder induce methyl parkinsonism phenyl tetrahydropyridine|
+5529714|ENG|classification health organisation tumor world|
+5529869|ENG|1 1 2 3 4 6 induce methyl parkinsonism phenyl tetrahydropyridine|
+5530020|ENG|classification entity health observable organisation tumor world|
+5533049|ENG|classification inrg system|
+5533156|ENG|group neuroblastoma risk|
+5533406|ENG|classification group international neuroblastoma risk system|
+5533671|ENG|acid disease gastric reflux|
+5533713|ENG|illness occupational|
+553406|ENG|abnormality chromosomal congenital deformation malformation|
+5537317|ENG|acid gastric reflux|
+553753|ENG|abnormality congenital disease hereditary neonatal|
+5540775|ENG|illn occupational|
+554174|ENG|abnormality degeneration morphologic|
+554189|ENG|abnormality degenerative|
+5542891|ENG|5 bisacodyl laxative mg oral tablet|
+554346|ENG|abnormality digestive system|
+554968|ENG|abnormality fistula morphologic|
+5551417|ENG|5 bisacodyl coat mg oral tablet|
+555297|ENG|abnormality hemorrhage morphologic|
+556122|ENG|abnormality morphologic neoplasm|
+56177|ENG|1 11 11 2 2 3 3 4 4 5 6 6h b cyclopropyl diazepin dihydro dipyrido e methyl one|
+5626323|ENG|5 bisacodyl gentle laxative mg oral tablet|
+563081|ENG|absorption disorder gastrointestinal|
+563311|ENG|abu dhabi|
+5700347|ENG|device medical nomenclature system universal|
+5717891|ENG|250 azithromycin azithromycin coat dihydrate dihydrate film mg oral tablet|
+5726772|ENG|5 bisacodyl coat laxative mg oral tablet womens|
+5751109|ENG|1 10 4 5 bisacodyl bisacodyl coat enteric mg mg pack rectal suppository tablet|
+5781381|ENG|behavioral disorder mental neurodevelopmental|
+5810744|ENG|adeno bladder carcinoma gall|
+5811069|ENG|cancer classification disease evaluation program simple therapy|
+5811070|ENG|ctep sdc|
+5811161|ENG|cahn ingold prelog priority system|
+5811236|ENG|control terminology|
+5811424|ENG|cip system|
+5812038|ENG|2 2012 3166 international organisation standardisation|
+5812039|ENG|2 3166 international organisation standardisation|
+5812086|ENG|2 2012 iso3166|
+5814565|ENG|aod|
+5822475|ENG|ae az|
+5822510|ENG|abu zaby|
+5828873|ENG|gard|
+583292|ENG|accumulation disorder iron|
+5834906|ENG|calcification intestinal|
+5835244|ENG|classification lauren|
+5836542|ENG|grade regression tumor|
+5836579|ENG|classification clinical oncology|
+584435|ENG|acetadote|
+584544|ENG|acetamido acid alfa beta l mercaptopropionic|
+5850046|ENG|etc642|
+5854546|ENG|cluster symptom|
+5863702|ENG|642 etc|
+5868915|ENG|250 azithromycin azithromycin coat film mg monohydrate oral tablet|
+5873909|ENG|5 bisacodyl c coat lax laxative mg oral tablet|
+587820|ENG|acetic acid|
+5894359|ENG|child healthcare issue teenager|
+589503|ENG|acetyl cysteine l n|
+590293|ENG|acetylcoenzyme m|
+590313|ENG|acetylcysteine|
+590323|ENG|acetylcysteine allen brand hanbury|
+590339|ENG|acetylcysteine brand bristol myers salt sodium squibb|
+590340|ENG|acetylcysteine brand bristol myers squibb|
+590352|ENG|acetylcysteine brand inpharzam|
+590356|ENG|acetylcysteine brand lappe produpharm|
+590364|ENG|acetylcysteine brand robert|
+590369|ENG|acetylcysteine brand thiemann|
+590371|ENG|acetylcysteine brand upsa|
+590373|ENG|acetylcysteine brand zamba|
+590374|ENG|acetylcysteine brand zyma|
+590415|ENG|acetylcysteine n|
+590431|ENG|acetylcysteine product|
+590437|ENG|acetylcysteine substance|
+591156|ENG|acetylin|
+591649|ENG|acetylsalicylic acid|
+5943057|ENG|0 01 2 bisacodyl g g rectal suppository|
+5943058|ENG|5 bisacody bisacodyl coat coat enteric mg oral tablet|
+5943059|ENG|5 bisacodyl bisacodyl coat coat enteric laxative mg oral tablet|
+5943060|ENG|5 bisacodyl coat coat enteric gentle laxative mg oral tablet|
+5943061|ENG|5 bisacodyl coat laxative mg oral tablet|
+5973642|ENG|inhalant mesna product|
+5973643|ENG|mesna pill|
+6012260|ENG|5 bisacodyl coat delay enteric laxative mg oral release stimulant tablet|
+6012261|ENG|5 bisacodyl delay laxative mg oral release stimulant tablet|
+601480|ENG|acid carboxyglutamic gamma|
+603723|ENG|acid dimercaptosuccinic meso|
+6041075|ENG|400 coat film mesna mesnex mg oral tablet|
+6041708|ENG|a liver malig neoplasm not or primary sec specify|
+6042841|ENG|mesna nasal product|
+6042843|ENG|mesna oral product|
+604553|ENG|acid ester monododecyl salt sodium sulfuric|
+6054034|ENG|childbirth o00 o9a pregnancy puerperium|
+606645|ENG|acid isonicotinic|
+607223|ENG|acid mercapturic|
+607614|ENG|acid nicotinic|
+6081465|ENG|5 bisacodyl coat gentle laxative mg oral tablet|
+6081466|ENG|5 bisacodyl coat coat enteric laxative mg oral tablet|
+608234|ENG|acid picolinic|
+608505|ENG|acid quinolinic|
+608526|ENG|acid reflux|
+61029|ENG|1 1h 2 2 3 dimethyl ethanamine ethyl indene n n pyridinyl|
+6104222|ENG|10 code dual icd|
+6104485|ENG|ifosfamide injectable mesna product|
+6112016|ENG|injectable mesnex product|
+6131047|ENG|payment source typology|
+6150615|ENG|5 bisacodyl laxative mg oral tablet womans|
+6150616|ENG|5 bisacodyl laxative mg oral tablet womens|
+6150617|ENG|5 bisacodyl bisacodyl coat coat enteric mg oral tablet|
+617502|ENG|acquire agammaglobulinemia|
+618776|ENG|acquire hypogammaglobulinemia|
+618778|ENG|acquire hypogammaglobulinemia secondary|
+6200144|ENG|5 payment source typology|
+6206343|ENG|anomaly digestive system unspecified|
+6219998|ENG|5 best bisacodyl bisacodyl choice coat laxative mg oral tablet|
+624021|ENG|action mechanism|
+6243116|ENG|deficiency immune|
+6289154|ENG|5 bisacodyl gentle laxative medicine mg oral shopp tablet|
+6289155|ENG|5 bisacodyl gentle laxative laxative mg oral stimulant tablet woman|
+6289156|ENG|5 bisacodyl coat gentle laxative laxative mg oral stimulant tablet|
+6309260|ENG|committee gene hugo nomenclature|
+631261|ENG|activity dictionary meddra medical regulatory terminology|
+6320008|ENG|mesnex oral product|
+6320009|ENG|mesnex pill|
+634362|ENG|activity research|
+6358776|ENG|5 bisacodyl delay gentle laxative mg oral release tablet|
+6378542|ENG|h infection pylorus|
+637867|ENG|acute digestive disorder disorder system|
+637868|ENG|acute digestive disorder system|
+6387728|ENG|1 100 injection intravenous mesna mesna mg ml solution|
+6388356|ENG|esophagus malignant neoplasm site unspecified|
+6389546|ENG|injectable mesna product|
+6395494|ENG|oraltablet|
+641409|ENG|ad|
+6422299|ENG|bowel fix loop|
+642306|ENG|adaptive colitis|
+6423642|ENG|classification myasthenia system|
+6423643|ENG|class myasthenia|
+6425271|ENG|america classification clinical foundation gravis myasthenia|
+6427321|ENG|disorder intestinal or stomach|
+6428030|ENG|disorder glandular or other thyroid|
+6428122|ENG|xaluprine|
+6428545|ENG|classification clinical mgfa|
+6430216|ENG|classification device fda|
+6430816|ENG|fdadevcl|
+6430924|ENG|carboplatin etoposide ifosfamide regimen rituximab|
+6431510|ENG|ctv3 map reference set simple|
+6431511|ENG|ctv3 map simple|
+6431552|ENG|attribute concept concept foundation inactivation indicator metadata reference set value|
+6431818|ENG|icd map o reference set simple|
+6432127|ENG|find lesion oral|
+6432133|ENG|association equivalent possibly reference set|
+6432238|ENG|descriptor reference set|
+6432430|ENG|america concept english foundation language metadata reference set state unite|
+6432444|ENG|a association concept foundation i metadata reference set|
+6432542|ENG|concept ctv3 foundation map metadata reference set simple|
+6432597|ENG|attribute concept inactivation indicator reference set value|
+6432635|ENG|description format reference set|
+6432636|ENG|description inactivation indicator reference set|
+6432805|ENG|britain concept english foundation great language metadata reference set|
+6432853|ENG|10 complex icd map reference set|
+6432856|ENG|concept foundation icd map metadata o reference set simple|
+6433066|ENG|concept dependancy foundation metadata module reference set|
+6433254|ENG|association reference replace set|
+6433311|ENG|identifier map rt simple snomed|
+6433794|ENG|english gb|
+6433856|ENG|10 complex concept foundation icd map metadata reference set|
+6433857|ENG|10 cm complex icd map reference set|
+6434412|ENG|a association i reference set|
+6434512|ENG|childbirth complication disorder or pregnancy puerperium|
+6434513|ENG|childbirth complication or pregnancy puerperium|
+6434552|ENG|concept description format foundation metadata reference set|
+6434568|ENG|childbirth complicate digestive disease disorder or pregnancy puerperium system|
+6434753|ENG|9 cm complex equivalence icd map reference set|
+6434861|ENG|association from move reference set|
+6434862|ENG|association concept foundation metadata move reference set|
+6435200|ENG|a association concept foundation metadata reference same set|
+6435363|ENG|alternative association concept foundation metadata reference set|
+6435518|ENG|description format|
+6435534|ENG|childbirth complicate digestive disease or pregnancy puerperium system|
+6436091|ENG|association concept refer reference set|
+6436106|ENG|descriptor reference reference set set|
+6436440|ENG|attribute concept description foundation inactivation indicator metadata reference set value|
+6436475|ENG|early fullness satiety|
+6436595|ENG|britain english great language reference set|
+6436855|ENG|dependancy module|
+6437013|ENG|association concept concept foundation metadata refer reference set|
+6437014|ENG|association concept foundation metadata reference replace set|
+6437034|ENG|concept descriptor foundation metadata reference reference set set|
+6437070|ENG|a association reference same set|
+6437076|ENG|id map rt simple snomed|
+6437077|ENG|concept foundation identifier map metadata rt simple snomed|
+6437226|ENG|alternative association reference set|
+6437730|ENG|association move reference set|
+6438148|ENG|america english language reference set state unite|
+6438291|ENG|concept inactivation indicator reference set|
+6438331|ENG|attribute description inactivation indicator reference set value|
+6438589|ENG|10 cm complex concept foundation icd map metadata reference set|
+6438590|ENG|9 cm complex concept equivalence foundation icd map metadata reference set|
+6438741|ENG|association concept foundation from metadata move reference set|
+6438847|ENG|dependancy module reference set|
+6438945|ENG|association concept equivalent foundation metadata possibly reference set|
+6439195|ENG|english us|
+6444163|ENG|due infection virus|
+6450588|ENG|find pathophysiologic|
+645247|ENG|adenocarcinoma bile duct|
+6452645|ENG|clinical edition snomed term us|
+6452646|ENG|snomedct us|
+6452647|ENG|ct edition snomed us|
+645279|ENG|adenocarcinoma bladder carcinoma gall|
+6453736|ENG|2010 icd10|
+6457968|ENG|code purpose special|
+6459020|ENG|50 603 9|
+6460532|ENG|hypogammaglobulinemia secondary|
+6460711|ENG|carelex|
+6462849|ENG|archive content exchange lexicon resource|
+6463229|ENG|purixan|
+6465312|ENG|pi rad|
+6465324|ENG|data image prostate report system|
+6465680|ENG|pirad|
+6470503|ENG|bariatric procedure surgical|
+647262|ENG|adenopathy|
+6473920|ENG|applebaum disease recklenhausen von|
+6474044|ENG|hypolactasia|
+6475466|ENG|2 3 acid butanedioic dimercapto isomer r s|
+6477140|ENG|chemically disorder induce|
+6477147|ENG|common deficiency immune variable|
+6477315|ENG|hemochromato|
+6477457|ENG|metabolic surgery|
+64900|ENG|1 2 2 3 4 6 fluoro methyl n phenyl tetrahydropyridine|
+6499795|ENG|aspect method|
+650908|ENG|adjectival general modifier|
+650909|ENG|adjectival general modifier qualifier value|
+65161|ENG|1 2 2 3 5 6 benzamide dichloro ethyl hydroxy methoxy methyl n pyrrolidinyl|
+6518805|ENG|250 azithromycin coat film form mg oral tablet unspecified zithromax|
+652339|ENG|administer vaccine|
+652656|ENG|administration drug food s u|
+652764|ENG|administration drug rout sublingual|
+652781|ENG|administration drug sublingual|
+653046|ENG|administration organisation|
+653104|ENG|administration sublingual|
+654927|ENG|adnexa disease eye|
+654935|ENG|adnexa disorder eye|
+654948|ENG|adnexa disorder eye unspecified|
+655195|ENG|adolescence childhood diagnose disorder infancy or usually|
+6556230|ENG|10 10 100 3 5 50 ifosfamide include injectable injectable kit mesna mg mg ml ml pack solution solution|
+6559780|ENG|5 bisacodyl coat laxative mg oral tablet woman|
+6559781|ENG|5 bisacodyl bisacodyl delay laxative mg oral release stimulant tablet|
+6580152|ENG|aspect pharmacokinetic|
+65807|ENG|1 2 2 4 5 aminoethyl benzenetriol|
+6597546|ENG|10 bisacodyl equaline laxative mg rectal suppository|
+6597547|ENG|5 bisacodyl bisacodyl coat mg oral tablet|
+6597548|ENG|5 bisacodyl bisacodyl coat laxative mg oral simpex tablet|
+66072|ENG|1 2 2 4 aminoethyl benzenediol|
+662577|ENG|adverse common criterion event terminology|
+663398|ENG|adverse disorder mesna reaction|
+6635698|ENG|10 bisacodyl bisacodyl laxative mg rectal stimulant suppository|
+6635699|ENG|5 bisacodyl coat coat effective enteric gentle laxative mg oral tablet|
+6635700|ENG|5 bisacodyl coat gentle laxative mg oral tablet womens|
+663999|ENG|adverse effect|
+664518|ENG|adverse mesna reaction|
+6652275|ENG|minimal standard terminology umls|
+665657|ENG|ae|
+66647|ENG|1 2 2 alfa alfa amino bi ethyl methylethyl phenyl pyridineacetamide|
+6673639|ENG|5 bisacodyl coat laxative mg oral tablet womans|
+669605|ENG|etiology|
+6708675|ENG|250mg azithromycin tab ud|
+6708676|ENG|250mg azithromycin product tab ud va|
+6711495|ENG|5 bisacodyl coat enteric laxative mg oral stimulant tablet|
+6724487|ENG|bladder inflammation urinary|
+6749564|ENG|5 bisacodyl coat coat enteric laxative mg oral stimulant tablet|
+6753074|ENG|chemically disease disorder find induce|
+677768|ENG|ag|
+6784463|ENG|2001 mthmst|
+6784464|ENG|2003 spn|
+6784466|ENG|2011 pnd|
+6784467|ENG|2006 csp|
+6784468|ENG|1995 cst|
+6784469|ENG|1994 dxp|
+6784471|ENG|1 3 7 uwda|
+6784472|ENG|2000 aod|
+6784473|ENG|2003 aot|
+6784476|ENG|1996 qmr|
+6784481|ENG|5 sop|
+6784482|ENG|1992 mcm|
+6784485|ENG|2005 cc|
+6784488|ENG|1 3 fma|
+6784535|ENG|08 2014 29 pdq|
+6784560|ENG|08 2014 29 data physician query|
+6784671|ENG|cisplatin ifosfamide regimen vinblastine|
+6784806|ENG|bruise periumbilical|
+6785491|ENG|bradyphagia|
+6785531|ENG|agent ctrp terminology|
+6785890|ENG|ctrp terminology|
+6785894|ENG|clinical program report terminology trial|
+6785937|ENG|a collect domain exposure|
+6786989|ENG|childhood disorder|
+6787375|ENG|agent clinical program report terminology trial|
+6789472|ENG|disorder intolerance milk|
+6790000|ENG|3 a a base been behalf classification codes combining computer created created ct department has health i k know nomenclature read rt snomed snomed u version which|
+6794297|ENG|piritinol substance|
+6795605|ENG|cancer disorder hereditary predispose syndrome|
+6796529|ENG|administration concept foundation metadata reference rout set|
+6797779|ENG|cancer hereditary predispose syndrome|
+6800460|ENG|disorder disorder neurodevelopmental|
+6800856|ENG|administration reference rout set|
+680100|ENG|agammaglobulinemia common disorder variable|
+680101|ENG|agammaglobulinemia common variable|
+680102|ENG|agammaglobulinemia congenital|
+680103|ENG|agammaglobulinemia congenital disorder|
+6801089|ENG|substance tolperisone|
+6803479|ENG|acid find reflux|
+6803941|ENG|dabigatran substance|
+6810598|ENG|curation data|
+6810807|ENG|polyphagias|
+6811330|ENG|bioinformatic|
+6814554|ENG|bio informatic|
+68186|ENG|1 2 3 3 4 6 methyl n phenyl tetrahydropyridine trifluoro|
+682521|ENG|agent an700 protective|
+682702|ENG|agent anti british lewisite|
+683752|ENG|agent cytoprotective|
+683753|ENG|agent cytoprotective product|
+683754|ENG|agent cytoprotective substance|
+683905|ENG|agent dopamine|
+683907|ENG|agent dopaminergic|
+683909|ENG|agent drug|
+684007|ENG|agent expectorant|
+684008|ENG|agent expectorant product|
+684009|ENG|agent expectorant substance|
+6841294|ENG|2 250 azithromycin coat dihydrate film mg oral tablet|
+684368|ENG|agent nicotine|
+684370|ENG|agent nicotine substance|
+6843849|ENG|5 bisacodyl coat correctol mg oral tablet|
+684494|ENG|agent product protective|
+684515|ENG|agent protective|
+684517|ENG|agent protective substance|
+684609|ENG|agent therapeutic toxicity|
+684632|ENG|agent uroprotective|
+6862205|ENG|6 count pack pak z|
+686679|ENG|agonist|
+688074|ENG|ai|
+6890059|ENG|1 10 4 5 bisacodyl bisacodyl delay mg mg oral pack rectal release suppository tablet|
+689477|ENG|ailmentary system|
+690559|ENG|airbron|
+6915352|ENG|250 azithromycin coat dihydrate film oral tablet|
+6915353|ENG|1 250 azithromycin coat dihydrate film mg oral tablet|
+6917928|ENG|10 bisacodyl delay mg oral release tablet|
+6936536|ENG|75 aloe cream topical vera|
+693926|ENG|alactasia|
+6967372|ENG|10 bisacodyl bisacodyl mg rectal stratuscare suppository|
+69685|ENG|1 2 3 4 6 methyl n phenyl tetrahydropyridine|
+69686|ENG|1 2 3 4 6 n phenyl propyl tetrahydropyridine|
+69692|ENG|1 2 3 4 6 phenyl tetrahydropyridine|
+697886|ENG|albumen iodinate radio serum|
+697928|ENG|albumen mesna|
+697969|ENG|albumen radioiodinate serum|
+700199|ENG|alcohol drug other thesaurus|
+700691|ENG|alcohol nicotinic|
+700692|ENG|alcohol nicotinyl|
+700696|ENG|alcohol nicotinyl product|
+7013412|ENG|drug file fmtsme national|
+7013415|ENG|fdaspl ndfrt|
+7013416|ENG|fmtsme ndfrt|
+7013418|ENG|drug fdaspl file national|
+7015240|ENG|gastrointestinal thin wall|
+7015606|ENG|gastrointestinal thicken wall|
+7016233|ENG|adverse common criterion ctcae event terminology|
+7019244|ENG|2002 2015 all american college created ct ct development health i i ihtsdo ihtsdo international organisation originally pathologists register reserve rights snomed snomed snomed standards terminology trademarks|
+7020243|ENG|co cystic digestive disorder due fibrose manifestation occurrent system|
+7020909|ENG|inflammation pancreas|
+7024169|ENG|information object physical system|
+7026878|ENG|classical cystic digestive fibrose manifestation|
+702793|ENG|alfa alfa dipyridil|
+7029081|ENG|disorder gastrointestinal mucositis ulcerative|
+7040352|ENG|co cystic digestive due fibrose manifestation occurrent system|
+7042949|ENG|hpo|
+7044782|ENG|2 2r 3 3s acid butanedioic dimercapto rel|
+7045943|ENG|c colitis diff|
+7046074|ENG|mouse mu syndrome urological|
+7046674|ENG|acquire globulinemia hypogamma|
+7046927|ENG|disease rare research|
+7047587|ENG|cleft esophageal hypoplasia laryngo pulmonary tracheo|
+7047858|ENG|arthritis neutropenia rheumatoid splenomegaly syndrome|
+7048978|ENG|classic hemachromatosis|
+7049568|ENG|polyarthritis systemic|
+7050619|ENG|common globulinemia hypogamma variable|
+7052254|ENG|combine deficiency immune variable|
+7052724|ENG|rumination syndrome|
+7052842|ENG|04 2015 gard|
+7052843|ENG|04 2015 center disease genetic information rare|
+7052844|ENG|center disease genetic information rare|
+7053373|ENG|decrease intake oral|
+7054661|ENG|hereditary syndrome tumor|
+7055034|ENG|familial syndrome tumor|
+7055980|ENG|intake oral poor|
+7056610|ENG|1 3 icdo|
+7056621|ENG|1 3 classification disease international oncology|
+7061444|ENG|1 2015 clinical edition september snomed term us|
+7061445|ENG|01 09 2014 2015 icd10cm map snomedct us|
+7061630|ENG|01 09 2015 ct edition snomed us|
+7063262|ENG|2015 20150731 clinical july r release snomed term version|
+706433|ENG|alfa naphthylamine|
+7064568|ENG|arthritis inflammatory joint multiple|
+7065062|ENG|01 09 2015 snomedct us|
+7065838|ENG|adverse assessment common criterion event scale terminology|
+7066820|ENG|01 09 2010 2015 icd10 map snomedct us|
+7070379|ENG|01 09 2013 2015 icd9cm map snomedct us|
+7073263|ENG|genc|
+7073264|ENG|code entity geopolitical name standard|
+7075462|ENG|approach system|
+7075878|ENG|03 2015 committee gene hugo nomenclature|
+7075971|ENG|252 loinc|
+7076060|ENG|2015 hcpcs hierarchical metathesaurus term|
+7076329|ENG|system thinkings|
+7077930|ENG|20141119 health medlineplu topic|
+7079975|ENG|150908f 15aa rxnorm vocabulary|
+7081111|ENG|approachs system|
+708122|ENG|alimentary anomaly congenital tract|
+7081452|ENG|04 04 2015 gene ontology|
+708179|ENG|alimentary system|
+7081900|ENG|system think|
+7082921|ENG|approach orient system|
+7083313|ENG|2015 code common healthcare procedure system|
+7083530|ENG|03 2015 23 ncbi taxonomy|
+7083570|ENG|03 18 2015 inheritance man mendelian online|
+7084799|ENG|analyse dynamics system|
+7084939|ENG|cgp73547|
+7085146|ENG|adjuvant af gla|
+7086606|ENG|approachs orient system|
+7087157|ENG|08 18 2015 2016 mesh|
+7087476|ENG|2015 category product thesaurus umdns|
+7089026|ENG|08 18 2015 2016 head medical subject|
+7089346|ENG|07 2015 27 administer vaccine|
+7090688|ENG|abnormality gastrointestinal tract|
+709639|ENG|alkanesulfonate|
+709788|ENG|alkyl sulfonate|
+709870|ENG|alkylsulfonate compound|
+709879|ENG|all|
+7101356|ENG|04 20 hpo2015|
+710146|ENG|all cause external injury poison|
+710192|ENG|all code code e residual unclassified|
+710235|ENG|all digestive site system|
+7102970|ENG|2015 icd10cm|
+7105043|ENG|2014 mthcmsfrf|
+7105046|ENG|2015 mthhh|
+7105047|ENG|2014 mthicd9|
+7106690|ENG|07 09 2015 drug fdaspl file national|
+7107734|ENG|abnormality organ|
+7111539|ENG|08f 09 2015 2015aa rxnorm|
+711385|ENG|allergen drug|
+711386|ENG|allergen drug substance|
+7120752|ENG|abnormal joint morphology|
+7123524|ENG|5 bisacodyl bisacodyl coat do mg oral tablet unit|
+7123525|ENG|5 bisacodyl coat laxative mg oral sugar tablet|
+7132364|ENG|04 20 2015 human ontology phenotype|
+7133022|ENG|10 2015 icd pc|
+7133349|ENG|2014 classification clinical disease international modification ninth revision|
+7133350|ENG|2014 additional classification clinical disease entry international metathesaurus modification ninth revision term|
+713365|ENG|allergic disorder drug reaction|
+713427|ENG|allergic drug reaction|
+7136789|ENG|07 09 2015 drug file fmtsme national|
+7145943|ENG|2014 guideline medicare model usp|
+715450|ENG|allergy disorder mesna|
+7155182|ENG|07 2015 27 cvx|
+7157930|ENG|decrease immunoglobulin level|
+715960|ENG|allergy drug|
+7160330|ENG|2014 digestive disorder functional icd9cm nec|
+7162161|ENG|human ontology phenotype|
+7162800|ENG|2015 icd10pc|
+71638|ENG|1 2 3 dg p|
+7164709|ENG|11 19 2014 medlineplu|
+716555|ENG|allergy medication|
+716577|ENG|allergy mesna|
+71735|ENG|1 2 3 dimercapto propanol|
+7175719|ENG|07 16 2015 vandf|
+71758|ENG|1 2 3 dimyristoyl glycero phosphorylcholine|
+7175862|ENG|07 16 2015 administration drug file health national veteran|
+7180304|ENG|abnormality skeletal system|
+71806|ENG|1 2 3 dipalmitoyl ethylphosphocholine glycero sn|
+71812|ENG|1 2 3 dipalmitoyl glycero phosphocholine|
+71824|ENG|1 2 3 dipalmitoyl phosphatidylcholine|
+7182957|ENG|10 2000 bisacodyl bisacodyl laxative mg mg premier rectal suppository value|
+7182958|ENG|5 bisacodyl coat gentle laxative mg oral sugar tablet|
+71842|ENG|1 2 3 ditetradecanoyl glycero phosphocholine|
+71843|ENG|1 2 3 ditetradecyl glycero phosphocholine|
+71849|ENG|1 2 3 dithiopropan o1|
+7190550|ENG|2015 hcpcs|
+7190647|ENG|03 2015 hgnc|
+7190666|ENG|0 08 2014 3 hl7 version vocabulary|
+7192302|ENG|2014 icd9cm|
+7192661|ENG|10th 2015 classification clinical disease edition international modification|
+719369|ENG|aloe|
+7194353|ENG|mthcmsfrf|
+7194356|ENG|2015ab mth|
+719487|ENG|aloe cap tab vera|
+719538|ENG|aloe cleanse pad vera|
+7195827|ENG|07 09 2015 fdaspl ndfrt|
+71961|ENG|1 2 3 glycero palmitoleoyl palmitoyl phosphocholine sn|
+719657|ENG|aloe extract|
+719664|ENG|aloe extract vera|
+719680|ENG|aloe gel top vera|
+719683|ENG|aloe gel vera|
+719739|ENG|aloe liquid oral vera|
+719790|ENG|aloe preparation vera|
+719814|ENG|aloe vera|
+72045|ENG|1 2 3 methyl pyridine pyrrolidinyl s|
+7209585|ENG|250 azithromycin mg monohydrate oral tablet|
+7209929|ENG|acid disease reflux|
+7212343|ENG|10 2000 bisacodyl cv gentle laxative mg mg rectal suppository|
+7212344|ENG|10 2000 bisacodyl gentle laxative leader mg mg rectal suppository|
+7220353|ENG|0 08 2014 hl7v3|
+722122|ENG|alter blood pa per rectum|
+722124|ENG|alter blood stool|
+7224004|ENG|08 18 2015 2016 msh|
+7224025|ENG|07 27 mvx2015|
+7224205|ENG|07 2015 27 manufacturer vaccine|
+7228184|ENG|abnormality phenotypic|
+7232014|ENG|anomaly skeletal|
+7234815|ENG|2014 uspmg|
+723518|ENG|alti mercaptopurine|
+7239462|ENG|abnormality intestine|
+7242134|ENG|10 2000 bisacodyl cv fast laxative mg mg rectal relief suppository|
+7242136|ENG|5 bisacodyl bisacodyl delay mg oral release tablet|
+7249313|ENG|04 04 2015 go|
+7252571|ENG|2 52 lnc|
+7253967|ENG|manufacturer vaccine|
+7254357|ENG|2014 cm file formulary metathesaurus mthcmsfrf reference|
+7255244|ENG|07 09 2015 fmtsme ndfrt|
+7256053|ENG|03 18 2015 omim|
+726072|ENG|i|
+7264674|ENG|2015ab metathesaurus umls|
+7264689|ENG|guideline medicare model usp|
+7266314|ENG|10 30 bisacodyl enema mg ml per|
+7271924|ENG|5 bisacodyl coat ducodyl health mg oral sense tablet|
+7281428|ENG|2014 9 cm icd|
+7284098|ENG|08 2015 28 fda label metathesaurus product structure|
+729859|ENG|ambulatory computer record store|
+7298799|ENG|abnormality morphology skeletal|
+7305795|ENG|bladder cystitis urinary|
+7313095|ENG|08 2015 28 mthspl|
+7313677|ENG|cm file formulary metathesaurus reference|
+7314586|ENG|03 2015 23 ncbi|
+7314587|ENG|07 09 2015 ndfrt|
+7314712|ENG|07 09 2015 drug file national|
+7314849|ENG|neoplasia pancreas|
+7319398|ENG|immunoglobulin level reduce|
+7323726|ENG|2015 umd|
+7328061|ENG|0 19 mdr|
+7328115|ENG|disorder gastrointestinal somatic symptom|
+7328320|ENG|0 19 activity dictionary meddra medical regulatory terminology|
+7328477|ENG|1 13 3 radlex|
+7328634|ENG|04d 2016 bioc|
+7328635|ENG|04d 2016 biomedical domain group integrate model research|
+7328666|ENG|04d 2016 cancer center hawaii nutrition research terminology|
+7328867|ENG|04d 2016 jax|
+7328899|ENG|04d 2016 hl7 nci|
+7328900|ENG|04d 2016 nci|
+7328901|ENG|04d 2016 ncpdp|
+7328911|ENG|04d 2016 cancer institute national thesaurus|
+7329075|ENG|04d 2016 administration drug food s u|
+7329079|ENG|04d 2016 code measure unify unit|
+7329191|ENG|04d 2016 ctep sdc|
+7329203|ENG|04d 2016 clinical consortium data interchange standard|
+7329214|ENG|04d 2016 dicom|
+7329371|ENG|04d 2016 ich|
+7329539|ENG|04d 2016 information nomenclature registry system|
+7329712|ENG|04d 2016 crch|
+7329958|ENG|04d 2016 cancer division nci prevention program|
+7329959|ENG|04d 2016 gloss nci|
+7330126|ENG|04d 2016 center control disease prevention s u|
+7330162|ENG|04d 2016 zfin|
+7330265|ENG|04d 2016 adverse common criterion event terminology|
+7330268|ENG|04d 2016 archive content exchange lexicon resource|
+7330364|ENG|04d 2016 code entity geopolitical name standard|
+7330445|ENG|04d 2016 kegg|
+7330488|ENG|04d 2016 7 health level nci|
+7330493|ENG|04d 2016 child development health human institute national|
+7330752|ENG|04d 2016 cdisc|
+7330862|ENG|04d 2016 fda|
+7330982|ENG|04d 2016 database kegg pathway|
+7331312|ENG|04d 2016 bridg|
+7331348|ENG|04d 2016 ctcae|
+7331379|ENG|04d 2016 dcp|
+7331390|ENG|04d 2016 communication digital image medicine|
+7331459|ENG|04d 2016 genc|
+7331600|ENG|04d 2016 nichd|
+7331606|ENG|04d 2016 council drug national prescription program|
+7331687|ENG|04d 2016 reni|
+7331874|ENG|04d 2016 adapt biocarta map molecular nci online pathway use|
+7331889|ENG|04d 2016 cdc|
+7332187|ENG|04d 2016 pid|
+7332270|ENG|04d 2016 ucum|
+7332304|ENG|04d 2016 database model organism zebrafish|
+7332386|ENG|04d 2016 carelex|
+7332402|ENG|04d 2016 cancer classification disease evaluation program simple therapy|
+7332430|ENG|04d 2016 dtp|
+7332579|ENG|04d 2016 conference harmonisation international|
+7332586|ENG|04d 2016 adapt jackson laboratory mouse nci terminology use|
+7332624|ENG|04d 2016 developmental nci program therapeutics|
+7332625|ENG|04d 2016 cancer dictionary nci term|
+7332632|ENG|04d 2016 cancer database institute interaction national nature pathway|
+734754|ENG|aminopyridine|
+73748|ENG|1 2 4 ethenyl naphthalenyl pyridine|
+744395|ENG|an|
+744997|ENG|anabolism|
+749009|ENG|anal|
+749528|ENG|anal cancer|
+749554|ENG|anal carcinoma|
+749950|ENG|anal incontinence|
+750549|ENG|analog|
+750746|ENG|analyse|
+751942|ENG|analyse display pattern recognition|
+752407|ENG|analyse system|
+755174|ENG|anat|
+755345|ENG|anatomic cancer code nom original pt site system type xxx|
+755395|ENG|anatomic structure|
+755456|ENG|anatomical body structure structure|
+755632|ENG|anatomical structure|
+755653|ENG|anatomist digital|
+755654|ENG|anatomist digital university washington|
+755658|ENG|anatomy|
+764754|ENG|ani cancer|
+764775|ENG|ani carcinoma|
+770717|ENG|anomaly|
+771434|ENG|anomaly congenital digestive|
+771437|ENG|anomaly congenital digestive disorder system|
+771438|ENG|anomaly congenital digestive disorder tract|
+771443|ENG|anomaly congenital digestive system|
+771444|ENG|anomaly congenital digestive system unspecified|
+771445|ENG|anomaly congenital digestive tract|
+771494|ENG|anomaly congenital disorder gastrointestinal tract|
+771743|ENG|anomaly congenital gastrointestinal|
+771745|ENG|anomaly congenital gastrointestinal tract|
+772417|ENG|anomaly gastrointestinal|
+772418|ENG|anomaly gastrointestinal tract|
+772508|ENG|anomaly joint|
+773499|ENG|another arthropathy associate disorder|
+773500|ENG|another arthropathy associate disorder disorder|
+774581|ENG|antagonist dopamine|
+774583|ENG|antagonist dopamine receptor|
+774585|ENG|antagonist dopaminergic|
+774668|ENG|antagonist inhibiter|
+77516|ENG|1 2 dihexadecyl glycerophosphocholine sn|
+77671|ENG|1 2 dipalmitoyl glycerophosphocholine|
+77674|ENG|1 2 dipalmitoylphosphatidylcholine|
+77900|ENG|1 2 ethenyl homopolymer oxide pyridine|
+78397|ENG|1 2 mercaptoimidazole methyl|
+786037|ENG|anti bal british lewisite|
+786071|ENG|anti british lewisite|
+803844|ENG|antidote|
+803862|ENG|antidote product|
+803863|ENG|antidote substance|
+815854|ENG|any form nicotine|
+822056|ENG|aptha|
+822081|ENG|aptha minor|
+822082|ENG|aptha oral|
+822110|ENG|aphthous disorder minor oral ulceration|
+822125|ENG|aphthous miau minor ulceration|
+822126|ENG|aphthous minor oral ulceration|
+822128|ENG|aphthous oral ulcer|
+822134|ENG|aphthous stomatitis|
+822137|ENG|aphthous ulcer|
+82540|ENG|1 3 4 6 7 mercapto tetrazaindene|
+826681|ENG|appendix disease|
+826693|ENG|appendix disease unspecified|
+826696|ENG|appendix disorder|
+827041|ENG|appetite voracious|
+828378|ENG|application management pma portfolio|
+830793|ENG|aptp pyridine|
+835346|ENG|arb cancer central numb ord patient pt sequence xxx|
+83562|ENG|1 3 7 anatomist digital university washington|
+842994|ENG|area blood periumbilical stain|
+845054|ENG|arg me|
+845506|ENG|argimesna|
+851246|ENG|arrange organise|
+869888|ENG|arthritis leucopenia rheumatoid splenoadenomegaly|
+869889|ENG|arthritis leucopenia rheumatoid splenomegaly|
+870961|ENG|arthropathic|
+870966|ENG|arthropathy|
+870996|ENG|arthropathy associate classify disorder elsewhere other|
+871069|ENG|arthropathy associate disorder neurological|
+871136|ENG|arthropathy charcot|
+871139|ENG|arthropathy charcot disorder|
+871161|ENG|arthropathy classify disease elsewhere other|
+871178|ENG|arthropathy concept disorder navigational relate|
+871335|ENG|arthropathy disorder|
+871462|ENG|arthropathy disorder relate|
+871672|ENG|arthropathy neurogenic|
+871674|ENG|arthropathy neuropathic|
+871724|ENG|arthropathy site unspecified unspecified|
+871731|ENG|arthropathy unspecified|
+872648|ENG|arthrosis|
+872711|ENG|arthrosis unspecified|
+87969|ENG|1 4 dihydropyridine|
+882053|ENG|a liver malignant neoplasm not or primary secondary specify|
+88216|ENG|1 4 ion methyl phenylpyridinium|
+882170|ENG|asa|
+88296|ENG|1 4 methyl phenyl pyridinium|
+88297|ENG|1 4 methyl phenylpyridine|
+88298|ENG|1 4 methyl phenylpyridinium|
+886787|ENG|aspect historical|
+886861|ENG|aspect transplantation|
+887605|ENG|aspergum|
+889306|ENG|aspirin|
+889830|ENG|aspirin product|
+889846|ENG|aspirin substance|
+902008|ENG|atazanavir so4|
+902009|ENG|atazanavir substance sulfate|
+902010|ENG|atazanavir sulfate|
+910836|ENG|attribute class|
+910839|ENG|attribute classification|
+910861|ENG|attribute communication|
+911546|ENG|attribute stage system|
+916327|ENG|ausobronc|
+918677|ENG|automate pattern recognition|
+91989|ENG|1 6 6h 7 9ci dihydro purine thione|
+91992|ENG|1 6 6h 7 dihydro purine thione|
+924687|ENG|azadose|
+924873|ENG|azathiopurine|
+925290|ENG|azithromycin|
+925292|ENG|azithromycin bayer brand dihydrate|
+925295|ENG|azithromycin brand dihydrate mack|
+925296|ENG|azithromycin brand dihydrate pfizer|
+925299|ENG|azithromycin brand pfizer|
+925351|ENG|azithromycin product|
+925353|ENG|azithromycin substance|
+925356|ENG|azitrocin|
+926189|ENG|b|
+928122|ENG|b cell defect predominantly|
+928123|ENG|b cell deficiency|
+929859|ENG|b disorder hepatitis type viral|
+930963|ENG|b hepatitis|
+930972|ENG|b hepatitis infection|
+931035|ENG|b hepatitis type viral|
+931040|ENG|b hepatitis viral|
+935186|ENG|b6 preparation vitamin|
+935193|ENG|b6 substance vitamin|
+935194|ENG|b6 vit|
+935195|ENG|b6 vitamin|
+935196|ENG|b6 vitamin vitamin|
+945040|ENG|bacterial due h helicobacter infection pylorus pylorus|
+947626|ENG|bad breath|
+947628|ENG|bad breath halitosis|
+947704|ENG|bad condition define factor health influence sign status symptom|
+947709|ENG|bad condition define sign symptom|
+949244|ENG|bal|
+949250|ENG|bal dimercaprol|
+949256|ENG|bal oil|
+952523|ENG|bank data|
+952545|ENG|bank information|
+954178|ENG|bariatric surgery|
+96125|ENG|1 acid carboxyglutamic|
+964481|ENG|bear disease food|
+964523|ENG|bear disorder food|
+967514|ENG|behavior choice|
+967515|ENG|behavior choice make|
+968679|ENG|behavior health mental|
+969635|ENG|behavioral disorder mental|
+973149|ENG|benign cyst incl malignant neoplasm polyp unspecified|
+981065|ENG|beta carbinol pyridyl|
+981066|ENG|beta carbinol pyridyl substance|
+983720|ENG|beta pyridylcarbinol|
+984180|ENG|betahistine|
+984193|ENG|betahistine product|
+986277|ENG|bi|
+991143|ENG|bile calculus duct|
+991166|ENG|bile cancer duct|
+991243|ENG|bile carcinoma duct|
+991941|ENG|bile duct stone|
+992237|ENG|biliary calculus|
+992459|ENG|biliary disease system|
+992460|ENG|biliary disease tract|
+992461|ENG|biliary disease tract unspecified|
+992466|ENG|biliary disorder disorder tract|
+992476|ENG|biliary disorder gallbladder|
+992477|ENG|biliary disorder gallbladder pancreas tract|
+992502|ENG|biliary disorder tract|
+992503|ENG|biliary disorder tract unspecified|
+992861|ENG|biliary stone|
+992862|ENG|biliary stone substance|
+99385|ENG|1 aminonaphthalene|
+997036|ENG|bioinformatics|
+997086|ENG|biologic pharmaceutical product|
+997087|ENG|biologic pharmaceutical product product|
+997403|ENG|biological structure|
+997451|ENG|biology computational|
+997503|ENG|biology systematic|

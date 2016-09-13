@@ -1056,7 +1056,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
         concept.setAtoms(contentService
             .getComputePreferredNameHandler(concept.getTerminology())
-            .sortByPreference(concept.getAtoms(), list));
+            .sortAtoms(concept.getAtoms(), list));
       }
       return concept;
     } catch (Exception e) {
@@ -1100,7 +1100,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
         concept.setAtoms(contentService
             .getComputePreferredNameHandler(concept.getTerminology())
-            .sortByPreference(concept.getAtoms(), list));
+            .sortAtoms(concept.getAtoms(), list));
       }
       return concept;
     } catch (Exception e) {
@@ -1364,7 +1364,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             .resolve(descriptor);
         descriptor.setAtoms(contentService
             .getComputePreferredNameHandler(descriptor.getTerminology())
-            .sortByPreference(descriptor.getAtoms(), list));
+            .sortAtoms(descriptor.getAtoms(), list));
 
       }
       return descriptor;
@@ -1522,7 +1522,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         contentService.getGraphResolutionHandler(terminology).resolve(code);
         code.setAtoms(
             contentService.getComputePreferredNameHandler(code.getTerminology())
-                .sortByPreference(code.getAtoms(), list));
+                .sortAtoms(code.getAtoms(), list));
 
       }
       return code;
@@ -1638,7 +1638,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             .resolve(lexicalClass);
         lexicalClass.setAtoms(contentService
             .getComputePreferredNameHandler(lexicalClass.getTerminology())
-            .sortByPreference(lexicalClass.getAtoms(), list));
+            .sortAtoms(lexicalClass.getAtoms(), list));
 
       }
       return lexicalClass;
@@ -1695,7 +1695,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             .resolve(stringClass);
         stringClass.setAtoms(contentService
             .getComputePreferredNameHandler(stringClass.getTerminology())
-            .sortByPreference(stringClass.getAtoms(), list));
+            .sortAtoms(stringClass.getAtoms(), list));
       }
       return stringClass;
     } catch (Exception e) {
@@ -2263,7 +2263,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "retrieve deep relationships for the concept", UserRole.VIEWER);
 
       return contentService.findConceptDeepRelationships(terminologyId,
-          terminology, version, Branch.ROOT, query, false, pfs);
+          terminology, version, Branch.ROOT, query, false, false, false, false,
+          pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve deep relationships for a concept");

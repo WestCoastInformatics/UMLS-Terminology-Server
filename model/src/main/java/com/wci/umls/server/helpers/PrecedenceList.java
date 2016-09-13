@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -77,4 +77,11 @@ public interface PrecedenceList extends HasTerminology, HasLastModified {
    * @return the term type rank map
    */
   public Map<String, String> getTermTypeRankMap();
+
+  /**
+   * Returns the terminology rank map.
+   *
+   * @return the terminology rank map
+   */
+  public Map<String, String> getTerminologyRankMap();
 }

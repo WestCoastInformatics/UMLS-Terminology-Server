@@ -135,7 +135,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -213,7 +213,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -290,7 +290,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -369,7 +369,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -445,7 +445,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -522,7 +522,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -597,7 +597,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -677,7 +677,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // is represented in that direction
       action.setConceptId(conceptId);
       action.setConceptId2(relationship.getTo().getId());
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -761,7 +761,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -838,7 +838,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -928,7 +928,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -1022,7 +1022,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -1117,7 +1117,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -1206,7 +1206,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(false);
       action.setChangeStatusFlag(true);
@@ -1308,7 +1308,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy(userName);
+      action.setLastModifiedBy("E-"+userName);
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(false);
       action.setChangeStatusFlag(true);
