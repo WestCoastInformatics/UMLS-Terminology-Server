@@ -2208,6 +2208,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           authorizeProject(workflowService, projectId, securityService,
               authToken, "trying to generate concept report", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
+      final Project project = workflowService.getProject(projectId);
 
       // Read vars
       final Worklist worklist = workflowService.getWorklist(id);
@@ -2240,7 +2241,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           final Concept concept = reportService.getConcept(conceptId);
           // TODO: conceptReportType and relationshipCt will become
           // parameters to getConceptReport
-          conceptReport.append(reportService.getConceptReport(concept));
+          conceptReport.append(reportService.getConceptReport(project, concept));
           conceptReport.append("---------------------------------------------");
         }
       }

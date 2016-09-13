@@ -71,7 +71,7 @@ public class ReportServiceRestNormalUseTest extends ReportServiceRestTest {
         .info("TEST - Get concept report" + project + ", " + authToken);
     Concept concept = contentService.getConcept("C0002499", umlsTerminology,
         umlsVersion, project.getId(), authToken);
-    String report = reportService.getConceptReport(concept.getId(), authToken);
+    String report = reportService.getConceptReport(project.getId(), concept.getId(), authToken);
     assertTrue(report.contains(concept.getTerminologyId()));
   }
 

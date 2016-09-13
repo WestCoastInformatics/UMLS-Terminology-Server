@@ -337,8 +337,9 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    *
    * @return the lower name hash
    */
+  @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  private String getLowerNameHash() {
+  public String getLowerNameHash() {
     return lowerNameHash;
   }
 
