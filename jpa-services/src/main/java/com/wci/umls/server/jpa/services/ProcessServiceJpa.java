@@ -332,6 +332,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     handleLazyInit(processExecution);
 
     // Hibernate adds leading null entries in the Steps list. Remove here.
+    // TODO - revisit this when we're no longer sick of it
     // http://stackoverflow.com/questions/13307849/hibernate-returns-list-with-null-values-onetomany-annotation-with-list-type
     
     List<AlgorithmExecution> steps = processExecution.getSteps();
