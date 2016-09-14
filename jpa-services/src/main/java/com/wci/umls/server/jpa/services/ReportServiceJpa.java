@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -62,18 +61,16 @@ public class ReportServiceJpa extends HistoryServiceJpa
     // ---------------------------------------------------------------------------
 
     //
-    //Options
+    // Options
     //
     int max_relationship_count = 20;
     int max_cxt_rel_count = 20;
     boolean include_siblings = false;
-    
+
     //
     // Handle validation/integrity checks
     //
-    
-    
-    
+
     //
     // Concept information
     //
@@ -119,13 +116,16 @@ public class ReportServiceJpa extends HistoryServiceJpa
     for (final Atom atom : concept.getAtoms()) {
       for (final Definition def : atom.getDefinitions()) {
         sb.append(def.isPublishable() ? "[Release] " : "[Do Not Release] ");
-        sb.append(def.getTerminology()).append("_").append(def.getVersion()).append("\r\n");
-        sb.append("  -").append(atom.getTerminology()).append("/").append(atom.getTermType());
-        sb.append("|").append(WordUtils.wrap(def.getValue(), 65, "\r\n", false)).append("\r\n");
-        
+        sb.append(def.getTerminology()).append("_").append(def.getVersion())
+            .append("\r\n");
+        sb.append("  -").append(atom.getTerminology()).append("/")
+            .append(atom.getTermType());
+        sb.append("|").append(WordUtils.wrap(def.getValue(), 65, "\r\n", false))
+            .append("\r\n");
+
       }
     }
-    
+
     //
     // SOS
     //
@@ -134,14 +134,18 @@ public class ReportServiceJpa extends HistoryServiceJpa
       for (final Attribute att : atom.getAttributes()) {
         if (att.getName().equals("SOS")) {
           sb.append(att.isPublishable() ? "[Release] " : "[Do Not Release] ");
-          sb.append(att.getTerminology()).append("_").append(att.getVersion()).append("\r\n");
-          sb.append("  -").append(atom.getTerminology()).append("/").append(atom.getTermType());
-          sb.append("|").append(WordUtils.wrap(att.getValue(), 65, "\r\n", false)).append("\r\n");
-          
+          sb.append(att.getTerminology()).append("_").append(att.getVersion())
+              .append("\r\n");
+          sb.append("  -").append(atom.getTerminology()).append("/")
+              .append(atom.getTermType());
+          sb.append("|")
+              .append(WordUtils.wrap(att.getValue(), 65, "\r\n", false))
+              .append("\r\n");
+
         }
       }
     }
-    
+
     //
     // Atoms
     //

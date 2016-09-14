@@ -10,7 +10,7 @@
     <div id="mobileFooter" class="visible-xs hidden-md col-xs-12">
       <button class="btn btn-sm btn-primary btn-structure"
         style="margin-top: 10px" ng-click="logout()"
-        ng-show="user.authToken != null && appConfig['login.enabled'] === 'true'">Logout</button>
+        ng-show="user.authToken != null && appConfig['deploy.login.enabled'] === 'true'">Logout</button>
       &nbsp; &nbsp;
       <a ng-href="mailto:{{appConfig['deploy.feedback.email']}}">
         <button class="btn btn-sm btn-primary btn-structure "
@@ -31,11 +31,11 @@
           <li>
             <!--  Return to login screen -->
             <button
-              ng-show="user.authToken != null && appConfig['login.enabled'] === 'true'"
+              ng-show="user.authToken != null && appConfig['deploy.login.enabled'] === 'true'"
               class="btn btn-sm btn-primary btn-structure"
               style="margin-top: 10px" ng-click="logout()">Logout</button> <!--  Return to landing screen -->
             <button
-              ng-show="user.name === 'Guest' && appConfig['landing.enabled'] === 'true' && appConfig['login.enabled'] == 'false'"
+              ng-show="user.name === 'Guest' && appConfig['deploy.landing.enabled'] === 'true' && appConfig['deploy.login.enabled'] == 'false'"
               class="btn btn-sm btn-primary btn-structure"
               style="margin-top: 10px" ng-click="logout()">Exit</button>
           </li>
