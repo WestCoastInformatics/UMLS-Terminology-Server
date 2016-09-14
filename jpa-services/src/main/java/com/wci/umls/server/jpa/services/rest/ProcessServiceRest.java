@@ -277,4 +277,29 @@ public interface ProcessServiceRest {
   public Integer getAlgorithmProgress(Long projectId, Long id, String authToken)
     throws Exception;
 
+  /**
+   * Returns the process log.
+   *
+   * @param projectId the project id
+   * @param processId the process id
+   * @param authToken the auth token
+   * @return the process log
+   * @throws Exception the exception
+   */
+  public String getProcessLog(Long projectId, Long processId, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the algorithm log.
+   *
+   * @param projectId the project id
+   * @param algorithmId the algorithm id
+   * @param authToken the auth token
+   * @return the algorithm log
+   * @throws Exception the exception
+   */
+  public String getAlgorithmLog(Long projectId, Long algorithmId, String authToken)
+      throws Exception;
+  
+  
 }

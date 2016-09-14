@@ -665,4 +665,56 @@ public class ProcessClientRest extends RootClientRest
 
   }
 
+  @Override
+  public String getProcessLog(Long projectId, Long processId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Project Client - find log entries of specified process execution");
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(processId, "processId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/" + processId + "/log?projectId=" + projectId);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return resultString;
+  }
+
+  @Override
+  public String getAlgorithmLog(Long projectId, Long algorithmId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Project Client - find log entries of specified process execution");
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(algorithmId, "processId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/algo/" + algorithmId + "/log?projectId=" + projectId);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return resultString;
+  }
+
 }
