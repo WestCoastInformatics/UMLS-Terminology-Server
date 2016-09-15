@@ -307,8 +307,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     // Get the pre-defined test process
     ProcessConfig processConfig =
-        processService.findProcessConfigs(project.getId(), "name:Test Process",
-            null, authToken).getObjects().get(0);
+        processService.findProcessConfigs(project.getId(),
+            "name:\"Test Process\"", null, authToken).getObjects().get(0);
     assertNotNull(processConfig);
 
     // Execute the process
@@ -368,7 +368,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Create a process config that has two algos that both run for 5 secs
     processConfig = new ProcessConfigJpa();
     processConfig.setDescription("Process for testing use - short");
-    processConfig.setFeedbackEmail("fake@fake.fake");
+    processConfig.setFeedbackEmail(null);
     processConfig.setName("Short Test Process");
     processConfig.setProject(project);
     processConfig.setTerminology(umlsTerminology);
@@ -463,8 +463,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Start another process while this one is going in the background
     // Get the pre-defined test process
     ProcessConfig preDefinedProcessConfig =
-        processService.findProcessConfigs(project.getId(), "name:Test Process",
-            null, authToken).getObjects().get(0);
+        processService.findProcessConfigs(project.getId(),
+            "name:\"Test Process\"", null, authToken).getObjects().get(0);
     assertNotNull(processConfig);
 
     // Execute the process
@@ -504,7 +504,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     processConfig2 = new ProcessConfigJpa();
     processConfig2.setDescription("Process for testing use - long");
-    processConfig2.setFeedbackEmail("fake@fake.fake");
+    processConfig2.setFeedbackEmail(null);
     processConfig2.setName("Long Test Process");
     processConfig2.setProject(project);
     processConfig2.setTerminology(umlsTerminology);
@@ -655,8 +655,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     // Get the pre-defined test process
     ProcessConfig processConfig =
-        processService.findProcessConfigs(project.getId(), "name:Test Process",
-            null, authToken).getObjects().get(0);
+        processService.findProcessConfigs(project.getId(),
+            "name:\"Test Process\"", null, authToken).getObjects().get(0);
     assertNotNull(processConfig);
 
     // Execute the process
@@ -722,19 +722,19 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
   }
 
   /**
-   * Test fail once process. Note: this will only run successfully ONCE. To
+   * Test fail once process, and email sending. Note: this will only run successfully ONCE. To
    * re-test, the server will need to be reloaded
    *
    * @throws Exception the exception
    */
   @Test
-  public void testFailOnceProcess() throws Exception {
+  public void testFailOnceAndEmailProcess() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Create a process config that has one FailOnce algo
     processConfig = new ProcessConfigJpa();
     processConfig.setDescription("Process for testing failOnce");
-    processConfig.setFeedbackEmail("fake@fake.fake");
+    processConfig.setFeedbackEmail("rwood@westcoastinformatics.com");
     processConfig.setName("FailOnce Test Process");
     processConfig.setProject(project);
     processConfig.setTerminology(umlsTerminology);
@@ -774,13 +774,15 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
       // n/a
     }
 
+    // TEST: Ask Rick if a process failed email showed up in his inbox.    
+    
     // Lookup the process execution, so we can get the id number
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     ProcessExecution processExecution = processService
         .findProcessExecutions(project.getId(),
-            "name:Process for testing failOnce", pfs, authToken)
+            "name:\"FailOnce Test Process\"", pfs, authToken)
         .getObjects().get(0);
 
     processExecutionId = processExecution.getId();
@@ -809,6 +811,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     assertNull(algoExecution.getFailDate());
     assertNotNull(algoExecution.getFinishDate());
 
+    // TEST: Ask Rick if a process complete email showed up in his inbox.    
+    
   }
 
   /**
@@ -823,7 +827,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Create a process config that has two algos that both run for 5 secs
     processConfig = new ProcessConfigJpa();
     processConfig.setDescription("Process for testing use - short");
-    processConfig.setFeedbackEmail("fake@fake.fake");
+    processConfig.setFeedbackEmail(null);
     processConfig.setName("Short Test Process");
     processConfig.setProject(project);
     processConfig.setTerminology(umlsTerminology);
