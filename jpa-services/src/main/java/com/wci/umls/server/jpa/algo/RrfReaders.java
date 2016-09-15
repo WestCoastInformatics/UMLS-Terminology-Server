@@ -5,7 +5,8 @@ package com.wci.umls.server.jpa.algo;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -99,8 +100,8 @@ public class RrfReaders {
   public void openOriginalReaders(String prefix) throws Exception {
 
     for (final Keys key : Keys.values()) {
-      readers
-          .put(key, getReader(key.toString().replace("MR", prefix) + ".RRF"));
+      readers.put(key,
+          getReader(key.toString().replace("MR", prefix) + ".RRF"));
     }
     readers.put(Keys.SRDEF, getReader("SRDEF"));
   }
@@ -130,7 +131,8 @@ public class RrfReaders {
   private PushBackReader getReader(String filename) throws Exception {
     File file = new File(inputDir, filename);
     if (file != null && file.exists()) {
-      return new PushBackReader(new BufferedReader(new FileReader(file)));
+      return new PushBackReader(new BufferedReader(
+          new InputStreamReader(new FileInputStream(file), "UTF-8")));
     } else {
       // if no file, return an empty stream
       return new PushBackReader(new StringReader(""));
