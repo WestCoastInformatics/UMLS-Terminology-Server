@@ -56,17 +56,8 @@ tsApp.controller('FinderModalCtrl', [
       // clear data structures
       $scope.errors = [];
 
-      var paging = $scope.paging;
-      var pfs = {
-        startIndex : (paging.page - 1) * paging.pageSize,
-        maxResults : paging.pageSize,
-        sortField : paging.sortField,
-        ascending : paging.sortAscending,
-        queryRestriction : paging.filter
-      };
-
       contentService.findComponentsAsList($scope.query, $scope.type,
-        $scope.selected.project.terminology, $scope.selected.project.version, pfs).then(
+        $scope.selected.project.terminology, $scope.selected.project.version, $scope.paging).then(
       // Success
       function(data) {
         $scope.searchResults = data.results;
@@ -88,10 +79,10 @@ tsApp.controller('FinderModalCtrl', [
     $scope.selectComponent = function(component) {
       // Read the component
       contentService.getComponent(component).then(
-        // Success
-        function(data) {
-          $scope.selected.component = data;         
-        });
+      // Success
+      function(data) {
+        $scope.selected.component = data;
+      });
     };
 
     // Dismiss modal
