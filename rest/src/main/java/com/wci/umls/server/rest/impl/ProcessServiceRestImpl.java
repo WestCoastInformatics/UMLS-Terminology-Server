@@ -41,6 +41,8 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.LogEntry;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
@@ -1192,8 +1194,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       executionId = processExecution.getId();
 
       // Create a thread and run the process
-      runProcessAsThread(projectId, processConfig, processExecution, userName,
-          background, false);
+      runProcessAsThread(projectId, processConfig.getId(),
+          processExecution.getId(), userName, background, false);
 
       // Always return the execution id
       return executionId;
@@ -1256,13 +1258,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify that passed projectId matches ID of the processConfig's project
       verifyProject(processConfig, projectId);
 
-      // Clear out any previous fail/finish dates from previous runs
-      processExecution.setFailDate(null);
-      processExecution.setFinishDate(null);
-
       // Create a thread and run the process
-      runProcessAsThread(projectId, processConfig, processExecution, userName,
-          background, true);
+      runProcessAsThread(projectId, processConfig.getId(),
+          processExecution.getId(), userName, background, true);
 
     } catch (
 
@@ -1402,7 +1400,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final AlgorithmExecution algoExecution =
           processService.getAlgorithmExecution(id);
       // If algorithm has already completed successfully, return 100
-      if (algoExecution.getFinishDate() != null && algoExecution.getFailDate() == null) {
+      if (algoExecution.getFinishDate() != null
+          && algoExecution.getFailDate() == null) {
         return 100;
       }
       if (lookupAeProgressMap.containsKey(id)) {
@@ -1433,13 +1432,27 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
    * @param restart the restart
    * @throws Exception the exception
    */
-  private void runProcessAsThread(Long projectId, ProcessConfig processConfig,
-    ProcessExecution processExecution, String userName, Boolean background,
+  private void runProcessAsThread(Long projectId, Long processConfigId,
+    Long processExecutionId, String userName, Boolean background,
     Boolean restart) throws Exception {
 
     // Set up vars for thread
     final Exception[] exceptions = new Exception[1];
     final boolean handleException = background != null && background;
+
+    // Set up the service, and load the process Config and Execution
+    final ProcessService processService = new ProcessServiceJpa();
+    processService.setLastModifiedBy(userName);
+
+    final ProcessConfig processConfig =
+        processService.getProcessConfig(processConfigId);
+    final ProcessExecution processExecution =
+        processService.getProcessExecution(processExecutionId);
+
+    // Clear out the finish and fail date fields (these could have been
+    // populated from a previous run)
+    processExecution.setFailDate(null);
+    processExecution.setFinishDate(null);
 
     final Thread t = new Thread(new Runnable() {
 
@@ -1448,10 +1461,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       public void run() {
         // Declare execution so it can be accessed
         AlgorithmExecution algorithmExecution = null;
-        ProcessService processService = null;
         try {
-          processService = new ProcessServiceJpa();
-          processService.setLastModifiedBy(userName);
 
           // Set initial progress to zero and count the number of steps to
           // execute
@@ -1477,7 +1487,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               }
               // If the algorithm was mid-run, save the algorithm Execution to
               // run
-              else if (ae.getFinishDate() != null && ae.getFailDate() != null) {
+              else if (ae.getFailDate() != null) {
                 algorithmToRestart = ae;
               }
             }
@@ -1603,7 +1613,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // Send email notifying about successful completion
           String recipients = processExecution.getFeedbackEmail();
 
-          if (recipients != null) {
+          if (!ConfigUtility.isEmpty(recipients)) {
             final Properties config = ConfigUtility.getConfigProperties();
             ConfigUtility.sendEmail("[Terminology Server] Process Run Complete",
                 config.getProperty("mail.smtp.user"), recipients,
@@ -1616,8 +1626,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           exceptions[0] = e;
 
           // Remove process and algorithm from the maps
-          processAlgorithmMap.remove(processExecution.getId());
-          lookupPeProgressMap.remove(processExecution.getId());
+          processAlgorithmMap.remove(processExecutionId);
+          lookupPeProgressMap.remove(processExecutionId);
           lookupAeProgressMap.remove(algorithmExecution.getId());
 
           // Mark algorithm and process as failed
@@ -1639,7 +1649,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // Send email notifying about failed run
           String recipients = processExecution.getFeedbackEmail();
 
-          if (recipients != null) {
+          if (!ConfigUtility.isEmpty(recipients)) {
             try {
               final Properties config = ConfigUtility.getConfigProperties();
               ConfigUtility.sendEmail("[Terminology Server] Process Run Failed",
@@ -1675,6 +1685,141 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       if (exceptions[0] != null) {
         throw new Exception(exceptions[0]);
       }
+    }
+
+  }
+
+  /* see superclass */
+  @GET
+  @Path("{processId}/log")
+  @ApiOperation(value = "Get log entries of specified process execution", notes = "Get log entries of specified process execution", response = Integer.class)
+  @Override
+  public String getProcessLog(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Process execution internal id, e.g. 2", required = true) @PathParam("processId") Long processId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Process): /" + processId
+        + "/log, for user " + authToken);
+
+    if (projectId == null) {
+      throw new Exception("Error: project id must be set.");
+    }
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName = authorizeProject(processService, projectId,
+          securityService, authToken,
+          "getting the process execution log entries", UserRole.AUTHOR);
+      processService.setLastModifiedBy(userName);
+
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setStartIndex(0);
+      pfs.setAscending(false);
+      pfs.setSortField("lastModified");
+
+      // Load the processExecution, to get the workId
+      ProcessExecution processExecution =
+          processService.getProcessExecution(processId);
+      String workId = processExecution.getWorkId();
+
+      final List<String> clauses = new ArrayList<>();
+
+      clauses.add("projectId:" + projectId);
+      if (!ConfigUtility.isEmpty(workId)) {
+        clauses.add(workId);
+      }
+      String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+      final List<LogEntry> entries =
+          processService.findLogEntries(fullQuery, pfs);
+
+      final StringBuilder log = new StringBuilder();
+      for (int i = entries.size() - 1; i >= 0; i--) {
+        final LogEntry entry = entries.get(i);
+        final StringBuilder message = new StringBuilder();
+        message.append("[")
+            .append(ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
+        message.append("] ");
+        message.append(entry.getLastModifiedBy()).append(" ");
+        message.append(entry.getMessage()).append("\n");
+        log.append(message);
+      }
+
+      return log.toString();
+    } catch (Exception e) {
+      handleException(e, "trying to get the process execution log entries");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+
+  }
+
+  @GET
+  @Path("algo/{algorithmId}/log")
+  @ApiOperation(value = "Get log entries of specified algorithm execution", notes = "Get log entries of specified algorithm execution", response = Integer.class)
+  @Override
+  public String getAlgorithmLog(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Algorithm execution internal id, e.g. 2", required = true) @PathParam("algorithmId") Long algorithmId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Process): /algo/"
+        + algorithmId + "/log, for user " + authToken);
+
+    if (projectId == null) {
+      throw new Exception("Error: project id must be set.");
+    }
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName = authorizeProject(processService, projectId,
+          securityService, authToken,
+          "getting the algorithm execution log entries", UserRole.AUTHOR);
+      processService.setLastModifiedBy(userName);
+
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setStartIndex(0);
+      pfs.setAscending(false);
+      pfs.setSortField("lastModified");
+
+      // Load the processExecution, to get the activityId
+      AlgorithmExecution algorithmExecution =
+          processService.getAlgorithmExecution(algorithmId);
+      String activityId = algorithmExecution.getActivityId();
+
+      final List<String> clauses = new ArrayList<>();
+      clauses.add("projectId:" + projectId);
+
+      if (!ConfigUtility.isEmpty(activityId)) {
+        clauses.add(activityId);
+      }
+      String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+      final List<LogEntry> entries =
+          processService.findLogEntries(fullQuery, pfs);
+
+      final StringBuilder log = new StringBuilder();
+      for (int i = entries.size() - 1; i >= 0; i--) {
+        final LogEntry entry = entries.get(i);
+        final StringBuilder message = new StringBuilder();
+        message.append("[")
+            .append(ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
+        message.append("] ");
+        message.append(entry.getLastModifiedBy()).append(" ");
+        message.append(entry.getMessage()).append("\n");
+        log.append(message);
+      }
+
+      return log.toString();
+    } catch (Exception e) {
+      handleException(e, "trying to get the algorithm execution log entries");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
     }
 
   }

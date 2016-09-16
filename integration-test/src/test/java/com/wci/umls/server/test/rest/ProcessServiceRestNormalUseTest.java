@@ -4,9 +4,11 @@
 package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +32,7 @@ import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
 /**
  * Implementation of the "Project Service REST Normal Use" Test Cases.
@@ -304,8 +307,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     // Get the pre-defined test process
     ProcessConfig processConfig =
-        processService.findProcessConfigs(project.getId(), "name:Test Process",
-            null, authToken).getObjects().get(0);
+        processService.findProcessConfigs(project.getId(),
+            "name:\"Test Process\"", null, authToken).getObjects().get(0);
     assertNotNull(processConfig);
 
     // Execute the process
@@ -365,7 +368,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Create a process config that has two algos that both run for 5 secs
     processConfig = new ProcessConfigJpa();
     processConfig.setDescription("Process for testing use - short");
-    processConfig.setFeedbackEmail("fake@fake.fake");
+    processConfig.setFeedbackEmail(null);
     processConfig.setName("Short Test Process");
     processConfig.setProject(project);
     processConfig.setTerminology(umlsTerminology);
@@ -460,8 +463,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Start another process while this one is going in the background
     // Get the pre-defined test process
     ProcessConfig preDefinedProcessConfig =
-        processService.findProcessConfigs(project.getId(), "name:Test Process",
-            null, authToken).getObjects().get(0);
+        processService.findProcessConfigs(project.getId(),
+            "name:\"Test Process\"", null, authToken).getObjects().get(0);
     assertNotNull(processConfig);
 
     // Execute the process
@@ -501,7 +504,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     processConfig2 = new ProcessConfigJpa();
     processConfig2.setDescription("Process for testing use - long");
-    processConfig2.setFeedbackEmail("fake@fake.fake");
+    processConfig2.setFeedbackEmail(null);
     processConfig2.setName("Long Test Process");
     processConfig2.setProject(project);
     processConfig2.setTerminology(umlsTerminology);
@@ -612,8 +615,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     assertNotNull(processExecution.getFinishDate());
 
     // Confirm the first algorithm execution completed, and the second algorithm
-    // execution was
-    // canceled
+    // execution was canceled
     AlgorithmExecution ae1 = processExecution.getSteps().get(0);
     assertNotNull(ae1);
     assertNotNull(ae1.getFinishDate());
@@ -653,8 +655,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     // Get the pre-defined test process
     ProcessConfig processConfig =
-        processService.findProcessConfigs(project.getId(), "name:Test Process",
-            null, authToken).getObjects().get(0);
+        processService.findProcessConfigs(project.getId(),
+            "name:\"Test Process\"", null, authToken).getObjects().get(0);
     assertNotNull(processConfig);
 
     // Execute the process
@@ -720,6 +722,212 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
   }
 
   /**
+   * Test fail once process, and email sending. Note: this will only run successfully ONCE. To
+   * re-test, the server will need to be reloaded
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testFailOnceAndEmailProcess() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Create a process config that has one FailOnce algo
+    processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Process for testing failOnce");
+    processConfig.setFeedbackEmail("rwood@westcoastinformatics.com");
+    processConfig.setName("FailOnce Test Process");
+    processConfig.setProject(project);
+    processConfig.setTerminology(umlsTerminology);
+    processConfig.setVersion(umlsVersion);
+    processConfig.setTimestamp(new Date());
+    processConfig = processService.addProcessConfig(project.getId(),
+        (ProcessConfigJpa) processConfig, authToken);
+
+    // Create and add one FAILONCE algorithm
+    algorithmConfig = new AlgorithmConfigJpa();
+    algorithmConfig.setAlgorithmKey("FAILONCE");
+    algorithmConfig.setDescription("Algorithm for testing FailOnce");
+    algorithmConfig.setEnabled(true);
+    algorithmConfig.setName("Test FAILONCE algorithm");
+    algorithmConfig.setProcess(processConfig);
+    algorithmConfig.setProject(project);
+    algorithmConfig.setTerminology(umlsTerminology);
+    algorithmConfig.setTimestamp(new Date());
+    algorithmConfig.setVersion(umlsVersion);
+    algorithmConfig.setParameters(new ArrayList<AlgorithmParameter>());
+    algorithmConfig = processService.addAlgorithmConfig(project.getId(),
+        (AlgorithmConfigJpa) algorithmConfig, authToken);
+
+    processConfig.getSteps().add(algorithmConfig);
+
+    // Update the process to lock the steps
+    processService.updateProcessConfig(project.getId(),
+        (ProcessConfigJpa) processConfig, authToken);
+
+    // Execute the process (this should fail)
+    Long processExecutionId = null;
+    try {
+      processExecutionId = processService.executeProcess(project.getId(),
+          processConfig.getId(), false, authToken);
+      fail("Execute should fail the first time it's run");
+    } catch (Exception e) {
+      // n/a
+    }
+
+    // TEST: Ask Rick if a process failed email showed up in his inbox.    
+    
+    // Lookup the process execution, so we can get the id number
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setSortField("lastModified");
+    pfs.setAscending(false);
+    ProcessExecution processExecution = processService
+        .findProcessExecutions(project.getId(),
+            "name:\"FailOnce Test Process\"", pfs, authToken)
+        .getObjects().get(0);
+
+    processExecutionId = processExecution.getId();
+
+    // Ensure the process execution and algorithm execution were set to Fail
+    processExecution = processService.getProcessExecution(project.getId(),
+        processExecutionId, authToken);
+    assertNotNull(processExecution.getFailDate());
+    assertNull(processExecution.getFinishDate());
+
+    AlgorithmExecution algoExecution = processExecution.getSteps().get(0);
+    assertNotNull(algoExecution.getFailDate());
+    assertNull(algoExecution.getFinishDate());
+
+    // Restart the process (this should succeed)
+    processService.restartProcess(project.getId(), processExecutionId, false,
+        authToken);
+
+    // Ensure the process execution and algorithm execution ran successfully
+    processExecution = processService.getProcessExecution(project.getId(),
+        processExecutionId, authToken);
+    assertNull(processExecution.getFailDate());
+    assertNotNull(processExecution.getFinishDate());
+
+    algoExecution = processExecution.getSteps().get(0);
+    assertNull(algoExecution.getFailDate());
+    assertNotNull(algoExecution.getFinishDate());
+
+    // TEST: Ask Rick if a process complete email showed up in his inbox.    
+    
+  }
+
+  /**
+   * Test get logs.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testGetLogs() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Create a process config that has two algos that both run for 5 secs
+    processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Process for testing use - short");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Short Test Process");
+    processConfig.setProject(project);
+    processConfig.setTerminology(umlsTerminology);
+    processConfig.setVersion(umlsVersion);
+    processConfig.setTimestamp(new Date());
+    processConfig = processService.addProcessConfig(project.getId(),
+        (ProcessConfigJpa) processConfig, authToken);
+
+    // Create and add one WAIT algorithm
+    algorithmConfig = new AlgorithmConfigJpa();
+    algorithmConfig.setAlgorithmKey("WAIT");
+    algorithmConfig.setDescription("Algorithm for testing use");
+    algorithmConfig.setEnabled(true);
+    algorithmConfig.setName("Test WAIT algorithm - Short");
+    algorithmConfig.setProcess(processConfig);
+    algorithmConfig.setProject(project);
+    algorithmConfig.setTerminology(umlsTerminology);
+    algorithmConfig.setTimestamp(new Date());
+    algorithmConfig.setVersion(umlsVersion);
+
+    // Create and set required algorithm parameters
+    List<AlgorithmParameter> algoParameters =
+        new ArrayList<AlgorithmParameter>();
+    AlgorithmParameter algoParameter = new AlgorithmParameterJpa();
+    algoParameter.setFieldName("num");
+    algoParameter.setValue("5");
+    algoParameters.add(algoParameter);
+    algorithmConfig.setParameters(algoParameters);
+
+    algorithmConfig = processService.addAlgorithmConfig(project.getId(),
+        (AlgorithmConfigJpa) algorithmConfig, authToken);
+
+    processConfig.getSteps().add(algorithmConfig);
+
+    // Create and add another WAIT algorithm
+    algorithmConfig2 = new AlgorithmConfigJpa();
+    algorithmConfig2.setAlgorithmKey("WAIT");
+    algorithmConfig2.setDescription("Algorithm for testing use");
+    algorithmConfig2.setEnabled(true);
+    algorithmConfig2.setName("Test WAIT algorithm - Short2");
+    algorithmConfig2.setProcess(processConfig);
+    algorithmConfig2.setProject(project);
+    algorithmConfig2.setTerminology(umlsTerminology);
+    algorithmConfig2.setTimestamp(new Date());
+    algorithmConfig2.setVersion(umlsVersion);
+
+    // Set required algorithm parameters (use same as above)
+    algorithmConfig2
+        .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
+
+    algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
+        (AlgorithmConfigJpa) algorithmConfig2, authToken);
+
+    processConfig.getSteps().add(algorithmConfig2);
+
+    // Update the process to lock the steps updates
+    processService.updateProcessConfig(project.getId(),
+        (ProcessConfigJpa) processConfig, authToken);
+
+    // Execute the process (not in background)
+    Long processExecutionId = processService.executeProcess(project.getId(),
+        processConfig.getId(), false, authToken);
+
+    // Get the process execution
+    ProcessExecution processExecution = processService
+        .getProcessExecution(project.getId(), processExecutionId, authToken);
+
+    // Test to make sure the process created log entries for both algorithms
+    String processExecutionLog = processService.getProcessLog(project.getId(),
+        processExecutionId, authToken);
+    assertNotNull(processExecutionLog);
+    // Flatten the log into a single line, so we can use regular expressions
+    // against it.
+    String processExecutionLogFlat = processExecutionLog.replace("\n", " ");
+    assertTrue(processExecutionLogFlat.matches(".*" + authToken + " Starting "
+        + algorithmConfig.getAlgorithmKey() + ".*" + authToken + " Starting "
+        + algorithmConfig2.getAlgorithmKey() + ".*"));
+
+    // Make sure all of the process' algorithms created log entries for just
+    // their own algorithm
+    for (AlgorithmExecution ae : processExecution.getSteps()) {
+      String algorithmExecutionLog = processService
+          .getAlgorithmLog(project.getId(), ae.getId(), authToken);
+      assertNotNull(algorithmExecutionLog);
+      // Flatten the log into a single line, so we can use regular expressions
+      // against it.
+      String algorithmExecutionLogFlat =
+          algorithmExecutionLog.replace("\n", " ");
+      // Make sure it doesn't contain BOTH algorithm's log lines
+      assertFalse(algorithmExecutionLogFlat.matches(".*" + authToken
+          + " Starting " + algorithmConfig.getAlgorithmKey() + ".*" + authToken
+          + " Starting " + algorithmConfig2.getAlgorithmKey() + ".*"));
+      // Make sure it DOES contain its own log lines
+      assertTrue(algorithmExecutionLogFlat.matches(
+          ".*" + authToken + " Starting " + ae.getAlgorithmKey() + ".*"));
+    }
+
+  }
+
+  /**
    * Teardown.
    *
    * @throws Exception the exception
@@ -766,7 +974,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
   // //authToken);
   //
   // processService.removeProcessConfig(project.getId(),
-  // 23489L, true, authToken);
+  // 17800L, true, authToken);
   //
   // // logout
   // securityService.logout(authToken);

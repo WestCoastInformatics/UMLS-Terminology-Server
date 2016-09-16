@@ -4172,7 +4172,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String terminology, String version, String branch, String filter,
     boolean inverseFlag, boolean includeConceptRels, boolean preferredOnly,
     boolean includeSelfReferential, PfsParameter pfs) throws Exception {
-    
+
     // TODO: this could probably all be made faster with some more indexing
     Logger.getLogger(getClass())
         .debug("Content Service - find deep relationships for concept "
@@ -4214,7 +4214,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "from AtomRelationshipJpa a, ConceptJpa c2 join c2.atoms ca "
           + "where c2.terminology = :terminology and c2.version = :version and "
           + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ")
-          + " and " + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds) ";
+          + " and " + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds)";
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -4335,10 +4335,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
                 conceptRels, getPrecedenceList(terminology, version));
         final Set<Long> seen = new HashSet<>();
         for (final ConceptRelationship rel : tmpRelList) {
-          if (!inverseFlag && seen.contains(rel.getTo().getId())) {
+          if (rel.getWorkflowStatus() != WorkflowStatus.DEMOTION && !inverseFlag
+              && seen.contains(rel.getTo().getId())) {
             continue;
           }
-          if (inverseFlag && seen.contains(rel.getFrom().getId())) {
+          if (rel.getWorkflowStatus() != WorkflowStatus.DEMOTION && inverseFlag
+              && seen.contains(rel.getFrom().getId())) {
             continue;
           }
           seen.add(inverseFlag ? rel.getFrom().getId() : rel.getTo().getId());

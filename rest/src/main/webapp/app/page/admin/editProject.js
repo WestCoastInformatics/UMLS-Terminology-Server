@@ -4,14 +4,15 @@ tsApp.controller('EditProjectModalCtrl', [
   '$uibModalInstance',
   'utilService',
   'metadataService',
+  'projectService',
   'selected',
   'lists',
   'user',
   'validationChecks',
   'action',
   'project',
-  function($scope, $uibModalInstance, utilService, metadataService, selected, lists, user,
-    validationChecks, action, project) {
+  function($scope, $uibModalInstance, utilService, metadataService, projectService, selected,
+    lists, user, validationChecks, action, project) {
 
     // Scope variables
     $scope.action = action;

@@ -264,10 +264,11 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     final List<ProcessConfig> results = new ArrayList<>();
 
     final List<String> clauses = new ArrayList<>();
-    clauses.add("*:*");
-    if (projectId != null) {
-      clauses.add("projectId:" + projectId);
+    
+    if(projectId==null){
+      throw new Exception("Error: project must be specified");
     }
+    clauses.add("projectId:" + projectId);
     if (!ConfigUtility.isEmpty(query)) {
       clauses.add(query);
     }
@@ -331,20 +332,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
         manager.find(ProcessExecutionJpa.class, id);
     handleLazyInit(processExecution);
 
-    // Hibernate adds leading null entries in the Steps list. Remove here.
-    // http://stackoverflow.com/questions/13307849/hibernate-returns-list-with-null-values-onetomany-annotation-with-list-type
-    
-    List<AlgorithmExecution> steps = processExecution.getSteps();
-    for(AlgorithmExecution ae : new ArrayList<AlgorithmExecution>(steps)){
-      //Once we reach a populated element, our work is done.
-      if(ae!=null){
-        break;
-      }
-      else{
-        steps.remove(0);
-      }
-    }
-    
     return processExecution;
   }
 
@@ -361,10 +348,10 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     final List<ProcessExecution> results = new ArrayList<>();
 
     final List<String> clauses = new ArrayList<>();
-    clauses.add("*:*");
-    if (projectId != null) {
-      clauses.add("projectId:" + projectId);
-    }    
+    if(projectId==null){
+      throw new Exception("Error: project must be specified");
+    }
+    clauses.add("projectId:" + projectId); 
     if (!ConfigUtility.isEmpty(query)) {
       clauses.add(query);
     }

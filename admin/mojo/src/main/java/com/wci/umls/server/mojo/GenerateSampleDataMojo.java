@@ -298,7 +298,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     
     ProcessConfig processConfig = new ProcessConfigJpa();
     processConfig.setDescription("Process for testing use");
-    processConfig.setFeedbackEmail("fake@fake.fake");
+    processConfig.setFeedbackEmail(null);
     processConfig.setName("Test Process");
     processConfig.setProject(project1);
     processConfig.setTerminology(terminology);

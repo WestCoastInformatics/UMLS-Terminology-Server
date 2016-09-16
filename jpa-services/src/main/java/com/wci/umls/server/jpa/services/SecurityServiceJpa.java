@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.persistence.NoResultException;
 
@@ -48,6 +47,27 @@ public class SecurityServiceJpa extends RootServiceJpa
   /** The timeout. */
   private static int timeout;
 
+  static {
+    init();
+  }
+
+  /**
+   * Initializes the handlers.
+   */
+  private static void init() {
+    try {
+      if (config == null) {
+        config = ConfigUtility.getConfigProperties();
+      }
+      timeout = Integer.valueOf(config.getProperty("security.timeout"));
+      String handlerName = config.getProperty("security.handler");
+      handler = ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+          "security.handler", handlerName, SecurityServiceHandler.class);
+    } catch (Exception e) {
+      handler = null;
+    }
+  }
+
   /**
    * Instantiates an empty {@link SecurityServiceJpa}.
    *
@@ -65,15 +85,7 @@ public class SecurityServiceJpa extends RootServiceJpa
       throw new LocalException("Invalid username: null");
     if (password == null || password.isEmpty())
       throw new LocalException("Invalid password: null");
-
-    Properties config = ConfigUtility.getConfigProperties();
-
-    if (handler == null) {
-      timeout = Integer.valueOf(config.getProperty("security.timeout"));
-      String handlerName = config.getProperty("security.handler");
-      handler = ConfigUtility.newStandardHandlerInstanceWithConfiguration(
-          "security.handler", handlerName, SecurityServiceHandler.class);
-    }
+    validateInit();
 
     //
     // Call the security service
@@ -475,4 +487,26 @@ public class SecurityServiceJpa extends RootServiceJpa
     }
   }
 
+  /* see superclass */
+  @Override
+  public void refreshCaches() throws Exception {
+    super.refreshCaches();
+    init();
+    validateInit();
+  }
+
+  /**
+   * Validate init.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateInit() throws Exception {
+    if (handler == null) {
+      throw new Exception(
+          "security.handler " + " expected and does not exist.");
+
+    }
+
+  }
 }

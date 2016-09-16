@@ -33,6 +33,11 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
           $scope.report = data;
         });
       }
+      
+      // Trust as HTML
+      $scope.getX = function() {
+        return $sce.trustAsHtml($scope.report);
+      }
     } ]
   };
 } ]);

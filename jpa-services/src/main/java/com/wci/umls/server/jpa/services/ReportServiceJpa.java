@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
@@ -72,9 +71,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
     
 
     //
-    //Options
+    // Options
     //
-    
+
     //
     // Handle validation/integrity checks
     //
@@ -143,13 +142,16 @@ public class ReportServiceJpa extends HistoryServiceJpa
       for (final Definition def : atom.getDefinitions()) {
         sb.append("DEF ");
         sb.append(def.isPublishable() ? "[Release] " : "[Do Not Release] ");
-        sb.append(def.getTerminology()).append("_").append(def.getVersion()).append("\r\n");
-        sb.append("  - ").append(atom.getTerminology()).append("/").append(atom.getTermType());
-        sb.append("|").append(WordUtils.wrap(def.getValue(), 65, "\r\n    ", false)).append(lineEnd);
-        
+        sb.append(def.getTerminology()).append("_").append(def.getVersion())
+            .append(lineEnd);
+        sb.append("  -").append(atom.getTerminology()).append("/")
+            .append(atom.getTermType());
+        sb.append("|").append(WordUtils.wrap(def.getValue(), 65, "\r\n    ", false))
+            .append(lineEnd);
+
       }
     }
-    
+
     //
     // SOS
     //
