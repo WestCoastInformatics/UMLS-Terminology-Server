@@ -146,6 +146,7 @@ import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.ExpressionHandler;
@@ -4198,7 +4199,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + (inverseFlag ? "a.from.terminologyId" : "a.to.terminologyId")
             + ", a.obsolete, a.suppressible, a.published, a.publishable, "
             + (inverseFlag ? "a.from.name " : "a.to.name ") + ", "
-            + (inverseFlag ? "a.from.id " : "a.to.id ")
+            + (inverseFlag ? "a.from.id " : "a.to.id ") + ", a.workflowStatus " + ", a.lastModifiedBy "
             + "from ConceptRelationshipJpa a " + "where "
             + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId ";
         query = manager.createQuery(queryStr);
@@ -4209,7 +4210,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId, "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy "
           + "from AtomRelationshipJpa a, ConceptJpa c2 join c2.atoms ca "
           + "where c2.terminology = :terminology and c2.version = :version and "
           + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ")
@@ -4227,7 +4228,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy "
           + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
           + "ConceptJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4249,7 +4250,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy "
           + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
           + "DescriptorJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4271,7 +4272,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy "
           + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
           + "CodeJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca " + "where a."
           + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4310,11 +4311,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
         relationship.setHierarchical(result[4].toString().equals("CHD")
             || result[4].toString().equals("subClassOf"));
         relationship.setAdditionalRelationshipType(result[5].toString());
-        relationship.setObsolete(result[7].toString().equals("1"));
-        relationship.setSuppressible(result[8].toString().equals("1"));
-        relationship.setPublished(result[9].toString().equals("1"));
-        relationship.setPublishable(result[10].toString().equals("1"));
-
+        relationship.setObsolete(result[7].toString().equals("true"));
+        relationship.setSuppressible(result[8].toString().equals("true"));
+        relationship.setPublished(result[9].toString().equals("true"));
+        relationship.setPublishable(result[10].toString().equals("true"));
+        relationship.setWorkflowStatus(WorkflowStatus.valueOf(result[13].toString()));
+        relationship.setLastModifiedBy(result[14].toString());
+        
         // handle self-referential
         if (includeSelfReferential || !relationship.getFrom().getId()
             .equals(relationship.getTo().getId())) {

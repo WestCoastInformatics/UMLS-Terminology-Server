@@ -6,7 +6,9 @@ package com.wci.umls.server.jpa.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -15,16 +17,15 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -45,6 +46,14 @@ import com.wci.umls.server.services.ReportService;
 public class ReportServiceJpa extends HistoryServiceJpa
     implements ReportService {
 
+  private String lineEnd = "\r\n";
+
+  private Tree parent = null;
+  
+  private String self = "";
+  
+  private String indent = "";
+  
   /**
    * Instantiates an empty {@link ReportServiceJpa}.
    *
@@ -61,13 +70,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
     final StringBuilder sb = new StringBuilder();
     
-    String lineEnd = "\r\n";
+
     //
     //Options
     //
-    int max_relationship_count = 20;
-    int max_cxt_rel_count = 20;
-    boolean include_siblings = false;
     
     //
     // Handle validation/integrity checks
@@ -173,14 +179,30 @@ public class ReportServiceJpa extends HistoryServiceJpa
     String prev_sui = "";
     
     for (final Atom atom : concept.getAtoms()) {
-      if (true /*atom.getId() == atom_id*/) {
-        //report.append(sep_begin);
-
+      
         //
         // Determine flags
         //
-      }
+      
+      
       sb.append(" ");
+
+      if (atom.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
+        sb.append("<span class=\"DEMOTION\">");
+      } else if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+        sb.append("<span class=\"NEEDS_REVIEW\">");
+      } else if (atom.isObsolete()) {
+        sb.append("<span class=\"OBSOLETE\">");
+      } else if (atom.getAttributeByName("RXCUI") != null) {
+        sb.append("<span class=\"RXNORM\">");
+      } else if (!atom.isPublishable()) {
+        sb.append("<span class=\"UNRELEASABLE\">");
+      } else {
+        sb.append("<span>");
+      }
+      
+      
+      
       if (getStatusChar(atom.getWorkflowStatus()).equals("D")) {
         sb.append("D");
       }
@@ -224,7 +246,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       pfs.setStartIndex(0);
       pfs.setMaxResults(1);
       // NOTE: this may not be 100% accurate because of use of hash
-      SearchResultList results = findConcepts(concept.getTerminology(), concept.getVersion(), null, 
+      SearchResultList results = findConcepts(concept.getTerminology(), concept.getVersion(), Branch.ROOT, 
           "atoms.lowerNameHash:" + atom.getLowerNameHash()
           + " AND NOT id:" + concept.getId(), pfs);
       if (results.getTotalCount()>0) {
@@ -251,7 +273,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
         }
 
       // Released?
-      if (!atom.isPublished()) {
+      if (!atom.isPublishable()) {
         sb.append("{");
       }
       
@@ -278,9 +300,11 @@ public class ReportServiceJpa extends HistoryServiceJpa
         sb.append(att.getValue());
       }
       
-      if (!atom.isPublished()) {
+      if (!atom.isPublishable()) {
         sb.append("}");
       }
+
+      sb.append("</span>");
       sb.append(lineEnd);
       
       prev_lui = atom.getLexicalClassId();
@@ -289,151 +313,329 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
     sb.append(lineEnd);
     
+    
     //
     // RELATIONSHIPS
     //
-    sb.append("REVIEWED RELATED CONCEPT(S)").append(lineEnd);
     
-    // TODO for smaller default pfs
-    for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship : this.findConceptDeepRelationships(concept.getTerminologyId(), 
-        concept.getTerminology(), concept.getVersion(), Branch.ROOT, null, false, new PfsParameterJpa()).getObjects()) {
+    List<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relList = this.findConceptDeepRelationships(
+        concept.getTerminologyId(), concept.getTerminology(), concept.getVersion(), 
+        Branch.ROOT, null, false, true, true, false, new PfsParameterJpa()).getObjects();
+    
+    // Lexical Relationships
+    /*TODO - how to get AtomRels
+    List<AtomRelationship> lexicalRelationships = new ArrayList<>();
+    for (Relationship<?, ?> relationship : relList) {
+      AtomRelationship rel = (AtomRelationship)relationship;
+      if (rel.getAdditionalRelationshipType().endsWith("form_of")) {
+        lexicalRelationships.add(rel);
+      }
+    }  
+    if (lexicalRelationships.size() > 0) {
+      sb.append("LEXICAL RELATIONSHIP(S)").append(lineEnd);
+      for (AtomRelationship rel : lexicalRelationships) {
+        if (!rel.isPublishable()) {
+          sb.append("{");
+        }
+        sb.append(rel.getFrom().getName()).append("[SFO]/[LFO]").append(rel.getTo().getName());
+        sb.append("[").append(rel.getTerminology()).append("_").append(rel.getVersion()).append("]").append(lineEnd);
+        if (!rel.isPublishable()) {
+          sb.append("}");
+        }
+      }
+    }*/
+    
+    // Demoted Related Concepts
+    List<String> usedToIds = new ArrayList<>();
+    List<ConceptRelationship> demotionRelationships = new ArrayList<>();
+    for (Relationship<?, ?> relationship : relList) {
       ConceptRelationship rel = (ConceptRelationship)relationship;
-      if (rel.getWorkflowStatus() != WorkflowStatus.READY_FOR_PUBLICATION && 
-          rel.getWorkflowStatus() != WorkflowStatus.PUBLISHED) {
-        continue;
+      if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION && 
+          !(rel.getRelationshipType().equals("PAR") ||
+            rel.getRelationshipType().equals("CHD") ||
+            rel.getRelationshipType().equals("SIB"))) {
+        usedToIds.add(rel.getTo().getTerminologyId());
+        demotionRelationships.add(rel);
       }
-      
-      //relationship type
-      sb.append("[").append(rel.getRelationshipType()).append("]  ");
-      
-      // Released?
-      if (!rel.isPublishable()) {
-        sb.append("{");
+    }  
+    for (Relationship<?, ?> relationship : relList) {
+      ConceptRelationship rel = (ConceptRelationship)relationship;  
+      if (rel.getWorkflowStatus() != WorkflowStatus.DEMOTION &&
+          usedToIds.contains(rel.getTo().getTerminologyId())) {
+        usedToIds.add(rel.getTo().getTerminologyId());
+        demotionRelationships.add(rel);
       }
-
-      // Name/termgroup/code
-      sb.append(rel.getTo().getName());
-      /*
-       * TODO NE-143 sb.append(" [");
-       * sb.append(rel.getTo().getTerminology()).append("_").append(rel.
-       * getVersion()) .append("/"); // TODO termType
-       */
-      sb.append("|");
-      sb.append(rel.getAdditionalRelationshipType());
-      sb.append("|");
-      sb.append(rel.getTerminology()).append("_").append(rel.getVersion());
-      sb.append("|");
-      sb.append(rel.getLastModifiedBy());
-      sb.append("]");
-      
-      sb.append(" {");
-        sb.append(rel.getTo().getId());
-      sb.append("}");
-
-      // Print relationship_level
-      if (rel.getTerminology().equals(concept.getTerminology())) {
-        sb.append(" C");
-      }
-      else if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
-        sb.append(" P");
-      }
-      else {
-        sb.append(" S");
-      }
-      
-      if (!rel.isPublishable()) {
-        sb.append("}");
-      }
-      /* OUT OF SCOPE
-        if (rels.isWeaklyUnreleasable()) {
-          sb.append(" n");
-        }
-        else if (rels.isUnreleasable()) {
-          sb.append(" NEVER");
-        }
-      }*/
-      sb.append(lineEnd).append(lineEnd);
     }
-
+    if (demotionRelationships.size() > 0) {
+      sb.append("DEMOTED RELATED CONCEPT(S)").append(lineEnd);
+      sb.append(getRelationshipsReport(demotionRelationships));
+    }
+    
+    // Needs Review Related Concepts
+    List<ConceptRelationship> needsReviewRelationships = new ArrayList<>();
+    for (Relationship<?, ?> relationship : relList) {
+      ConceptRelationship rel = (ConceptRelationship)relationship;
+      if (rel.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW &&
+          !usedToIds.contains(rel.getTo().getTerminologyId())) {
+        usedToIds.add(rel.getTo().getTerminologyId());
+        needsReviewRelationships.add(rel);
+      }
+    }
+    if (needsReviewRelationships.size() > 0) {
+      sb.append("NEEDS REVIEW RELATED CONCEPT(S)").append(lineEnd);
+      sb.append(getRelationshipsReport(needsReviewRelationships));
+    }
+    
+    //XR(S) and Corresponding Relationships
+    List<ConceptRelationship> xrCorrespondingRelationships = new ArrayList<>();
+    List<String> xrRelsToIds = new ArrayList<>();
+    for (Relationship<?, ?> relationship : relList) {
+      ConceptRelationship rel = (ConceptRelationship)relationship;
+      if (rel.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW &&
+          rel.getRelationshipType().equals("XR") && 
+          !(rel.getRelationshipType().equals("PAR") ||
+              rel.getRelationshipType().equals("CHD") ||
+              rel.getRelationshipType().equals("SIB")) &&
+          !usedToIds.contains(rel.getTo().getTerminologyId())) {
+        //usedToIds.add(rel.getTo().getTerminologyId());
+        xrRelsToIds.add(rel.getTo().getTerminologyId());
+        xrCorrespondingRelationships.add(rel);
+      }
+    }
+    for (Relationship<?, ?> relationship : relList) {
+      ConceptRelationship rel = (ConceptRelationship)relationship;  
+      if (!rel.getRelationshipType().equals("XR") &&
+          !usedToIds.contains(rel.getTo().getTerminologyId()) &&
+          xrRelsToIds.contains(rel.getTo().getTerminologyId())) {
+        usedToIds.add(rel.getTo().getTerminologyId());
+        xrCorrespondingRelationships.add(rel);
+      }
+    }
+    if (xrCorrespondingRelationships.size() > 0) {
+      sb.append("XR(S) AND CORRESPONDING RELATIONSHIP(S)").append(lineEnd);
+      sb.append(getRelationshipsReport(xrCorrespondingRelationships));    
+    }
+    
+    // Reviewed Related Concepts
+    List<ConceptRelationship> reviewedRelatedConcepts = new ArrayList<>();
+    for (Relationship<?, ?> relationship : relList) {
+      ConceptRelationship rel = (ConceptRelationship)relationship;
+      int ct = 0;
+      if ((rel.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION ||
+           rel.getWorkflowStatus() == WorkflowStatus.PUBLISHED) && 
+          !usedToIds.contains(rel.getTo().getTerminologyId()) &&
+          ct < 20 &&
+          !(rel.getRelationshipType().equals("PAR") ||
+            rel.getRelationshipType().equals("CHD") ||
+            rel.getRelationshipType().equals("SIB"))) {
+        usedToIds.add(rel.getTo().getTerminologyId());
+        reviewedRelatedConcepts.add(rel);
+        ct++;
+      }
+    }  
+    if (reviewedRelatedConcepts.size() > 0) {
+      sb.append("REVIEWED RELATED CONCEPT(S)").append(lineEnd); 
+      sb.append(getRelationshipsReport(reviewedRelatedConcepts));
+    }
+    
+    // Context Relationships
+    // TODO? gather // exclude PAR/CHD/SIB, show them.
+    List<ConceptRelationship> contextRelationships = new ArrayList<>();
+    for (Relationship<?, ?> relationship : relList) {
+      ConceptRelationship rel = (ConceptRelationship)relationship;
+      if (!usedToIds.contains(rel.getTo().getTerminologyId()) &&
+          !(rel.getRelationshipType().equals("PAR") ||
+            rel.getRelationshipType().equals("CHD") ||
+            rel.getRelationshipType().equals("SIB"))) {
+        usedToIds.add(rel.getTo().getTerminologyId());
+        contextRelationships.add(rel);
+      }
+    }  
+    if (contextRelationships.size() > 0) {
+      sb.append("CONTEXT RELATIONSHIP(S)").append(lineEnd); 
+      sb.append(getRelationshipsReport(contextRelationships));
+    }
     //
     // CONTEXTS
     //
-    sb.append("CONTEXTS").append(lineEnd);
-
+    // TODO : deal with atom tree positions
+    boolean firstContext = true;
+    Set<String> uniqueSet = new HashSet<>();
+    // collect all unique terminology, version, terminologyId, type combos from
+    // atoms in concept
     for (Atom atom : concept.getAtoms()) {
+
       Terminology fullTerminology =
           getTerminology(atom.getTerminology(), atom.getVersion());
       IdType type = fullTerminology.getOrganizingClassType();
       String terminologyId = null;
-      List<TreePosition<? extends ComponentHasAttributesAndName>> treePosList =
-          null;
+
       if (type == IdType.CODE) {
         terminologyId = atom.getCodeId();
-        treePosList =
-            findCodeTreePositions(terminologyId, atom.getTerminology(),
-                atom.getVersion(), null, null, new PfsParameterJpa())
-                    .getObjects();
       } else if (type == IdType.CONCEPT) {
         terminologyId = atom.getConceptId();
-        treePosList =
-            findConceptTreePositions(terminologyId, atom.getTerminology(),
-                atom.getVersion(), null, null, new PfsParameterJpa())
-                    .getObjects();
-
       } else if (type == IdType.DESCRIPTOR) {
         terminologyId = atom.getDescriptorId();
-        treePosList =
-            findDescriptorTreePositions(terminologyId, atom.getTerminology(),
-                atom.getVersion(), null, null, new PfsParameterJpa())
-                    .getObjects();
       } else {
         continue;
       }
+      uniqueSet.add(type + ":" + atom.getTerminology() + ":" + atom.getVersion()
+          + ":" + terminologyId);
+    }
 
-      // TODO: need to unique the list of terminologyId, termgroup, and organizing class type
-      // TODO: pfs with max of 1
-      
-      ConceptList ancestors = null;
-      TreePositionList children = null;
-      for (TreePosition<?> treePos : treePosList) {
-        sb.append(treePos.getTerminology()).append("_").append(treePos.getVersion());
-        sb.append("/").append(treePos.getTerminologyId()).append(lineEnd);
-        Tree tree = getTreeForTreePosition(treePos);
-        if (type == IdType.CONCEPT) {
-          ancestors = findAncestorConcepts(terminologyId, atom.getTerminology(),
-            atom.getVersion(), false, null, new PfsParameterJpa());
-          children = findConceptTreePositionChildren(terminologyId,
-            atom.getTerminology(), atom.getVersion(), null,
-            new PfsParameterJpa());
-          
-        }
-        // TODO: add other types
-        
-        // ancestors
-        for (Component ancestor : ancestors.getObjects()) {
-          sb.append(ancestor.getName()).append(lineEnd);
-        }
-        
-        // self
-        sb.append("<").append(treePos.getNode().getName()).append(">")
-            .append(lineEnd);
+    // for each unique entry, get all tree positions
+    List<TreePosition> treePositionList = new ArrayList<>();
+    PfsParameter singleResultPfs = new PfsParameterJpa();
+    singleResultPfs.setStartIndex(0);
+    singleResultPfs.setMaxResults(1);
+    for (String entry : uniqueSet) {
+      String[] fields = FieldedStringTokenizer.split(entry, ":");
+      String type = fields[0];
+      String terminology = fields[1];
+      String version = fields[2];
+      String terminologyId = fields[3];
 
-        // children       
-        for (TreePosition<?> child : children.getObjects()) {
-          sb.append(child.getNode().getName()).append(lineEnd);
-        }
-
-        // siblings
-        // TODO
-        
-        
-        sb.append(lineEnd);
+      if (IdType.valueOf(type) == IdType.CONCEPT) {
+        List<TreePosition<? extends ComponentHasAttributesAndName>> localPositions =
+            findConceptTreePositions(terminologyId, terminology, version, null,
+                null, singleResultPfs).getObjects();
+        treePositionList.addAll(localPositions);
+      } else if (IdType.valueOf(type) == IdType.DESCRIPTOR) {
+        treePositionList.addAll(findDescriptorTreePositions(terminologyId,
+            terminology, version, null, null, singleResultPfs).getObjects());
+      } else if (IdType.valueOf(type) == IdType.CODE) {
+        treePositionList.addAll(findConceptTreePositions(terminologyId,
+            terminology, version, null, null, singleResultPfs).getObjects());
       }
+
+    }
+
+    // display context for each tree position
+    for (TreePosition<?> treePos : treePositionList) {
+
+      if (treePos.getAncestorPath().equals(""))
+        continue;
+
+      if (firstContext) {
+        sb.append("CONTEXTS").append(lineEnd);
+        firstContext = false;
+      }
+
+      sb.append(treePos.getNode().getTerminology()).append("_")
+          .append(treePos.getNode().getVersion());
+      sb.append("/").append(treePos.getNode().getTerminologyId())
+          .append(lineEnd);
+
+      Tree tree = getTreeForTreePosition(treePos);
+
+      // ancestors
+      indent = "";
+      sb.append(tree.getNodeName()).append(lineEnd);
+      indent += "  ";
+      printAncestors(sb, tree);
+
+      // children
+      Terminology fullTerminology = getTerminology(
+          treePos.getNode().getTerminology(), treePos.getNode().getVersion());
+      IdType type = fullTerminology.getOrganizingClassType();
+
+      TreePositionList children = null;
+      TreePositionList siblings = null;
+      PfsParameter childPfs = new PfsParameterJpa();
+      childPfs.setStartIndex(0);
+      childPfs.setMaxResults(10);
+      if (type == IdType.CONCEPT) {
+        children = this.findConceptTreePositionChildren(
+            treePos.getNode().getTerminologyId(),
+            treePos.getNode().getTerminology(), treePos.getNode().getVersion(),
+            Branch.ROOT, childPfs);
+        siblings = this.findConceptTreePositionChildren(
+            parent.getNodeTerminologyId(), parent.getTerminology(),
+            parent.getVersion(), Branch.ROOT, new PfsParameterJpa());
+      } else if (type == IdType.CODE) {
+        children = this.findCodeTreePositionChildren(
+            treePos.getNode().getTerminologyId(),
+            treePos.getNode().getTerminology(), treePos.getNode().getVersion(),
+            Branch.ROOT, childPfs);
+        siblings = this.findCodeTreePositionChildren(
+            parent.getNodeTerminologyId(), parent.getTerminology(),
+            parent.getVersion(), Branch.ROOT, new PfsParameterJpa());
+      } else if (type == IdType.DESCRIPTOR) {
+        children = this.findDescriptorTreePositionChildren(
+            treePos.getNode().getTerminologyId(),
+            treePos.getNode().getTerminology(), treePos.getNode().getVersion(),
+            Branch.ROOT, childPfs);
+        siblings = this.findDescriptorTreePositionChildren(
+            parent.getNodeTerminologyId(), parent.getTerminology(),
+            parent.getVersion(), Branch.ROOT, new PfsParameterJpa());
+      }
+
+      // siblings & self node
+      indent = indent.substring(0, indent.length() - 2);
+      // TODO Collections.sort(siblings.getObjects(), new
+      // TreePositionComparator());
+
+      indent += "  ";
+      for (TreePosition siblingPosition : siblings.getObjects()) {
+        sb.append(indent);
+        if (siblingPosition.getNode().getName()
+            .equals(treePos.getNode().getName())) {
+          sb.append("*");
+        }
+        sb.append(siblingPosition.getNode().getName());
+        if (siblingPosition.getNode().getName()
+            .equals(treePos.getNode().getName())) {
+          sb.append("*").append(lineEnd);
+
+          // children
+          indent += "  ";
+          printChildren(sb, treePos, children);
+          indent = indent.substring(0, indent.length() - 2);
+        } else {
+          sb.append(lineEnd);
+        }
+      }
+
+      sb.append(lineEnd);
     }
 
     return sb.toString();
   }
 
+  private class TreePositionComparator {
+    public int compare(TreePosition object1, TreePosition object2) {
+        return object1.getNode().getName().compareTo(object2.getNode().getName());
+    }
+  }
+  
+  private void printChildren(StringBuilder sb, TreePosition treePos, TreePositionList children) {
+    //TODO Collections.sort(children.getObjects(), new TreePositionComparator());
+    for (TreePosition<? extends ComponentHasAttributesAndName> childPosition : children.getObjects()) {
+      sb.append(indent).append(childPosition.getNode().getName()).append(lineEnd);
+    }
+    if (treePos.getChildCt() > 10) {
+      sb.append(indent).append("more...").append(lineEnd);
+    }
+  }
+  
+  private void printAncestors(StringBuilder sb, Tree tree) {
+    for (Tree child : tree.getChildren()) {
+
+      parent = tree;
+      if (child.getChildren().size() != 0) {
+        sb.append(indent);
+        sb.append(child.getNodeName());
+        sb.append(lineEnd);
+      } else {
+        return;
+      }
+      
+      indent += "  ";
+      printAncestors(sb, child);
+      
+    }
+  }
+  
   /**
    * Returns the status char.
    *
@@ -463,5 +665,56 @@ public class ReportServiceJpa extends HistoryServiceJpa
   public String getCodeReport(Project project, Code code) throws Exception {
     // TODO:
     return "TBD";
+  }
+  
+  private String getRelationshipsReport(List<ConceptRelationship> rels) {
+    StringBuffer sb = new StringBuffer();
+    for (ConceptRelationship rel : rels) {
+      // relationship type
+      sb.append("[").append(rel.getRelationshipType()).append("]  ");
+
+      // Released?
+      if (!rel.isPublishable()) {
+        sb.append("{");
+      }
+
+      // Name/termgroup/code
+      sb.append(rel.getTo().getName()).append(" [");
+      /*
+       * TODO NE-143 sb.append(" [");
+       * sb.append(rel.getTo().getTerminology()).append("_").append(rel.
+       * getVersion()) .append("/"); // TODO termType
+       */
+      sb.append("|");
+      sb.append(rel.getAdditionalRelationshipType());
+      sb.append("|");
+      sb.append(rel.getTerminology()).append("_").append(rel.getVersion());
+      sb.append("|");
+      sb.append(rel.getLastModifiedBy());
+      sb.append("]");
+
+      sb.append(" {");
+      sb.append(rel.getTo().getId());
+      sb.append("}");
+
+      // Print relationship_level
+      if (rel.getTerminology().equals(rel.getFrom().getTerminology())) {
+        sb.append(" C");
+      } else if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
+        sb.append(" P");
+      } else {
+        sb.append(" S");
+      }
+
+      if (!rel.isPublishable()) {
+        sb.append("}");
+      }
+      /*
+       * OUT OF SCOPE if (rels.isWeaklyUnreleasable()) { sb.append(" n"); } else
+       * if (rels.isUnreleasable()) { sb.append(" NEVER"); } }
+       */
+      sb.append(lineEnd);
+    }
+    return sb.append(lineEnd).toString();
   }
 }

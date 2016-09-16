@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.rest;
 
@@ -8,6 +8,7 @@ import java.io.InputStream;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.QueryType;
@@ -661,5 +662,22 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public InputStream exportWorklist(Long projectId, Long worklistId,
+    String authToken) throws Exception;
+
+  /**
+   * Stamp.
+   *
+   * @param projectId the project id
+   * @param listId the list id
+   * @param type the type
+   * @param activityId the activity id
+   * @param lastModified the last modified
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult stamp(Long projectId, Long listId, String type,
+    String activityId, Long lastModified, boolean overrideWarnings,
     String authToken) throws Exception;
 }

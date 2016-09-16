@@ -8,7 +8,7 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
       callbacks : '='
     },
     templateUrl : 'app/component/report/reportPre.html',
-    controller : [ '$scope', 'reportService', function($scope, reportService) {
+    controller : [ '$scope', '$sce', 'reportService', function($scope, $sce, reportService) {
 
       // Scope vars
       $scope.report = null;
@@ -20,6 +20,11 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
         }
       });
 
+      // Trusted report
+      $scope.getTrustedReport = function(report) {
+        return $sce.trustAsHtml(report);
+      };
+      
       // Get the report
       $scope.getReport = function(component) {
         reportService.getComponentReport($scope.selected.project.id, component).then(
