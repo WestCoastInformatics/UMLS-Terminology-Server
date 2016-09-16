@@ -581,7 +581,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
         if (siblingPosition.getNode().getName()
             .equals(treePos.getNode().getName())) {
           sb.append("*");
-        }
+        } 
         sb.append(siblingPosition.getNode().getName());
         if (siblingPosition.getNode().getName()
             .equals(treePos.getNode().getName())) {
@@ -591,7 +591,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
           indent += "  ";
           printChildren(sb, treePos, children);
           indent = indent.substring(0, indent.length() - 2);
-        } else {
+        } else if (siblingPosition.getChildCt() > 0) {
+            sb.append(" +").append(lineEnd);          
+        } else {          
           sb.append(lineEnd);
         }
       }
@@ -611,7 +613,11 @@ public class ReportServiceJpa extends HistoryServiceJpa
   private void printChildren(StringBuilder sb, TreePosition treePos, TreePositionList children) {
     //TODO Collections.sort(children.getObjects(), new TreePositionComparator());
     for (TreePosition<? extends ComponentHasAttributesAndName> childPosition : children.getObjects()) {
-      sb.append(indent).append(childPosition.getNode().getName()).append(lineEnd);
+      sb.append(indent).append(childPosition.getNode().getName());
+      if (childPosition.getChildCt() > 0) {
+        sb.append(" +");
+      }
+      sb.append(lineEnd);
     }
     if (treePos.getChildCt() > 10) {
       sb.append(indent).append("more...").append(lineEnd);
