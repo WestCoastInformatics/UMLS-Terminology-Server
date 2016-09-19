@@ -38,6 +38,9 @@
         <i title="Regenerate bins"
           ng-click="regenerateBins(); $event.stopPropagation()"
           class="ml20 noul glyphicon glyphicon-repeat"></i>
+        <i title="Recompute concept status"
+          ng-click="recomputeConceptStatus(); $event.stopPropagation()"
+          class="ml20 noul glyphicon glyphicon-retweet"></i>
         <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
           <i ng-click="openEditConfigModal(selected.config)"
             ng-show="selected.config" title="Edit workflow configuration"

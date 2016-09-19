@@ -402,13 +402,22 @@ tsApp
                 }
               };
 
-              // stamp - approve entire worklist
-              $scope.stamp = function(worklist) {
+              // stamp(approve)/unapprove entire worklist
+              $scope.stamp = function(worklist, approve) {
                 console.debug("stamp:" + worklist);
-                workflowService.stamp($scope.selected.project.id, worklist, $scope.type, true).then(
-                  function() {
-                    
-                  });
+                if ($scope.type == 'Worklist') {
+                  workflowService.stampWorklist($scope.selected.project.id, worklist, approve, true).then(
+                    function() {  
+                      $scope.selected.worklist = null;
+                      $scope.getWorklists();            
+                    });
+                } else if ($scope.type == 'Checklist') {
+                  workflowService.stampChecklist($scope.selected.project.id, worklist, approve, true).then(
+                    function() {  
+                      $scope.selected.worklist = null;
+                      $scope.getWorklists();            
+                    });
+                }
               }
               
               // Performs a workflow action

@@ -126,11 +126,18 @@
                 class="noul glyphicon glyphicon-hand-left"></i>
             </span>
 
-            <span>
+            <span ng-show="selected.projectRole != 'AUTHOR' && type == 'Checklist'">
               <i confirm="Are you sure you want to stamp the {{type}}?"
-                ng-click="stamp(worklist); "
+                ng-click="stamp(worklist, true); "
                 title="Stamp {{type}}"
                 class="noul glyphicon glyphicon-certificate"></i>
+            </span>
+            
+            <span ng-show="selected.projectRole != 'AUTHOR'">
+              <i confirm="Are you sure you want to unapprove the {{type}}?"
+                ng-click="stamp(worklist, false); "
+                title="Unapprove {{type}}"
+                class="noul glyphicon glyphicon-remove-circle"></i>
             </span>
             
           </td>

@@ -1165,23 +1165,77 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
     
-    // stamp
-    this.stamp = function(projectId, worklist, listType, overrideWarnings) {
-      console.debug('stamp list');
+    // stamp worklist
+    this.stampWorklist = function(projectId, worklist, approve, overrideWarnings) {
+      console.debug('stamp worklist');
       var deferred = $q.defer();
 
       gpService.increment();
       $http.post(
         workflowUrl
-          + '/stamp?projectId='
+          + '/worklist/' + worklist.id + '/stamp?projectId='
           + projectId
-          + '&listId='
-          + worklist.id 
-          + '&listType='
-          + listType
           + (worklist.name ? "&activityId=" + worklist.name : "")
-          + '&lastModified='
-          + worklist.lastModified
+          + (approve != null && approve != '' ? '&approve='
+            + approve : '')
+          + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
+            + overrideWarnings : ''), null).then(
+      // success
+      function(response) {
+        console.debug('  validation = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // stamp checklist
+    this.stampChecklist = function(projectId, checklist, approve, overrideWarnings) {
+      console.debug('stamp checklist');
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http.post(
+        workflowUrl
+          + '/checklist/' + checklist.id + '/stamp?projectId='
+          + projectId
+          + (checklist.name ? "&activityId=" + checklist.name : "")
+          + (approve != null && approve != '' ? '&approve='
+            + approve : '')
+          + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
+            + overrideWarnings : ''), null).then(
+      // success
+      function(response) {
+        console.debug('  validation = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    
+    // recompute concept status
+    this.recomputeConceptStatus = function(projectId, overrideWarnings) {
+      console.debug('recompute concept status');
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http.post(
+        workflowUrl
+          + '/status/compute?projectId='
+          + projectId
           + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
             + overrideWarnings : ''), null).then(
       // success

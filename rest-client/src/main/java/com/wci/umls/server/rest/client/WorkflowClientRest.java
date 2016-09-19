@@ -1464,24 +1464,23 @@ public class WorkflowClientRest extends RootClientRest
     }
     return in;
   }
-  
-  /* see superclass */
+
+
   @Override
-  public ValidationResult stamp(Long projectId, Long listId, String listType,
-    String activityId, Long lastModified, boolean overrideWarnings,
+  public ValidationResult stampWorklist(Long projectId, Long id,
+    String activityId, boolean approve, boolean overrideWarnings,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Workflow Client - stamp list " + listId + ", " + ", " + listType 
-            + lastModified + ", " + overrideWarnings + ", " + authToken);
+        .debug("Workflow Client - stamp list " + id + ", " + approve + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
-    validateNotEmpty(listId, "listId");
+    validateNotEmpty(id, "id");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/stamp?projectId=" + projectId + "&listId="
-        + listId + (activityId == null ? "" : "&activityId=" + activityId)
-        + "&lastModified=" + lastModified
+        + "/workflow/worklist/" + id + "/stamp?projectId=" + projectId 
+        + (activityId == null ? "" : "&activityId=" + activityId)
+        + (approve ? "approve=true" : "")
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
@@ -1498,4 +1497,68 @@ public class WorkflowClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
   }
+
+  @Override
+  public ValidationResult stampChecklist(Long projectId, Long id,
+    String activityId, boolean approve, boolean overrideWarnings,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Client - stamp list " + id
+        + ", " + approve + ", " + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(id, "id");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/checklist/" + id + "/stamp?projectId=" + projectId
+        + (activityId == null ? "" : "&activityId=" + activityId)
+        + (approve ? "approve=true" : "")
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(null));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+  }
+
+  @Override
+  public ValidationResult recomputeConceptStatus(Long projectId,
+    String activityId, boolean overrideWarnings, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Client - recompute concept status "
+         + ", " + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/status/compute?projectId=" + projectId
+        + (activityId == null ? "" : "&activityId=" + activityId)
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(null));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+ 
+  }
+
 }

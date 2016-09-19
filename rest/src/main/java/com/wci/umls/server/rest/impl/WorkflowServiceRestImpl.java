@@ -63,7 +63,8 @@ import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
-import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
+import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
+import com.wci.umls.server.jpa.algo.maint.StampingAlgorithm;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
@@ -3453,89 +3454,173 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/stamp")
-  @ApiOperation(value = "Stamp worklist/checklist", notes = "Approve all concepts on worklist/checklist", response = ValidationResultJpa.class)
-  public ValidationResult stamp(
+  @Path("/worklist/{id}/stamp")
+  @ApiOperation(value = "Stamp worklist", notes = "Approve all concepts on worklist", response = ValidationResultJpa.class)
+  public ValidationResult stampWorklist(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Concept id, e.g. 2", required = true) @QueryParam("listId") Long listId,
-    @ApiParam(value = "List type, e.g. Worklist", required = true) @QueryParam("listType") String listType,
+    @ApiParam(value = "Worklist id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
-    @ApiParam(value = "Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "Approve", required = false) @QueryParam("approve") boolean approve,
     @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /stamp "
-        + projectId + "," + listId + " for user " + authToken);
+    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /worklist/" + id +
+        "/stamp," + projectId +  " for user " + authToken);
 
     // Instantiate services
-    ApproveMolecularAction action = new ApproveMolecularAction();
+    StampingAlgorithm algorithm = new StampingAlgorithm();
     try {
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(action, projectId,
-          securityService, authToken, "stamping list", UserRole.AUTHOR);
+      final String userName = authorizeProject(algorithm, projectId,
+          securityService, authToken, "stamping worklist", UserRole.AUTHOR);
 
-      List<Concept> concepts = new ArrayList<>();
-      if (listType.equals("Worklist")) {
-        Worklist worklist = getWorklist(projectId, listId, authToken);
-        List<TrackingRecord> records = worklist.getTrackingRecords();
-        for (TrackingRecord record : records) {
-          concepts.addAll(record.getConcepts());
-        }
+      final Project project = algorithm.getProject(projectId);
+      
+      algorithm.setActivityId(activityId);
+      algorithm.setLastModifiedBy("S-" + userName);
+      algorithm.setProject(project);
+      algorithm.setTerminology(project.getTerminology());
+      algorithm.setVersion(project.getVersion());
+      algorithm.setWorklistId(id);
+      algorithm.setApprove(approve);
+      
+      ValidationResult result = algorithm.checkPreconditions();
+      if (!result.isValid()) {
+        return result;
       }
+ 
+      algorithm.compute(); 
 
-      // Retrieve the project
-      final Project project = action.getProject(projectId);
-      ValidationResult validationResult = new ValidationResultJpa();
-
-      for (Concept concept : concepts) {
-        // Configure the action
-        action = new ApproveMolecularAction();
-        action.setProject(project);
-        action.setActivityId(activityId);
-        action.setConceptId(concept.getId());
-        action.setConceptId2(null);
-        action.setLastModifiedBy("E-" + userName);
-        action.setLastModified(lastModified);
-        action.setOverrideWarnings(overrideWarnings);
-        action.setTransactionPerOperation(false);
-        action.setMolecularActionFlag(true);
-        action.setChangeStatusFlag(true);
-
-        // Perform the action
-        validationResult.merge(
-            action.performMolecularAction(action));
-        
-        // If the action failed, bail out now.
-        if (!validationResult.getErrors().isEmpty()) {
-          return validationResult;
-        }
-
-
-        // Websocket notification - one for the updating of the toConcept, and one
-        // for the deletion of the fromConcept
-        final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
-          IdType.CONCEPT.toString(), action.getConceptPostUpdates().getId(),
-          action.getConceptPostUpdates());
-        sendChangeEvent(event);
-
-      }
-      return validationResult;
-
+      return result;
+      
     } catch (Exception e) {
       try {
-        action.rollback();
+        algorithm.rollback();
       } catch (Exception e2) {
         // do nothing
       }
-      handleException(e, "stamping list");
+      handleException(e, "stamping worklist");
       return null;
     } finally {
-      action.close();
+      algorithm.close();
       securityService.close();
     }
 
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/checklist/{id}/stamp")
+  @ApiOperation(value = "Stamp checklist", notes = "Approve all concepts on checklist", response = ValidationResultJpa.class)
+  public ValidationResult stampChecklist(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Checklist id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
+    @ApiParam(value = "Approve", required = false) @QueryParam("approve") boolean approve,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /checklist/" + id +
+        "/stamp," + projectId +  " for user " + authToken);
+
+    // Instantiate services
+    StampingAlgorithm algorithm = new StampingAlgorithm();
+    try {
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(algorithm, projectId,
+          securityService, authToken, "stamping checklist", UserRole.AUTHOR);
+
+      final Project project = algorithm.getProject(projectId);
+      
+      algorithm.setActivityId(activityId);
+      algorithm.setLastModifiedBy("S-" + userName);
+      algorithm.setProject(project);
+      algorithm.setTerminology(project.getTerminology());
+      algorithm.setVersion(project.getVersion());
+      algorithm.setChecklistId(id);
+      algorithm.setApprove(approve);
+      
+      ValidationResult result = algorithm.checkPreconditions();
+      if (!result.isValid()) {
+        return result;
+      }
+ 
+      algorithm.compute(); 
+
+      return result;
+      
+    } catch (Exception e) {
+      try {
+        algorithm.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
+      handleException(e, "stamping checklist");
+      return null;
+    } finally {
+      algorithm.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/status/compute")
+  @ApiOperation(value = "Recompute concept status", notes = "Recompute concept status", response = ValidationResultJpa.class)
+  public ValidationResult recomputeConceptStatus(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /status/recompute/"
+         + projectId +  " for user " + authToken);
+
+    // Instantiate services
+    MatrixInitializerAlgorithm algorithm = new MatrixInitializerAlgorithm();
+    try {
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(algorithm, projectId,
+          securityService, authToken, "recompute concept status", UserRole.AUTHOR);
+
+      final Project project = algorithm.getProject(projectId);
+      
+      algorithm.setActivityId(activityId);
+      algorithm.setLastModifiedBy(userName);
+      algorithm.setProject(project);
+      algorithm.setTerminology(project.getTerminology());
+      algorithm.setVersion(project.getVersion());
+      
+      ValidationResult result = algorithm.checkPreconditions();
+      if (!result.isValid()) {
+        return result;
+      }
+ 
+      algorithm.compute(); 
+
+      return result;
+      
+    } catch (Exception e) {
+      try {
+        algorithm.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
+      handleException(e, "recompute concept status");
+      return null;
+    } finally {
+      algorithm.close();
+      securityService.close();
+    }
+
+  }
 }

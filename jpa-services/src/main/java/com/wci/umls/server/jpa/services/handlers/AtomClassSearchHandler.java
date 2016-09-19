@@ -272,7 +272,6 @@ public class AtomClassSearchHandler implements SearchHandler {
         fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
             fieldedQuery.toString(), pfs, manager);
       } catch (ParseException | LocalException | IllegalArgumentException e) {
-        e.printStackTrace();
         fullTextQuery = null;
       }
     }
@@ -288,7 +287,6 @@ public class AtomClassSearchHandler implements SearchHandler {
 
       // If there's a parse exception, try the literal query
       catch (ParseException | LocalException | IllegalArgumentException e) {
-        e.printStackTrace();
         fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
             escapedQuery + terminologyClause, pfs, manager);
       }
