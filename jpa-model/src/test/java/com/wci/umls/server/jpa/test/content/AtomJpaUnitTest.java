@@ -257,6 +257,7 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     tester.include("publishable");
     tester.include("terminologyId");
     tester.include("terminology");
+    tester.include("lowerNameHash");
     tester.include("version");
     tester.include("nameSort");
     tester.include("nameNorm");

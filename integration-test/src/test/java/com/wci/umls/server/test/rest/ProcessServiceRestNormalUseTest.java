@@ -957,6 +957,41 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     securityService.logout(authToken);
   }
 
+  /**
+   * Test remove process execution.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testRemoveProcessExecution() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Get the pre-defined test process
+    ProcessConfig processConfig =
+        processService.findProcessConfigs(project.getId(),
+            "name:\"Test Process\"", null, authToken).getObjects().get(0);
+    assertNotNull(processConfig);
+
+    // Execute the process
+    Long processExecutionId = processService.executeProcess(project.getId(),
+        processConfig.getId(), false, authToken);
+
+
+    // Make sure the processExecution was created
+    ProcessExecution processExecution = processService
+        .getProcessExecution(project.getId(), processExecutionId, authToken);
+    assertNotNull(processExecution);
+    
+        
+    // Remove the processExecution, and its algorithm Executions
+    processService.removeProcessExecution(project.getId(), processExecutionId, true, authToken);
+    
+    //Confirm removal
+    assertNull(processService
+        .getProcessExecution(project.getId(), processExecutionId, authToken));
+
+  }  
+  
   // /**
   // * Teardown.
   // *

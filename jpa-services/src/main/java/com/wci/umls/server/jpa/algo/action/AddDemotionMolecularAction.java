@@ -84,12 +84,16 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     demotionRelationship.setFrom(atom1);
     demotionRelationship.setTo(atom2);
     demotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    demotionRelationship.setRelationshipType("RQ");
+    demotionRelationship.setAdditionalRelationshipType("");
 
     // construct inverse relationship
     AtomRelationship inverseDemotionRelationship = new AtomRelationshipJpa();
     inverseDemotionRelationship.setFrom(atom2);
     inverseDemotionRelationship.setTo(atom1);
     inverseDemotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    inverseDemotionRelationship.setRelationshipType("RQ");
+    inverseDemotionRelationship.setAdditionalRelationshipType("");
 
     // Add the demotions
     demotionRelationship =
