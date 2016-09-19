@@ -255,6 +255,28 @@ public interface ProcessService extends ProjectService {
   public void updateAlgorithmParameter(AlgorithmParameter algorithmParameter)
     throws Exception;
 
+  /**
+   * Returns the algorithm log.
+   *
+   * @param projectId the project id
+   * @param algorithmExecutionId the algorithm execution id
+   * @return the algorithm log
+   * @throws Exception the exception
+   */
+  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId)
+    throws Exception;
+
+  /**
+   * Returns the process log.
+   *
+   * @param projectId the project id
+   * @param processExecutionId the process execution id
+   * @return the process log
+   * @throws Exception the exception
+   */
+  public String getProcessLog(Long projectId, Long processExecutionId)
+    throws Exception;
+
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
   // add/remove/update/get/find process executions

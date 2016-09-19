@@ -61,10 +61,13 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
     try {
 
-      // Get all concepts where any of its atoms are set to NEEDS REVIEW
+      // Get all concepts where any of its atoms are set to NEEDS REVIEW or
+      // DEMOTION
       SearchResultList searchResult =
           this.findConcepts(getTerminology(), getVersion(), Branch.ROOT,
-              "atoms.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW, null);
+              "(atoms.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW
+                  + " OR atoms.workflowStatus:" + WorkflowStatus.DEMOTION + ")",
+              null);
       Set<Long> atomConceptIds = searchResult.getObjects().stream()
           .map(SearchResult::getId).collect(Collectors.toSet());
 

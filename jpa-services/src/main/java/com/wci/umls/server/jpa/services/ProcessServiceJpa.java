@@ -20,6 +20,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
@@ -28,6 +29,7 @@ import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
 import com.wci.umls.server.jpa.helpers.ProcessExecutionListJpa;
 import com.wci.umls.server.services.ProcessService;
@@ -382,7 +384,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     // Add algorithmConfig
     return addHasLastModified(algorithmConfig);
   }
-
+  
   /* see superclass */
   @Override
   public void removeAlgorithmConfig(Long id) throws Exception {
@@ -571,6 +573,87 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     algorithmExecution.getProperties().size();
     algorithmExecution.getProject().getId();
     algorithmExecution.getProcess().getId();
+  }
+
+  /* see superclass */
+  @Override
+  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId)
+    throws Exception {
+    final PfsParameter pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setAscending(false);
+    pfs.setSortField("lastModified");
+
+    // Load the processExecution, to get the activityId
+    AlgorithmExecution algorithmExecution =
+        getAlgorithmExecution(algorithmExecutionId);
+    String activityId = algorithmExecution.getActivityId();
+
+    final List<String> clauses = new ArrayList<>();
+    clauses.add("projectId:" + projectId);
+
+    if (!ConfigUtility.isEmpty(activityId)) {
+      clauses.add(activityId);
+    }
+    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+    final List<LogEntry> entries =
+        findLogEntries(fullQuery, pfs);
+
+    final StringBuilder log = new StringBuilder();
+    for (int i = entries.size() - 1; i >= 0; i--) {
+      final LogEntry entry = entries.get(i);
+      final StringBuilder message = new StringBuilder();
+      message.append("[")
+          .append(ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
+      message.append("] ");
+      message.append(entry.getLastModifiedBy()).append(" ");
+      message.append(entry.getMessage()).append("\n");
+      log.append(message);
+    }
+
+    return log.toString();
+  }
+
+  /* see superclass */
+  @Override
+  public String getProcessLog(Long projectId, Long processExecutionId)
+    throws Exception {
+    
+    final PfsParameter pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setAscending(false);
+    pfs.setSortField("lastModified");
+
+    // Load the processExecution, to get the workId
+    ProcessExecution processExecution =
+        getProcessExecution(processExecutionId);
+    String workId = processExecution.getWorkId();
+
+    final List<String> clauses = new ArrayList<>();
+
+    clauses.add("projectId:" + projectId);
+    if (!ConfigUtility.isEmpty(workId)) {
+      clauses.add(workId);
+    }
+    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+    final List<LogEntry> entries =
+        findLogEntries(fullQuery, pfs);
+
+    final StringBuilder log = new StringBuilder();
+    for (int i = entries.size() - 1; i >= 0; i--) {
+      final LogEntry entry = entries.get(i);
+      final StringBuilder message = new StringBuilder();
+      message.append("[")
+          .append(ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
+      message.append("] ");
+      message.append(entry.getLastModifiedBy()).append(" ");
+      message.append(entry.getMessage()).append("\n");
+      log.append(message);
+    }
+
+    return log.toString();
   }  
   
 }
