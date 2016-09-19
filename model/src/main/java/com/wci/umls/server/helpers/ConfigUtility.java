@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -92,6 +92,10 @@ public class ConfigUtility {
   /** The Constant DATE_FORMAT4. */
   public final static FastDateFormat DATE_FORMAT4 =
       FastDateFormat.getInstance("yyyy-MM-dd hh:mm:ss");
+
+  /**  The Constant DATE_FORMAT5. */
+  public final static FastDateFormat DATE_FORMAT5 =
+      FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
   /** The Constant PUNCTUATION. */
   public final static String PUNCTUATION =

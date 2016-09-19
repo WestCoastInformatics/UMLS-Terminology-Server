@@ -26,16 +26,15 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
-import com.wci.umls.server.services.ContentService;
 
 /**
  * Abstract {@link MolecularActionAlgorithm}.
@@ -353,11 +352,8 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
 
-    // instantiate required services
-    final ContentService contentService = new ContentServiceJpa();
-
     RelationshipList relList =
-        contentService.getInverseRelationships(relationship);
+        getInverseRelationships(relationship);
 
     // If there's only one inverse relationship returned, that's the one we
     // want.
@@ -383,6 +379,30 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         }
       }
 
+    }
+
+    return null;
+  }
+
+
+  /**
+   * Find rel to concept containing atom.
+   *
+   * @param fromConcept the from concept
+   * @param toAtom the to atom
+   * @return the concept relationship
+   * @throws Exception the exception
+   */
+  public ConceptRelationship findRelToConceptContainingAtom (Concept fromConcept, Atom toAtom)
+    throws Exception {
+   
+    for (ConceptRelationship rel : fromConcept.getRelationships()) {
+      Concept toConcept = rel.getTo();
+      for(Atom atom : toConcept.getAtoms()){
+        if(atom.getId().equals(toAtom.getId())){
+          return rel;
+        }
+      }
     }
 
     return null;
