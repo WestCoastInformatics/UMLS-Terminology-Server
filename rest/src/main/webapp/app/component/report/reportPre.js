@@ -20,9 +20,14 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
         }
       });
 
+      // Trusted report
+      $scope.getTrustedReport = function(report) {
+        return $sce.trustAsHtml(report);
+      };
+      
       // Get the report
       $scope.getReport = function(component) {
-        reportService.getComponentReport(component).then(
+        reportService.getComponentReport($scope.selected.project.id, component).then(
         // Success
         function(data) {
           $scope.report = data;

@@ -19,4 +19,5 @@
 </h3>
 
 <!-- See tsApp.css for preformatted style -->
-<div class="preformatted" ng-show="selected.component">{{getX()}}</div>
+<!-- <div class="preformatted" ng-show="selected.component">{{report}}</div> -->
+<div class="preformatted" ng-show="selected.component" ng-bind-html="getTrustedReport(report)"></div>

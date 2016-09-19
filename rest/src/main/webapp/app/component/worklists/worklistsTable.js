@@ -402,6 +402,15 @@ tsApp
                 }
               };
 
+              // stamp - approve entire worklist
+              $scope.stamp = function(worklist) {
+                console.debug("stamp:" + worklist);
+                workflowService.stamp($scope.selected.project.id, worklist, $scope.type, true).then(
+                  function() {
+                    
+                  });
+              }
+              
               // Performs a workflow action
               $scope.performWorkflowAction = function(worklist, action, userName) {
 
